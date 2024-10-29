@@ -1,0 +1,6 @@
+ARG dockerRepository
+ARG baseVersion
+FROM ${dockerRepository}/galasa-dev/base-image:${baseVersion}
+
+COPY repo/ /usr/local/apache2/htdocs/
+COPY wrapping.githash /usr/local/apache2/htdocs/wrapping.githash

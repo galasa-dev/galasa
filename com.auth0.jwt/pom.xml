@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>dev.galasa</groupId>
+		<artifactId>dev.galasa.wrapping.parent</artifactId>
+		<version>0.38.0</version>
+	</parent>
+
+	<artifactId>com.auth0.jwt</artifactId>
+	<version>4.4.1</version>
+	<packaging>bundle</packaging>
+
+	<name>Galasa wrapped version of auth0 JWT</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.16.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.16.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.16.0</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<supportedProjectTypes>bundle</supportedProjectTypes>
+					<instructions>
+						<Bundle-SymbolicName>com.auth0.jwt</Bundle-SymbolicName>
+						<Embed-Dependency>*;scope=compile</Embed-Dependency>
+						<Export-Package>com.auth0.jwt,
+							com.auth0.jwt.JWT,
+							com.auth0.jwt.algorithms,
+							com.auth0.jwt.exceptions,
+							com.auth0.jwt.interfaces
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>

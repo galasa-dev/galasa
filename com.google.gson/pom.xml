@@ -1,0 +1,54 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>dev.galasa</groupId>
+		<artifactId>dev.galasa.wrapping.parent</artifactId>
+		<version>0.38.0</version>
+	</parent>
+
+	<artifactId>gson</artifactId>
+	<version>2.10.1</version>
+	<packaging>bundle</packaging>
+
+	<name>galasa wrapped version of GSON</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.10.1</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<supportedProjectTypes>bundle</supportedProjectTypes>
+					<instructions>
+						<Bundle-SymbolicName>com.google.code.gson</Bundle-SymbolicName>
+						<Embed-Dependency>*;scope=compile</Embed-Dependency>
+						<Export-Package>com.google.gson.JsonArray,
+						 				com.google.gson.JsonElement,
+										com.google.gson.JsonObject,
+										com.google.gson.Gson,
+										com.google.gson.JsonParser,
+										com.google.gson.JsonSyntaxExtension,
+										com.google.gson.reflect,
+										com.google.gson.stream,
+										com.google.gson.GsonBuilder
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>

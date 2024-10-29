@@ -1,0 +1,212 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Main build
+
+on:
+  workflow_dispatch:
+    inputs:
+      jacocoEnabled:
+        description: 'Enable Jacoco code coverage (set to "false" for release builds)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      isMainOrRelease:
+        description: 'This build is for the main branch or a release (set to "false" for development branch builds)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: galasa-dev
+  BRANCH: ${{ github.ref_name }}
+
+jobs:
+  log-github-ref:
+    name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Log GitHub ref of workflow
+        run: |
+          echo "This workflow is running on GitHub ref ${{ env.BRANCH }}"
+
+  build-wrapping:
+    name: Build Wrapping source code and Docker image for development Maven registry
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      # The githash is added to the development Maven registry to show what commit level it contains
+      - name: Print githash
+        run: |
+          echo $GITHUB_SHA > ./wrapping.githash
+
+      # Copy secrets into files to use in workflow
+      - name: Make secrets directory
+        run: |
+          mkdir /home/runner/work/secrets
+      - name: Copy settings.xml
+        env:
+          MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
+        run: |
+          echo $MAVEN_SETTINGS_XML > /home/runner/work/secrets/settings.xml
+      - name: Copy GPG passphrase
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo $GPG_PASSPHRASE > /home/runner/work/secrets/passphrase.file
+      - name: Copy GPG key
+        env:
+          GPG_KEY_BASE64: ${{ secrets.GPG_KEY }}
+        run: |
+          echo $GPG_KEY_BASE64 |  base64 --decode > /home/runner/work/secrets/galasa.gpg
+          
+      # Set up Maven GPG directory
+      - name: Make GPG home directory
+        run: |
+          mkdir /home/runner/work/gpg
+      
+      - name: Change directory permissions
+        run: |
+          chmod '700' /home/runner/work/gpg
+
+      - name: Import GPG
+        run: |
+          gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
+      
+      - name: Copy custom settings.xml
+        run: |
+          cp /home/runner/work/secrets/settings.xml /home/runner/work/gpg/settings.xml
+
+      # Make directory to deploy Maven artefacts to in the build
+      - name: Make artefacts directory
+        run: |
+          mkdir ${{ github.workspace }}/repo
+
+      - name: Build Wrapping source code
+        if: github.event_name == 'push'
+        run : |
+          set -o pipefail
+          mvn deploy -X \
+          -Dgalasa.source.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/repo \
+          -Dgalasa.jacocoEnabled=true \
+          -Dgalasa.isRelease=true \
+          --batch-mode --errors --fail-at-end \
+          --settings /home/runner/work/gpg/settings.xml 2>&1 | tee build.log
+
+      - name: Building Wrapping source code
+        if: github.event_name == 'workflow_dispatch' # Use the input values provided by the workflow dispatch.
+        run: |
+          set -o pipefail
+          mvn deploy -X \
+          -Dgalasa.source.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/repo \
+          -Dgalasa.jacocoEnabled=${{ inputs.jacocoEnabled }} \
+          -Dgalasa.isRelease=${{ inputs.isMainOrRelease }} \
+          --batch-mode --errors --fail-at-end \
+          --settings /home/runner/work/gpg/settings.xml 2>&1 | tee build.log
+
+      - name: Upload Maven Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-build-log
+          path: build.log
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: galasa-team
+          password: ${{ secrets.GALASA_TEAM_WRITE_PACKAGES_TOKEN }}
+
+      - name: Extract metadata for Wrapping image
+        id: metadata
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/wrapping-maven-artefacts
+
+      # A Docker image containing the built Maven artefacts is deployed to the dev Maven registry
+      - name: Build Wrapping image for development Maven registry
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dockerfiles/dockerfile.wrapping
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            dockerRepository=ghcr.io
+            baseVersion=latest
+
+      # Recycle the development Maven registry app in ArgoCD
+      # Authenticate using a token passed in as an environment variable
+      - name: Recycle application in ArgoCD
+        env: 
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app actions run ${{ env.BRANCH }}-maven-repos restart --kind Deployment --resource-name wrapping-${{ env.BRANCH }} --server argocd.galasa.dev
+
+      # Wait for the application to show as healthy in ArgoCD
+      - name: Wait for app health in ArgoCD
+        env: 
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.BRANCH }}-maven-repos --resource apps:Deployment:wrapping-${{ env.BRANCH }} --health --server argocd.galasa.dev
+
+  trigger-gradle-workflow:
+    name: Trigger Gradle workflow
+    runs-on: ubuntu-latest
+    needs: build-wrapping 
+
+    steps:
+      - name: Trigger Gradle workflow dispatch event with GitHub CLI
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/gradle
+
+      - name: Trigger Gradle workflow dispatch event with GitHub CLI
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/gradle --ref ${{ env.BRANCH }} -f jacocoEnabled=${{ inputs.jacocoEnabled }} -f isMainOrRelease=${{ inputs.isMainOrRelease }}
+
+  report-failure:
+    name: Report failure in workflow
+    runs-on: ubuntu-latest
+    needs: [log-github-ref, build-wrapping, trigger-gradle-workflow]
+    if: failure()
+
+    steps:
+      - name: Report failure in workflow to Slack
+        env: 
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run : |
+          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/galasabld-ibm:main slackpost workflows --repo "wrapping" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" --ref "${{ env.BRANCH }}" --hook "${{ env.SLACK_WEBHOOK }}"

@@ -1,0 +1,74 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>dev.galasa</groupId>
+		<artifactId>dev.galasa.wrapping.parent</artifactId>
+		<version>0.38.0</version>
+	</parent>
+
+	<artifactId>kafka.clients</artifactId>
+	<version>3.7.0</version>
+	<packaging>bundle</packaging>
+
+	<name>Galasa wrapped version of the kafka-client package</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>3.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-server-common</artifactId>
+			<version>3.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.30</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<supportedProjectTypes>bundle</supportedProjectTypes>
+					<instructions>
+						<Bundle-SymbolicName>kafka.clients</Bundle-SymbolicName>
+						<Embed-Dependency>*;scope=compile</Embed-Dependency>
+						<Import-Package>
+						    org.ietf.jgss,
+							org.slf4j,
+							javax.management,
+							javax.net.ssl,
+							javax.security.*
+						</Import-Package>
+						<Export-Package>
+							org.apache.kafka.clients,
+							org.apache.kafka.clients.admin,
+							org.apache.kafka.clients.consumer,
+							org.apache.kafka.clients.producer,
+							org.apache.kafka.common,
+							org.apache.kafka.common.metrics,
+							org.apache.kafka.common.security.plain,
+							org.apache.kafka.common.serialization,
+							org.apache.kafka.server,
+							org.apache.kafka.shaded,
+							common.message
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>

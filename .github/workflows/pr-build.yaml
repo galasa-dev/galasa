@@ -1,0 +1,106 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: PR build
+
+on:
+  pull_request:
+      branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: galasa-dev
+
+jobs:
+  build-wrapping:
+    name: Build Wrapping source code and Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      # The githash is added to the development Maven registry to show what commit level it contains
+      - name: Print githash
+        run: |
+          echo $GITHUB_SHA > ./wrapping.githash
+
+      # Copy secrets into files to use in workflow
+      - name: Make secrets directory
+        run : |
+          mkdir /home/runner/work/secrets
+      - name: Copy settings.xml
+        env:
+          MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
+        run : |
+          echo $MAVEN_SETTINGS_XML > /home/runner/work/secrets/settings.xml
+      - name: Copy GPG passphrase
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run : |
+          echo $GPG_PASSPHRASE > /home/runner/work/secrets/passphrase.file
+      - name: Copy GPG key
+        env:
+          GPG_KEY_BASE64: ${{ secrets.GPG_KEY }}
+        run : |
+          echo $GPG_KEY_BASE64 |  base64 --decode > /home/runner/work/secrets/galasa.gpg
+          
+      # Set up Maven GPG directory
+      - name: Make GPG home directory
+        run: |
+          mkdir /home/runner/work/gpg
+      
+      - name: Change directory permissions
+        run: |
+          chmod '700' /home/runner/work/gpg
+
+      - name: Import GPG
+        run: |
+          gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
+      
+      - name: Copy custom settings.xml
+        run: |
+          cp /home/runner/work/secrets/settings.xml /home/runner/work/gpg/settings.xml
+
+      # Make directory to deploy Maven artefacts to in the build
+      - name: Make artefacts directory
+        run : |
+          mkdir ${{ github.workspace }}/repo
+      
+      - name: Building Wrapping source code
+        run: |
+          mvn deploy -X \
+          -Dgpg.skip=true \
+          -Dgalasa.source.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/repo \
+          --batch-mode --errors --fail-at-end \
+          --settings /home/runner/work/gpg/settings.xml 
+      
+      - name: Extract metadata for Wrapping image
+        id: metadata
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/wrapping-maven-artefacts
+
+      # This Docker image will not be used, it's just to test that the Docker build should work
+      - name: Build Wrapping image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dockerfiles/dockerfile.wrapping
+          push: false
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            dockerRepository=ghcr.io
+            baseVersion=latest

@@ -1,0 +1,23 @@
+target/
+.settings/
+.project
+.classpath
+.factorypath
+.apt_generated/
+.apt_generated_tests/
+core.*
+javacore.*
+jitdump.*
+Snap.*
+.DS_Store
+/*/build.properties
+!/*eclipse*/build.properties
+/*/MANIFEST.MF
+!/*eclipse*/MANIFEST.MF
+bin/
+lib/
+dependency-reduced-pom.xml
+
+# Don't check-in IDE specific files if we can help it.
+.vscode
+temp/
