@@ -71,7 +71,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wrapping
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download gradle artifacts from this workflow
         id: download-gradle
@@ -79,7 +79,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download maven artifacts from this workflow
         id: download-maven
@@ -87,7 +87,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download framework artifacts from this workflow
         id: download-framework
@@ -95,7 +95,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: framework
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       # For any modules that weren't changed in this PR,
       # download artifacts from the last successful workflow.
@@ -105,7 +105,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wrapping
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.wrapping-artifact-id }}
   
@@ -114,7 +114,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.gradle-artifact-id }}
 
@@ -123,7 +123,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.maven-artifact-id }}
 
@@ -132,7 +132,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: framework
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.framework-artifact-id }}
       
@@ -168,5 +168,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: managers
-          path: modules/managers/repo/dev/galasa
+          path: modules/managers/repo
           retention-days: 7

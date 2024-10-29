@@ -92,5 +92,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wrapping
-          path: modules/wrapping/repo/dev/galasa
+          path: modules/wrapping/repo
           retention-days: 7

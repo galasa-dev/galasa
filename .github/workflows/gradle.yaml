@@ -95,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gradle
-          path: modules/gradle/repo/dev/galasa
+          path: modules/gradle/repo
           retention-days: 7
 
   report-failure:
