@@ -1,0 +1,84 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana 
+  template:
+    metadata:
+      labels:
+        app: grafana 
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      initContainers:
+        - name: init-chown-data
+          image: ${dockerRegistry}/busybox:1.32.0
+          imagePullPolicy: IfNotPresent
+          command: ["chown", "472:472", "/var/lib/grafana"]
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/grafana
+            subPath: ""
+      containers:
+        - name: grafana
+          image: ${dockerRegistry}/grafana:7.3.4
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/grafana
+          - name: grafana-config
+            mountPath: /etc/grafana/
+          - name: grafana-provisioning
+            mountPath: /etc/grafana/provisioning/datasources
+          - name: grafana-dashboard
+            mountPath: /etc/grafana/provisioning/dashboards
+          - name: grafana-auto-dashboard
+            mountPath: /etc/grafana/json
+      volumes:
+      - name: grafana-config
+        configMap:
+          defaultMode: 420
+          name: grafana-config
+      - name: grafana-provisioning
+        configMap:
+          defaultMode: 420
+          name: grafana-provisioning
+      - name: grafana-dashboard
+        configMap:
+          defaultMode: 420
+          name: grafana-dashboard
+      - name: grafana-auto-dashboard
+        configMap:
+          defaultMode: 420
+          name: grafana-auto-dashboard
+      - name: data
+        persistentVolumeClaim:
+          claimName: pvc-grafana
+          
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana 
+  labels:
+    app: grafana 
+spec:
+  ports:
+  - port: 9090
+    name: metrics
+    targetPort: 9090
+  selector:
+    app: grafana 

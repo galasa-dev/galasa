@@ -1,0 +1,4 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa ElasticLog Manager
+Import-Package: !javax.validation.constraints, \
+                *

@@ -1,0 +1,8 @@
+-snapshot: ${tstamp}
+Bundle-Name: Manager Common
+Export-Package: dev.galasa.common
+Import-Package: dev.galasa,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.language,
+
+

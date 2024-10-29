@@ -1,0 +1,6 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Java Ubuntu Manager
+Export-Package: dev.galasa.java.ubuntu, \
+                dev.galasa.java.ubuntu.spi
+Import-Package: !javax.validation.constraints,\
+                *

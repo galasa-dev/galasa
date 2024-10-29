@@ -1,0 +1,8 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS 3270 Terminal Manager - Common Packages
+Export-Package: dev.galasa.zos3270.common.screens,\
+    dev.galasa.zos3270.common.screens.json
+Import-Package: javax.validation.constraints;resolution:=optional,\
+    javax.imageio,\
+    dev.galasa.framework.spi
+

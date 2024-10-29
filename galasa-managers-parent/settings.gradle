@@ -1,0 +1,101 @@
+pluginManagement {
+    repositories {
+        maven {
+            url "$sourceMaven"
+        }
+        maven {
+            url "$centralMaven"
+        }
+        gradlePluginPortal()
+    }
+}
+
+
+rootProject.name = 'galasa-managers-parent'
+
+// galasa-managers-common-parent
+include 'galasa-managers-common-parent:dev.galasa.common'
+// galasa-managers-core-parent
+include 'galasa-managers-core-parent:dev.galasa.core.manager'
+include 'galasa-managers-core-parent:dev.galasa.artifact.manager'
+include 'galasa-managers-core-parent:dev.galasa.textscan.manager'
+include 'galasa-managers-core-parent:dev.galasa.core.manager.ivt'
+include 'galasa-managers-core-parent:dev.galasa.artifact.manager.ivt'
+// galasa-manager-database-parent
+include 'galasa-managers-database-parent:dev.galasa.db2.manager'
+include 'galasa-managers-database-parent:dev.galasa.db2.manager.ivt'
+// galasa-managers-comms-parent
+include 'galasa-managers-comms-parent:dev.galasa.ipnetwork.manager'
+include 'galasa-managers-comms-parent:dev.galasa.http.manager'
+include 'galasa-managers-comms-parent:dev.galasa.http.manager.ivt'
+include 'galasa-managers-comms-parent:dev.galasa.mq.manager'
+include 'galasa-managers-comms-parent:dev.galasa.mq.manager.ivt'
+// galasa-managers-logging-parent
+include 'galasa-managers-logging-parent:dev.galasa.elasticlog.manager'
+include 'galasa-managers-logging-parent:dev.galasa.elasticlog.manager.ivt'
+include 'galasa-managers-logging-parent:dev.galasa.phoenix2.manager'
+// galasa-managers-zos-parent
+include 'galasa-managers-zos-parent:dev.galasa.zos.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zos.manager.ivt'
+include 'galasa-managers-zos-parent:dev.galasa.zosmf.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosliberty.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosliberty.angel.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosprogram.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosbatch.zosmf.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosconsole.zosmf.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosfile.zosmf.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosunixcommand.ssh.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zostsocommand.ssh.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosconsole.oeconsol.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zos3270.common'
+include 'galasa-managers-zos-parent:dev.galasa.zos3270.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zos3270.manager.ivt'
+include 'galasa-managers-zos-parent:dev.galasa.zosrseapi.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosbatch.rseapi.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zosfile.rseapi.manager'
+include 'galasa-managers-zos-parent:dev.galasa.zossecurity.manager'
+// galasa-managers-cicsts-parent
+include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.manager'
+include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.manager.ivt'
+include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.ceci.manager'
+include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.cemt.manager'
+include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.ceda.manager'
+include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.resource.manager'
+include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.ceda.manager.ivt'
+include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.cemt.manager.ivt'
+include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.ceci.manager.ivt'
+// galasa-managers-unix-parent
+include 'galasa-managers-unix-parent:dev.galasa.linux.manager'
+include 'galasa-managers-unix-parent:dev.galasa.linux.manager.ivt'
+// galasa-managers-windows-parent
+include 'galasa-managers-windows-parent:dev.galasa.windows.manager'
+// galasa-managers-cloud-parent
+include 'galasa-managers-cloud-parent:dev.galasa.cloud.manager'
+include 'galasa-managers-cloud-parent:dev.galasa.openstack.manager'
+include 'galasa-managers-cloud-parent:dev.galasa.docker.manager'
+include 'galasa-managers-cloud-parent:dev.galasa.docker.manager.ivt'
+include 'galasa-managers-cloud-parent:dev.galasa.kubernetes.manager'
+include 'galasa-managers-cloud-parent:dev.galasa.kubernetes.manager.ivt'
+include 'galasa-managers-cloud-parent:dev.galasa.liberty.manager'
+// galasa-managers-languages-parent
+include 'galasa-managers-languages-parent:dev.galasa.java.manager'
+include 'galasa-managers-languages-parent:dev.galasa.java.ubuntu.manager'
+include 'galasa-managers-languages-parent:dev.galasa.java.windows.manager'
+// galasa-managers-testingtools-parent
+include 'galasa-managers-testingtools-parent:dev.galasa.jmeter.manager'
+include 'galasa-managers-testingtools-parent:dev.galasa.jmeter.manager.ivt'
+include 'galasa-managers-testingtools-parent:dev.galasa.sdv.manager'
+include 'galasa-managers-testingtools-parent:dev.galasa.sdv.manager.ivt'
+include 'galasa-managers-testingtools-parent:dev.galasa.selenium.manager'
+include 'galasa-managers-testingtools-parent:dev.galasa.selenium.manager.ivt'
+include 'galasa-managers-testingtools-parent:dev.galasa.vtp.manager'
+include 'galasa-managers-testingtools-parent:dev.galasa.vtp.manager.ivt'
+// galasa-managers-other-parent
+include 'galasa-managers-other-parent:dev.galasa.galasaecosystem.manager'
+include 'galasa-managers-other-parent:dev.galasa.galasaecosystem.manager.ivt'
+// galasa-managers-ides-parent
+include 'galasa-managers-ides-parent:dev.galasa.eclipseruntime.manager'
+include 'galasa-managers-ides-parent:dev.galasa.eclipseruntime.ubuntu.manager'
+
+// galasa-managers-workflow-parent
+include 'galasa-managers-workflow-parent:dev.galasa.githubissue.manager'

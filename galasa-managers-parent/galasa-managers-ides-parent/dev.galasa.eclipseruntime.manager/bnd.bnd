@@ -1,0 +1,6 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Eclipse Manager
+Export-Package: dev.galasa.eclipseruntime
+Import-Package:
+
+

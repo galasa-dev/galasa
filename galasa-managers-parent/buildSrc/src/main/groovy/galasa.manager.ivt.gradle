@@ -1,0 +1,12 @@
+plugins {
+    id 'galasa.java'
+    id 'biz.aQute.bnd.builder' 
+}
+
+dependencies {
+    implementation 'dev.galasa:dev.galasa:0.34.0'
+    
+    implementation 'commons-logging:commons-logging:1.2'
+    
+    implementation 'org.assertj:assertj-core:3.11.1'
+}

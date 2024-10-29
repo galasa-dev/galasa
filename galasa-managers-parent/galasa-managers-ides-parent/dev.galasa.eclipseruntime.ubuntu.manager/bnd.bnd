@@ -1,0 +1,11 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Eclipse Ubuntu Manager
+Export-Package: dev.galasa.eclipseruntime.ubuntu
+Import-Package: dev.galasa,\
+	dev.galasa.framework,\
+	dev.galasa.framework.spi,\
+	dev.galasa.java,\
+	dev.galasa.eclipseruntime, \
+	dev.galasa.linux.manager
+
+

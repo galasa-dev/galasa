@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>dev.galasa</groupId>
+    <artifactId>install</artifactId>
+    <version>++RUNTIME_VERSION++</version>
+    <packaging>pom</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <artifactItems>
+                        <artifactItem>
+                            <groupId>dev.galasa</groupId>
+                            <artifactId>galasa-boot</artifactId>
+                            <version>++BOOT_VERSION++</version>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>${project.basedir}</outputDirectory>
+                            <destFileName>boot.jar</destFileName>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>dev.galasa</groupId>
+                            <artifactId>galasa-simplatform</artifactId>
+                            <version>++SIMPLATFORM_VERSION++</version>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>${project.basedir}</outputDirectory>
+                            <destFileName>simplatform.jar</destFileName>
+                        </artifactItem>
+                    </artifactItems>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <overWriteReleases>true</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

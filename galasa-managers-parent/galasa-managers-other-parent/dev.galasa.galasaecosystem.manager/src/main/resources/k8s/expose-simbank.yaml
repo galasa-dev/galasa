@@ -1,0 +1,68 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: simbank-telnet-external
+spec:
+  type: NodePort
+  ports:
+  - name: telnet
+    port: 2023
+    protocol: TCP
+    targetPort: 2023
+  selector:
+    app: simbank
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: simbank-webservice-external
+spec:
+  type: NodePort
+  ports:
+  - name: webservice
+    port: 2080
+    protocol: TCP
+    targetPort: 2080
+  selector:
+    app: simbank
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: simbank-database-external
+spec:
+  type: NodePort
+  ports:
+  - name: webservice
+    port: 2027
+    protocol: TCP
+    targetPort: 2027
+  selector:
+    app: simbank
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: simbank-mf-external
+spec:
+  type: NodePort
+  ports:
+  - name: mf
+    port: 2040
+    protocol: TCP
+    targetPort: 2040
+  selector:
+    app: simbank
+    

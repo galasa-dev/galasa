@@ -1,0 +1,67 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Selenium Manager
+Export-Package: dev.galasa.selenium,\
+    dev.galasa.selenium.spi,\
+    org.openqa.selenium,\
+    org.openqa.selenium.interactions,\
+    org.openqa.selenium.chrome,\
+    org.openqa.selenium.edge,\
+    org.openqa.selenium.firefox,\
+    org.openqa.selenium.ie,\
+    org.openqa.selenium.opera,\
+    org.openqa.selenium.safari,\
+    org.openqa.selenium.remote,\
+    org.openqa.selenium.io,\
+    org.openqa.selenium.json,\
+    org.openqa.selenium.net,\
+    org.openqa.selenium.os,\
+    org.openqa.selenium.support.ui
+Import-Package: dev.galasa,\
+    dev.galasa.framework,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.cps,\
+    dev.galasa.framework.spi.language,\
+    dev.galasa.http,\
+    dev.galasa.http.spi,\
+	dev.galasa.docker,\
+	dev.galasa.docker.spi,\
+	dev.galasa.kubernetes,\
+	dev.galasa.kubernetes.spi,\
+	dev.galasa.artifact,\
+    dev.galasa.selenium,\
+    dev.galasa.selenium.spi,\
+    javax.net,\
+    javax.net.ssl,\
+    org.apache.commons.logging,\
+    org.openqa.selenium,\
+    org.openqa.selenium.interactions,\
+    org.openqa.selenium.firefox,\
+    org.openqa.selenium.ie,\
+    org.openqa.selenium.remote,\
+    org.openqa.selenium.io,\
+    org.openqa.selenium.json,\
+    org.openqa.selenium.net,\
+    org.openqa.selenium.os,\
+    org.openqa.selenium.support.ui
+Embed-Transitive: true
+Embed-Dependency: *;scope=compile
+-includeresource: byte-buddy-1.8.15.jar; lib:=true,\
+    commons-exec-1.3.jar; lib:=true,\
+    error_prone_annotations-2.5.1.jar; lib:=true,\
+    guava-30.1.1-jre.jar; lib:=true,\
+    j2objc-annotations-1.3.jar; lib:=true,\
+    jsr305-3.0.2.jar; lib:=true,\
+    okhttp-4.10.0.jar; lib:=true,\
+    okio-jvm-3.0.0.jar; lib:=true,\
+    kotlin-osgi-bundle-1.7.22.jar; lib:=true,\
+    selenium-api-3.141.59.jar; lib:=true,\
+    selenium-chrome-driver-3.141.59.jar; lib:=true,\
+    selenium-edge-driver-3.141.59.jar; lib:=true,\
+    selenium-firefox-driver-3.141.59.jar; lib:=true,\
+    selenium-ie-driver-3.141.59.jar; lib:=true,\
+    selenium-java-3.141.59.jar; lib:=true,\
+    selenium-opera-driver-3.141.59.jar; lib:=true,\
+    selenium-remote-driver-3.141.59.jar; lib:=true,\
+    selenium-safari-driver-3.141.59.jar; lib:=true,\
+    selenium-support-3.141.59.jar; lib:=true
+-fixupmessages: Classes found in the wrong directory: ...;is:=ignore

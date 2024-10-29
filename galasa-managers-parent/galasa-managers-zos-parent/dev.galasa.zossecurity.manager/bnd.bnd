@@ -1,0 +1,9 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS Security Manager
+Export-Package: \
+	dev.galasa.zossecurity,\
+	dev.galasa.zossecurity.spi,\
+	dev.galasa.zossecurity,\
+	dev.galasa.zossecurity.datatypes
+Import-Package: javax.validation.constraints;resolution:=optional, \
+    *

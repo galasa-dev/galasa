@@ -1,0 +1,62 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: galasa-admin
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - containers
+  - services
+  - configmaps
+  - persistentvolumeclaims
+  - secrets
+  - "pods/log"
+  - "pods/exec"
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - extensions
+  - apps
+  - networking.k8s.io
+  resources:
+  - deployments
+  - statefulsets
+  - replicasets
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: galasa-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: galasa-admin
+subjects:
+- kind: ServiceAccount
+  name: default
+- kind: ServiceAccount
+  name: galasa
+  namespace: galasa1

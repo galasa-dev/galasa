@@ -1,0 +1,37 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# The configuration properties for the Galasa Ecosystem
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+#
+#
+# The URI to the Bootstrap properties
+  bootstrap: "http://api:8080/bootstrap"
+#
+#
+# The maximum running number of automation engines the Engine Controller will start
+  max_engines: "10"
+#
+# The label for the engine pods and the prefix of the engine names
+  engine_label: "k8s-standard-engine"
+#
+  engine_image: "${dockerRegistry}/galasa-boot-embedded-amd64:${dockerVersion}"
+  node_arch: "amd64"
+#  node_arch: ""
+#  node_preferred_affinity: "beta.kubernetes.io/arch=s390x"
+#  node_preferred_affinity: ""
+#  scheduled_requestors: ""
+#  engine_capabilities: ""
+#  engine_memory: "200"
+#  engine_memory_request: "300"
+#  engine_memory_limit: "300"
+#  run_poll: "20"
+#  run_poll_recheck: "5"

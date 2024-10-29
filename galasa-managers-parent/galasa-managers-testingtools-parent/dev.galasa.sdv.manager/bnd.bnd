@@ -1,0 +1,7 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa SDV Manager
+Export-Package: dev.galasa.sdv
+Import-Package: !javax.validation.constraints,\
+                *
+
+

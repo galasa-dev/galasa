@@ -1,0 +1,9 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Kubernetes Manager IVTs
+Export-Package: dev.galasa.kubernetes.manager.ivt
+Import-Package: dev.galasa,\
+    dev.galasa.artifact,\
+    dev.galasa.core.manager,\
+    dev.galasa.kubernetes,\
+    org.apache.commons.logging,\
+    org.assertj.core.api

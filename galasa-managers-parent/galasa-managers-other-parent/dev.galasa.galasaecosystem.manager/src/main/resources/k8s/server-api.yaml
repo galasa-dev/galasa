@@ -1,0 +1,107 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      name: api
+      labels:
+        app: api
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      initContainers:
+      - name: init-chown-data
+        image: ${dockerRegistry}/busybox:1.32.0
+        imagePullPolicy: IfNotPresent
+        command: ["chown", "-R", "1000", "/data"]
+        volumeMounts:
+        - name: data
+          mountPath: /data
+          subPath: ""
+      containers:
+      - name: resource-monitor
+        image: ${dockerRegistry}/galasa-boot-embedded-amd64:${dockerVersion}
+        imagePullPolicy: Always
+        command: ["java"]
+        args: 
+        - -jar
+        - boot.jar
+        - --obr
+        - file:galasa.obr
+        - --trace
+        - --api
+        - --bootstrap
+        - file:/bootstrap.properties
+        ports:
+        - containerPort: 9010
+          name: metrics
+        - containerPort: 9011
+          name: health
+        - containerPort: 8080
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 60
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 1
+        volumeMounts:
+        - name: bootstrap
+          mountPath: /bootstrap.properties
+          subPath: bootstrap.properties
+        - name: testcatalog
+          mountPath: /galasa/load/dev.galasa.testcatalog.cfg
+          subPath: dev.galasa.testcatalog.cfg
+        - name: data
+          mountPath: /galasa/testcatalog         
+      volumes:
+      - name: bootstrap
+        configMap:
+          name: bootstrap-file
+      - name: testcatalog
+        configMap:
+          name: testcatalog-file
+      - name: data
+        persistentVolumeClaim:
+          claimName: pvc-api
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  labels:
+    app: api
+spec:
+  ports:
+  - port: 8080
+    name: http
+    targetPort: 8080
+  - port: 9010
+    name: metrics
+    targetPort: 9010
+  - port: 9011
+    name: health
+    targetPort: 9011
+  selector:
+    app: api

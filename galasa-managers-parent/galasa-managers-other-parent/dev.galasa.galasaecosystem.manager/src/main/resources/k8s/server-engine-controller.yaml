@@ -1,0 +1,79 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: engine-controller
+  labels:
+    app: engine-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: engine-controller
+  template:
+    metadata:
+      name: engine-controller
+      labels:
+        app: engine-controller
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+      - name: engine-controller
+        image: ${dockerRegistry}/galasa-boot-embedded-amd64:${dockerVersion}
+        imagePullPolicy: Always
+        command: ["java"]
+        args: 
+        - -jar
+        - boot.jar
+        - --obr
+        - file:galasa.obr
+        - --trace
+        - --k8scontroller
+        - --bootstrap
+        - $(BOOTSTRAP_URI)
+        - --trace
+        env:
+        - name: BOOTSTRAP_URI
+          valueFrom:
+            configMapKeyRef:
+              name: config
+              key: bootstrap
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+        - containerPort: 9010
+          name: metrics
+        - containerPort: 9011
+          name: health
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9011
+          initialDelaySeconds: 60
+          periodSeconds: 60
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: engine-controller
+  labels:
+    app: engine-controller
+spec:
+  ports:
+  - port: 9010
+    name: metrics
+    targetPort: 9010
+  - port: 9011
+    name: health
+    targetPort: 9011
+  selector:
+    app: engine-controller

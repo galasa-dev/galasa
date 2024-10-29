@@ -1,0 +1,74 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics
+  labels:
+    app: metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics
+  template:
+    metadata:
+      name: metrics
+      labels:
+        app: metrics
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+      - name: metrics
+        image: ${dockerRegistry}/galasa-boot-embedded-amd64:${dockerVersion}
+        imagePullPolicy: Always
+        command: ["java"]
+        args: 
+        - -jar
+        - boot.jar
+        - --obr
+        - file:galasa.obr
+        - --metricserver
+        - --bootstrap
+        - $(BOOTSTRAP_URI)
+        - --trace
+        env:
+        - name: BOOTSTRAP_URI
+          valueFrom:
+            configMapKeyRef:
+              name: config
+              key: bootstrap
+        ports:
+        - containerPort: 9010
+          name: metrics
+        - containerPort: 9011
+          name: health
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9011
+          initialDelaySeconds: 60
+          periodSeconds: 60
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics
+  labels:
+    app: metrics
+spec:
+  ports:
+  - port: 9010
+    name: metrics
+    targetPort: 9010
+  - port: 9011
+    name: health
+    targetPort: 9011
+  selector:
+    app: metrics

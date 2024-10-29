@@ -1,0 +1,15 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS TSO Command Manager - ssh Implementation
+Import-Package: dev.galasa,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.cps,\
+    dev.galasa.framework.spi.language,\
+    dev.galasa.zos,\
+    dev.galasa.zos.spi,\
+    dev.galasa.zostsocommand,\
+    dev.galasa.zostsocommand.spi,\
+    dev.galasa.zosunixcommand,\
+    dev.galasa.zosunixcommand.spi,\
+    javax.validation.constraints;resolution:=optional
+
+

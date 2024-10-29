@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Openstack Manager
+Export-Package: dev.galasa.openstack.manager
+Import-Package: !javax.validation.constraints,\
+                *

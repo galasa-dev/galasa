@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa JMeter Manager IVT
+Export-Package: dev.galasa.jmeter.manager.ivt
+Import-Package: !javax.validation.constraints, \
+                *

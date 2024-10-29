@@ -1,0 +1,40 @@
+//*---------------------------------------------------------------------
+//*
+//* ASSEMBLER/++TYPE++ COMPILE/LINK ++PROGRAM++
+//*
+//*---------------------------------------------------------------------
+//CICSTRN EXEC PGM=DFHEAP1$,REGION=0M                        
+//STEPLIB  DD ++TRN.STEPLIB++
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD DATA,DLM='++'
+++SOURCE++
+++
+//SYSPUNCH DD DISP=(MOD,PASS),DSN=&&SYSPUNCH,
+//            UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1),
+//            RECFM=FB,LRECL=80,BLKSIZE=3200
+//*---------------------------------------------------------------------
+//CHECK001 IF RC LE 4 THEN
+//ASM      EXEC PGM=ASMA90,REGION=0M,
+// PARM=++ASM.PARM++
+//SYSLIB   DD ++ASM.SYSLIB++
+//SYSUT1   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)
+//SYSUT2   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)
+//SYSUT3   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD DSN=&&SYSPUNCH,DISP=(OLD,DELETE)
+//SYSLIN   DD DISP=(MOD,PASS),DSN=&&SYSLIN,
+//            UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1),
+//            RECFM=FB,LRECL=80,BLKSIZE=3200
+//CHECK001 ENDIF
+//*---------------------------------------------------------------------
+//CHECK002 IF RC LE 4 THEN
+//LKED     EXEC PGM=IEWL,REGION=0M,
+// PARM=++LKED.PARM++
+//SYSLIB   DD ++LKED.SYSLIB++
+//SYSLIN   DD ++LKED.SYSIN++ 
+//SYSUT1   DD UNIT=SYSALLDA,BLKSIZE=1024,                  
+//            SPACE=(1024,(200,20))
+//SYSPRINT DD SYSOUT=*
+//SYSLMOD  DD DISP=SHR,DSN=++SYSLMOD++(++PROGRAM++)
+//CHECK002 ENDIF
+//

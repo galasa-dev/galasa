@@ -1,0 +1,9 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Selenium Manager IVT
+Export-Package: dev.galasa.selenium.manager.ivt
+Import-Package: dev.galasa,\
+    dev.galasa.core.manager,\
+    dev.galasa.selenium,\
+    org.apache.commons.logging,\
+    org.assertj.core.api,\
+    org.openqa.selenium

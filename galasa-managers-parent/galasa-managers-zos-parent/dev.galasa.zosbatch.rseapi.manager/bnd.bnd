@@ -1,0 +1,15 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS Batch Manager - RSE API Implementation
+Import-Package: com.google.gson,\
+    dev.galasa,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.language,\
+    dev.galasa.zos,\
+    dev.galasa.zos.spi,\
+    dev.galasa.zosbatch,\
+    dev.galasa.zosbatch.spi,\
+    dev.galasa.zosrseapi,\
+    dev.galasa.zosrseapi.spi,\
+    javax.validation.constraints;resolution:=optional,\
+    org.apache.commons.lang3,\
+    org.apache.commons.logging

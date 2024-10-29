@@ -1,0 +1,18 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS Console Manager - oeconsol Implementation
+Export-Package: dev.galasa.zosconsole.oeconsol.manager
+Import-Package: dev.galasa,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.cps,\
+    dev.galasa.framework.spi.language,\
+    dev.galasa.zos,\
+    dev.galasa.zos.spi,\
+    dev.galasa.zosconsole,\
+    dev.galasa.zosconsole.spi,\
+    dev.galasa.zosfile,\
+    dev.galasa.zosunixcommand,\
+    dev.galasa.zosunixcommand.spi,\
+    javax.validation.constraints;resolution:=optional,\
+    org.apache.commons.logging
+
+

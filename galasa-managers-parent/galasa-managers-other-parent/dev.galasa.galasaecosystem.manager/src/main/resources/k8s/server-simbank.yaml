@@ -1,0 +1,43 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simbank
+  labels:
+    app: simbank
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simbank
+  template:
+    metadata:
+      name: simbank
+      labels:
+        app: simbank
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+      - name: simbank
+        image: ${dockerRegistry}/galasa-simplatform-amd64:${simplatformDockerVersion}
+        imagePullPolicy: Always
+        command: ["java"]
+        args: 
+        - -jar
+        - simplatform.jar
+        ports:
+        - containerPort: 2023
+          name: telnet
+        - containerPort: 2080
+          name: webservice
+        - containerPort: 2027
+          name: database
+        - containerPort: 2040
+          name: mf
+          

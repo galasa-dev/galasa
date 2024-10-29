@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+	<localRepository>++MAVEN_LOCAL++</localRepository>
+
+	<servers>
+        <server>
+            <id>galasa.repo</id>
+            <configuration>
+                <httpConfiguration>
+                    <all>
+                        <connectionTimeout>120000</connectionTimeout>
+                        <readTimeout>120000</readTimeout>
+                    </all>
+                </httpConfiguration>
+            </configuration>
+        </server>
+        <server>
+            <id>simbank.repo</id>
+            <configuration>
+                <httpConfiguration>
+                    <all>
+                        <connectionTimeout>120000</connectionTimeout>
+                        <readTimeout>120000</readTimeout>
+                    </all>
+                </httpConfiguration>
+            </configuration>
+        </server>
+        <server>
+            <id>central</id>
+            <configuration>
+                <httpConfiguration>
+                    <all>
+                        <connectionTimeout>120000</connectionTimeout>
+                        <readTimeout>120000</readTimeout>
+                    </all>
+                </httpConfiguration>
+            </configuration>
+        </server>
+	</servers>
+
+	<profiles>
+		<profile>
+			<id>test</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+                <repository>
+                    <id>galasa.repo</id>
+                    <url>++RUNTIME_REPO++</url>
+                </repository>
+                <repository>
+                    <id>simbank.repo</id>
+                    <url>++SIMPLATFORM_REPO++</url>
+                </repository>
+                <repository>
+                    <id>central</id>
+                    <url>++CENTRAL_REPO++</url>
+                </repository>
+			</repositories>
+			<pluginRepositories>
+                <pluginRepository>
+                    <id>galasa.repo</id>
+                    <url>++RUNTIME_REPO++</url>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>central</id>
+                    <url>++CENTRAL_REPO++</url>
+                </pluginRepository>
+			</pluginRepositories>
+		</profile>
+	</profiles>
+
+
+
+</settings>

@@ -1,0 +1,272 @@
+plugins {
+    id 'biz.aQute.bnd.builder' version '5.3.0' apply false
+    id 'jacoco'
+    id 'maven-publish'
+    id 'signing'
+}
+
+// Note: The following version number is updated using the set-version.sh tool.
+// It is used as the version number of the managers bundle, which contains a yaml
+// file which is in a release.yaml, but published to maven, so that the OBR build 
+// can pick it up later.
+version = "0.38.0"
+
+// A configuration to publish the merge exec into
+configurations {
+    archives
+    release_metadata
+}
+
+//  Get all the sub projects with jacoco plugin to add itself to the merge 
+subprojects {
+   plugins.withId('jacoco')  {
+        rootProject.tasks.named('jacocoMerge').get().executionData(tasks.named('test').get())
+   }
+
+    // Uncomment the block below to get details about deprecations.
+
+//    tasks.withType(JavaCompile) {
+//         options.compilerArgs << '-Xlint:unchecked'
+//         options.deprecation = true
+//     }
+     
+    // This task will suppress warnings (only in javadoc) about missing description for (@return, @throws etc..)
+    /*
+        Example warning:
+        
+        warning: no description for @throws
+         * @throws SeleniumManagerException
+    */
+    // However, it will not suppress warnings / errors in the code itself
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+
+}
+
+// Define the artifact
+def mergedReportFile = layout.buildDirectory.file('reports/jacoco/jacocoMerge/jacocoMerge.xml')
+def mergedReportArtifact = artifacts.add('archives', mergedReportFile.get().asFile) {
+    builtBy 'jacocoMerge'
+}
+
+task jacocoMerge(type: JacocoReport) {
+    gradle.projectsEvaluated {
+        // Get the jacocoTestReport tasks in all subprojects
+        def searchRecursively = true
+        def reportTasks = project.getTasksByName('jacocoTestReport', searchRecursively)
+        dependsOn reportTasks
+
+        executionData.setFrom(executionData.filter({ it.exists() }))
+        sourceDirectories.setFrom(reportTasks.sourceDirectories)
+        classDirectories.setFrom(reportTasks.classDirectories)
+    }
+
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url "$sourceMaven"
+    }
+    maven {
+        url "$centralMaven"
+    }
+}
+
+signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications
+}
+
+tasks.withType(Sign) {
+    onlyIf { isMainOrRelease.toBoolean() }
+}
+
+if (jacocoEnabled.toBoolean()) {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact mergedReportArtifact
+                
+                groupId = 'codecoverage'
+                artifactId = 'manager-unit-tests'
+            }
+        }
+        repositories {
+            maven {
+                url  = "$targetMaven"
+                
+                if ("$targetMaven".startsWith('http')) {
+                    credentials {
+                        username System.getenv("GITHUB_ACTOR")
+                        password System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+def manifestFile = layout.buildDirectory.file("release.yaml").get().asFile
+
+def header = """#
+# Copyright contributors to the Galasa project 
+#
+
+# -----------------------------------------------------------
+#
+#                         WARNING
+#
+# This file is periodically re-generated from the contents of 
+# the repository, so don't make changes here manually please.
+# -----------------------------------------------------------
+
+
+apiVersion: galasa.dev/v1alpha
+kind: Release
+metadata:
+  name: galasa-release
+    
+managers:
+  bundles:
+
+#
+# Manager 
+#
+"""
+
+// Build the release.yaml file
+task buildReleaseYaml() {
+    println 'Building the release.yaml file...'
+
+    // During execution phase, make sure the file exists.
+    doFirst{
+        if ( !buildDir.exists() ) {
+            buildDir.mkdirs()
+        }
+        if (!manifestFile.exists()){
+            manifestFile.createNewFile()
+        } else {
+            manifestFile.delete()
+            manifestFile.createNewFile()
+        }
+        manifestFile.append(header)
+    }
+
+
+    subprojects {
+        ext {
+            // the property that should be overridden in suproject's build.gradle
+            // Each sub-project will set the values...
+            projectName = ''
+            includeInOBR = ''
+            includeInMVP = ''
+            includeInBOM = ''
+            includeInJavadoc = ''
+            includeInIsolated = ''
+            includeInCodeCoverage = ''
+        }
+
+        afterEvaluate {
+            doLast {
+                // Some projects don't have a version property... as they are parent projects mostly.
+                if (version != 'unspecified') {
+                    def f = manifestFile
+                    f.append("\n\n  - artifact: $projectName")
+                    f.append("\n    version: $version")
+                    if (includeInOBR != '') {
+                        f.append("\n    obr:          $includeInOBR")
+                    }
+                    if (includeInMVP != '') {
+                        f.append("\n    mvp:          $includeInMVP")
+                    }
+                    if (includeInBOM != '') {
+                        f.append("\n    bom:          $includeInBOM")
+                    }
+                    if (includeInJavadoc != '') {
+                        f.append("\n    javadoc:      $includeInJavadoc")
+                    }
+                    if (includeInIsolated != '') {
+                        f.append("\n    isolated:     $includeInIsolated")
+                    }
+                    if (includeInCodeCoverage != '') {
+                        f.append("\n    codecoverage: $includeInCodeCoverage")
+                    }
+                }
+            }
+        }
+    }
+}
+
+def myReleaseYaml = artifacts.add('release_metadata', manifestFile) {
+    builtBy 'buildReleaseYaml'
+}
+
+// Publish the release.yaml as a maven artifact.
+// Note: The maven co-ordinates are versioned using the version for this bundle.
+publishing {
+    publications {
+
+        // Publish the component manifest/release.yaml
+        publishReleaseManifestYaml(MavenPublication) {
+            artifact myReleaseYaml
+
+            pom {
+                name = "Manifest for managers bundle versions"
+                artifactId = "dev.galasa.managers.manifest"
+                groupId = 'dev.galasa'
+				version = "0.38.0"
+                description = "Conveys bundle version information to OBR builds."
+                licenses {
+                    license {
+                        name = 'Eclipse Public License - v 2.0'
+                        url = 'https://www.eclipse.org/legal/epl-2.0/t'
+                    }
+                }
+                url = 'https://galasa.dev'
+                developers {
+                    developer {
+                        name = 'Galasa Developer'
+                        email = 'galasadelivery@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:://github.com/galasa-dev/managers'
+                    developerConnection = 'scm:git:git:://github.com/galasa-dev/managers'
+                    url = 'https://github.com/galasa-dev/managers'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/galasa-dev/projectmanagement/issues'
+                }
+            }
+
+        }
+    }
+
+    repositories {
+        maven {
+            url  = "$targetMaven"
+        
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv("GITHUB_ACTOR")
+                    password System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+}
+
+

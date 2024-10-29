@@ -1,0 +1,38 @@
+-snapshot: ${tstamp}
+Bundle-Name: HTTP Manager
+Export-Package: !dev.galasa.http.internal*;dev.galasa.http*
+Import-Package: com.google.gson,\
+    dev.galasa,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.language,\
+    dev.galasa.framework.spi.utils,\
+    dev.galasa.http.spi,\
+    dev.galasa.common,\
+    javax.net.ssl,\
+    javax.validation.constraints;resolution:=optional,\
+    jakarta.xml.bind,\
+    jakarta.xml.bind.annotation,\
+    javax.xml.parsers,\
+    org.apache.commons.io;version="[2,3)",\
+    org.apache.commons.logging,\
+    org.apache.http,\
+    org.apache.http.auth,\
+    org.apache.http.client,\
+    org.apache.http.client.config,\
+    org.apache.http.client.entity,\
+    org.apache.http.client.methods,\
+    org.apache.http.client.protocol,\
+    org.apache.http.client.utils,\
+    org.apache.http.conn.socket,\
+    org.apache.http.conn.ssl,\
+    org.apache.http.entity,\
+    org.apache.http.entity.mime.content,\
+    org.apache.http.impl.auth,\
+    org.apache.http.impl.client,\
+    org.apache.http.message,\
+    org.apache.http.protocol,\
+    org.apache.http.util,\
+    org.w3c.dom,\
+    org.xml.sax
+
+

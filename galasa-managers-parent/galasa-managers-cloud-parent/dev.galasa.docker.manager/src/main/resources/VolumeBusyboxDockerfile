@@ -1,0 +1,3 @@
+FROM ++BUSYBOX++
+ADD ++FILENAME++ ++FILENAME++
+CMD ["/bin/mv","++FILENAME++", "++MOUNTPATH++/++FILENAME++"]

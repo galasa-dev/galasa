@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Linux Manager IVTs
+Export-Package: dev.galasa.linux.manager.ivt
+Import-Package: !javax.validation.constraints, \
+                *

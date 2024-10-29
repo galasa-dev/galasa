@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Docker Manager
+Export-Package: dev.galasa.docker.manager.ivt
+Import-Package: !javax.validation.constraints, \
+                *

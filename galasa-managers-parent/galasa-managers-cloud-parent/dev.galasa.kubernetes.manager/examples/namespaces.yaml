@@ -1,0 +1,45 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: galasa1
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: galasa2
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: galasa4
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: galasa4
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: galasa5
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: galasa6

@@ -1,0 +1,29 @@
+//*---------------------------------------------------------------------
+//*
+//* PL1/++TYPE++ COMPILE/LINK ++PROGRAM++
+//*
+//*---------------------------------------------------------------------
+//PL1      EXEC PGM=IBMZPLI,REGION=0M,
+// PARM=++PL1.PARM++
+//STEPLIB  DD ++PL1.STEPLIB++
+//SYSLIB   DD ++PL1.SYSLIB++
+//SYSUT1   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1))
+//SYSPRINT DD SYSOUT=*
+//SYSOUT   DD SYSOUT=*
+//SYSIN    DD DATA,DLM='++'
+++SOURCE++
+++
+//SYSLIN   DD DISP=(MOD,PASS),DSN=&&SYSLIN,
+//            UNIT=SYSALLDA,SPACE=(CYL,(1,1))
+//*---------------------------------------------------------------------
+//CHECK001 IF RC LE 8 THEN
+//LKED     EXEC PGM=IEWL,REGION=0M,
+// PARM=++LKED.PARM++
+//SYSLIB   DD ++LKED.SYSLIB++
+//SYSLIN   DD ++LKED.SYSIN++ 
+//SYSUT1   DD UNIT=SYSALLDA,BLKSIZE=1024,                  
+//            SPACE=(1024,(200,20))
+//SYSPRINT DD SYSOUT=*
+//SYSLMOD  DD DISP=SHR,DSN=++SYSLMOD++(++PROGRAM++)
+//CHECK001 ENDIF
+//

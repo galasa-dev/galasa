@@ -1,0 +1,30 @@
+plugins {
+    id 'galasa.manager'
+}
+
+description = 'Galasa zOS 3270 Terminal Manager'
+
+version = '0.36.0'
+
+dependencies {
+    api            project(':galasa-managers-zos-parent:dev.galasa.zos3270.common')
+    api            project(':galasa-managers-zos-parent:dev.galasa.zos.manager')
+    api            project(':galasa-managers-core-parent:dev.galasa.textscan.manager')    
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'commons-io:commons-io:2.16.1'
+    implementation project (':galasa-managers-common-parent:dev.galasa.common')
+}
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file 
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = true
+ext.includeInMVP          = true
+ext.includeInBOM          = true
+ext.includeInIsolated     = true
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = true

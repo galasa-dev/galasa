@@ -1,0 +1,7 @@
+//DUMPTST  EXEC PGM=IEBGENER                                       
+//SYSPRINT DD SYSOUT=*                                             
+//SYSIN    DD DUMMY                                                
+//SYSUT1   DD DSN=++SOURCE++,DISP=SHR   
+//SYSUT2   DD DSN=++TARGET++,DISP=(NEW,CATLG),  
+//     SPACE=(TRK,(15,15))                     
+/*

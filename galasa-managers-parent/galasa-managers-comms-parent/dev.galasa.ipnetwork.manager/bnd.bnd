@@ -1,0 +1,8 @@
+-snapshot: ${tstamp}
+Bundle-Name: IP Network Manager
+Export-Package: dev.galasa.ipnetwork, \
+                dev.galasa.ipnetwork.spi
+Import-Package: !javax.validation.constraints, \
+                *
+
+

@@ -1,0 +1,16 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa JMeter Manager
+Export-Package: dev.galasa.jmeter
+Import-Package: dev.galasa,\
+    dev.galasa.docker,\
+    dev.galasa.docker.spi,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.language,\
+    dev.galasa.jmeter,\
+    javax.validation.constraints;resolution:=optional,\
+    org.apache.commons.logging,\
+    org.apache.velocity,\
+    org.apache.velocity.app,\
+    org.apache.velocity.context
+
+

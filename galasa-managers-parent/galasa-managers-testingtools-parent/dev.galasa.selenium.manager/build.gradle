@@ -1,0 +1,47 @@
+plugins {
+    id 'galasa.manager'
+}
+
+description = 'Galasa Selenium Manager'
+
+version = '0.34.0'
+
+dependencies {
+    implementation project(':galasa-managers-comms-parent:dev.galasa.http.manager')
+	implementation project(':galasa-managers-cloud-parent:dev.galasa.docker.manager')
+	implementation project(':galasa-managers-cloud-parent:dev.galasa.kubernetes.manager')
+	implementation project(':galasa-managers-core-parent:dev.galasa.artifact.manager')
+    
+    implementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
+    implementation 'org.seleniumhq.selenium:selenium-api:3.141.59'
+    implementation 'org.seleniumhq.selenium:selenium-support:3.141.59'
+    api 'org.seleniumhq.selenium:selenium-ie-driver:3.141.59'
+    api 'org.seleniumhq.selenium:selenium-edge-driver:3.141.59'
+    api 'org.seleniumhq.selenium:selenium-chrome-driver:3.141.59'
+    api 'org.seleniumhq.selenium:selenium-opera-driver:3.141.59'
+    api 'org.seleniumhq.selenium:selenium-firefox-driver:3.141.59'
+    api 'org.seleniumhq.selenium:selenium-remote-driver:3.141.59'
+    implementation 'com.google.guava:guava:30.1.1-jre'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okio:okio-jvm:3.0.0'
+    implementation 'org.jetbrains.kotlin:kotlin-osgi-bundle:1.7.22'
+    implementation 'net.bytebuddy:byte-buddy:1.8.15'
+    implementation 'org.apache.commons:commons-exec:1.3'
+    implementation 'commons-io:commons-io:2.16.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file 
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = true
+ext.includeInMVP          = true
+ext.includeInBOM          = true
+ext.includeInIsolated     = true
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = true
+
+

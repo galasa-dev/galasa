@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa CEMT Manager IVTs
+Export-Package: dev.galasa.cicsts.cemt.manager.ivt
+Import-Package: !javax.validation.constraints, \
+                *

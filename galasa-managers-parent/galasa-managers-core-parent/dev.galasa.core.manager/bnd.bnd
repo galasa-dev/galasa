@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Core Manager
+Export-Package: dev.galasa.core.manager
+Import-Package: !javax.validation.constraints, \
+                *

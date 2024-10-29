@@ -1,0 +1,54 @@
+<FindBugsFilter
+    xmlns="https://github.com/spotbugs/filter/3.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+    <Match>
+        <Class name="dev.galasa.sdv.internal.properties.SdvPropertiesSingleton" />
+        <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" />
+    </Match>
+     <Match>
+        <Class name="dev.galasa.sdv.internal.properties.SdvPropertiesSingleton" />
+        <Bug pattern="SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.properties.SdvPropertiesSingleton" />
+        <Bug pattern="MS_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.SdvUserResourceMonitor" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.SdvUserPool" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.SdvResourceManagement" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.SdvRecorderImpl" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.SdvManagersResourceMonitor" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.TestSdvUserPool" />
+        <Bug pattern="UC_USELESS_OBJECT" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.TestSdvUserResourceMonitor" />
+        <Bug pattern="UC_USELESS_OBJECT" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.TestSdvHttpRecorderImpl" />
+        <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME" />
+    </Match>
+    <Match>
+        <Class name="dev.galasa.sdv.internal.SdvUserPool" />
+        <Bug pattern="CT_CONSTRUCTOR_THROW" />
+    </Match>
+
+</FindBugsFilter>

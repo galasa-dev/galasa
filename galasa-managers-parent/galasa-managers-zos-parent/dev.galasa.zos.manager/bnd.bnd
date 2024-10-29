@@ -1,0 +1,35 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS Manager
+Export-Package: dev.galasa.zos,\
+    dev.galasa.zos.spi,\
+    dev.galasa.zosbatch,\
+    dev.galasa.zosbatch.spi,\
+    dev.galasa.zosconsole,\
+    dev.galasa.zosconsole.spi,\
+    dev.galasa.zosfile,\
+    dev.galasa.zosfile.spi,\
+    dev.galasa.zostsocommand,\
+    dev.galasa.zostsocommand.spi,\
+    dev.galasa.zosunixcommand,\
+    dev.galasa.zosunixcommand.spi
+Import-Package: dev.galasa,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.cps,\
+    dev.galasa.framework.spi.creds,\
+    dev.galasa.framework.spi.language,\
+    dev.galasa.framework.spi.utils,\
+    dev.galasa.ipnetwork,\
+    dev.galasa.ipnetwork.spi,\
+    dev.galasa.zos,\
+    dev.galasa.zos.spi,\
+    dev.galasa.zosbatch.spi,\
+    dev.galasa.zosconsole,\
+    dev.galasa.zosfile,\
+    dev.galasa.zostsocommand,\
+    dev.galasa.zosunixcommand,\
+    io.prometheus.client,\
+    javax.validation.constraints;resolution:=optional,\
+    org.apache.commons.lang3,\
+    org.apache.commons.logging
+
+

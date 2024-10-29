@@ -1,0 +1,27 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: teststatefulset
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testdeployment
+  template:
+    metadata:
+      labels:
+        app: testdeployment
+    spec:
+      nodeSelector:
+        beta.kubernetes.io/arch: amd64
+      containers:
+      - name: httpd
+        image: "httpd:latest"
+        ports:
+        - containerPort: 80

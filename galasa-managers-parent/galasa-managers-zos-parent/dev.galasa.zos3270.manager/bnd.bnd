@@ -1,0 +1,7 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS 3270 Terminal Manager
+Export-Package: dev.galasa.zos3270,dev.galasa.zos3270.spi
+Import-Package: !javax.validation.constraints,\
+                org.apache.commons.io;version="[2,3)",\
+                *
+

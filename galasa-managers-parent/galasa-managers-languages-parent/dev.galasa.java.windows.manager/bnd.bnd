@@ -1,0 +1,6 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Java Windows Manager
+Export-Package: dev.galasa.java.windows, \
+                dev.galasa.java.windows.spi
+Import-Package: !javax.validation.constraints,\
+                *

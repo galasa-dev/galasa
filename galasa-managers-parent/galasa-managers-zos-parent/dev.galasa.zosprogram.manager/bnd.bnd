@@ -1,0 +1,20 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS Program Manager
+Export-Package: dev.galasa.zosprogram,\
+    dev.galasa.zosprogram.spi
+Import-Package: dev.galasa,\
+    dev.galasa.artifact,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.cps,\
+    dev.galasa.framework.spi.language,\
+    dev.galasa.zos,\
+    dev.galasa.zos.spi,\
+    dev.galasa.zosbatch,\
+    dev.galasa.zosbatch.spi,\
+    dev.galasa.zosfile,\
+    dev.galasa.zosfile.spi,\
+    dev.galasa.zosprogram.spi,\
+    javax.validation.constraints;resolution:=optional,\
+    org.apache.commons.logging
+
+

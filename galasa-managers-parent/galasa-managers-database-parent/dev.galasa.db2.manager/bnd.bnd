@@ -1,0 +1,34 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Db2 Manager
+Export-Package: dev.galasa.db2,\
+                dev.galasa.db2.spi
+Import-Package: jakarta.transaction, \
+                jakarta.transaction.xa, \
+                javax.transaction, \
+                javax.transaction.xa, \
+                !jakarta.enterprise.util, \
+                !jakarta.interceptor, \
+                !jakarta.enterprise.context, \
+                !javax.validation.constraints, \
+                !com.ibm.bidiTools.bdlayout, \
+                !com.ibm.cics.server, \
+                com.ibm.dataaccess, \
+                !COM.ibm.db2os390.sqlj.runtime, \
+                !com.ibm.jvm, \
+                !com.ibm.net, \
+                !com.ibm.websphere.interrupt, \
+                !com.ibm.zos.batch.container.support, \
+                !com.ibm.zos.batch.container.support.transaction, \
+                !sun.io ,\
+		        !sqlj.framework.options ,\
+		        !sun.security.action ,\
+		        !sqlj.mesg ,\
+		        !sqlj.framework.error, \
+		        !sqlj.framework.ide, \
+		        !sqlj.tools, \
+		        !sqlj.util.io, \
+		        !sqlj.mesg, \
+		        * 
+Embed-Transitive: true
+Embed-Dependency: *;scope=compile
+-includeresource: db2jcc-db2jcc4.jar; lib:=true

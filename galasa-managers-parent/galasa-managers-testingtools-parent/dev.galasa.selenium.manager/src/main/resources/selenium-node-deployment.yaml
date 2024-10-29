@@ -1,0 +1,31 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8-selenium-node-<RUNNAME>
+  labels:
+    app: k8-selenium-node-<RUNNAME>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8-selenium-node-<RUNNAME>
+  template:
+    metadata:
+      name: k8-selenium-node-<RUNNAME>
+      labels:
+        app: k8-selenium-node-<RUNNAME>
+    spec:
+<NODE_SELECTOR>
+      containers:
+        - name: web
+          image: <IMAGE_NAME>
+          ports:
+            - name: web
+              containerPort: 4444
+              protocol: TCP

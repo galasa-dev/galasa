@@ -1,0 +1,74 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: PR build
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-managers:
+    name: Build Managers source code and Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK 
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+        
+      - name: Print githash
+        run: |
+          echo $GITHUB_SHA > ./managers.githash
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.9
+          cache-disabled: true
+      
+      - name: Build Managers source code
+        run: |
+          set -o pipefail
+          gradle -b galasa-managers-parent/build.gradle check publish --info \
+          --no-daemon --console plain \
+          -Dorg.gradle.jvmargs=-Xmx4096M \
+          -PsourceMaven=https://development.galasa.dev/main/maven-repo/extensions \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build.log
+
+      - name: Upload Gradle Build Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: build.log
+          retention-days: 7
+            
+      - name: Upload Jacoco Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: ${{ github.workspace }}/galasa-managers-parent/**/**/build/reports/**/*.html
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Build Managers image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dockerfiles/dockerfile
+          load: true
+          tags: managers:test
+          build-args: |
+              dockerRepository=ghcr.io
+              tag=main
+    

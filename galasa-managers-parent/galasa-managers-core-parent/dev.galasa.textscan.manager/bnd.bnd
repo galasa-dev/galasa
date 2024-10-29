@@ -1,0 +1,8 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Text Scan Manager
+Export-Package: \
+	dev.galasa.textscan,\
+	dev.galasa.textscan.spi
+Import-Package: !javax.validation.constraints,\
+                org.apache.commons.io;version="[2,3)",\
+                *

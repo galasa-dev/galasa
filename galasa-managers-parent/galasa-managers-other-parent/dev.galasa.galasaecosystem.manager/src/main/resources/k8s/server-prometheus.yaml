@@ -1,0 +1,70 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  replicas: 1
+  template:
+    metadata:
+      name: prometheus
+      labels:
+        app: prometheus
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      initContainers:
+        - name: init-chown-data
+          image: ${dockerRegistry}/busybox:1.32.0
+          imagePullPolicy: IfNotPresent
+          command: ["chown", "-R", "65534:65534", "/data"]
+          volumeMounts:
+          - name: datadir
+            mountPath: /data
+            subPath: ""
+      containers:
+        - name: prometheus
+          image: ${dockerRegistry}/prometheus:v2.10.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus/
+            - name: datadir
+              mountPath: /prometheus
+      volumes:
+      - name: prometheus-config
+        configMap:
+          defaultMode: 420
+          name: prometheus-config
+      - name: datadir
+        persistentVolumeClaim:
+          claimName: pvc-prometheus
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  ports:
+  - port: 9090
+    name: metrics
+    targetPort: 9090
+  selector:
+    app: prometheus

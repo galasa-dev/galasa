@@ -1,0 +1,102 @@
+plugins {
+    id 'galasa.manager'
+    id 'checkstyle'
+    id 'pmd'
+    id("com.github.spotbugs") version "6.0.20"
+}
+
+description = 'Galasa SDV Manager'
+
+version = '0.38.0'
+
+checkstyle {
+    configFile = file("config/checkstyle/checkstyle.xml") 
+    toolVersion = "10.14.2"
+}
+
+// Apply a workaround to get checkstyle working with Gradle 6.x,
+// this workaround is not required for later versions of Gradle.
+if (project.getGradle().getGradleVersion().compareTo("7.0") < 0) {
+    configurations.all {
+        attributes {
+            attribute(Attribute.of('org.gradle.jvm.environment', String), 'standard-jvm')
+        }
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+pmd {
+    consoleOutput = true
+    toolVersion = "6.50.0"
+    ruleSetFiles = files("config/pmd/sdvrules.xml")
+    ruleSets = []
+}
+
+dependencies {
+
+    implementation project(':galasa-managers-core-parent:dev.galasa.artifact.manager')
+    implementation project(':galasa-managers-zos-parent:dev.galasa.zos3270.manager')
+    implementation project(':galasa-managers-cicsts-parent:dev.galasa.cicsts.manager')
+    implementation project(':galasa-managers-comms-parent:dev.galasa.http.manager')
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // Unit testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.mockito:mockito-core:5.3.1'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
+    testImplementation 'commons-io:commons-io:2.16.1'
+}
+
+test {
+  useJUnitPlatform()
+  maxHeapSize = '1G'
+  finalizedBy jacocoTestReport // report is always generated after tests run
+  enabled true
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+  excludeFilter = file("config/spotbugs/excludes.xml") 
+  reports {
+    xml {
+      enabled = true
+    }
+    html {
+      enabled = true
+    }
+  }
+}
+
+jacocoTestReport {
+    enabled true
+    dependsOn test // tests are required to run before generating the report
+}
+
+jacocoTestCoverageVerification {
+  violationRules {
+    rule {
+      limit {
+        counter = 'LINE'
+        value = 'COVEREDRATIO'
+        minimum = 0.84
+      }
+    }
+  }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file 
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = true
+ext.includeInMVP          = true
+ext.includeInBOM          = true
+ext.includeInIsolated     = true
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = true

@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa CICS/TS CECI Manager
+Export-Package: dev.galasa.cicsts.ceci.spi
+Import-Package: !javax.validation.constraints, \
+                *

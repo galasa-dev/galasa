@@ -1,0 +1,7 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS Liberty Angel Manager
+Export-Package: dev.galasa.zosliberty.angel,\
+    dev.galasa.zosliberty.angel.spi
+Import-Package: !javax.validation.constraints, \
+                *
+

@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa CICS/TS Resource Manager
+Export-Package: dev.galasa.cicsts.resource.spi
+Import-Package: !javax.validation.constraints, \
+                *

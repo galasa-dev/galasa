@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa GitHub Issue Manager
+Export-Package: dev.galasa.githubissue
+Import-Package: !javax.validation.constraints,\
+                *

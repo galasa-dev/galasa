@@ -1,0 +1,6 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Liberty Manager
+Export-Package: dev.galasa.liberty,\
+    dev.galasa.liberty.spi
+Import-Package: !javax.validation.constraints, \
+                *

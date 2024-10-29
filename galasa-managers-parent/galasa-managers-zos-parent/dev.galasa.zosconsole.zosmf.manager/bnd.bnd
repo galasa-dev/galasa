@@ -1,0 +1,16 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS Console Manager - zOS/MF Implementation
+Import-Package: com.google.gson,\
+    dev.galasa,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.language,\
+    dev.galasa.zos,\
+    dev.galasa.zos.spi,\
+    dev.galasa.zosconsole,\
+    dev.galasa.zosconsole.spi,\
+    dev.galasa.zosmf,\
+    dev.galasa.zosmf.spi,\
+    javax.validation.constraints;resolution:=optional,\
+    org.apache.commons.logging
+
+
