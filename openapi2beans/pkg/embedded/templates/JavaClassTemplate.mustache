@@ -1,0 +1,57 @@
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package {{JavaPackage.Name}};
+
+{{#HasSerializedNameVar}}
+import com.google.gson.annotations.SerializedName;
+{{/HasSerializedNameVar}}
+
+{{#Description}}
+// {{&.}}
+{{/Description}}
+public class {{Name}} {
+    // Class Variables //
+    {{#DataMembers}}
+    {{#Description}}
+    // {{&.}}
+    {{/Description}}
+    {{#SerializedNameOverride}}
+    @SerializedName("{{&.}}")
+    {{/SerializedNameOverride}}
+    private {{MemberType}} {{Name}};
+    {{/DataMembers}}
+
+    // Constants //
+    {{#ConstantDataMembers}}
+    {{#Description}}
+    
+    {{/Description}}
+    {{#Description}}
+    // {{&.}}
+    {{/Description}}
+    public final {{MemberType}} {{Name}}{{#ConstantVal}} = {{&.}}{{/ConstantVal}};
+    {{/ConstantDataMembers}}
+
+    public {{Name}}({{#RequiredMembers}}{{^IsFirst}}, {{/IsFirst}}{{DataMember.MemberType}} {{DataMember.Name}}{{/RequiredMembers}}) {
+        {{#RequiredMembers}}
+        this.{{DataMember.Name}} = {{DataMember.Name}};
+        {{/RequiredMembers}}
+    }
+
+    // Getters //
+    {{#DataMembers}}
+    public {{MemberType}} get{{PascalCaseName}}() {
+        return this.{{Name}};
+    }
+    {{/DataMembers}}
+
+    // Setters //
+    {{#DataMembers}}
+    public void set{{PascalCaseName}}({{MemberType}} {{Name}}) {
+        this.{{Name}} = {{Name}};
+    }
+    {{/DataMembers}}
+}

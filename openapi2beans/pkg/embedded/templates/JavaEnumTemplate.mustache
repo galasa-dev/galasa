@@ -1,0 +1,33 @@
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package {{JavaPackage.Name}};
+
+import com.google.gson.annotations.SerializedName;
+
+{{#Description}}
+// {{&.}}
+{{/Description}}
+public enum {{Name}} {
+    {{#EnumValues}}
+    {{#StringFormat}}@SerializedName("{{&.}}"){{/StringFormat}}
+    {{ConstFormatName}}{{#StringFormat}}("{{&.}}"){{/StringFormat}}{{^IsFinal}},
+{{/IsFinal}}{{#IsFinal}};{{/IsFinal}}
+    {{/EnumValues}}
+
+    private final String outputName;
+
+    private {{Name}}(String outputName) {
+        this.outputName = outputName;
+    }
+
+    public boolean equalsName(String otherName) {
+        return outputName.equals(otherName);
+    }
+
+    public String toString() {
+       return this.outputName;
+    }
+}

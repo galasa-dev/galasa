@@ -1,0 +1,43 @@
+# Security vulnerabilites in deployed Galasa
+
+## Vulnerabilities
+
+### Summary
+
+{{range .CveSummary }}- [{{.Cve}}]({{.Link}}) - {{.Severity}} - {{if ( gt .Amount 1)}}{{.Amount}} projects{{else}}1 project{{end}}
+{{end}}
+{{range .CveStructs}}### {{.Cve}}
+
+Severity: **{{.Severity}}**
+
+{{if .ReviewDate}}Acceptance: To be reviewed {{.ReviewDate}}
+
+{{end}}{{if .Comment}}Acceptance: {{.Comment}}
+
+{{end}}[Link]({{.Link}})
+
+Vulnerable artifacts:
+
+{{range .VulnerableArtifacts}}{{.VulnName}}
+
+Galasa Projects/Images directly affected:
+
+{{range .Projects}}- {{.Name}}
+{{ range .DependencyChain}}  - {{.}}
+{{end}}
+{{end}}{{end}}
+{{end}}
+
+## Galasa Projects/Images
+
+### Summary
+
+{{range .ProjectSummary}}- {{.Project}} - {{.High}} High+{{if (gt .Other 0)}}, {{.Other}} Other{{end}}{{if (gt .Dependents 0)}}, {{.Dependents}} dependents{{end}}
+{{end}}{{range .ProjectStructs}}
+### {{.Name}}
+
+{{range .Cves}}- {{.Cve}} - **{{.Severity}}**
+{{range .VulnArtifacts}}  - {{.Artifact}}
+{{ range .DependencyChain}}    - {{.}}
+{{end}}
+{{end}}{{end}}{{end}}

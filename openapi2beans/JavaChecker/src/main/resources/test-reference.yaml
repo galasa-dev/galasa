@@ -1,0 +1,286 @@
+openapi: 3.0.3
+info:
+  title: Simple yaml
+  version : "0.1.0"
+  description: A simple yaml to test against.
+paths:
+  /test:
+    put:
+      operationId: test
+      responses:
+        '200':
+          description: 'please stop giving me red'
+components:
+  schemas:
+    EmptyBean:
+      type: object
+      description: An empty bean with no properties
+
+    BeanWithPrimitiveProperty:
+      type: object
+      description: A bean with a single primitive property
+      properties:
+        aStringVariable:
+          type: string
+
+    BeanWithSnakeCasePrimitiveProperty:
+      type: object
+      description: A bean with a single primitive property
+      properties:
+        a_string_variable:
+          type: string
+    
+    BeanWithMultiplePrimitiveProperties:
+      type: object
+      description: A bean with multiple primitive properties
+      properties:
+        aStringVariable:
+          type: string
+        aIntVariable:
+          type: integer
+    
+    BeanForTestingAllPrimitivePropertyTypes:
+      type: object
+      description: A bean that tests all primitive property types (except arrays)
+      properties:
+        aStringVariable:
+          type: string
+          description: this should be a String in a java bean
+        aIntVariable:
+          type: integer
+          description: this should be an int in a java bean
+        aNumberVariable:
+          type: number
+          description: this should be a float in the java bean
+        aBooleanVariable:
+          type: boolean
+    
+    BeanWithArray:
+      type: object
+      description: A bean that tests arrays
+      properties:
+        anArrayVariable:
+          type: array
+          items:
+            type: string
+    
+    BeanToTestArraysWithVariousPrimitiveTypes:
+      type: object
+      description: A bean to test array property can contain any primitive property type
+      properties:
+        aStringArray:
+          type: array
+          items:
+            type: string
+        anIntArray:
+          type: array
+          items: 
+            type: integer
+        aNumberArray:
+          type: array
+          items:
+            type: number
+        aBooleanArray:
+          type: array
+          items:
+            type: boolean
+    
+    BeanWithMixOfArrayAndPrimitiveProperties:
+      type: object
+      description: A bean with a mix of arrays and other primitive property types
+      properties:
+        anArrayVariable:
+          type: array
+          items:
+            type: string
+        aStringVariable:
+          type: string
+        anIntArray:
+          type: array
+          items:
+            type: integer
+        anIntVariable:
+          type: integer
+    
+    BeanWithPropertyReferencingEmptyBean:
+      type: object
+      description: A bean to test referencing functionality
+      properties:
+        referencingProperty:
+          $ref: '#/components/schemas/EmptyBean'
+    
+    BeanWithEnumProperty:
+      type: object
+      description: bean with an enum property
+      properties:
+        anEnumProperty:
+          type: string
+          description: an enum with 2 values to test against.
+          enum: [string1, string2]
+    
+    BeanWithConstantProperty:
+      type: object
+      description: bean with a constant property
+      properties:
+        aConstantProperty:
+          type: string
+          description: a constant to test against.
+          enum: [string1]
+    
+    BeanWithArrayOfReferenceToEmptyBean:
+      type: object
+      description: A bean that tests arrays
+      properties:
+        anArrayVariable:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmptyBean'
+
+    BeanWithRequiredPrimitiveProperty:
+      type: object
+      description: A bean with a single required primitive property
+      required: [aStringVariable]
+      properties:
+        aStringVariable:
+          type: string
+
+    BeanWithMultipleRequiredPrimitiveProperties:
+      type: object
+      required: 
+        - aStringVariable
+        - anIntVariable
+        - aBooleanVariable
+        - aNumberVariable
+      properties:
+        aStringVariable:
+          type: string
+        anIntVariable:
+          type: integer
+        aBooleanVariable:
+          type: boolean
+        aNumberVariable:
+          type: number
+
+    BeanWithMixOfRequiredPrimitiveProperties:
+      type: object
+      required: 
+        - aStringVariable
+        - anIntVariable
+      properties:
+        aStringVariable:
+          type: string
+        anIntVariable:
+          type: integer
+        aBooleanVariable:
+          type: boolean
+        aNumberVariable:
+          type: number
+
+    BeanWithMultipleRequiredArrayProperties:
+      type: object
+      required: 
+        - aStringArray
+        - anIntArray
+        - aBooleanArray
+        - aNumberArray
+      properties:
+        aStringArray:
+          type: array
+          items:
+            type: string
+        anIntArray:
+          type: array
+          items:
+            type: integer
+        aBooleanArray:
+          type: array
+          items:
+            type: boolean
+        aNumberArray:
+          type: array
+          items:
+            type: number
+
+    BeanWithMixOfRequiredArrayProperties:
+      type: object
+      required: 
+        - aStringArray
+        - anIntArray
+      properties:
+        aStringArray:
+          type: array
+          items:
+            type: string
+        anIntArray:
+          type: array
+          items:
+            type: integer
+        aBooleanArray:
+          type: array
+          items:
+            type: boolean
+        aNumberArray:
+          type: array
+          items:
+            type: number
+
+    BeanWithRequiredEnumProperty:
+      type: object
+      required: [aStringVariable]
+      properties:
+        aStringEnum:
+          type: string
+          enum: ["smthn", "or", "other"]
+
+    BeanWithRequiredReferencedObject:
+      type: object
+      description: A bean with a required property referencing another object
+      required: [referencingObject]
+      properties:
+        referencingObject:
+          $ref: '#/components/schemas/EmptyBean'
+
+    BeanWith2DNestedArray:
+      type: object
+      description: A bean with a nested 2d array
+      properties:
+        anArrayVariable:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+
+    BeanWith3DNestedArray:
+      type: object
+      description: A bean with a nested 3d array
+      properties:
+        anArrayVariable:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: string
+    
+    BeanWithReferenceToProp:
+      type: object
+      description: a bean with a reference to a property in the wider schema map
+      properties:
+        aReferencingVar:
+          $ref: '#/components/schemas/aReferencedArrayVariable'
+    aReferencedArrayVariable:
+      type: array
+      description: an array variable to be referenced by an array
+      items:
+        type: string
+
+    BeanWith2DReferencedArray:
+      type: object
+      description: a bean with an array referencing an array
+      properties:
+        anArrayVariable:
+          type: array
+          items:
+            $ref: '#/components/schemas/aReferencedArrayVariable'

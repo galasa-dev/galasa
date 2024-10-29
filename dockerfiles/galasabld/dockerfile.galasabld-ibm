@@ -1,0 +1,10 @@
+ARG dockerRepository
+ARG branch
+FROM ${dockerRepository}/galasa-dev/galasabld-amd64:${branch}
+
+USER root
+
+COPY certificates/ibmroot.pem  /etc/ssl/certs/ibmroot.pem
+COPY certificates/ibminter.pem /etc/ssl/certs/ibminter.pem
+RUN  cat /etc/ssl/certs/ibmroot.pem >> /etc/ssl/certs/ca-certificates.crt
+RUN  cat /etc/ssl/certs/ibminter.pem >> /etc/ssl/certs/ca-certificates.crt

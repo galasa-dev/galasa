@@ -1,0 +1,7 @@
+FROM harbor.galasa.dev/docker_proxy_cache/library/alpine:3.18.4
+
+ARG platform
+
+COPY openapi2beans/bin/openapi2beans-${platform} /bin/openapi2beans
+
+ENTRYPOINT ["/bin/openapi2beans"]

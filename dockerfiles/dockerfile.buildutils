@@ -1,0 +1,7 @@
+FROM harbor.galasa.dev/docker_proxy_cache/library/httpd:2.4.59
+
+RUN rm -v /usr/local/apache2/htdocs/*
+COPY dockerfiles/httpdconf/httpd.conf /usr/local/apache2/conf/httpd.conf
+
+COPY bin/ /usr/local/apache2/htdocs/
+COPY openapi2beans/bin/ /usr/local/apache2/htdocs/

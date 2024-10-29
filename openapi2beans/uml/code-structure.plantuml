@@ -1,0 +1,24 @@
+'
+' Copyright contributors to the Galasa project
+'
+' SPDX-License-Identifier: EPL-2.0
+'
+@startuml "code-structure"
+
+[file reader] as fileReader
+[yaml to internal format parser] as parser
+fileReader --> parser
+
+[internal format to class transform] as classTransform
+parser --> classTransform
+
+[java class generator] as javaClassGenerator
+classTransform --> javaClassGenerator
+
+[internal format to enum transform] as enumTransform
+parser --> enumTransform
+
+[java enum generator] as javaEnumGenerator
+enumTransform --> javaEnumGenerator
+
+@enduml

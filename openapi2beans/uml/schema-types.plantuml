@@ -1,0 +1,70 @@
+'
+' Copyright contributors to the Galasa project
+'
+' SPDX-License-Identifier: EPL-2.0
+'
+@startuml "schema-types"
+
+class SchemaTypes {
+} 
+
+SchemaTypes "1" *--> "*" SchemaType
+
+interface SchemaType {
+    {method} GetName : string
+    {method} GetDescription : string
+}
+
+class SchemaObject {
+    {field} name : string
+    {field} description : string
+    {method} SchemaType(name,desription)
+}
+
+SchemaObject --|> SchemaType
+SchemaObject "1" *--> "1" Property : ownProperty
+
+class SchemaArray {
+}
+
+SchemaArray --|> SchemaType
+
+
+
+class Property {
+    {field} name : string
+    {field} path : string
+    {field} description : string
+    {field} typeName : string
+    {field} possibleValues : []string
+
+    {method} IsSetInConstructor() : bool
+    {method} IsArrayOrList() : bool
+    {method} IsEnum() : bool
+    {method} IsConstant() : bool
+}
+
+note top of Property : "For arrays/list, the type is the type of each element in the array"
+
+
+Property "*" --> "1" SchemaType : resolvedType 
+
+Property "1" *--> "1" Cardinality : cardinality
+
+class Cardinality {
+    {field} min : int
+    {field} max : int
+
+    {method} GetMin() : int
+    {method} GetMax() : int
+}
+
+class AnyOfGroup {
+}
+AnyOfGroup --|> SchemaType : isA
+AnyOfGroup "*" --> "*" SchemaType : couldBe
+
+
+
+
+@enduml

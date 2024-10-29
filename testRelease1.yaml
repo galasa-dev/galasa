@@ -1,0 +1,25 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+apiVersion: galasa.dev/v1alpha
+kind: Release
+metadata:
+  name: galasa-release
+framework:
+  bundles:
+  - artifact: dev.galasa
+    version: 0.15.0
+    bom: true
+    mvp: true
+    javadoc: true
+external:
+  bundles:
+  - group: commons-codec
+    artifact: commons-codec
+    version: 2.6
+    bom: true
+    obr: true
+    mvp: true
+    isolated: true

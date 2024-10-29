@@ -1,0 +1,24 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+tests:
+- name: C4970
+  bundle: dev.galasa.inttests
+  class: dev.galasa.inttests.core.local.CoreLocalJava11Ubuntu
+  stream: inttests
+  status: building
+  result: Passed
+  overrides:
+    galasaecosystem.docker.version: codecov
+    galasaecosystem.runtime.repository: http://development.galasa.dev/codecov/maven-repo/obr
+    java.jacoco.code.coverage: "true"
+    java.jacoco.save.credentials: JACOCO #Not a secret but a name for a credential value #pragma: allowlist secret 
+    java.jacoco.save.location: https://nexus.galasa.dev/repository/jacoco/codecov/execs
+    zos.dse.tag.PRIMARY.clusterid: PLEX2
+    zos.dse.tag.PRIMARY.imageid: MV2D
+  tests:
+    - name: testCoreIvtTest
+      result: Passed

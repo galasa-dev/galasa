@@ -1,0 +1,47 @@
+'
+' Copyright contributors to the Galasa project
+'
+' SPDX-License-Identifier: EPL-2.0
+'
+@startuml "java-class"
+
+class JavaPackage {
+    {field} name : string
+}
+
+class JavaClass {
+    {field} name : string
+    {field} description : string
+    {field} includes : []string
+}
+
+JavaClass "*" --> "1" JavaPackage : javaPackage
+JavaPackage "1" *--> "*" JavaClass : classes
+
+class DataMember {
+    {field} name : string
+    {field} type : string
+    {field} description : string
+    {field} required : bool
+}
+
+JavaClass *--> DataMember : dataMembers
+
+class RequiredMember {
+    {field} IsFirst : bool
+}
+
+RequiredMember "1" *--> "1" DataMember : DataMember
+JavaClass "1" *--> "*" RequiredMember : requiredMembers
+
+class JavaEnum {
+    {field} name : string
+    {field} description : string
+    {field} enumValues : []string
+}
+
+JavaPackage "1" *--> JavaEnum : enums
+JavaEnum "*" --> "1" JavaPackage : javaPackage
+
+
+@enduml

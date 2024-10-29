@@ -1,0 +1,52 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>dev.galasa</groupId>
+	<artifactId>dev.galasa.uber.obr</artifactId>
+	<version>{{.Release}}</version>
+	<packaging>galasa-obr</packaging>
+
+	<distributionManagement>
+		<repository>
+			<id>galasa.release.repo</id>
+			<url>${galasa.release.repo}</url>
+		</repository>
+		<snapshotRepository>
+			<id>galasa.snapshot.repo</id>
+			<url>${galasa.snapshot.repo}</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<dependencies>{{range .Artifacts}}
+        <dependency>
+            <groupId>{{.GroupId}}</groupId>
+            <artifactId>{{.ArtifactId}}</artifactId>
+            <version>{{.Version}}</version>
+            <type>jar</type>
+			<scope>compile</scope>
+        </dependency>
+	{{end}}</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>dev.galasa</groupId>
+				<artifactId>galasa-maven-plugin</artifactId>
+				<version>0.15.0</version>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>deploy-testcatalog</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploytestcat</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

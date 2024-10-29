@@ -1,0 +1,7 @@
+FROM harbor.galasa.dev/docker_proxy_cache/library/alpine:3.18.4
+
+ARG platform
+
+COPY bin/galasabld-${platform} /bin/galasabld
+
+ENTRYPOINT ["/bin/galasabld"]

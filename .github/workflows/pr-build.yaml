@@ -1,0 +1,106 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: PR build
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  IMAGE_TAG: ${{ github.event.number }}
+
+jobs:
+  build-upload-galasabld:
+    name: Build galasabld 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup up Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: 1.22
+      
+      - name: Build galasabld using the Makefile
+        run: |
+          make all 
+      
+      - name: Build and test galasabld image
+        run: |
+          docker build -t galasabld:${{ env.IMAGE_TAG }} --build-arg platform=linux-amd64 -f dockerfiles/galasabld/dockerfile.galasabld .
+          docker run --rm galasabld:${{ env.IMAGE_TAG }}
+        
+      - name: Push galasabld-linux-amd64 executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: galasabld-linux-amd64
+          path: bin/galasabld-linux-amd64
+
+      - name: Push galasabld-windows-amd64 executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: galasabld-windows-amd64
+          path: bin/galasabld-windows-amd64
+
+      - name: Push galasabld-darwin-amd64 executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: galasabld-darwin-amd64
+          path: bin/galasabld-darwin-amd64
+
+      - name: Push galasabld-darwin-arm64 executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: galasabld-darwin-arm64
+          path: bin/galasabld-darwin-arm64
+
+      - name: Push galasabld-linux-s390x executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: galasabld-linux-s390x
+          path: bin/galasabld-linux-s390x
+  
+  build-upload-openapi2beans:
+    name: Build openapi2beans
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
+      - name: Setup up Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: 1.22
+              
+      - name: Build and test openapi2beans using the Makefile
+        run: |
+          make all -C openapi2beans/
+              
+      - name: Build and test openapi2beans image
+        run: |
+          docker build -t openapi2beans:${{ env.IMAGE_TAG }} --build-arg platform=linux-x86_64 -f dockerfiles/openapi2beans/dockerfile.openapi2beans .
+          docker run --rm openapi2beans:${{ env.IMAGE_TAG }} 
+      
+      - name: Push openapi2beans-darwin-arm64 executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi2beans-darwin-arm64
+          path: openapi2beans/bin/openapi2beans-darwin-arm64
+
+      - name: Push openapi2beans-darwin-x86_64 executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi2beans-darwin-x86_64
+          path: openapi2beans/bin/openapi2beans-darwin-x86_64
+
+      - name: Push openapi2beans-linux-x86_64 executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi2beans-linux-x86_64
+          path: openapi2beans/bin/openapi2beans-linux-x86_64
