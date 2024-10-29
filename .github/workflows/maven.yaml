@@ -114,7 +114,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       # For any modules that weren't changed in this push,
       # download artifacts from the last successful workflow.
@@ -124,7 +124,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.gradle-artifact-id }}
 
@@ -159,7 +159,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: maven
-          path: modules/maven/repo/dev/galasa
+          path: modules/maven/repo
           retention-days: 7
 
   report-failure:

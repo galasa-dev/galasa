@@ -131,7 +131,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wrapping
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download gradle artifacts from this workflow
         id: download-gradle
@@ -139,7 +139,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download maven artifacts from this workflow
         id: download-maven
@@ -147,7 +147,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download framework artifacts from this workflow
         id: download-framework
@@ -155,7 +155,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: framework
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download extensions artifacts from this workflow
         id: download-extensions
@@ -163,7 +163,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: extensions
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download managers artifacts from this workflow
         id: download-managers
@@ -171,7 +171,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: managers
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       # For any modules that weren't changed in this push,
       # download artifacts from the last successful workflow.
@@ -181,7 +181,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wrapping
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.wrapping-artifact-id }}
 
@@ -190,7 +190,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.gradle-artifact-id }}
 
@@ -199,7 +199,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.maven-artifact-id }}
 
@@ -208,7 +208,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: framework
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.framework-artifact-id }}
 
@@ -217,7 +217,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: extensions
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.extensions-artifact-id }}
 
@@ -226,7 +226,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: managers
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.managers-artifact-id }}
         
@@ -281,7 +281,7 @@ jobs:
       # All other module's artifacts were placed in the source repo previously in the workflow.
       - name: Copy source repo into release repo
         run: |
-          cp -R ${{ github.workspace }}/modules/artifacts/dev/galasa/* ${{ github.workspace }}/modules/obr/repo/dev/galasa
+          cp -R ${{ github.workspace }}/modules/artifacts/* ${{ github.workspace }}/modules/obr/repo
 
       - name: Add githashes of each module to OBR image
         run: |
@@ -403,7 +403,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wrapping
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download gradle artifacts from this workflow
         id: download-gradle
@@ -411,7 +411,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download maven artifacts from this workflow
         id: download-maven
@@ -419,7 +419,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download framework artifacts from this workflow
         id: download-framework
@@ -427,7 +427,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: framework
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download extensions artifacts from this workflow
         id: download-extensions
@@ -435,7 +435,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: extensions
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download managers artifacts from this workflow
         id: download-managers
@@ -443,7 +443,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: managers
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       # For any modules that weren't changed in this push,
       # download artifacts from the last successful workflow.
@@ -453,7 +453,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wrapping
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.wrapping-artifact-id }}
 
@@ -462,7 +462,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.gradle-artifact-id }}
 
@@ -471,7 +471,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.maven-artifact-id }}
 
@@ -480,7 +480,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: framework
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.framework-artifact-id }}
 
@@ -489,7 +489,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: extensions
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.extensions-artifact-id }}
 
@@ -498,7 +498,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: managers
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.managers-artifact-id }}
         
@@ -648,7 +648,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wrapping
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download gradle artifacts from this workflow
         id: download-gradle
@@ -656,7 +656,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download maven artifacts from this workflow
         id: download-maven
@@ -664,7 +664,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download framework artifacts from this workflow
         id: download-framework
@@ -672,7 +672,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: framework
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download extensions artifacts from this workflow
         id: download-extensions
@@ -680,7 +680,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: extensions
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download managers artifacts from this workflow
         id: download-managers
@@ -688,7 +688,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: managers
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       - name: Download obr artifacts
         id: download-obr
@@ -696,7 +696,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: obr
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
 
       # For any modules that weren't changed in this push,
       # download artifacts from the last successful workflow.
@@ -706,7 +706,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wrapping
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.wrapping-artifact-id }}
 
@@ -715,7 +715,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.gradle-artifact-id }}
 
@@ -724,7 +724,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.maven-artifact-id }}
 
@@ -733,7 +733,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: framework
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.framework-artifact-id }}
 
@@ -742,7 +742,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: extensions
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.extensions-artifact-id }}
 
@@ -751,7 +751,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: managers
-          path: modules/artifacts/dev/galasa
+          path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.managers-artifact-id }}
         
