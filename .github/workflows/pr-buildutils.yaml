@@ -1,0 +1,91 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Buildutils PR Build
+
+on:
+  workflow_call:
+    inputs:
+      changed:
+        description: 'True if this module has been changed and should be rebuilt'
+        required: true
+        type: string
+
+env:
+  BRANCH: ${{ github.event.number }}
+
+jobs:
+
+  log-unchanged:
+    name: Buildutils is unchanged
+    if: ${{ inputs.changed == 'false' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log this module is unchanged
+        run: |
+          echo "The buildutils module is unchanged"
+
+  build-upload-galasabld:
+    name: Build galasabld
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup up Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: 1.22
+      
+      - name: Build galasabld using the Makefile
+        working-directory: modules/buildutils
+        run: |
+          make all 
+      
+      - name: Build and test galasabld image
+        working-directory: modules/buildutils
+        run: |
+          docker build -t galasabld:${{ env.BRANCH }} --build-arg platform=linux-amd64 -f dockerfiles/galasabld/dockerfile.galasabld .
+          docker run --rm galasabld:${{ env.BRANCH }}
+        
+      - name: Upload galasabld executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: galasabld
+          path: modules/buildutils/bin
+  
+  build-upload-openapi2beans:
+    name: Build openapi2beans
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
+      - name: Setup up Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: 1.22
+              
+      - name: Build and test openapi2beans using the Makefile
+        working-directory: modules/buildutils
+        run: |
+          make all -C openapi2beans
+              
+      - name: Build and test openapi2beans image
+        working-directory: modules/buildutils
+        run: |
+          docker build -t openapi2beans:${{ env.BRANCH }} --build-arg platform=linux-x86_64 -f dockerfiles/openapi2beans/dockerfile.openapi2beans .
+          docker run --rm openapi2beans:${{ env.BRANCH }} 
+      
+      - name: Upload openapi2beans executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi2beans
+          path: modules/buildutils/openapi2beans/bin

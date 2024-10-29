@@ -1,0 +1,63 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Gradle PR Build
+
+on:
+  workflow_call:
+    inputs:
+      changed:
+        description: 'True if this module has been changed and should be rebuilt'
+        required: true
+        type: string
+
+jobs:
+
+  log-unchanged:
+    name: Gradle is unchanged
+    if: ${{ inputs.changed == 'false' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log this module is unchanged
+        run: |
+          echo "The gradle module is unchanged"
+
+  build-gradle:
+    name: Build Gradle source code and Docker image
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.9
+          cache-disabled: true
+
+      - name: Build Gradle source code
+        working-directory: modules/gradle
+        run: |
+          gradle check publish --info \
+          --no-daemon --console plain \
+          -PsourceMaven=https://repo.maven.apache.org/maven2/ \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/modules/gradle/repo
+
+      - name: Upload gradle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle
+          path: modules/gradle/repo/dev/galasa
+          retention-days: 7

@@ -1,0 +1,149 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Pull Request Build Orchestrator
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # Get modules that were changed as part of this Pull Request,
+  # set that as an output of this job to be passed to the next job. 
+  get-changed-modules:
+    name: Get the modules changed in this Pull Request
+    runs-on: ubuntu-latest
+
+    outputs:
+      buildutils_changed: ${{ steps.get-changed-modules.outputs.BUILDUTILS_CHANGED }}
+      wrapping_changed: ${{ steps.get-changed-modules.outputs.WRAPPING_CHANGED }}
+      gradle_changed: ${{ steps.get-changed-modules.outputs.GRADLE_CHANGED }}
+      maven_changed: ${{ steps.get-changed-modules.outputs.MAVEN_CHANGED }}
+      framework_changed: ${{ steps.get-changed-modules.outputs.FRAMEWORK_CHANGED }}
+      extensions_changed: ${{ steps.get-changed-modules.outputs.EXTENSIONS_CHANGED }}
+      managers_changed: ${{ steps.get-changed-modules.outputs.MANAGERS_CHANGED }}
+      obr_changed: ${{ steps.get-changed-modules.outputs.OBR_CHANGED }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get the modules changed in this Pull Request
+        id: get-changed-modules
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ./tools/get-changed-modules-pull-request.sh --pr-number ${{ github.event.number }}
+
+  find-artifacts:
+    name: Get Workflow Run IDs with artifacts to download for each module
+    runs-on: ubuntu-latest
+
+    outputs: 
+      galasabld_artifacts_id: ${{ steps.find-artifacts.outputs.galasabld_artifacts_id }}
+      openapi2beans_artifacts_id: ${{ steps.find-artifacts.outputs.openapi2beans_artifacts_id }}
+      wrapping_artifacts_id: ${{ steps.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle_artifacts_id: ${{ steps.find-artifacts.outputs.gradle_artifacts_id }}
+      maven_artifacts_id: ${{ steps.find-artifacts.outputs.maven_artifacts_id }}
+      framework_artifacts_id: ${{ steps.find-artifacts.outputs.framework_artifacts_id }}
+      extensions_artifacts_id: ${{ steps.find-artifacts.outputs.extensions_artifacts_id }}
+      managers_artifacts_id: ${{ steps.find-artifacts.outputs.managers_artifacts_id }}
+      obr_artifacts_id: ${{ steps.find-artifacts.outputs.obr_artifacts_id }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get last successful workflow run with artifacts for each module
+        id: find-artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ./tools/get-last-successful-workflow-run-for-artifacts.sh --repo ${{ github.repository }}
+
+  pr-build-buildutils:
+    name: Build the 'buildutils' module
+    needs: [get-changed-modules, find-artifacts]
+    uses: ./.github/workflows/pr-buildutils.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.buildutils_changed }}
+
+  pr-build-wrapping:
+    name: Build the 'wrapping' module
+    needs: [get-changed-modules, find-artifacts]
+    uses: ./.github/workflows/pr-wrapping.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.wrapping_changed }}
+
+  pr-build-gradle:
+    name: Build the 'gradle' module
+    needs: [get-changed-modules, find-artifacts]
+    uses: ./.github/workflows/pr-gradle.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.gradle_changed }}
+
+  pr-build-maven:
+    name: Build the 'maven' module
+    needs: [get-changed-modules, find-artifacts, pr-build-gradle]
+    uses: ./.github/workflows/pr-maven.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.maven_changed }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+
+  pr-build-framework:
+    name: Build the 'framework' module
+    needs: [get-changed-modules, find-artifacts, pr-build-buildutils, pr-build-wrapping, pr-build-maven]
+    uses: ./.github/workflows/pr-framework.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.framework_changed }}
+      openapi2beans-artifact-id: ${{ needs.find-artifacts.outputs.openapi2beans_artifacts_id }}
+      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
+
+  pr-build-extensions:
+    name: Build the 'extensions' module
+    needs: [get-changed-modules, find-artifacts, pr-build-framework]
+    uses: ./.github/workflows/pr-extensions.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.extensions_changed }}
+      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
+      framework-artifact-id: ${{ needs.find-artifacts.outputs.framework_artifacts_id }}
+
+  pr-build-managers:
+    name: Build the 'managers' module
+    needs: [get-changed-modules, find-artifacts, pr-build-framework]
+    uses: ./.github/workflows/pr-managers.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.managers_changed }}
+      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
+      framework-artifact-id: ${{ needs.find-artifacts.outputs.framework_artifacts_id }}
+
+  pr-build-obr:
+    name: Build the 'obr' module
+    needs: [get-changed-modules, find-artifacts, pr-build-extensions, pr-build-managers]
+    uses: ./.github/workflows/pr-obr.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.obr_changed }}
+      galasabld-artifact-id: ${{ needs.find-artifacts.outputs.galasabld_artifacts_id }}
+      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
+      framework-artifact-id: ${{ needs.find-artifacts.outputs.framework_artifacts_id }}
+      extensions-artifact-id: ${{ needs.find-artifacts.outputs.extensions_artifacts_id }}
+      managers-artifact-id: ${{ needs.find-artifacts.outputs.managers_artifacts_id }}

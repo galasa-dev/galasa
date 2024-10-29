@@ -1,0 +1,278 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Buildutils Main Build
+
+on:
+  workflow_call:
+    inputs:
+      changed:
+        description: 'True if this module has been changed and should be rebuilt'
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: ${{ github.repository_owner }}
+  BRANCH: ${{ github.ref_name }}
+
+jobs:
+
+  log-unchanged:
+    name: Buildutils is unchanged
+    if: ${{ inputs.changed == 'false' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log this module is unchanged
+        run: |
+          echo "The buildutils module is unchanged"
+
+  build-push-galasabld:
+    name: Build and push galasabld artifacts
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup up Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: 1.22
+      
+      - name: Build galasabld using the Makefile
+        working-directory: modules/buildutils
+        run: |
+          make all 
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: galasa-team
+          password: ${{ secrets.GALASA_TEAM_WRITE_PACKAGES_TOKEN }}
+      
+      - name: Extract metadata for galasabld image
+        id: metadata
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasabld-amd64
+        
+      - name: Build galasabld image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/buildutils
+          file: modules/buildutils/dockerfiles/galasabld/dockerfile.galasabld
+          load: true
+          tags: galasabld-amd64:${{ env.BRANCH }}
+          build-args: |
+            platform=linux-amd64
+        
+      - name: Test galasabld image
+        run: |
+          docker run --rm galasabld-amd64:${{ env.BRANCH }}
+        
+      - name: Build and push galasabld image
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/buildutils
+          file: modules/buildutils/dockerfiles/galasabld/dockerfile.galasabld
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            platform=linux-amd64
+        
+      - name: Upload galasabld executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: galasabld
+          path: modules/buildutils/bin
+
+  build-push-galasabld-ibm:
+    name: Build and push galasabld-ibm artefact
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [build-push-galasabld]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: galasa-team
+          password: ${{ secrets.GALASA_TEAM_WRITE_PACKAGES_TOKEN }}
+      
+      - name: Extract metadata for galasabld-ibm image
+        id: metadata
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasabld-ibm
+        
+      - name: Build galasabld-ibm image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/buildutils
+          file: modules/buildutils/dockerfiles/galasabld/dockerfile.galasabld-ibm
+          load: true
+          tags: galasabld-ibm:${{ env.BRANCH }}
+          build-args: |
+            dockerRepository=ghcr.io
+            branch=${{ env.BRANCH }}
+        
+      - name: Test galasabld-ibm image
+        run: |
+          docker run --rm galasabld-ibm:${{ env.BRANCH }}
+        
+      - name: Build and push galasabld-ibm image
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/buildutils
+          file: modules/buildutils/dockerfiles/galasabld/dockerfile.galasabld-ibm
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            dockerRepository=ghcr.io
+            branch=${{ env.BRANCH }}
+
+  build-push-openapi2beans:
+    name: Build and push openapi2beans artifacts
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup up Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: 1.22
+      
+      - name: Build openapi2beans using the Makefile
+        working-directory: modules/buildutils
+        run: |
+          make all -C openapi2beans
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: galasa-team
+          password: ${{ secrets.GALASA_TEAM_WRITE_PACKAGES_TOKEN }}
+      
+      - name: Extract metadata for openapi2beans image
+        id: metadata
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/openapi2beans
+        
+      - name: Build openapi2beans image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/buildutils
+          file: modules/buildutils/dockerfiles/openapi2beans/dockerfile.openapi2beans
+          load: true
+          tags: openapi2beans:${{ env.BRANCH }}
+          build-args: |
+            platform=linux-x86_64
+        
+      - name: Test openapi2beans image
+        run: |
+          docker run --rm openapi2beans:${{ env.BRANCH }}
+        
+      - name: Build and push openapi2beans image
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/buildutils
+          file: modules/buildutils/dockerfiles/openapi2beans/dockerfile.openapi2beans
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            platform=linux-x86_64 
+              
+      - name: Upload openapi2beans executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi2beans
+          path: modules/buildutils/openapi2beans/bin
+
+  build-push-buildutils-executables:
+    name: Build and push buildutils repository executables
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup up Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: 1.22
+          
+      - name: Build galasabld using the Makefile
+        working-directory: modules/buildutils
+        run: |
+          make all 
+
+      - name: Build openapi2beans using the Makefile
+        working-directory: modules/buildutils
+        run: |
+          make all -C openapi2beans
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: galasa-team
+          password: ${{ secrets.GALASA_TEAM_WRITE_PACKAGES_TOKEN }}
+      
+      - name: Extract metadata for buildutils-executables image
+        id: metadata
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/buildutils-executables
+        
+      - name: Build and push buildutils-executables image
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/buildutils
+          file: modules/buildutils/dockerfiles/dockerfile.buildutils
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+
+      - name: Recycle application in ArgoCD
+        env: 
+            ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app actions run ${{ env.BRANCH }}-bld restart --kind Deployment --resource-name bld-${{ env.BRANCH }} --server argocd.galasa.dev
+
+      - name: Wait for app health in ArgoCD
+        env: 
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app wait ${{ env.BRANCH }}-bld --resource apps:Deployment:bld-${{ env.BRANCH }} --health --server argocd.galasa.dev
+
+  report-failure:
+    name: Report failure in workflow
+    runs-on: ubuntu-latest
+    needs: [build-push-galasabld, build-push-galasabld-ibm, build-push-openapi2beans, build-push-buildutils-executables]
+    if: failure()
+
+    steps:
+      - name: Report failure in workflow to Slack
+        env: 
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run : |
+          docker run --rm ghcr.io/galasa-dev/galasabld-ibm:main slackpost workflows --repo "buildutils" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" --ref "${{ env.BRANCH }}" --hook "${{ env.SLACK_WEBHOOK }}"

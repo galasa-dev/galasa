@@ -1,0 +1,96 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Wrapping PR Build
+
+on:
+  workflow_call:
+    inputs:
+      changed:
+        description: 'True if this module has been changed and should be rebuilt'
+        required: true
+        type: string
+
+jobs:
+
+  log-unchanged:
+    name: Wrapping is unchanged
+    if: ${{ inputs.changed == 'false' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log this module is unchanged
+        run: |
+          echo "The wrapping module is unchanged"
+
+  build-wrapping:
+    name: Build Wrapping source code and Docker image
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      # Copy secrets into files to use in workflow
+      - name: Make secrets directory
+        run : |
+          mkdir /home/runner/work/secrets
+      - name: Copy settings.xml
+        env:
+          MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
+        run : |
+          echo $MAVEN_SETTINGS_XML > /home/runner/work/secrets/settings.xml
+      - name: Copy GPG passphrase
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run : |
+          echo $GPG_PASSPHRASE > /home/runner/work/secrets/passphrase.file
+      - name: Copy GPG key
+        env:
+          GPG_KEY_BASE64: ${{ secrets.GPG_KEY }}
+        run : |
+          echo $GPG_KEY_BASE64 |  base64 --decode > /home/runner/work/secrets/galasa.gpg
+          
+      # Set up Maven GPG directory
+      - name: Make GPG home directory
+        run: |
+          mkdir /home/runner/work/gpg
+      
+      - name: Change directory permissions
+        run: |
+          chmod '700' /home/runner/work/gpg
+
+      - name: Import GPG
+        run: |
+          gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
+      
+      - name: Copy custom settings.xml
+        run: |
+          cp /home/runner/work/secrets/settings.xml /home/runner/work/gpg/settings.xml
+      
+      - name: Building Wrapping source code
+        working-directory: modules/wrapping
+        run: |
+          mvn deploy -X \
+          -Dgpg.skip=true \
+          -Dgalasa.source.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/modules/wrapping/repo \
+          --batch-mode --errors --fail-at-end \
+          --settings /home/runner/work/gpg/settings.xml
+
+      - name: Upload wrapping artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wrapping
+          path: modules/wrapping/repo/dev/galasa
+          retention-days: 7

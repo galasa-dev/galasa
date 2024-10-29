@@ -1,0 +1,112 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Gradle Main Build
+
+on:
+  workflow_call:
+    inputs:
+      changed:
+        description: 'True if this module has been changed and should be rebuilt'
+        required: true
+        type: string
+      jacoco_enabled:
+        description: 'True if Jacoco code coverage should be enabled (set to "false" for release builds)'
+        required: false
+        default: 'true'
+        type: string
+      sign_artifacts:
+        description: 'True if the artifacts built should be signed (set to "false" for development branch builds)'
+        required: false
+        default: 'true'
+        type: string
+
+env:
+  BRANCH: ${{ github.ref_name }}
+
+jobs:
+
+  log-unchanged:
+    name: Gradle is unchanged
+    if: ${{ inputs.changed == 'false' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log this module is unchanged
+        run: |
+          echo "The gradle module is unchanged"
+
+  log-github-ref:
+    name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log GitHub ref of workflow
+        run: |
+          echo "This workflow is running on GitHub ref ${{ env.BRANCH }}"
+
+  build-gradle:
+    name: Build 'gradle' source code
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.9
+          cache-disabled: true
+
+      - name: Build Gradle source code
+        working-directory: modules/gradle
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_GRADLE_PROJECT_signingKeyId:  ${{ secrets.GPG_KEYID }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          set -o pipefail
+          gradle check publish --info \
+          --no-daemon --console plain \
+          -PsourceMaven=https://repo.maven.apache.org/maven2/ \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/modules/gradle/repo \
+          -PjacocoEnabled=${{ inputs.jacoco_enabled }} \
+          -PisMainOrRelease=${{ inputs.sign_artifacts }} 2>&1 | tee build.log
+
+      - name: Upload Gradle Build Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-gradle-build-log
+          path: modules/gradle/build.log
+
+      - name: Upload gradle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle
+          path: modules/gradle/repo/dev/galasa
+          retention-days: 7
+
+  report-failure:
+    name: Report failure in workflow
+    runs-on: ubuntu-latest
+    needs: [log-github-ref, build-gradle]
+    if: failure()
+
+    steps:
+      - name: Report failure in workflow to Slack
+        env: 
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run : |
+          docker run --rm ghcr.io/galasa-dev/galasabld-ibm:main slackpost workflows --repo "gradle" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" --ref "${{ env.BRANCH }}" --hook "${{ env.SLACK_WEBHOOK }}"

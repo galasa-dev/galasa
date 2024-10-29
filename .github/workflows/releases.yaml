@@ -1,0 +1,101 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Release Build Orchestrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      jacoco_enabled:
+        description: 'True if Jacoco code coverage should be enabled (set to "false" for release builds)'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+      sign_artifacts:
+        description: 'True if the artifacts built should be signed (set to "false" for development branch builds)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+
+jobs:
+
+  build-buildutils:
+    name: Build the 'buildutils' module
+    uses: ./.github/workflows/buildutils.yaml
+    secrets: inherit
+    with:
+      changed: ${{ true }}
+
+  build-wrapping:
+    name: Build the 'wrapping' module
+    uses: ./.github/workflows/wrapping.yaml
+    secrets: inherit
+    with:
+      changed: ${{ true }}
+      jacoco_enabled: ${{ inputs.jacoco_enabled }}
+      sign_artifacts: ${{ inputs.sign_artifacts }}
+
+  build-gradle:
+    name: Build the 'gradle' module
+    uses: ./.github/workflows/gradle.yaml
+    secrets: inherit
+    with:
+      changed: ${{ true }}
+      jacoco_enabled: ${{ inputs.jacoco_enabled }}
+      sign_artifacts: ${{ inputs.sign_artifacts }}
+
+  build-maven:
+    name: Build the 'maven' module
+    needs: [build-gradle]
+    uses: ./.github/workflows/maven.yaml
+    secrets: inherit
+    with:
+      changed: ${{ true }}
+      jacoco_enabled: ${{ inputs.jacoco_enabled }}
+      sign_artifacts: ${{ inputs.sign_artifacts }}
+
+  build-framework:
+    name: Build the 'framework' module
+    needs: [build-buildutils, build-wrapping, build-maven]
+    uses: ./.github/workflows/framework.yaml
+    secrets: inherit
+    with:
+      changed: ${{ true }}
+      jacoco_enabled: ${{ inputs.jacoco_enabled }}
+      sign_artifacts: ${{ inputs.sign_artifacts }}
+
+  build-extensions:
+    name: Build the 'extensions' module
+    needs: [build-framework]
+    uses: ./.github/workflows/extensions.yaml
+    secrets: inherit
+    with:
+      changed: ${{ true }}
+      jacoco_enabled: ${{ inputs.jacoco_enabled }}
+      sign_artifacts: ${{ inputs.sign_artifacts }}
+
+  build-managers:
+    name: Build the 'managers' module
+    needs: [build-framework]
+    uses: ./.github/workflows/managers.yaml
+    secrets: inherit
+    with:
+      changed: ${{ true }}
+      jacoco_enabled: ${{ inputs.jacoco_enabled }}
+      sign_artifacts: ${{ inputs.sign_artifacts }}
+
+  build-obr:
+    name: Build the 'obr' module
+    needs: [build-extensions, build-managers]
+    uses: ./.github/workflows/obr.yaml
+    secrets: inherit
+    with:
+      changed: ${{ true }}

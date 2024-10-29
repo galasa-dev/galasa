@@ -1,0 +1,151 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Main Build Orchestrator
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+
+  # Get modules that were changed as part of this Push,
+  # set that as an output of this job to be passed to the next job. 
+  get-changed-modules:
+    name: Get the modules changed in this Push
+    runs-on: ubuntu-latest
+
+    outputs:
+      buildutils_changed: ${{ steps.get-changed-modules.outputs.BUILDUTILS_CHANGED }}
+      wrapping_changed: ${{ steps.get-changed-modules.outputs.WRAPPING_CHANGED }}
+      gradle_changed: ${{ steps.get-changed-modules.outputs.GRADLE_CHANGED }}
+      maven_changed: ${{ steps.get-changed-modules.outputs.MAVEN_CHANGED }}
+      framework_changed: ${{ steps.get-changed-modules.outputs.FRAMEWORK_CHANGED }}
+      extensions_changed: ${{ steps.get-changed-modules.outputs.EXTENSIONS_CHANGED }}
+      managers_changed: ${{ steps.get-changed-modules.outputs.MANAGERS_CHANGED }}
+      obr_changed: ${{ steps.get-changed-modules.outputs.OBR_CHANGED }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log base and head commits of this Push event
+        run : |
+          echo "Base commit: ${{ github.event.before }}"
+          echo "Head commit: ${{ github.sha }}"
+
+      - name: Get the modules changed in this Push
+        id: get-changed-modules
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ./tools/get-changed-modules-push.sh --repo ${{ github.repository }} --base ${{ github.event.before }} --head ${{ github.sha }}
+
+  find-artifacts:
+    name: Get Workflow Run IDs with artifacts to download for each module
+    runs-on: ubuntu-latest
+
+    outputs: 
+      buildutils_artifacts_id: ${{ steps.find-artifacts.outputs.buildutils_artifacts_id }}
+      wrapping_artifacts_id: ${{ steps.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle_artifacts_id: ${{ steps.find-artifacts.outputs.gradle_artifacts_id }}
+      maven_artifacts_id: ${{ steps.find-artifacts.outputs.maven_artifacts_id }}
+      framework_artifacts_id: ${{ steps.find-artifacts.outputs.framework_artifacts_id }}
+      extensions_artifacts_id: ${{ steps.find-artifacts.outputs.extensions_artifacts_id }}
+      managers_artifacts_id: ${{ steps.find-artifacts.outputs.managers_artifacts_id }}
+      obr_artifacts_id: ${{ steps.find-artifacts.outputs.obr_artifacts_id }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get last successful workflow run with artifacts for each module
+        id: find-artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ./tools/get-last-successful-workflow-run-for-artifacts.sh --repo ${{ github.repository }}
+
+  build-buildutils:
+    name: Build the 'buildutils' module
+    needs: [get-changed-modules]
+    uses: ./.github/workflows/buildutils.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.buildutils_changed }}
+
+  build-wrapping:
+    name: Build the 'wrapping' module
+    needs: [get-changed-modules]
+    uses: ./.github/workflows/wrapping.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.wrapping_changed }}
+
+  build-gradle:
+    name: Build the 'gradle' module
+    needs: [get-changed-modules]
+    uses: ./.github/workflows/gradle.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.gradle_changed }}
+
+  build-maven:
+    name: Build the 'maven' module
+    needs: [get-changed-modules, find-artifacts, build-gradle]
+    uses: ./.github/workflows/maven.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.maven_changed }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+
+  build-framework:
+    name: Build the 'framework' module
+    needs: [get-changed-modules, find-artifacts, build-buildutils, build-wrapping, build-maven]
+    uses: ./.github/workflows/framework.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.framework_changed }}
+      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
+
+  build-extensions:
+    name: Build the 'extensions' module
+    needs: [get-changed-modules, find-artifacts, build-framework]
+    uses: ./.github/workflows/extensions.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.extensions_changed }}
+      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
+      framework-artifact-id: ${{ needs.find-artifacts.outputs.framework_artifacts_id }}
+
+  build-managers:
+    name: Build the 'managers' module
+    needs: [get-changed-modules, find-artifacts, build-framework]
+    uses: ./.github/workflows/managers.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.managers_changed }}
+      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
+      framework-artifact-id: ${{ needs.find-artifacts.outputs.framework_artifacts_id }}
+
+  build-obr:
+    name: Build the 'obr' module
+    needs: [get-changed-modules, find-artifacts, build-extensions, build-managers]
+    uses: ./.github/workflows/obr.yaml
+    secrets: inherit
+    with:
+      changed: ${{ true }} # Always rebuild the OBR as it contains all other modules.
+      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
+      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
+      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
+      framework-artifact-id: ${{ needs.find-artifacts.outputs.framework_artifacts_id }}
+      extensions-artifact-id: ${{ needs.find-artifacts.outputs.extensions_artifacts_id }}
+      managers-artifact-id: ${{ needs.find-artifacts.outputs.managers_artifacts_id }}

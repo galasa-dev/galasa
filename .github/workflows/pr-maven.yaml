@@ -1,0 +1,126 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Maven PR Build
+
+on:
+  workflow_call:
+    inputs:
+      changed:
+        description: 'True if this module has been changed and should be rebuilt'
+        required: true
+        type: string
+      gradle-artifact-id:
+        description: 'The Workflow Run ID of the last workflow containing artifacts for the gradle module'
+        required: true
+        type: string
+
+jobs:
+
+  log-unchanged:
+    name: Maven is unchanged
+    if: ${{ inputs.changed == 'false' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log this module is unchanged
+        run: |
+          echo "The maven module is unchanged"
+
+  build-maven:
+    name: Build Maven source code and Docker image
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+      
+      # Copy secrets into files to use in workflow
+      - name: Make secrets directory
+        run : |
+          mkdir /home/runner/work/secrets
+
+      - name: Copy settings.xml
+        env:
+          MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
+        run : |
+          echo $MAVEN_SETTINGS_XML > /home/runner/work/secrets/settings.xml
+
+      - name: Copy GPG passphrase
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run : |
+          echo $GPG_PASSPHRASE > /home/runner/work/secrets/passphrase.file
+
+      - name: Copy GPG key
+        env:
+          GPG_KEY_BASE64: ${{ secrets.GPG_KEY }}
+        run : |
+          echo $GPG_KEY_BASE64 |  base64 --decode > /home/runner/work/secrets/galasa.gpg
+            
+        # Set up Maven GPG directory
+      - name: Make GPG home directory
+        run: |
+          mkdir /home/runner/work/gpg
+        
+      - name: Change directory permissions
+        run: |
+          chmod '700' /home/runner/work/gpg
+  
+      - name: Import GPG
+        run: |
+          gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
+        
+      - name: Copy custom settings.xml
+        run: |
+          cp /home/runner/work/secrets/settings.xml /home/runner/work/gpg/settings.xml
+
+      # For any modules that were changed in this PR,
+      # download their artifacts from this workflow run.
+
+      - name: Download gradle artifacts from this workflow
+        id: download-gradle
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: gradle
+          path: modules/artifacts/dev/galasa
+
+      # For any modules that weren't changed in this PR,
+      # download artifacts from the last successful workflow.
+
+      - name: Download gradle artifacts from last successful workflow
+        if: ${{ steps.download-gradle.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: gradle
+          path: modules/artifacts/dev/galasa
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.gradle-artifact-id }}
+      
+      - name: Building Maven source code
+        working-directory: modules/maven
+        run: |
+          mvn -f galasa-maven-plugin/pom.xml deploy -X \
+          -Dgpg.skip=true \
+          -Dgalasa.source.repo=file:${{ github.workspace }}/modules/artifacts \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/modules/maven/repo \
+          --batch-mode --errors --fail-at-end \
+          --settings /home/runner/work/gpg/settings.xml
+
+      - name: Upload maven artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven
+          path: modules/maven/repo/dev/galasa
+          retention-days: 7
