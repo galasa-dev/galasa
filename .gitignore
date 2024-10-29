@@ -1,0 +1,42 @@
+target/
+.settings/
+.project
+.classpath
+.factorypath
+.apt_generated/
+.apt_generated_tests/
+.DS_Store
+build.properties
+MANIFEST.MF
+/bin/
+*.versionsBackup
+temp/
+.vscode/
+
+
+.gradle
+**/build/
+!src/**/build/
+bin/
+wrapper/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties
+
+
+.settings
+.project
+.classpath
+
+*.phd
+*.dmp
+velocity.log*
