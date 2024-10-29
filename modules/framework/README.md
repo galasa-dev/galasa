@@ -1,3 +1,4 @@
+DUMMY CHANGE
 # Galasa Framework
 This repository contains the code for Galasa's core framework. The framework orchestrates all component activities, and co-ordinates with the test runner to execute your tests.
 Code that is required for the lifecycle of a test, including framework initialisation steps to bring up appropriate Managers and the test runner is stored here. The repository also contains the k8s controller which is used to run tests in automation on a Kubernetes cluster.
