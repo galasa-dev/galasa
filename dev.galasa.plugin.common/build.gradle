@@ -1,0 +1,137 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group   = "dev.galasa"
+version = "0.36.0"
+
+repositories {
+    maven {
+       url "$sourceMaven"
+    }
+    mavenLocal()
+    maven {
+       url "$centralMaven"
+    }
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.11'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+    testImplementation 'junit:junit:4.13'
+}
+
+tasks.withType(Javadoc) {
+    failOnError = false
+    enabled = true
+}
+
+task gitHash(dependsOn : 'classes') {
+    def dir    = layout.buildDirectory.dir("githash").get().asFile
+    def meta   = layout.buildDirectory.dir("githash/META-INF").get().asFile
+    def result = layout.buildDirectory.file("githash/META-INF/git.hash").get().asFile
+    
+    outputs.dir meta
+    tasks.jar.dependsOn('gitHash')
+    tasks.jar.from(dir)
+    
+    doLast {
+        if(!meta.exists()) {
+            meta.mkdirs()
+        }
+        
+        def hash = "unknown"
+        
+        try {
+            new ByteArrayOutputStream().withStream { os ->
+                def r = exec {
+                    commandLine 'git', 'log',  '--pretty=format:%H', '-1', '.'
+                    standardOutput = os
+                }
+            hash = os.toString()
+            }
+        } catch(Exception e) {}
+        result.write(hash)
+    }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+    
+tasks.withType(Javadoc) {
+    failOnError = false
+    enabled = true
+}
+
+signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications
+}
+
+tasks.withType(Sign) {
+    onlyIf { isMainOrRelease.toBoolean() }
+}
+
+publishing {
+    afterEvaluate {
+        publications {
+            maven(MavenPublication) {
+                from(components.java)
+            }
+
+            withType(MavenPublication) {
+                pom {
+                    url = 'https://galasa.dev'
+                    name = 'Galasa Gradle Plugins'
+                    description = 'This project contains code common to plugins'
+                    licenses {
+                        license {
+                            name = 'Eclipse Public License - v 2.0'
+                            url = 'https://www.eclipse.org/legal/epl-2.0'
+                        }
+                    }
+                    developers {
+                        developer {
+                            name = 'Galasa Contributors'
+                            email = 'galasadelivery@ibm.com'
+                            organization = 'Linux Foundation'
+                            organizationUrl = 'https://github.com/galasa-dev'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:git:://github.com/galasa-dev/gradle'
+                        developerConnection = 'scm:git:git:://github.com/galasa-dev/gradle'
+                        url = 'https://github.com/galasa-dev/gradle'
+                    }
+                    issueManagement {
+                        system = 'GitHub'
+                        url = 'https://github.com/galasa-dev/projectmanagement/issues'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url  = "$targetMaven"
+            
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv("GITHUB_ACTOR")
+                    password System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+
+}
+

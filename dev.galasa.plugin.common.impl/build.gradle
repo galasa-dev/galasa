@@ -1,0 +1,113 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group   = "dev.galasa"
+version = "0.36.0"
+
+repositories {
+    maven {
+       url "$sourceMaven"
+    }
+    mavenLocal()
+    maven {
+       url "$centralMaven"
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'commons-codec:commons-codec:1.13'
+	implementation 'commons-io:commons-io:2.15.1'
+	testImplementation 'org.assertj:assertj-core:3.25.3'
+	implementation 'org.apache.httpcomponents:httpcore:4.4.11'
+	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+    implementation project(':dev.galasa.plugin.common')
+    testImplementation project(':dev.galasa.plugin.common.test')
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+    
+tasks.withType(Javadoc) {
+    failOnError = false
+    enabled = true
+}
+
+
+signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications
+}
+
+
+
+tasks.withType(Sign) {
+    onlyIf { isMainOrRelease.toBoolean() }
+}
+
+
+
+publishing {
+    afterEvaluate {
+        publications {
+            maven(MavenPublication) {
+                from(components.java)
+            }
+
+            withType(MavenPublication) {
+                pom {
+                    url = 'https://galasa.dev'
+                    name = 'Galasa Gradle Plugins'
+                    description = 'This project contains code common to plugins'
+                    licenses {
+                        license {
+                            name = 'Eclipse Public License - v 2.0'
+                            url = 'https://www.eclipse.org/legal/epl-2.0'
+                        }
+                    }
+                    developers {
+                        developer {
+                            name = 'Galasa Contributors'
+                            email = 'galasadelivery@ibm.com'
+                            organization = 'Linux Foundation'
+                            organizationUrl = 'https://github.com/galasa-dev'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:git:://github.com/galasa-dev/gradle'
+                        developerConnection = 'scm:git:git:://github.com/galasa-dev/gradle'
+                        url = 'https://github.com/galasa-dev/gradle'
+                    }
+                    issueManagement {
+                        system = 'GitHub'
+                        url = 'https://github.com/galasa-dev/projectmanagement/issues'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url  = "$targetMaven"
+            
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv("GITHUB_ACTOR")
+                    password System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+
+}
+

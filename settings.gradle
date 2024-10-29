@@ -1,0 +1,19 @@
+pluginManagement {
+    repositories {
+        maven {
+            url = "$sourceMaven"
+        }
+        maven {
+            url "$centralMaven"
+        }
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = "galasa-gradle-parent"
+
+include 'dev.galasa.plugin.common'
+include 'dev.galasa.plugin.common.test'
+include 'dev.galasa.plugin.common.impl'
+include 'dev.galasa.gradle.impl'
+

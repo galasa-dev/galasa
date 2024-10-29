@@ -1,0 +1,68 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: PR build
+
+on:
+  pull_request:
+      branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: galasa-dev
+
+jobs:
+  build-gradle:
+    name: Build Gradle source code and Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      # The githash is added to the development Maven registry to show what commit level it contains
+      - name: Print githash
+        run: |
+          echo $GITHUB_SHA > ./gradle.githash
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.9
+          cache-disabled: true
+
+      - name: Build Gradle source code 
+        run: |
+          gradle check publish --info \
+          --no-daemon --console plain \
+          -PsourceMaven=https://repo.maven.apache.org/maven2/ \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/repo 
+
+      - name: Extract metadata for Gradle image
+        id: metadata
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/gradle-maven-artefacts
+
+      # This Docker image will not be used, it's just to test that the Docker build should work
+      - name: Build Gradle image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dockerfiles/dockerfile.gradle
+          push: false
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            dockerRepository=ghcr.io
+            tag=main
