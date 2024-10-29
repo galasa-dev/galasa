@@ -1,0 +1,343 @@
+plugins {
+    id 'java'
+    id 'biz.aQute.bnd.builder' version '5.3.0' apply false
+    id 'dev.galasa.githash' version '0.15.0' apply false
+    id 'jacoco'
+    id 'maven-publish'
+    id 'signing'
+}
+
+// Note: The following line is changed by the set-version.sh script.
+// It is also read by other build scrips as required.
+version = "0.38.0"
+
+signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications
+}
+
+tasks.withType(Sign) {
+    onlyIf { isMainOrRelease.toBoolean() }
+}
+
+dependencies {
+    // We need the swagger generator to generate API documentation from the openapi.yaml file
+    // https://mvnrepository.com/artifact/io.swagger.codegen.v3/swagger-codegen-cli
+    compileOnly 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
+}
+
+allprojects {
+   tasks.withType(Javadoc) {
+      options.addStringOption('Xdoclint:none', '-quiet')
+   }
+
+    repositories {
+        gradlePluginPortal()
+        mavenLocal()
+        maven {
+            url "https://development.galasa.dev/main/maven-repo/maven/"
+        }
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'jacoco'
+    test {
+        finalizedBy jacocoTestReport
+    }
+    jacocoTestReport {
+        dependsOn test
+    }
+}
+
+//----------------------------------------------------------
+// Download the Dex gRPC API .proto file
+//----------------------------------------------------------
+def dexVersion = "v2.38.0"
+def protoDirPath = "$rootDir/dev.galasa.framework.api.authentication/src/main/proto"
+def protoDir = new File(protoDirPath)
+def dexProtoFile = new File("$protoDirPath/dex.proto")
+task downloadDexProto() {
+    // If the .proto file already exists, we don't need to do anything
+    if (!dexProtoFile.exists()) {
+
+        // Make sure the proto directory exists so that the protobuf plugin works
+        if (!protoDir.exists()) {
+            protoDir.mkdirs()
+        }
+
+        // Download Dex's api.proto file from GitHub
+        new URL("https://raw.githubusercontent.com/dexidp/dex/$dexVersion/api/v2/api.proto").withInputStream{
+            inputStream -> dexProtoFile.withOutputStream{ outputStream -> outputStream << inputStream }
+        }
+    }
+}
+
+// Make sure the .proto file has been downloaded before building the framework
+build.dependsOn downloadDexProto
+
+task downloadDependencies(type: Copy) {
+    // Download the dependencies onto the local disk.
+    from configurations.compileClasspath
+    into 'build/dependencies'
+}
+
+gradle.taskGraph.beforeTask { Task task ->
+   task.ext.setProperty("startTime", new java.util.Date())
+}
+
+gradle.taskGraph.afterTask { Task task, TaskState state ->
+    int secs = ( new java.util.Date().getTime() - task.ext.startTime.getTime() ) / 1000
+    int mins = secs / 60
+
+    int sec = secs - mins * 60
+    println " -> took " + mins + ( ( 1 == mins ) ? " min " : " mins " ) + sec + ( ( 1 == sec ) ? " sec" : " secs" )
+}
+
+//---------------------------------------------------------------
+// We need to gather the release and packaging metadata from each
+// sub-project, to generate a release.yaml document which can act
+// as a manifest for this component.
+//
+// The OSGi bundles in this project are all in one of two groups:
+// - The 'framework'
+// or
+// - The 'api'
+//
+// Each module is examined, and contributes it's metadata to one
+// of two manifest files. Both manifest files are then combined
+// into an overall manifest file ready to be published to a
+// maven repository.
+//
+// At a later time, the OBR project will draw-down the manifest
+// and use it to build the uber-obr.
+//---------------------------------------------------------------
+configurations {
+    release_metadata
+}
+
+def overallManifestFilePath = layout.buildDirectory.file("release.yaml").get().asFile.path
+def frameworkManifestFilePath = layout.buildDirectory.file("framework-release.yaml").get().asFile.path
+def apiManifestFilePath = layout.buildDirectory.file("api-release.yaml").get().asFile.path
+
+def overallHeader = """#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# -----------------------------------------------------------
+#
+#                         WARNING
+#
+# This file is periodically re-generated from the contents of
+# the repository, so don't make changes here manually please.
+# -----------------------------------------------------------
+
+
+apiVersion: galasa.dev/v1alpha
+kind: Release
+metadata:
+  name: galasa-release
+"""
+
+def frameworkHeader = """
+
+framework:
+  bundles:
+"""
+
+def apiHeader = """
+
+api:
+  bundles:
+"""
+
+
+//----------------------------------------------------------
+// Flushes any existing content on the specified path, and
+// creates a new file, containing the header text.
+//----------------------------------------------------------
+def prepareGeneratedFile(path , header) {
+    // Make sure the manifest file is clean, and exists.
+    def overallManifestFile = new File(path)
+    if (overallManifestFile.exists()){
+        // File exists, delete it and create a new one.
+        overallManifestFile.delete()
+    }
+    overallManifestFile.createNewFile()
+
+    // Add the header to the manifest file
+    overallManifestFile.append(header)
+}
+
+//----------------------------------------------------------
+// Prepare the overall manifest, and a manifest for each of
+// the 'framework' and 'api' collections of bundles.
+//----------------------------------------------------------
+task buildReleaseYamlPrepare() {
+    // During execution phase, make sure the file exists.
+    doFirst{
+        // Make sure the build directory exists.
+        if ( !buildDir.exists() ) {
+            buildDir.mkdirs()
+        }
+
+        prepareGeneratedFile(overallManifestFilePath,overallHeader)
+        prepareGeneratedFile(frameworkManifestFilePath,frameworkHeader)
+        prepareGeneratedFile(apiManifestFilePath,apiHeader)
+    }
+}
+
+//----------------------------------------------------------
+// Allow each subproject to contribute to one of the manifest
+// collectons.
+//----------------------------------------------------------
+task buildReleaseYamlSubprojects() {
+    dependsOn buildReleaseYamlPrepare
+
+    subprojects {
+        ext {
+            // the property that should be overridden in suproject's build.gradle
+            // Each sub-project will set the values...
+            projectName = '' // The name of the bundle.
+            includeInOBR = '' // Is the bundle included in the uber-obr ?
+            includeInMVP = ''
+            includeInBOM = ''
+            includeInJavadoc = '' // Is the component displayed to users on the public javadoc site ?
+            includeInIsolated = '' // Is the component included in the bundles shipped as part of the isolated build ?
+            includeInCodeCoverage = ''
+        }
+
+        afterEvaluate {
+            doLast {
+                // Some projects don't have a version property... as they are parent projects mostly.
+                if (version != 'unspecified') {
+
+                    // Decide which manifest file we want to append to based on subcomponent.
+                    def manifestFilePath
+                    if ( projectName.startsWith('dev.galasa.framework.api') ) {
+                        manifestFilePath = apiManifestFilePath
+                    } else {
+                        manifestFilePath = frameworkManifestFilePath
+                    }
+
+                    if (projectName == '') {
+                        throw new Exception("Project has no name.")
+                    }
+
+                    def f = new File(manifestFilePath)
+                    f.append("\n\n  - artifact: $projectName")
+                    f.append("\n    version: $version")
+                    if (includeInOBR != '') {
+                        f.append("\n    obr:          $includeInOBR")
+                    }
+                    if (includeInMVP != '') {
+                        f.append("\n    mvp:          $includeInMVP")
+                    }
+                    if (includeInBOM != '') {
+                        f.append("\n    bom:          $includeInBOM")
+                    }
+                    if (includeInJavadoc != '') {
+                        f.append("\n    javadoc:      $includeInJavadoc")
+                    }
+                    if (includeInIsolated != '') {
+                        f.append("\n    isolated:     $includeInIsolated")
+                    }
+                    if (includeInCodeCoverage != '') {
+                        f.append("\n    codecoverage: $includeInCodeCoverage")
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+//----------------------------------------------------------
+// Once we've collected all the metadata into either the
+// 'framework' or 'api' collections of bundle information,
+// Combine them into the 'overall' manifest file.
+//----------------------------------------------------------
+task buildReleaseYamlFinalise() {
+    dependsOn buildReleaseYamlSubprojects
+    // At the end of days, add the framework and api sections to the overall manifest file.
+    doLast{
+        def toConcatenate = files(frameworkManifestFilePath, apiManifestFilePath)
+        def overallManifestFile = new File(overallManifestFilePath)
+        toConcatenate.each { f -> overallManifestFile.append(f.text)}
+    }
+}
+
+// Build the release.yaml file
+task buildReleaseYaml() {
+    println 'Building the release.yaml file...'
+    dependsOn buildReleaseYamlFinalise
+}
+
+// Declare that the uber-manifest release.yaml file exists, and how to build it.
+def myReleaseYaml = artifacts.add('release_metadata', file(overallManifestFilePath)) {
+    builtBy 'buildReleaseYaml'
+}
+
+// Publish the release.yaml as a maven artifact.
+// Note: The maven co-ordinates are versioned using the version for this bundle.
+publishing {
+
+    publications {
+
+        // Publish the component manifest/release.yaml
+        publishReleaseManifestYaml(MavenPublication) {
+            artifact myReleaseYaml
+
+            pom {
+                name = "Manifest for framework bundle versions"
+                artifactId = "dev.galasa.framework.manifest"
+                groupId = 'dev.galasa'
+                version = "0.38.0"
+                description = "Conveys bundle version information to OBR builds."
+                licenses {
+                    license {
+                        name = 'Eclipse Public License - v 2.0'
+                        url = 'https://www.eclipse.org/legal/epl-2.0'
+                    }
+                }
+                url = 'https://galasa.dev'
+                developers {
+                    developer {
+                        name = 'Galasa Developer'
+                        email = 'galasadelivery@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:://github.com/galasa-dev/framework'
+                    developerConnection = 'scm:git:git:://github.com/galasa-dev/framework'
+                    url = 'https://github.com/galasa-dev/framework'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/galasa-dev/projectmanagement/issues'
+                }
+            }
+
+        }
+    }
+    repositories {
+        maven {
+            url  = "$targetMaven"
+
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv('GITHUB_ACTOR')
+                    password System.getenv('GITHUB_TOKEN')
+                }
+            }
+        }
+    }
+}

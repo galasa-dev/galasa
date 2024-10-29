@@ -1,0 +1,7 @@
+ARG dockerRepository
+ARG tag
+FROM ${dockerRepository}/galasa-dev/maven-maven-artefacts:${tag}
+
+COPY repo/ /usr/local/apache2/htdocs/
+COPY framework.githash /usr/local/apache2/htdocs/framework.githash
+COPY galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml /usr/local/apache2/htdocs/openapi.yaml

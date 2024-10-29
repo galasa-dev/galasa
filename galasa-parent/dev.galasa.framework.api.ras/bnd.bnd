@@ -1,0 +1,4 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa API Result Archive Store microservices
+Import-Package: dev.galasa.framework.api.common,\
+                *

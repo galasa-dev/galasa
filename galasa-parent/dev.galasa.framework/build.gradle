@@ -1,0 +1,44 @@
+plugins {
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.framework'
+}
+
+description = 'Galasa Framework'
+
+// Note: The following line is changed by the set-version.sh script.
+// It is also read by other build scrips as required.
+version = "0.38.0"
+
+dependencies {
+
+    api project (':dev.galasa')
+    implementation project (':dev.galasa.framework.maven.repository.spi')
+
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.1'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
+
+    implementation 'org.apache.bcel:bcel:6.7.0'
+    implementation 'commons-io:commons-io:2.16.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.yaml:snakeyaml:2.0'
+
+    testImplementation project (':dev.galasa')
+
+}
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = true
+ext.includeInMVP          = true
+ext.includeInIsolated     = false
+ext.includeInBOM          = true
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = false
+

@@ -1,0 +1,42 @@
+target/
+.settings/
+.project
+.classpath
+.factorypath
+.apt_generated/
+.apt_generated_tests/
+.externalToolBuilders/
+core.*
+javacore.*
+jitdump.*
+Snap.*
+.DS_Store
+/*/build.properties
+!/*eclipse*/build.properties
+/*/MANIFEST.MF
+!/*eclipse*/MANIFEST.MF
+bin/
+lib/
+dependency-reduced-pom.xml
+velocity.log
+*.versionsBackup
+.vscode
+generated-openapi
+node_modules
+package-lock.json
+build/
+.gradle/
+**/.idea/
+**/heapdump*
+docs/generated/
+**/*.jar
+
+# A folder scripts can put things into without fear of them being checked-in.
+temp/
+*.proto
+
+# Ignore the OpenAPI spec that is automatically placed into the 
+# resources folder to be served up by the OpenAPI servlet
+**/dev.galasa.framework.api.openapi.servlet/**/openapi.yaml
+
+run-test.sh

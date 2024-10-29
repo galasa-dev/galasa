@@ -1,0 +1,29 @@
+plugins {
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.framework'
+}
+
+description = 'Galasa Maven Repository '
+
+version = '0.22.0'
+
+dependencies {
+    compileOnly project(':dev.galasa.framework.maven.repository.spi')
+
+    implementation 'org.apache.maven:maven-repository-metadata:3.3.9'
+    implementation 'org.codehaus.plexus:plexus-utils:3.0.24'
+}
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file 
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = true
+ext.includeInMVP          = true
+ext.includeInIsolated     = true
+ext.includeInBOM          = false
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = false
+

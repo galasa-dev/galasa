@@ -1,0 +1,262 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# -----------------------------------------------------------
+#
+#                         WARNING
+#
+# This file is periodically re-generated from the contents of
+# the repository, so don't make changes here manually please.
+# -----------------------------------------------------------
+
+
+apiVersion: galasa.dev/v1alpha
+kind: Release
+metadata:
+  name: galasa-release
+
+
+framework:
+  bundles:
+
+
+  - artifact: dev.galasa
+    version: 0.34.0
+    obr:          true
+    mvp:          true
+    bom:          true
+    javadoc:      true
+    isolated:     false
+    codecoverage: true
+
+  - artifact: dev.galasa.framework
+    version: 0.38.0
+    obr:          true
+    mvp:          true
+    bom:          true
+    javadoc:      false
+    isolated:     false
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.docker.controller
+    version: 0.34.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.k8s.controller
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.log4j2.bridge
+    version: 0.25.0
+    obr:          false
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     false
+    codecoverage: false
+
+  - artifact: dev.galasa.framework.maven.repository
+    version: 0.22.0
+    obr:          true
+    mvp:          true
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.maven.repository.spi
+    version: 0.21.0
+    obr:          true
+    mvp:          true
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.metrics
+    version: 0.21.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.resource.management
+    version: 0.23.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: galasa-boot
+    version: 0.37.0
+    obr:          false
+    mvp:          true
+    bom:          false
+    javadoc:      false
+    isolated:     false
+    codecoverage: true
+
+  - artifact: galasa-testharness
+    version: 0.38.0
+    obr:          false
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     false
+    codecoverage: false
+
+api:
+  bundles:
+
+
+  - artifact: dev.galasa.framework.api
+    version: 0.36.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.authentication
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.beans
+    version: 0.33.0
+    obr:          true
+    mvp:          true
+    bom:          true
+    javadoc:      true
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.bootstrap
+    version: 0.36.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.common
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      true
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.cps
+    version: 0.37.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.health
+    version: 0.25.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.launcher
+    version: 0.21.0
+    obr:          false
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     false
+    codecoverage: false
+
+  - artifact: dev.galasa.framework.api.openapi
+    version: 0.38.0
+    obr:          true
+    mvp:          true
+    bom:          true
+    javadoc:      false
+    isolated:     true
+    codecoverage: false
+
+  - artifact: dev.galasa.framework.api.openapi.servlet
+    version: 0.36.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.ras
+    version: 0.37.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.resources
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.runs
+    version: 0.37.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.testcatalog
+    version: 0.34.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.framework.api.users
+    version: 0.37.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true

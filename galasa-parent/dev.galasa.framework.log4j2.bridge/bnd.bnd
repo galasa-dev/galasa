@@ -1,0 +1,7 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa log4j2 bridge
+Export-Package: org.apache.commons.logging;version="1.2"
+Fragment-Host: org.apache.logging.log4j.core
+Import-Package: org.apache.logging.log4j,\
+                org.apache.logging.log4j.spi,\
+                org.apache.logging.log4j.util

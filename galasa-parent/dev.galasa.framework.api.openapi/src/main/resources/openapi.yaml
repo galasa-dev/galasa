@@ -1,0 +1,2240 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+openapi: 3.0.3
+info:
+  title: Galasa Ecosystem API
+  version : "0.38.0"
+  description: The Galasa Ecosystem REST API allows you to interact with a Galasa Ecosystem.
+  contact:
+    url: https://galasa.dev/support
+
+servers:
+  # A value for the following URL is injected in the OpenAPI servlet for the /openapi endpoint.
+  # Any changes to this must be reflected in the OpenAPI servlet
+  - url: '{API_SERVER_URL}'
+security:
+  - JwtAuth: []
+paths:
+##################################################################################
+# Authentication API
+##################################################################################
+  /auth:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getAuthenticate
+      summary: Redirect to authenticate with an upstream OpenID Connect connector.
+      tags:
+      - Authentication API
+      security: []
+      parameters:
+        - name: client_id
+          in: query
+          description: The ID of the client used to authenticate with the upstream connector.
+          required: true
+          schema:
+            type: string
+        - name: callback_url
+          in: query
+          description: |
+            The URL to return to once the authentication process is complete.
+            This should be a URL to a client web application.
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Returns a redirect to authenticate with the configured connector.
+          headers:
+            location:
+              description: The URL of the configured connector to redirect to.
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occurred when trying to execute request '/user'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    # POST /auth is deprecated in favour of POST /auth/tokens and will be removed in a future release
+    post:
+      operationId: postAuthenticate
+      deprecated: true
+      summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
+      tags:
+      - Authentication API
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthProperties'
+      responses:
+        '200':
+          description: Returns a JSON Object containing a JWT and refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occurred when trying to execute request '/auth'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required body properties are missing
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/callback:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getAuthenticateCallback
+      summary: Callback endpoint used as part of an OAuth 2.0 authorization code flow, redirects to a callback URL with an authorization code as a query parameter.
+      tags:
+      - Authentication API
+      security: []
+      parameters:
+        - name: code
+          in: query
+          description: The authorization code for the current authentication request.
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: The state parameter associated with the current authentication request, used to mitigate CSRF attacks.
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Returns a redirect to the callback URL provided in the original /auth request.
+          headers:
+            location:
+              description: The callback URL provided in the original /auth request, with an authorization code appended as a query parameter.
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occurred when trying to execute request '/auth/callback'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing
+  /auth/clients:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    post:
+      operationId: postClients
+      summary: Create a new Dex client to authenticate with.
+      description: |
+        Creates a new Dex client to authenticate with and returns the details of the created client.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Authentication API
+      responses:
+        '201':
+          description: Returns a JSON Object containing the created client's ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DexClient'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/tokens:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getTokens
+      summary: Get a list of tokens used for authenticating with the Galasa API server.
+      description: |
+        Returns a list of tokens used for authenticating with the Galasa API server, sorted by
+        ascending creation date order (i.e. earliest first, latest last).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Authentication API
+      parameters:
+      - name: loginId
+        in: query
+        description: |
+            The loginId of the user whose details will be returned.
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Returns a JSON Object containing the list of tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occured when trying to execute request '/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."        
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createToken
+      summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
+      tags:
+      - Authentication API
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthProperties'
+      responses:
+        '200':
+          description: Returns a JSON Object containing a JWT and refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occurred when trying to execute request '/auth/tokens'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required body properties are missing
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/tokens/{tokenId}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    delete:
+      operationId: deleteToken
+      summary: Revokes a token which is used for authenticating with the Galasa API server.
+      description: |
+        Revokes access for a preivously generated token through specifing the token ID.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Authentication API
+      parameters:
+      - name: tokenId
+        in: path
+        description: |
+            Token ID. An alphanumeric string used to identify a token.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success message indicating that the given token has been revoked
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Successfully revoked token with ID 'tokenId'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Could not find an existing auth token with the given ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                notfounderror:
+                  value:
+                    error_code: 5064
+                    error_message: "GAL5064E: Failed to revoke the token with the given ID. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"
+                  summary: The given token ID in the request did not correspond to an existing token record stored in the Galasa auth store.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to access the endpoint
+
+                  
+##################################################################################
+# Users API
+##################################################################################
+  /users:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getUserByLoginId
+      summary: Returns the details of the requesting user. 
+      tags:
+      - Users API
+      parameters:
+        - name: loginId
+          in: query
+          description: The loginId of the user whose details will be returned. #If the keyword of 'me' is used, the details of the requesting user will be returned.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of User Data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserData'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occurred when trying to execute request '/users'. Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing
+##################################################################################
+# CPS API
+##################################################################################
+  #--------------------------------------
+  # List all known Namespaces in CPS, excluding hidden namespaces
+  #--------------------------------------
+  /cps:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getAllCpsNamespaces
+      summary: Get all known CPS namespaces
+      description: |
+        Returns a list of all namespaces in the Configuration Property Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Configuration Property Store API
+      responses:
+        '200':
+          description: Array of CPS namespaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Namespace'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #--------------------------------------
+  # List all properties for a given Namespace in CPS
+  # Create a new property
+  #--------------------------------------
+  /cps/{namespace}/properties:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: queryCpsNamespaceProperties
+      summary: Get all CPS namespace properties
+      description: |
+        Returns a list of all properties in the given namespace within the Configuration Property Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: query
+        description: |
+          Property Prefix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      - name: suffix
+        in: query
+        description: |
+          Property suffix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      - name: infix
+        in: query
+        description: |
+          Comma-separated list of Property infixes. The first character of each infix must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Array of CPS Properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GalasaProperty'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespacerror:
+                  value:
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createCpsProperty
+      summary: Create a new CPS property
+      description: |
+        Create a new property with the supplied value in the given Namespace within the Configuration Property Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: The value of the property being created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalasaProperty'
+      responses:
+        '201':
+          description: Action Message
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Successfully created property propertyName in namespace
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror:
+                  value:
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
+                existingpropertyerror:
+                  value:
+                    error_code: 5018
+                    error_message: "GAL5018E: Error occurred when trying to access property 'propertyName'. The property name provided already exists in the 'framework' namespace."
+                  summary: An Error occurred because the property already exists
+        '411':
+          description: Content Length Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                nocontenterror:
+                  value:
+                    error_code: 5411
+                    error_message: "GAL5411E: Error occurred when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
+                  summary: An Error occurred when no value was supplied in the request body
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  #--------------------------------------
+  # Read, Update and Delete a CPS property
+  #--------------------------------------
+  /cps/{namespace}/properties/{propertyName}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getCpsProperty
+      summary: Get single CPS property
+      description: |
+        Returns a property, value pair that matches the full propertyName in the given namespace within the Configuration Property Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name.
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GalasaProperty'
+              examples:
+                propertyexists:
+                  value:
+                    apiVersion: galasa-dev/v1alpha1
+                    kind: GalasaProperty
+                    metadata:
+                      namespace: propertyNamespace
+                      name: my.property.name
+                    data:
+                      value: my.property.value
+                  summary: Property Found in namespace
+                propertynotfound:
+                  value: '[ ]'
+                  summary: Property does not exist in namespace
+                propertyexistsinwriteonlynamespace:
+                  value:
+                    apiVersion: galasa-dev/v1alpha1
+                    kind: GalasaProperty
+                    metadata:
+                      namespace: propertyNamespace
+                      name: my.property.name
+                    data:
+                      value: '*********'
+                  summary: Property found in write only namespace
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidnamespaceerror:
+                  value:
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      operationId: updateCpsProperty
+      summary: Update existing CPS property
+      description: |
+        Update an existing property in a given namepace in the Configuration Properties Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name.
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: The value of the property being created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalasaProperty'
+      responses:
+        '200':
+          description: Action Message
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Successfully updated property propertyName in namespace
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror:
+                  value:
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
+                newpropertyerror:
+                  value:
+                    error_code: 5017
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
+                  summary: An Error occurred because the property does not exist
+        '411':
+          description: Content Length Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                nocontenterror:
+                  value:
+                    error_code: 5411
+                    error_message: "GAL5411E: Error occurred when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
+                  summary: An Error occurred when no value was supplied in the request body
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteCpsProperty
+      summary: Delete existing CPS property
+      description: |
+        Delete an existing property in a given namepace in the Configuration Properties Store.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name.
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Action Message
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Successfully deleted property propertyName in namespace
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror:
+                  value:
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
+                newpropertyerror:
+                  value:
+                    error_code: 5017
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
+                  summary: An Error occurred because the property does not exist
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+##################################################################################
+# Deprecated CPS API
+##################################################################################
+  /cps/namespace:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getCpsNamespaces
+      deprecated: true
+      summary: Get CPS Namespaces
+      tags:
+      - Configuration Property Store API
+      responses:
+        '200':
+          description: Array of CPS Namespaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /cps/namespace/{namespace}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getCpsNamespaceProperties
+      deprecated: true
+      summary: Get all properties for a namepace
+      tags:
+      - Configuration Property Store API
+      parameters:
+        - name: namespace
+          in: path
+          description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of CPS Properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GalasaProperty'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                namespaceerror:
+                  value:
+                    error_code: 5016
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+                  summary: An Error occurred when trying to retrieve the CPS namespaces
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getCpsNamespaceCascadeProperty
+      deprecated: true
+      summary: Get cascade CPS property
+      description: |
+        Searches for a property using namespace, prefix suffix and infixes.
+        Deprecated in v0.31.0.
+        Use the /cps/{namespace}/properties call instead, using the prefix, suffix and infix query parameters, instead of this call.
+        This call will be removed in a future version of this REST API.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: path
+        description: |
+          Property Prefix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      - name: suffix
+        in: path
+        description: |
+          Property suffix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      - name: infixes
+        in: query
+        description: |
+          Property infixes. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CpsProperty'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /cps/namespace/{namespace}/property/{property}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    put:
+      operationId: putCpsNamespaceProperty
+      deprecated: true
+      summary: Put new CPS Property
+      description: |
+        Searches multiple places in the property store for the first property matching the namespace,
+        prefix and suffix, and as many of the leading infix strings as possible.
+        This results in a value which is the most specific, given a sparsely populated hierarchical
+        structure of property names.
+        Over-rides of values (if present) are returned in preference to the normal stored value
+        of a property.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Configuration Property Store API
+      parameters:
+      - name: namespace
+        in: path
+        description: |
+            Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+            and following characters can be 'a'-'z' or '0'-'9'
+        required: true
+        schema:
+          type: string
+      - name: property
+        in: path
+        description: |
+          Property Name.
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CpsProperty'
+      responses:
+        '200':
+          description: CPS Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CpsProperty'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+##################################################################################
+# OpenAPI API
+##################################################################################
+  /openapi:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getOpenApiSpec
+      security: []
+      summary: Retrieve the API server's OpenAPI specification
+      description: |
+        Returns the OpenAPI specification of the Galasa API server for this ecosystem.
+
+        The OpenAPI specification can be returned in either YAML or JSON format, based on the value provided in the
+        'Accept' HTTP header in requests to this endpoint. As such, the supported response content types are
+        'application/yaml' or 'application/json'. By default, a JSON representation of the OpenAPI specification
+        will be returned if the 'Accept' header is omitted or if it is set to accept any application mime type, 
+        or any mime type. For example: 'application/*'.
+      tags:
+        - OpenAPI API
+      responses:
+        '200':
+          description: The Galasa API server's OpenAPI specification in YAML or JSON format
+          content:
+            application/yaml:
+              schema:
+                type: object
+            application/json:
+              schema:
+                type: object
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+##################################################################################
+# Resources API
+##################################################################################
+  /resources/:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    post:
+      operationId: setEcosystemResources
+      summary: Upload Resources to the ecosystem
+      description: |
+        This API endpoint allows multiple resources to be supplied in a single request to delete, create and/or update in the ecosystem.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+       - Resources API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resources'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIErrorArray'
+              examples:
+                singleError:
+                  value:
+                  - error_code: 5017
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
+                multipleErrors:
+                  value:
+                  - error_code: 5017
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
+                  - error_code: 5016
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+
+##################################################################################
+# RAS API
+##################################################################################
+
+  #--------------------------------------
+  # List all known requestors.
+  #--------------------------------------
+  /ras/requestors:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRasRequestors
+      summary: Get all known requestors
+      description: |
+        Returns the list of all known requestors that have launched tests in the ecosystem.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: sort
+          in: query
+          description: provides sorting, requestor:asc or requestor:desc
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Requestors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Requestors'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+
+  #--------------------------------------
+  # List all known result names.
+  #--------------------------------------
+  /ras/resultnames:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRasResultNames
+      summary: Get all the known result names
+      description: |
+        Returns a list of the known result names that a test can be assigned (e.g. "Passed", "Failed", "EnvFail", etc.).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: sort
+          in: query
+          description: provides sorting, results:asc or results:desc
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ResultNames
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultNames'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+
+  #--------------------------------------
+  # Retrieve Runs based on a query.
+  #--------------------------------------
+  /ras/runs:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRasSearchRuns
+      summary: Get Runs from Query
+      description: |
+        API endpoint to query the Result Archive Store (RAS) for a (possibly sorted)
+        list of runs based on the given search criteria.
+
+        The results returned are paginated, in that the number of desired records per page can be
+        set, and if there are more test run records to retrieve, requests can be made for
+        successive pages of results using the same query parameters, but varying the 'page' value.
+
+        Note: When querying multiple pages of results, tests may complete, or be started between
+        successive calls to this endpoint. When the 'to' field is not used, no timeframe
+        limit is specified in the query, so results retrieved in later pages may contain
+        test runs which were already retrieved in previous pages of the same query critera.
+
+        Invalid query parameters are ignored. For example: a 'cache-buster' parameter.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: sort
+          in: query
+          description: |
+            Sorts the returned runs based on the sort field.
+            Supports sorting fields 'from', 'to', 'result' and 'testclass'.
+            
+            If omitted, runs will be sorted in descending order based on their 'queued' time,
+            which is equivalent to specifying 'from:desc' (i.e. latest queued run first, oldest last).
+
+            When sorting with 'to' or 'result', runs that have not yet finished will not
+            be included in responses from this endpoint.
+
+            Use '{FIELD-NAME}:asc' to sort in ascending order.
+            Use '{FIELD-NAME}:desc' to sort in descending order.
+          required: true
+          schema:
+            type: string
+          examples:
+            single:
+              value: from:asc
+        - name: result
+          in: query
+          description: |
+            Result Status for the run. Commonly queried values: 'EnvFail','Passed','Failed'
+            Multiple values can be used in the query for example: 'EnvFail,Passed,Failed'.
+            Values are case insensitive. For example 'PASSED' and 'passED' will both be valid.
+          schema:
+            type: string
+          example: Passed
+        - name: status
+          in: query
+          description: |
+            Test run lifecycle status. Current possibles: 'finished','building','generating','running','rundone','up','started','provstart','ending'. These are not case sensitive.
+            Multiple values can be used in the query for example: 'finished,running,started'.
+            Values are case insensitive. For example 'FINISHED' and 'finiSHed' will both be valid.
+          schema:
+            type: string
+          example: running
+        - name: bundle
+          in: query
+          description: |
+            The name of the OSGi bundle that the desired test run(s) were loaded with.
+          schema:
+            type: string
+          example: dev.galasa.inttests
+        - name: requestor
+          in: query
+          description: Name of the test requestor / submitter
+          schema:
+            type: string
+          example: MyAutomationJobName
+        - name: from
+          in: query
+          description: |
+            Retrieve runs that started at a time after this date and time.
+
+            The only scenario in which from can be omitted is when a runname has been supplied
+          schema:
+            type: string
+            format: date-time
+          example: '2023-04-11T09:42:06.589180Z'
+        - name: to
+          in: query
+          description: |
+            Retrieve runs that ended at a date and time prior to this date and time value.
+            If you specify this parameter, only test runs which have completed will be returned.
+            Tests currently in-flight will not be visible.
+          schema:
+            type: string
+            format: date-time
+          example: '2023-04-11T09:43:27.324075Z"'
+        - name: testname
+          in: query
+          description: The full test name (package + short test name)
+          schema:
+            type: string
+          example: dev.galasa.inttests.simbank.local.mvp.SimBankLocalJava11UbuntuMvp
+        - name: page
+          in: query
+          description: |
+            Deprecated (since 0.37.0) - Use the 'cursor' query parameter instead.
+            Causes a specific page in the available results to be returned.
+            The first page is page 1.
+            If omitted, then page 1 is returned.
+          schema:
+            type: integer
+          example: 2
+        - name: size
+          in: query
+          description: |
+            The number of test results returned within each page.
+            If omitted, the default value is 100.
+          schema:
+            type: integer
+          example: 20
+        - name: runId
+          in: query
+          description: |
+            The ID for a specific test run as seen by the RAS.
+            This number is unique across the system, so using this field you can expect
+            one or zero test runs in the first page.
+          schema:
+            type: string
+          example : cdb-a4ddb7fd1dab8d6025e4f3894010d20d
+        - name: runname
+          in: query
+          description: |
+            The name of the test run for which details will be returned.
+            It will normally be unique, but this is not guaranteed, so you may see
+            multiple results for the same runname under some rare circumstances.
+          schema:
+            type: string
+          example: U1578
+        
+        # Temporary feature flag to enable cursor-based pagination
+        - name: includeCursor
+          in: query
+          description: |
+            A boolean flag to enable cursor-based pagination and return the next page cursor
+            in the response. If omitted, it will default to false.
+          schema:
+            type: string
+          example: 'true'
+        - name: cursor
+          in: query
+          description: |
+            The cursor representing the page of runs to be retrieved. This is a unique value that is specific
+            to a query and is included in responses, allowing you to navigate through pages of runs.
+            If omitted, the first page of runs for the given query will be returned and the response
+            will display the cursor for the next page of runs.
+          schema:
+            type: string
+          example: g2wAAAACaAJkAA5zdGFydG
+      responses:
+        '200':
+          description: Array of Run Objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResults'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                fromerror:
+                  value:
+                    error_code: 5001
+                    error_message: "GAL5001E: Error parsing the date-time field 'from' in the request URL. Invalid value '202E-04-12T13:08:10.295971Z'. Expecting a java LocalDateTime format. For example: '2023-04-11T09:42:06.589180Z'"
+                  summary: An Error occurred parsing the from date-time field
+                toerror:
+                  value:
+                    error_code: 5001
+                    error_message: "GAL5001E: Error parsing the date-time field 'to' in the request URL. Invalid value '2023-0F-12T13:08:10.295971Z'. Expecting a java LocalDateTime format. For example: '2023-04-11T09:52:56.586180Z'"
+                  summary: An Error occurred parsing the to date-time field
+                interror:
+                  value:
+                    error_code: 5005
+                    error_message: "GAL5005E: Error parsing the query parameter 'page'' in the request URL. Invalid value 'five'. Expecting an integer."
+                  summary: An Error occurred parsing integer parameter
+                duplicateerror:
+                  value:
+                    error_code: 5006
+                    error_message: "GAL5006E: Error parsing the query parameters. Duplicate instances of query parameter 'size' found in the request URL. Expecting only one."
+                  summary: An Error occurred parsing duplicate parameter
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5002
+                    error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-xxx'."
+                  summary: An Error occurred when trying to retrieve a specific run using a runId
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+          examples:
+            runerror:
+              value:
+                error_code: 5003
+                error_message: "GAL5003E: Error retrieving runs. Report the problem to your Galasa Ecosystem owner."
+              summary: An Error occurred when trying to retireve the runs
+            pageerror:
+              value:
+                error_code: 5004
+                error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
+              summary: An Error occurred when trying to return a results page
+
+
+  #--------------------------------------
+  # Retrieve a single Run.
+  #--------------------------------------
+  /ras/runs/{runid}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    delete:
+      operationId: deleteRasRunById
+      summary: Delete run from the RAS using a given run ID
+      tags:
+      - Result Archive Store API
+      description: |
+        Deletes a test run and its corresponding artifacts from the RAS given the run's ID.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id which starts "cdb-". This is NOT the short run-name (e.g. C1234)
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The delete operation worked. The run is now deleted.
+        '404':
+          description: The delete operation failed. The record was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5091
+                    error_message: "GAL5091E: Error deleting ras run from RunID 'cdb-xxx'."
+                  summary: An Error occurred when trying to delete a run using the given runId
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      operationId: getRasRunById
+      summary: Get Run by ID
+      description: |
+        Returns the details of a test run given its ID.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id which starts "cdb-". This is NOT the short run-name (e.g. C1234)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  #--------------------------------------
+  # Update the status of an active test
+  # run to reset or cancel it.
+  #--------------------------------------
+    put:
+      summary: Update the status of a test run
+      description: |
+        Updates the status of a test run in order to either reset or cancel it.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: putRasRunStatusById
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id which starts "cdb-". This is NOT the short run-name (e.g. C1234)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRunStatusRequest'
+      responses:
+        '202':
+          description: Run status updated
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                resetRun:
+                  value: The request to reset run U123 has been received.
+                  summary: Reset run action success
+                cancelRun:
+                  value: The request to cancel run U123 has been received.
+                  summary: Cancel run action success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidStatusUpdateRequest:
+                  value:
+                    error_code: 5045
+                    error_message: "GAL5045E: Error occurred. The field 'status' in the request body is invalid. The 'status' value 'create' supplied is not supported. Supported values are: 'cancel' and 'reset'"
+                  summary: An Error occurred because the status field does not contain an expected action
+                runNameDoesNotMatch:
+                  value:
+                    error_code: 5046
+                    error_message: "GAL5046E: The 'runName' 'badRun' from the request body does not match the  'runName' 'U123'  associated with the runID in the url 'xx12345xx'."
+                  summary: An Error occurred because the runName in the request body does not match the runName derived from runID in the URL
+                resetRunHasAlreadyCompleted:
+                  value:
+                    error_code: 5049
+                    error_message: "GAL5049E: Error occurred when trying to reset the run ''{0}''. The run has already completed."
+                  summary: The run in the request has already completed and can not be reset
+                cancelRunHasAlreadyCompleted:
+                  value:
+                    error_code: 5050
+                    error_message: "GAL5050E: Error occurred when trying to cancel the run 'U123'. The run has already completed."
+                  summary: The run in the request has already completed and can not be cancelled
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to access the endpoint
+                unableToReset:
+                  value:
+                   error_code: 5047
+                   error_message: "GAL5047E: Error occurred when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to action the run reset
+                unableToCancel:
+                  value:
+                    error_code: 5048
+                    error_message: "GAL5048E: Error occurred when trying to cancel the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to action the run cancel
+  #--------------------------------------
+  # Retrieve Run Log.
+  #--------------------------------------
+  /ras/runs/{runid}/runlog:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRasRunLog
+      summary: Get Run Log
+      description: |
+        Returns the logs for a given test run in plaintext.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Data
+          content:
+            text/plain:
+              schema:
+                type: string
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+
+  #--------------------------------------
+  # List the artifacts available.
+  #--------------------------------------
+  /ras/runs/{runid}/artifacts:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRasRunArtifactList
+      summary: Get the available run artifacts which can be downloaded.
+      description: |
+        Returns a list of the available artifacts for a given test run.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The list of artifacts was returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactIndex'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5002
+                    error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-xxx'."
+                  summary: An Error occurred when trying to retrieve a specific run using a runId
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+
+  #--------------------------------------
+  # Download a specific artifact
+  #--------------------------------------
+  /ras/runs/{runid}/files/{artifactPath}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRasRunArtifactByPath
+      summary: Download artifact for a given runid by artifactPath
+      description: |
+        Downloads a test artifact for a given test run using its run ID and the path of the artifact to download.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: runid
+          in: path
+          description: Run Id
+          required: true
+          schema:
+            type: string
+        - name: artifactPath
+          in: path
+          description: Run Artifact path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The artifact is made available to read.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              example: attachment; filename="cps.properties"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5002
+                    error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-xxx'."
+                  summary: An Error occurred when trying to retrieve a specific run  using a runId
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to access the endpoint
+                locatingerror:
+                  value:
+                    error_code: 5008
+                    error_message: "GAL5008E: Error locating artifact '/unlocated.file' for run with identifier 'U116'."
+                  summary: An Error occurred when trying to locate the artifact
+                retrievingerror:
+                  value:
+                    error_code: 5009
+                    error_message: "GAL5009E: Error retrieving artifact  '/framework/cps_record.properties' for run with identifier 'U116'."
+                  summary: An Error occurred when trying to retrieve the artifact
+
+  #--------------------------------------
+  # List all testclasses.
+  #--------------------------------------
+  /ras/testclasses:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRasTestclasses
+      summary: Get all the known test classes
+      description: |
+        Returns a list of the known test classes registered in the ecosystem.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Result Archive Store API
+      parameters:
+        - name: sort
+          in: query
+          description: Provide Sorting
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: TestClasses
+          content:
+            application/json:
+             schema:
+                $ref: '#/components/schemas/TestClasses'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+##################################################################################
+# Runs API
+##################################################################################
+  /runs/{groupId}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      summary: Get group runs
+      description: |
+        Returns the details of a group of runs.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: getRunsGroup
+      tags:
+      - Runs API
+      parameters:
+        - name: groupId
+          in: path
+          description: Run Group ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run Info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRuns'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      summary: Submit test runs
+      description: |
+        Submits a portfolio of test runs to the ecosystem.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: postSubmitTestRuns
+      tags:
+      - Runs API
+      parameters:
+        - name: groupId
+          in: path
+          description: Run Group ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRunRequest'
+      responses:
+        '201':
+          description: Test Submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRuns'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+##################################################################################
+# Bootstrap API
+##################################################################################
+  /bootstrap:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getEcosystemBootstrap
+      security: []
+      summary: Contact the Galasa ecosystem
+      tags:
+        - Bootstrap API
+      responses:
+        '200':
+          description: The Galasa ecosystem bootstrap.
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+##################################################################################
+# Components
+##################################################################################
+components:
+  responses:
+    InternalServerError:
+      description: An internal server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          examples:
+            genericerror:
+              value:
+                error_code: 5000
+                error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+              summary: An Error occurred when trying to access the endpoint
+    Unauthorized:
+      description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          examples:
+            unauthorizederror:
+              value:
+                error_code: 5401
+                error_message: "GAL5401E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."
+              summary: The request was unauthenticated so is unauthorized
+    UnsupportedMimeType:
+      description: Unsupported MIME type in 'Accept' request header
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          examples:
+            unsupportedContentTypeError:
+              value:
+                error_code: 5406
+                error_message: |
+                  GAL5406E: Unsupported 'Accept' header value set. Supported response types are: [application/json].
+                  Ensure the 'Accept' header in your request contains a valid value and try again.
+              summary: The request did not contain a supported MIME type in its 'Accept' header
+  schemas:
+    AuthProperties:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: The ID of a Galasa client that is being authenticated.
+        refresh_token:
+          type: string
+          description: The refresh token to be exchanged for a JWT, mutually exclusive with "code".
+        code:
+          type: string
+          description: The authorization code to be exchanged for a JWT, mutually exclusive with "refresh_token".
+        description:
+          type: string
+          description: Optional. A single-line description to be associated with the Galasa personal access token being created for the first time.
+    AuthTokens:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthToken'
+    AuthToken:
+      type: object
+      properties:
+        token_id:
+          type: string
+          description: The ID of the token's record in Galasa's tokens database.
+        creation_time:
+          type: string
+          description: The creation date and time of the auth token (e.g. "2024-04-01T12:25:00.123Z").
+        owner:
+          description: Details about the owner of the token.
+          $ref: '#/components/schemas/User'
+        description:
+          type: string
+          description: A description of the token, provided by the user when creating it.
+    DexClient:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: An alphanumeric string representing the ID of the Dex client.
+    TokenResponse:
+      type: object
+      properties:
+        jwt:
+          type: string
+          description: A JSON Web Token to use when authenticating with a Galasa ecosystem.
+        refresh_token:
+          type: string
+          description: A refresh token to allow the retrieval of new JWTs when authenticating with a Galasa ecosystem from a client tool.
+    CpsProperty:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The fully-qualified property name, including the 'namespace'.
+        value:
+          type: string
+    GalasaProperty:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+          enum: [GalasaProperty]
+        metadata:
+          type: object
+          properties:
+            namespace:
+              type: string
+              description: |
+                Property Namespace. First character of the namespace must be in the 'a'-'z' range,
+                and following characters can be 'a'-'z' or '0'-'9'
+            name:
+              type: string
+              description: |
+                Property Name. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+                and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore).
+                The property name is made of 'parts'. Each part must be separated by a period character. There must be
+                at least two parts in the property name. The last character cannot be a period character.
+        data:
+          type: object
+          properties:
+            value:
+              type: string
+              description: |
+                The value of the property, maximum length of approximately 1,500,000 characters.
+                It cannot be a blank value.
+    GalasaSecret:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+          enum: [GalasaSecret]
+        metadata:
+          type: object
+          properties:
+            name:
+              type: string
+              description: |
+                The name of the Galasa Secret to perform a resource action on.
+            encoding:
+              type: string
+              description: |
+                The character encoding scheme that has already been applied to all the values within the 'data' field.
+                Currently, 'base64' is the only supported encoding scheme.
+            type:
+              type: string
+              enum: [UsernamePassword, Username, UsernameToken, Token]
+              description: |
+                The type of the Galasa Secret resource. Supported types are 'UsernamePassword', 'Username',
+                'UsernameToken', 'Token'.
+        data:
+          type: object
+          properties:
+            username:
+              type: string
+              description: |
+                A username for a system. Required if the Secret 'type' is set to 'UsernamePassword', 'Username',
+                or 'UsernameToken'. If the 'encoding' has been set in the metadata, this value must already be
+                encoded with the given encoding scheme (e.g. base64).
+            password:
+              type: string
+              description: |
+                A password for a system. Required if the Secret 'type' is set to 'UsernamePassword'.
+                If the 'encoding' has been set in the metadata, this value must already be encoded
+                with the given encoding scheme (e.g. base64).
+            token:
+              type: string
+              description: |
+                A token for a system. Required if the Secret 'type' is set to 'UsernameToken' or 'Token'.
+                If the 'encoding' has been set in the metadata, this value must already be encoded with
+                the given encoding scheme (e.g. base64).
+    APIErrorArray:
+      type: array
+      description: An array of API Errors relating to the resources that failed to complete as expected
+      items:
+          $ref: '#/components/schemas/APIError'
+    APIError:
+      type: object
+      properties:
+        error_code:
+          type: integer
+        error_message:
+          type: string
+    Resources:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: ["apply","create","update","delete"]
+        data:
+          type: array
+          description: An array of Galasa Resources that should contain one or more entrys matching any of the schemas outlined
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/GalasaProperty'
+    TestRuns:
+      type: object
+      properties:
+        complete:
+          type: boolean
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestRun'
+    TestRun:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        group:
+          type: string
+        test:
+          type: string
+        bundleName:
+          type: string
+        testName:
+          type: string
+        status:
+          type: string
+        result:
+          type: string
+        queued:
+          type: string
+        requestor:
+          type: string
+        stream:
+          type: string
+        repo:
+          type: string
+        obr:
+          type: string
+        rerun:
+          type: boolean
+        rerunReason:
+          type: string
+        local:
+          type: boolean
+        trace:
+          type: boolean
+        rasRunId:
+          type: string
+    TestRunRequest:
+      type: object
+      properties:
+        classNames:
+          type: array
+          items:
+            type: string
+        requestorType:
+          type: string
+        requestor:
+          type: string
+        testStream:
+          type: string
+        obr:
+          type: string
+        mavenRepository:
+          type: string
+        sharedEnvironmentPhase:
+          type: string
+        sharedEnvironmentRunName:
+          type: string
+        overrides:
+          type: object
+        trace:
+          type: boolean
+    UpdateRunStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: ["queued","finished"]
+        result:
+          type: string
+          enum: [nil,"cancelled"]
+    User:
+      type: object
+      properties:
+        login_id:
+          type: string
+          description: The ID representing the user's username. Used for authenticating and token creation.
+    UserData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID representing the user record in Auth Store.
+        login-id:
+          type: string
+          description: The ID representing the user's username. Returned from queries about users.
+        clients:
+          type: array
+          description: The list of client activities, containing client names and last login times.
+          items:
+            $ref: '#/components/schemas/FrontEndClient'
+        url:
+          type: string
+          description: The API URL for accessing the user data.
+    FrontEndClient:
+      type: object
+      properties:
+        client-name:
+          type: string
+          description: The name of the client (e.g., "web-ui" or "rest-api").
+        last-login:
+          type: string
+          format: date-time
+          description: The timestamp of the user's last login on the respective client.
+    Requestors:
+      type: object
+      properties:
+        requestors:
+          type: array
+          items:
+            type: string
+    TestStructure:
+      type: object
+      properties:
+        runName:
+          type: string
+        bundle:
+          type: string
+        testName:
+          type: string
+        testShortName:
+          type: string
+        requestor:
+          type: string
+        status:
+          type: string
+        result:
+          type: string
+        queued:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestMethod'
+    TestMethod:
+      type: object
+      properties:
+        className:
+          type: string
+        methodName:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+        result:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        runLogStart:
+          type: integer
+        runLogEnd:
+          type: integer
+        befores:
+          type: array
+          items:
+            type: object
+        afters:
+          type: array
+          items:
+            type: object
+    Artifact:
+      type: object
+      properties:
+        artifactPath:
+          type: string
+        contentType:
+          type: string
+    TestClasses:
+      type : object
+      properties:
+        testclasses:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestClass'
+    TestClass:
+      type: object
+      properties:
+        testclass:
+           type: string
+        bundle:
+           type: string
+    ResultNames:
+      type: object
+      properties:
+        resultnames:
+          type: array
+          items:
+            type: string
+    Run:
+      type: object
+      properties:
+        runId:
+          type: string
+        testStructure:
+          $ref: '#/components/schemas/TestStructure'
+        artifacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Artifact'
+    RunResults:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        numPages:
+          type: integer
+        amountOfRuns:
+          type: integer
+        nextCursor:
+          type: string
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Run'
+    Namespace:
+      type: object
+      properties:
+        name:
+          type: string
+        propertiesUrl:
+          type: string
+        type:
+          type: string
+
+
+    # Structures used by the listing of the available artifacts endpoint.
+    ArtifactIndex:
+      type: array
+      items:
+        $ref: '#/components/schemas/ArtifactIndexEntry'
+      uniqueItems: true
+
+    ArtifactIndexEntry:
+      type: object
+      properties:
+        runId:
+          type: string
+          readOnly: true
+        path:
+          type: string
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true
+##################################################################################
+# Security Schemas
+##################################################################################
+  securitySchemes:
+    JwtAuth:
+      description: |
+        "A valid bearer token in JWT format must be provided in the 'Authorization' header to access secured endpoints"
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+##################################################################################
+# Parameters
+##################################################################################
+  parameters:
+    ClientApiVersion:
+      in: header
+      name: ClientApiVersion
+      schema:
+        type: string
+      required: false

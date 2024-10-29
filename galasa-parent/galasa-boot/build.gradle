@@ -1,0 +1,79 @@
+plugins {
+    id 'galasa.framework'
+}
+
+description = 'Galasa Boot'
+
+configurations {
+    bundleDependency
+    bundleDependency.transitive = false
+
+    embedImplementation
+    embedImplementation.transitive = false
+
+    implementation.extendsFrom embedImplementation
+
+}
+
+version = '0.37.0'
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes (
+            "Main-Class": "dev.galasa.boot.Launcher",
+            "-fixupmessages": '"Classes found in the wrong directory"; restrict:=error; is:=warning'
+        )
+    }
+    into ('/bundle') {
+        from configurations.bundleDependency
+        // Strip version number
+        rename { name ->
+            def artifacts = configurations.bundleDependency.resolvedConfiguration.resolvedArtifacts
+            def artifact = artifacts.find { it.file.name == name }
+            "${artifact.name}.${artifact.extension}"
+        }
+    }
+    into ('/') {
+        from {
+            configurations.embedImplementation.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+    }
+
+}
+
+dependencies {
+
+    implementation project (':dev.galasa.framework.maven.repository')
+    embedImplementation project (':dev.galasa.framework.maven.repository.spi')
+
+    embedImplementation 'org.apache.felix:org.apache.felix.framework:7.0.5'
+    embedImplementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
+    implementation 'org.apache.felix:org.apache.felix.scr:2.1.14'
+
+    embedImplementation 'commons-cli:commons-cli:1.4'
+    embedImplementation 'commons-io:commons-io:2.16.1'
+
+    bundleDependency 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
+    bundleDependency 'org.apache.felix:org.apache.felix.scr:2.1.14'
+    bundleDependency 'org.apache.logging.log4j:log4j-api:2.17.1'
+    bundleDependency 'org.apache.logging.log4j:log4j-core:2.17.1'
+    bundleDependency project (':dev.galasa.framework.log4j2.bridge')
+    bundleDependency project (':dev.galasa.framework.maven.repository')
+    bundleDependency project (':dev.galasa.framework.maven.repository.spi')
+    
+}
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file 
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = false
+ext.includeInMVP          = true
+ext.includeInIsolated     = false
+ext.includeInBOM          = false
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = false
+

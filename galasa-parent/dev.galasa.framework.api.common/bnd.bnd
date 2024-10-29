@@ -1,0 +1,4 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa API - Common Packages
+Export-Package: dev.galasa.framework.api.common*
+Import-Package: dev.galasa.framework.api.beans,*

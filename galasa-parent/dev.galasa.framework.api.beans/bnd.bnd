@@ -1,0 +1,3 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa REST API beans
+Export-Package: dev.galasa.framework.api.beans,dev.galasa.framework.api.beans.generated

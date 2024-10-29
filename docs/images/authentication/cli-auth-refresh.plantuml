@@ -1,0 +1,24 @@
+@startuml cli-auth-refresh
+title "Authentication flow to get a new JWT for the Galasa CLI tool using a refresh token"
+
+actor User
+participant GalasaCLI as "Galasa CLI"
+participant AuthAPI as "Auth API"
+participant Dex
+
+User -> GalasaCLI: Runs "galasactl auth login"
+activate GalasaCLI
+
+GalasaCLI -> AuthAPI: POST /auth (client_id, client_secret, refresh_token)
+activate AuthAPI
+
+AuthAPI -> Dex: POST /token (client_id, client_secret, refresh_token)
+activate Dex
+Dex --> AuthAPI: Success response (JWT, refresh token)
+deactivate Dex
+AuthAPI --> GalasaCLI: Success response (JWT, refresh token)
+deactivate AuthAPI
+
+GalasaCLI --> User: Stores the JWT in GALASA_HOME/bearer-token.json
+deactivate GalasaCLI
+@enduml

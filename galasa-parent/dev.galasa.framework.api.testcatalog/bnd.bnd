@@ -1,0 +1,5 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa API Test Catalog microservices
+Import-Package: !javax.validation.constraints,\
+                org.apache.commons.io;version="[2,3)",\
+                *

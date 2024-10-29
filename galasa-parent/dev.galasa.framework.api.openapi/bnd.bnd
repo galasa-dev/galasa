@@ -1,0 +1,4 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa Open API specification
+Export-Package dev.galasa.framework.api.openapi*;
+Import-Package: *

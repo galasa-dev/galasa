@@ -1,0 +1,82 @@
+options {
+	STATIC=false;
+	IGNORE_CASE=false;
+	MULTI=true;
+	FORCE_LA_CHECK=false;
+	NODE_PACKAGE="tree";
+}   
+
+PARSER_BEGIN(RpsResolver)
+
+package tree;
+
+public class RpsResolver {
+
+}
+PARSER_END(RpsResolver)
+
+TOKEN : 
+{
+    <CHARACTER    : ["A"-"Z","a"-"z","0"-"9"] >  |
+    <LEFTBRACKET  : "{" > |
+    <RIGHTBRACKET : "}" > |
+    <BETWEEN      : "-" >
+} 
+
+ASTStart Start() : {}
+{
+
+	( 
+		Constant() |
+		Variable()
+    )+ 
+    <EOF>
+  { return jjtThis; }
+  
+}
+
+
+void Constant() : 
+{
+  Token t;
+}
+{
+  t = <CHARACTER>
+  {
+   jjtThis.jjtSetValue(t.image);
+  }
+  
+}
+
+
+void Variable() : 
+{
+}
+{
+  <LEFTBRACKET>
+  (
+     LOOKAHEAD(2)
+     MultiRange() |
+     SingleRange()
+  )+
+  <RIGHTBRACKET>
+ 
+}
+
+
+void SingleRange() :
+{
+}
+{
+   Constant()
+}
+
+
+void MultiRange() :
+{
+}
+{
+   Constant()
+   <BETWEEN>
+   Constant()
+}

@@ -1,0 +1,28 @@
+plugins {
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.framework'
+}
+
+description = 'Galasa log4j2 Bridge'
+
+version = "0.25.0"
+
+dependencies {
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.1'
+}
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file 
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = false
+ext.includeInMVP          = false
+ext.includeInIsolated     = false
+ext.includeInBOM          = false
+ext.includeInCodeCoverage = false
+ext.includeInJavadoc      = false
+

@@ -1,0 +1,58 @@
+plugins {
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.api.server'
+}
+
+description = 'Galasa API - OpenAPI Servlet'
+
+version = '0.36.0'
+
+configurations {
+    openApiSpec
+    openApiSpec.transitive = false
+}
+
+dependencies {
+    implementation project(':dev.galasa.framework')
+    implementation project(':dev.galasa.framework.api.common')
+    implementation 'org.yaml:snakeyaml:2.0'
+
+    openApiSpec project(':dev.galasa.framework.api.openapi')
+
+    testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
+}
+
+// Copy the openapi.yaml file from the artifact it's stored in
+// and place it within this subproject's "resources" folder
+task fetchOpenApiYaml(type: Copy) {
+    // Make sure the openapi artifact is built before trying to extract the file
+    dependsOn ':dev.galasa.framework.api.openapi:build'
+
+    from {
+        configurations.openApiSpec.collect {
+            zipTree(it).matching {
+                include '**/openapi.yaml'
+                exclude 'META-INF/'
+            }
+        }
+    }
+    into 'src/main/resources'
+}
+
+// Make sure that the openapi.yaml file is in the "resources" folder
+// before Gradle processes the resources for this subproject
+processResources.dependsOn fetchOpenApiYaml
+sourcesJar.dependsOn fetchOpenApiYaml
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = true
+ext.includeInMVP          = false
+ext.includeInIsolated     = true
+ext.includeInBOM          = false
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = false

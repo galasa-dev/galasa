@@ -1,0 +1,43 @@
+@startuml initial-auth-flow
+title "Authentication flow when logging in to the Galasa Ecosystem for the first time"
+
+actor User
+participant WebUI as "Web UI"
+participant AuthAPI as "Auth API"
+participant Dex
+
+User -> WebUI: Navigates to the web UI
+activate WebUI
+
+WebUI -> AuthAPI: GET /auth?client_id=galasa-webui&callback_url=http://webui-hostname/callback
+activate AuthAPI
+note left
+This GET /auth request uses the
+static client ID for the web UI
+that was configured into Dex.
+end note
+
+AuthAPI -> Dex: GET /auth?client_id=galasa-webui&scope=...&state=somestate&redirect_uri=http://galasa-api/auth/callback
+activate Dex
+Dex --> AuthAPI: Redirect to /auth/callback?code=someauthcode&state=somestate
+deactivate Dex
+AuthAPI --> WebUI: Redirect to http://webui-hostname/callback?code=someauthcode
+deactivate AuthAPI
+note left
+The redirect's location is the
+same "callback_url" provided in
+the initial GET /auth request.
+end note
+
+WebUI -> AuthAPI: POST /auth (client_id, client_secret, code)
+activate AuthAPI
+AuthAPI -> Dex: POST /token (client_id, client_secret, code)
+activate Dex
+Dex --> AuthAPI: Success response (JWT, refresh token)
+deactivate Dex
+AuthAPI --> WebUI: Success response (JWT, refresh token)
+deactivate AuthAPI
+
+WebUI --> User: Displays the web UI's landing page
+deactivate WebUI
+@enduml

@@ -1,0 +1,16 @@
+plugins {
+    id 'galasa.java'
+    id 'biz.aQute.bnd.builder'
+}
+
+dependencies {
+    implementation 'commons-logging:commons-logging:1.2'
+    implementation 'org.osgi:org.osgi.core:6.0.0'
+    implementation 'org.osgi:org.osgi.service.component.annotations:1.3.0'
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+        
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'org.mockito:mockito-core:3.1.0'
+    testImplementation 'org.awaitility:awaitility:3.0.0'
+    testImplementation 'org.assertj:assertj-core:3.16.1'
+}

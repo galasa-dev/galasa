@@ -1,0 +1,32 @@
+-snapshot ${tstamp}
+Bundle-Name: dev.galasa.framework.docker.controller
+Export-Package: dev.galasa.framework.docker.controller*
+Import-Package: dev.galasa.framework,\
+                dev.galasa.framework.spi,\
+                dev.galasa.framework.docker.controller,\
+                org.apache.commons.logging,\
+                org.apache.commons.compress*,\
+                io.prometheus.client,\
+                io.prometheus.client.exporter,\
+                com.sun.net.httpserver,\
+                javax.net.ssl
+Embed-Transitive: true
+Embed-Dependency: *;scope=compile
+-includeresource: docker-java-core-3.2.14.jar; lib:=true,\
+    docker-java-transport-httpclient5-3.2.14.jar; lib:=true,\
+    docker-java-api-3.2.14.jar; lib:=true,\
+    docker-java-transport-3.2.14.jar; lib:=true,\
+    httpclient5-5.0.3.jar; lib:=true,\
+    slf4j-api-1.7.30.jar; lib:=true,\
+    commons-io-2.16.1.jar; lib:=true,\
+    commons-lang3-3.14.0.jar; lib:=true,\
+    jackson-databind-2.10.3.jar; lib:=true,\
+    guava-19.0.jar; lib:=true,\
+    jna-5.12.1.jar; lib:=true,\
+    jackson-annotations-2.10.3.jar; lib:=true,\
+    jackson-core-2.10.3.jar; lib:=true,\
+    bcpkix-jdk18on-1.75.jar; lib:=true,\
+    bcprov-jdk18on-1.75.jar; lib:=true,\
+    httpcore5-5.0.2.jar; lib:=true,\
+    commons-codec-1.16.1.jar; lib:=true
+-fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning

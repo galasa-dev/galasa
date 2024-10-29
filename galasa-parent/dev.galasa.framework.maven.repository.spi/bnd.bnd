@@ -1,0 +1,3 @@
+-snapshot ${tstamp}
+Bundle-Name Galasa framework maven repository SPI
+Export-Package dev.galasa*

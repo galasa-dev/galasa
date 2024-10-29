@@ -1,0 +1,3 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa Metrics server
+Export-Package: dev.galasa.framework.metrics*

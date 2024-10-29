@@ -1,0 +1,4 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa Tester Programmer Interface (TPI)
+Export-Package: dev.galasa*
+Import-Package javax.validation*;resolution:=optional,*

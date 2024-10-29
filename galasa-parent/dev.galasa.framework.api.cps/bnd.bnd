@@ -1,0 +1,8 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa API Configuration Property Store microservices
+Export-Package: dev.galasa.framework.api.cps*;
+Import-Package: dev.galasa.framework.api.common*, \
+                dev.galasa.framework.api.beans, \
+                dev.galasa.framework.api.authentication, \
+                *
+
