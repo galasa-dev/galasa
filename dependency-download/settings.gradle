@@ -1,0 +1,13 @@
+pluginManagement {
+    repositories {
+        maven {
+            url "$sourceMaven"
+        }
+        maven {
+            url "$centralMaven"
+        }
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'galasa-obr-download-dependencies'

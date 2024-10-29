@@ -1,0 +1,5 @@
+ARG baseVersion
+ARG dockerRepository
+FROM ${dockerRepository}/galasa-dev/base-image:${baseVersion}
+
+COPY javadocs/docker/repo/ /usr/local/apache2/htdocs/

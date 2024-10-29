@@ -1,0 +1,319 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+
+apiVersion: galasa.dev/v1alpha
+kind: Release
+metadata:
+  name: galasa-release
+
+
+release:
+  version: 0.38.0
+
+
+
+external:
+  bundles:
+  - group: com.google.code.gson
+    artifact: gson
+    version: 2.10.1
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
+
+  - group: com.sun.activation
+    artifact: jakarta.activation
+    version: 2.0.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: com.sun.xml.bind
+    artifact: jaxb-osgi
+    version: 3.0.0
+    obr: true
+
+  - group: commons-codec
+    artifact: commons-codec
+    version: 1.15
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
+
+  - group: commons-collections
+    artifact: commons-collections
+    version: 3.2.2
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: commons-io
+    artifact: commons-io
+    version: 2.16.1
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
+
+  - group: commons-lang
+    artifact: commons-lang
+    version: 2.6
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: commons-logging
+    artifact: commons-logging
+    version: 1.2
+    obr: false
+    bom: true
+    mvp: true
+    isolated: true
+
+  - group: dev.galasa
+    artifact: com.jcraft.jsch
+    version: 0.1.55
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: dev.galasa
+    artifact: com.auth0.jwt
+    version: 4.4.1
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: dev.galasa
+    artifact: jta
+    version: 2.0.1
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: dev.galasa
+    artifact: dev.galasa.wrapping.io.grpc.java
+    version: 0.38.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: dev.galasa
+    artifact: kafka.clients
+    version: 3.7.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: io.prometheus
+    artifact: simpleclient
+    version: 0.6.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: io.prometheus
+    artifact: simpleclient_common
+    version: 0.6.0
+    obr: true
+    isolated: true
+
+  - group: io.prometheus
+    artifact: simpleclient_httpserver
+    version: 0.6.0
+    obr: true
+    isolated: true
+
+  - group: io.prometheus
+    artifact: simpleclient_hotspot
+    version: 0.6.0
+    obr: true
+    isolated: true
+
+  - group: jakarta.xml.bind
+    artifact: jakarta.xml.bind-api
+    version: 3.0.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: javax.validation
+    artifact: validation-api
+    version: 2.0.1.Final
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.bcel
+    artifact: bcel
+    version: 6.7.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.commons
+    artifact: commons-collections4
+    version: 4.4
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.commons
+    artifact: commons-compress
+    version: 1.26.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.commons
+    artifact: commons-lang3
+    version: 3.14.0
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.derby
+    artifact: derbyclient
+    version: 10.14.2.0
+    obr: true
+
+  - group: org.apache.felix
+    artifact: org.apache.felix.configadmin
+    version: 1.9.16
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.felix
+    artifact: org.apache.felix.gogo.command
+    version: 1.1.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.felix
+    artifact: org.apache.felix.gogo.runtime
+    version: 1.1.2
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.felix
+    artifact: org.apache.felix.gogo.shell
+    version: 1.1.2
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.felix
+    artifact: org.apache.felix.http.servlet-api
+    version: 2.1.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.felix
+    artifact: org.apache.felix.http.jetty
+    version: 5.0.0
+    obr: true
+    isolated: true
+
+  - group: org.apache.felix
+    artifact: org.apache.felix.fileinstall
+    version: 3.6.4
+    obr: true
+    isolated: true
+
+  - group: org.apache.httpcomponents
+    artifact: httpclient-osgi
+    version: 4.5.13
+    obr: true
+    bom: true
+    isolated: true
+    mvp: true
+
+  - group: org.apache.httpcomponents
+    artifact: httpcore-osgi
+    version: 4.4.14
+    obr: true
+    bom: true
+    isolated: true
+    mvp: true
+
+  - group: org.apache.velocity
+    artifact: velocity-engine-core
+    version: 2.3
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.assertj
+    artifact: assertj-core
+    version: 3.11.1
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
+
+  - group: org.osgi
+    artifact: org.osgi.service.component.annotations
+    version: 1.3.0
+    bom: true
+
+  - group: org.yaml
+    artifact: snakeyaml
+    version: 2.0
+    obr: true
+    isolated: true
+    mvp: true
+
+  - group: org.bouncycastle
+    artifact: bcpkix-jdk18on
+    version: 1.75
+    obr: true
+
+  - group: org.bouncycastle
+    artifact: bcprov-jdk18on
+    version: 1.75
+    obr: true
+
+  - group: org.bouncycastle
+    artifact: bcutil-jdk18on
+    version: 1.75
+    obr: true
+
+  - group: org.slf4j
+    artifact: slf4j-api
+    version: 1.7.30
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.logging.log4j
+    artifact: log4j-api
+    version: 2.17.1
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.logging.log4j
+    artifact: log4j-core
+    version: 2.17.1
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.logging.log4j
+    artifact: log4j-slf4j-impl
+    version: 2.17.1
+    obr: true
+    mvp: true
+    isolated: true

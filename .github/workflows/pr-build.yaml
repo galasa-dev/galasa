@@ -1,0 +1,271 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: PR build
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: galasa-dev
+  IMAGE_TAG: main
+  
+jobs:
+  build-obr:
+    name: Build OBR using galasabld image and maven
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          path: obr
+    
+      - name: Checkout framework
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.NAMESPACE }}/framework
+          path: framework
+
+      - name: Checkout extensions
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.NAMESPACE }}/extensions
+          path: extensions
+      
+      - name: Checkout managers
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.NAMESPACE }}/managers
+          path: managers
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+  
+      - name: Print githash
+        working-directory: obr
+        run: |
+          echo $GITHUB_SHA > ./obr.githash
+
+      - name: Make secrets directory
+        run : |
+            mkdir /home/runner/work/secrets
+
+      - name: Copy settings.xml
+        env:
+            MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
+        run : |
+            echo $MAVEN_SETTINGS_XML > /home/runner/work/secrets/settings.xml
+      
+      - name: Copy GPG passphrase
+        env:
+            GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run : |
+            echo $GPG_PASSPHRASE > /home/runner/work/secrets/passphrase.file
+      
+      - name: Copy GPG key
+        env:
+            GPG_KEY_BASE64: ${{ secrets.GPG_KEY }}
+        run : |
+            echo $GPG_KEY_BASE64 |  base64 --decode > /home/runner/work/secrets/galasa.gpg
+            
+      - name: Make GPG home directory and change permissions
+        run: |
+            mkdir /home/runner/work/gpg
+            chmod '700' /home/runner/work/gpg
+        
+      - name: Import GPG
+        run: |
+            gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
+        
+      - name: Copy custom settings.xml
+        run: |
+            cp /home/runner/work/secrets/settings.xml /home/runner/work/gpg/settings.xml
+      
+      - name:  Generate Galasa BOM
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/var/root/ ghcr.io/galasa-dev/galasabld-amd64:main template --releaseMetadata var/root/framework/release.yaml --releaseMetadata /var/root/extensions/release.yaml --releaseMetadata /var/root/managers/release.yaml --releaseMetadata /var/root/obr/release.yaml --template /var/root/obr/galasa-bom/pom.template --output /var/root/obr/galasa-bom/pom.xml --bom
+          
+      - name: Display Galasa BOM pom.xml
+        run: |
+          cat ${{ github.workspace }}/obr/galasa-bom/pom.xml
+        
+      - name: Build Galasa BOM with maven
+        run: |
+          set -o pipefail
+          mvn -f ${{ github.workspace }}/obr/galasa-bom/pom.xml -X deploy \
+          -Dgpg.skip=true \
+          -Dgalasa.source.repo=https://development.galasa.dev/main/maven-repo/managers \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/obr/repo \
+          --batch-mode --errors --fail-at-end \
+          --settings /home/runner/work/gpg/settings.xml 2>&1 | tee galasa-bom-build.log
+
+      - name: Upload Galasa BOM Build Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: galasa-bom-build-log
+          path: galasa-bom-build.log
+          retention-days: 7
+      
+      - name:  Generate Galasa OBR
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/var/root/ ghcr.io/galasa-dev/galasabld-amd64:main template --releaseMetadata var/root/framework/release.yaml --releaseMetadata /var/root/extensions/release.yaml --releaseMetadata /var/root/managers/release.yaml --releaseMetadata /var/root/obr/release.yaml --template /var/root/obr/dev.galasa.uber.obr/pom.template --output /var/root/obr/dev.galasa.uber.obr/pom.xml --obr
+          
+      - name: Display Galasa OBR pom.xml
+        run: |
+          cat ${{ github.workspace }}/obr/dev.galasa.uber.obr/pom.xml
+        
+      - name: Build Galasa OBR with maven
+        run: |
+          set -o pipefail
+          mvn -f obr/dev.galasa.uber.obr/pom.xml deploy -X \
+          -Dgpg.skip=true \
+          -Dgalasa.source.repo=https://development.galasa.dev/main/maven-repo/managers \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/obr/repo \
+          --batch-mode --errors --fail-at-end \
+          --settings /home/runner/work/gpg/settings.xml 2>&1 | tee galasa-obr-build.log
+
+      - name: Upload Galasa OBR Build Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: galasa-obr-build-log
+          path: galasa-obr-build.log
+          retention-days: 7
+      
+      - name: Build OBR image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: obr
+          file: obr/dockerfiles/dockerfile.obr
+          load: true
+          tags: obr-maven-artefacts:test
+          build-args: |
+            dockerRepository=${{ env.REGISTRY }}
+            tag=${{ env.IMAGE_TAG }}
+
+  build-obr-javadocs:
+    name: Build OBR javadocs using galasabld image and maven
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          path: obr
+    
+      - name: Checkout framework
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.NAMESPACE }}/framework
+          path: framework
+
+      - name: Checkout extensions
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.NAMESPACE }}/extensions
+          path: extensions
+
+      - name: Checkout managers
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.NAMESPACE }}/managers
+          path: managers
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+      
+      - name: Make secrets directory
+        run : |
+            mkdir /home/runner/work/secrets
+
+      - name: Copy settings.xml 
+        env:
+          MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
+        run : |
+          echo $MAVEN_SETTINGS_XML > /home/runner/work/secrets/settings.xml
+
+      - name: Copy GPG passphrase
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run : |
+          echo $GPG_PASSPHRASE > /home/runner/work/secrets/passphrase.file
+
+      - name: Copy GPG key
+        env:
+          GPG_KEY_BASE64: ${{ secrets.GPG_KEY }}
+        run : |
+          echo $GPG_KEY_BASE64 |  base64 --decode > /home/runner/work/secrets/galasa.gpg
+          
+      - name: Make GPG home directory and change permissions
+        run: |
+          mkdir /home/runner/work/gpg
+          chmod '700' /home/runner/work/gpg
+
+      - name: Import GPG
+        run: |
+          gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
+      
+      - name: Copy custom settings.xml
+        run: |
+          cp /home/runner/work/secrets/settings.xml /home/runner/work/gpg/settings.xml
+          
+      - name: Build Galasa Javadoc
+        run: |
+            docker run --rm -v ${{ github.workspace }}:/var/root/ ghcr.io/galasa-dev/galasabld-amd64:main template --releaseMetadata var/root/framework/release.yaml --releaseMetadata /var/root/extensions/release.yaml --releaseMetadata /var/root/managers/release.yaml --releaseMetadata /var/root/obr/release.yaml --template /var/root/obr/javadocs/pom.template --output /var/root/obr/javadocs/pom.xml --javadoc
+            
+      - name: Display Galasa Javadoc pom.xml 
+        run: |
+          cat ${{ github.workspace }}/obr/javadocs/pom.xml
+        
+      - name: Build javadoc site using maven
+        run: |
+          set -o pipefail
+          mvn -f obr/javadocs/pom.xml deploy -X \
+          -Dgpg.skip=true \
+          -Dgalasa.source.repo=https://development.galasa.dev/main/maven-repo/managers \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/obr/javadocs/docker/repo \
+          -Dmaven.javadoc.failOnError=false \
+          --batch-mode --errors --fail-at-end \
+          --settings /home/runner/work/gpg/settings.xml 2>&1 | tee build.log
+        
+      - name: Upload javadoc site Build Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: javadoc-site-build-log
+          path: build.log
+          retention-days: 7
+      
+      - name: Build Javadoc site image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: obr
+          file: obr/dockerfiles/dockerfile.javadocsite
+          load: true
+          tags: javadoc-site:test
+
+      - name: Build Javadoc Maven repo image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: obr
+          file: obr/dockerfiles/dockerfile.javadocmavenrepo
+          load: true
+          tags: javadoc-maven-artefacts:test
+          build-args: |
+            dockerRepository=${{ env.REGISTRY }}
+            baseVersion=latest

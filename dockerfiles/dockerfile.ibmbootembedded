@@ -1,0 +1,19 @@
+ARG dockerRepository
+ARG tag
+ARG platform
+
+FROM ${dockerRepository}/galasa-dev/galasa-boot-embedded-${platform}:${tag}
+
+USER root
+
+COPY dockerfiles/certs/carootcert.der $JAVA_HOME/lib/security
+COPY dockerfiles/certs/caintermediatecert.der $JAVA_HOME/lib/security
+
+RUN \
+    cd $JAVA_HOME/lib/security \
+    && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias ibmca -file carootcert.der \
+    && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias ibminter -file caintermediatecert.der
+
+WORKDIR /galasa
+
+USER galasa

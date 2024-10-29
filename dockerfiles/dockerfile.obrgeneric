@@ -1,0 +1,3 @@
+FROM scratch
+
+COPY obr-generic/target/* /galasa/

@@ -1,0 +1,7 @@
+ARG dockerRepository
+ARG tag
+
+FROM ${dockerRepository}/galasa-dev/managers-maven-artefacts:${tag}
+
+COPY repo/ /usr/local/apache2/htdocs/
+COPY obr.githash /usr/local/apache2/htdocs/obr.githash

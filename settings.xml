@@ -1,0 +1,35 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+	<profiles>
+        <profile>
+            <id>galasa</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>galasa.source.repo</id>
+                    <url>${galasa.source.repo}</url>
+                </repository>
+                <repository>
+                    <id>central</id>
+                    <url>${galasa.central.repo}</url>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>galasa.source.repo</id>
+                    <url>${galasa.source.repo}</url>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>central</id>
+                    <url>${galasa.central.repo}</url>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+	</profiles>
+
+</settings>

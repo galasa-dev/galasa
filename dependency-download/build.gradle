@@ -1,0 +1,66 @@
+
+plugins {
+    id 'java'
+}
+
+// Note: The following version number is updated using the set-version.sh tool.
+// It is used as the version number of the managers bundle, which contains a yaml
+// file which is in a release.yaml, but published to maven, so that the OBR build 
+// can pick it up later.
+version = "0.38.0"
+
+repositories {
+    mavenLocal()
+    maven {
+        url "$sourceMaven"
+    }
+    maven {
+        url "$centralMaven"
+    }
+}
+
+dependencies {
+    runtimeOnly group: 'dev.galasa', name: 'dev.galasa.managers.manifest', version: version, ext: "yaml"
+    runtimeOnly group: 'dev.galasa', name: 'dev.galasa.framework.manifest', version: version, ext: "yaml"
+}
+
+// Download all the files we depend upon.
+task downloadAllDependencies(type: Copy) {
+    from sourceSets.main.runtimeClasspath
+    into 'build/dependencies'
+}
+
+// Gets the manager dependency and renames it to remove the version number.
+task getManagerDependency {
+    dependsOn downloadAllDependencies
+    doFirst {
+        copyDependency("dev.galasa.managers.manifest-${version}.yaml", "dev.galasa.managers.manifest.yaml")
+    }
+}
+
+// Gets the framework dependency and renames it to remove the version number.
+task getFrameworkDependency {
+    dependsOn downloadAllDependencies
+    doFirst {
+        copyDependency("dev.galasa.framework.manifest-${version}.yaml", "dev.galasa.framework.manifest.yaml")
+    }
+}
+
+// Creates a copy of a dependency matching the given pattern and renames it with the given name
+def copyDependency(dependencyPattern, desiredFileName) {
+    copy {
+        from 'build/dependencies'
+        include dependencyPattern
+        into file('build/dependencies/')
+        rename dependencyPattern, desiredFileName
+    }
+}
+
+// Gets all the dependencies
+task getDeps(type: Copy) {
+    dependsOn downloadAllDependencies
+    dependsOn getManagerDependency
+    dependsOn getFrameworkDependency
+
+}
+

@@ -1,0 +1,10 @@
+ARG dockerRepository
+ARG tag
+
+# During a release, we need to be able to execute galasabld commands from inside the OBR image
+FROM ${dockerRepository}/galasa-dev/obr-maven-artefacts:${tag}
+
+ARG platform
+COPY bin/galasabld-${platform} /bin/galasabld
+
+ENTRYPOINT ["/bin/galasabld"]
