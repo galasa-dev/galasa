@@ -1,0 +1,57 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: PR build
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  NAMESPACE: galasa-dev
+
+jobs:
+  build-extensions:
+    name: Build Extensions source code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK 
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+      
+      - name: Print githash
+        run: |
+          echo $GITHUB_SHA > ./extensions.githash
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.9
+          cache-disabled: true
+
+      - name: Build Extensions source code with gradle
+        run: |
+          gradle -b galasa-extensions-parent/build.gradle check publish --info \
+          --no-daemon --console plain \
+          -PsourceMaven=https://development.galasa.dev/main/maven-repo/framework \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/repo
+    
+      - name: Build Extensions image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dockerfiles/dockerfile
+          load: true
+          tags: extensions:test
+          build-args: |
+            dockerRepository=ghcr.io
+            tag=main

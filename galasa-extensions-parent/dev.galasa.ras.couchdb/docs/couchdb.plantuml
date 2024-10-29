@@ -1,0 +1,14 @@
+@startuml
+
+class CouchdbRasFileSystemProvider{
+
+}
+
+class CouchdbRasWriteByteChannel {
+
+}
+
+
+CouchdbRasFileSystemProvider -> CouchdbRasWriteByteChannel : "creates"
+CouchdbRasStore -> CouchdbRasFileSystemProvider : "creates"
+@enduml

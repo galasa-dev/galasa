@@ -1,0 +1,23 @@
+-snapshot ${tstamp}
+Bundle-Name: dev.galasa.auth.couchdb
+Bundle-Description: A CouchDB implementation of the Galasa Auth Store
+Bundle-License: https://www.eclipse.org/legal/epl-2.0
+Import-Package: com.google.gson,\
+    com.google.gson.annotations,\
+    dev.galasa,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.auth,\
+    dev.galasa.framework.spi.utils,\
+    dev.galasa.extensions.common.couchdb.*,\
+    dev.galasa.extensions.common,\
+    dev.galasa.extensions.common.api,\
+    dev.galasa.extensions.common.impl,\
+    javax.validation.constraints;resolution:=optional,\
+    org.apache.commons.logging,\
+    org.apache.http,\
+    org.apache.http.client.methods,\
+    org.apache.http.client.utils,\
+    org.apache.http.entity,\
+    org.apache.http.impl.client,\
+    org.apache.http.util
+

@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories {
+        maven {
+            url = "$sourceMaven"
+        }
+        maven {
+            url "$centralMaven"
+        }
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = "galasa-extensions-parent"
+
+include 'dev.galasa.auth.couchdb'
+include 'dev.galasa.extensions.mocks'
+include 'dev.galasa.extensions.common'
+include 'dev.galasa.cps.etcd'
+include 'dev.galasa.cps.rest'
+include 'dev.galasa.ras.couchdb'
+include 'dev.galasa.events.kafka'
+

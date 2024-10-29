@@ -1,0 +1,36 @@
+plugins {
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.extensions'
+}
+
+description = 'Galasa CPS access over http - Provides the CPS stores via the public REST interface over http'
+
+version = '0.38.0'
+
+dependencies {
+
+    // Not required for compile,  but required to force the download of the jars to embed by bnd
+    implementation ('dev.galasa:gson:2.10.1')
+    implementation ('dev.galasa:dev.galasa.framework.api.beans:0.33.0')
+    implementation (project(':dev.galasa.extensions.common'))
+    implementation 'commons-io:commons-io:2.16.1'
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation(project(':dev.galasa.extensions.mocks'))
+    testImplementation 'org.assertj:assertj-core:3.16.1'
+}
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = true
+ext.includeInMVP          = false
+ext.includeInBOM          = false
+ext.includeInIsolated     = true
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = false

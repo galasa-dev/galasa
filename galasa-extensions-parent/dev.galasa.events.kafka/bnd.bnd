@@ -1,0 +1,19 @@
+-snapshot ${tstamp}
+Bundle-Name: dev.galasa.events.kafka
+Bundle-Description: Provides an events service from a Kafka cluster
+Bundle-License: https://www.eclipse.org/legal/epl-2.0
+Export-Package: dev.galasa.events.kafka*
+Import-Package: \
+    dev.galasa.framework.spi,\
+    org.apache.commons.logging,\
+    org.apache.kafka.clients,\
+    org.apache.kafka.clients.admin,\
+    org.apache.kafka.clients.consumer,\
+    org.apache.kafka.clients.producer,\
+    org.apache.kafka.common,\
+    org.apache.kafka.common.metrics,\
+    org.apache.kafka.common.security.plain,\
+    org.apache.kafka.common.serialization,\
+    org.apache.kafka.server,\
+    org.apache.kafka.shaded,\
+    common.message

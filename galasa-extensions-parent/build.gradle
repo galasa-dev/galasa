@@ -1,0 +1,213 @@
+plugins {
+    id 'biz.aQute.bnd.builder' version '5.3.0' apply false
+    id 'dev.galasa.githash' version '0.15.0' apply false
+    id 'maven-publish'
+    id 'signing'
+}
+
+version = '0.38.0'
+
+//---------------------------------------------------------------
+// We need to gather the release and packaging metadata from each
+// sub-project, to generate a release.yaml document which can act
+// as a manifest for this component.
+//
+// The OSGi bundles in the extensions project are all in the
+// 'framework' group.
+//
+// Each module is examined, and contributes it's metadata to an
+// overall manifest file, ready to be published to a maven
+// repository.
+//
+// At a later time, the OBR project will draw down the manifest
+// and use it to build the uber-obr.
+//---------------------------------------------------------------
+configurations {
+    release_metadata
+}
+
+def overallManifestFile = layout.buildDirectory.file("release.yaml").get().asFile
+def overallHeader = """#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# -----------------------------------------------------------
+#
+#                         WARNING
+#
+# This file is periodically re-generated from the contents of
+# the repository, so don't make changes here manually please.
+# -----------------------------------------------------------
+
+
+apiVersion: galasa.dev/v1alpha
+kind: Release
+metadata:
+  name: galasa-release
+
+framework:
+  bundles:
+"""
+
+//---------------------------------------------------------------
+// Flushes any existing content in the given manifest file, and
+// replaces it with a fresh file containing only the header text.
+//---------------------------------------------------------------
+def prepareGeneratedFile(manifestFile, header) {
+    // Make sure the manifest file is clean, and exists.
+    if (manifestFile.exists()) {
+        // File exists, delete it and create a new one.
+        manifestFile.delete()
+    }
+    manifestFile.createNewFile()
+
+    // Add the header to the manifest file
+    manifestFile.append(header)
+}
+
+//----------------------------------------------------------
+// Allow each subproject to contribute to one of the manifest
+// collections.
+//----------------------------------------------------------
+task buildReleaseYaml() {
+    println 'Building the release.yaml file...'
+
+    // During execution phase, make sure the file exists.
+    doFirst {
+        // Make sure the build directory exists.
+        def buildDir = layout.buildDirectory.get().asFile
+        if (!buildDir.exists()) {
+            buildDir.mkdirs()
+        }
+
+        prepareGeneratedFile(overallManifestFile, overallHeader)
+    }
+
+    subprojects {
+        ext {
+            // the property that should be overridden in suproject's build.gradle
+            // Each sub-project will set the values...
+            projectName = ''
+            includeInOBR = ''
+            includeInMVP = ''
+            includeInBOM = ''
+            includeInJavadoc = ''
+            includeInIsolated = ''
+            includeInCodeCoverage = ''
+        }
+
+        afterEvaluate {
+            doLast {
+                // Some projects don't have a version property... as they are parent projects mostly.
+                if (version != 'unspecified') {
+                    if (projectName == '') {
+                        throw new Exception("Project has no name.")
+                    }
+
+                    overallManifestFile.append("\n\n  - artifact: $projectName")
+                    overallManifestFile.append("\n    version: $version")
+                    if (includeInOBR != '') {
+                        overallManifestFile.append("\n    obr:          $includeInOBR")
+                    }
+                    if (includeInMVP != '') {
+                        overallManifestFile.append("\n    mvp:          $includeInMVP")
+                    }
+                    if (includeInBOM != '') {
+                        overallManifestFile.append("\n    bom:          $includeInBOM")
+                    }
+                    if (includeInJavadoc != '') {
+                        overallManifestFile.append("\n    javadoc:      $includeInJavadoc")
+                    }
+                    if (includeInIsolated != '') {
+                        overallManifestFile.append("\n    isolated:     $includeInIsolated")
+                    }
+                    if (includeInCodeCoverage != '') {
+                        overallManifestFile.append("\n    codecoverage: $includeInCodeCoverage")
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+// Declare that the uber-manifest release.yaml file exists, and how to build it.
+def myReleaseYaml = artifacts.add('release_metadata', overallManifestFile) {
+    builtBy 'buildReleaseYaml'
+}
+
+subprojects {
+    task allDeps(type: DependencyReportTask) {}
+}
+
+signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications
+}
+
+tasks.withType(Sign) {
+    onlyIf { isMainOrRelease.toBoolean() }
+}
+
+// Publish the release.yaml as a maven artifact.
+// Note: The maven co-ordinates are versioned using the version for this bundle.
+publishing {
+    publications {
+
+        // Publish the component manifest/release.yaml
+        publishReleaseManifestYaml(MavenPublication) {
+            artifact myReleaseYaml
+
+            pom {
+                name = "Manifest for extensions bundle versions"
+                artifactId = "dev.galasa.extensions.manifest"
+                groupId = 'dev.galasa'
+				version = '0.38.0'
+                description = "Conveys bundle version information to OBR builds."
+                licenses {
+                    license {
+                        name = 'Eclipse Public License - v 2.0'
+                        url = 'https://www.eclipse.org/legal/epl-2.0/t'
+                    }
+                }
+                url = 'https://galasa.dev'
+                developers {
+                    developer {
+                        name = 'Galasa Developer'
+                        email = 'galasadelivery@ibm.com'
+                        organization = 'IBM'
+                        organizationUrl = 'https://www.ibm.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:://github.com/galasa-dev/extensions'
+                    developerConnection = 'scm:git:git:://github.com/galasa-dev/extensions'
+                    url = 'https://github.com/galasa-dev/extensions'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/galasa-dev/projectmanagement/issues'
+                }
+            }
+
+        }
+    }
+
+    repositories {
+        maven {
+            url  = "$targetMaven"
+        
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv('GITHUB_ACTOR')
+                    password System.getenv('GITHUB_TOKEN')
+                }
+            }
+        }
+    }
+}

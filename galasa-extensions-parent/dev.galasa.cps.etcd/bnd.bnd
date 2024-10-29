@@ -1,0 +1,58 @@
+-snapshot ${tstamp}
+Bundle-Name: dev.galasa.cps.etcd
+Bundle-Description: Provides the CPS, DSS and Credential stores from a etcd3 server
+Bundle-License: https://www.eclipse.org/legal/epl-2.0
+Export-Package: !dev.galasa.cps.etcd.internal,dev.galasa.cps.etcd*
+Import-Package: \
+    dev.galasa,\
+    dev.galasa.cps.etcd,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.creds,\
+    javax.net.ssl,\
+    javax.security.cert
+Embed-Transitive: true
+Embed-Dependency: *;scope=compile|runtime
+-includeresource: \
+    checker-qual-3.42.0.jar; lib:=true,\
+    failsafe-3.3.2.jar; lib:=true,\
+    failureaccess-1.0.2.jar; lib:=true,\
+    grpc-api-1.66.0.jar; lib:=true,\
+    grpc-context-1.66.0.jar; lib:=true,\
+    grpc-core-1.66.0.jar; lib:=true,\
+    grpc-grpclb-1.66.0.jar; lib:=true,\
+    grpc-netty-1.66.0.jar; lib:=true,\
+    grpc-protobuf-1.66.0.jar; lib:=true,\
+    grpc-protobuf-lite-1.66.0.jar; lib:=true,\
+    grpc-stub-1.66.0.jar; lib:=true,\
+    grpc-util-1.66.0.jar; lib:=true,\
+    gson-2.10.1.jar; lib:=true,\
+    guava-33.2.1-jre.jar; lib:=true,\
+    jackson-core-2.16.1.jar; lib:=true,\
+    javax.annotation-api-1.3.2.jar; lib:=true,\
+    jetcd-api-0.8.3.jar; lib:=true,\
+    jetcd-common-0.8.3.jar; lib:=true,\
+    jetcd-core-0.8.3.jar; lib:=true,\
+    jetcd-grpc-0.8.3.jar; lib:=true,\
+    listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar; lib:=true,\
+    netty-buffer-4.1.111.Final.jar; lib:=true,\
+    netty-codec-4.1.111.Final.jar; lib:=true,\
+    netty-codec-dns-4.1.111.Final.jar; lib:=true,\
+    netty-codec-http-4.1.111.Final.jar; lib:=true,\
+    netty-codec-http2-4.1.111.Final.jar; lib:=true,\
+    netty-codec-socks-4.1.111.Final.jar; lib:=true,\
+    netty-common-4.1.111.Final.jar; lib:=true,\
+    netty-handler-4.1.111.Final.jar; lib:=true,\
+    netty-handler-proxy-4.1.111.Final.jar; lib:=true,\
+    netty-resolver-4.1.111.Final.jar; lib:=true,\
+    netty-resolver-dns-4.1.111.Final.jar; lib:=true,\
+    netty-transport-4.1.111.Final.jar; lib:=true,\
+    netty-transport-native-unix-common-4.1.111.Final.jar; lib:=true,\
+    perfmark-api-0.27.0.jar; lib:=true,\
+    proto-google-common-protos-2.41.0.jar; lib:=true,\
+    protobuf-java-3.25.3.jar; lib:=true,\
+    protobuf-java-util-3.25.3.jar; lib:=true,\
+    slf4j-api-2.0.16.jar; lib:=true,\
+    validation-api-2.0.1.Final.jar; lib:=true,\
+    vertx-core-4.5.9.jar; lib:=true,\
+    vertx-grpc-4.5.9.jar; lib:=true
+-fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning

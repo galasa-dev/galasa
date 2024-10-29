@@ -1,0 +1,14 @@
+target/
+.settings/
+.project
+.classpath
+.factorypath
+.apt_generated/
+.apt_generated_tests/
+.DS_Store
+build.properties
+MANIFEST.MF
+default.etcd
+etcd3-manager/hs_err_pid48525.log
+dependency-reduced-pom.xml
+

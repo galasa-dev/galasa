@@ -1,0 +1,86 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# -----------------------------------------------------------
+#
+#                         WARNING
+#
+# This file is periodically re-generated from the contents of
+# the repository, so don't make changes here manually please.
+# -----------------------------------------------------------
+
+
+apiVersion: galasa.dev/v1alpha
+kind: Release
+metadata:
+  name: galasa-release
+
+framework:
+  bundles:
+
+
+  - artifact: dev.galasa.auth.couchdb
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.cps.etcd
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.cps.rest
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.events.kafka
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.extensions.common
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.extensions.mocks
+    version: 0.38.0
+    obr:          false
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     false
+    codecoverage: false
+
+  - artifact: dev.galasa.ras.couchdb
+    version: 0.38.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true

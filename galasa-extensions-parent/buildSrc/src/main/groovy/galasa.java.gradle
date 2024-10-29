@@ -1,0 +1,120 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group = 'dev.galasa'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+    
+tasks.withType(Javadoc) {
+    failOnError = false
+    enabled = true
+}
+
+task gitHash(dependsOn : 'classes') {
+    def dir    = layout.buildDirectory.dir("githash").get().asFile
+    def meta   = layout.buildDirectory.dir("githash/META-INF").get().asFile
+    def result = layout.buildDirectory.file("githash/META-INF/git.hash").get().asFile
+    
+    outputs.dir meta
+    tasks.jar.dependsOn('gitHash')
+    tasks.jar.from(dir)
+    
+    doLast {
+        if(!meta.exists()) {
+            meta.mkdirs()
+        }
+        
+        def hash = "unknown"
+        
+        try {
+            new ByteArrayOutputStream().withStream { os ->
+                def r = exec {
+                    commandLine 'git', 'log',  '--pretty=format:%H', '-1', '.'
+                    standardOutput = os
+                }
+            hash = os.toString()
+            }
+        } catch(Exception e) {}
+        result.write(hash)
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url "$sourceMaven"
+    }
+    maven {
+        url "$centralMaven"
+    }
+}
+
+signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications
+}
+
+tasks.withType(Sign) {
+    onlyIf { isMainOrRelease.toBoolean() }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            pom {
+                url = 'https://galasa.dev'
+                name = 'A Galasa project'
+                description = 'A Galasa project'
+                licenses {
+                    license {
+                        name = 'Eclipse Public License - v 2.0'
+                        url = 'https://www.eclipse.org/legal/epl-2.0'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Galasa Contributors'
+                        email = 'galasadelivery@ibm.com'
+                        organization = 'Linux Foundation'
+                        organizationUrl = 'https://github.com/galasa-dev'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:://github.com/galasa-dev/framework'
+                    developerConnection = 'scm:git:git:://github.com/galasa-dev/framework'
+                    url = 'https://github.com/galasa-dev/framework'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/galasa-dev/projectmanagement/issues'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url  = "$targetMaven"
+            
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv('GITHUB_ACTOR')
+                    password System.getenv('GITHUB_TOKEN')
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+-snapshot ${tstamp}
+Bundle-Name: dev.galasa.cps.rest
+Bundle-Description: Provides access to the CPS via a remote REST endpoint over http. 
+Bundle-License: https://www.eclipse.org/legal/epl-2.0
+Export-Package: !dev.galasa.cps.rest.internal,dev.galasa.cps.rest*
+Import-Package: \
+    com.google.gson,\
+    dev.galasa,\
+    dev.galasa.extensions.common,\
+    dev.galasa.extensions.common.api,\
+    dev.galasa.extensions.common.impl,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.api.beans,\
+    dev.galasa.framework.spi.utils,\
+    javax.net.ssl,\
+    javax.security.cert,\
+    org.apache.commons.io,\
+    org.apache.commons.logging,\
+    org.apache.http,\
+    org.apache.http.client.methods,\
+    org.apache.http.client.utils,\
+    org.apache.http.entity,\
+    org.apache.http.impl.client,\
+    org.apache.http.util
+

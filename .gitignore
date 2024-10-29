@@ -1,0 +1,17 @@
+.apt_generated/
+.apt_generated_tests/
+*.versionsBackup
+galasa-eclipse-parent/target
+**/.gradle/
+**/build/
+/.project
+dependency-reduced-pom.xml
+.DS_Store
+
+bin/
+temp/
+
+.vscode/
+**/core.*.dmp
+**/javacore*.txt
+**/Snap.*.trc
