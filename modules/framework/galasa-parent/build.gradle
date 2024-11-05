@@ -29,6 +29,8 @@ dependencies {
     compileOnly 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
 }
 
+
+
 allprojects {
    tasks.withType(Javadoc) {
       options.addStringOption('Xdoclint:none', '-quiet')
@@ -156,6 +158,7 @@ def apiHeader = """
 api:
   bundles:
 """
+
 
 
 //----------------------------------------------------------
