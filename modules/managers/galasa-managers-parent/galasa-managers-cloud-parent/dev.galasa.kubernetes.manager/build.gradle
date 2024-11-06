@@ -20,16 +20,9 @@ dependencies {
             strictly '3.0.2'
         }
     }
-    implementation ('com.google.code.gson:gson'){
-        version {
-            strictly libs.gson
-        }
-    }
-    implementation ('org.apache.commons:commons-lang3'){
-        version {
-            strictly '3.14.0'
-        }
-    }
+
+    implementation libs.gson.strictly
+    implementation libs.commons.lang3.strictly
     implementation ('commons-codec:commons-codec'){
         version {
             strictly '1.15'
@@ -40,11 +33,7 @@ dependencies {
             strictly '2.0'
         }
     }
-    implementation ('org.apache.commons:commons-compress') {
-        version {
-            strictly '1.26.0'
-        }
-    }
+    implementation libs.commons.compress.strictly
     implementation ('com.google.protobuf:protobuf-java') {
         version {
             strictly '3.25.5'
