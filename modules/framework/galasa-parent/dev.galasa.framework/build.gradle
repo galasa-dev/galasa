@@ -16,14 +16,13 @@ dependencies {
 
     implementation libs.bundles.log4j
 
-    // implementation 'org.apache.commons:commons-lang3:3.14.0'
     implementation libs.commons.lang3
-    implementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
+    implementation libs.org.apache.felix.bundlerepository
 
-    implementation apache-bcel 
-    implementation commons-io
+    implementation libs.org.apache.bcel 
+    implementation libs.commons.io
     implementation libs.gson
-    implementation 'org.yaml:snakeyaml:2.0'
+    implementation libs.org.yaml.snakeyaml
 
     testImplementation project (':dev.galasa')
 

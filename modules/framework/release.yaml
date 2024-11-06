@@ -42,7 +42,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.docker.controller
-    version: 0.34.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -172,7 +172,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.cps
-    version: 0.37.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -181,7 +181,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.health
-    version: 0.25.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -190,7 +190,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.launcher
-    version: 0.21.0
+    version: 0.38.0
     obr:          false
     mvp:          false
     bom:          false
@@ -208,7 +208,7 @@ api:
     codecoverage: false
 
   - artifact: dev.galasa.framework.api.openapi.servlet
-    version: 0.36.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -217,7 +217,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.ras
-    version: 0.37.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -235,7 +235,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.runs
-    version: 0.37.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -253,7 +253,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.testcatalog
-    version: 0.34.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -262,7 +262,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.users
-    version: 0.37.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false

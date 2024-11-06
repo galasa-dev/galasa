@@ -16,11 +16,11 @@ dependencies {
     implementation project(':dev.galasa.framework.api.common')
     implementation project(':dev.galasa.framework.api.users')
 
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
-    implementation 'dev.galasa:com.auth0.jwt:4.4.1'
+    implementation libs.org.apache.commons.lang3
+    implementation libs.dev.galasa.com.auth0.jwt 
 
-    implementation 'dev.galasa:dev.galasa.wrapping.io.grpc.java:0.38.0'
-    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+    implementation libs.dev.galasa.wrapping.io.grpc.java 
+    compileOnly libs.org.apache.tomcat.annotations.api 
 
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
 }

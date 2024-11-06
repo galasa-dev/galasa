@@ -5,7 +5,7 @@ plugins {
 
 description = 'Galasa API Health Servlets'
 
-version = '0.25.0'
+version = '0.38.0'
 
 dependencies {
     implementation project(':dev.galasa.framework')

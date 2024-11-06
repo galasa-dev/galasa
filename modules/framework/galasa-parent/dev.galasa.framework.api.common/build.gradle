@@ -12,14 +12,14 @@ version = '0.38.0'
 dependencies {
     implementation project(':dev.galasa.framework')
     implementation project(':dev.galasa.framework.api.beans')
-    implementation 'dev.galasa:com.auth0.jwt:4.4.1'
+    implementation libs.dev.galasa.com.auth0.jwt
 
-    testFixturesImplementation 'javax.servlet:javax.servlet-api:3.1.0'
-    testFixturesImplementation 'org.assertj:assertj-core:3.16.1'
+    testFixturesImplementation libs.javax.servlet.api 
+    testFixturesImplementation libs.org.assertj.core
     testFixturesImplementation libs.gson
     testFixturesImplementation(project(':dev.galasa.framework'))
     testFixturesImplementation(project(':dev.galasa.framework.api.beans'))
-    testFixturesImplementation 'javax.validation:validation-api:2.0.1.Final'
+    testFixturesImplementation libs.javax.validation.api
 
 }
 

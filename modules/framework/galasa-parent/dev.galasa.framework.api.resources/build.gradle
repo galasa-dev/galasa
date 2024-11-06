@@ -16,9 +16,9 @@ dependencies {
     implementation project(':dev.galasa.framework.api.common')
     implementation project(':dev.galasa.framework.api.cps')
 
-    implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation libs.org.apache.commons.collections
 
-    testImplementation 'org.apache.commons:commons-lang3:3.14.0'
+    testImplementation libs.org.apache.commons.lang3
     testImplementation project(':dev.galasa.framework').sourceSets.test.output
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
 }

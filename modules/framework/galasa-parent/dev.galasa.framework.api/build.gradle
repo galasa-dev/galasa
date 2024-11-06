@@ -11,8 +11,8 @@ dependencies {
 
     implementation project(':dev.galasa.framework')
 
-    implementation 'org.osgi:org.osgi.service.cm:1.6.0'
-    implementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
+    implementation libs.org.osgi.service.cm
+    implementation libs.org.apache.felix.bundlerepository
 
     testImplementation project(':dev.galasa.framework').sourceSets.test.output
 }

@@ -5,36 +5,25 @@ plugins {
 
 description = 'Docker Controller'
 
-version '0.34.0'
+version '0.38.0'
 
 dependencies {
     implementation project(':dev.galasa')
     implementation project(':dev.galasa.framework')
 
-    implementation 'commons-io:commons-io:2.16.1'
-    implementation 'commons-codec:commons-codec:1.16.1'
-    implementation ('org.apache.commons:commons-compress') {
-        version {
-            strictly '1.26.0'
-        }
-    }
+    implementation libs.commons.io
+    implementation libs.commons.codec
+    implementation libs.org.apache.commons.compress.strictly
 
-    implementation 'io.prometheus:simpleclient:0.6.0'
-    implementation 'io.prometheus:simpleclient_httpserver:0.6.0'
-    implementation 'io.prometheus:simpleclient_hotspot:0.6.0'
+    implementation libs.io.prometheus.simpleclient
+    
+    implementation libs.io.prometheus.simpleclient.httpserver
+    implementation libs.io.prometheus.simpleclient.hotspot
 
-    implementation 'com.github.docker-java:docker-java-core:3.2.14'
-    implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.2.14'
-    implementation ('org.bouncycastle:bcpkix-jdk18on') {
-        version {
-            strictly '1.75'
-        }
-    }
-    implementation ('org.bouncycastle:bcprov-jdk18on') {
-        version {
-            strictly '1.75'
-        }
-    }
+    implementation libs.com.github.docker.java.core
+    implementation libs.com.github.docker.java.transport.httpclient5
+    implementation libs.org.bouncycastle.bcpkix.jdk18on.strictly
+    implementation libs.org.bouncycastle.bcprov.jdk18on.strictly
 
 }
 
