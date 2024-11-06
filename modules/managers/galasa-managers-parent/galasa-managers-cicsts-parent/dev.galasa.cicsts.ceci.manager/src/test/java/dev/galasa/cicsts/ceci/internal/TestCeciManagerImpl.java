@@ -5,29 +5,6 @@
  */
 package dev.galasa.cicsts.ceci.internal;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-//import org.powermock.api.mockito.PowerMockito;
-//import org.powermock.modules.junit4.PowerMockRunner;
-
-import dev.galasa.ManagerException;
-import dev.galasa.cicsts.CeciManagerException;
-import dev.galasa.cicsts.ICicsRegion;
-import dev.galasa.cicsts.ceci.internal.properties.CeciPropertiesSingleton;
-import dev.galasa.cicsts.internal.CicstsManagerImpl;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IManager;
-import dev.galasa.framework.spi.language.GalasaTest;
-import dev.galasa.zos.internal.ZosManagerImpl;
-
 //@RunWith(PowerMockRunner.class)
 public class TestCeciManagerImpl {
 //    

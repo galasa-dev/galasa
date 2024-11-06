@@ -60,7 +60,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.log4j2.bridge
-    version: 0.25.0
+    version: 0.38.0
     obr:          false
     mvp:          false
     bom:          false
@@ -69,7 +69,7 @@ framework:
     codecoverage: false
 
   - artifact: dev.galasa.framework.maven.repository
-    version: 0.22.0
+    version: 0.38.0
     obr:          true
     mvp:          true
     bom:          false
@@ -78,7 +78,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.maven.repository.spi
-    version: 0.21.0
+    version: 0.38.0
     obr:          true
     mvp:          true
     bom:          false
@@ -87,7 +87,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.metrics
-    version: 0.21.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false

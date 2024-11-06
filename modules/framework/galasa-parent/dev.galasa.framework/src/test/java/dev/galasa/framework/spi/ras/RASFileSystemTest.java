@@ -21,13 +21,6 @@ import java.util.Iterator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dev.galasa.framework.spi.ras.ResultArchiveStoreBasicAttributes;
-import dev.galasa.framework.spi.ras.ResultArchiveStoreBasicAttributesView;
-import dev.galasa.framework.spi.ras.ResultArchiveStoreByteChannel;
-import dev.galasa.framework.spi.ras.ResultArchiveStoreFileStore;
-import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystem;
-import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider;
-
 public class RASFileSystemTest {
 
     @Test

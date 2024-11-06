@@ -5,14 +5,12 @@ plugins {
 
 description = 'Galasa Metrics'
 
-version = '0.21.0'
+version = '0.38.0'
 
 dependencies {
     implementation project(':dev.galasa.framework')
 
-    implementation 'io.prometheus:simpleclient:0.6.0'
-    implementation 'io.prometheus:simpleclient_httpserver:0.6.0'
-    implementation 'io.prometheus:simpleclient_hotspot:0.6.0'
+    implementation libs.bundles.prometheus
 
 }
 

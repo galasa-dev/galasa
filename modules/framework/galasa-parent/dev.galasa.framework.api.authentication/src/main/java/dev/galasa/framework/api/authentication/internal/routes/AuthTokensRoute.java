@@ -9,7 +9,6 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,7 +45,6 @@ import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
 import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.utils.ITimeService;
-import dev.galasa.framework.spi.utils.SystemTimeService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
 public class AuthTokensRoute extends BaseRoute {

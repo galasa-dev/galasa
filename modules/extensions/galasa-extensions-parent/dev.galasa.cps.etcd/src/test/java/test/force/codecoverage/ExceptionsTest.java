@@ -5,16 +5,11 @@
  */
 package test.force.codecoverage;
 
-import java.beans.Transient;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.ExecutionException;
-
-import javax.validation.constraints.AssertTrue;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.Ignore;
 
 import dev.galasa.cps.etcd.Etcd3ManagerException;
 import dev.galasa.cps.etcd.internal.Etcd3ConfigurationPropertyStore;

@@ -60,7 +60,7 @@ public abstract class Etcd3Store {
         Map<String, String> keyValues = new HashMap<>();
 
         ByteSequence bsPrefix = ByteSequence.from(keyPrefix, UTF_8);
-        GetOption options = GetOption.newBuilder().isPrefix(true).build();
+        GetOption options = GetOption.builder().isPrefix(true).build();
         CompletableFuture<GetResponse> getFuture = kvClient.get(bsPrefix, options);
 
         GetResponse response = getFuture.get();
@@ -91,7 +91,7 @@ public abstract class Etcd3Store {
 
     protected void deletePrefix(@NotNull String keyPrefix) throws InterruptedException, ExecutionException {
         ByteSequence bsKey = ByteSequence.from(keyPrefix, UTF_8);
-        DeleteOption options = DeleteOption.newBuilder().isPrefix(true).build();
+        DeleteOption options = DeleteOption.builder().isPrefix(true).build();
         kvClient.delete(bsKey, options).get();
     }
 

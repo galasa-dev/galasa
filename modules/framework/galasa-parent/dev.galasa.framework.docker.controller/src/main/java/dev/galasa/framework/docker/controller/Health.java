@@ -15,7 +15,6 @@ import com.sun.net.httpserver.HttpServer;
 
 import dev.galasa.framework.spi.FrameworkException;
 
-@SuppressWarnings("restriction")
 public class Health implements HttpHandler {
 
     private final HttpServer httpServer;

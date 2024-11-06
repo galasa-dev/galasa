@@ -5,13 +5,13 @@ plugins {
 
 description = 'Galasa Maven Repository '
 
-version = '0.22.0'
+version = '0.38.0'
 
 dependencies {
     compileOnly project(':dev.galasa.framework.maven.repository.spi')
 
-    implementation 'org.apache.maven:maven-repository-metadata:3.3.9'
-    implementation 'org.codehaus.plexus:plexus-utils:3.0.24'
+    implementation libs.org.apache.maven.repository.metadata 
+    implementation libs.org.codehaus.plexus.utils
 }
 
 // Note: These values are consumed by the parent build process

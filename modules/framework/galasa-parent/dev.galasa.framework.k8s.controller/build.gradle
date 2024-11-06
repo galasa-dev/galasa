@@ -12,29 +12,21 @@ dependencies {
     implementation project(':dev.galasa')
     implementation project(':dev.galasa.framework')
     
-    implementation 'commons-io:commons-io:2.16.1'
-    implementation 'commons-codec:commons-codec:1.16.1'
-    implementation ('org.apache.commons:commons-compress') {
-        version {
-            strictly '1.26.0'
-        }
-    }
+    implementation libs.commons.io
+    implementation libs.commons.codec
+    implementation libs.org.apache.commons.compress.strictly
 
-    implementation 'io.prometheus:simpleclient:0.15.0'
-    implementation 'io.prometheus:simpleclient_httpserver:0.15.0'
-    implementation 'io.prometheus:simpleclient_hotspot:0.15.0'
+    implementation libs.bundles.prometheus
 
-    implementation 'com.squareup.okhttp3:okhttp:4.9.2'
-    implementation 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.okio:2.8.0_1'
-    implementation 'org.jetbrains.kotlin:kotlin-osgi-bundle:1.4.0'
-    implementation 'org.bouncycastle:bcpkix-jdk18on:1.75'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.75'
-    implementation 'io.kubernetes:client-java:16.0.2'
-    implementation ('org.yaml:snakeyaml'){
-        version {
-            strictly '2.0'
-        }
-    }
+    implementation libs.com.squareup.okhttp3
+    implementation libs.org.apache.servicemix.bundles.okio
+    implementation libs.org.jetbrains.kotlin.osgi.bundle
+
+    implementation libs.org.bouncycastle.bcprov.jdk18on
+    implementation libs.org.bouncycastle.bcpkix.jdk18on
+
+    implementation libs.io.kubernetes.client.java 
+    implementation libs.org.yaml.snakeyaml.strictly
 
     testImplementation project(':dev.galasa.framework').sourceSets.test.output
 }

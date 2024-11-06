@@ -3,7 +3,7 @@ plugins {
     id 'galasa.framework'
 }
 
-version = '0.21.0'
+version = '0.38.0'
 
 description = 'Galasa Maven Repository SPI'
 

@@ -47,17 +47,16 @@ dependencies {
     implementation project (':dev.galasa.framework.maven.repository')
     embedImplementation project (':dev.galasa.framework.maven.repository.spi')
 
-    embedImplementation 'org.apache.felix:org.apache.felix.framework:7.0.5'
-    embedImplementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
-    implementation 'org.apache.felix:org.apache.felix.scr:2.1.14'
+    embedImplementation libs.org.apache.felix.framework
+    embedImplementation libs.org.apache.felix.bundlerepository
+    implementation libs.org.apache.felix.src
 
-    embedImplementation 'commons-cli:commons-cli:1.4'
-    embedImplementation 'commons-io:commons-io:2.16.1'
+    embedImplementation libs.commons.cli
+    embedImplementation libs.commons.io
 
-    bundleDependency 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
-    bundleDependency 'org.apache.felix:org.apache.felix.scr:2.1.14'
-    bundleDependency 'org.apache.logging.log4j:log4j-api:2.17.1'
-    bundleDependency 'org.apache.logging.log4j:log4j-core:2.17.1'
+    bundleDependency libs.org.apache.felix.bundlerepository
+    bundleDependency libs.org.apache.felix.src
+    bundleDependency libs.bundles.log4j
     bundleDependency project (':dev.galasa.framework.log4j2.bridge')
     bundleDependency project (':dev.galasa.framework.maven.repository')
     bundleDependency project (':dev.galasa.framework.maven.repository.spi')

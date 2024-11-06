@@ -5,28 +5,28 @@
  */
 package dev.galasa.tests;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+// import static org.assertj.core.api.Assertions.assertThat;
+// import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
+// import java.util.ArrayList;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-//import org.powermock.modules.junit4.PowerMockRunner;
+// import org.junit.Before;
+// import org.junit.BeforeClass;
+// import org.junit.Test;
+// import org.junit.runner.RunWith;
+// import org.mockito.Mock;
+// //import org.powermock.modules.junit4.PowerMockRunner;
 
-import dev.galasa.ProductVersion;
-import dev.galasa.cicsts.internal.CicstsManagerImpl;
-import dev.galasa.cicsts.internal.properties.CicstsPropertiesSingleton;
-import dev.galasa.framework.spi.IManager;
-import dev.galasa.framework.spi.language.GalasaTest;
-import dev.galasa.testharness.TestHarnessFramework;
-import dev.galasa.zos.IZosImage;
-import dev.galasa.zos.spi.IZosManagerSpi;
-import dev.galasa.zosbatch.spi.IZosBatchSpi;
-import dev.galasa.zosfile.spi.IZosFileSpi;
+// import dev.galasa.ProductVersion;
+// import dev.galasa.cicsts.internal.CicstsManagerImpl;
+// import dev.galasa.cicsts.internal.properties.CicstsPropertiesSingleton;
+// import dev.galasa.framework.spi.IManager;
+// import dev.galasa.framework.spi.language.GalasaTest;
+// import dev.galasa.testharness.TestHarnessFramework;
+// import dev.galasa.zos.IZosImage;
+// import dev.galasa.zos.spi.IZosManagerSpi;
+// import dev.galasa.zosbatch.spi.IZosBatchSpi;
+// import dev.galasa.zosfile.spi.IZosFileSpi;
 
 //@RunWith(PowerMockRunner.class)
 public class TestGoldenPath {

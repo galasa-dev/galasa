@@ -7,7 +7,6 @@ package dev.galasa.auth.couchdb.internal;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

@@ -5,24 +5,7 @@
  */
 package dev.galasa.framework;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.lang.annotation.Annotation;
-import java.util.*;
-import java.nio.file.Path;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.felix.bundlerepository.Repository;
-import org.apache.felix.bundlerepository.Resolver;
-import org.apache.felix.bundlerepository.Resource;
 import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.InvalidSyntaxException;
-import dev.galasa.framework.maven.repository.spi.IMavenRepository;
-import dev.galasa.framework.mocks.*;
-import dev.galasa.framework.spi.*;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class TestGherkinTestRunner {
     
