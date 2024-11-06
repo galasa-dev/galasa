@@ -12,6 +12,17 @@ pluginManagement {
 
 rootProject.name = "galasa-extensions-parent"
 
+// This code tells gradle to source the versions of dependent libraries from a toml
+// file. It allows all sub-projects to refer to the versions of things in that file
+// and gives us central management of versions (to a point)
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            from(files("../../../dependencies/gradle/libs.versions.toml"))
+        }
+    }
+}
+
 include 'dev.galasa.auth.couchdb'
 include 'dev.galasa.extensions.mocks'
 include 'dev.galasa.extensions.common'

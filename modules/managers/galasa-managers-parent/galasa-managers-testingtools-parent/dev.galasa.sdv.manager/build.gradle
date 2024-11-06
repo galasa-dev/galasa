@@ -41,7 +41,7 @@ dependencies {
     implementation project(':galasa-managers-zos-parent:dev.galasa.zos3270.manager')
     implementation project(':galasa-managers-cicsts-parent:dev.galasa.cicsts.manager')
     implementation project(':galasa-managers-comms-parent:dev.galasa.http.manager')
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation libs.gson
 
     // Unit testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'

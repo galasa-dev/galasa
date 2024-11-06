@@ -1,0 +1,22 @@
+[versions]
+version-commons-lang3 = "3.14.0"
+
+
+# If this changes we need to change search bnd.bnd files to find other references.
+version-gson = "2.10.1"
+
+version-log4j = "2.17.1"
+
+
+[libraries]
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "version-commons-lang3" }
+gson          = { module = "com.google.code.gson:gson", version.ref = "version-gson" }
+
+log4j-api     = { module = "org.apache.logging.log4j:log4j-api", version.ref = "version-log4j" }
+log4j-core    = { module = "org.apache.logging.log4j:log4j-core", version.ref = "version-log4j" }
+log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "version-log4j" }
+
+# [bundles]
+# log4j = [ "log4j-api", "log4j-core" , "log4j-slf4j-impl" ]
+
+[plugins]

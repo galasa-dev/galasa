@@ -20,7 +20,7 @@ repositories {
 dependencies {
     implementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.10'
     implementation 'org.reflections:reflections:0.9.11'
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation libs.gson
     testImplementation 'junit:junit:4.13'
     implementation project(':dev.galasa.plugin.common')
     implementation project(':dev.galasa.plugin.common.impl')

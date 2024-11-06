@@ -11,7 +11,7 @@ dependencies {
     api              project(':galasa-managers-comms-parent:dev.galasa.http.manager')
     implementation   'commons-io:commons-io:2.16.1' 
     implementation   'org.apache.commons:commons-lang3:3.14.0'
-    implementation   'com.google.code.gson:gson:2.10.1'
+    implementation libs.gson
 }
 
 // Note: These values are consumed by the parent build process

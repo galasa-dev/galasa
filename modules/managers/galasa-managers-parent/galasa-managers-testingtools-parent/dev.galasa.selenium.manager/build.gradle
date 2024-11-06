@@ -28,7 +28,7 @@ dependencies {
     implementation 'net.bytebuddy:byte-buddy:1.8.15'
     implementation 'org.apache.commons:commons-exec:1.3'
     implementation 'commons-io:commons-io:2.16.1'
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation libs.gson
 }
 
 // Note: These values are consumed by the parent build process

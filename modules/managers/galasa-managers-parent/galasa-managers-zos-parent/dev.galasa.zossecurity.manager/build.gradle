@@ -9,7 +9,7 @@ version = '0.34.0'
 dependencies {
     implementation project(':galasa-managers-comms-parent:dev.galasa.http.manager')
     implementation project(':galasa-managers-zos-parent:dev.galasa.zos.manager')
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation libs.gson
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.0'
     implementation  'org.apache.commons:commons-lang3:3.14.0'
     

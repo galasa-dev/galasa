@@ -1,7 +1,0 @@
-[versions]
-commonsLang3 = "3.14.0"
-
-[libraries]
-commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commonsLang3" }
-
-[plugins]

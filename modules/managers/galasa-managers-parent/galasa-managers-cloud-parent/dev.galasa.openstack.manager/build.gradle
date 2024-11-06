@@ -11,7 +11,7 @@ dependencies {
     implementation project(':galasa-managers-unix-parent:dev.galasa.linux.manager')
     implementation project(':galasa-managers-windows-parent:dev.galasa.windows.manager')
     implementation 'org.apache.httpcomponents:httpclient-osgi:4.5.13'
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation libs.gson
     implementation 'io.prometheus:simpleclient:0.6.0'
 }
 
