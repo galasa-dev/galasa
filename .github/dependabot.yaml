@@ -1,0 +1,65 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/modules/framework/galasa-parent"
+    schedule:
+      interval: "weekly" # Dependabot checks for updates weekly; adjust as needed
+
+    # Add a custom path for the version catalog file
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "direct"
+    gradle:
+      version-catalog:
+        from: "dependencies/libs.versions.toml"
+
+  - package-ecosystem: "gradle"
+    directory: "/modules/managers/galasa-managers-parent"
+    schedule:
+      interval: "weekly" # Dependabot checks for updates weekly; adjust as needed
+
+    # Add a custom path for the version catalog file
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "direct"
+    gradle:
+      version-catalog:
+        from: "dependencies/libs.versions.toml"
+
+  - package-ecosystem: "gradle"
+    directory: "/modules/extensions/galasa-extensions-parent"
+    schedule:
+      interval: "weekly" # Dependabot checks for updates weekly; adjust as needed
+
+    # Add a custom path for the version catalog file
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "direct"
+    gradle:
+      version-catalog:
+        from: "dependencies/libs.versions.toml"
+
+  - package-ecosystem: "gradle"
+    directory: "/modules/gradle"
+    schedule:
+      interval: "weekly" # Dependabot checks for updates weekly; adjust as needed
+
+    # Add a custom path for the version catalog file
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "direct"
+    gradle:
+      version-catalog:
+        from: "dependencies/libs.versions.toml"
+
+  - package-ecosystem: "maven"
+    directory: "/modules/maven" # Directory where the `pom.xml` file is located
+    schedule:
+      interval: "weekly" # Choose update frequency: daily, weekly, or monthly
+    open-pull-requests-limit: 4 # Optional: limits the number of open PRs
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "maven"
