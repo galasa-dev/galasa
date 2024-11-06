@@ -16,7 +16,7 @@ dependencies {
 
     implementation libs.bundles.log4j
 
-    implementation libs.commons.lang3
+    implementation libs.org.apache.commons.lang3
     implementation libs.org.apache.felix.bundlerepository
 
     implementation libs.org.apache.bcel 
