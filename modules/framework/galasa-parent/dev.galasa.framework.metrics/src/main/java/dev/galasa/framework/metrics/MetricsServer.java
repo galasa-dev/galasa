@@ -228,7 +228,7 @@ public class MetricsServer implements IMetricsServer {
 
         // *** Stop the metics server
         if (metricsPort > 0) {
-            this.metricsServer.stop();
+            this.metricsServer.close();
         }
 
         // *** Stop the health server

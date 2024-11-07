@@ -5,6 +5,8 @@
  */
 package dev.galasa.framework.api.authentication.mocks;
 
+import java.time.Instant;
+
 import dev.galasa.framework.api.authentication.AuthenticationServlet;
 import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.internal.DexGrpcClient;
@@ -13,7 +15,9 @@ import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
+import dev.galasa.framework.api.common.mocks.MockTimeService;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 public class MockAuthenticationServlet extends AuthenticationServlet {
 
@@ -38,10 +42,10 @@ public class MockAuthenticationServlet extends AuthenticationServlet {
     }
 
     public MockAuthenticationServlet(IOidcProvider oidcProvider, DexGrpcClient dexGrpcClient, IFramework framework) {
-        this(getEnvironmentWithRequiredEnvVariablesSet(), oidcProvider, dexGrpcClient, framework);
+        this(getEnvironmentWithRequiredEnvVariablesSet(), oidcProvider, dexGrpcClient, framework, new MockTimeService(Instant.MIN));
     }
 
-    public MockAuthenticationServlet(Environment env, IOidcProvider oidcProvider, DexGrpcClient dexGrpcClient, IFramework framework) {
+    public MockAuthenticationServlet(Environment env, IOidcProvider oidcProvider, DexGrpcClient dexGrpcClient, IFramework framework, ITimeService timeService) {
         this.env = env;
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = dexGrpcClient;

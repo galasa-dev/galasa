@@ -587,7 +587,7 @@ public class AuthRouteTest extends BaseServletTest {
         DexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer");
         MockEnvironment mockEnv = new MockEnvironment();
 
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient, new MockFramework());
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockEnv, mockOidcProvider, mockDexGrpcClient, new MockFramework() , new MockTimeService(Instant.MIN));
 
         // When...
         Throwable thrown = catchThrowable(() -> {
