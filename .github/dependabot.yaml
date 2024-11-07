@@ -6,7 +6,7 @@ updates:
       interval: "weekly" # Dependabot checks for updates weekly; adjust as needed
 
     # Add a custom path for the version catalog file
-    versioning-strategy: increase
+    # versioning-strategy: increase
     allow:
       - dependency-type: "direct"
     gradle:
