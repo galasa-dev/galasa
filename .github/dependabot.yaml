@@ -1,14 +1,8 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
-    directory: "/modules/framework/galasa-parent"
+    directory: "/dependencies"
     schedule:
       interval: "weekly" # Dependabot checks for updates weekly; adjust as needed
 
-    # Add a custom path for the version catalog file
-    allow:
-      - dependency-type: "direct"
-    gradle:
-      version-catalog:
-        from: "dependencies/libs.versions.toml"
 
