@@ -53,7 +53,6 @@ include 'galasa-managers-zos-parent:dev.galasa.zos3270.manager.ivt'
 include 'galasa-managers-zos-parent:dev.galasa.zosrseapi.manager'
 include 'galasa-managers-zos-parent:dev.galasa.zosbatch.rseapi.manager'
 include 'galasa-managers-zos-parent:dev.galasa.zosfile.rseapi.manager'
-include 'galasa-managers-zos-parent:dev.galasa.zossecurity.manager'
 // galasa-managers-cicsts-parent
 include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.manager'
 include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.manager.ivt'
