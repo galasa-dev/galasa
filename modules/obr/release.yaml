@@ -277,17 +277,17 @@ external:
 
   - group: org.bouncycastle
     artifact: bcpkix-jdk18on
-    version: 1.75
+    version: 1.79
     obr: true
 
   - group: org.bouncycastle
     artifact: bcprov-jdk18on
-    version: 1.75
+    version: 1.79
     obr: true
 
   - group: org.bouncycastle
     artifact: bcutil-jdk18on
-    version: 1.75
+    version: 1.79
     obr: true
 
   - group: org.slf4j

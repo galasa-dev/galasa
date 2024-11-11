@@ -25,8 +25,8 @@ Embed-Dependency: *;scope=compile
     jna-5.12.1.jar; lib:=true,\
     jackson-annotations-2.10.3.jar; lib:=true,\
     jackson-core-2.10.3.jar; lib:=true,\
-    bcpkix-jdk18on-1.75.jar; lib:=true,\
-    bcprov-jdk18on-1.75.jar; lib:=true,\
+    bcpkix-jdk18on-1.79.jar; lib:=true,\
+    bcprov-jdk18on-1.79.jar; lib:=true,\
     httpcore5-5.0.2.jar; lib:=true,\
     commons-codec-1.16.1.jar; lib:=true
 -fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning

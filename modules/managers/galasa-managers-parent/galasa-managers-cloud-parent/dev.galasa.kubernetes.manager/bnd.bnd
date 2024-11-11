@@ -22,9 +22,9 @@ Import-Package: dev.galasa,\
     org.xml.sax.helpers
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile
--includeresource: bcpkix-jdk18on-1.75.jar; lib:=true,\
-    bcprov-jdk18on-1.75.jar; lib:=true,\
-    bcutil-jdk18on-1.75.jar; lib:=true,\
+-includeresource: bcpkix-jdk18on-1.79.jar; lib:=true,\
+    bcprov-jdk18on-1.79.jar; lib:=true,\
+    bcutil-jdk18on-1.79.jar; lib:=true,\
     client-java-17.0.0.jar; lib:=true,\
     client-java-api-17.0.0.jar; lib:=true,\
     client-java-proto-17.0.0.jar; lib:=true,\
