@@ -299,21 +299,21 @@ external:
 
   - group: org.apache.logging.log4j
     artifact: log4j-api
-    version: 2.17.1
+    version: 2.24.1
     obr: true
     mvp: true
     isolated: true
 
   - group: org.apache.logging.log4j
     artifact: log4j-core
-    version: 2.17.1
+    version: 2.24.1
     obr: true
     mvp: true
     isolated: true
 
   - group: org.apache.logging.log4j
     artifact: log4j-slf4j-impl
-    version: 2.17.1
+    version: 2.24.1
     obr: true
     mvp: true
     isolated: true

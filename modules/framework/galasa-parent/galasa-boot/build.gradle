@@ -15,7 +15,7 @@ configurations {
 
 }
 
-version = '0.37.0'
+version = '0.38.0'
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -56,8 +56,8 @@ dependencies {
 
     bundleDependency 'org.apache.felix:org.apache.felix.bundlerepository:2.0.2'
     bundleDependency 'org.apache.felix:org.apache.felix.scr:2.1.14'
-    bundleDependency 'org.apache.logging.log4j:log4j-api:2.17.1'
-    bundleDependency 'org.apache.logging.log4j:log4j-core:2.17.1'
+    bundleDependency 'org.apache.logging.log4j:log4j-api:2.24.1'
+    bundleDependency 'org.apache.logging.log4j:log4j-core:2.24.1'
     bundleDependency project (':dev.galasa.framework.log4j2.bridge')
     bundleDependency project (':dev.galasa.framework.maven.repository')
     bundleDependency project (':dev.galasa.framework.maven.repository.spi')

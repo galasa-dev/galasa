@@ -5,12 +5,12 @@ plugins {
 
 description = 'Galasa log4j2 Bridge'
 
-version = "0.25.0"
+version = "0.38.0"
 
 dependencies {
-    implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
-    implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.24.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.24.1'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.24.1'
 }
 
 // Note: These values are consumed by the parent build process
