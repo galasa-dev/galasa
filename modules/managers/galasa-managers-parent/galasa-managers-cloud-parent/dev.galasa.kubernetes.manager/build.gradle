@@ -6,58 +6,17 @@ description = 'Galasa Kubernetes Manager'
 
 version = '0.38.0'
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 dependencies {
     api project(':galasa-managers-cloud-parent:dev.galasa.cloud.manager')
 
-
-    implementation ('org.bouncycastle:bcpkix-jdk18on') {
-        version {
-            strictly '1.79'
-        }
-    }
-    implementation ('com.google.code.findbugs:jsr305') {
-        version {
-            strictly '3.0.2'
-        }
-    }
-    implementation ('com.google.code.gson:gson'){
-        version {
-            strictly '2.10.1'
-        }
-    }
-    implementation ('org.apache.commons:commons-lang3'){
-        version {
-            strictly '3.14.0'
-        }
-    }
-    implementation ('commons-codec:commons-codec'){
-        version {
-            strictly '1.15'
-        }
-    }
-    implementation ('org.yaml:snakeyaml'){
-        version {
-            strictly '2.0'
-        }
-    }
-    implementation ('org.apache.commons:commons-compress') {
-        version {
-            strictly '1.26.0'
-        }
-    }
-    implementation ('com.google.protobuf:protobuf-java') {
-        version {
-            strictly '3.25.5'
-        }
-    }
-    		
-    implementation 'io.prometheus:simpleclient:0.15.0'
-    implementation 'io.prometheus:simpleclient_httpserver:0.15.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
-    implementation 'com.squareup.okio:okio-jvm:3.0.0'
-    implementation 'org.jetbrains.kotlin:kotlin-osgi-bundle:1.7.22'
-    implementation 'io.kubernetes:client-java:17.0.0'
-    implementation 'commons-io:commons-io:2.16.1'
+    implementation 'dev.galasa:dev.galasa.wrapping.gson:0.38.0'
+    implementation 'dev.galasa:dev.galasa.wrapping.protobuf-java:0.38.0'
+    implementation 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java:0.38.0'
 }
 
 

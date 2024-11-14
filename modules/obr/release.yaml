@@ -98,7 +98,29 @@ external:
     isolated: true
 
   - group: dev.galasa
+    artifact: dev.galasa.wrapping.gson
+    version: 0.38.0
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
+
+  - group: dev.galasa
+    artifact: dev.galasa.wrapping.io.kubernetes.client-java
+    version: 0.38.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: dev.galasa
     artifact: dev.galasa.wrapping.io.grpc.java
+    version: 0.38.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: dev.galasa
+    artifact: dev.galasa.wrapping.protobuf-java
     version: 0.38.0
     obr: true
     mvp: true

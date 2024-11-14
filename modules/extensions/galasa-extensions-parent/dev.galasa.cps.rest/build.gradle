@@ -10,7 +10,7 @@ version = '0.38.0'
 dependencies {
 
     // Not required for compile,  but required to force the download of the jars to embed by bnd
-    implementation ('dev.galasa:gson:2.10.1')
+    implementation ('dev.galasa:dev.galasa.wrapping.gson:0.38.0')
     implementation ('dev.galasa:dev.galasa.framework.api.beans:0.33.0')
     implementation (project(':dev.galasa.extensions.common'))
     implementation 'commons-io:commons-io:2.16.1'

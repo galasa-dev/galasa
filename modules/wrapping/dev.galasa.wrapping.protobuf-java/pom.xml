@@ -9,18 +9,18 @@
 		<version>0.38.0</version>
 	</parent>
 
-	<artifactId>gson</artifactId>
-	<version>2.10.1</version>
+	<artifactId>dev.galasa.wrapping.protobuf-java</artifactId>
+	<version>0.38.0</version>
 	<packaging>bundle</packaging>
 
-	<name>galasa wrapped version of GSON</name>
+	<name>Galasa wrapped version of protobuf-java</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.10.1</version>
-		</dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>4.28.3</version>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -32,23 +32,12 @@
 				<configuration>
 					<supportedProjectTypes>bundle</supportedProjectTypes>
 					<instructions>
-						<Bundle-SymbolicName>com.google.code.gson</Bundle-SymbolicName>
+						<Bundle-SymbolicName>dev.galasa.wrapping.protobuf-java</Bundle-SymbolicName>
 						<Embed-Dependency>*;scope=compile</Embed-Dependency>
-						<Export-Package>com.google.gson.JsonArray,
-						 				com.google.gson.JsonElement,
-										com.google.gson.JsonObject,
-										com.google.gson.Gson,
-										com.google.gson.JsonParser,
-										com.google.gson.JsonSyntaxExtension,
-										com.google.gson.reflect,
-										com.google.gson.stream,
-										com.google.gson.GsonBuilder
-						</Export-Package>
+						<Export-Package>com.google.protobuf</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
-
 </project>

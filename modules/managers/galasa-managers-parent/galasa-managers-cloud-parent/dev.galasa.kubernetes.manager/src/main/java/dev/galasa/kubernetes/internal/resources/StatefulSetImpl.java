@@ -51,7 +51,7 @@ public class StatefulSetImpl extends ReplicaSetHolder implements IStatefulSet {
        try {
            AppsV1Api api = new AppsV1Api(namespace.getCluster().getApi());
            
-           V1StatefulSet newSet = api.readNamespacedStatefulSet(getName(), namespace.getId(), null);
+           V1StatefulSet newSet = api.readNamespacedStatefulSet(getName(), namespace.getId()).execute();
            
            this.statefulSet = newSet;
        } catch(Exception e) {
