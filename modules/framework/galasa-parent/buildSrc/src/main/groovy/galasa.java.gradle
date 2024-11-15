@@ -20,6 +20,7 @@ tasks.withType(Javadoc) {
 }
 
 repositories {
+    mavenLocal()
     maven {
         url "$sourceMaven"
     }

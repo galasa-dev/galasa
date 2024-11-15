@@ -40,15 +40,15 @@ allprojects {
    tasks.withType(Javadoc) {
       options.addStringOption('Xdoclint:none', '-quiet')
    }
+}
 
-    repositories {
-        gradlePluginPortal()
-        mavenLocal()
-        maven {
-            url "https://development.galasa.dev/main/maven-repo/obr/"
-        }
-        mavenCentral()
+repositories {
+    gradlePluginPortal()
+    mavenLocal()
+    maven {
+        url "https://development.galasa.dev/main/maven-repo/obr/"
     }
+    mavenCentral()
 }
 
 subprojects {
