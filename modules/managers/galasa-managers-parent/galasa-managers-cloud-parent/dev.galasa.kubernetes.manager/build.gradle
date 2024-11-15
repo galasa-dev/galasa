@@ -6,11 +6,6 @@ description = 'Galasa Kubernetes Manager'
 
 version = '0.38.0'
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 dependencies {
     api project(':galasa-managers-cloud-parent:dev.galasa.cloud.manager')
 
