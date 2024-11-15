@@ -49,6 +49,7 @@ task gitHash(dependsOn : 'classes') {
 }
 
 repositories {
+    mavenLocal()
     maven {
         url "$sourceMaven"
     }
