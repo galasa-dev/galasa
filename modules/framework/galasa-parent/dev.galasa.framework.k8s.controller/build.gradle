@@ -13,23 +13,8 @@ dependencies {
     implementation project(':dev.galasa.framework')
     implementation platform('dev.galasa:dev.galasa.platform:0.38.0')
     
-    implementation 'commons-io:commons-io'
-    implementation 'commons-codec:commons-codec'
-    implementation 'org.apache.commons:commons-compress'
-
-    // Overriding version 0.6.0 suggested by the Platform - as upgrading the other projects
-    // to use 0.15.0 caused API start up problems. Fixes for this to be completed in a future story.
-    implementation 'io.prometheus:simpleclient:0.15.0'
-    implementation 'io.prometheus:simpleclient_httpserver:0.15.0'
-    implementation 'io.prometheus:simpleclient_hotspot:0.15.0'
-
-    implementation 'com.squareup.okhttp3:okhttp'
-    implementation 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.okio'
-    implementation 'org.jetbrains.kotlin:kotlin-osgi-bundle'
-    implementation 'org.bouncycastle:bcpkix-jdk18on'
-    implementation 'org.bouncycastle:bcprov-jdk18on'
-    implementation 'io.kubernetes:client-java'
-    implementation 'org.yaml:snakeyaml'
+    implementation 'io.prometheus:simpleclient'
+    implementation 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java'
 
     testImplementation project(':dev.galasa.framework').sourceSets.test.output
 }

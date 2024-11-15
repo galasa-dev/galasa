@@ -118,7 +118,7 @@ public class Settings implements Runnable {
     V1ConfigMap retrieveConfigMap() throws K8sControllerException {
         V1ConfigMap configMap = null;
         try {
-            configMap = api.readNamespacedConfigMap(configMapName, namespace, "true");
+            configMap = api.readNamespacedConfigMap(configMapName, namespace).pretty("true").execute();
         } catch (ApiException e) {
             throw new K8sControllerException("Failed to read configmap '" + configMapName + "' in namespace '" + namespace + "'", e);
         }

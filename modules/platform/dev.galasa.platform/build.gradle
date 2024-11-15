@@ -28,16 +28,13 @@ dependencies {
 
         api 'dev.galasa:com.auth0.jwt:4.4.1'
         api 'dev.galasa:dev.galasa.wrapping.io.grpc.java:0.38.0'
-
-        api 'io.kubernetes:client-java:16.0.2'
+        api 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java:0.38.0'
 
         // Most bundles before implementing the Platform used 0.6.0 other than dev.galasa.framework.k8s.controller.
-        // Upgrading all to 0.15.0 by using the Platform.
-        // 0.15.0 found in dev.galasa.framework.k8s.controller but breaks API when used in other bundles.
-        // So using 0.6.0 as the default and 0.15.0 as override in dev.galasa.framework.k8s.controller.
-        api 'io.prometheus:simpleclient:0.6.0'
-        api 'io.prometheus:simpleclient_httpserver:0.6.0'
-        api 'io.prometheus:simpleclient_hotspot:0.6.0'
+        // Upgrading all to 0.16.0 by using the Platform.
+        api 'io.prometheus:simpleclient:0.16.0'
+        api 'io.prometheus:simpleclient_httpserver:0.16.0'
+        api 'io.prometheus:simpleclient_hotspot:0.16.0'
 
         api 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
 
@@ -67,8 +64,6 @@ dependencies {
         api 'org.apache.logging.log4j:log4j-slf4j-impl:2.24.1'
 
         api 'org.apache.maven:maven-repository-metadata:3.3.9'
-
-        api 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.okio:2.8.0_1'
 
         api 'org.apache.tomcat:annotations-api:6.0.53'
 

@@ -135,26 +135,47 @@ external:
 
   - group: io.prometheus
     artifact: simpleclient
-    version: 0.6.0
+    version: 0.16.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: io.prometheus
+    artifact: simpleclient_tracer_otel
+    version: 0.16.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: io.prometheus
+    artifact: simpleclient_tracer_otel_agent
+    version: 0.16.0
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: io.prometheus
+    artifact: simpleclient_tracer_common
+    version: 0.16.0
     obr: true
     mvp: true
     isolated: true
 
   - group: io.prometheus
     artifact: simpleclient_common
-    version: 0.6.0
+    version: 0.16.0
     obr: true
     isolated: true
 
   - group: io.prometheus
     artifact: simpleclient_httpserver
-    version: 0.6.0
+    version: 0.16.0
     obr: true
     isolated: true
 
   - group: io.prometheus
     artifact: simpleclient_hotspot
-    version: 0.6.0
+    version: 0.16.0
     obr: true
     isolated: true
 

@@ -215,8 +215,12 @@
                                         com.google.gson.stream,
                                         com.google.gson.reflect,
                                         com.google.protobuf,
+                                        javax.crypto,
+                                        javax.crypto.spec,
+                                        javax.naming,
                                         javax.net,
-                                        javax.net.ssl
+                                        javax.net.ssl,
+                                        javax.security.auth.x500
                         </Import-Package>
 						<Export-Package>io.kubernetes.client,
                                         io.kubernetes.client.custom,

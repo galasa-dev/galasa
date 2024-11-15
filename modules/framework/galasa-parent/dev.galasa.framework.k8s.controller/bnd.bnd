@@ -1,14 +1,23 @@
 -snapshot ${tstamp}
 Bundle-Name: dev.galasa.framework.k8s.controller
 Export-Package: dev.galasa.framework.k8s.controller*
-Import-Package: dev.galasa.framework,\
+Import-Package: com.google.gson,\
+                com.google.gson.reflect,\
+                com.google.gson.stream,\
+                com.google.protobuf,\
+                com.sun.net.httpserver,\
+                dev.galasa.framework,\
                 dev.galasa.framework.spi,\
                 dev.galasa.framework.k8s.controller,\
-                org.apache.commons.logging,\
-                com.sun.net.httpserver,\
-                org.yaml.snakeyaml*,\
-                org.xml.sax,\
-                org.xml.sax.helpers,\
+                io.kubernetes.client,\
+                io.kubernetes.client.custom,\
+                io.kubernetes.client.proto,\
+                io.kubernetes.client.util,\
+                io.kubernetes.client.openapi,\
+                io.kubernetes.client.openapi.apis,\
+                io.kubernetes.client.openapi.models,\
+                io.prometheus.client,\
+                io.prometheus.client.exporter,\
                 javax.xml.parsers,\
                 javax.naming,\
                 javax.net.ssl,\
@@ -16,35 +25,7 @@ Import-Package: dev.galasa.framework,\
                 javax.crypto,\
                 javax.crypto.spec,\
                 javax.security.auth.x500,\
-                com.google.gson,\
-                com.google.gson.reflect,\
-                com.google.gson.stream
-Embed-Transitive: true
-Embed-Dependency: *;scope=compile
--includeresource: client-java-*.jar; lib:=true,\
-    bcpkix-jdk18on-*.jar; lib:=true,\
-    bcprov-jdk18on-*.jar; lib:=true,\
-    bcutil-jdk18on-1.79.jar; lib:=true,\
-    client-java-api-16.0.2.jar; lib:=true,\
-    client-java-proto-16.0.2.jar; lib:=true,\
-    commons-codec-*.jar; lib:=true,\
-    commons-io-*.jar; lib:=true,\
-    commons-compress-*.jar; lib:=true,\
-    commons-lang3-*.jar; lib:=true,\
-    commons-collections4-*.jar; lib:=true,\
-    jose4j-0.7.12.jar; lib:=true,\
-    slf4j-api-1.7.36.jar; lib:=true,\
-    protobuf-java-3.21.2.jar; lib:=true,\
-    jsr305-3.0.2.jar; lib:=true,\
-    swagger-annotations-1.6.6.jar; lib:=true,\
-    logging-interceptor-4.9.2.jar; lib:=true,\
-    okhttp-*.jar; lib:=true,\
-    org.apache.servicemix.bundles.okio-*.jar; lib:=true,\
-    kotlin-osgi-bundle-*.jar; lib:=true,\
-    gson-*.jar; lib:=true,\
-    gson-fire-1.8.5.jar; lib:=true,\
-    javax.annotation-api-1.3.2.jar; lib:=true,\
-    simpleclient-0.15.0.jar; lib:=true,\
-    simpleclient_httpserver-0.15.0.jar; lib:=true
--fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning
-
+                org.apache.commons.logging,\
+                org.yaml.snakeyaml*,\
+                org.xml.sax,\
+                org.xml.sax.helpers
