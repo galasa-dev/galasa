@@ -9,9 +9,9 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import dev.galasa.cps.rest.mocks.MockJwtProvider;
-import dev.galasa.extensions.mocks.MockFrameworkInitialisation;
-import dev.galasa.extensions.mocks.MockHttpClientFactory;
-import dev.galasa.extensions.mocks.MockLogFactory;
+import dev.galasa.extensions.common.mocks.MockFrameworkInitialisation;
+import dev.galasa.extensions.common.mocks.MockHttpClientFactory;
+import dev.galasa.extensions.common.mocks.MockLogFactory;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 
 import java.net.URI;

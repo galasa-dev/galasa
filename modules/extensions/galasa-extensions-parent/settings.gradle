@@ -13,7 +13,6 @@ pluginManagement {
 rootProject.name = "galasa-extensions-parent"
 
 include 'dev.galasa.auth.couchdb'
-include 'dev.galasa.extensions.mocks'
 include 'dev.galasa.extensions.common'
 include 'dev.galasa.cps.etcd'
 include 'dev.galasa.cps.rest'

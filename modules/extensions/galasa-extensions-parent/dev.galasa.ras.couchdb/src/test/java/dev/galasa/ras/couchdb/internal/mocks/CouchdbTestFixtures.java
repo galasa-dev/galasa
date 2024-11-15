@@ -27,15 +27,15 @@ import org.apache.http.util.EntityUtils;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
 import dev.galasa.extensions.common.api.HttpRequestFactory;
-import dev.galasa.extensions.mocks.*;
-import dev.galasa.extensions.mocks.cps.MockConfigurationPropertyStoreService;
+import dev.galasa.extensions.common.mocks.*;
+import dev.galasa.extensions.common.mocks.cps.MockConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.ras.couchdb.internal.CouchdbRasStore;
-import dev.galasa.extensions.mocks.couchdb.MockCouchdbValidator;
+import dev.galasa.extensions.common.mocks.couchdb.MockCouchdbValidator;
 
 public class CouchdbTestFixtures {
 

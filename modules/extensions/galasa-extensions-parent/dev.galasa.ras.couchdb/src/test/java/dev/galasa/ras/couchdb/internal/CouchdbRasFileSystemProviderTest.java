@@ -27,7 +27,7 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures;
 import dev.galasa.ras.couchdb.internal.mocks.MockLogFactory;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
-import dev.galasa.extensions.mocks.*;
+import dev.galasa.extensions.common.mocks.*;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures.BaseHttpInteraction;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures.CreateArtifactDocInteractionOK;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures.CreateTestDocInteractionOK;

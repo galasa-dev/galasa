@@ -6,8 +6,8 @@ import org.junit.Test;
 
 import dev.galasa.extensions.common.couchdb.RetryableCouchdbUpdateOperationProcessor.BackoffTimeCalculator;
 import dev.galasa.extensions.common.couchdb.RetryableCouchdbUpdateOperationProcessor.RetryableCouchdbUpdateOperation;
-import dev.galasa.extensions.mocks.MockLogFactory;
-import dev.galasa.extensions.mocks.MockTimeService;
+import dev.galasa.extensions.common.mocks.MockLogFactory;
+import dev.galasa.extensions.common.mocks.MockTimeService;
 
 import static org.assertj.core.api.Assertions.*;
 

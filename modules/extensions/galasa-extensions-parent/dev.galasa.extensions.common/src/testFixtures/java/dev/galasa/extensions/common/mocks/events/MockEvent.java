@@ -1,4 +1,9 @@
-package dev.galasa.extensions.mocks.events;
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package dev.galasa.extensions.common.mocks.events;
 
 import java.util.UUID;
 

@@ -1,6 +1,8 @@
 plugins {
     id 'biz.aQute.bnd.builder'
     id 'galasa.extensions'
+
+    id 'java-test-fixtures'
 }
 
 description = 'Galasa CPS access over http - Provides the CPS stores via the public REST interface over http'
@@ -12,7 +14,14 @@ dependencies {
     implementation ('org.apache.httpcomponents:httpcore-osgi:4.4.14')
     implementation ('com.google.code.gson:gson:2.10.1')
 
-    testImplementation(project(':dev.galasa.extensions.mocks'))
+    testFixturesImplementation 'org.apache.httpcomponents:httpclient-osgi:4.5.13'
+    testFixturesImplementation 'org.apache.httpcomponents:httpcore-osgi:4.4.14'
+    testFixturesImplementation 'com.google.code.gson:gson:2.10.1'
+    testFixturesImplementation 'junit:junit:4.13.1'
+    testFixturesImplementation 'org.assertj:assertj-core:3.16.1'
+    testFixturesImplementation 'dev.galasa:dev.galasa.framework:0.38.0'
+    testFixturesImplementation 'javax.validation:validation-api:2.0.1.Final'
+    testFixturesImplementation(project(':dev.galasa.extensions.common'))
 }
 
 // Note: These values are consumed by the parent build process

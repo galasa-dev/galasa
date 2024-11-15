@@ -11,7 +11,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.*;
 
 import dev.galasa.cps.rest.mocks.MockJwtProvider;
-import dev.galasa.extensions.mocks.*;
+import dev.galasa.extensions.common.mocks.*;
 import dev.galasa.framework.api.beans.*;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 

@@ -9,7 +9,7 @@ import java.util.Properties;
 
 import dev.galasa.events.kafka.internal.IEventProducerFactory;
 import dev.galasa.events.kafka.internal.KafkaException;
-import dev.galasa.extensions.mocks.MockEnvironment;
+import dev.galasa.extensions.common.mocks.MockEnvironment;
 import dev.galasa.framework.spi.EventsException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 

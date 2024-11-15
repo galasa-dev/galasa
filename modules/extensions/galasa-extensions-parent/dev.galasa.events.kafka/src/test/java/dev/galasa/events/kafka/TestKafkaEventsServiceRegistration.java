@@ -14,7 +14,7 @@ import java.util.List;
 
 import dev.galasa.events.kafka.internal.KafkaEventsService;
 import dev.galasa.events.kafka.internal.KafkaEventsServiceRegistration;
-import dev.galasa.extensions.mocks.MockFrameworkInitialisation;
+import dev.galasa.extensions.common.mocks.MockFrameworkInitialisation;
 import dev.galasa.framework.spi.IEventsService;
 
 public class TestKafkaEventsServiceRegistration {

@@ -18,7 +18,7 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 
     testImplementation 'junit:junit:4.13.1'
-    testImplementation(project(':dev.galasa.extensions.mocks'))
+    testImplementation(testFixtures(project(':dev.galasa.extensions.common')))
     testImplementation 'org.assertj:assertj-core:3.16.1'
 }
 

@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.extensions.mocks;
+package dev.galasa.extensions.common.mocks;
 
 import java.net.URL;
 import java.util.Properties;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.extensions.mocks.cps.MockConfigurationPropertyStoreService;
+import dev.galasa.extensions.common.mocks.cps.MockConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.Api;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;

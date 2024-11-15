@@ -20,7 +20,7 @@ import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
 import dev.galasa.extensions.common.couchdb.CouchdbException;
 import dev.galasa.extensions.common.couchdb.CouchdbValidator;
 import dev.galasa.extensions.common.api.HttpRequestFactory;
-import dev.galasa.extensions.mocks.*;
+import dev.galasa.extensions.common.mocks.*;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures.BaseHttpInteraction;
 

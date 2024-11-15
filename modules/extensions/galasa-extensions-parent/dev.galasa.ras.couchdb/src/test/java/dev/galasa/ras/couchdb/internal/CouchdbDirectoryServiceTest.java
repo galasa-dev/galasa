@@ -23,8 +23,8 @@ import org.junit.Test;
 
 import dev.galasa.extensions.common.couchdb.pojos.IdRev;
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
-import dev.galasa.extensions.mocks.BaseHttpInteraction;
-import dev.galasa.extensions.mocks.HttpInteraction;
+import dev.galasa.extensions.common.mocks.BaseHttpInteraction;
+import dev.galasa.extensions.common.mocks.HttpInteraction;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;

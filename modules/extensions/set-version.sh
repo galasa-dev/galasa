@@ -133,9 +133,6 @@ bump_version $BASEDIR/galasa-extensions-parent/dev.galasa.events.kafka/build.gra
 # Common...
 bump_version $BASEDIR/galasa-extensions-parent/dev.galasa.extensions.common/build.gradle $temp_dir/common-build.gradle
 
-# Mocks...
-bump_version $BASEDIR/galasa-extensions-parent/dev.galasa.extensions.mocks/build.gradle $temp_dir/mocks-build.gradle
-
 # The framework version is the first one in the file.
 cat $BASEDIR/release.yaml | sed "s/version:.*/version: $component_version/1" > $temp_dir/release.yaml
 cp $temp_dir/release.yaml $BASEDIR/release.yaml

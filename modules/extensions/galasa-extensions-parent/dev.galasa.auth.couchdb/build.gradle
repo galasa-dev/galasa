@@ -17,7 +17,7 @@ dependencies {
     implementation ('com.google.code.gson:gson:2.10.1')
     implementation (project(':dev.galasa.extensions.common'))
 
-    testImplementation(project(':dev.galasa.extensions.mocks'))
+    testImplementation(testFixtures(project(':dev.galasa.extensions.common')))
 }
 
 // Note: These values are consumed by the parent build process

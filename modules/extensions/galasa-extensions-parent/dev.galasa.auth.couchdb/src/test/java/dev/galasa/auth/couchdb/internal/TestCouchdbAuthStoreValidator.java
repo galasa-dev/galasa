@@ -27,10 +27,10 @@ import dev.galasa.extensions.common.couchdb.CouchdbException;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
 import dev.galasa.extensions.common.couchdb.pojos.Welcome;
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
-import dev.galasa.extensions.mocks.BaseHttpInteraction;
-import dev.galasa.extensions.mocks.HttpInteraction;
-import dev.galasa.extensions.mocks.MockCloseableHttpClient;
-import dev.galasa.extensions.mocks.MockTimeService;
+import dev.galasa.extensions.common.mocks.BaseHttpInteraction;
+import dev.galasa.extensions.common.mocks.HttpInteraction;
+import dev.galasa.extensions.common.mocks.MockCloseableHttpClient;
+import dev.galasa.extensions.common.mocks.MockTimeService;
 import dev.galasa.extensions.common.couchdb.CouchDbVersion;
 
 public class TestCouchdbAuthStoreValidator {

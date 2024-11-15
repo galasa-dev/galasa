@@ -67,15 +67,6 @@ framework:
     isolated:     true
     codecoverage: true
 
-  - artifact: dev.galasa.extensions.mocks
-    version: 0.38.0
-    obr:          false
-    mvp:          false
-    bom:          false
-    javadoc:      false
-    isolated:     false
-    codecoverage: false
-
   - artifact: dev.galasa.ras.couchdb
     version: 0.38.0
     obr:          true

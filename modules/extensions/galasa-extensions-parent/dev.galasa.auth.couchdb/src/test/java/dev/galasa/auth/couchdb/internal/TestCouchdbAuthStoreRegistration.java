@@ -8,10 +8,10 @@ package dev.galasa.auth.couchdb.internal;
 import org.junit.Test;
 
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
-import dev.galasa.extensions.mocks.MockFrameworkInitialisation;
-import dev.galasa.extensions.mocks.MockHttpClientFactory;
-import dev.galasa.extensions.mocks.MockLogFactory;
-import dev.galasa.extensions.mocks.couchdb.MockCouchdbValidator;
+import dev.galasa.extensions.common.mocks.MockFrameworkInitialisation;
+import dev.galasa.extensions.common.mocks.MockHttpClientFactory;
+import dev.galasa.extensions.common.mocks.MockLogFactory;
+import dev.galasa.extensions.common.mocks.couchdb.MockCouchdbValidator;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStore;
 

@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.extensions.mocks;
+package dev.galasa.extensions.common.mocks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;

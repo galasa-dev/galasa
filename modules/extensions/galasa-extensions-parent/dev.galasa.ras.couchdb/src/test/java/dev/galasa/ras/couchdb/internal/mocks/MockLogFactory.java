@@ -11,7 +11,7 @@ import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
 
-import dev.galasa.extensions.mocks.MockLog;
+import dev.galasa.extensions.common.mocks.MockLog;
 import dev.galasa.extensions.common.api.LogFactory;
 
 // Creates Log objects, which can be used to log trace and error output.

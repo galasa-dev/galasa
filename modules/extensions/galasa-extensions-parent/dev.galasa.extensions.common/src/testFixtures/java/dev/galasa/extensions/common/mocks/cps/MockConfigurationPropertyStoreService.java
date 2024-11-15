@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.extensions.mocks.cps;
+package dev.galasa.extensions.common.mocks.cps;
 
 import java.util.List;
 import java.util.Map;

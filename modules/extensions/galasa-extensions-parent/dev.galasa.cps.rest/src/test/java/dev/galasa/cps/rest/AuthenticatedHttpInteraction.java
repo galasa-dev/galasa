@@ -8,7 +8,7 @@ package dev.galasa.cps.rest;
 import org.apache.http.*;
 import static org.assertj.core.api.Assertions.*;
 
-import dev.galasa.extensions.mocks.*;
+import dev.galasa.extensions.common.mocks.*;
 
 
 /**

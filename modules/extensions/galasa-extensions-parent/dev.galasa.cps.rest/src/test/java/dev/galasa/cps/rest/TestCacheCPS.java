@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.*;
 
 import dev.galasa.cps.rest.mocks.MockCPS;
-import dev.galasa.extensions.mocks.MockLogFactory;
+import dev.galasa.extensions.common.mocks.MockLogFactory;
 import dev.galasa.extensions.common.api.LogFactory;
 
 import java.util.*;
