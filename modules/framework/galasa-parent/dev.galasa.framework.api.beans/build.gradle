@@ -7,7 +7,7 @@ plugins {
 
 description = 'Framework API - Common Packages'
 
-version = '0.33.0'
+version = '0.38.0'
 
 dependencies {
 }

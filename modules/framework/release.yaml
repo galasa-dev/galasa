@@ -154,7 +154,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.beans
-    version: 0.33.0
+    version: 0.38.0
     obr:          true
     mvp:          true
     bom:          true
@@ -190,7 +190,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.health
-    version: 0.25.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
@@ -199,7 +199,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.launcher
-    version: 0.21.0
+    version: 0.38.0
     obr:          false
     mvp:          false
     bom:          false
@@ -244,7 +244,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.runs
-    version: 0.37.0
+    version: 0.38.0
     obr:          true
     mvp:          false
     bom:          false
