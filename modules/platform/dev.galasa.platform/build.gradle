@@ -24,7 +24,7 @@ dependencies {
 
         api 'commons-io:commons-io:2.16.1' // If updating, also update in galasa-boot build.gradle.
 
-        api 'commons-logging:commons-logging:1.3.4'
+        api 'commons-logging:commons-logging:1.2'
 
         api 'dev.galasa:com.auth0.jwt:4.4.1'
         api 'dev.galasa:dev.galasa.wrapping.io.grpc.java:0.38.0'
