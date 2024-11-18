@@ -13,12 +13,8 @@ dependencies {
     implementation  'commons-io:commons-io:2.16.1'
     implementation  'com.google.code.gson:gson:2.10.1'
     implementation  'jakarta.xml.bind:jakarta.xml.bind-api:3.0.0'
-    implementation (group: 'commons-codec', name: 'commons-codec'){
-      version{
-        strictly "[1.15]"
-      }
-   }
-   implementation project (':galasa-managers-common-parent:dev.galasa.common')
+    implementation  'commons-codec:commons-codec:1.15'
+    implementation project (':galasa-managers-common-parent:dev.galasa.common')
 }
 
 // Note: These values are consumed by the parent build process
