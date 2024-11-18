@@ -178,7 +178,7 @@ managers:
     codecoverage: false
 
   - artifact: dev.galasa.http.manager
-    version: 0.36.0
+    version: 0.38.0
     obr:          true
     mvp:          true
     bom:          true
