@@ -20,7 +20,7 @@ dependencies {
 
     testFixturesImplementation 'javax.servlet:javax.servlet-api'
     testFixturesImplementation 'org.assertj:assertj-core'
-    testFixturesImplementation 'com.google.code.gson:gson'
+    testFixturesImplementation 'dev.galasa:dev.galasa.wrapping.gson'
     testFixturesImplementation(project(':dev.galasa.framework'))
     testFixturesImplementation(project(':dev.galasa.framework.api.beans'))
     testFixturesImplementation 'javax.validation:validation-api'

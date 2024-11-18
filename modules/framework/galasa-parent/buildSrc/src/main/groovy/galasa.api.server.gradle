@@ -11,7 +11,7 @@ dependencies {
     implementation 'org.osgi:org.osgi.service.component.annotations'
     implementation 'javax.validation:validation-api'
     implementation 'commons-logging:commons-logging'
-    implementation 'com.google.code.gson:gson'
+    implementation 'dev.galasa:dev.galasa.wrapping.gson'
     implementation 'io.prometheus:simpleclient'
 
     testImplementation 'junit:junit'

@@ -23,7 +23,7 @@ dependencies {
 
     implementation 'org.apache.bcel:bcel'
     implementation 'commons-io:commons-io'
-    implementation 'com.google.code.gson:gson'
+    implementation 'dev.galasa:dev.galasa.wrapping.gson'
     implementation 'org.yaml:snakeyaml'
 
     testImplementation project (':dev.galasa')

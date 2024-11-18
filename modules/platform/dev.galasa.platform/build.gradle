@@ -27,6 +27,7 @@ dependencies {
         api 'commons-logging:commons-logging:1.2'
 
         api 'dev.galasa:com.auth0.jwt:4.4.1'
+        api 'dev.galasa:dev.galasa.wrapping.gson:0.38.0'
         api 'dev.galasa:dev.galasa.wrapping.io.grpc.java:0.38.0'
         api 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java:0.38.0'
 
