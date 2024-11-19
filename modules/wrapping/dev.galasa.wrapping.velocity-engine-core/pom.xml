@@ -20,18 +20,18 @@
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
 
-			<!-- 
-			This dependency depends on:
-			org.slf4j:slf4j-api:1.7.36:compile
+            <!--
+            This dependency depends on:
+            org.slf4j:slf4j-api:1.7.36:compile
 
-			which we want to upgrade to a later version.
-			-->
-			<exclusions>
-				<exclusion>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
+            which we want to upgrade to a later version.
+            -->
+            <exclusions>
+                <exclusion>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Direct dependencies of velocity-engine-core:2.4.1 -->
