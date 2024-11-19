@@ -42,6 +42,7 @@
 		<module>dev.galasa.wrapping.io.kubernetes.client-java</module>
 		<module>dev.galasa.wrapping.protobuf-java</module>
 		<module>dev.galasa.wrapping.jta</module>
+        <module>dev.galasa.wrapping.velocity-engine-core</module>
 		<module>kafka.clients</module>
 	</modules>
 

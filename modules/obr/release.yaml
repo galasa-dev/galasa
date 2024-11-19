@@ -126,6 +126,12 @@ external:
     mvp: true
     isolated: true
 
+  - artifact: dev.galasa.wrapping.velocity-engine-core
+    version: 0.38.0
+    obr: true
+    mvp: true
+    isolated: true
+
   - group: dev.galasa
     artifact: kafka.clients
     version: 3.7.0
@@ -217,7 +223,7 @@ external:
 
   - group: org.apache.commons
     artifact: commons-lang3
-    version: 3.14.0
+    version: 3.17.0
     obr: true
     bom: true
     mvp: true
@@ -308,13 +314,6 @@ external:
   - group: org.apache.logging.log4j
     artifact: log4j-slf4j-impl
     version: 2.24.1
-    obr: true
-    mvp: true
-    isolated: true
-
-  - group: org.apache.velocity
-    artifact: velocity-engine-core
-    version: 2.3
     obr: true
     mvp: true
     isolated: true
