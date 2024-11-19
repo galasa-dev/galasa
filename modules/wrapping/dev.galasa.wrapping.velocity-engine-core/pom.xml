@@ -59,7 +59,9 @@
                         <Bundle-SymbolicName>dev.galasa.wrapping.velocity-engine-core</Bundle-SymbolicName>
                         <Embed-Dependency>*;scope=compile</Embed-Dependency>
                         <Export-Package>
-                            org.apache.velocity*
+                            org.apache.velocity,
+                            org.apache.velocity.app,
+                            org.apache.velocity.context
                         </Export-Package>
                     </instructions>
                 </configuration>
