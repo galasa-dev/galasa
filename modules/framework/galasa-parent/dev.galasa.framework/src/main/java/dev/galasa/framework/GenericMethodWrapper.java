@@ -125,7 +125,7 @@ public class GenericMethodWrapper {
                 if (this.testStructureMethod.getException() != null) {
                     exception = "\n" + this.testStructureMethod.getException();
                 }
-                logger.info(TestClassWrapper.LOG_ENDING + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS
+                logger.error(TestClassWrapper.LOG_ENDING + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS
                         + TestClassWrapper.LOG_START_LINE + "*** " + this.result.getName() + " - Test method "
                         + testClass.getName() + "#" + excecutionMethod.getName() + methodType
                         + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS + exception);
