@@ -91,8 +91,8 @@ external:
     isolated: true
 
   - group: dev.galasa
-    artifact: jta
-    version: 2.0.1
+    artifact: dev.galasa.wrapping.jta
+    version: 0.38.0
     obr: true
     mvp: true
     isolated: true
