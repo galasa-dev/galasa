@@ -226,12 +226,13 @@ public class TestPodScheduler implements Runnable {
 
         V1PodSpec podSpec = new V1PodSpec();
         newPod.setSpec(podSpec);
+        podSpec.setOverhead(null);
         podSpec.setRestartPolicy("Never");
 
         String nodeArch = this.settings.getNodeArch();
         if (!nodeArch.isEmpty()) {
             HashMap<String, String> nodeSelector = new HashMap<>();
-            nodeSelector.put("beta.kubernetes.io/arch", nodeArch);
+            nodeSelector.put("kubernetes.io/arch", nodeArch);
             podSpec.setNodeSelector(nodeSelector);
         }
 
