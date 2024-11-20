@@ -12,6 +12,10 @@ on:
         description: 'True if this module has been changed and should be rebuilt'
         required: true
         type: string
+      platform-artifact-id:
+        description: 'The Workflow Run ID of the last workflow containing artifacts for the platform'
+        required: true
+        type: string
       gradle-artifact-id:
         description: 'The Workflow Run ID of the last workflow containing artifacts for the gradle module'
         required: true
@@ -87,6 +91,14 @@ jobs:
       # For any modules that were changed in this PR,
       # download their artifacts from this workflow run.
 
+      - name: Download platform from this workflow
+        id: download-platform
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: modules/artifacts
+
       - name: Download gradle artifacts from this workflow
         id: download-gradle
         continue-on-error: true
@@ -97,6 +109,15 @@ jobs:
 
       # For any modules that weren't changed in this PR,
       # download artifacts from the last successful workflow.
+
+      - name: Download platform from last successful workflow
+        if: ${{ steps.download-platform.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: modules/artifacts
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.platform-artifact-id }}
 
       - name: Download gradle artifacts from last successful workflow
         if: ${{ steps.download-gradle.outcome == 'failure' }}

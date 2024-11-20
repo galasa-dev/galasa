@@ -107,6 +107,7 @@ jobs:
     secrets: inherit
     with:
       changed: ${{ needs.get-changed-modules.outputs.maven_changed }}
+      platform-artifact-id: ${{ needs.find-artifacts.outputs.platform_artifacts_id }}
       gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
 
   pr-build-framework:
