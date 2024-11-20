@@ -40,7 +40,7 @@
         <dependency>
             <groupId>{{.GroupId}}</groupId>
             <artifactId>{{.ArtifactId}}</artifactId>
-            <version>{{.Version}}</version>
+            {{if .Version}}<version>{{.Version}}</version>{{end}}
         </dependency>
     {{end}}
         <dependency>
