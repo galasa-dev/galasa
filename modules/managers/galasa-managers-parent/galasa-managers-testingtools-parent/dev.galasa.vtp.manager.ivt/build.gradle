@@ -4,7 +4,7 @@ plugins {
 
 description = 'Galasa VTP Manager IVT'
 
-version = '0.21.0'
+version = '0.38.0'
 
 dependencies {
     implementation project (':galasa-managers-cicsts-parent:dev.galasa.cicsts.ceci.manager')

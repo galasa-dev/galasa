@@ -1,7 +1,7 @@
 -snapshot: ${tstamp}
 Bundle-Name: Galasa zOS File Manager - RSE API Implementation
 Import-Package: !javax.validation.constraints,\
-                org.apache.commons.io;version="[2,3)",\
+                org.apache.commons.io;version="${@}",\
                 *
 
 

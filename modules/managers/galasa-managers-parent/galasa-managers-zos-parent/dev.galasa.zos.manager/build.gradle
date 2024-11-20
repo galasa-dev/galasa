@@ -8,8 +8,8 @@ version = '0.38.0'
 
 dependencies {
     api project     (':galasa-managers-comms-parent:dev.galasa.ipnetwork.manager')
-    implementation  'io.prometheus:simpleclient:0.16.0'
-    implementation  'org.apache.commons:commons-lang3:3.14.0'
+    implementation  'io.prometheus:simpleclient'
+    implementation  'org.apache.commons:commons-lang3'
 }
 
 // Note: These values are consumed by the parent build process

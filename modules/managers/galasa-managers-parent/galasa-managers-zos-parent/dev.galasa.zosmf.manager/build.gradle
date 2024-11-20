@@ -4,14 +4,14 @@ plugins {
 
 description = 'Galasa zOS/MF Manager'
 
-version = '0.34.0'
+version = '0.38.0'
 
 dependencies {
-    api              project(':galasa-managers-zos-parent:dev.galasa.zos.manager')
-    api              project(':galasa-managers-comms-parent:dev.galasa.http.manager')
-    implementation   'commons-io:commons-io:2.16.1' 
-    implementation   'org.apache.commons:commons-lang3:3.14.0'
-    implementation   'com.google.code.gson:gson:2.10.1'
+    api            project(':galasa-managers-zos-parent:dev.galasa.zos.manager')
+    api            project(':galasa-managers-comms-parent:dev.galasa.http.manager')
+    implementation 'commons-io:commons-io' 
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'com.google.code.gson:gson'
 }
 
 // Note: These values are consumed by the parent build process

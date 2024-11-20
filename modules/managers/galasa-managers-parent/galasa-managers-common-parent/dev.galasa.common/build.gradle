@@ -4,7 +4,7 @@ plugins {
 
 description = 'Manager Common'
 
-version = '0.25.0'
+version = '0.38.0'
 
 // Note: These values are consumed by the parent build process
 // They indicate which packages of functionality this OSGi bundle should be delivered inside,

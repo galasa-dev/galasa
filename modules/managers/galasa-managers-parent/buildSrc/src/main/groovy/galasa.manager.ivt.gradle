@@ -4,9 +4,11 @@ plugins {
 }
 
 dependencies {
-    implementation 'dev.galasa:dev.galasa:0.34.0'
+    implementation platform('dev.galasa:dev.galasa.platform:0.38.0')
+
+    implementation 'dev.galasa:dev.galasa'
     
-    implementation 'commons-logging:commons-logging:1.2'
+    implementation 'commons-logging:commons-logging'
     
-    implementation 'org.assertj:assertj-core:3.11.1'
+    implementation 'org.assertj:assertj-core'
 }

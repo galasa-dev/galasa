@@ -1,6 +1,6 @@
 -snapshot: ${tstamp}
 Bundle-Name: Galasa zOS File Manager - zOS/MF Implementation
 Import-Package: !javax.validation.constraints,\
-                org.apache.commons.io;version="[2,3)",\
+                org.apache.commons.io;version="${@}",\
                 *
 

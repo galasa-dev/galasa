@@ -31,4 +31,4 @@ Import-Package: jakarta.transaction, \
 		        * 
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile
--includeresource: db2jcc-db2jcc4.jar; lib:=true
+-includeresource: db2jcc-*.jar; lib:=true

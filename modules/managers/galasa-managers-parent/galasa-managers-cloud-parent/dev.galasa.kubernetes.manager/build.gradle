@@ -8,10 +8,9 @@ version = '0.38.0'
 
 dependencies {
     api project(':galasa-managers-cloud-parent:dev.galasa.cloud.manager')
-
-    implementation 'dev.galasa:dev.galasa.wrapping.gson:0.38.0'
-    implementation 'dev.galasa:dev.galasa.wrapping.protobuf-java:0.38.0'
-    implementation 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java:0.38.0'
+    implementation 'dev.galasa:dev.galasa.wrapping.gson'
+    implementation 'dev.galasa:dev.galasa.wrapping.protobuf-java'
+    implementation 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java'
 }
 
 

@@ -26,7 +26,15 @@ dependencies {
         api 'com.google.code.gson:gson:2.10.1'
         api 'com.google.protobuf:protobuf-java:4.28.3'
 
+        api 'com.google.guava:guava:30.1.1-jre'
+
+        api 'com.ibm.db2.jcc:db2jcc:db2jcc4'
+
+        api 'com.ibm.mq:com.ibm.mq.allclient:9.2.3.0'
+
         api 'com.squareup.okhttp3:okhttp:4.9.2'
+
+        api 'com.squareup.okio:okio-jvm:3.0.0'
 
         api 'commons-cli:commons-cli:1.4' // If updating, also update in galasa-boot build.gradle.
 
@@ -36,10 +44,16 @@ dependencies {
 
         api 'commons-logging:commons-logging:1.2'
 
+        api 'dev.galasa:com.jcraft.jsch:0.1.55'
+        api 'dev.galasa:dev.galasa:0.34.0'
+        api 'dev.galasa:dev.galasa.framework:'+version
         api 'dev.galasa:dev.galasa.wrapping.com.auth0.jwt:'+version
         api 'dev.galasa:dev.galasa.wrapping.gson:'+version
         api 'dev.galasa:dev.galasa.wrapping.io.grpc.java:'+version
         api 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java:'+version
+        api 'dev.galasa:dev.galasa.wrapping.protobuf-java:'+version
+        api 'dev.galasa:galasa-testharness:0.18.0'
+        api 'dev.galasa:jta:2.0.1'
 
         // Most bundles before implementing the Platform used 0.6.0 other than dev.galasa.framework.k8s.controller.
         // Upgrading all to 0.16.0 by using the Platform.
@@ -49,11 +63,17 @@ dependencies {
 
         api 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
 
+        api 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.0'
+
+        api 'javax.jms:javax.jms-api:2.0.1'
+
         api 'javax.servlet:javax.servlet-api:3.1.0'
 
         api 'javax.validation:validation-api:2.0.1.Final'
 
         api 'junit:junit:4.13.1'
+
+        api 'net.bytebuddy:byte-buddy:1.8.15'
 
         api 'org.apache.bcel:bcel:6.7.0'
 
@@ -61,6 +81,7 @@ dependencies {
 
         api 'org.apache.commons:commons-collections4:4.4'
         api 'org.apache.commons:commons-compress:1.26.0'
+        api 'org.apache.commons:commons-exec:1.3'
         api 'org.apache.commons:commons-lang3:3.14.0'
 
         api 'org.apache.felix:org.apache.felix.bundlerepository:2.0.10' // If updating, also update in galasa-boot build.gradle.
@@ -68,7 +89,10 @@ dependencies {
         api 'org.apache.felix:org.apache.felix.scr:2.1.14' // If updating, also update in galasa-boot build.gradle.
 
         api 'org.apache.httpcomponents:httpclient:4.5.14'
+        api 'org.apache.httpcomponents:httpclient-osgi:4.5.13'
         api 'org.apache.httpcomponents:httpcore:4.4.11'
+        api 'org.apache.httpcomponents:httpcore-osgi:4.4.14'
+        api 'org.apache.httpcomponents:httpmime:4.5.8'
 
         api 'org.apache.logging.log4j:log4j-api:2.24.1' // If updating, also update in galasa-boot build.gradle.
         api 'org.apache.logging.log4j:log4j-core:2.24.1' // If updating, also update in galasa-boot build.gradle.
@@ -77,6 +101,8 @@ dependencies {
         api 'org.apache.maven:maven-repository-metadata:3.3.9'
 
         api 'org.apache.tomcat:annotations-api:6.0.53'
+
+        api 'org.apache.velocity:velocity-engine-core:2.3'
 
         api 'org.assertj:assertj-core:3.16.1'
         // 3.23.1 found in dev.galasa.framework.api.cps but breaks Extensions unit tests when used in other bundles.
@@ -89,13 +115,26 @@ dependencies {
 
         api 'org.jetbrains.kotlin:kotlin-osgi-bundle:1.4.0'
 
+        api 'org.junit.jupiter:junit-jupiter:5.10.2'
+
         api 'org.mockito:mockito-core:3.1.0'
+        api 'org.mockito:mockito-junit-jupiter:5.3.1'
 
         api 'org.osgi:org.osgi.core:6.0.0'
         api 'org.osgi:org.osgi.service.cm:1.6.0'
         api 'org.osgi:org.osgi.service.component.annotations:1.3.0'
 
         api 'org.reflections:reflections:0.9.11'
+
+        api 'org.seleniumhq.selenium:selenium-api:3.141.59'
+        api 'org.seleniumhq.selenium:selenium-chrome-driver:3.141.59'
+        api 'org.seleniumhq.selenium:selenium-edge-driver:3.141.59'
+        api 'org.seleniumhq.selenium:selenium-firefox-driver:3.141.59'
+        api 'org.seleniumhq.selenium:selenium-ie-driver:3.141.59'
+        api 'org.seleniumhq.selenium:selenium-java:3.141.59'
+        api 'org.seleniumhq.selenium:selenium-opera-driver:3.141.59'
+        api 'org.seleniumhq.selenium:selenium-remote-driver:3.141.59'
+        api 'org.seleniumhq.selenium:selenium-support:3.141.59'
 
         api 'org.yaml:snakeyaml:2.0'
 

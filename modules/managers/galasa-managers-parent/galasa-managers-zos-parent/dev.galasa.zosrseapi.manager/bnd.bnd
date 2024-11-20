@@ -2,5 +2,5 @@
 Bundle-Name: Galasa RSE API Manager
 Export-Package: dev.galasa.zosrseapi, dev.galasa.zosrseapi.spi
 Import-Package: !javax.validation.constraints,\
-                org.apache.commons.io;version="[2,3)",\
+                org.apache.commons.io;version="${@}",\
                 *

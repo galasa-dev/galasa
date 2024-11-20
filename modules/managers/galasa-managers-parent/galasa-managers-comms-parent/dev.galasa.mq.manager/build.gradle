@@ -4,15 +4,12 @@ plugins {
 
 description = 'MQ Manager'
 
-version = '0.25.0'
+version = '0.38.0'
 
 dependencies {
-    // https://mvnrepository.com/artifact/javax.jms/javax.jms-api
-    implementation group: 'javax.jms', name: 'javax.jms-api', version: '2.0.1'
-    // https://mvnrepository.com/artifact/com.ibm.mq/com.ibm.mq.allclient
-    implementation group: 'com.ibm.mq', name: 'com.ibm.mq.allclient', version: '9.2.3.0'
-    // https://mvnrepository.com/artifact/commons-codec/commons-codec
-	implementation 'commons-codec:commons-codec:1.11'
+    implementation 'javax.jms:javax.jms-api'
+    implementation 'com.ibm.mq:com.ibm.mq.allclient'
+	implementation 'commons-codec:commons-codec'
   
 }
 

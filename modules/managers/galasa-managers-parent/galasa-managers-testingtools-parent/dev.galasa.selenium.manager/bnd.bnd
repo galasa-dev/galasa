@@ -45,23 +45,23 @@ Import-Package: dev.galasa,\
     org.openqa.selenium.support.ui
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile
--includeresource: byte-buddy-1.8.15.jar; lib:=true,\
-    commons-exec-1.3.jar; lib:=true,\
+-includeresource: byte-buddy-*.jar; lib:=true,\
+    commons-exec-*.jar; lib:=true,\
     error_prone_annotations-2.5.1.jar; lib:=true,\
-    guava-30.1.1-jre.jar; lib:=true,\
+    guava-*.jar; lib:=true,\
     j2objc-annotations-1.3.jar; lib:=true,\
     jsr305-3.0.2.jar; lib:=true,\
     okhttp-4.10.0.jar; lib:=true,\
-    okio-jvm-3.0.0.jar; lib:=true,\
+    okio-jvm-*.jar; lib:=true,\
     kotlin-osgi-bundle-1.7.22.jar; lib:=true,\
-    selenium-api-3.141.59.jar; lib:=true,\
-    selenium-chrome-driver-3.141.59.jar; lib:=true,\
-    selenium-edge-driver-3.141.59.jar; lib:=true,\
-    selenium-firefox-driver-3.141.59.jar; lib:=true,\
-    selenium-ie-driver-3.141.59.jar; lib:=true,\
-    selenium-java-3.141.59.jar; lib:=true,\
-    selenium-opera-driver-3.141.59.jar; lib:=true,\
-    selenium-remote-driver-3.141.59.jar; lib:=true,\
+    selenium-api-*.jar; lib:=true,\
+    selenium-chrome-driver-*.jar; lib:=true,\
+    selenium-edge-driver-*.jar; lib:=true,\
+    selenium-firefox-driver-*.jar; lib:=true,\
+    selenium-ie-driver-*.jar; lib:=true,\
+    selenium-java-*.jar; lib:=true,\
+    selenium-opera-driver-*.jar; lib:=true,\
+    selenium-remote-driver-*.jar; lib:=true,\
     selenium-safari-driver-3.141.59.jar; lib:=true,\
-    selenium-support-3.141.59.jar; lib:=true
+    selenium-support-*.jar; lib:=true
 -fixupmessages: Classes found in the wrong directory: ...;is:=ignore

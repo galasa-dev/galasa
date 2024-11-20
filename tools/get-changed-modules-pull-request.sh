@@ -142,6 +142,7 @@ function get_changed_modules_and_set_in_environment() {
             # Also rebuild modules that depend on the Platform...
             echo "GRADLE_CHANGED=true" >> $GITHUB_OUTPUT
             echo "FRAMEWORK_CHANGED=true" >> $GITHUB_OUTPUT
+            echo "MANAGERS_CHANGED=true" >> $GITHUB_OUTPUT
             continue
         fi
         if [[ "$module" == "buildutils" ]]; then

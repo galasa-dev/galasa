@@ -4,7 +4,7 @@ plugins {
 
 description = 'Galasa CICS/TS CEMT Manager'
 
-version = '0.25.0'
+version = '0.38.0'
 
 dependencies {
     api            project (':galasa-managers-cicsts-parent:dev.galasa.cicsts.manager')
