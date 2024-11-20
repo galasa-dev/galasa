@@ -164,6 +164,31 @@ publishing {
             groupId = 'dev.galasa'
             artifactId = 'dev.galasa.platform'
             version = "0.38.0"
+
+            pom.withXml {
+                asNode().appendNode('build').appendNode('pluginManagement').appendNode('plugins').with {
+                    appendNode('plugin').with {
+                        appendNode('groupId', 'org.apache.maven.plugins')
+                        appendNode('artifactId', 'maven-plugin-plugin')
+                        appendNode('version', '3.15.1')
+                    }
+                    appendNode('plugin').with {
+                        appendNode('groupId', 'org.apache.maven.plugins')
+                        appendNode('artifactId', 'maven-compiler-plugin')
+                        appendNode('version', '3.13.0')
+                    }
+                    appendNode('plugin').with {
+                        appendNode('groupId', 'org.apache.maven.plugins')
+                        appendNode('artifactId', 'maven-gpg-plugin')
+                        appendNode('version', '1.5')
+                    }
+                    appendNode('plugin').with {
+                        appendNode('groupId', 'com.google.code.maven-replacer-plugin')
+                        appendNode('artifactId', 'maven-replacer-plugin')
+                        appendNode('version', '1.4.0')
+                    }
+                }
+            }
         }
 
         // mavenBom(MavenPublication) {
