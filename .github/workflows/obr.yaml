@@ -7,39 +7,6 @@ name: OBR Main Build
 
 on:
   workflow_call:
-    inputs:
-      changed:
-        description: 'True if this module has been changed and should be rebuilt'
-        required: true
-        type: string
-      platform-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the platform'
-        required: true
-        type: string
-      wrapping-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the wrapping module'
-        required: true
-        type: string
-      gradle-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the gradle module'
-        required: true
-        type: string
-      maven-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the maven module'
-        required: true
-        type: string
-      framework-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the framework module'
-        required: true
-        type: string
-      extensions-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the extensions module'
-        required: true
-        type: string
-      managers-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the managers module'
-        required: true
-        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -49,19 +16,8 @@ env:
 
 jobs:
 
-  log-unchanged:
-    name: OBR is unchanged
-    if: ${{ inputs.changed == 'false' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Log this module is unchanged
-        run: |
-          echo "The obr module is unchanged"
-
   log-github-ref:
     name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Log GitHub ref of workflow
@@ -70,7 +26,6 @@ jobs:
           
   build-obr:
     name: Build OBR using galasabld image and maven
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -125,9 +80,6 @@ jobs:
       - name: Display Galasa BOM pom.xml
         run: |
           cat modules/obr/galasa-bom/pom.xml
-
-      # For any modules that were changed in this push,
-      # download their artifacts from this workflow run.
 
       - name: Download platform from this workflow
         id: download-platform
@@ -185,72 +137,6 @@ jobs:
           name: managers
           path: modules/artifacts
 
-      # For any modules that weren't changed in this push,
-      # download artifacts from the last successful workflow.
-
-      - name: Download platform from last successful workflow
-        if: ${{ steps.download-platform.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: platform
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.platform-artifact-id }}
-
-      - name: Download wrapping artifacts from last successful workflow
-        if: ${{ steps.download-wrapping.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: wrapping
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.wrapping-artifact-id }}
-
-      - name: Download gradle artifacts from last successful workflow
-        if: ${{ steps.download-gradle.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: gradle
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.gradle-artifact-id }}
-
-      - name: Download maven artifacts from last successful workflow
-        if: ${{ steps.download-maven.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: maven
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.maven-artifact-id }}
-
-      - name: Download framework artifacts from last successful workflow
-        if: ${{ steps.download-framework.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: framework
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.framework-artifact-id }}
-
-      - name: Download extensions artifacts from last successful workflow
-        if: ${{ steps.download-extensions.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: extensions
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.extensions-artifact-id }}
-
-      - name: Download managers artifacts from last successful workflow
-        if: ${{ steps.download-managers.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: managers
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.managers-artifact-id }}
-        
       - name: Build Galasa BOM with maven
         working-directory: modules/obr
         run: |
@@ -358,7 +244,6 @@ jobs:
 
   build-obr-javadocs:
     name: Build OBR javadocs using galasabld image and maven
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -413,9 +298,6 @@ jobs:
       - name: Display Galasa Javadoc pom.xml 
         run: |
           cat modules/obr/javadocs/pom.xml
-
-      # For any modules that were changed in this push,
-      # download their artifacts from this workflow run.
 
       - name: Download platform from this workflow
         id: download-platform
@@ -472,73 +354,6 @@ jobs:
         with:
           name: managers
           path: modules/artifacts
-
-      # For any modules that weren't changed in this push,
-      # download artifacts from the last successful workflow.
-
-      # Commented out for now as there are no historical runs with Platform artifacts.
-      - name: Download platform from last successful workflow
-        if: ${{ steps.download-platform.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: platform
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.platform-artifact-id }}
-
-      - name: Download wrapping artifacts from last successful workflow
-        if: ${{ steps.download-wrapping.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: wrapping
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.wrapping-artifact-id }}
-
-      - name: Download gradle artifacts from last successful workflow
-        if: ${{ steps.download-gradle.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: gradle
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.gradle-artifact-id }}
-
-      - name: Download maven artifacts from last successful workflow
-        if: ${{ steps.download-maven.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: maven
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.maven-artifact-id }}
-
-      - name: Download framework artifacts from last successful workflow
-        if: ${{ steps.download-framework.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: framework
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.framework-artifact-id }}
-
-      - name: Download extensions artifacts from last successful workflow
-        if: ${{ steps.download-extensions.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: extensions
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.extensions-artifact-id }}
-
-      - name: Download managers artifacts from last successful workflow
-        if: ${{ steps.download-managers.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: managers
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.managers-artifact-id }}
         
       - name: Build javadoc site using maven
         working-directory: modules/obr/javadocs
@@ -620,7 +435,6 @@ jobs:
 
   build-obr-generic:
     name: Build OBR embedded and boot images using galasabld and maven
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     needs: [build-obr, build-obr-javadocs]
 
@@ -676,9 +490,6 @@ jobs:
       - name: Display Galasa OBR generic pom.xml
         run: |
           cat modules/obr/obr-generic/pom.xml
-
-      # For any modules that were changed in this push,
-      # download their artifacts from this workflow run.
 
       - name: Download platform from this workflow
         id: download-platform
@@ -743,73 +554,6 @@ jobs:
         with:
           name: obr
           path: modules/artifacts
-
-      # For any modules that weren't changed in this push,
-      # download artifacts from the last successful workflow.
-
-      # Commented out for now as there are no historical runs with Platform artifacts.
-      - name: Download platform from last successful workflow
-        if: ${{ steps.download-platform.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: platform
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.platform-artifact-id }}
-
-      - name: Download wrapping artifacts from last successful workflow
-        if: ${{ steps.download-wrapping.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: wrapping
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.wrapping-artifact-id }}
-
-      - name: Download gradle artifacts from last successful workflow
-        if: ${{ steps.download-gradle.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: gradle
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.gradle-artifact-id }}
-
-      - name: Download maven artifacts from last successful workflow
-        if: ${{ steps.download-maven.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: maven
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.maven-artifact-id }}
-
-      - name: Download framework artifacts from last successful workflow
-        if: ${{ steps.download-framework.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: framework
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.framework-artifact-id }}
-
-      - name: Download extensions artifacts from last successful workflow
-        if: ${{ steps.download-extensions.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: extensions
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.extensions-artifact-id }}
-
-      - name: Download managers artifacts from last successful workflow
-        if: ${{ steps.download-managers.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: managers
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.managers-artifact-id }}
         
       - name: Build Galasa OBR generic pom.xml with maven
         working-directory: modules/obr/obr-generic
@@ -902,7 +646,6 @@ jobs:
 
   trigger-next-workflows:
     name: Trigger next workflows in the build chain
-    if: ${{ inputs.changed == 'true' }}
     needs: [build-obr, build-obr-generic, build-obr-javadocs]
     runs-on: ubuntu-latest
 

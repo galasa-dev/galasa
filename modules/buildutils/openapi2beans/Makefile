@@ -8,7 +8,8 @@ all: tests docs openapi2beans
 openapi2beans: \
 	bin/openapi2beans-linux-x86_64 \
 	bin/openapi2beans-darwin-x86_64 \
-	bin/openapi2beans-darwin-arm64 
+	bin/openapi2beans-darwin-arm64 \
+	bin/openapi2beans-linux-arm64
 
 
 tests: openapi2beans-source build/coverage.txt

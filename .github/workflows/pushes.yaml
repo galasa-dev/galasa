@@ -11,121 +11,54 @@ on:
 
 jobs:
 
-  find-artifacts:
-    name: Get Workflow Run IDs with artifacts to download for each module
-    runs-on: ubuntu-latest
-
-    outputs: 
-      platform_artifacts_id: ${{ steps.find-artifacts.outputs.platform_artifacts_id }}
-      wrapping_artifacts_id: ${{ steps.find-artifacts.outputs.wrapping_artifacts_id }}
-      gradle_artifacts_id: ${{ steps.find-artifacts.outputs.gradle_artifacts_id }}
-      maven_artifacts_id: ${{ steps.find-artifacts.outputs.maven_artifacts_id }}
-      framework_artifacts_id: ${{ steps.find-artifacts.outputs.framework_artifacts_id }}
-      extensions_artifacts_id: ${{ steps.find-artifacts.outputs.extensions_artifacts_id }}
-      managers_artifacts_id: ${{ steps.find-artifacts.outputs.managers_artifacts_id }}
-      obr_artifacts_id: ${{ steps.find-artifacts.outputs.obr_artifacts_id }}
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Get last successful workflow run with artifacts for each module
-        id: find-artifacts
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          ./tools/get-last-successful-workflow-run-for-artifacts.sh --repo ${{ github.repository }}
-
   build-platform:
     name: Build the 'platform' module
     uses: ./.github/workflows/platform.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
         
   build-buildutils:
     name: Build the 'buildutils' module
     uses: ./.github/workflows/buildutils.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
 
   build-wrapping:
     name: Build the 'wrapping' module
-    needs: [find-artifacts, build-platform]
+    needs: [build-platform]
     uses: ./.github/workflows/wrapping.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
-      platform-artifact-id: ${{ needs.find-artifacts.outputs.platform_artifacts_id }}
 
   build-gradle:
     name: Build the 'gradle' module
-    needs: [find-artifacts, build-platform]
+    needs: [build-platform]
     uses: ./.github/workflows/gradle.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
-      platform-artifact-id: ${{ needs.find-artifacts.outputs.platform_artifacts_id }}
 
   build-maven:
     name: Build the 'maven' module
-    needs: [find-artifacts, build-gradle]
+    needs: [build-gradle]
     uses: ./.github/workflows/maven.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
-      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
 
   build-framework:
     name: Build the 'framework' module
-    needs: [find-artifacts, build-buildutils, build-wrapping, build-maven]
+    needs: [build-buildutils, build-wrapping, build-maven]
     uses: ./.github/workflows/framework.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
-      platform-artifact-id: ${{ needs.find-artifacts.outputs.platform_artifacts_id }}
-      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
-      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
-      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
 
   build-extensions:
     name: Build the 'extensions' module
-    needs: [find-artifacts, build-framework]
+    needs: [build-framework]
     uses: ./.github/workflows/extensions.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
-      platform-artifact-id: ${{ needs.find-artifacts.outputs.platform_artifacts_id }}
-      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
-      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
-      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
-      framework-artifact-id: ${{ needs.find-artifacts.outputs.framework_artifacts_id }}
 
   build-managers:
     name: Build the 'managers' module
-    needs: [find-artifacts, build-framework]
+    needs: [build-framework]
     uses: ./.github/workflows/managers.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
-      platform-artifact-id: ${{ needs.find-artifacts.outputs.platform_artifacts_id }}
-      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
-      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
-      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
-      framework-artifact-id: ${{ needs.find-artifacts.outputs.framework_artifacts_id }}
 
   build-obr:
     name: Build the 'obr' module
-    needs: [find-artifacts, build-extensions, build-managers]
+    needs: [build-extensions, build-managers]
     uses: ./.github/workflows/obr.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
-      platform-artifact-id: ${{ needs.find-artifacts.outputs.platform_artifacts_id }}
-      wrapping-artifact-id: ${{ needs.find-artifacts.outputs.wrapping_artifacts_id }}
-      gradle-artifact-id: ${{ needs.find-artifacts.outputs.gradle_artifacts_id }}
-      maven-artifact-id: ${{ needs.find-artifacts.outputs.maven_artifacts_id }}
-      framework-artifact-id: ${{ needs.find-artifacts.outputs.framework_artifacts_id }}
-      extensions-artifact-id: ${{ needs.find-artifacts.outputs.extensions_artifacts_id }}
-      managers-artifact-id: ${{ needs.find-artifacts.outputs.managers_artifacts_id }}

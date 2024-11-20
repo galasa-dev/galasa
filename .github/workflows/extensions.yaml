@@ -8,10 +8,6 @@ name: Extensions Main Build
 on:
   workflow_call:
     inputs:
-      changed:
-        description: 'True if this module has been changed and should be rebuilt'
-        required: true
-        type: string
       jacoco_enabled:
         description: 'True if Jacoco code coverage should be enabled (set to "false" for release builds)'
         required: false
@@ -22,45 +18,14 @@ on:
         required: false
         default: 'true'
         type: string
-      platform-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the platform'
-        required: true
-        type: string
-      wrapping-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the wrapping module'
-        required: true
-        type: string
-      gradle-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the gradle module'
-        required: true
-        type: string
-      maven-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the maven module'
-        required: true
-        type: string
-      framework-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the framework module'
-        required: true
-        type: string
 
 env:
   BRANCH: ${{ github.ref_name }}
     
 jobs:
 
-  log-unchanged:
-    name: Extensions is unchanged
-    if: ${{ inputs.changed == 'false' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Log this module is unchanged
-        run: |
-          echo "The extensions module is unchanged"
-
   log-github-ref:
     name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Log GitHub ref of workflow
@@ -69,7 +34,6 @@ jobs:
 
   build-extensions:
     name: Build Extensions source code and Docker image for development Maven registry
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -87,9 +51,6 @@ jobs:
         with:
           gradle-version: 8.9
           cache-disabled: true
-
-      # For any modules that were changed in this push,
-      # download their artifacts from this workflow run.
 
       - name: Download platform from this workflow
         id: download-platform
@@ -130,54 +91,6 @@ jobs:
         with:
           name: framework
           path: modules/artifacts
-
-      # For any modules that weren't changed in this push,
-      # download artifacts from the last successful workflow.
-
-      - name: Download platform from last successful workflow
-        if: ${{ steps.download-platform.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: platform
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.platform-artifact-id }}
-
-      - name: Download wrapping artifacts from last successful workflow
-        if: ${{ steps.download-wrapping.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: wrapping
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.wrapping-artifact-id }}
-
-      - name: Download gradle artifacts from last successful workflow
-        if: ${{ steps.download-gradle.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: gradle
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.gradle-artifact-id }}
-
-      - name: Download maven artifacts from last successful workflow
-        if: ${{ steps.download-maven.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: maven
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.maven-artifact-id }}
-
-      - name: Download framework artifacts from last successful workflow
-        if: ${{ steps.download-framework.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: framework
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.framework-artifact-id }}
 
       - name: Build Extensions source code with gradle
         working-directory: modules/extensions

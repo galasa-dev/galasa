@@ -7,11 +7,6 @@ name: Buildutils Main Build
 
 on:
   workflow_call:
-    inputs:
-      changed:
-        description: 'True if this module has been changed and should be rebuilt'
-        required: true
-        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -20,19 +15,8 @@ env:
 
 jobs:
 
-  log-unchanged:
-    name: Buildutils is unchanged
-    if: ${{ inputs.changed == 'false' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Log this module is unchanged
-        run: |
-          echo "The buildutils module is unchanged"
-
   build-push-galasabld:
     name: Build and push galasabld artifacts
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -95,7 +79,6 @@ jobs:
 
   build-push-galasabld-ibm:
     name: Build and push galasabld-ibm artefact
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     needs: [build-push-galasabld]
 
@@ -145,7 +128,6 @@ jobs:
 
   build-push-openapi2beans:
     name: Build and push openapi2beans artifacts
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     
     steps:
@@ -208,7 +190,6 @@ jobs:
 
   build-push-buildutils-executables:
     name: Build and push buildutils repository executables
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
