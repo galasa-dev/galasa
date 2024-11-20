@@ -14,6 +14,18 @@
 
 	<description>Builds a a repository for including in the embedded image</description>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>dev.galasa</groupId>
+				<artifactId>dev.galasa.platform</artifactId>
+				<version>0.38.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>dev.galasa</groupId>
@@ -25,13 +37,11 @@
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>2.0.1.Final</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>3.11.1</version>
 		</dependency>
 	</dependencies>
 

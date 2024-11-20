@@ -23,6 +23,18 @@
 		</snapshotRepository>
 	</distributionManagement>
 
+    <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>dev.galasa</groupId>
+				<artifactId>dev.galasa.platform</artifactId>
+				<version>0.38.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 {{range .Artifacts}}
         <dependency>
@@ -34,7 +46,6 @@
         <dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>2.0.1.Final</version>
 		</dependency>
 	</dependencies>
 
