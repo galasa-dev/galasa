@@ -47,6 +47,11 @@ dependencies {
         api 'dev.galasa:com.jcraft.jsch:0.1.55'
         api 'dev.galasa:dev.galasa:0.34.0'
         api 'dev.galasa:dev.galasa.framework:'+version
+
+        api 'dev.galasa:dev.galasa.plugin.common:0.33.0'
+        api 'dev.galasa:dev.galasa.plugin.common.impl:0.33.0'
+        api 'dev.galasa:dev.galasa.plugin.common.test:0.33.0'
+
         api 'dev.galasa:dev.galasa.wrapping.com.auth0.jwt:'+version
         api 'dev.galasa:dev.galasa.wrapping.gson:'+version
         api 'dev.galasa:dev.galasa.wrapping.io.grpc.java:'+version
@@ -98,7 +103,16 @@ dependencies {
         api 'org.apache.logging.log4j:log4j-core:2.24.1' // If updating, also update in galasa-boot build.gradle.
         api 'org.apache.logging.log4j:log4j-slf4j-impl:2.24.1'
 
+        api 'org.apache.maven:maven-artifact:3.9.6'
+        api 'org.apache.maven:maven-compat:3.6.2'
+        api 'org.apache.maven:maven-plugin-api:3.6.2'
         api 'org.apache.maven:maven-repository-metadata:3.3.9'
+
+        api 'org.apache.maven.plugin-testing:maven-plugin-testing-harness:3.3.0'
+        
+        api 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.11.0'
+
+        api 'org.apache.maven.shared:maven-shared-utils:3.4.2'
 
         api 'org.apache.tomcat:annotations-api:6.0.53'
 

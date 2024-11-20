@@ -85,6 +85,14 @@ jobs:
         run: |
           cp /home/runner/work/secrets/settings.xml /home/runner/work/gpg/settings.xml
 
+      - name: Download platform from this workflow
+        id: download-platform
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: modules/artifacts
+
       - name: Download gradle artifacts from this workflow
         id: download-gradle
         continue-on-error: true
