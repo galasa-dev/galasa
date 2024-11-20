@@ -4,17 +4,13 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-
 apiVersion: galasa.dev/v1alpha
 kind: Release
 metadata:
   name: galasa-release
 
-
 release:
   version: 0.38.0
-
-
 
 external:
   bundles:
@@ -27,14 +23,12 @@ external:
 
   - group: com.sun.activation
     artifact: jakarta.activation
-    version: 2.0.0
     obr: true
     mvp: true
     isolated: true
 
   - group: com.sun.xml.bind
     artifact: jaxb-osgi
-    version: 3.0.0
     obr: true
 
   - group: commons-codec
@@ -46,7 +40,6 @@ external:
 
   - group: commons-collections
     artifact: commons-collections
-    version: 3.2.2
     obr: true
     mvp: true
     isolated: true
@@ -60,7 +53,6 @@ external:
 
   - group: commons-lang
     artifact: commons-lang
-    version: 2.6
     obr: true
     mvp: true
     isolated: true
@@ -117,7 +109,6 @@ external:
 
   - group: dev.galasa
     artifact: kafka.clients
-    version: 3.7.0
     obr: true
     mvp: true
     isolated: true
@@ -130,7 +121,6 @@ external:
 
   - group: io.prometheus
     artifact: simpleclient_common
-    version: 0.16.0
     obr: true
     isolated: true
 
@@ -146,21 +136,18 @@ external:
 
   - group: io.prometheus
     artifact: simpleclient_tracer_common
-    version: 0.16.0
     obr: true
     mvp: true
     isolated: true
 
   - group: io.prometheus
     artifact: simpleclient_tracer_otel
-    version: 0.16.0
     obr: true
     mvp: true
     isolated: true
 
   - group: io.prometheus
     artifact: simpleclient_tracer_otel_agent
-    version: 0.16.0
     obr: true
     mvp: true
     isolated: true
@@ -205,52 +192,44 @@ external:
 
   - group: org.apache.derby
     artifact: derbyclient
-    version: 10.14.2.0
     obr: true
 
   - group: org.apache.felix
     artifact: org.apache.felix.configadmin
-    version: 1.9.16
     obr: true
     mvp: true
     isolated: true
 
   - group: org.apache.felix
     artifact: org.apache.felix.fileinstall
-    version: 3.6.4
     obr: true
     isolated: true
 
   - group: org.apache.felix
     artifact: org.apache.felix.gogo.command
-    version: 1.1.0
     obr: true
     mvp: true
     isolated: true
 
   - group: org.apache.felix
     artifact: org.apache.felix.gogo.runtime
-    version: 1.1.2
     obr: true
     mvp: true
     isolated: true
 
   - group: org.apache.felix
     artifact: org.apache.felix.gogo.shell
-    version: 1.1.2
     obr: true
     mvp: true
     isolated: true
 
   - group: org.apache.felix
     artifact: org.apache.felix.http.jetty
-    version: 5.0.0
     obr: true
     isolated: true
 
   - group: org.apache.felix
     artifact: org.apache.felix.http.servlet-api
-    version: 2.1.0
     obr: true
     mvp: true
     isolated: true
@@ -310,7 +289,6 @@ external:
 
   - group: org.bouncycastle
     artifact: bcutil-jdk18on
-    version: 1.79
     obr: true
 
   - group: org.osgi
@@ -319,7 +297,6 @@ external:
 
   - group: org.slf4j
     artifact: slf4j-api
-    version: 1.7.30
     obr: true
     mvp: true
     isolated: true

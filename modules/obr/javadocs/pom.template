@@ -39,8 +39,8 @@
 {{range .Artifacts}}
         <dependency>
             <groupId>{{.GroupId}}</groupId>
-            <artifactId>{{.ArtifactId}}</artifactId>
-            {{if .Version}}<version>{{.Version}}</version>{{end}}
+            <artifactId>{{.ArtifactId}}</artifactId>{{if .Version}}
+            <version>{{.Version}}</version>{{end}}
         </dependency>
     {{end}}
         <dependency>
