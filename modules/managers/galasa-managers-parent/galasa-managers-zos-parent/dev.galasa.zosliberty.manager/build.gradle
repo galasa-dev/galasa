@@ -11,9 +11,9 @@ dependencies {
     implementation project(':galasa-managers-zos-parent:dev.galasa.zosunixcommand.ssh.manager')
     implementation project(':galasa-managers-core-parent:dev.galasa.textscan.manager')
     implementation project(':galasa-managers-core-parent:dev.galasa.artifact.manager')
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
-    implementation 'org.apache.commons:commons-collections4:4.4'
-    implementation 'commons-io:commons-io:2.16.1'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-collections4'
+    implementation 'commons-io:commons-io'
 }
 
 // Note: These values are consumed by the parent build process

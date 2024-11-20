@@ -31,15 +31,12 @@ jobs:
     name: Build the 'buildutils' module
     uses: ./.github/workflows/buildutils.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}
 
   build-wrapping:
     name: Build the 'wrapping' module
     uses: ./.github/workflows/wrapping.yaml
     secrets: inherit
     with:
-      changed: ${{ true }}
       jacoco_enabled: ${{ inputs.jacoco_enabled }}
       sign_artifacts: ${{ inputs.sign_artifacts }}
 
@@ -48,7 +45,6 @@ jobs:
     uses: ./.github/workflows/gradle.yaml
     secrets: inherit
     with:
-      changed: ${{ true }}
       jacoco_enabled: ${{ inputs.jacoco_enabled }}
       sign_artifacts: ${{ inputs.sign_artifacts }}
 
@@ -58,7 +54,6 @@ jobs:
     uses: ./.github/workflows/maven.yaml
     secrets: inherit
     with:
-      changed: ${{ true }}
       jacoco_enabled: ${{ inputs.jacoco_enabled }}
       sign_artifacts: ${{ inputs.sign_artifacts }}
 
@@ -68,7 +63,6 @@ jobs:
     uses: ./.github/workflows/framework.yaml
     secrets: inherit
     with:
-      changed: ${{ true }}
       jacoco_enabled: ${{ inputs.jacoco_enabled }}
       sign_artifacts: ${{ inputs.sign_artifacts }}
 
@@ -78,7 +72,6 @@ jobs:
     uses: ./.github/workflows/extensions.yaml
     secrets: inherit
     with:
-      changed: ${{ true }}
       jacoco_enabled: ${{ inputs.jacoco_enabled }}
       sign_artifacts: ${{ inputs.sign_artifacts }}
 
@@ -88,7 +81,6 @@ jobs:
     uses: ./.github/workflows/managers.yaml
     secrets: inherit
     with:
-      changed: ${{ true }}
       jacoco_enabled: ${{ inputs.jacoco_enabled }}
       sign_artifacts: ${{ inputs.sign_artifacts }}
 
@@ -97,5 +89,3 @@ jobs:
     needs: [build-extensions, build-managers]
     uses: ./.github/workflows/obr.yaml
     secrets: inherit
-    with:
-      changed: ${{ true }}

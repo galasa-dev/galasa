@@ -4,11 +4,11 @@ plugins {
 
 description = 'Galasa Console zOS/MF Manager'
 
-version = '0.31.0'
+version = '0.38.0'
 
 dependencies {
     api     project(':galasa-managers-zos-parent:dev.galasa.zosmf.manager')
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.code.gson:gson'
 }
 
 // Note: These values are consumed by the parent build process

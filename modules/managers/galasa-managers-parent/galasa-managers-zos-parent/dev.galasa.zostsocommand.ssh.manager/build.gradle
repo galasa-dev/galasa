@@ -4,7 +4,7 @@ plugins {
 
 description = 'Galasa zOS TSO Command Manager - ssh Implementation'
 
-version = '0.21.0'
+version = '0.38.0'
 
 dependencies {
     implementation project(':galasa-managers-zos-parent:dev.galasa.zos.manager')

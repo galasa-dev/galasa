@@ -2,5 +2,5 @@
 Bundle-Name: Artifact Manager
 Export-Package: dev.galasa.artifact
 Import-Package: !javax.validation.constraints,\
-                org.apache.commons.io;version="[2,3)",\
+                org.apache.commons.io;version="${@}",\
                 *

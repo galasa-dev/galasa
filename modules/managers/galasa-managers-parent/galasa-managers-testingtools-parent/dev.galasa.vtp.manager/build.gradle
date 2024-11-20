@@ -4,7 +4,7 @@ plugins {
 
 description = 'Galasa VTP Manager'
 
-version = '0.25.0'
+version = '0.38.0'
 
 dependencies {
     implementation project(':galasa-managers-cicsts-parent:dev.galasa.cicsts.manager')

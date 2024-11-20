@@ -4,13 +4,13 @@ plugins {
 
 description = 'Galasa zOS File Manager - zOS/MF Implementation'
 
-version = '0.34.0'
+version = '0.38.0'
 
 dependencies {
     api      project(':galasa-managers-zos-parent:dev.galasa.zosmf.manager')
-    implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
-    implementation 'commons-io:commons-io:2.16.1'
+    implementation 'com.google.code.gson:gson'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'commons-io:commons-io'
 }
 
 // Note: These values are consumed by the parent build process

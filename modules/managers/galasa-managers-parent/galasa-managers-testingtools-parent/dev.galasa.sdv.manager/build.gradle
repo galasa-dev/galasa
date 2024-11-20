@@ -41,13 +41,13 @@ dependencies {
     implementation project(':galasa-managers-zos-parent:dev.galasa.zos3270.manager')
     implementation project(':galasa-managers-cicsts-parent:dev.galasa.cicsts.manager')
     implementation project(':galasa-managers-comms-parent:dev.galasa.http.manager')
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.code.gson:gson'
 
     // Unit testing
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-    testImplementation 'org.mockito:mockito-core:5.3.1'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
-    testImplementation 'commons-io:commons-io:2.16.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:5.3.1' // Platform uses 3.1.0
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+    testImplementation 'commons-io:commons-io'
 }
 
 test {

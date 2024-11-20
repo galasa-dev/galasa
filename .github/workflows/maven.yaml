@@ -8,10 +8,6 @@ name: Maven Main Build
 on:
   workflow_call:
     inputs:
-      changed:
-        description: 'True if this module has been changed and should be rebuilt'
-        required: true
-        type: string
       jacoco_enabled:
         description: 'True if Jacoco code coverage should be enabled (set to "false" for release builds)'
         required: false
@@ -22,29 +18,14 @@ on:
         required: false
         default: 'true'
         type: string
-      gradle-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the gradle module'
-        required: true
-        type: string
 
 env:
   BRANCH: ${{ github.ref_name }}
 
 jobs:
 
-  log-unchanged:
-    name: Maven is unchanged
-    if: ${{ inputs.changed == 'false' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Log this module is unchanged
-        run: |
-          echo "The maven module is unchanged"
-
   log-github-ref:
     name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Log GitHub ref of workflow
@@ -53,7 +34,6 @@ jobs:
 
   build-maven:
     name: Build Maven source code and Docker image for development Maven registry
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -105,9 +85,6 @@ jobs:
         run: |
           cp /home/runner/work/secrets/settings.xml /home/runner/work/gpg/settings.xml
 
-      # For any modules that were changed in this push,
-      # download their artifacts from this workflow run.
-
       - name: Download gradle artifacts from this workflow
         id: download-gradle
         continue-on-error: true
@@ -115,18 +92,6 @@ jobs:
         with:
           name: gradle
           path: modules/artifacts
-
-      # For any modules that weren't changed in this push,
-      # download artifacts from the last successful workflow.
-
-      - name: Download gradle artifacts from last successful workflow
-        if: ${{ steps.download-gradle.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: gradle
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.gradle-artifact-id }}
 
       - name: Build Maven source code
         working-directory: modules/maven

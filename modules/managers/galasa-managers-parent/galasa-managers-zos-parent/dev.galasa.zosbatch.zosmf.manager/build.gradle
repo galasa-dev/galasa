@@ -4,12 +4,12 @@ plugins {
 
 description = 'Galasa zOS Batch Manager - zOS/MF Implementation'
 
-version = '0.34.0'
+version = '0.38.0'
 
 dependencies {
     api     project(':galasa-managers-zos-parent:dev.galasa.zosmf.manager')
-    implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'com.google.code.gson:gson'
+    implementation 'org.apache.commons:commons-lang3'
 }
 
 // Note: These values are consumed by the parent build process

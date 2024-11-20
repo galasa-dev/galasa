@@ -8,10 +8,6 @@ name: Platform Main Build
 on:
   workflow_call:
     inputs:
-      changed:
-        description: 'True if this module has been changed and should be rebuilt'
-        required: true
-        type: string
       jacoco_enabled:
         description: 'True if Jacoco code coverage should be enabled (set to "false" for release builds)'
         required: false
@@ -28,19 +24,8 @@ env:
 
 jobs:
 
-  log-unchanged:
-    name: Platform is unchanged
-    if: ${{ inputs.changed == 'false' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Log this module is unchanged
-        run: |
-          echo "The gradle module is unchanged"
-
   log-github-ref:
     name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Log GitHub ref of workflow
@@ -49,7 +34,6 @@ jobs:
 
   build-platform:
     name: Build Platform
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

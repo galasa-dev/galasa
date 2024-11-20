@@ -4,7 +4,7 @@ plugins {
 
 description = 'Galasa CICS/TS Resource Manager'
 
-version = '0.37.0'
+version = '0.38.0'
 
 dependencies {
     api            project (':galasa-managers-cicsts-parent:dev.galasa.cicsts.manager')
@@ -12,8 +12,8 @@ dependencies {
     implementation project (':galasa-managers-core-parent:dev.galasa.textscan.manager')
     implementation project (':galasa-managers-core-parent:dev.galasa.artifact.manager')
     implementation project (':galasa-managers-zos-parent:dev.galasa.zos3270.manager')
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
-    implementation 'commons-io:commons-io:2.16.1'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'commons-io:commons-io'
 }
 
 // Note: These values are consumed by the parent build process

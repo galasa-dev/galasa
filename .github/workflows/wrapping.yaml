@@ -8,10 +8,6 @@ name: Wrapping Main Build
 on:
   workflow_call:
     inputs:
-      changed:
-        description: 'True if this module has been changed and should be rebuilt'
-        required: true
-        type: string
       jacoco_enabled:
         description: 'True if Jacoco code coverage should be enabled (set to "false" for release builds)'
         required: false
@@ -22,29 +18,14 @@ on:
         required: false
         default: 'true'
         type: string
-      platform-artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts for the platform'
-        required: true
-        type: string
 
 env:
   BRANCH: ${{ github.ref_name }}
 
 jobs:
 
-  log-unchanged:
-    name: Wrapping is unchanged
-    if: ${{ inputs.changed == 'false' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Log this module is unchanged
-        run: |
-          echo "The wrapping module is unchanged"
-
   log-github-ref:
     name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
     
     steps:
@@ -54,7 +35,6 @@ jobs:
 
   build-wrapping:
     name: Build Wrapping source code and Docker image for development Maven registry
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -74,16 +54,6 @@ jobs:
         with:
           name: platform
           path: modules/artifacts
-    
-      # If the above failed because the platform hasn't changed in this PR...
-      - name: Download platform from last successful workflow
-        if: ${{ steps.download-platform.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: platform
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.platform-artifact-id }}
 
       # Copy secrets into files to use in workflow
       - name: Make secrets directory
