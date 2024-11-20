@@ -66,109 +66,14 @@
 				<type>pom</type>
           		<scope>import</scope>
 			</dependency>
-
-			<dependency>
-				<groupId>dev.galasa</groupId>
-				<artifactId>dev.galasa.plugin.common</artifactId>
-			</dependency>
-
-			<dependency>
-				<groupId>dev.galasa</groupId>
-				<artifactId>dev.galasa.plugin.common.impl</artifactId>
-			</dependency>
-
-			<dependency>
-				<groupId>dev.galasa</groupId>
-				<artifactId>dev.galasa.plugin.common.test</artifactId>
-				<scope>test</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.maven.plugin-tools</groupId>
-				<artifactId>maven-plugin-annotations</artifactId>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven</groupId>
-				<artifactId>maven-plugin-api</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven.shared</groupId>
-				<artifactId>maven-shared-utils</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven</groupId>
-				<artifactId>maven-artifact</artifactId>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven</groupId>
-				<artifactId>maven-compat</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven.plugin-testing</groupId>
-				<artifactId>maven-plugin-testing-harness</artifactId>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>commons-codec</groupId>
-				<artifactId>commons-codec</artifactId>
-			</dependency>
-
-			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>2.15.1</version> 
-				<!-- Platform has 2.16.1 -->
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>org.apache.felix.bundlerepository</artifactId>
-			</dependency>
-
-			<dependency>
-				<groupId>org.reflections</groupId>
-				<artifactId>reflections</artifactId>
-			</dependency>
-
-			<dependency>
-				<groupId>com.google.code.gson</groupId>
-				<artifactId>gson</artifactId>
-			</dependency>
-
-			<dependency>
-				<groupId>org.assertj</groupId>
-				<artifactId>assertj-core</artifactId>
-				<version>3.25.3</version>
-				<!-- Platform has 3.16.1 -->
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpcore</artifactId>
-				<version>4.4.16</version>
-				<!-- Platform has 4.4.11 -->
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpclient</artifactId>
-			</dependency>
-
 		</dependencies>
 	</dependencyManagement>
-
 
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -181,6 +86,7 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-artifact</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -189,10 +95,12 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugin-testing</groupId>
 			<artifactId>maven-plugin-testing-harness</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
@@ -202,30 +110,29 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.bundlerepository</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
+			<version>3.25.3</version>
+			<!-- Platform has 3.16.1 -->
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
+			<version>4.4.16</version>
+			<!-- Platform has 4.4.11 -->
 		</dependency>
 
 		<dependency>
@@ -246,6 +153,7 @@
 		<dependency>
 			<groupId>dev.galasa</groupId>
 			<artifactId>dev.galasa.plugin.common.test</artifactId>
+			<scope>test</scope>
 		</dependency>
  	</dependencies>
 
@@ -255,22 +163,18 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-plugin-plugin</artifactId>
-					<version>3.15.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
-					<version>1.5</version>
 				</plugin>
 				<plugin>
 					<groupId>com.google.code.maven-replacer-plugin</groupId>
 					<artifactId>maven-replacer-plugin</artifactId>
-					<version>1.4.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
     		        <artifactId>maven-compiler-plugin</artifactId>
-            		<version>3.13.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
