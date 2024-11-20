@@ -48,6 +48,7 @@ import io.kubernetes.client.openapi.models.V1PreferredSchedulingTerm;
 import io.kubernetes.client.openapi.models.V1ResourceRequirements;
 import io.kubernetes.client.openapi.models.V1SecretKeySelector;
 import io.kubernetes.client.openapi.models.V1SecretVolumeSource;
+import io.kubernetes.client.openapi.models.V1Toleration;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.prometheus.client.Counter;
@@ -260,6 +261,12 @@ public class TestPodScheduler implements Runnable {
                 requirement.addValuesItem(selection[1]);
             }
         }
+
+        V1Toleration toleration = new V1Toleration();
+        toleration.setKey("galasa-engines");
+        toleration.setEffect("NoSchedule");
+        toleration.setOperator("Exists");
+        podSpec.addTolerationsItem(toleration);
 
         podSpec.setVolumes(createTestPodVolumes());
         podSpec.addContainersItem(createTestContainer(runName, engineName, isTraceEnabled));
