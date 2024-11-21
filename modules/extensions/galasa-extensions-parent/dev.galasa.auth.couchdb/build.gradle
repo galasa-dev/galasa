@@ -12,7 +12,7 @@ configurations {
 }
 
 dependencies {
-    implementation ('org.apache.httpcomponents:httpclient-osgi:4.5.13')
+    implementation ('dev.galasa:dev.galasa.wrapping.httpclient-osgi:0.38.0')
     implementation ('org.apache.httpcomponents:httpcore-osgi:4.4.14')
     implementation ('com.google.code.gson:gson:2.10.1')
     implementation (project(':dev.galasa.extensions.common'))

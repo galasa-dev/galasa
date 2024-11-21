@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>dev.galasa</groupId>
+        <artifactId>dev.galasa.wrapping.parent</artifactId>
+        <version>0.38.0</version>
+    </parent>
+
+    <artifactId>dev.galasa.wrapping.httpclient-osgi</artifactId>
+    <version>0.38.0</version>
+    <packaging>bundle</packaging>
+
+    <name>Galasa wrapped version of org.apache.httpcomponents:httpclient-osgi</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+
+            <!--
+            This dependency has a dependency on:
+            commons-logging:commons-logging:jar:1.2:compile
+
+            Which has several vulnerabilities. We will add an explicit dependency on
+            a later version.
+            -->
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-cache</artifactId>
+            <version>4.5.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>fluent-hc</artifactId>
+            <version>4.5.14</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <supportedProjectTypes>bundle</supportedProjectTypes>
+                    <instructions>
+                        <Bundle-SymbolicName>dev.galasa.wrapping.httpclient-osgi</Bundle-SymbolicName>
+                        <Embed-Dependency>*;scope=compile</Embed-Dependency>
+                        <Import-Package>
+                            javax.crypto,
+                            javax.crypto.spec,
+                            javax.naming,
+                            javax.naming.directory,
+                            javax.naming.ldap,
+                            javax.net,
+                            javax.net.ssl,
+                            javax.security.auth.x500,
+                            org.apache.commons.logging,
+                            org.apache.http,
+                            org.apache.http.config,
+                            org.apache.http.concurrent,
+                            org.apache.http.entity,
+                            org.apache.http.io,
+                            org.apache.http.message,
+                            org.apache.http.params,
+                            org.apache.http.pool,
+                            org.apache.http.protocol,
+                            org.apache.http.ssl,
+                            org.apache.http.util,
+                            org.apache.http.impl,
+                            org.apache.http.impl.entity,
+                            org.apache.http.impl.io,
+                            org.apache.http.impl.pool
+                        </Import-Package>
+                        <Export-Package>
+                            org.apache.http*
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

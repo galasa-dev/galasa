@@ -38,6 +38,7 @@
 		<module>dev.galasa.wrapping.com.auth0.jwt</module>
 		<module>com.jcraft.jsch</module>
 		<module>dev.galasa.wrapping.gson</module>
+        <module>dev.galasa.wrapping.httpclient-osgi</module>
 		<module>dev.galasa.wrapping.io.grpc.java</module>
 		<module>dev.galasa.wrapping.io.kubernetes.client-java</module>
 		<module>dev.galasa.wrapping.protobuf-java</module>

@@ -70,8 +70,8 @@ external:
 
   - group: commons-logging
     artifact: commons-logging
-    version: 1.2
-    obr: false
+    version: 1.3.4
+    obr: true
     bom: true
     mvp: true
     isolated: true
@@ -97,6 +97,13 @@ external:
     bom: true
     mvp: true
     isolated: true
+
+  - artifact: dev.galasa.wrapping.httpclient-osgi
+    version: 0.38.0
+    obr: true
+    bom: true
+    isolated: true
+    mvp: true
 
   - group: dev.galasa
     artifact: dev.galasa.wrapping.io.grpc.java
@@ -280,14 +287,6 @@ external:
     obr: true
     mvp: true
     isolated: true
-
-  - group: org.apache.httpcomponents
-    artifact: httpclient-osgi
-    version: 4.5.13
-    obr: true
-    bom: true
-    isolated: true
-    mvp: true
 
   - group: org.apache.httpcomponents
     artifact: httpcore-osgi

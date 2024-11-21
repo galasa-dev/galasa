@@ -10,11 +10,11 @@ description = 'Galasa CPS access over http - Provides the CPS stores via the pub
 version = '0.38.0'
 
 dependencies {
-    implementation ('org.apache.httpcomponents:httpclient-osgi:4.5.13')
+    implementation ('dev.galasa:dev.galasa.wrapping.httpclient-osgi:0.38.0')
     implementation ('org.apache.httpcomponents:httpcore-osgi:4.4.14')
     implementation ('com.google.code.gson:gson:2.10.1')
 
-    testFixturesImplementation 'org.apache.httpcomponents:httpclient-osgi:4.5.13'
+    testFixturesImplementation 'dev.galasa:dev.galasa.wrapping.httpclient-osgi:0.38.0'
     testFixturesImplementation 'org.apache.httpcomponents:httpcore-osgi:4.4.14'
     testFixturesImplementation 'dev.galasa:dev.galasa.framework:0.38.0'
     testFixturesImplementation 'javax.validation:validation-api:2.0.1.Final'
