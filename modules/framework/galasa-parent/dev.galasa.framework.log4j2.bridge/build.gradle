@@ -6,7 +6,6 @@ plugins {
 description = 'Galasa log4j2 Bridge'
 
 version = "0.38.0"
-version = "0.38.0"
 
 dependencies {
     implementation platform('dev.galasa:dev.galasa.platform:0.38.0')
