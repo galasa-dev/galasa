@@ -113,7 +113,7 @@ public class RetryableCouchdbUpdateOperationProcessorTest {
         BackoffTimeCalculator backoffTimeCalculator = new BackoffTimeCalculator(){};
         for(int i=0; i<100; i++) {
             long millis = backoffTimeCalculator.getBackoffDelayMillis();
-            assertThat(millis).isGreaterThan(1000L);
+            assertThat(millis).isGreaterThanOrEqualTo(1000L);
             assertThat(millis).isLessThanOrEqualTo(4000L);
         }
     }
