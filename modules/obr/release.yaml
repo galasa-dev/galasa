@@ -68,6 +68,10 @@ external:
     mvp: true
     isolated: true
 
+  # commons-logging is not included in the OBR because it is exported in
+  # the log4j2.bridge bundle and that bundle is directly installed into 
+  # the Felix framework at runtime.
+  # Adding it into the OBR causes run logs to no longer be captured correctly!
   - group: commons-logging
     artifact: commons-logging
     version: 1.3.4
