@@ -102,7 +102,36 @@
                             org.apache.http.impl.pool
                         </Import-Package>
                         <Export-Package>
-                            org.apache.http*
+                            org.apache.http.auth,
+                            org.apache.http.auth.params,
+                            org.apache.http.cookie,
+                            org.apache.http.cookie.params,
+                            org.apache.http.conn,
+                            org.apache.http.conn.params,
+                            org.apache.http.conn.routing,
+                            org.apache.http.conn.scheme,
+                            org.apache.http.conn.socket,
+                            org.apache.http.conn.ssl,
+                            org.apache.http.conn.util,
+                            org.apache.http.client,
+                            org.apache.http.client.cache,
+                            org.apache.http.client.config,
+                            org.apache.http.client.entity,
+                            org.apache.http.client.fluent,
+                            org.apache.http.client.methods,
+                            org.apache.http.client.params,
+                            org.apache.http.client.protocol,
+                            org.apache.http.client.utils,
+                            org.apache.http.entity.mime,
+                            org.apache.http.entity.mime.content,
+                            org.apache.http.impl.auth,
+                            org.apache.http.impl.cookie,
+                            org.apache.http.impl.conn,
+                            org.apache.http.impl.conn.tsccm,
+                            org.apache.http.impl.execchain,
+                            org.apache.http.impl.client,
+                            org.apache.http.impl.client.cache,
+                            org.apache.http.osgi.services
                         </Export-Package>
                     </instructions>
                 </configuration>
