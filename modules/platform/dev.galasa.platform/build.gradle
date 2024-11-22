@@ -90,10 +90,10 @@ dependencies {
         api 'org.apache.felix:org.apache.felix.scr:2.1.14' // If updating, also update in galasa-boot build.gradle.
 
         api 'org.apache.httpcomponents:httpclient:4.5.14'
-        api 'org.apache.httpcomponents:httpclient-osgi:4.5.13'
-        api 'org.apache.httpcomponents:httpcore:4.4.11'
+        api 'org.apache.httpcomponents:httpclient-osgi:4.5.14'
+        api 'org.apache.httpcomponents:httpcore:4.4.16'
         api 'org.apache.httpcomponents:httpcore-osgi:4.4.14'
-        api 'org.apache.httpcomponents:httpmime:4.5.8'
+        api 'org.apache.httpcomponents:httpmime:4.5.14'
 
         api 'org.apache.logging.log4j:log4j-api:2.24.1' // If updating, also update in galasa-boot build.gradle.
         api 'org.apache.logging.log4j:log4j-core:2.24.1' // If updating, also update in galasa-boot build.gradle.

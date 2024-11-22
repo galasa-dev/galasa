@@ -50,17 +50,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.5.14</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient-cache</artifactId>
-            <version>4.5.14</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>fluent-hc</artifactId>
-            <version>4.5.14</version>
         </dependency>
     </dependencies>
 
@@ -114,10 +103,8 @@
                             org.apache.http.conn.ssl,
                             org.apache.http.conn.util,
                             org.apache.http.client,
-                            org.apache.http.client.cache,
                             org.apache.http.client.config,
                             org.apache.http.client.entity,
-                            org.apache.http.client.fluent,
                             org.apache.http.client.methods,
                             org.apache.http.client.params,
                             org.apache.http.client.protocol,
@@ -130,7 +117,6 @@
                             org.apache.http.impl.conn.tsccm,
                             org.apache.http.impl.execchain,
                             org.apache.http.impl.client,
-                            org.apache.http.impl.client.cache,
                             org.apache.http.osgi.services
                         </Export-Package>
                     </instructions>
