@@ -47,9 +47,9 @@ Embed-Transitive: true
 Embed-Dependency: *;scope=compile
 -includeresource: byte-buddy-*.jar; lib:=true,\
     commons-exec-*.jar; lib:=true,\
-    error_prone_annotations-2.5.1.jar; lib:=true,\
+    error_prone_annotations-2.26.1.jar; lib:=true,\
     guava-*.jar; lib:=true,\
-    j2objc-annotations-1.3.jar; lib:=true,\
+    j2objc-annotations-3.0.0.jar; lib:=true,\
     jsr305-3.0.2.jar; lib:=true,\
     okhttp-4.10.0.jar; lib:=true,\
     okio-jvm-*.jar; lib:=true,\
