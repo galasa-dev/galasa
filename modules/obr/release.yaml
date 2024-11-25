@@ -26,16 +26,9 @@ external:
     mvp: true
     isolated: true
 
-  - group: com.sun.activation
-    artifact: jakarta.activation
-    version: 2.0.0
-    obr: true
-    mvp: true
-    isolated: true
-
   - group: com.sun.xml.bind
     artifact: jaxb-osgi
-    version: 3.0.0
+    version: 4.0.5
     obr: true
 
   - group: commons-codec
@@ -196,9 +189,16 @@ external:
     mvp: true
     isolated: true
 
+  - group: jakarta.activation
+    artifact: jakarta.activation-api
+    version: 2.1.3
+    obr: true
+    mvp: true
+    isolated: true
+
   - group: jakarta.xml.bind
     artifact: jakarta.xml.bind-api
-    version: 3.0.0
+    version: 4.0.2
     obr: true
     mvp: true
     isolated: true
