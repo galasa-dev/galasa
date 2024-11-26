@@ -43,7 +43,6 @@
 						<Embed-Dependency>*;scope=compile</Embed-Dependency>
 						<Import-Package>
 						    org.ietf.jgss,
-							org.slf4j,
 							javax.management,
 							javax.net.ssl,
 							javax.security.*
