@@ -310,7 +310,7 @@ external:
 
   - group: org.slf4j
     artifact: slf4j-api
-    version: 1.7.30
+    version: 1.7.36
     obr: true
     mvp: true
     isolated: true
