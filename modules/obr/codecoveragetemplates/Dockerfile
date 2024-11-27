@@ -1,6 +1,6 @@
 ARG dockerRepository
 
-FROM ${dockerRepository}/library/httpd:2.4
+FROM ${dockerRepository}/library/httpd:alpine
 ARG branch
 
 RUN rm -v /usr/local/apache2/htdocs/*
