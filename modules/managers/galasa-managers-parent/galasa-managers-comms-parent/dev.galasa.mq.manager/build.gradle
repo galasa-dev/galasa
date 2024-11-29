@@ -5,7 +5,7 @@ plugins {
 description = 'MQ Manager'
 
 dependencies {
-    api 'javax.jms:javax.jms-api'
+    implementation 'javax.jms:javax.jms-api'
     implementation 'com.ibm.mq:com.ibm.mq.allclient'
 	implementation 'commons-codec:commons-codec'
   
