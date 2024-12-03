@@ -46,7 +46,7 @@ dependencies {
         api 'com.squareup.okhttp3:okhttp:4.9.2'
         api 'com.squareup.okhttp3:logging-interceptor:4.12.0'
 
-        api 'com.squareup.okio:okio-jvm:3.0.0'
+        api 'com.squareup.okio:okio-jvm:3.6.0'
 
         api 'commons-cli:commons-cli:1.4' // If updating, also update in galasa-boot build.gradle.
 
