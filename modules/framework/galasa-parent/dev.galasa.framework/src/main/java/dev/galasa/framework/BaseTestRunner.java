@@ -21,6 +21,7 @@ import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.framework.beans.Property;
 import dev.galasa.framework.internal.runner.ITestRunnerEventsProducer;
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -361,6 +362,20 @@ public class BaseTestRunner {
             throw new TestRunException("Unable to initialise the heartbeat. "+ex.getMessage(), ex);
         }
         return heartbeat;
+    }
+
+    protected boolean getContinueOnTestFailureFromCPS() {
+        boolean continueOnTestFailure = false ;
+        try {
+            IConfigurationPropertyStoreService cps = getCPS();
+            String checkContinue = AbstractManager.nulled(cps.getProperty("continue.on.test", "failure"));
+            if (checkContinue != null) {
+                continueOnTestFailure = Boolean.parseBoolean(checkContinue);
+            }
+        } catch(ConfigurationPropertyStoreException ex) {
+            logger.error("Failed to get the CPS property 'framework.continue.on.test.failure'", ex);
+        }
+        return continueOnTestFailure ;
     }
 }
 

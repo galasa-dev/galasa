@@ -96,6 +96,12 @@ public class MockShutableFramework implements IShuttableFramework {
         return new Properties();
     }
 
+    @Override
+    public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
+            throws ConfigurationPropertyStoreException {
+               throw new UnsupportedOperationException("Unimplemented method 'getConfigurationPropertyService'");
+    }
+
     // ----------------- un-implemented methods follow -------------------
 
     @Override
@@ -106,12 +112,6 @@ public class MockShutableFramework implements IShuttableFramework {
     @Override
     public boolean isInitialised() {
                throw new UnsupportedOperationException("Unimplemented method 'isInitialised'");
-    }
-
-    @Override
-    public @NotNull IConfigurationPropertyStoreService getConfigurationPropertyService(@NotNull String namespace)
-            throws ConfigurationPropertyStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'getConfigurationPropertyService'");
     }
 
     @Override

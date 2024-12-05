@@ -20,8 +20,10 @@ import dev.galasa.framework.internal.runner.MavenRepositoryListBuilder;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IGherkinExecutable;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaTest;
@@ -276,15 +278,19 @@ public class GherkinTestRunner extends BaseTestRunner {
         managers.provisionStop();
     }
 
+
+
     private void runGherkinTest(GherkinTest testObject, ITestRunManagers managers) throws TestRunException {
         if (!isRunOK) {
             return;
         }
 
+        boolean isContinueOnTestFailure = getContinueOnTestFailureFromCPS();
+
         updateStatus(TestRunLifecycleStatus.RUNNING, null);
         try {
             logger.info("Running the test class");
-            testObject.runTestMethods(managers);
+            testObject.runTestMethods(managers,isContinueOnTestFailure);
         } finally {
             updateStatus(TestRunLifecycleStatus.RUNDONE, null);
         }

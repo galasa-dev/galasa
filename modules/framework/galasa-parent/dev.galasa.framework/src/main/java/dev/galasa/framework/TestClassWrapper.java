@@ -81,19 +81,7 @@ public class TestClassWrapper {
         this.testClass = testClass;
         this.testStructure = testStructure;
 
-
-        // Check that we are supposed to continue on test failure
-        IConfigurationPropertyStoreService cps = this.testRunner.getCPS();
-        String checkContinue = AbstractManager.nulled(cps.getProperty("continue.on.test", "failure"));
-        if (checkContinue != null) {
-            this.continueOnTestFailure = Boolean.parseBoolean(checkContinue);
-        } else {
-            if (this.testClass.isAnnotationPresent(ContinueOnTestFailure.class)) {
-                this.continueOnTestFailure = true;
-            } else {
-                this.continueOnTestFailure = false;
-            }
-        }
+        this.continueOnTestFailure = this.testRunner.getContinueOnTestFailureFromCPS();
     }
 
     /**
