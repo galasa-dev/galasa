@@ -10,5 +10,6 @@ public class ViewRow {
     public String id;
     public String key;
     public Object value;
+    public Object doc;
 
 }

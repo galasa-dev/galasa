@@ -27,6 +27,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -147,11 +148,41 @@ public abstract class CouchdbStore {
      * @throws CouchdbException if there was a problem accessing the CouchDB store
      *                          or its response
      */
-    protected <T> T getDocumentFromDatabase(String dbName, String documentId, Class<T> classOfObject)
+    public <T> T getDocumentFromDatabase(String dbName, String documentId, Class<T> classOfObject)
             throws CouchdbException {
         HttpGet getDocumentRequest = httpRequestFactory.getHttpGetRequest(storeUri + "/" + dbName + "/" + documentId);
 
         return gson.fromJson(sendHttpRequest(getDocumentRequest, HttpStatus.SC_OK), classOfObject);
+    }
+
+    public ViewResponse getDocumentsFromDatabaseViewByKey(String dbName, String viewName, String queryKey, boolean includeDocs)
+            throws CouchdbException {
+        ViewResponse viewResponse = null;
+        String viewRequestUriStr = storeUri + "/" + dbName + "/_design/docs/_view/" + viewName;
+        try {
+            URIBuilder uriBuilder = new URIBuilder(viewRequestUriStr);
+
+            // CouchDB requires the value for the "key" parameter to be quoted
+            uriBuilder.addParameter("key", '"' + queryKey + '"');
+
+            if (includeDocs) {
+                uriBuilder.addParameter("include_docs", "true");
+            }
+
+            HttpGet getRunsRequest = httpRequestFactory.getHttpGetRequest(uriBuilder.build().toString());
+
+            String responseEntity = sendHttpRequest(getRunsRequest, HttpStatus.SC_OK);
+            viewResponse = gson.fromJson(responseEntity, ViewResponse.class);
+
+            if (viewResponse.rows == null) {
+                String errorMessage = ERROR_FAILED_TO_GET_VIEW_DOCUMENTS_FROM_DATABASE.getMessage(viewName, dbName);
+                throw new CouchdbException(errorMessage);
+            }
+        } catch (URISyntaxException e) {
+            String errorMessage = ERROR_URI_IS_INVALID.getMessage(viewRequestUriStr);
+            throw new CouchdbException(errorMessage, e);
+        }
+        return viewResponse;
     }
 
     protected void retrieveArtifactFromDatabase(String URI, Path cachePath, CopyOption copyOption)
@@ -181,17 +212,36 @@ public abstract class CouchdbStore {
      * @throws CouchdbException if there was a problem accessing the CouchDB store
      *                          or its response
      */
-    protected void deleteDocumentFromDatabase(String dbName, String documentId) throws CouchdbException {
+    public void deleteDocumentFromDatabase(String dbName, String documentId) throws CouchdbException {
         IdRev documentIdRev = getDocumentFromDatabase(dbName, documentId, IdRev.class);
 
         if (documentIdRev == null || documentIdRev._rev == null) {
             String errorMessage = ERROR_FAILED_TO_GET_DOCUMENT_FROM_DATABASE.getMessage(documentId, dbName);
             throw new CouchdbException(errorMessage);
         }
+        deleteDocumentFromDatabase(dbName, documentId, documentIdRev._rev);
+    }
 
-        String deleteRequestUrl = storeUri + "/" + dbName + "/" + documentId + "?rev=" + documentIdRev._rev;
-        HttpDelete deleteDocumentRequest = httpRequestFactory.getHttpDeleteRequest(deleteRequestUrl);
-        sendHttpRequest(deleteDocumentRequest, HttpStatus.SC_OK, HttpStatus.SC_ACCEPTED);
+    /**
+     * Deletes a document from a given database using its document ID by sending a
+     * DELETE /{db}/{docid} request to the CouchDB server.
+     *
+     * @param dbName     the name of the database to delete the document from
+     * @param documentId the CouchDB ID for the document to delete
+     * @throws CouchdbException if there was a problem accessing the CouchDB store
+     *                          or its response
+     */
+    public void deleteDocumentFromDatabase(String dbName, String documentId, String documentRevision) throws CouchdbException {
+        String deleteRequestUrl = storeUri + "/" + dbName + "/" + documentId;
+        try {
+            URIBuilder builder = new URIBuilder(deleteRequestUrl);
+            builder.addParameter("rev", documentRevision);
+            HttpDelete deleteDocumentRequest = httpRequestFactory.getHttpDeleteRequest(builder.toString());
+            sendHttpRequest(deleteDocumentRequest, HttpStatus.SC_OK, HttpStatus.SC_ACCEPTED);
+        } catch (URISyntaxException e) {
+            String errorMessage = ERROR_URI_IS_INVALID.getMessage(deleteRequestUrl);
+            throw new CouchdbException(errorMessage, e);
+        }
     }
 
     /**

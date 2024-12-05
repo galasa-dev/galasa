@@ -22,6 +22,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
@@ -222,14 +223,23 @@ public class CouchdbTestFixtures {
 
         IRun mockIRun = new MockIRun(runName1);
 
-        return createCouchdbRasStore(mockCps, mockIRun, allInteractions, logFactory);
+        return createCouchdbRasStore(mockCps, mockIRun, logFactory, new MockCloseableHttpClient(allInteractions));
     }
 
     public CouchdbRasStore createCouchdbRasStore(List<HttpInteraction> allInteractions, MockLogFactory logFactory) throws Exception {
-        return createCouchdbRasStore(null, null, allInteractions, logFactory);
+        return createCouchdbRasStore(null, null, logFactory, new MockCloseableHttpClient(allInteractions));
     }
 
-    public CouchdbRasStore createCouchdbRasStore(MockConfigurationPropertyStoreService mockCps, IRun mockRun, List<HttpInteraction> allInteractions , MockLogFactory logFactory ) throws Exception {
+    public CouchdbRasStore createCouchdbRasStore(MockLogFactory logFactory, CloseableHttpClient httpClient) throws Exception {
+        return createCouchdbRasStore(null, null, logFactory, httpClient);
+    }
+
+    public CouchdbRasStore createCouchdbRasStore(
+        MockConfigurationPropertyStoreService mockCps,
+        IRun mockRun,
+        MockLogFactory logFactory,
+        CloseableHttpClient httpClient
+    ) throws Exception {
         IFramework mockFramework = new MockFramework() {
             @Override
             public IRun getTestRun() {
@@ -243,11 +253,9 @@ public class CouchdbTestFixtures {
             } 
         };
 
-        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(allInteractions);
-
         MockCouchdbValidator mockValidator = new MockCouchdbValidator();
 
-        MockHttpClientFactory mockHttpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockHttpClientFactory mockHttpClientFactory = new MockHttpClientFactory(httpClient);
 
         HttpRequestFactory requestFactory = new HttpRequestFactoryImpl("Basic", "myrastoken");
 

@@ -8,6 +8,8 @@ package dev.galasa.ras.couchdb.internal;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +24,12 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import dev.galasa.extensions.common.couchdb.pojos.IdRev;
+import dev.galasa.extensions.common.couchdb.pojos.ViewResponse;
+import dev.galasa.extensions.common.couchdb.pojos.ViewRow;
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
 import dev.galasa.extensions.common.mocks.BaseHttpInteraction;
 import dev.galasa.extensions.common.mocks.HttpInteraction;
+import dev.galasa.extensions.common.mocks.MockAsyncCloseableHttpClient;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -83,11 +88,11 @@ public class CouchdbDirectoryServiceTest {
         }
     }
 
-    class GetRunByIdFromCouchdbInteraction extends BaseHttpInteraction {
+    class GetRunsByNameFromCouchdbViewInteraction extends BaseHttpInteraction {
 
-        public GetRunByIdFromCouchdbInteraction(String expectedUri, int statusCode, TestStructureCouchdb runTestStructure) {
+        public GetRunsByNameFromCouchdbViewInteraction(String expectedUri, int statusCode, ViewResponse viewResponse) {
             super(expectedUri, statusCode);
-            setResponsePayload(runTestStructure);
+            setResponsePayload(viewResponse);
         }
 
         @Override
@@ -124,9 +129,9 @@ public class CouchdbDirectoryServiceTest {
         }
     }
 
-    private TestStructureCouchdb createRunTestStructure(String runName) {
+    private TestStructureCouchdb createRunTestStructure(String runId, String runName) {
         TestStructureCouchdb mockTestStructure = new TestStructureCouchdb();
-        mockTestStructure._id = runName;
+        mockTestStructure._id = runId;
         mockTestStructure._rev = "this-is-a-revision";
         mockTestStructure.setRunName(runName);
         mockTestStructure.setArtifactRecordIds(new ArrayList<>());
@@ -143,8 +148,8 @@ public class CouchdbDirectoryServiceTest {
     @Test
     public void testGetRunsByQueuedFromOnePageReturnsRunsOk() throws Exception {
         // Given...
-        TestStructureCouchdb mockRun1 = createRunTestStructure("run1");
-        TestStructureCouchdb mockRun2 = createRunTestStructure("run2");
+        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", "run1");
+        TestStructureCouchdb mockRun2 = createRunTestStructure("run2-id", "run2");
 
         Instant queuedFromTime = Instant.EPOCH;
         RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(queuedFromTime);
@@ -178,9 +183,9 @@ public class CouchdbDirectoryServiceTest {
     @Test
     public void testGetRunsMultiplePagesReturnsRunsOk() throws Exception {
         // Given...
-        TestStructureCouchdb mockRun1 = createRunTestStructure("run1");
-        TestStructureCouchdb mockRun2 = createRunTestStructure("run2");
-        TestStructureCouchdb mockRun3 = createRunTestStructure("run3");
+        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", "run1");
+        TestStructureCouchdb mockRun2 = createRunTestStructure("run2-id", "run2");
+        TestStructureCouchdb mockRun3 = createRunTestStructure("run3-id", "run3");
 
         Instant queuedFromTime = Instant.EPOCH;
         RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(queuedFromTime);
@@ -221,10 +226,10 @@ public class CouchdbDirectoryServiceTest {
     public void testGetRunsWithInvalidRunIgnoresRunOk() throws Exception {
         // Given...
         String runName1 = "run1";
-        TestStructureCouchdb mockRun1 = createRunTestStructure(runName1);
+        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", runName1);
 
         // No run name is set, so this is not a valid run
-        TestStructureCouchdb invalidRun = createRunTestStructure(null);
+        TestStructureCouchdb invalidRun = createRunTestStructure("invalid-run", null);
 
         FoundRuns findRunsResponse = new FoundRuns();
         findRunsResponse.docs = List.of(mockRun1, invalidRun);
@@ -306,8 +311,8 @@ public class CouchdbDirectoryServiceTest {
     @Test
     public void testGetRunsMultipleCriteriaReturnsRunsOk() throws Exception {
         // Given...
-        TestStructureCouchdb mockRun1 = createRunTestStructure("run1");
-        TestStructureCouchdb mockRun2 = createRunTestStructure("run2");
+        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", "run1");
+        TestStructureCouchdb mockRun2 = createRunTestStructure("run2-id", "run2");
 
         Instant queuedFromTime = Instant.MAX;
         Instant queuedToTime = Instant.MAX;
@@ -382,8 +387,8 @@ public class CouchdbDirectoryServiceTest {
     @Test
     public void testGetRunsPageByQueuedFromReturnsRunsOk() throws Exception {
         // Given...
-        TestStructureCouchdb mockRun1 = createRunTestStructure("run1");
-        TestStructureCouchdb mockRun2 = createRunTestStructure("run2");
+        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", "run1");
+        TestStructureCouchdb mockRun2 = createRunTestStructure("run2-id", "run2");
 
         Instant queuedFromTime = Instant.EPOCH;
         RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(queuedFromTime);
@@ -421,8 +426,8 @@ public class CouchdbDirectoryServiceTest {
     @Test
     public void testGetRunsPageByQueuedFromWithSortReturnsRunsOk() throws Exception {
         // Given...
-        TestStructureCouchdb mockRun1 = createRunTestStructure("run1");
-        TestStructureCouchdb mockRun2 = createRunTestStructure("run2");
+        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", "run1");
+        TestStructureCouchdb mockRun2 = createRunTestStructure("run2-id", "run2");
 
         Instant queuedFromTime = Instant.EPOCH;
         RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(queuedFromTime);
@@ -471,8 +476,8 @@ public class CouchdbDirectoryServiceTest {
     @Test
     public void testGetRunsPageByQueuedFromWithSortAndPageTokenReturnsRunsOk() throws Exception {
         // Given...
-        TestStructureCouchdb mockRun1 = createRunTestStructure("run1");
-        TestStructureCouchdb mockRun2 = createRunTestStructure("run2");
+        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", "run1");
+        TestStructureCouchdb mockRun2 = createRunTestStructure("run2-id", "run2");
 
         Instant queuedFromTime = Instant.EPOCH;
         RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(queuedFromTime);
@@ -525,7 +530,7 @@ public class CouchdbDirectoryServiceTest {
     @Test
     public void testGetRunsPageWithNilBookmarkReturnsPageWithNoNextCursor() throws Exception {
         // Given...
-        TestStructureCouchdb mockRun1 = createRunTestStructure("run1");
+        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", "run1");
 
         Instant queuedFromTime = Instant.EPOCH;
         RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(queuedFromTime);
@@ -562,7 +567,7 @@ public class CouchdbDirectoryServiceTest {
     public void testDiscardRunDeletesRunOk() throws Exception {
         // Given...
         String runId = "ABC123";
-        TestStructureCouchdb mockRun1 = createRunTestStructure(runId);
+        TestStructureCouchdb mockRun1 = createRunTestStructure(runId, "run1");
 
         IdRev mockIdRev = new IdRev();
         String revision = "this-is-a-revision";
@@ -602,7 +607,8 @@ public class CouchdbDirectoryServiceTest {
         );
 
         MockLogFactory mockLogFactory = new MockLogFactory();
-        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        MockAsyncCloseableHttpClient httpClient = new MockAsyncCloseableHttpClient(interactions);
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(mockLogFactory, httpClient);
         CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
 
         // When...
@@ -616,7 +622,7 @@ public class CouchdbDirectoryServiceTest {
     public void testDiscardRunWithNoArtifactsDeletesRunOk() throws Exception {
         // Given...
         String runId = "ABC123";
-        TestStructureCouchdb mockRun1 = createRunTestStructure(runId);
+        TestStructureCouchdb mockRun1 = createRunTestStructure(runId, "run1");
 
         IdRev mockIdRev = new IdRev();
         String revision = "this-is-a-revision";
@@ -644,7 +650,8 @@ public class CouchdbDirectoryServiceTest {
         );
 
         MockLogFactory mockLogFactory = new MockLogFactory();
-        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        MockAsyncCloseableHttpClient httpClient = new MockAsyncCloseableHttpClient(interactions);
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(mockLogFactory, httpClient);
         CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
 
         // When...
@@ -658,7 +665,7 @@ public class CouchdbDirectoryServiceTest {
     public void testDiscardRunWithNoArtifactsAndLogsDeletesRunOk() throws Exception {
         // Given...
         String runId = "ABC123";
-        TestStructureCouchdb mockRun1 = createRunTestStructure(runId);
+        TestStructureCouchdb mockRun1 = createRunTestStructure(runId, "run1");
 
         String baseUri = "http://my.uri";
         String runDbUri = baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + runId;
@@ -682,7 +689,7 @@ public class CouchdbDirectoryServiceTest {
     public void testDiscardRunWithCouchdbServerErrorThrowsCorrectError() throws Exception {
         // Given...
         String runId = "ABC123";
-        TestStructureCouchdb mockRun1 = createRunTestStructure(runId);
+        TestStructureCouchdb mockRun1 = createRunTestStructure(runId, "run1");
 
         String baseUri = "http://my.uri";
         String runDbUri = baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + runId;
@@ -692,7 +699,8 @@ public class CouchdbDirectoryServiceTest {
         );
 
         MockLogFactory mockLogFactory = new MockLogFactory();
-        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        MockAsyncCloseableHttpClient httpClient = new MockAsyncCloseableHttpClient(interactions);
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(mockLogFactory, httpClient);
         CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
 
         // When...
@@ -703,6 +711,133 @@ public class CouchdbDirectoryServiceTest {
         // Then...
         // The assertions in the interactions should not have failed
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("Unable to delete run", runId);
+        assertThat(thrown.getMessage()).contains("Failed to discard run", runId);
+        assertThat(thrown.getCause().getMessage()).contains(
+            "GAL6007E",
+            "Internal server error",
+            "Unexpected response received from CouchDB server",
+            runId
+        );
+    }
+
+    @Test
+    public void testGetRunsByRunNameReturnsRunOk() throws Exception {
+        // Given...
+        String run1Id = "run1-id";
+        String run1Name = "ABC123";
+        String urlEncodedRun1Name = URLEncoder.encode('"' + run1Name + '"', StandardCharsets.UTF_8);
+        TestStructureCouchdb mockRun1 = createRunTestStructure(run1Id, run1Name);
+
+        ViewResponse mockViewResponse = new ViewResponse();
+        ViewRow run1Row = new ViewRow();
+        run1Row.id = run1Id;
+        run1Row.key = run1Name;
+        run1Row.doc = mockRun1;
+
+        List<ViewRow> mockRows = new ArrayList<>();
+        mockRows.add(run1Row);
+        mockViewResponse.rows = mockRows;
+
+        String baseUri = "http://my.uri";
+        String runNameViewUri = baseUri + "/" + CouchdbRasStore.RUNS_DB + "/_design/docs/_view/" + CouchdbRasStore.RUN_NAMES_VIEW_NAME;
+
+        List<HttpInteraction> interactions = List.of(
+            // Get the run document
+            new GetRunsByNameFromCouchdbViewInteraction(runNameViewUri + "?key=" + urlEncodedRun1Name + "&include_docs=true", HttpStatus.SC_OK, mockViewResponse)
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        MockAsyncCloseableHttpClient httpClient = new MockAsyncCloseableHttpClient(interactions);
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(mockLogFactory, httpClient);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        List<IRunResult> runs = directoryService.getRunsByRunName(run1Name);
+
+        // Then...
+        // The assertions in the interactions should not have failed
+        assertThat(runs).hasSize(1);
+
+        IRunResult run = runs.get(0);
+        assertThat(run.getRunId()).isEqualTo("cdb-" + run1Id);
+        assertThat((TestStructureCouchdb)run.getTestStructure()).usingRecursiveComparison().isEqualTo(mockRun1);
+    }
+
+    @Test
+    public void testGetRunsByRunNameWithNoDocumentIncludedReturnsNoRunsOk() throws Exception {
+        // Given...
+        String run1Id = "run1-id";
+        String run1Name = "ABC123";
+        String urlEncodedRun1Name = URLEncoder.encode('"' + run1Name + '"', StandardCharsets.UTF_8);
+
+        ViewResponse mockViewResponse = new ViewResponse();
+        ViewRow run1Row = new ViewRow();
+        run1Row.id = run1Id;
+        run1Row.key = run1Name;
+        
+        // Simulate a scenario where no document is included in the response
+        run1Row.doc = null;
+
+        List<ViewRow> mockRows = new ArrayList<>();
+        mockRows.add(run1Row);
+        mockViewResponse.rows = mockRows;
+
+        String baseUri = "http://my.uri";
+        String runNameViewUri = baseUri + "/" + CouchdbRasStore.RUNS_DB + "/_design/docs/_view/" + CouchdbRasStore.RUN_NAMES_VIEW_NAME;
+
+        List<HttpInteraction> interactions = List.of(
+            // Get the run document
+            new GetRunsByNameFromCouchdbViewInteraction(runNameViewUri + "?key=" + urlEncodedRun1Name + "&include_docs=true", HttpStatus.SC_OK, mockViewResponse)
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        MockAsyncCloseableHttpClient httpClient = new MockAsyncCloseableHttpClient(interactions);
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(mockLogFactory, httpClient);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        List<IRunResult> runs = directoryService.getRunsByRunName(run1Name);
+
+        // Then...
+        // The assertions in the interactions should not have failed
+        assertThat(runs).isEmpty();
+    }
+
+    @Test
+    public void testGetRunsByRunNameWithBadlyFormattedJsonResponseThrowsCorrectError() throws Exception {
+        // Given...
+        String run1Name = "ABC123";
+        String urlEncodedRun1Name = URLEncoder.encode('"' + run1Name + '"', StandardCharsets.UTF_8);
+
+        ViewResponse mockViewResponse = new ViewResponse();
+        mockViewResponse.rows = null;
+
+        String baseUri = "http://my.uri";
+        String runNameViewUri = baseUri + "/" + CouchdbRasStore.RUNS_DB + "/_design/docs/_view/" + CouchdbRasStore.RUN_NAMES_VIEW_NAME;
+
+        List<HttpInteraction> interactions = List.of(
+            // Get the run document
+            new GetRunsByNameFromCouchdbViewInteraction(runNameViewUri + "?key=" + urlEncodedRun1Name + "&include_docs=true", HttpStatus.SC_OK, mockViewResponse)
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        MockAsyncCloseableHttpClient httpClient = new MockAsyncCloseableHttpClient(interactions);
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(mockLogFactory, httpClient);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        ResultArchiveStoreException thrown = catchThrowableOfType(() -> {
+            directoryService.getRunsByRunName(run1Name);
+        }, ResultArchiveStoreException.class);
+
+        // Then...
+        // The assertions in the interactions should not have failed
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains(
+            "GAL6013E",
+            CouchdbRasStore.RUN_NAMES_VIEW_NAME,
+            CouchdbRasStore.RUNS_DB,
+            "Invalid JSON response returned from CouchDB"
+        );
     }
 }

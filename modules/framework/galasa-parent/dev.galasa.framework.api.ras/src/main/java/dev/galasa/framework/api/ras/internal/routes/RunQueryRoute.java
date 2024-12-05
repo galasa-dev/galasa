@@ -105,7 +105,12 @@ public class RunQueryRoute extends RunsRoute {
             } else {
                 List<IRasSearchCriteria> criteria = getCriteria(queryParams);
                 if (includeCursor || pageCursor != null) {
-                    runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), criteria);
+                    String runName = queryParams.getRunName();
+                    if (runName != null) {
+                        runsPage = new RasRunResultPage(getRunsByRunName(runName));
+                    } else {
+                        runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), criteria);
+                    }
                 } else {
                     runs = getRuns(criteria);
                 }
@@ -322,6 +327,16 @@ public class RunQueryRoute extends RunsRoute {
 		}
 
 		return new RasRunResultPage(runs, nextCursor);
+	}
+
+	private List<IRunResult> getRunsByRunName(String runName) throws ResultArchiveStoreException {
+        
+		List<IRunResult> runs = new ArrayList<>();
+		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
+            List<IRunResult> matchingRuns = directoryService.getRunsByRunName(runName);
+			runs.addAll(matchingRuns);
+		}
+		return runs;
 	}
 
     private List<RasRunResult> convertRunsToRunResults(List<IRunResult> runs) throws ResultArchiveStoreException {

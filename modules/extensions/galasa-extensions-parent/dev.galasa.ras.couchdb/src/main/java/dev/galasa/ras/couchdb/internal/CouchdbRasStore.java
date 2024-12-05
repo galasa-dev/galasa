@@ -56,6 +56,12 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
     public static final String RUNS_DB              = "galasa_run";
     public static final String LOG_DB               = "galasa_log";
 
+    public static final String REQUESTORS_VIEW_NAME       = "requestors-view";
+    public static final String RESULT_VIEW_NAME           = "result-view";
+    public static final String TEST_NAMES_VIEW_NAME       = "testnames-view";
+    public static final String BUNDLE_TESTNAMES_VIEW_NAME = "bundle-testnames-view";
+    public static final String RUN_NAMES_VIEW_NAME        = "runnames-view";
+
     private final Log                          logger            ;
 
     private final IFramework                   framework;                                         // NOSONAR
