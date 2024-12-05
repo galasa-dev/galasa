@@ -27,6 +27,7 @@ public enum Errors {
     ERROR_INVALID_COUCHDB_VERSION_FORMAT                             (6010,"GAL6010E: Invalid CouchDB server version format detected. The CouchDB version ''{0}'' must be in the semantic versioning format (e.g. major.minor.patch). Expected version ''{1}'' or above. Report the problem to your Galasa Ecosystem owner."),
     ERROR_FAILED_TO_GET_DOCUMENT_FROM_DATABASE                       (6011,"GAL6011E: Internal server error. Failed to get document with ID ''{0}'' from the ''{1}'' database. Invalid JSON response returned from CouchDB. CouchDB could be experiencing temporary issues or is not correctly configured. Report the problem to your Galasa Ecosystem owner."),
     ERROR_UNEXPECTED_RESPONSE_FROM_CREATE_DOCUMENT                   (6012,"GAL6012E: Internal server error. Unable to store the artifacts document - the JSON response received does not match the expected format."),
+    ERROR_FAILED_TO_GET_VIEW_DOCUMENTS_FROM_DATABASE                 (6013,"GAL6013E: Internal server error. Failed to get documents from the ''{0}'' view in the ''{1}'' database. Invalid JSON response returned from CouchDB. CouchDB could be experiencing temporary issues or is not correctly configured. Report the problem to your Galasa Ecosystem owner."),
 
     // CouchDB Auth Store errors
     ERROR_GALASA_AUTH_STORE_SHUTDOWN_FAILED                          (6100,"GAL6100E: Failed to shut down Galasa CouchDB auth store. Cause: {0}"),

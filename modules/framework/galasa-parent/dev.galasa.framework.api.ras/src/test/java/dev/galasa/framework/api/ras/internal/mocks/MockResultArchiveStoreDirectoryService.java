@@ -19,23 +19,23 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class MockResultArchiveStoreDirectoryService implements IResultArchiveStoreDirectoryService {
 
-    private List<IRunResult> getRunsResults ;
+    private List<IRunResult> runResults;
     private String nextCursor;
 
-    public MockResultArchiveStoreDirectoryService(List<IRunResult> getRunsResults) {
-        this.getRunsResults = getRunsResults ;
+    public MockResultArchiveStoreDirectoryService(List<IRunResult> runsResults) {
+        this.runResults = runsResults;
     }
 
 	private void applySearchCriteria( IRasSearchCriteria searchCriteria) throws ResultArchiveStoreException{
 		List<IRunResult> returnRuns = new ArrayList<IRunResult>() ;
-		for (IRunResult run : this.getRunsResults){
+		for (IRunResult run : this.runResults){
 			Boolean compareInstant = searchCriteria.criteriaMatched(run.getTestStructure());
 			if (compareInstant){
 				returnRuns.add(run);
 			}
 		}
 		
-		this.getRunsResults = returnRuns;
+		this.runResults = returnRuns;
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 		for(IRasSearchCriteria searchCriteria : searchCriterias) {
 			applySearchCriteria(searchCriteria);
 		}
-		return this.getRunsResults;
+		return this.runResults;
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 	@Override
 	public @NotNull List<String> getRequestors() throws ResultArchiveStoreException {
 		List<String> requestors = new ArrayList<>();
-		for (IRunResult run : this.getRunsResults){
+		for (IRunResult run : this.runResults){
 			requestors.add(run.getTestStructure().getRequestor().toString());
 		}
 		return requestors;
@@ -64,7 +64,7 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 	public @NotNull List<RasTestClass> getTests() throws ResultArchiveStoreException {
 		HashMap<String,RasTestClass> tests = new HashMap<>();
         String key;
-        for (IRunResult run : this.getRunsResults){
+        for (IRunResult run : this.runResults){
 			TestStructure testStructure = run.getTestStructure();
 			key = testStructure.getBundle()+"/"+testStructure.getTestName();
 			if (key.equals("ForceException/ForceException")){
@@ -80,7 +80,7 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 	@Override
 	public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
 		List<String> resultNames = new ArrayList<>();
-		for (IRunResult run : this.getRunsResults){
+		for (IRunResult run : this.runResults){
 				String result  = run.getTestStructure().getResult().toString();
 				if (result.equals("ForceException")){
 					throw new ResultArchiveStoreException("ForceException result found in run");
@@ -94,7 +94,7 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 	@Override
 	public IRunResult getRunById(@NotNull String runId) throws ResultArchiveStoreException {
 		IRunResult resultToReturn = null;
-		List <IRunResult> runResults = this.getRunsResults;
+		List <IRunResult> runResults = this.runResults;
 		if (runResults != null) {
 
 			if (runResults.isEmpty()) {
@@ -131,4 +131,15 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 	public boolean isLocal() {
 		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
 	}
+
+    @Override
+    public List<IRunResult> getRunsByRunName(@NotNull String runName) throws ResultArchiveStoreException {
+        List<IRunResult> matchingRuns = new ArrayList<>();
+        for (IRunResult run : runResults) {
+            if (run.getTestStructure().getRunName().equals(runName)) {
+                matchingRuns.add(run);
+            }
+        }
+        return matchingRuns;
+    }
 }

@@ -49,5 +49,7 @@ public interface IResultArchiveStoreDirectoryService {
     List<String> getResultNames() throws ResultArchiveStoreException;
     
     IRunResult getRunById(@NotNull String runId) throws ResultArchiveStoreException;
+
+    List<IRunResult> getRunsByRunName(@NotNull String runName) throws ResultArchiveStoreException;
     
 }
