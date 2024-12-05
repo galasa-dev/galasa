@@ -5,24 +5,26 @@
  */
 package dev.galasa.framework;
 
-import static org.assertj.core.api.Assertions.*;
+// import static org.assertj.core.api.Assertions.*;
 
-import java.lang.annotation.Annotation;
-import java.util.*;
-import java.nio.file.Path;
+// import java.lang.annotation.Annotation;
+// import java.util.*;
+// import java.nio.file.Path;
 
-import javax.validation.constraints.NotNull;
+// import javax.validation.constraints.NotNull;
 
-import org.apache.felix.bundlerepository.Repository;
-import org.apache.felix.bundlerepository.Resolver;
-import org.apache.felix.bundlerepository.Resource;
+// import org.apache.felix.bundlerepository.Repository;
+// import org.apache.felix.bundlerepository.Resolver;
+// import org.apache.felix.bundlerepository.Resource;
 import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.InvalidSyntaxException;
-import dev.galasa.framework.maven.repository.spi.IMavenRepository;
-import dev.galasa.framework.mocks.*;
-import dev.galasa.framework.spi.*;
-import dev.galasa.framework.spi.teststructure.TestStructure;
+// import org.osgi.framework.Bundle;
+// import org.osgi.framework.InvalidSyntaxException;
+
+// import dev.galasa.framework.internal.runner.ITestRunnerEventsProducer;
+// import dev.galasa.framework.maven.repository.spi.IMavenRepository;
+// import dev.galasa.framework.mocks.*;
+// import dev.galasa.framework.spi.*;
+// import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class TestGherkinTestRunner {
     
@@ -31,6 +33,7 @@ public class TestGherkinTestRunner {
         new GherkinTestRunner();
     }
 
+    // This is a guiding test. It's not running just yet, but it's a start down that path.
     // @Test
     // public void TestCanGetThroughGoldenPathOK() throws Exception {
 
@@ -49,16 +52,11 @@ public class TestGherkinTestRunner {
     //     MockFileSystem mockFileSystem = new MockFileSystem();
 
     //     StringBuffer featureText = new StringBuffer();
-    //     featureText.append("Feature: FruitLogger");
-    //     featureText.append("\n");
-    //     featureText.append(" Scenario: Log the cost of fruit-0");
-    //     featureText.append("\n");
-    //     featureText.append("  THEN Write to log \"An apple costs 1\"");
-    //     featureText.append("\n");
-    //     featureText.append("Scenario: Log the cost of fruit-1");
-    //     featureText.append("\n");
-    //     featureText.append("  THEN Write to log \"An melon costs 2\"");
-    //     featureText.append("\n");
+    //     featureText.append("Feature: FruitLogger\n");
+    //     featureText.append(" Scenario: Log the cost of fruit-0\n");
+    //     featureText.append("  THEN Write to log \"An apple costs 1\"\n");
+    //     featureText.append("Scenario: Log the cost of fruit-1\n");
+    //     featureText.append("  THEN Write to log \"An melon costs 2\"\n");
     //     Path gherkinTestFilePath = mockFileSystem.getPath(GHERKIN_TEST_FILE_PATH);
     //     mockFileSystem.createFile(gherkinTestFilePath);
     //     mockFileSystem.setFileContents(gherkinTestFilePath, featureText.toString() );
@@ -95,8 +93,6 @@ public class TestGherkinTestRunner {
 
     //     MockShutableFramework framework = new MockShutableFramework(ras,dss,TEST_RUN_NAME, run, frameworkRuns );
     //     IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
-
-
 
     //     IMavenRepository mockMavenRepo = new MockMavenRepository();
 
@@ -166,6 +162,8 @@ public class TestGherkinTestRunner {
         
     //     MockTestRunManagers mockTestRunManagers = new MockTestRunManagers(IGNORE_TEST_CLASS_FALSE, testResult );
         
+    //     ITestRunnerEventsProducer mockEventPublisher = new MockTestRunnerEventsProducer();
+
     //     MockTestRunnerDataProvider testRunData = new MockTestRunnerDataProvider(
     //         cps,
     //         dss,
@@ -176,7 +174,8 @@ public class TestGherkinTestRunner {
     //         mockAnnotationExtractor,
     //         mockBundleManager,
     //         mockTestRunManagers,
-    //         mockFileSystem
+    //         mockFileSystem,
+    //         mockEventPublisher
     //     );
 
     //     // When...

@@ -123,7 +123,7 @@ public class GherkinTest {
         this.result = result;
     }
 
-    public void runTestMethods(ITestRunManagers managers) throws TestRunException {
+    public void runTestMethods(ITestRunManagers managers, boolean isContinueOnTestFailure ) throws TestRunException {
         String report = this.testStructure.gherkinReport(LOG_START_LINE);
         logger.trace("Test Class structure:-" + report);
 
@@ -143,7 +143,14 @@ public class GherkinTest {
                 method.invoke(managers, this.feature.getVariables().getVariablesOriginal());
             }
             
-            if(method.fullStop()) {
+            boolean isExecutionHalting = method.fullStop();
+            if (isContinueOnTestFailure) {
+                if (isExecutionHalting) {
+                    logger.info("Test method has failed, but the CPS property 'framework.continue.on.test.failure' has been set, so we carry on going...");
+                    isExecutionHalting = false ;
+                }
+            }
+            if( isExecutionHalting ) {
                 break;
             }
         }
@@ -181,7 +188,6 @@ public class GherkinTest {
         String postReport = this.testStructure.gherkinReport(LOG_START_LINE);
         logger.trace("Finishing Test Class structure:-" + postReport);
     }
-
 
     private List<String> getGherkinFeatureTextLines(IRun run, IFileLineReader fileReader) throws TestRunException {
 
