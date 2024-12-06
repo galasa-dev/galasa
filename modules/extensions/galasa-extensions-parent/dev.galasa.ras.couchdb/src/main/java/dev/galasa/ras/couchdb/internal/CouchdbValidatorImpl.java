@@ -5,6 +5,8 @@
  */
 package dev.galasa.ras.couchdb.internal;
 
+import static dev.galasa.ras.couchdb.internal.CouchdbRasStore.*;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -38,6 +40,13 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.spi.utils.ITimeService;
 
 public class CouchdbValidatorImpl implements CouchdbValidator {
+
+    private static final String REQUESTORS_VIEW_FUNCTION       = "function (doc) { emit(doc.requestor, 1); }";
+    private static final String RESULT_VIEW_FUNCTION           = "function (doc) { emit(doc.result, 1); }";
+    private static final String TEST_NAMES_VIEW_FUNCTION       = "function (doc) { emit(doc.testName, 1); }";
+    private static final String BUNDLE_TESTNAMES_VIEW_FUNCTION = "function (doc) { emit(doc.bundle + '/' + doc.testName, 1); }";
+    private static final String RUN_NAMES_VIEW_FUNCTION        = "function (doc) { emit(doc.runName, 1); }";
+    private static final String COUNT_REDUCE                   = "_count";
     
     private final GalasaGson                         gson               = new GalasaGson();
     private final Log                          logger             = LogFactory.getLog(getClass());
@@ -148,7 +157,7 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
     }
 
     private void checkRunDesignDocument( CloseableHttpClient httpClient , URI rasUri , int attempts, ITimeService timeService) throws CouchdbException {
-        HttpGet httpGet = requestFactory.getHttpGetRequest(rasUri + "/galasa_run/_design/docs");
+        HttpGet httpGet = requestFactory.getHttpGetRequest(rasUri + "/" + RUNS_DB + "/_design/docs");
 
         String docJson = null;
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
@@ -184,47 +193,23 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
             doc.add("views", views);
         }
 
-        JsonObject requestors = views.getAsJsonObject("requestors-view");
-        if (requestors == null) {
-            updated = true;
-            requestors = new JsonObject();
-            views.add("requestors-view", requestors);
-        }
-
-        if (checkView(requestors, "function (doc) { emit(doc.requestor, 1); }", "_count")) {
-            updated = true;
-        }
-        
-        JsonObject result = views.getAsJsonObject("result-view");
-        if (result == null) {
-            updated = true;
-            result = new JsonObject();
-            views.add("result-view", result);
-        }
-
-        if (checkView(result, "function (doc) { emit(doc.result, 1); }", "_count")) {
+        if (checkForViewUpdates(views, REQUESTORS_VIEW_NAME, REQUESTORS_VIEW_FUNCTION, COUNT_REDUCE)) {
             updated = true;
         }
 
-        JsonObject testnames = views.getAsJsonObject("testnames-view");
-        if (testnames == null) {
-            updated = true;
-            testnames = new JsonObject();
-            views.add("testnames-view", testnames);
-        }
-
-        if (checkView(testnames, "function (doc) { emit(doc.testName, 1); }", "_count")) {
+        if (checkForViewUpdates(views, RESULT_VIEW_NAME, RESULT_VIEW_FUNCTION, COUNT_REDUCE)) {
             updated = true;
         }
 
-        JsonObject bundleTestnames = views.getAsJsonObject("bundle-testnames-view");
-        if (bundleTestnames == null) {
+        if (checkForViewUpdates(views, TEST_NAMES_VIEW_NAME, TEST_NAMES_VIEW_FUNCTION, COUNT_REDUCE)) {
             updated = true;
-            bundleTestnames = new JsonObject();
-            views.add("bundle-testnames-view", testnames);
         }
 
-        if (checkView(bundleTestnames, "function (doc) { emit(doc.bundle + '/' + doc.testName, 1); }", "_count")) {
+        if (checkForViewUpdates(views, BUNDLE_TESTNAMES_VIEW_NAME, BUNDLE_TESTNAMES_VIEW_FUNCTION, COUNT_REDUCE)) {
+            updated = true;
+        }
+
+        if (checkForViewUpdates(views, RUN_NAMES_VIEW_NAME, RUN_NAMES_VIEW_FUNCTION)) {
             updated = true;
         }
 
@@ -233,7 +218,7 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
 
             HttpEntity entity = new StringEntity(gson.toJson(doc), ContentType.APPLICATION_JSON);
 
-            HttpPut httpPut = requestFactory.getHttpPutRequest(rasUri + "/galasa_run/_design/docs");
+            HttpPut httpPut = requestFactory.getHttpPutRequest(rasUri + "/" + RUNS_DB +"/_design/docs");
             httpPut.setEntity(entity);
 
             if (rev != null) {
@@ -270,6 +255,26 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
         }
     }
 
+    private boolean checkForViewUpdates(JsonObject views, String viewName, String viewFunction) {
+        return checkForViewUpdates(views, viewName, viewFunction, null);
+    }
+
+    private boolean checkForViewUpdates(JsonObject views, String viewName, String viewFunction, String targetReduce) {
+        boolean updated = false;
+        JsonObject view = views.getAsJsonObject(viewName);
+        if (view == null) {
+            updated = true;
+            view = new JsonObject();
+            views.add(viewName, view);
+        }
+        
+        if (checkView(view, viewFunction, targetReduce)) {
+            updated = true;
+        }
+
+        return updated;
+    }
+
     private boolean checkView(JsonObject view, String targetMap, String targetReduce) {
 
         boolean updated = false;
@@ -288,24 +293,29 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
     }
 
     private boolean checkViewString(JsonObject view, String field, String value) {
-
+        boolean isUpdated = false;
         JsonElement element = view.get(field);
-        if (element == null) {
-            view.addProperty(field, value);
-            return true;
+
+        // Remove the existing field if no value is given
+        if (element != null && value == null) {
+            view.remove(field);
+            isUpdated = true;
+
+        } else if (value != null) {
+            if (element == null || !element.isJsonPrimitive() || !((JsonPrimitive) element).isString()) {
+                view.addProperty(field, value);
+                isUpdated = true;
+
+            } else {
+                String actualValue = element.getAsString();
+                if (!value.equals(actualValue)) {
+                    view.addProperty(field, value);
+                    isUpdated = true;
+                }
+            }
         }
 
-        if (!element.isJsonPrimitive() || !((JsonPrimitive) element).isString()) {
-            view.addProperty(field, value);
-            return true;
-        }
-
-        String actualValue = element.getAsString();
-        if (!value.equals(actualValue)) {
-            view.addProperty(field, value);
-            return true;
-        }
-        return false;
+        return isUpdated;
     }
 
     private void checkVersion(String version, CouchDbVersion minVersion)

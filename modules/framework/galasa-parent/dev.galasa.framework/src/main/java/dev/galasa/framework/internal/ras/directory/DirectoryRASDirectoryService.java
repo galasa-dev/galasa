@@ -70,10 +70,24 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
         return runs;
     }
 
+
+    @Override
+    public List<IRunResult> getRunsByRunName(@NotNull String runName) throws ResultArchiveStoreException {
+        List<DirectoryRASRunResult> allRuns = getAllRuns();
+
+        List<IRunResult> matchingRuns = new ArrayList<>();
+        for (DirectoryRASRunResult run : allRuns) {
+            if (runName.equals(run.getTestStructure().getRunName())) {
+                matchingRuns.add(run);
+            }
+        }
+        return matchingRuns;
+    }
+
     @Override
     public @NotNull RasRunResultPage getRunsPage(int maxResults, RasSortField primarySort, String pageToken, @NotNull IRasSearchCriteria... searchCriteria)
             throws ResultArchiveStoreException {
-        return new RasRunResultPage(getRuns(searchCriteria), null);
+        return new RasRunResultPage(getRuns(searchCriteria));
     }
 
     @Override

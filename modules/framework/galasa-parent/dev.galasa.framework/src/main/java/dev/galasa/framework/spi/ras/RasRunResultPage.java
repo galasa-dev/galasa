@@ -24,6 +24,10 @@ public class RasRunResultPage {
         this.nextCursor = nextCursor;
     }
 
+    public RasRunResultPage(List<IRunResult> runs) {
+        this(runs, null);
+    }
+
     public List<IRunResult> getRuns() {
         return runs;
     }
