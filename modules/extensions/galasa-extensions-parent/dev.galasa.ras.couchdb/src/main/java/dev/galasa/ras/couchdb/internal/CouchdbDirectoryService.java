@@ -6,6 +6,7 @@
 package dev.galasa.ras.couchdb.internal;
 
 import static dev.galasa.extensions.common.Errors.*;
+import static dev.galasa.ras.couchdb.internal.CouchdbRasStore.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -152,7 +153,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
 
         ArrayList<IRunResult> runs = new ArrayList<>();
 
-        HttpGet httpGet = requestFactory.getHttpGetRequest(store.getCouchdbUri() + "/" + CouchdbRasStore.RUNS_DB + "/_all_docs");
+        HttpGet httpGet = requestFactory.getHttpGetRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/_all_docs");
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
             StatusLine statusLine = response.getStatusLine();
@@ -190,7 +191,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
 
     private CouchdbRunResult fetchRun(String id) throws ParseException, IOException, ResultArchiveStoreException {
         CouchdbRunResult runResult = null;
-        HttpGet httpGet = requestFactory.getHttpGetRequest(store.getCouchdbUri() + "/" + CouchdbRasStore.RUNS_DB + "/" + id);
+        HttpGet httpGet = requestFactory.getHttpGetRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/" + id);
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
             StatusLine statusLine = response.getStatusLine();
@@ -212,7 +213,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         ArrayList<String> requestors = new ArrayList<>();
 
         HttpGet httpGet = requestFactory.getHttpGetRequest(
-                store.getCouchdbUri() + "/" + CouchdbRasStore.RUNS_DB + "/_design/docs/_view/requestors-view?group=true");
+                store.getCouchdbUri() + "/" + RUNS_DB + "/_design/docs/_view/" + REQUESTORS_VIEW_NAME + "?group=true");
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
             StatusLine statusLine = response.getStatusLine();
@@ -244,7 +245,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         ArrayList<String> results = new ArrayList<>();
 
         HttpGet httpGet = requestFactory.getHttpGetRequest(
-                store.getCouchdbUri() + "/" + CouchdbRasStore.RUNS_DB + "/_design/docs/_view/result-view?group=true");
+                store.getCouchdbUri() + "/" + RUNS_DB + "/_design/docs/_view/" + RESULT_VIEW_NAME + "?group=true");
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
             StatusLine statusLine = response.getStatusLine();
@@ -281,7 +282,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         ArrayList<RasTestClass> tests = new ArrayList<>();
 
         HttpGet httpGet = requestFactory.getHttpGetRequest(
-                store.getCouchdbUri() + "/" + CouchdbRasStore.RUNS_DB + "/_design/docs/_view/bundle-testnames-view?group=true");
+                store.getCouchdbUri() + "/" + RUNS_DB + "/_design/docs/_view/" + BUNDLE_TESTNAMES_VIEW_NAME + "?group=true");
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
             StatusLine statusLine = response.getStatusLine();
@@ -329,15 +330,16 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
     public List<IRunResult> getRunsByRunName(@NotNull String runName) throws ResultArchiveStoreException {
         List<IRunResult> runs = new ArrayList<>();
         try {
+            boolean includeDocuments = true;
             ViewResponse viewResponse = store.getDocumentsFromDatabaseViewByKey(
-                CouchdbRasStore.RUNS_DB,
-                CouchdbRasStore.RUN_NAMES_VIEW_NAME,
+                RUNS_DB,
+                RUN_NAMES_VIEW_NAME,
                 runName,
-                true
+                includeDocuments
             );
 
             if (viewResponse.rows == null) {
-                String errorMessage = ERROR_FAILED_TO_GET_VIEW_DOCUMENTS_FROM_DATABASE.getMessage(CouchdbRasStore.RUN_NAMES_VIEW_NAME, CouchdbRasStore.RUNS_DB);
+                String errorMessage = ERROR_FAILED_TO_GET_VIEW_DOCUMENTS_FROM_DATABASE.getMessage(RUN_NAMES_VIEW_NAME, RUNS_DB);
                 throw new ResultArchiveStoreException(errorMessage);
             }
 
@@ -359,7 +361,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
     public @NotNull RasRunResultPage getRunsPage(int maxResults, RasSortField primarySort, String pageToken, @NotNull IRasSearchCriteria... searchCriterias)
             throws ResultArchiveStoreException {
 
-        HttpPost httpPost = requestFactory.getHttpPostRequest(store.getCouchdbUri() + "/" + CouchdbRasStore.RUNS_DB + "/_find");
+        HttpPost httpPost = requestFactory.getHttpPostRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/_find");
 
         Find find = new Find();
         find.selector = buildGetRunsQuery(searchCriterias);
@@ -441,7 +443,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
 
         ArrayList<IRunResult> runs = new ArrayList<>();
 
-        HttpPost httpPost = requestFactory.getHttpPostRequest(store.getCouchdbUri() + "/" + CouchdbRasStore.RUNS_DB + "/_find");
+        HttpPost httpPost = requestFactory.getHttpPostRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/_find");
 
         Find find = new Find();
         find.selector = buildGetRunsQuery(searchCriterias);
@@ -468,9 +470,9 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
     public void discardRun(@NotNull TestStructureCouchdb runTestStructure) throws ResultArchiveStoreException {
         try {
             // Build a list of discard operation futures
-            List<CompletableFuture<Void>> futures = discardRecords(CouchdbRasStore.LOG_DB, runTestStructure.getLogRecordIds());
-            futures.addAll(discardRecords(CouchdbRasStore.ARTIFACTS_DB, runTestStructure.getArtifactRecordIds()));
-            futures.add(discardRecord(CouchdbRasStore.RUNS_DB, runTestStructure._id, runTestStructure._rev));
+            List<CompletableFuture<Void>> futures = discardRecords(LOG_DB, runTestStructure.getLogRecordIds());
+            futures.addAll(discardRecords(ARTIFACTS_DB, runTestStructure.getArtifactRecordIds()));
+            futures.add(discardRecord(RUNS_DB, runTestStructure._id, runTestStructure._rev));
 
             // Wait for all the discard operations to finish
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
