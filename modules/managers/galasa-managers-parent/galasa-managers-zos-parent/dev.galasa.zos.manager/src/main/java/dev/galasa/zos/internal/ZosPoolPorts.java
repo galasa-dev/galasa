@@ -5,6 +5,7 @@
  */
 package dev.galasa.zos.internal;
 
+import java.security.SecureRandom;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -12,7 +13,7 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DssDelete;
-import dev.galasa.framework.spi.DssUpdate;
+import dev.galasa.framework.spi.DssAdd;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreMatchException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -35,7 +36,7 @@ public class ZosPoolPorts {
 		this.rps = rps;
 	}
 	
-	public String allocatePort(String image) throws ZosManagerException, ConfigurationPropertyStoreException {
+	public String allocatePort(String image) throws ZosManagerException, ConfigurationPropertyStoreException, InterruptedException {
 		
 		// Get the pool of ports for this image
 		List<String> resourceStrings = PoolPorts.get(image);
@@ -57,13 +58,17 @@ public class ZosPoolPorts {
 			
 			// Allocate the port in the DSS
 			this.dss.performActions(
-					new DssUpdate("zosport." + image + "." + thePort, this.manager.getFramework().getTestRunName()),
-					new DssUpdate("run." + this.manager.getFramework().getTestRunName() + ".zosport." + image + "." + thePort, "active"));
+					new DssAdd("zosport." + image + "." + thePort, this.manager.getFramework().getTestRunName()),
+					new DssAdd("run." + this.manager.getFramework().getTestRunName() + ".zosport." + image + "." + thePort, "active"));
 
 			logger.trace("Allocated z/OS port " + thePort + " on image " + image + " from z/OS port pool allocation");
 				
 		} catch (DynamicStatusStoreException exception) {
-			throw new ZosManagerException("Could not update the DSS for port allocation of z/OS port " + thePort + " on image " + image);
+			logger.info("Allocation of port failed due to collision. z/OS port " + thePort + " on image " + image);
+
+			//*** collision on the port, retry
+			Thread.sleep(200 + new SecureRandom().nextInt(200)); // *** To avoid race conditions
+			return allocatePort(image);
 		}
 		return thePort;
 	}
