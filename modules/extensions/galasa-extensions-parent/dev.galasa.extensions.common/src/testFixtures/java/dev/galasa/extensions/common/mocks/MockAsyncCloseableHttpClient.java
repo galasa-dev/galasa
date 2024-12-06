@@ -69,7 +69,6 @@ public class MockAsyncCloseableHttpClient extends CloseableHttpClient {
             String msg = "Mock http client was sent an HTTP request which wasn't expected or ran out of expected http interactions.\n"+
                 "request: "+request.toString();
             fail(msg);
-            throw new ClientProtocolException(msg);
         }
 
         return response;
