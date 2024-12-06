@@ -104,6 +104,9 @@ public class RunQueryRoute extends RunsRoute {
                 runs = getRunsByIds(runIds);
             } else {
                 List<IRasSearchCriteria> criteria = getCriteria(queryParams);
+
+                // Story https://github.com/galasa-dev/projectmanagement/issues/1978 will replace the old
+                // page-based pagination with the new cursor-based pagination
                 if (includeCursor || pageCursor != null) {
                     String runName = queryParams.getRunName();
                     if (runName != null) {
