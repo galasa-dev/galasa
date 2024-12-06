@@ -44,6 +44,19 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
+    public void TestPathRegexExpectedPathWithAtSymbolReturnsTrue(){
+        //Given...
+        String expectedPath = AddPropertyInNamespaceRoute.path;
+        String inputPath = "/namespace/name/property/GalasaDelivery@ibm.com";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
+    @Test
     public void TestPathRegexExpectedPathWithTrailingSlashReturnsTrue(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
@@ -277,6 +290,46 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
 		// Given...
         String namespace = "framework";
         String propertyName = "property.6";
+        String value = "value6";
+        String json = "{\"name\":\""+propertyName+"\", \"value\":\""+value+"\"}";
+        MockIConfigurationPropertyStoreService store = new MockIConfigurationPropertyStoreService(namespace){
+            @Override
+            public @Null String getProperty(@NotNull String prefix, @NotNull String suffix, String... infixes)
+            throws ConfigurationPropertyStoreException {
+            for (Map.Entry<String,String> property : properties.entrySet()){
+                String key = property.getKey();
+                String match = prefix+"."+suffix;
+                if (key.contains(match)){
+                    return property.getValue();
+                }
+            }
+            return null;
+            }
+        };
+		setServlet("/namespace/framework/property/"+propertyName, namespace, json, "PUT", store);
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+				
+		// When...
+		servlet.init();
+		servlet.doPut(req,resp);
+
+		// Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(200);
+        assertThat(resp.getContentType()).isEqualTo("application/json");
+        assertThat(output).isEqualTo("{\n  \"name\": \""+propertyName+"\",\n  \"value\": \""+value+"\"\n}");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();      
+    }
+
+    @Test
+	public void TestGetPropertyWithAtSymbolPUTRequestReturnsOK() throws Exception{
+		// Given...
+        String namespace = "framework";
+        String propertyName = "Galasadelivery@ibm.com";
         String value = "value6";
         String json = "{\"name\":\""+propertyName+"\", \"value\":\""+value+"\"}";
         MockIConfigurationPropertyStoreService store = new MockIConfigurationPropertyStoreService(namespace){

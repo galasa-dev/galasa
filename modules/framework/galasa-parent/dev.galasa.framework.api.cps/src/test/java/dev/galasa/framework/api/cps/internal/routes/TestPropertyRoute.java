@@ -1266,6 +1266,34 @@ public class TestPropertyRoute extends CpsServletTest{
     }
 
 	@Test
+    public void TestPropertyRouteNamespaceWithAtSymbolPOSTNewPropertyReturnsSuccess() throws Exception {
+        // Given...
+		String namespace = "framework";
+        String propertyName = "Galasadelivery@ibm.com";
+        String value = "value";
+		String propertyJSON = generatePropertyJSON(namespace, propertyName, value, "galasa-dev/v1alpha1");
+		JsonElement requestJson = JsonParser.parseString(propertyJSON);
+		String requestBody = requestJson.toString();
+		setServlet("/framework/properties", namespace, requestBody , "POST");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+        ServletOutputStream outStream = resp.getOutputStream();	
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        Integer status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(status).isEqualTo(201);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+        assertThat(output).isEqualTo("Successfully created property Galasadelivery@ibm.com in framework");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isTrue();       
+    }
+
+	@Test
     public void TestPropertyRouteNamespaceWithNewNamespacePOSTNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "newnamespace";

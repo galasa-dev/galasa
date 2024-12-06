@@ -428,7 +428,7 @@ paths:
         in: query
         description: |
           Property Prefix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) , '_' (underscore) or '@' (at)
         required: false
         schema:
           type: string
@@ -436,7 +436,7 @@ paths:
         in: query
         description: |
           Property suffix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
-          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) , '_' (underscore) or '@' (at)
         required: false
         schema:
           type: string
@@ -444,7 +444,7 @@ paths:
         in: query
         description: |
           Comma-separated list of Property infixes. The first character of each infix must be in the 'a'-'z' or 'A'-'Z' ranges,
-          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) , '_' (underscore) or '@' (at)
         required: false
         schema:
           type: string

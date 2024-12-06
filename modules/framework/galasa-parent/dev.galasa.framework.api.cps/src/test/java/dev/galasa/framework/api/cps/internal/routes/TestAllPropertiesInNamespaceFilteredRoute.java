@@ -53,6 +53,19 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
         assertThat(matches).isTrue();
     }
 
+	@Test
+    public void TestPathRegexExpectedPathWithAtSymbolReturnsTrue(){
+        //Given...
+        String expectedPath = AllPropertiesInNamesapceFilteredRoute.path;
+        String inputPath = "/namespace/name/prefix/Galasadelivery@ibm.com/suffix/erty/";
+
+        //When...
+        boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+        //Then...
+        assertThat(matches).isTrue();
+    }
+
     @Test
     public void TestPathRegexNoSuffixInPathReturnsFalse(){
         //Given...

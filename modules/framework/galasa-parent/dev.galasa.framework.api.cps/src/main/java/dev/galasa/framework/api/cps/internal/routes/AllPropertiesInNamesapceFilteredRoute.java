@@ -29,7 +29,7 @@ import dev.galasa.framework.spi.IFramework;
 
 public class AllPropertiesInNamesapceFilteredRoute extends CPSRoute {
 
-    protected static final String path = "\\/namespace\\/([a-z][a-z0-9]+)\\/prefix\\/([a-zA-Z0-9\\.\\-\\_]+)\\/suffix\\/([a-zA-Z0-9\\.\\-\\_]+)\\/?";
+    protected static final String path = "\\/namespace\\/([a-z][a-z0-9]+)\\/prefix\\/([a-zA-Z0-9\\.\\-\\_@]+)\\/suffix\\/([a-zA-Z0-9\\.\\-\\_@]+)\\/?";
     
     private String suffix;
     private String prefix;

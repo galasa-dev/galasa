@@ -26,7 +26,7 @@ public class ResourceNameValidator {
     static final String namespaceValidFollowingCharacters = namespaceValidFirstCharacters + digits ;
 
     static final String propertyValidFirstCharacters = lowercaseLetters + capitalLetters ;
-    static final String propertySeparators = ".-_";
+    static final String propertySeparators = ".-_@";
     static final String propertyValidFollowingCharacters = propertyValidFirstCharacters
             + digits + propertySeparators ;
 

@@ -30,7 +30,7 @@ import dev.galasa.framework.spi.IFramework;
  */
 public class PropertyUpdateRoute extends CPSRoute {
 
-    protected static final String path = "\\/([a-z][a-z0-9]+)/properties/([a-zA-Z][a-zA-Z0-9\\.\\-\\_]+)" ;
+    protected static final String path = "\\/([a-z][a-z0-9]+)/properties/([a-zA-Z][a-zA-Z0-9\\.\\-\\_@]+)" ;
 
     public PropertyUpdateRoute(ResponseBuilder responseBuilder, IFramework framework ) {
 		/* Regex to match endpoints: 

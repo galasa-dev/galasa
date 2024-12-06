@@ -32,7 +32,7 @@ import dev.galasa.framework.spi.IFramework;
 
 public class AddPropertyInNamespaceRoute extends CPSRoute {
 
-    protected static final String path = "\\/namespace\\/([a-z][a-z0-9]+)\\/property\\/([a-zA-Z0-9\\.\\-\\_]+)/?";
+    protected static final String path = "\\/namespace\\/([a-z][a-z0-9]+)\\/property\\/([a-zA-Z0-9\\.\\-\\_@]+)/?";
     
     private String propertyName;
     private String namespaceName;

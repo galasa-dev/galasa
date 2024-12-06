@@ -233,6 +233,28 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
+    public void TestProcessDataArrayCorrectJSONWithAtSymbolInPropertyReturnsOK() throws Exception{
+        //Given...
+        String username = "myuser";
+        String namespace = "framework";
+        String propertyname = "Galasadelivery@ibm.com";
+        String value = "value";
+        setServlet(namespace);
+        MockResourcesServlet servlet = getServlet();
+        CPSFacade cps = new CPSFacade(servlet.getFramework());
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, null);
+        JsonArray propertyJson = generatePropertyArrayJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
+
+        //When...
+        resourcesRoute.processDataArray(propertyJson, APPLY, username);
+        List<String> errors = resourcesRoute.errors;
+
+        //Then...
+        assertThat(errors.size()).isEqualTo(0);
+        checkPropertyInNamespace(namespace,propertyname,value);
+    }
+
+    @Test
     public void TestProcessDataArrayThreeBadJsonReturnsErrors() throws Exception{
         //Given...
         String username = "myuser";

@@ -89,6 +89,19 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		//Then...
 		assertThat(matches).isTrue();
 	}
+
+	@Test
+	public void TestPathRegexAtSymbolPathReturnsTrue(){
+		//Given...
+		String expectedPath = PropertyUpdateRoute.path;
+		String inputPath = "/namespace/properties/Galasadelivery@ibm.com";
+
+		//When...
+		boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+		//Then...
+		assertThat(matches).isTrue();
+	}
 	
 	@Test
 	public void TestPathRegexExpectedPathWithoutPropertyNameReturnsFalse(){
@@ -830,6 +843,31 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
         assertThat(output).isEqualTo("Successfully deleted property property.1 in framework");
+        assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isFalse(); 
+    }
+
+	@Test
+    public void TestPropertyRouteDELETEPropertyWithAtSymbolReturnsOk() throws Exception{
+        // Given...
+		String namespace = "framework";
+        String propertyName = "Galasadelivery@ibm.com";
+        String value = "value1";
+		setServlet("/framework/properties/"+propertyName, namespace, null, "DELETE");
+		MockCpsServlet servlet = getServlet();
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+        
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+        
+		// Then...
+		// We expect an error back, because the API server couldn't find any Etcd store to RouteInteger status = resp.getStatus();
+        String output = outStream.toString();
+        assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+        assertThat(output).isEqualTo("Successfully deleted property " + propertyName + " in framework");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isFalse(); 
     }
 
