@@ -1,0 +1,21 @@
+-snapshot ${tstamp}
+Bundle-Name: dev.galasa.extensions.common.couchdb
+Bundle-Description: Provides common CouchDB classes that can be used by different extensions.
+Bundle-License: https://www.eclipse.org/legal/epl-2.0
+Export-Package: dev.galasa.extensions.common.couchdb.*
+Import-Package: \
+    dev.galasa,\
+    dev.galasa.extensions.common,\
+    dev.galasa.extensions.common.api,\
+    dev.galasa.extensions.common.impl,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.utils,\
+    javax.net.ssl,\
+    javax.security.cert,\
+    org.apache.commons.logging,\
+    org.apache.http,\
+    org.apache.http.client.methods,\
+    org.apache.http.client.utils,\
+    org.apache.http.impl.client,\
+    org.apache.http.entity,\
+    org.apache.http.util

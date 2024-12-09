@@ -1,23 +1,26 @@
 plugins {
     id 'biz.aQute.bnd.builder'
     id 'galasa.extensions'
+
+    id 'java-test-fixtures'
 }
 
-description = 'Galasa Authentication - CouchDB'
-
-configurations {
-    implementation.transitive = false
-}
+description = 'Common Galasa CouchDB extensions code'
 
 dependencies {
     implementation ('dev.galasa:dev.galasa.wrapping.httpclient-osgi')
     implementation ('org.apache.httpcomponents:httpcore-osgi')
     implementation ('com.google.code.gson:gson')
     implementation (project(':dev.galasa.extensions.common'))
-    implementation (project(':dev.galasa.extensions.common.couchdb'))
 
     testImplementation(testFixtures(project(':dev.galasa.extensions.common')))
-    testImplementation(testFixtures(project(':dev.galasa.extensions.common.couchdb')))
+
+    testFixturesImplementation platform('dev.galasa:dev.galasa.platform:0.39.0')
+    testFixturesImplementation(testFixtures(project(':dev.galasa.extensions.common')))
+
+    testFixturesImplementation 'dev.galasa:dev.galasa.wrapping.httpclient-osgi'
+    testFixturesImplementation 'org.apache.httpcomponents:httpcore-osgi'
+    testFixturesImplementation 'dev.galasa:dev.galasa.framework'
 }
 
 // Note: These values are consumed by the parent build process

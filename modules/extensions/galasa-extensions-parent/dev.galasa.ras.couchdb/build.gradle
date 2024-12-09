@@ -16,8 +16,10 @@ dependencies {
     implementation ('org.apache.httpcomponents:httpcore-osgi')
     implementation ('com.google.code.gson:gson')
     implementation (project(':dev.galasa.extensions.common'))
+    implementation (project(':dev.galasa.extensions.common.couchdb'))
 
     testImplementation(testFixtures(project(':dev.galasa.extensions.common')))
+    testImplementation(testFixtures(project(':dev.galasa.extensions.common.couchdb')))
 }
 
 // Note: These values are consumed by the parent build process

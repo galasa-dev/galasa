@@ -67,6 +67,15 @@ framework:
     isolated:     true
     codecoverage: true
 
+  - artifact: dev.galasa.extensions.common.couchdb
+    version: 0.39.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
   - artifact: dev.galasa.ras.couchdb
     version: 0.39.0
     obr:          true
