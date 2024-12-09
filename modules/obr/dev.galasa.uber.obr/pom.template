@@ -56,7 +56,7 @@
 			<dependency>
 				<groupId>dev.galasa</groupId>
 				<artifactId>dev.galasa.platform</artifactId>
-				<version>0.39.0</version>
+				<version>{{.Release}}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -78,7 +78,7 @@
 			<plugin>
 				<groupId>dev.galasa</groupId>
 				<artifactId>galasa-maven-plugin</artifactId>
-				<version>0.39.0</version>
+				<version>{{.Release}}</version>
 				<extensions>true</extensions>
 				<executions>
 					<execution>
