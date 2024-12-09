@@ -655,7 +655,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
         run: |
-          gh workflow run build-helm.yaml --repo https://github.com/galasa-dev/automation --ref ${{ env.BRANCH }}
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/helm --ref ${{ env.BRANCH }}
 
       - name: Triggering integratedtests build (github.ref is main)
         if: ${{ env.BRANCH == 'main' }}
