@@ -19,6 +19,7 @@ import dev.galasa.framework.spi.DynamicStatusStoreMatchException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IResourcePoolingService;
 import dev.galasa.framework.spi.InsufficientResourcesAvailableException;
+import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.zos.ZosManagerException;
 import dev.galasa.zos.internal.properties.PoolPorts;
 
@@ -35,8 +36,17 @@ public class ZosPoolPorts {
 		this.dss = dss;
 		this.rps = rps;
 	}
+
+	public String allocatePort(String image) throws ZosManagerException, ConfigurationPropertyStoreException, InterruptedException, ResourceUnavailableException {
+		return allocatePort(image, 1);
+	}
 	
-	public String allocatePort(String image) throws ZosManagerException, ConfigurationPropertyStoreException, InterruptedException {
+	public String allocatePort(String image, int retryCount) throws ZosManagerException, ConfigurationPropertyStoreException, InterruptedException, ResourceUnavailableException {
+
+		if (retryCount > 10) {
+            // tried too many times
+            throw new ResourceUnavailableException("Failed to allocate a zos port after several attempts.");
+        }
 		
 		// Get the pool of ports for this image
 		List<String> resourceStrings = PoolPorts.get(image);
@@ -68,7 +78,7 @@ public class ZosPoolPorts {
 
 			//*** collision on the port, retry
 			Thread.sleep(200 + new SecureRandom().nextInt(200)); // *** To avoid race conditions
-			return allocatePort(image);
+			return allocatePort(image, retryCount++);
 		}
 		return thePort;
 	}
