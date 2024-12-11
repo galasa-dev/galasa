@@ -240,7 +240,44 @@ jobs:
       - name: Wait for OBR application health in ArgoCD
         run: |
           docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.BRANCH }}-maven-repos --resource apps:Deployment:obr-${{ env.BRANCH }} --health --server argocd.galasa.dev
-    
+
+  # For the release process build an image containing
+  # the OBR artifacts and a galasabld executable used
+  # to deploy artifacts to the Sonatype staging repo.
+  build-obr-galasabld-image:
+    name: Build Docker image with OBR artifacts and galasabld executable
+    # Skip for forks.
+    if: ${{ github.repository_owner == 'galasa-dev' }}
+    needs: build-obr
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download galasabld executables
+        id: download-galasabld
+        uses: actions/download-artifact@v4
+        with:
+          name: galasabld
+          path: modules/artifacts/galasabld
+
+      - name: Extract metadata for OBR artifacts and galasabld executable image
+        id: metadata-obr-galasabld
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/obr-with-galasabld-executable
+
+      - name: Build image with OBR artifacts and galasabld executable
+        id: build-obr-galasabld
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/artifacts/galasabld
+          file: modules/obr/dockerfiles/dockerfile.obrgalasabld
+          push: true
+          tags: ${{ steps.metadata-obr-galasabld.outputs.tags }}
+          labels: ${{ steps.metadata-obr-galasabld.outputs.labels }}
+          build-args: |
+            dockerRepository=${{ env.REGISTRY }}
+            tag=${{ env.BRANCH }}
+            platform=linux-amd64
 
   build-obr-javadocs:
     name: Build OBR javadocs using galasabld image and maven

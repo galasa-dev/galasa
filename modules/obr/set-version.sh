@@ -98,13 +98,17 @@ fi
 #-------------------------------------------------------------------------------
 function update_release_yaml {
 
-    h1 "Updating the release.yaml so the OBR version gets set."
-
     source_file=$1
     target_file=$2
     temp_dir=$3
-    regex="$4"
+    match_regex="$4" # The regex we are looking for, beyond which we expect a version line.
     indent="$5"
+
+    h1 "Updating the release.yaml so the OBR version gets set. For regex $match_regex"
+
+
+
+    version_regex="^.*version[:].*$"
 
     # Read through the release yaml and set the version of the framework bundle explicitly.
     # It's on the line after the line containing 'release:'
@@ -112,16 +116,25 @@ function update_release_yaml {
     is_line_supressed=false
     while IFS= read -r line
     do
-        
-        if [[ "$line" =~ $regex ]]; then
+        if [[ "$line" =~ $match_regex ]]; then
             # We found the marker, so the next line needs supressing.
             echo "$line"
             is_line_supressed=true
         else
             if [[ $is_line_supressed == true ]]; then
-                # Don't echo this line, but we only want to supress one line.
-                is_line_supressed=false
-                echo "${indent}version: $component_version"
+
+                if [[ "$line" =~ $version_regex ]]; then
+                    # This line contains a "version" property, and it follows a section header we want to target.
+                    # So supress this line.
+                    # Don't echo this line, but we only want to supress one line.
+                    is_line_supressed=false
+                    echo "${indent}version: $component_version"
+                else 
+                    # This line follows something we are trying to target.
+                    # But the line does not contain a 'version'.
+                    is_line_supressed=false
+                    echo "$line"
+                fi
             else
                 # Nothing special about this line, so echo it.
                 echo "$line"
@@ -129,6 +142,7 @@ function update_release_yaml {
         fi
 
     done < $source_file > $target_file
+    rc=$?; if [[ "${rc}" != "0" ]]; then error "Failed to set version into file."; exit 1; fi
 
     # Copy the temp files back to where they belong...
     cp $temp_dir/release.yaml ${BASEDIR}/release.yaml
@@ -156,13 +170,13 @@ function update_dependency_versions {
     success "Dependency versions updated OK."
 }
 
+
 temp_dir=$BASEDIR/temp/versions
 rm -fr $temp_dir
 mkdir -p $temp_dir
 
-update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml $temp_dir "^.*release[ ]*:[ ]*$" "  "
-update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml $temp_dir "^.*artifact: dev.galasa.wrapping.com.auth0.jwt*$" "    "
-update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml $temp_dir "^.*artifact: dev.galasa.wrapping.io.grpc.java*$" "    "
+update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml $temp_dir "^.*release[ ]*[:][ ]*$" "  "
+update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml $temp_dir "^.*artifact[:] dev[.]galasa[.]wrapping[.]gson.*$" "    "
+update_release_yaml ${BASEDIR}/release.yaml $temp_dir/release.yaml $temp_dir "^.*artifact[:] dev[.]galasa[.]wrapping[.]httpclient-osgi.*$" "    "
 
 update_dependency_versions $temp_dir
-

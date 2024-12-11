@@ -59,7 +59,7 @@
 				<plugin>
 					<groupId>dev.galasa</groupId>
 					<artifactId>galasa-maven-plugin</artifactId>
-					<version>0.39.0</version>
+					<version>{{.Release}}</version>
 				</plugin>
             </plugins>
         </pluginManagement>
