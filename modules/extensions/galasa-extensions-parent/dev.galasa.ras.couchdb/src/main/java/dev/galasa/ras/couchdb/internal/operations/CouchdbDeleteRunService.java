@@ -14,6 +14,8 @@ import java.util.concurrent.CompletionException;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.http.HttpStatus;
+
 import dev.galasa.extensions.common.couchdb.CouchdbException;
 import dev.galasa.extensions.common.couchdb.pojos.IdRev;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -34,10 +36,11 @@ public class CouchdbDeleteRunService {
             // Build a list of discard operation futures
             List<CompletableFuture<Void>> futures = discardRecords(LOG_DB, runTestStructure.getLogRecordIds());
             futures.addAll(discardRecords(ARTIFACTS_DB, runTestStructure.getArtifactRecordIds()));
-            futures.add(discardRecord(RUNS_DB, runTestStructure._id, runTestStructure._rev));
 
-            // Wait for all the discard operations to finish
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            // Wait for all the discard operations to finish before deleting the run document
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenCompose(voidResult -> discardRecord(RUNS_DB, runTestStructure._id, runTestStructure._rev))
+                .join();
         } catch (CompletionException e) {
             throw new ResultArchiveStoreException("Failed to discard run: " + runTestStructure._id, e);
         }
@@ -59,7 +62,9 @@ public class CouchdbDeleteRunService {
     private CompletableFuture<Void> discardRecord(String databaseName, String id, String revision) {
         return CompletableFuture.runAsync(() -> {
             try {
-                store.deleteDocumentFromDatabase(databaseName, id, revision);
+                if (revision != null) {
+                    store.deleteDocumentFromDatabase(databaseName, id, revision);
+                }
             } catch (CouchdbException e) {
                 throw new CompletionException(e);
             }
@@ -70,14 +75,17 @@ public class CouchdbDeleteRunService {
         return CompletableFuture.supplyAsync(() -> {
             String foundRevision = null;
             try {
-                IdRev found = store.getDocumentFromDatabase(databaseName, id, IdRev.class);
-                if (found._id == null) {
-                    throw new CouchdbRasException("Unable to find runs - Invalid JSON response");
+                // Don't throw an exeption if a document wasn't found, it might have been deleted previously
+                IdRev found = store.getDocumentFromDatabase(databaseName, id, IdRev.class, HttpStatus.SC_OK, HttpStatus.SC_NOT_FOUND);
+                if (found != null) {
+                    if (found._id == null) {
+                        throw new CouchdbRasException("Unable to find runs - Invalid JSON response");
+                    }
+                    if (found._rev == null) {
+                        throw new CouchdbRasException("Unable to find rev - Invalid JSON response");
+                    }
+                    foundRevision = found._rev;
                 }
-                if (found._rev == null) {
-                    throw new CouchdbRasException("Unable to find rev - Invalid JSON response");
-                }
-                foundRevision = found._rev;
             } catch (CouchdbException | ResultArchiveStoreException e) {
                 throw new CompletionException(e);
             }

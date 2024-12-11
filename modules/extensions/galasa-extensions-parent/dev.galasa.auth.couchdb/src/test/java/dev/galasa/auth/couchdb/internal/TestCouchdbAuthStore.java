@@ -415,7 +415,7 @@ public class TestCouchdbAuthStore {
         assertThat(thrown).isNotNull();
         assertThat(thrown.getMessage()).contains("GAL6104E",
                 "Failed to delete auth token from the CouchDB tokens database");
-        assertThat(thrown.getMessage()).contains("GAL6007E", "Expected status code(s) [200, 202] but received 500");
+        assertThat(thrown.getMessage()).contains("GAL6007E", "Expected status code(s) [200, 202, 404] but received 500");
     }
 
     @Test

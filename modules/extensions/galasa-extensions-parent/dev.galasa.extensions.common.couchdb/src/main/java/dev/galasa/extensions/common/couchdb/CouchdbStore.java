@@ -139,20 +139,31 @@ public abstract class CouchdbStore {
      * sending a
      * GET /{db}/{docid} request to the CouchDB server.
      *
-     * @param <T>           The object type to be returned
-     * @param dbName        the name of the database to retrieve the document from
-     * @param documentId    the CouchDB ID for the document to retrieve
-     * @param classOfObject the class of the JSON object to retrieve from the
-     *                      CouchDB Document
+     * @param <T>                 the object type to be returned
+     * @param dbName              the name of the database to retrieve the document from
+     * @param documentId          the CouchDB ID for the document to retrieve
+     * @param classOfObject       the class of the JSON object to retrieve from the
+     *                            CouchDB Document
+     * @param expectedStatusCodes the HTTP response codes to be accepted, defaults to only accept 200 if not supplied
      * @return an object of the class provided in classOfObject
      * @throws CouchdbException if there was a problem accessing the CouchDB store
      *                          or its response
      */
-    public <T> T getDocumentFromDatabase(String dbName, String documentId, Class<T> classOfObject)
+    public <T> T getDocumentFromDatabase(String dbName, String documentId, Class<T> classOfObject, int... expectedStatusCodes)
             throws CouchdbException {
+        T response = null;
         HttpGet getDocumentRequest = httpRequestFactory.getHttpGetRequest(storeUri + "/" + dbName + "/" + documentId);
 
-        return gson.fromJson(sendHttpRequest(getDocumentRequest, HttpStatus.SC_OK), classOfObject);
+        // If no expected status codes were supplied, assume a 200 response is expected
+        if (expectedStatusCodes == null || expectedStatusCodes.length == 0) {
+            expectedStatusCodes = new int[] { HttpStatus.SC_OK };
+        }
+
+        String responseEntity = sendHttpRequest(getDocumentRequest, expectedStatusCodes);
+        if (responseEntity != null) {
+            response = gson.fromJson(responseEntity, classOfObject);
+        }
+        return response;
     }
 
     public ViewResponse getDocumentsFromDatabaseViewByKey(String dbName, String viewName, String queryKey, boolean includeDocs)
@@ -237,7 +248,7 @@ public abstract class CouchdbStore {
             URIBuilder builder = new URIBuilder(deleteRequestUrl);
             builder.addParameter("rev", documentRevision);
             HttpDelete deleteDocumentRequest = httpRequestFactory.getHttpDeleteRequest(builder.toString());
-            sendHttpRequest(deleteDocumentRequest, HttpStatus.SC_OK, HttpStatus.SC_ACCEPTED);
+            sendHttpRequest(deleteDocumentRequest, HttpStatus.SC_OK, HttpStatus.SC_ACCEPTED, HttpStatus.SC_NOT_FOUND);
         } catch (URISyntaxException e) {
             String errorMessage = ERROR_URI_IS_INVALID.getMessage(deleteRequestUrl);
             throw new CouchdbException(errorMessage, e);
@@ -251,13 +262,13 @@ public abstract class CouchdbStore {
      * @param httpRequest             the HTTP request to send to the CouchDB server
      * @param expectedHttpStatusCodes the expected Status code to get from the
      *                                CouchDb server upon the request being actioned
-     * @return a string representation of the response.
+     * @return a string representation of the response, or null if the requested value was not found.
      * @throws CouchdbException if there was a problem accessing the CouchDB store
      *                          or its response
      */
     protected String sendHttpRequest(HttpUriRequest httpRequest, int... expectedHttpStatusCodes)
             throws CouchdbException {
-        String responseEntity = "";
+        String responseEntity = null;
         try (CloseableHttpResponse response = httpClient.execute(httpRequest)) {
             StatusLine statusLine = response.getStatusLine();
             int actualStatusCode = statusLine.getStatusCode();
@@ -272,8 +283,13 @@ public abstract class CouchdbStore {
                 throw new CouchdbException(errorMessage);
             }
 
+            // If we're expecting a 404 not found response, return null
             HttpEntity entity = response.getEntity();
-            responseEntity = EntityUtils.toString(entity);
+            if (actualStatusCode != HttpStatus.SC_NOT_FOUND) {
+                responseEntity = EntityUtils.toString(entity);
+            } else {
+                EntityUtils.consumeQuietly(entity);
+            }
 
         } catch (ParseException | IOException e) {
             String errorMessage = ERROR_FAILURE_OCCURRED_WHEN_CONTACTING_COUCHDB

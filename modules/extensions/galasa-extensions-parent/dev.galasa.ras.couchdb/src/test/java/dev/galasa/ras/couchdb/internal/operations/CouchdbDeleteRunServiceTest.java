@@ -212,4 +212,105 @@ public class CouchdbDeleteRunServiceTest extends BaseCouchdbOperationTest {
             runId
         );
     }
+
+    @Test
+    public void testDiscardRunWithFailedArtifactDeletionDoesNotDeleteRunDocumentOk() throws Exception {
+        // Given...
+        String runId = "ABC123";
+        TestStructureCouchdb mockRun1 = createRunTestStructure(runId, "run1");
+
+        IdRev mockIdRev = new IdRev();
+        String revision = "this-is-a-revision";
+        mockIdRev._id = "this-is-an-id";
+        mockIdRev._rev = revision;
+
+        String artifactId1 = "artifact1";
+        List<String> mockArtifactIds = List.of(artifactId1);
+
+        mockRun1.setArtifactRecordIds(mockArtifactIds);
+
+        String baseUri = "http://my.uri";
+        String artifactsDbUri = baseUri + "/" + CouchdbRasStore.ARTIFACTS_DB;
+        List<HttpInteraction> interactions = List.of(                        
+            // Start discarding the run's artifact records
+            new GetDocumentByIdFromCouchdbInteraction(artifactsDbUri + "/" + artifactId1, HttpStatus.SC_OK, mockIdRev),
+            new DeleteDocumentFromCouchdbInteraction(artifactsDbUri + "/" + artifactId1 + "?rev=" + revision, HttpStatus.SC_INTERNAL_SERVER_ERROR)
+
+            // The parent run document should not be deleted if any of its referenced artifacts were not deleted,
+            // so don't include an interaction to delete the run document here
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        MockAsyncCloseableHttpClient httpClient = new MockAsyncCloseableHttpClient(interactions);
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(mockLogFactory, httpClient);
+        CouchdbDeleteRunService deleteRunOperation = new CouchdbDeleteRunService(mockRasStore);
+
+        // When...
+        ResultArchiveStoreException thrown = catchThrowableOfType(() -> {
+            deleteRunOperation.discardRun(mockRun1);
+        }, ResultArchiveStoreException.class);
+
+        // Then...
+        // The assertions in the interactions should not have failed
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("Failed to discard run", runId);
+        assertThat(thrown.getCause().getMessage()).contains(
+            "GAL6007E",
+            "Internal server error",
+            "Unexpected response received from CouchDB server"
+        );
+    }
+
+    @Test
+    public void testDiscardRunWithNotFoundDocumentsContinuesToDeleteRunOk() throws Exception {
+        // Given...
+        String runId = "ABC123";
+        TestStructureCouchdb mockRun1 = createRunTestStructure(runId, "run1");
+
+        IdRev mockIdRev = new IdRev();
+        String revision = "this-is-a-revision";
+        mockIdRev._id = "this-is-an-id";
+        mockIdRev._rev = revision;
+
+        String artifactId1 = "artifact1";
+        String artifactId2 = "artifact2";
+        List<String> mockArtifactIds = List.of(artifactId1, artifactId2);
+
+        String logId1 = "log1"; 
+        String logId2 = "log2"; 
+        List<String> mockLogRecordIds = List.of(logId1, logId2);
+
+        mockRun1.setArtifactRecordIds(mockArtifactIds);
+        mockRun1.setLogRecordIds(mockLogRecordIds);
+
+        String baseUri = "http://my.uri";
+        String runDbUri = baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + runId;
+        String artifactsDbUri = baseUri + "/" + CouchdbRasStore.ARTIFACTS_DB;
+        String logsDbUri = baseUri + "/" + CouchdbRasStore.LOG_DB;
+        List<HttpInteraction> interactions = List.of(            
+            // Start discarding the run's log records
+            new GetDocumentByIdFromCouchdbInteraction(logsDbUri + "/" + logId1, HttpStatus.SC_NOT_FOUND, mockIdRev),
+            new GetDocumentByIdFromCouchdbInteraction(logsDbUri + "/" + logId2, HttpStatus.SC_OK, mockIdRev),
+            new DeleteDocumentFromCouchdbInteraction(logsDbUri + "/" + logId2 + "?rev=" + revision, HttpStatus.SC_OK),
+            
+            // Start discarding the run's artifact records
+            new GetDocumentByIdFromCouchdbInteraction(artifactsDbUri + "/" + artifactId1, HttpStatus.SC_OK, mockIdRev),
+            new DeleteDocumentFromCouchdbInteraction(artifactsDbUri + "/" + artifactId1 + "?rev=" + revision, HttpStatus.SC_OK),
+            new GetDocumentByIdFromCouchdbInteraction(artifactsDbUri + "/" + artifactId2, HttpStatus.SC_NOT_FOUND, mockIdRev),
+
+            // Delete the record of the run
+            new DeleteDocumentFromCouchdbInteraction(runDbUri + "?rev=" + mockRun1._rev, HttpStatus.SC_OK)
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        MockAsyncCloseableHttpClient httpClient = new MockAsyncCloseableHttpClient(interactions);
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(mockLogFactory, httpClient);
+        CouchdbDeleteRunService deleteRunOperation = new CouchdbDeleteRunService(mockRasStore);
+
+        // When...
+        deleteRunOperation.discardRun(mockRun1);
+
+        // Then...
+        // The assertions in the interactions should not have failed
+    }
 }
