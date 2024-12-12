@@ -31,6 +31,6 @@ ext.projectName=project.name
 ext.includeInOBR          = true
 ext.includeInMVP          = false
 ext.includeInBOM          = false
-ext.includeInIsolated     = true
+ext.includeInIsolated     = false
 ext.includeInCodeCoverage = true
 ext.includeInJavadoc      = false

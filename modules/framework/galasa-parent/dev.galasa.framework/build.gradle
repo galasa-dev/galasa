@@ -30,7 +30,7 @@ dependencies {
 ext.projectName=project.name
 ext.includeInOBR          = true
 ext.includeInMVP          = true
-ext.includeInIsolated     = false
+ext.includeInIsolated     = true
 ext.includeInBOM          = true
 ext.includeInCodeCoverage = true
 ext.includeInJavadoc      = false

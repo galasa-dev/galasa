@@ -28,7 +28,7 @@ framework:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: true
 
   - artifact: dev.galasa.cps.etcd
@@ -37,7 +37,7 @@ framework:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: true
 
   - artifact: dev.galasa.cps.rest
@@ -46,7 +46,7 @@ framework:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: true
 
   - artifact: dev.galasa.events.kafka
@@ -55,7 +55,7 @@ framework:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: true
 
   - artifact: dev.galasa.extensions.common
@@ -64,7 +64,7 @@ framework:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: true
 
   - artifact: dev.galasa.extensions.common.couchdb
@@ -73,7 +73,7 @@ framework:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: true
 
   - artifact: dev.galasa.ras.couchdb
@@ -82,5 +82,5 @@ framework:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: true

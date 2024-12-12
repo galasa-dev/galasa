@@ -219,7 +219,7 @@ managers:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: false
 
   - artifact: dev.galasa.artifact.manager
@@ -345,7 +345,7 @@ managers:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: false
 
   - artifact: dev.galasa.phoenix2.manager
@@ -372,7 +372,7 @@ managers:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: false
 
   - artifact: dev.galasa.jmeter.manager
@@ -390,7 +390,7 @@ managers:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: false
 
   - artifact: dev.galasa.sdv.manager
@@ -462,7 +462,7 @@ managers:
     mvp:          false
     bom:          false
     javadoc:      false
-    isolated:     true
+    isolated:     false
     codecoverage: false
 
   - artifact: dev.galasa.windows.manager

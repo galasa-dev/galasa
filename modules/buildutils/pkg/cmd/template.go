@@ -187,7 +187,7 @@ func templateExecute(cmd *cobra.Command, args []string) {
 		} else if requireMvp {
 			selected = bundle.Mvp
 		} else if requireIsolated {
-			selected = true
+			selected = bundle.Isolated
 		} else if requireJavadoc {
 			selected = bundle.Javadoc
 		} else if requireManagerdoc {
