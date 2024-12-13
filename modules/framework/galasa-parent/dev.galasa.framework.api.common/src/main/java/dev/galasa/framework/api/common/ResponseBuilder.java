@@ -96,7 +96,7 @@ public class ResponseBuilder {
     private String validateRequestOrigin(HttpServletRequest req) {
         String requestOrigin = req.getHeader(ORIGIN_HEADER);
         if (requestOrigin == null || !isOriginAllowed(requestOrigin)) {
-            logger.error("Request origin is not set or is not permitted to receive responses");
+            logger.info("Request origin is not set or is not permitted to receive responses");
             requestOrigin = null;
         }
         return requestOrigin;
