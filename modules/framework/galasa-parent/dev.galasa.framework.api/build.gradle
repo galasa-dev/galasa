@@ -7,10 +7,12 @@ description = 'Framework API'
 
 dependencies {
     implementation project(':dev.galasa.framework')
+    implementation project(':dev.galasa.framework.api.common')
     implementation 'org.apache.felix:org.apache.felix.bundlerepository'
     implementation 'org.osgi:org.osgi.service.cm'
 
     testImplementation project(':dev.galasa.framework').sourceSets.test.output
+    testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
 }
 
 // Note: These values are consumed by the parent build process
