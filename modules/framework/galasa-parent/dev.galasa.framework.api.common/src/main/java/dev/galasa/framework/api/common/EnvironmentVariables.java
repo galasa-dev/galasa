@@ -34,4 +34,25 @@ public class EnvironmentVariables {
      * A comma-separated list of allowed origins that the API server is permitted to respond to.
      */
     public static final String GALASA_ALLOWED_ORIGINS = "GALASA_ALLOWED_ORIGINS";
+
+
+    /**
+     * Represents the maximum number of requests that can be sent to the API server after a refreshed rate limit
+     */
+    public static final String GALASA_GLOBAL_REQUEST_CAPACITY = "GALASA_GLOBAL_REQUEST_CAPACITY";
+
+    /**
+     * Represents the rate at which requests can be sent to the API server over time
+     */
+    public static final String GALASA_GLOBAL_RATE_LIMIT = "GALASA_GLOBAL_RATE_LIMIT";
+
+    /**
+     * Represents the maximum number of requests that can be sent to the API server after a refreshed rate limit per IP address
+     */
+    public static final String GALASA_IP_REQUEST_CAPACITY = "GALASA_IP_REQUEST_CAPACITY";
+
+    /**
+     * Represents the rate at which requests can be sent to the API server over time per IP address
+     */
+    public static final String GALASA_IP_RATE_LIMIT = "GALASA_IP_RATE_LIMIT";
 }
