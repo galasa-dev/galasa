@@ -64,22 +64,26 @@ public class RateLimitFilter implements Filter {
     public static final long IP_IDLE_TIMEOUT_MILLIS = 60 * 1000L;
 
     // The javax HttpServletResponse class is missing the 429 status code from its constants
-    private static final int TOO_MANY_REQUESTS_CODE = 429;
+    private static final int TOO_MANY_REQUESTS_STATUS_CODE = 429;
 
-    private final Log logger = LogFactory.getLog(getClass());
+    // How often the cleanup job will run in minutes
+    private static final int SCHEDULED_CLEANUP_RATE_MINUTES = 1;
+
+    protected Environment env = new SystemEnvironment();
+
+    // Create a thread that periodically cleans up stored IP-based rate limiters after they become stale
+    protected ScheduledExecutorService cleanupScheduler = Executors.newScheduledThreadPool(1);
 
     protected ITimeService timeService = new SystemTimeService();
     protected ResponseBuilder responseBuilder = new ResponseBuilder();
 
-    private IRateLimiter globalRateLimiter;
     protected ConcurrentHashMap<String, IpRateLimiter> rateLimitersPerIp = new ConcurrentHashMap<>();
+    private IRateLimiter globalRateLimiter;
 
     private int ipRateLimitRequestCapacity;
     private int ipRefillRatePerSecond;
 
-    protected Environment env = new SystemEnvironment();
-
-    protected ScheduledExecutorService cleanupScheduler = Executors.newScheduledThreadPool(1);
+    private final Log logger = LogFactory.getLog(getClass());
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -110,7 +114,7 @@ public class RateLimitFilter implements Filter {
         }
 
         // Schedule periodic cleanup of stale IPs
-        cleanupScheduler.scheduleAtFixedRate(this::cleanUpStaleIps, 1, 1, TimeUnit.MINUTES);
+        cleanupScheduler.scheduleAtFixedRate(this::cleanUpStaleIps, 1, SCHEDULED_CLEANUP_RATE_MINUTES, TimeUnit.MINUTES);
         logger.info("Rate limit filter initialised");
     }
 
@@ -164,7 +168,7 @@ public class RateLimitFilter implements Filter {
 
     private void sendRateLimitExceededResponse(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
         String errorString = new ServletError(GAL5429_TOO_MANY_REQUESTS).toJsonString();
-        responseBuilder.buildResponse(servletRequest, servletResponse, MimeType.APPLICATION_JSON.toString(), errorString, TOO_MANY_REQUESTS_CODE);
+        responseBuilder.buildResponse(servletRequest, servletResponse, MimeType.APPLICATION_JSON.toString(), errorString, TOO_MANY_REQUESTS_STATUS_CODE);
     }
 
     // Package-level to allow unit testing
