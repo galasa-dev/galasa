@@ -262,6 +262,12 @@ function setup_galasa_dev() {
   # The GALASA_DEX_GRPC_HOSTNAME environment variable must match the "addr" value
   # within the "grpc" section in your local Dex server's configuration 
   export GALASA_DEX_GRPC_HOSTNAME="127.0.0.1:5557"
+
+  export GALASA_GLOBAL_REQUEST_CAPACITY=10000
+  export GALASA_GLOBAL_RATE_LIMIT=10000
+
+  export GALASA_IP_REQUEST_CAPACITY=5000
+  export GALASA_IP_RATE_LIMIT=5000
 }
 
 setup_galasa_dev

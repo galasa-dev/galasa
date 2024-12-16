@@ -35,7 +35,6 @@ public class EnvironmentVariables {
      */
     public static final String GALASA_ALLOWED_ORIGINS = "GALASA_ALLOWED_ORIGINS";
 
-
     /**
      * Represents the maximum number of requests that can be sent to the API server after a refreshed rate limit
      */
