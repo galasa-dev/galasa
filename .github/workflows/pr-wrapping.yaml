@@ -43,6 +43,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'semeru'
+          cache: 'maven'
 
       - name: Download platform from this workflow
         id: download-platform
