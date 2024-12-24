@@ -32,9 +32,12 @@ import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
 import dev.galasa.framework.internal.ras.FrameworkMultipleResultArchiveStore;
+import dev.galasa.framework.internal.rbac.RBACServiceImpl;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
+import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.rbac.RBACService;
 
 // I know that the IFramework class isn't strictly necessary, but it does seem to make a
 // difference to whether the OSGi framework can load it or not.
@@ -547,5 +550,10 @@ public class Framework implements IFramework, IShuttableFramework {
 	public @NotNull ICertificateStoreService getCertificateStoreService() {
 		return null;
 	}
+
+    @Override
+    public RBACService getRBACService() throws RBACException {
+        return new RBACServiceImpl();
+    }
 
 }

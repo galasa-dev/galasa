@@ -1,0 +1,7 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa API Role based access microservices
+Export-Package: !dev.galasa.framework.api.rbac.internal.*,dev.galasa.framework.api.rbac.*;
+Import-Package: dev.galasa.framework.api.common*,\
+                dev.galasa.framework.api.beans,\
+                *
+

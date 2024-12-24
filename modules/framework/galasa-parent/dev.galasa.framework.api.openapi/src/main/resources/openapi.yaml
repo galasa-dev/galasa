@@ -1413,6 +1413,10 @@ paths:
       description: |
         Updates the status of a test run in order to either reset or cancel it.
 
+        To cancel the run, put a value such that the status is "finished" and the result is "cancelled".
+
+        To reset the run, put a value such that the status is "queued" and the result is null or ""
+
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: putRasRunStatusById
@@ -1917,6 +1921,109 @@ paths:
                 type: string
         '500':
           $ref: '#/components/responses/InternalServerError'
+##################################################################################
+# RBAC
+##################################################################################
+  /rbac/roles:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRBACRoles
+      summary: Gets role information to which a user could be configured to perfrom.
+      tags:
+        - Role Based Access Control API
+      responses:
+        '200':
+          description: The Galasa Role definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RBACRolesSummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rbac/roles/{role-id}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+      - name: role-id
+        description: The id of the role. This will typically be numeric.
+        in: path
+        schema:
+          type: string
+        required: true
+    get:
+      operationId: getRBACRole
+      summary: Gets information about a specific role on the system, to which a user could be configured as.
+      tags:
+        - Role Based Access Control API
+      responses:
+        '200':
+          description: The Galasa Role definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RBACRole'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+
+  /rbac/actions:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRBACActions
+      summary: Gets information about actions which a role can be permitted to perfrom.
+      tags:
+        - Role Based Access Control API
+      responses:
+        '200':
+          description: The Galasa Action definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RBACActionsSummary'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+
+  /rbac/actions/{action-id}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+      - name: action-id
+        description: The id of an action. This is typically readable in English, upper-case, with underscores as word separators.
+        in: path
+        schema:
+          type: string
+        required: true
+    get:
+      operationId: getRBACAction
+      summary: Gets information about an action.
+      tags:
+        - Role Based Access Control API
+      responses:
+        '200':
+          description: The Galasa Action definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RBACAction'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
 
 ##################################################################################
 # Components
@@ -2305,6 +2412,9 @@ components:
         login-id:
           type: string
           description: The ID representing the user's username. Returned from queries about users.
+        role: 
+          type: string
+          description: The role that the user has in the system. This is not a readable name, but a numeric.
         clients:
           type: array
           description: The list of client activities, containing client names and last login times.
@@ -2313,6 +2423,77 @@ components:
         url:
           type: string
           description: The API URL for accessing the user data.
+        synthetic:
+          $ref: '#/components/schemas/UserSynthetics'
+    UserSynthetics:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/RBACRole'
+    RBACRolesSummary:
+      type: array
+      description: A summary of the roles available on the system
+      items:
+        $ref: '#/components/schemas/RBACRoleMetadata'
+    RBACRole:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/RBACRoleMetadata'
+        data:
+          $ref: '#/components/schemas/RBACRoleData'
+    RBACRoleMetadata:
+      type: object
+      properties:
+        id: 
+          type: string
+        name:
+          type: string
+        description:
+          type: string          
+        url: 
+          type: string
+
+    RBACRoleData:
+      type: object
+      properties:  
+        actions: 
+          type: array
+          items:
+            type: string
+
+    RBACActionsSummary:
+      type: array
+      description: A list of the actions in the system.
+      items:
+        $ref: '#/components/schemas/RBACActionMetadata'
+    
+    RBACAction:
+      type: object
+      properties:
+        apiVersion: 
+          type: string
+        kind: 
+          type: string
+        metadata:
+          $ref: '#/components/schemas/RBACActionMetadata'
+
+    RBACActionMetadata:
+      type: object
+      properties:
+        id:
+          type: string
+        name: 
+          type: string
+        description:
+          type: string 
+        url: 
+          type: string
+
     FrontEndClient:
       type: object
       properties:

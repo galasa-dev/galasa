@@ -142,6 +142,13 @@ public enum ServletErrorMessage {
     GAL5100_ERROR_UNEXPECTED_SECRET_FIELD_PROVIDED    (5100, "E: Invalid secret payload provided. An unexpected field was given to update a ''{0}'' secret. Only the following fields can be provided to update this secret: ''{1}''. Check your request payload and try again."),
     GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED     (5101, "E: Unknown secret type detected. A secret retrieved from the credentials store is in an unknown or unsupported format. Report the problem to your Galasa Ecosystem owner."),
     GAL5102_INVALID_SECRET_DESCRIPTION_PROVIDED       (5102, "E: Invalid secret description provided. The description should not only contain spaces or tabs. When provided, it must contain characters in the Latin-1 character set. Report the problem to your Galasa Ecosystem owner."),
+    
+
+    // RBAC APIs...
+    GAL5120_INVALID_ACTION_NAME_PROVIDED              (5120, "E: Invalid action name provided."),
+    GAL5121_INVALID_ROLE_ID_PROVIDED                  (5121, "E: Invalid role id provided."),
+    GAL5122_ACTION_NAMED_NOT_FOUND                    (5122, "E: Action with that name not found."),
+    GAL5123_ROLE_ID_NOT_FOUND                         (5122, "E: Role with that ID not found."),
     ;
 
 

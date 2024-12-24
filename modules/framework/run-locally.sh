@@ -196,7 +196,8 @@ function launch_api_server {
 
     info "Command is ${cmd}"
 
-    ${cmd} 2>&1 > log.txt
+    # ${cmd} 2>&1 > log.txt
+    ${cmd}
     assert_previous_command_worked "Launch of api server failed."
     success "Launched OK"
 }

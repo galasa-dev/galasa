@@ -233,6 +233,15 @@ api:
     isolated:     true
     codecoverage: true
 
+  - artifact: dev.galasa.framework.api.rbac
+    version: 0.39.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
   - artifact: dev.galasa.framework.api.resources
     version: 0.39.0
     obr:          true

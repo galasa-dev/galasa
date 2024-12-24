@@ -24,6 +24,8 @@ import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.rbac.RBACService;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -37,7 +39,8 @@ public class MockFramework implements IFramework {
     MockIConfigurationPropertyStoreService cpsService = new MockIConfigurationPropertyStoreService("framework");
     MockCredentialsService creds = new MockCredentialsService(new HashMap<>());
     IAuthStoreService authStoreService;
-
+    private RBACService rbacService;
+    
     public MockFramework() {
         // Do nothing...
     }
@@ -56,6 +59,10 @@ public class MockFramework implements IFramework {
 
     public MockFramework(IFrameworkRuns frameworkRuns){
         this.frameworkRuns = frameworkRuns;
+    }
+
+    public MockFramework(RBACService rbacService){ 
+        this.rbacService = rbacService;
     }
 
     public MockFramework(IResultArchiveStore archiveStore, IFrameworkRuns frameworkRuns) {
@@ -94,6 +101,11 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull ICredentialsService getCredentialsService() throws CredentialsException {
         return this.creds;
+    }
+
+    @Override
+    public @NotNull RBACService getRBACService() throws RBACException {
+        return this.rbacService;
     }
 
     @Override
@@ -166,4 +178,6 @@ public class MockFramework implements IFramework {
     public @NotNull IEventsService getEventsService() {
         throw new UnsupportedOperationException("Unimplemented method 'getEventsService'");
     }
+
+
 }

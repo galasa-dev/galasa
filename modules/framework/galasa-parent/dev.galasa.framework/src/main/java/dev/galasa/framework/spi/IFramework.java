@@ -15,6 +15,8 @@ import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.rbac.RBACService;
 
 /**
  * <p>
@@ -165,6 +167,9 @@ public interface IFramework {
 
     @NotNull
     ICredentialsService getCredentialsService() throws CredentialsException;
+
+    @NotNull
+    RBACService getRBACService() throws RBACException;
 
     /**
      * Retrieve the test run name. Will be null for non test runs

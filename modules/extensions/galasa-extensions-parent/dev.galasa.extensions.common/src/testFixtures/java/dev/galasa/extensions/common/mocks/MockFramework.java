@@ -33,6 +33,8 @@ import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.rbac.RBACService;
 
 public class MockFramework implements IFramework {
 
@@ -134,6 +136,11 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull IEventsService getEventsService() {
         throw new UnsupportedOperationException("Unimplemented method 'getEventsService'");
+    }
+
+    @Override
+    public @NotNull RBACService getRBACService() throws RBACException {
+        throw new UnsupportedOperationException("Unimplemented method 'getRBACService'");
     }
 
 }

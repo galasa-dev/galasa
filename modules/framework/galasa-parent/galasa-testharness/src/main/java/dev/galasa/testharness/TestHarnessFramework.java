@@ -35,6 +35,8 @@ import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.rbac.RBACService;
 
 public class TestHarnessFramework implements IFramework {
     
@@ -155,6 +157,11 @@ public class TestHarnessFramework implements IFramework {
     @Override
     public @NotNull IEventsService getEventsService() {
         throw new Unavailable();
+    }
+
+    @Override
+    public @NotNull RBACService getRBACService() throws RBACException {
+        throw new UnsupportedOperationException("Unimplemented method 'getRBACService'");
     }
 
 }

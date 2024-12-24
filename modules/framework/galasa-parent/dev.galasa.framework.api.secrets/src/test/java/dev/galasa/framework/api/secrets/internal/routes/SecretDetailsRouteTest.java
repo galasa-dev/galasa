@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.secrets.internal;
+package dev.galasa.framework.api.secrets.internal.routes;
 
 import static org.assertj.core.api.Assertions.*;
 import static dev.galasa.framework.api.common.resources.GalasaSecretType.*;
@@ -26,8 +26,9 @@ import dev.galasa.framework.api.common.mocks.MockCredentialsService;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
+import dev.galasa.framework.mocks.MockCredentials;
 import dev.galasa.framework.mocks.MockTimeService;
-import dev.galasa.framework.api.secrets.internal.routes.SecretDetailsRoute;
+import dev.galasa.framework.api.secrets.internal.SecretsServletTest;
 import dev.galasa.framework.api.secrets.mocks.MockSecretsServlet;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
