@@ -27,7 +27,6 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.selenium.Browser;
 import dev.galasa.selenium.IFirefoxOptions;
 import dev.galasa.selenium.SeleniumManagerException;
-import dev.galasa.selenium.internal.properties.SeleniumDefaultDriver;
 import dev.galasa.selenium.internal.properties.SeleniumGeckoPreferences;
 import dev.galasa.selenium.internal.properties.SeleniumGeckoProfile;
 import dev.galasa.selenium.internal.properties.SeleniumLocalDriverPath;
@@ -130,7 +129,7 @@ public enum LocalBrowser {
 
   private static WebDriver getChromeDriver() throws SeleniumManagerException {
     ChromeOptions cOptions = new ChromeOptions();
-    cOptions.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+    cOptions.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
     return getChromeDriver(cOptions);
   }
 
@@ -145,7 +144,7 @@ public enum LocalBrowser {
 
   private static WebDriver getEdgeDriver() throws SeleniumManagerException {
     EdgeOptions eOptions = new EdgeOptions();
-    eOptions.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+    eOptions.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
     return getEdgeDriver(eOptions);
   }
 
@@ -160,7 +159,7 @@ public enum LocalBrowser {
 
   private static WebDriver getIEDriver() throws SeleniumManagerException {
     InternetExplorerOptions ieOptions = new InternetExplorerOptions();
-    ieOptions.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+    ieOptions.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
     return getIEDriver(ieOptions);
   }
 
@@ -176,7 +175,7 @@ public enum LocalBrowser {
 
   private static WebDriver getOperaDriver() throws SeleniumManagerException {
     OperaOptions operaOptions = new OperaOptions();
-    operaOptions.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+    operaOptions.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
     return getOperaDriver(operaOptions);
   }
 

@@ -16,6 +16,7 @@ import org.openqa.selenium.Platform;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.firefox.FirefoxBinary;
+import org.openqa.selenium.firefox.FirefoxDriverLogLevel;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 
@@ -27,6 +28,7 @@ import dev.galasa.selenium.IFirefoxOptions;
  */
 public class FirefoxOptionsImpl implements IFirefoxOptions {
     public FirefoxOptions options;
+    private boolean isLegacy;
 
     public FirefoxOptionsImpl() {
         this.options = new FirefoxOptions();
@@ -61,10 +63,15 @@ public class FirefoxOptionsImpl implements IFirefoxOptions {
        options.setProfile(profile);
     }
 
+    /**
+     * @deprecated Use {@link IFirefoxOptions#addArguments(arguments)} instead.
+     */
     @Override
-    public void setHeadless(boolean bool) {
-        options.setHeadless(bool);
-    }    
+    public void setHeadless(boolean isHeadless) {
+        if (isHeadless) {
+            options.addArguments(List.of("-headless"));
+        }
+    }
 
     @Override
     public void setAcceptInsecureCerts(boolean bool){
@@ -96,14 +103,19 @@ public class FirefoxOptionsImpl implements IFirefoxOptions {
         options.setCapability(key, value);
     }
 
+    /**
+     * @deprecated Removed in Selenium 4. See https://www.selenium.dev/documentation/webdriver/troubleshooting/upgrade_to_selenium_4/
+     */
+    @Deprecated(forRemoval = true, since = "0.39.0")
     @Override
-    public void setLegacy(boolean bool) {
-        options.setLegacy(bool);
+    public void setLegacy(boolean isLegacy) {
+        options.setCapability("marionette", !isLegacy);
+        this.isLegacy = isLegacy;
     }
 
     @Override
     public void setLogLevel(Level level) {
-        options.setLogLevel(level);
+        options.setLogLevel(FirefoxDriverLogLevel.fromLevel(level));
     }
 
 	@Override
@@ -123,7 +135,7 @@ public class FirefoxOptionsImpl implements IFirefoxOptions {
 
 	@Override
 	public Platform getPlatform() {
-		return options.getPlatform();
+		return options.getPlatformName();
 	}
 
 	@Override
@@ -133,7 +145,7 @@ public class FirefoxOptionsImpl implements IFirefoxOptions {
 
 	@Override
 	public String getVersion() {
-		return options.getVersion();
+		return options.getBrowserVersion();
 	}
 
 	@Override
@@ -143,12 +155,16 @@ public class FirefoxOptionsImpl implements IFirefoxOptions {
 
 	@Override
 	public boolean isJavascriptEnabled() {
-		return options.isJavascriptEnabled();
+		return is("javascriptEnabled");
 	}
 
+    /**
+     * @deprecated Removed in Selenium 4. See https://www.selenium.dev/documentation/webdriver/troubleshooting/upgrade_to_selenium_4/
+     */
+    @Deprecated(forRemoval = true, since = "0.39.0")
 	@Override
 	public boolean isLegacy() {
-		return options.isLegacy();
+		return this.isLegacy;
 	}
 
 	@Override

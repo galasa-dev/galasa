@@ -126,12 +126,12 @@ public class OperaOptionsImpl implements IOperaOptions {
 
 	@Override
 	public Platform getPlatform() {
-		return options.getPlatform();
+		return options.getPlatformName();
 	}
 
 	@Override
 	public String getVersion() {
-		return options.getVersion();
+		return options.getBrowserVersion();
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class OperaOptionsImpl implements IOperaOptions {
 
 	@Override
 	public boolean isJavaScriptEnabled(String capabilityName) {
-		return options.isJavascriptEnabled();
+		return is("javascriptEnabled");
 	}
 
 }

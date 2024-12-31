@@ -33,6 +33,9 @@ public interface IChromeOptions {
 
     public void setAcceptInsecureCerts(boolean bool);
 
+    /**
+     * @deprecated Use {@link IChromeOptions#addArguments(arguments)} instead.
+     */
     public void setHeadless(boolean bool);
 
     public void setBinary(File path);
@@ -67,6 +70,9 @@ public interface IChromeOptions {
 
     public Set<String> getCapabilityNames();
 
+    /**
+     * @deprecated Use {@link IChromeOptions#getCapability(string)} instead.
+     */
     public Object getExperimentalOption(String name);
 
     public Platform getPlatform();

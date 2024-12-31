@@ -16,7 +16,6 @@ import dev.galasa.selenium.Browser;
 import dev.galasa.selenium.IChromeOptions;
 import dev.galasa.selenium.IEdgeOptions;
 import dev.galasa.selenium.IFirefoxOptions;
-import dev.galasa.selenium.IOperaOptions;
 import dev.galasa.selenium.IWebDriver;
 import dev.galasa.selenium.IWebPage;
 import dev.galasa.selenium.SeleniumManagerException;
@@ -36,9 +35,6 @@ public class SeleniumManagerIVT {
 
     @WebDriver (browser = Browser.EDGE)
     public IWebDriver driverEdge;
-    
-    @WebDriver (browser = Browser.OPERA)
-    public IWebDriver driverOpera;
 
     public static final String WEBSITE = "https://duckduckgo.com";
     public static final String WEBSITEGALASAGITHUB = "https://github.com/galasa-dev";
@@ -75,15 +71,6 @@ public class SeleniumManagerIVT {
     }
     
     @Test
-    public void testOperaOptionsCanBeUsed() throws SeleniumManagerException {
-    	IOperaOptions options = driverOpera.getOperaOptions();
-        IWebPage page = driverOpera.allocateWebPage(WEBSITE, options);
-        page.maximize().takeScreenShot();
-        assertThat(page.getTitle()).containsOnlyOnce(TITLE);
-        page.quit();
-    }
-    
-    @Test
     public void testChromeArguments() throws SeleniumManagerException {
     	IChromeOptions options = driverChrome.getChromeOptions();
     	options.addArguments("--ignore-ssl-errors=yes");
@@ -100,16 +87,7 @@ public class SeleniumManagerIVT {
     	page.takeScreenShot();
     	page.quit();
     }
-    
-    @Test
-    public void testOperaArguments() throws SeleniumManagerException {
-    	IOperaOptions options = driverOpera.getOperaOptions();
-    	options.addArguments("--ignore-ssl-errors=yes");
-    	IWebPage page = driverOpera.allocateWebPage(WEBSITE, options);
-    	page.takeScreenShot();
-    	page.quit();
-    }
-    
+
     // Some basic Tests
     @Test
     public void sendingKeysAndClearingFields() throws SeleniumManagerException {

@@ -59,9 +59,14 @@ public class ChromeOptionsImpl implements IChromeOptions {
         options.setAcceptInsecureCerts(bool);
     }
 
+    /**
+     * @deprecated Use {@link IChromeOptions#addArguments(arguments)} instead.
+     */
     @Override
-    public void setHeadless(boolean bool) {
-        options.setHeadless(bool);
+    public void setHeadless(boolean isHeadless) {
+        if (isHeadless) {
+            options.addArguments(List.of("--headless"));
+        }
     }
 
     @Override
@@ -144,19 +149,22 @@ public class ChromeOptionsImpl implements IChromeOptions {
 		return options.getCapabilityNames();
 	}
 
+    /**
+     * @deprecated Use {@link IChromeOptions#getCapability(string)} instead.
+     */
 	@Override
 	public Object getExperimentalOption(String name) {
-		return options.getExperimentalOption(name);
+		return options.getCapability(name);
 	}
 
 	@Override
 	public Platform getPlatform() {
-		return options.getPlatform();
+		return options.getPlatformName();
 	}
 
 	@Override
 	public String getVersion() {
-		return options.getVersion();
+		return options.getBrowserVersion();
 	}
 
 	@Override
@@ -166,7 +174,7 @@ public class ChromeOptionsImpl implements IChromeOptions {
 
 	@Override
 	public boolean isJavaScriptEnabled(String capabilityName) {
-		return options.isJavascriptEnabled();
+		return is("javascriptEnabled");
 	}
     
 }

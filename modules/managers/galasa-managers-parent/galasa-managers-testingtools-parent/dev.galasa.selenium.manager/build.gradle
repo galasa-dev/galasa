@@ -18,14 +18,50 @@ dependencies {
     api 'org.seleniumhq.selenium:selenium-opera-driver'
     api 'org.seleniumhq.selenium:selenium-firefox-driver'
     api 'org.seleniumhq.selenium:selenium-remote-driver'
-    implementation 'com.google.guava:guava'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0' // Platform uses 4.9.2
-    implementation 'com.squareup.okio:okio-jvm'
-    implementation 'org.jetbrains.kotlin:kotlin-osgi-bundle:1.7.22' // Platform uses 1.4.0
-    implementation 'net.bytebuddy:byte-buddy'
-    implementation 'org.apache.commons:commons-exec'
     implementation 'commons-io:commons-io'
     implementation 'com.google.code.gson:gson'
+
+    // Transitive dependencies not required for compilation, but required to download and embed jars into bundle
+    implementation 'com.google.auto.service:auto-service-annotations'
+    implementation 'org.jspecify:jspecify'
+    implementation 'org.seleniumhq.selenium:selenium-manager'
+    implementation 'org.seleniumhq.selenium:selenium-json'
+    implementation 'org.seleniumhq.selenium:selenium-os'
+    implementation 'org.apache.commons:commons-exec' // 1.4.0
+    implementation 'com.google.guava:guava' // 33.3.1-jre
+    implementation 'com.google.guava:failureaccess'
+    implementation 'com.google.guava:listenablefuture'
+    implementation 'com.google.code.findbugs:jsr305'
+    implementation 'org.checkerframework:checker-qual'
+    implementation 'com.google.errorprone:error_prone_annotations'
+    implementation 'com.google.j2objc:j2objc-annotations'
+    implementation 'io.opentelemetry.semconv:opentelemetry-semconv'
+    implementation 'io.opentelemetry:opentelemetry-api'
+    implementation 'io.opentelemetry:opentelemetry-context'
+    implementation 'io.opentelemetry:opentelemetry-exporter-logging'
+    implementation 'io.opentelemetry:opentelemetry-sdk'
+    implementation 'io.opentelemetry:opentelemetry-sdk-common'
+    implementation 'io.opentelemetry:opentelemetry-sdk-trace'
+    implementation 'io.opentelemetry:opentelemetry-sdk-metrics'
+    implementation 'io.opentelemetry:opentelemetry-sdk-logs'
+    implementation 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi'
+    implementation 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure'
+    implementation 'net.bytebuddy:byte-buddy'
+    implementation 'org.seleniumhq.selenium:selenium-http'
+    implementation 'dev.failsafe:failsafe'
+    implementation 'org.seleniumhq.selenium:selenium-chromium-driver'
+    
+    // For selenium-opera-driver:4.4.0
+    implementation 'com.google.auto.service:auto-service:1.0.1'
+    implementation 'com.google.auto:auto-common:1.2'
+
+    // For selenium-firefox-driver:4.27.0
+    implementation 'org.seleniumhq.selenium:selenium-devtools-v85'
+
+    // For selenium-java:4.27.0
+    implementation 'org.seleniumhq.selenium:selenium-devtools-v129'
+    implementation 'org.seleniumhq.selenium:selenium-devtools-v130'
+    implementation 'org.seleniumhq.selenium:selenium-devtools-v131'
 }
 
 // Note: These values are consumed by the parent build process

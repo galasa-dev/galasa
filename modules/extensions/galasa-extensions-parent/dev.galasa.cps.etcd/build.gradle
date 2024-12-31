@@ -16,7 +16,7 @@ dependencies {
     // Not required for compile,  but required to force the download of the jars to embed by bnd
     implementation('com.fasterxml.jackson.core:jackson-core:2.16.1')
     implementation('com.google.api.grpc:proto-google-common-protos:2.41.0')
-    implementation('com.google.guava:failureaccess:1.0.2')
+    implementation('com.google.guava:failureaccess')
     implementation('com.google.guava:guava')
     implementation('com.google.guava:listenablefuture')
     implementation('com.google.protobuf:protobuf-java-util')
@@ -57,7 +57,7 @@ dependencies {
     //  implementation('org.apache.logging.log4j:log4j-api:2.17.1')
     //  implementation('org.apache.logging.log4j:log4j-core:2.17.1')
     //  implementation('org.apache.logging.log4j:log4j-slf4j-impl:2.17.1')
-    implementation('org.checkerframework:checker-qual:3.42.0')
+    implementation('org.checkerframework:checker-qual')
     implementation('org.slf4j:slf4j-api:2.0.16')
 }
 

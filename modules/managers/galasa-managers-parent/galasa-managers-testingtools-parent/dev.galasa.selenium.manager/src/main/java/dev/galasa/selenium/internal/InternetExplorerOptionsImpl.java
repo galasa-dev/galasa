@@ -26,6 +26,7 @@ import dev.galasa.selenium.IInternetExplorerOptions;
 public class InternetExplorerOptionsImpl implements IInternetExplorerOptions {
 
     public InternetExplorerOptions options;
+    private static final String NATIVE_EVENTS = "nativeEvents";
 
     public InternetExplorerOptionsImpl() {
         options = new InternetExplorerOptions();
@@ -57,7 +58,7 @@ public class InternetExplorerOptionsImpl implements IInternetExplorerOptions {
 
     @Override
     public void disableNativeEvents() {
-        options.disableNativeEvents();
+        options.setCapability(NATIVE_EVENTS, false);
     }
 
     @Override
@@ -118,8 +119,7 @@ public class InternetExplorerOptionsImpl implements IInternetExplorerOptions {
 
 	@Override
 	public void enableNativeEvents() {
-		options.enableNativeEvents();
-		
+		options.setCapability(NATIVE_EVENTS, true);
 	}
 
 	@Override
@@ -139,12 +139,12 @@ public class InternetExplorerOptionsImpl implements IInternetExplorerOptions {
 
 	@Override
 	public Platform getPlatform() {
-		return options.getPlatform();
+		return options.getPlatformName();
 	}
 
 	@Override
 	public String getVersion() {
-		return options.getVersion();
+		return options.getBrowserVersion();
 	}
 
 	@Override
@@ -154,7 +154,7 @@ public class InternetExplorerOptionsImpl implements IInternetExplorerOptions {
 
 	@Override
 	public boolean isJavascriptEnabled() {
-		return options.isJavascriptEnabled();
+		return is("javascriptEnabled");
 	}
 
 	@Override

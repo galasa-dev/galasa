@@ -38,6 +38,10 @@ public interface IFirefoxOptions {
 
     public void setAcceptInsecureCerts(boolean bool);
 
+    /**
+     * @deprecated Use {@link IFirefoxOptions#addArguments(arguments)} instead.
+     */
+    @Deprecated(forRemoval = true, since = "0.39.0")
     public void setHeadless(boolean bool);
 
     public void setBinary(Path path);
@@ -50,6 +54,10 @@ public interface IFirefoxOptions {
 
     public void setCapability(String key, Object value);
 
+    /**
+     * @deprecated Removed in Selenium 4. See https://www.selenium.dev/documentation/webdriver/troubleshooting/upgrade_to_selenium_4/
+     */
+    @Deprecated(forRemoval = true, since = "0.39.0")
     public void setLegacy(boolean bool);
 
     public void setLogLevel(Level level);
@@ -70,6 +78,10 @@ public interface IFirefoxOptions {
     
     public boolean isJavascriptEnabled();
     
+    /**
+     * @deprecated Removed in Selenium 4. See https://www.selenium.dev/documentation/webdriver/troubleshooting/upgrade_to_selenium_4/
+     */
+    @Deprecated(forRemoval = true, since = "0.39.0")
     public boolean isLegacy();
     
     public void setPageLoadStrategy(PageLoadStrategy strategy);
