@@ -8,7 +8,6 @@ Export-Package: dev.galasa.selenium,\
     org.openqa.selenium.edge,\
     org.openqa.selenium.firefox,\
     org.openqa.selenium.ie,\
-    org.openqa.selenium.opera,\
     org.openqa.selenium.safari,\
     org.openqa.selenium.remote,\
     org.openqa.selenium.io,\
@@ -46,8 +45,6 @@ Import-Package: dev.galasa,\
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile
 -includeresource: \
-    auto-common-1.2.jar; lib:=true,\
-    auto-service-1.0.1.jar; lib:=true,\
     auto-service-annotations-*.jar; lib:=true,\
     byte-buddy-*.jar; lib:=true,\
     commons-exec-*.jar; lib:=true,\
@@ -85,7 +82,6 @@ Embed-Dependency: *;scope=compile
     selenium-java-*.jar; lib:=true,\
     selenium-json-*.jar; lib:=true,\
     selenium-manager-*.jar; lib:=true,\
-    selenium-opera-driver-*.jar; lib:=true,\
     selenium-os-*.jar; lib:=true,\
     selenium-remote-driver-*.jar; lib:=true,\
     selenium-safari-driver-*.jar; lib:=true,\

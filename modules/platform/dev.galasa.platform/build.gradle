@@ -298,7 +298,6 @@ dependencies {
         api 'org.seleniumhq.selenium:selenium-java:4.27.0'
         api 'org.seleniumhq.selenium:selenium-json:4.27.0'
         api 'org.seleniumhq.selenium:selenium-manager:4.27.0'
-        api 'org.seleniumhq.selenium:selenium-opera-driver:4.4.0'
         api 'org.seleniumhq.selenium:selenium-os:4.27.0'
         api 'org.seleniumhq.selenium:selenium-remote-driver:4.27.0'
         api 'org.seleniumhq.selenium:selenium-safari-driver:4.27.0' // bnd.bnd only

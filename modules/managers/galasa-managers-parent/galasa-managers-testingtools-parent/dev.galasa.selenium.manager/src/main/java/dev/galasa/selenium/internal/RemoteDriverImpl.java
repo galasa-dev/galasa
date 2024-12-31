@@ -19,7 +19,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.ie.InternetExplorerOptions;
-import org.openqa.selenium.opera.OperaOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -50,8 +49,6 @@ import dev.galasa.selenium.IChromeOptions;
 import dev.galasa.selenium.IEdgeOptions;
 import dev.galasa.selenium.IFirefoxOptions;
 import dev.galasa.selenium.IInternetExplorerOptions;
-import dev.galasa.selenium.IOperaOptions;
-import dev.galasa.selenium.ISeleniumManager;
 import dev.galasa.selenium.IWebDriver;
 import dev.galasa.selenium.IWebPage;
 import dev.galasa.selenium.SeleniumManagerException;
@@ -337,22 +334,6 @@ public class RemoteDriverImpl extends DriverImpl implements IWebDriver {
     }
 
     @Override
-    public IWebPage allocateWebPage(String url, IOperaOptions options) throws SeleniumManagerException {
-    	RemoteWebDriver driver = null;
-
-        try {
-            driver = remoteDriver(new DesiredCapabilities(((OperaOptionsImpl)options).get()));
-
-            if (driver == null)
-                throw new SeleniumManagerException("Unsupported driver type: " + browser.getDriverName());
-        } catch (SeleniumManagerException e) {
-            throw new SeleniumManagerException("Issue provisioning web driver", e);
-        }
-
-        return allocatePage(seleniumManager, driver, url, screenshotRasDirectory);
-    }
-
-    @Override
     public IFirefoxOptions getFirefoxOptions() {
         return new FirefoxOptionsImpl();
     }
@@ -365,11 +346,6 @@ public class RemoteDriverImpl extends DriverImpl implements IWebDriver {
     @Override
     public IEdgeOptions getEdgeOptions() {
         return new EdgeOptionsImpl();
-    }
-    
-    @Override
-    public IOperaOptions getOperaOptions() {
-        return new OperaOptionsImpl();
     }
 
     @Override

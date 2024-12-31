@@ -62,6 +62,7 @@ public class ChromeOptionsImpl implements IChromeOptions {
     /**
      * @deprecated Use {@link IChromeOptions#addArguments(arguments)} instead.
      */
+    @Deprecated(forRemoval = true, since = "0.39.0")
     @Override
     public void setHeadless(boolean isHeadless) {
         if (isHeadless) {
@@ -152,6 +153,7 @@ public class ChromeOptionsImpl implements IChromeOptions {
     /**
      * @deprecated Use {@link IChromeOptions#getCapability(string)} instead.
      */
+    @Deprecated(forRemoval = true, since = "0.39.0")
 	@Override
 	public Object getExperimentalOption(String name) {
 		return options.getCapability(name);

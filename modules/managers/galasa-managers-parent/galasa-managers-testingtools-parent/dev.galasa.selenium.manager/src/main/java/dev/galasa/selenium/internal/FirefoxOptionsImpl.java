@@ -66,6 +66,7 @@ public class FirefoxOptionsImpl implements IFirefoxOptions {
     /**
      * @deprecated Use {@link IFirefoxOptions#addArguments(arguments)} instead.
      */
+    @Deprecated(forRemoval = true, since = "0.39.0")
     @Override
     public void setHeadless(boolean isHeadless) {
         if (isHeadless) {

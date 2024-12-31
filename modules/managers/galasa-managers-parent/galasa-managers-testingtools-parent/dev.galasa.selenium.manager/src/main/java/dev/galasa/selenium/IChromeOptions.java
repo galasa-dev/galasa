@@ -36,6 +36,7 @@ public interface IChromeOptions {
     /**
      * @deprecated Use {@link IChromeOptions#addArguments(arguments)} instead.
      */
+    @Deprecated(forRemoval = true, since = "0.39.0")
     public void setHeadless(boolean bool);
 
     public void setBinary(File path);
@@ -73,6 +74,7 @@ public interface IChromeOptions {
     /**
      * @deprecated Use {@link IChromeOptions#getCapability(string)} instead.
      */
+    @Deprecated(forRemoval = true, since = "0.39.0")
     public Object getExperimentalOption(String name);
 
     public Platform getPlatform();
