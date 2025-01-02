@@ -340,6 +340,7 @@ external:
     artifact: org.osgi.service.component.annotations
     version: 1.3.0
     bom: true
+    mvp: true
     # Added since Isolated selects bundles based on this line,
     # and not just all bundles appearing in this file,
     # but might not be needed in Isolated.
