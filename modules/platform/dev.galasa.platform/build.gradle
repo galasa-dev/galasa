@@ -141,6 +141,7 @@ dependencies {
         api 'io.netty:netty-transport-native-unix-common:4.1.111.Final'
 
         api 'io.opentelemetry:opentelemetry-api:1.44.1'
+        api 'io.opentelemetry:opentelemetry-api-incubator:1.44.1-alpha'
         api 'io.opentelemetry:opentelemetry-context:1.44.1'
         api 'io.opentelemetry:opentelemetry-exporter-logging:1.44.1'
         api 'io.opentelemetry:opentelemetry-sdk:1.44.1'

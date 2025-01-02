@@ -58,6 +58,7 @@ Embed-Dependency: *;scope=compile
     jsr305-*.jar; lib:=true,\
     listenablefuture-*.jar; lib:=true,\
     opentelemetry-api-*.jar; lib:=true,\
+    opentelemetry-api-incubator-*.jar; lib:=true,\
     opentelemetry-context-*.jar; lib:=true,\
     opentelemetry-exporter-logging-*.jar; lib:=true,\
     opentelemetry-sdk-*.jar; lib:=true,\

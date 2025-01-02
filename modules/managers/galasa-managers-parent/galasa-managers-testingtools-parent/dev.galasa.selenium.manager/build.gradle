@@ -45,6 +45,7 @@ dependencies {
     implementation 'io.opentelemetry:opentelemetry-sdk-logs'
     implementation 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi'
     implementation 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure'
+    implementation 'io.opentelemetry:opentelemetry-api-incubator'
     implementation 'net.bytebuddy:byte-buddy'
     implementation 'org.seleniumhq.selenium:selenium-http'
     implementation 'dev.failsafe:failsafe'
