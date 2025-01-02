@@ -67,6 +67,10 @@ public class ChromeOptionsImpl implements IChromeOptions {
     public void setHeadless(boolean isHeadless) {
         if (isHeadless) {
             options.addArguments(List.of("--headless"));
+        } else {
+            throw new UnsupportedOperationException(
+                "setHeadless(false) is no longer supported in Selenium 4. See the Galasa 0.39.0 release notes for guidance on migration."
+            );
         }
     }
 
