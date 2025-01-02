@@ -46,3 +46,15 @@ Having configured your `cps.properties` file, you should now be able to run the 
     ```bash
     galasactl runs submit local --obr mvn:dev.galasa/dev.galasa.uber.obr/0.39.0/obr --class dev.galasa.selenium.manager.ivt/dev.galasa.selenium.manager.ivt.SeleniumManagerIVT --log -
     ```
+
+## Using a Selenium Grid
+
+If you would like to run the Selenium Manager IVT using a Selenium Grid running locally:
+
+1. Set up and start a Selenium Grid by following the [Selenium Grid documentation](https://www.selenium.dev/documentation/grid/getting_started/)
+2. Add the following properties to your `cps.properties` file in addition to the ones added in the [previous section](#1-setting-cps-properties):
+    ```properties
+    selenium.grid.endpoint=http://localhost:4444
+    selenium.driver.type=grid
+    ```
+3. Run the Selenium Manager IVT as shown in the [previous section](#2-running-the-selenium-manager-ivt)
