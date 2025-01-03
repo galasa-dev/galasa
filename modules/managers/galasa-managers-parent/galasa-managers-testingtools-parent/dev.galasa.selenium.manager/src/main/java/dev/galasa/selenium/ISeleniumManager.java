@@ -52,12 +52,6 @@ public interface ISeleniumManager {
     public IWebPage allocateWebPage(String url, IInternetExplorerOptions options) throws SeleniumManagerException;
 
     /**
-     * Allocate a new WebPage for a provided URL with Opera Options
-     * @throws SeleniumManagerException
-     */
-    public IWebPage allocateWebPage(String url, IOperaOptions options) throws SeleniumManagerException;
-
-    /**
      * Creates a new interface to the Firefox properties that can be set.
      * @return IFirefoxOptions
      */

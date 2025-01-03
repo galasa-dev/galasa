@@ -13,9 +13,9 @@ Import-Package: \
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile|runtime
 -includeresource: \
-    checker-qual-3.42.0.jar; lib:=true,\
+    checker-qual-*.jar; lib:=true,\
     failsafe-*.jar; lib:=true,\
-    failureaccess-1.0.2.jar; lib:=true,\
+    failureaccess-*.jar; lib:=true,\
     grpc-api-1.66.0.jar; lib:=true,\
     grpc-context-1.66.0.jar; lib:=true,\
     grpc-core-1.66.0.jar; lib:=true,\

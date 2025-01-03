@@ -8,6 +8,7 @@ package dev.galasa.selenium.internal;
 import java.util.Map;
 import java.util.Set;
 
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.edge.EdgeOptions;
@@ -53,8 +54,8 @@ public class EdgeOptionsImpl implements IEdgeOptions {
 
 	@Override
 	public void setPageLoadStrategy(String strategy) {
-		options.setPageLoadStrategy(strategy);
-	}
+        options.setPageLoadStrategy(PageLoadStrategy.fromString(strategy));
+    }
 
 	@Override
 	public void setProxy(Proxy proxy) {
@@ -83,12 +84,12 @@ public class EdgeOptionsImpl implements IEdgeOptions {
 
 	@Override
 	public Platform getPlatform() {
-		return options.getPlatform();
+		return options.getPlatformName();
 	}
 
 	@Override
 	public String getVersion() {
-		return options.getVersion();
+		return options.getBrowserVersion();
 	}
 
 	@Override
@@ -98,7 +99,7 @@ public class EdgeOptionsImpl implements IEdgeOptions {
 
 	@Override
 	public boolean isJavaScriptEnabled(String capabilityName) {
-		return options.isJavascriptEnabled();
+		return is("javascriptEnabled");
 	}
     
 }

@@ -45,12 +45,6 @@ public interface IWebDriver extends ISeleniumManager {
     public IWebPage allocateWebPage(String url, IInternetExplorerOptions options) throws SeleniumManagerException;
 
     /**
-     * Allocate a new WebPage for a provided URL with Opera Options
-     * @throws SeleniumManagerException
-     */
-    public IWebPage allocateWebPage(String url, IOperaOptions options) throws SeleniumManagerException;
-
-    /**
      * Creates a new interface to the Firefox properties that can be set.
      * @return IFirefoxOptions
      */
@@ -67,12 +61,6 @@ public interface IWebDriver extends ISeleniumManager {
      * @return IEdgeOptions
      */
     public IEdgeOptions getEdgeOptions();
-    
-    /**
-     * Creates a new interface to the Opera properties that can be set.
-     * @return IOperaOptions
-     */
-    public IOperaOptions getOperaOptions();
 
     /**
      * Creates a new interface to the InternetExplorer properties that can be set.

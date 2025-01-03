@@ -20,10 +20,10 @@ import dev.galasa.selenium.SeleniumManagerException;
  * 
  * @galasa.required No
  * 
- * @galasa.valid_values A valid String the describes any of the supported drivers: FIREFOX,CHROME,OPERA,EDGE
+ * @galasa.valid_values A valid String the describes any of the supported drivers: FIREFOX,CHROME,EDGE
  * 
  * @galasa.examples 
- * <code>selenium.available.drivers=CHROME,FIREFOX,OPERA,EDGE</code>
+ * <code>selenium.available.drivers=CHROME,FIREFOX,EDGE</code>
  * 
  */
 public class SeleniumAvailableDrivers extends CpsProperties {

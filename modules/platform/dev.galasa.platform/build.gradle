@@ -48,16 +48,23 @@ dependencies {
 
         api 'com.google.android:annotations:4.1.1.4'
 
+        api 'com.google.auto.service:auto-service-annotations:1.1.1'
+
         api 'com.google.code.findbugs:jsr305:3.0.2'
 
         api 'com.google.code.gson:gson:2.10.1' // If updating, also update in obr/release.yaml.
+
+        api 'com.google.errorprone:error_prone_annotations:2.28.0'
 
         // api 'com.google.protobuf:protobuf-java:4.28.3' - dangerous. Protobuf versions are all explicit elsewhere right now.
         api 'com.google.protobuf:protobuf-javalite:3.25.5'
         api 'com.google.protobuf:protobuf-java-util:3.25.3'
 
         api 'com.google.guava:guava:33.2.1-jre'
+        api 'com.google.guava:failureaccess:1.0.2'
         api 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
+
+        api 'com.google.j2objc:j2objc-annotations:3.0.0'
 
         api 'com.ibm.db2.jcc:db2jcc:db2jcc4'
 
@@ -133,6 +140,19 @@ dependencies {
         api 'io.netty:netty-transport:4.1.111.Final'
         api 'io.netty:netty-transport-native-unix-common:4.1.111.Final'
 
+        api 'io.opentelemetry:opentelemetry-api:1.44.1'
+        api 'io.opentelemetry:opentelemetry-api-incubator:1.44.1-alpha'
+        api 'io.opentelemetry:opentelemetry-context:1.44.1'
+        api 'io.opentelemetry:opentelemetry-exporter-logging:1.44.1'
+        api 'io.opentelemetry:opentelemetry-sdk:1.44.1'
+        api 'io.opentelemetry:opentelemetry-sdk-common:1.44.1'
+        api 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi:1.44.1'
+        api 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure:1.44.1'
+        api 'io.opentelemetry:opentelemetry-sdk-trace:1.44.1'
+        api 'io.opentelemetry:opentelemetry-sdk-metrics:1.44.1'
+        api 'io.opentelemetry:opentelemetry-sdk-logs:1.44.1'
+        api 'io.opentelemetry.semconv:opentelemetry-semconv:1.25.0-alpha'
+
         api 'io.perfmark:perfmark-api:0.26.0'
 
         // Most bundles before implementing the Platform used 0.6.0 other than dev.galasa.framework.k8s.controller.
@@ -174,7 +194,7 @@ dependencies {
 
         api 'junit:junit:4.13.1'
 
-        api 'net.bytebuddy:byte-buddy:1.8.15'
+        api 'net.bytebuddy:byte-buddy:1.15.10'
 
         api 'net.java.dev.jna:jna:5.12.1' // bnd.bnd only
 
@@ -243,6 +263,7 @@ dependencies {
         api 'org.bouncycastle:bcprov-jdk18on:1.79'
         api 'org.bouncycastle:bcutil-jdk18on:1.79'
 
+        api 'org.checkerframework:checker-qual:3.43.0'
         api 'org.codehaus.mojo:animal-sniffer-annotations:1.23'
 
         api 'org.codehaus.plexus:plexus-utils:3.0.24'
@@ -250,6 +271,8 @@ dependencies {
         api 'org.jetbrains.kotlin:kotlin-osgi-bundle:1.4.0'
 
         api 'org.junit.jupiter:junit-jupiter:5.10.2'
+
+        api 'org.jspecify:jspecify:1.0.0'
 
         api 'org.mockito:mockito-core:3.1.0'
         api 'org.mockito:mockito-junit-jupiter:5.3.1'
@@ -262,16 +285,24 @@ dependencies {
 
         api 'org.reflections:reflections:0.9.11'
 
-        api 'org.seleniumhq.selenium:selenium-api:3.141.59'
-        api 'org.seleniumhq.selenium:selenium-chrome-driver:3.141.59'
-        api 'org.seleniumhq.selenium:selenium-edge-driver:3.141.59'
-        api 'org.seleniumhq.selenium:selenium-firefox-driver:3.141.59'
-        api 'org.seleniumhq.selenium:selenium-ie-driver:3.141.59'
-        api 'org.seleniumhq.selenium:selenium-java:3.141.59'
-        api 'org.seleniumhq.selenium:selenium-opera-driver:3.141.59'
-        api 'org.seleniumhq.selenium:selenium-remote-driver:3.141.59'
-        api 'org.seleniumhq.selenium:selenium-safari-driver:3.141.59' // bnd.bnd only
-        api 'org.seleniumhq.selenium:selenium-support:3.141.59'
+        api 'org.seleniumhq.selenium:selenium-api:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-chrome-driver:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-chromium-driver:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-devtools-v85:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-devtools-v129:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-devtools-v130:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-devtools-v131:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-edge-driver:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-firefox-driver:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-http:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-ie-driver:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-java:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-json:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-manager:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-os:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-remote-driver:4.27.0'
+        api 'org.seleniumhq.selenium:selenium-safari-driver:4.27.0' // bnd.bnd only
+        api 'org.seleniumhq.selenium:selenium-support:4.27.0'
 
         api 'org.slf4j:slf4j-api:1.7.36'
 

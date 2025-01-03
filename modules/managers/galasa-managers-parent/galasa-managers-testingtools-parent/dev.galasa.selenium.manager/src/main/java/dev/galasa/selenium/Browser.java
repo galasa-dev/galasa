@@ -19,7 +19,6 @@ import dev.galasa.selenium.internal.properties.SeleniumDockerNodeVersion;
  */
 public enum Browser {
     FIREFOX,
-    OPERA,
     IE, 
     CHROME, 
     EDGE,
@@ -31,7 +30,7 @@ public enum Browser {
 	/**
 	 * The image names for the supported driver types from the offical Selenium docker repo.
 	 * 
-	 * Supported: Firefox, Chrome, Opera, Edge
+	 * Supported: Firefox, Chrome, Edge
 	 * @return Name of image for each driver
 	 * @throws SeleniumManagerException
 	 */
@@ -41,8 +40,6 @@ public enum Browser {
         switch (this) {
             case FIREFOX:
                 return "selenium/standalone-firefox:"+version;
-            case OPERA:
-                return "selenium/standalone-opera:"+version;
             case CHROME:
                 return "selenium/standalone-chrome:"+version;
             case EDGE:
@@ -56,7 +53,7 @@ public enum Browser {
             	return null;
             	
             default:
-                throw new SeleniumManagerException("Unsupported browser. Available docker nodes: Firefox, Chrome, Opera, Edge");
+                throw new SeleniumManagerException("Unsupported browser. Available docker nodes: Firefox, Chrome, Edge");
         }
     }
     
@@ -70,8 +67,6 @@ public enum Browser {
         switch (this) {
             case FIREFOX:
                 return "firefox";
-            case OPERA:
-                return "opera";
             case CHROME:
                 return "chrome";
             case EDGE:

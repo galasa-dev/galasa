@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -409,14 +410,14 @@ public class WebPageImpl implements IWebPage {
 
     @Override
     public WebElement findElement(By by) {
-        WebDriverWait wait = new WebDriverWait(this.driver, DEFAULT_SECONDS_TIMEOUT);
+        WebDriverWait wait = new WebDriverWait(this.driver, Duration.ofSeconds(DEFAULT_SECONDS_TIMEOUT));
         wait.until(ExpectedConditions.presenceOfElementLocated(by));
         return this.driver.findElement(by);
     }
 
     @Override
     public List<WebElement> findElements(By by) {
-        WebDriverWait wait = new WebDriverWait(this.driver, DEFAULT_SECONDS_TIMEOUT);
+        WebDriverWait wait = new WebDriverWait(this.driver, Duration.ofSeconds(DEFAULT_SECONDS_TIMEOUT));
         wait.until(ExpectedConditions.presenceOfElementLocated(by));
         return this.driver.findElements(by);
     }
@@ -610,7 +611,7 @@ public class WebPageImpl implements IWebPage {
 
     @Override
     public WebElement waitForElement(By by, int secondsTimeout) {
-        WebDriverWait wait = new WebDriverWait(driver, secondsTimeout);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(secondsTimeout));
         wait.until(ExpectedConditions.presenceOfElementLocated(by));
         return findElement(by);
     }
@@ -622,7 +623,7 @@ public class WebPageImpl implements IWebPage {
 
     @Override
     public WebDriverWait driverWait(int secondsTimeout) {
-        return new WebDriverWait(driver, secondsTimeout);
+        return new WebDriverWait(driver, Duration.ofSeconds(secondsTimeout));
     }
 
     @Override
@@ -643,7 +644,7 @@ public class WebPageImpl implements IWebPage {
 
     @Override
     public IWebPage waitForPageLoad(int secondsTimeout) {
-        WebDriverWait wait = new WebDriverWait(driver, secondsTimeout);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(secondsTimeout));
         wait.until(webDriver -> 
         String.valueOf("complete".equals(((JavascriptExecutor) webDriver).executeScript("return document.readyState")))
                 );

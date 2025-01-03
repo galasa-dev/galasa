@@ -19,15 +19,12 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.ProfilesIni;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.ie.InternetExplorerOptions;
-import org.openqa.selenium.opera.OperaDriver;
-import org.openqa.selenium.opera.OperaOptions;
 import org.openqa.selenium.remote.CapabilityType;
 
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.selenium.Browser;
 import dev.galasa.selenium.IFirefoxOptions;
 import dev.galasa.selenium.SeleniumManagerException;
-import dev.galasa.selenium.internal.properties.SeleniumDefaultDriver;
 import dev.galasa.selenium.internal.properties.SeleniumGeckoPreferences;
 import dev.galasa.selenium.internal.properties.SeleniumGeckoProfile;
 import dev.galasa.selenium.internal.properties.SeleniumLocalDriverPath;
@@ -39,7 +36,7 @@ import dev.galasa.selenium.internal.properties.SeleniumLocalDriverPath;
  *
  */
 public enum LocalBrowser {
-  GECKO, IE, CHROME, EDGE, OPERA;
+  GECKO, IE, CHROME, EDGE;
 
   static final Log logger = LogFactory.getLog(LocalBrowser.class);
 
@@ -50,8 +47,6 @@ public enum LocalBrowser {
           return getGeckoDriver();
         case CHROME:
           return getChromeDriver();
-        case OPERA:
-          return getOperaDriver();
         case EDGE:
           return getEdgeDriver();
         case IE:
@@ -130,7 +125,7 @@ public enum LocalBrowser {
 
   private static WebDriver getChromeDriver() throws SeleniumManagerException {
     ChromeOptions cOptions = new ChromeOptions();
-    cOptions.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+    cOptions.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
     return getChromeDriver(cOptions);
   }
 
@@ -145,7 +140,7 @@ public enum LocalBrowser {
 
   private static WebDriver getEdgeDriver() throws SeleniumManagerException {
     EdgeOptions eOptions = new EdgeOptions();
-    eOptions.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+    eOptions.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
     return getEdgeDriver(eOptions);
   }
 
@@ -160,7 +155,7 @@ public enum LocalBrowser {
 
   private static WebDriver getIEDriver() throws SeleniumManagerException {
     InternetExplorerOptions ieOptions = new InternetExplorerOptions();
-    ieOptions.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+    ieOptions.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
     return getIEDriver(ieOptions);
   }
 
@@ -172,22 +167,6 @@ public enum LocalBrowser {
     }
 
     return new InternetExplorerDriver(capabilities);
-  }
-
-  private static WebDriver getOperaDriver() throws SeleniumManagerException {
-    OperaOptions operaOptions = new OperaOptions();
-    operaOptions.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
-    return getOperaDriver(operaOptions);
-  }
-
-  public static WebDriver getOperaDriver(OperaOptions capabilities) throws SeleniumManagerException {
-    try {
-      System.setProperty("webdriver.opera.driver", SeleniumLocalDriverPath.get("OPERA"));
-    } catch (Exception e) {
-      throw new SeleniumManagerException("Unable to get Opera path from CPS", e);
-    }
-
-    return new OperaDriver(capabilities);
   }
 
   public static @NotNull LocalBrowser getBrowser(@NotNull String browser) throws SeleniumManagerException {
