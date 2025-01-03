@@ -20,6 +20,12 @@ release:
 
 external:
   bundles:
+  # Transitive dependency of selenium 4.27.0 required for isolated and MVP
+  - group: com.google.auto.service
+    artifact: auto-service-annotations
+    mvp: true
+    isolated: true
+
   - group: com.google.code.gson
     artifact: gson
     version: 2.10.1
@@ -73,6 +79,12 @@ external:
     version: 1.3.4
     obr: false
     bom: true
+    mvp: true
+    isolated: true
+
+  # Transitive dependency of selenium 4.27.0 required for isolated and MVP
+  - group: dev.failsafe
+    artifact: failsafe
     mvp: true
     isolated: true
 
@@ -137,6 +149,62 @@ external:
     obr: true
     mvp: false      # Only used in Kafka extension - not needed.
     isolated: false # Only used in Kafka extension - not needed.
+
+  # io.opentelemetry dependencies are transitive dependencies of selenium 4.27.0 required for isolated and MVP
+  - group: io.opentelemetry
+    artifact: opentelemetry-api
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry
+    artifact: opentelemetry-context
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry
+    artifact: opentelemetry-exporter-logging
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry
+    artifact: opentelemetry-sdk
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry
+    artifact: opentelemetry-sdk-common
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry
+    artifact: opentelemetry-sdk-extension-autoconfigure
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry
+    artifact: opentelemetry-sdk-extension-autoconfigure-spi
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry
+    artifact: opentelemetry-sdk-logs
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry
+    artifact: opentelemetry-sdk-metrics
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry
+    artifact: opentelemetry-sdk-trace
+    mvp: true
+    isolated: true
+
+  - group: io.opentelemetry.semconv
+    artifact: opentelemetry-semconv
+    mvp: true
+    isolated: true
 
   - group: io.prometheus
     artifact: simpleclient
@@ -336,6 +404,12 @@ external:
     mvp: false      # Only used for Docker controller - not needed.
     isolated: false # Only used for Docker controller - not needed.
 
+  # Transitive dependency of selenium 4.27.0 required for isolated and MVP
+  - group: org.jspecify
+    artifact: jspecify
+    mvp: true
+    isolated: true
+
   - group: org.osgi
     artifact: org.osgi.service.component.annotations
     version: 1.3.0
@@ -344,6 +418,67 @@ external:
     # Added since Isolated selects bundles based on this line,
     # and not just all bundles appearing in this file,
     # but might not be needed in Isolated.
+    isolated: true
+
+  # org.seleniumhq.selenium dependencies are dependencies on selenium 4.27.0 required for isolated and MVP
+  - group: org.seleniumhq.selenium
+    artifact: selenium-api
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-chrome-driver
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-chromium-driver
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-devtools-v85
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-edge-driver
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-firefox-driver
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-http
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-ie-driver
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-json
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-manager
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-os
+    mvp: true
+    isolated: true
+
+  - group: org.seleniumhq.selenium
+    artifact: selenium-remote-driver
+    mvp: true
     isolated: true
 
   - group: org.slf4j
