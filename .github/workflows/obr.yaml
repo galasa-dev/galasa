@@ -33,11 +33,11 @@ jobs:
     uses: ./.github/workflows/check-required-secrets-configured.yaml
     secrets: inherit
     with:
-      maven_settings_xml: 'true'
-      gpg_key: 'true'
-      gpg_passphrase: 'true'
-      write_github_packages_username: 'true'
-      write_github_packages_token: 'true'
+      check_maven_settings_xml: 'true'
+      check_gpg_key: 'true'
+      check_gpg_passphrase: 'true'
+      check_write_github_packages_username: 'true'
+      check_write_github_packages_token: 'true'
 
   build-obr:
     name: Build OBR using galasabld image and maven

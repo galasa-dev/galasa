@@ -36,9 +36,9 @@ jobs:
     uses: ./.github/workflows/check-required-secrets-configured.yaml
     secrets: inherit
     with:
-      gpg_key: 'true'
-      gpg_keyid: 'true'
-      gpg_passphrase: 'true'
+      check_gpg_key: 'true'
+      check_gpg_keyid: 'true'
+      check_gpg_passphrase: 'true'
 
   build-gradle:
     name: Build 'gradle' source code

@@ -19,8 +19,8 @@ jobs:
     uses: ./.github/workflows/check-required-secrets-configured.yaml
     secrets: inherit
     with:
-      write_github_packages_username: 'true'
-      write_github_packages_token: 'true'
+      check_write_github_packages_username: 'true'
+      check_write_github_packages_token: 'true'
 
   build-push-galasabld:
     name: Build and push galasabld artifacts

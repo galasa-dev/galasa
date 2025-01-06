@@ -38,11 +38,11 @@ jobs:
     uses: ./.github/workflows/check-required-secrets-configured.yaml
     secrets: inherit
     with:
-      gpg_key: 'true'
-      gpg_keyid: 'true'
-      gpg_passphrase: 'true'
-      write_github_packages_username: 'true'
-      write_github_packages_token: 'true'
+      check_gpg_key: 'true'
+      check_gpg_keyid: 'true'
+      check_gpg_passphrase: 'true'
+      check_write_github_packages_username: 'true'
+      check_write_github_packages_token: 'true'
 
   build-framework:
     name: Build Framework using openapi2beans and gradle
