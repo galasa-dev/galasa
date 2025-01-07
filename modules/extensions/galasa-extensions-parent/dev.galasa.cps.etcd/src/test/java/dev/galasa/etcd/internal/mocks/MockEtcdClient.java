@@ -20,6 +20,8 @@ import io.etcd.jetcd.Watch;
 public class MockEtcdClient implements Client {
 
     private KV kvClient;
+    private Lease leaseClient = new MockEtcdLeaseClient();
+    private Watch watchClient = new MockEtcdWatchClient();
     private boolean isClientShutDown = false;
 
     public MockEtcdClient(Map<String, String> kvContents) {
@@ -32,12 +34,26 @@ public class MockEtcdClient implements Client {
     }
 
     @Override
+    public Lease getLeaseClient() {
+        return leaseClient;
+    }
+
+    @Override
+    public Watch getWatchClient() {
+        return watchClient;
+    }
+
+    @Override
     public void close() {
         isClientShutDown = true;
     }
 
     public boolean isClientShutDown() {
         return isClientShutDown;
+    }
+
+    public void setLeaseClient(Lease leaseClient) {
+        this.leaseClient = leaseClient;
     }
 
     @Override
@@ -56,11 +72,6 @@ public class MockEtcdClient implements Client {
     }
 
     @Override
-    public Lease getLeaseClient() {
-        throw new UnsupportedOperationException("Unimplemented method 'getLeaseClient'");
-    }
-
-    @Override
     public Lock getLockClient() {
         throw new UnsupportedOperationException("Unimplemented method 'getLockClient'");
     }
@@ -69,10 +80,4 @@ public class MockEtcdClient implements Client {
     public Maintenance getMaintenanceClient() {
         throw new UnsupportedOperationException("Unimplemented method 'getMaintenanceClient'");
     }
-
-    @Override
-    public Watch getWatchClient() {
-        throw new UnsupportedOperationException("Unimplemented method 'getWatchClient'");
-    }
-    
 }

@@ -94,6 +94,11 @@ public class MockEtcdKvClient implements KV {
         return CompletableFuture.completedFuture(null);
     }
 
+    @Override
+    public CompletableFuture<PutResponse> put(ByteSequence key, ByteSequence value, PutOption options) {
+        return put(key, value);
+    }
+
 
     @Override
     public CompletableFuture<DeleteResponse> delete(ByteSequence key, DeleteOption options) {
@@ -137,11 +142,6 @@ public class MockEtcdKvClient implements KV {
     @Override
     public CompletableFuture<DeleteResponse> delete(ByteSequence key) {
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
-    }
-
-    @Override
-    public CompletableFuture<PutResponse> put(ByteSequence key, ByteSequence value, PutOption options) {
-        throw new UnsupportedOperationException("Unimplemented method 'put'");
     }
 
     @Override

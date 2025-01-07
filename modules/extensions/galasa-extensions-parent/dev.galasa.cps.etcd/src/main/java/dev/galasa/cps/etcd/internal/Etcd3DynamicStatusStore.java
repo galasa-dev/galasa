@@ -81,8 +81,12 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
      * @param dssUri - http:// uri for th etcd cluster.
      */
     public Etcd3DynamicStatusStore(URI dssUri) {
-        client = Client.builder().endpoints(dssUri).build();
-        kvClient = client.getKVClient();
+        this(Client.builder().endpoints(dssUri).build());
+    }
+
+    public Etcd3DynamicStatusStore(Client client) {
+        this.client = client;
+        this.kvClient = client.getKVClient();
         this.watchClient = client.getWatchClient();
         this.leaseClient = client.getLeaseClient();
     }
@@ -499,6 +503,7 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
     @Override
     public void shutdown() throws DynamicStatusStoreException {
         watchClient.close();
+        leaseClient.close();
         kvClient.close();
         client.close();
     }
