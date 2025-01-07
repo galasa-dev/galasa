@@ -506,6 +506,15 @@ public class FrameworkResourcePoolingService implements IResourcePoolingService 
          * Commenting as unused, but required from IDynamicStatusStore implementation.
          */
         @Override
+        public void put(@NotNull String key, @NotNull String value, @NotNull long timeToLiveSecs)
+                throws DynamicStatusStoreException {
+            // EMPTY METHOD
+        }
+
+        /**
+         * Commenting as unused, but required from IDynamicStatusStore implementation.
+         */
+        @Override
         public UUID watch(IDynamicStatusStoreWatcher watcher, String key) throws DynamicStatusStoreException {
             return null;
         }

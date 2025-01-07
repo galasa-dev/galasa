@@ -79,6 +79,12 @@ public class FpfDynamicStatusStore implements IDynamicStatusStore {
 
     }
 
+    @Override
+    public void put(@NotNull String key, @NotNull String value, @NotNull long timeToLiveSecs)
+            throws DynamicStatusStoreException {
+        throw new UnsupportedOperationException("Creating entries that expire for a file-based DSS is not supported");
+    }
+
     /**
      * <p>
      * This method swaps an old value with a new value for a given key in the DSS.

@@ -70,12 +70,18 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
         return data.get(key);
     }
 
-    // ------------------- un-implemented methods follow --------------------
-
     @Override
     public void put(@NotNull String key, @NotNull String value) throws DynamicStatusStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'put'");
+        data.put(key, value);
     }
+
+    @Override
+    public void put(@NotNull String key, @NotNull String value, @NotNull long timeToLiveSecs)
+            throws DynamicStatusStoreException {
+        put(key, value);
+    }
+
+    // ------------------- un-implemented methods follow --------------------
 
     @Override
     public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {

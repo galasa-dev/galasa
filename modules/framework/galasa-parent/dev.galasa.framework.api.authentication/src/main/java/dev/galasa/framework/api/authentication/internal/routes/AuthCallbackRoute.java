@@ -11,7 +11,6 @@ import java.net.URI;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -19,18 +18,25 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class AuthCallbackRoute extends BaseRoute {
 
     private static String externalApiServerUrl;
+    private IDynamicStatusStoreService dssService;
 
     // Regex to match /auth/callback only
     private static final String PATH_PATTERN = "\\/callback";
 
-    public AuthCallbackRoute(ResponseBuilder responseBuilder, String externalApiServerUrl) {
+    public AuthCallbackRoute(
+        ResponseBuilder responseBuilder,
+        String externalApiServerUrl,
+        IDynamicStatusStoreService dssService
+    ) {
         super(responseBuilder, PATH_PATTERN);
+        this.dssService = dssService;
         AuthCallbackRoute.externalApiServerUrl = externalApiServerUrl;
     }
 
@@ -55,45 +61,36 @@ public class AuthCallbackRoute extends BaseRoute {
         String authCode = queryParams.getSingleString("code", null);
         String state = queryParams.getSingleString("state", null);
 
-        if (state != null && authCode != null) {
-
-            // Make sure the state parameter is the same as the state that was previously stored in the session
-            HttpSession session = request.getSession();
-            if (isStateParameterValid(session, state)) {
-                logger.info("State query parameter matches previously-generated state");
-
-                String clientCallbackUrl = (String) session.getAttribute("callbackUrl");
-                if (clientCallbackUrl != null) {
-
-                    // If the callback URL already has query parameters, append to them
-                    String authCodeQuery = "code=" + authCode;
-                    clientCallbackUrl = appendQueryParameterToUrl(clientCallbackUrl, authCodeQuery);
-
-                    // We don't need the session anymore, so invalidate it
-                    session.invalidate();
-
-                    // Redirect the user back to the callback URL provided in the original /auth request
-                    response.addHeader("Location", clientCallbackUrl);
-                    return getResponseBuilder().buildResponse(request, response, null, null,
-                            HttpServletResponse.SC_FOUND);
-                } else {
-                    logger.error("Unable to redirect back to the client application (failed to retrieve callback URL from session)");
-                }
-            } else {
-                logger.error("The provided 'state' query parameter does not match the state parameter stored in the session");
-            }
+        if (state == null || authCode == null) {
+            ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
-        ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
-        throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-    }
 
-    /**
-     * Checks whether the provided state parameter matches the state parameter that was stored
-     * when initiating an authentication flow.
-     */
-    private boolean isStateParameterValid(HttpSession session, String state) {
-        String storedState = (String) session.getAttribute("state");
-        return (storedState != null && state.equals(storedState));
+        // Make sure the state parameter is the same as the state that was previously stored in the DSS
+        String callbackUrlDssKey = state + ".callback.url";
+        String clientCallbackUrl = dssService.get(callbackUrlDssKey);
+
+        if (clientCallbackUrl == null) {
+            logger.error("The provided 'state' query parameter does not match the stored state parameter");
+            ServletError error = new ServletError(GAL5103_UNEXPECTED_STATE_PARAMETER_PROVIDED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        logger.info("State query parameter matches previously-generated state");
+
+        // If the callback URL already has query parameters, append to them
+        String authCodeQuery = "code=" + authCode;
+        clientCallbackUrl = appendQueryParameterToUrl(clientCallbackUrl, authCodeQuery);
+
+        // We don't need the stored state anymore, so remove it from the DSS
+        dssService.delete(callbackUrlDssKey);
+
+        // Redirect the user back to the callback URL provided in the original /auth request
+        response.addHeader("Location", clientCallbackUrl);
+
+        logger.info("handleGetRequest() exiting");
+        return getResponseBuilder().buildResponse(request, response, null, null,
+                HttpServletResponse.SC_FOUND);
     }
 
     /**

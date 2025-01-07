@@ -10,11 +10,11 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpResponse;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import com.coreos.dex.api.DexOuterClass.Client;
 import com.google.common.net.HttpHeaders;
@@ -35,6 +35,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.auth.spi.IAuthService;
 import dev.galasa.framework.auth.spi.IDexGrpcClient;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IInternalUser;
@@ -47,6 +48,7 @@ public class AuthRoute extends BaseRoute {
     private IOidcProvider oidcProvider;
     private IDexGrpcClient dexGrpcClient;
     private Environment env;
+    private IDynamicStatusStoreService dssService;
 
     private static final String ID_TOKEN_KEY      = "id_token";
     private static final String REFRESH_TOKEN_KEY = "refresh_token";
@@ -54,19 +56,24 @@ public class AuthRoute extends BaseRoute {
     // Regex to match endpoint /auth and /auth/
     private static final String PATH_PATTERN = "\\/?";
 
+    // Allow auth-related DSS properties to live for 10 minutes before being deleted from the DSS
+    private static final long AUTH_DSS_STATE_EXPIRY_SECONDS = 10 * 60;
+
     private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
 
     public AuthRoute(
         ResponseBuilder responseBuilder,
         IOidcProvider oidcProvider,
         IAuthService authService,
-        Environment env
+        Environment env,
+        IDynamicStatusStoreService dssService
     ) {
         super(responseBuilder, PATH_PATTERN);
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = authService.getDexGrpcClient();
         this.authStoreService = authService.getAuthStoreService();
         this.env = env;
+        this.dssService = dssService;
     }
 
     /**
@@ -78,7 +85,6 @@ public class AuthRoute extends BaseRoute {
             HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
         logger.info("AuthRoute: handleGetRequest() entered.");
-        HttpSession session = request.getSession(true);
         try {
             String clientId = queryParams.getSingleString("client_id", null);
             String clientCallbackUrl = queryParams.getSingleString("callback_url", null);
@@ -89,24 +95,25 @@ public class AuthRoute extends BaseRoute {
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
 
-            // Store the callback URL in the session to redirect to at the end of the authentication process
-            session.setAttribute("callbackUrl", clientCallbackUrl);
+            // Create a random ID to identify this auth request
+            String stateId = UUID.randomUUID().toString();
 
             // Get the redirect URL to the upstream connector and add it to the response's "Location" header
-            String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, AuthCallbackRoute.getExternalAuthCallbackUrl(), session);
+            String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, AuthCallbackRoute.getExternalAuthCallbackUrl(), stateId);
             if (authUrl != null) {
                 logger.info("Redirect URL to upstream connector received: " + authUrl);
                 response.addHeader(HttpHeaders.LOCATION, authUrl);
 
+                // Store the callback URL in the DSS to redirect to at the end of the authentication process
+                dssService.put(stateId + ".callback.url", clientCallbackUrl, AUTH_DSS_STATE_EXPIRY_SECONDS);
+
             } else {
-                session.invalidate();
                 ServletError error = new ServletError(GAL5054_FAILED_TO_GET_CONNECTOR_URL);
                 throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } catch (InterruptedException e) {
             logger.error("GET request to the OpenID Connect provider's authorization endpoint was interrupted.", e);
 
-            session.invalidate();
             ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }

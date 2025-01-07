@@ -5,8 +5,6 @@ import java.net.http.HttpResponse;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
-import javax.servlet.http.HttpSession;
-
 import com.google.gson.JsonObject;
 
 /**
@@ -25,13 +23,13 @@ public interface IOidcProvider {
      * Gets the URL of the upstream connector to authenticate with (e.g. a
      * github.com URL to authenticate with an OAuth application in GitHub).
      */
-    public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session) throws IOException, InterruptedException;
+    public String getConnectorRedirectUrl(String clientId, String callbackUrl, String stateId) throws IOException, InterruptedException;
 
     /**
      * Sends a GET request to an OpenID Connect authorization endpoint, returning
      * the received response.
      */
-    public HttpResponse<String> sendAuthorizationGet(String clientId, String callbackUrl, HttpSession session) throws IOException, InterruptedException;
+    public HttpResponse<String> sendAuthorizationGet(String clientId, String callbackUrl, String stateId) throws IOException, InterruptedException;
 
     /**
      * Sends a POST request with a given request body to an OpenID Connect /token endpoint, returning the received response.

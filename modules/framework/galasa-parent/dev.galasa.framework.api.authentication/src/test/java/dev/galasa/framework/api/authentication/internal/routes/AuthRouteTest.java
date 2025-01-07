@@ -31,7 +31,7 @@ import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.mocks.MockHttpSession;
+import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.auth.spi.IDexGrpcClient;
 import dev.galasa.framework.auth.spi.mocks.MockAuthStoreService;
@@ -419,15 +419,17 @@ public class AuthRouteTest extends BaseServletTest {
 
         MockOidcProvider mockOidcProvider = new MockOidcProvider(redirectLocation);
 
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFramework mockFramework = new MockFramework(mockDss);
+
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider);
+        servlet.setFramework(mockFramework);
 
         Map<String, String[]> queryParams = Map.of(
                 "client_id", new String[] { clientId }, "callback_url", new String[] { clientCallbackUrl }
         );
 
-        MockHttpSession mockSession = new MockHttpSession();
-
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, mockSession);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
         // When...
@@ -437,7 +439,7 @@ public class AuthRouteTest extends BaseServletTest {
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(302);
         assertThat(servletResponse.getHeader("Location")).isEqualTo(redirectLocation);
-        assertThat((String)mockSession.getAttribute("callbackUrl")).isEqualTo(clientCallbackUrl);
+        assertThat(mockDss.data).containsValue(clientCallbackUrl);
     }
 
     @Test
@@ -456,9 +458,7 @@ public class AuthRouteTest extends BaseServletTest {
                 "client_id", new String[] { "my-client" }, "callback_url", new String[] { "http://my.app" }
         );
 
-        MockHttpSession mockSession = new MockHttpSession();
-
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null, mockSession);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 

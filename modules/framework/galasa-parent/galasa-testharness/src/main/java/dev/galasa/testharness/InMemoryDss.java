@@ -51,6 +51,12 @@ public class InMemoryDss implements IDynamicStatusStore {
     }
 
     @Override
+    public void put(@NotNull String key, @NotNull String value, @NotNull long timeToLiveSecs)
+            throws DynamicStatusStoreException {
+        throw new UnsupportedOperationException("Creating entries that expire for an in-memory DSS is not supported");
+    }
+
+    @Override
     public synchronized boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue)
             throws DynamicStatusStoreException {
         

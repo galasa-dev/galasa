@@ -38,7 +38,6 @@ import dev.galasa.framework.api.authentication.internal.OidcProvider;
 import dev.galasa.framework.api.authentication.internal.beans.JsonWebKey;
 import dev.galasa.framework.api.common.mocks.MockHttpClient;
 import dev.galasa.framework.api.common.mocks.MockHttpResponse;
-import dev.galasa.framework.api.common.mocks.MockHttpSession;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
@@ -594,19 +593,14 @@ public class OidcProviderTest {
 
         mockHttpClient.setMockResponse(mockResponse);
 
-        MockHttpSession mockSession = new MockHttpSession();
+        String mockState = "this-is-a-random-id";
 
         // When...
-        HttpResponse<String> response = oidcProvider.sendAuthorizationGet("my-client-id", "http://my.server/callback", mockSession);
+        HttpResponse<String> response = oidcProvider.sendAuthorizationGet("my-client-id", "http://my.server/callback", mockState);
 
         // Then...
         assertThat(response).isNotNull();
         assertThat(response).isEqualTo(mockResponse);
-
-        // Ensure the "state" parameter has been set as a session attribute
-        String stateAttribute = (String) mockSession.getAttribute("state");
-        assertThat(stateAttribute).isNotNull();
-        assertThat(stateAttribute).hasSize(32);
     }
 
     @Test
@@ -622,10 +616,10 @@ public class OidcProviderTest {
 
         mockHttpClient.setMockResponse(mockResponse);
 
-        MockHttpSession mockSession = new MockHttpSession();
+        String mockState = "this-is-a-random-id";
 
         // When...
-        String redirectUrl = oidcProvider.getConnectorRedirectUrl("my-client-id", "http://my.server/callback", mockSession);
+        String redirectUrl = oidcProvider.getConnectorRedirectUrl("my-client-id", "http://my.server/callback", mockState);
 
         // Then...
         assertThat(redirectUrl).isNull();
@@ -645,10 +639,10 @@ public class OidcProviderTest {
 
         mockHttpClient.setMockResponse(mockResponse);
 
-        MockHttpSession mockSession = new MockHttpSession();
+        String mockState = "this-is-a-random-id";
 
         // When...
-        String redirectUrl = oidcProvider.getConnectorRedirectUrl("my-client-id", "http://my.server/callback", mockSession);
+        String redirectUrl = oidcProvider.getConnectorRedirectUrl("my-client-id", "http://my.server/callback", mockState);
 
         // Then...
         assertThat(redirectUrl).isNotNull();
@@ -669,10 +663,10 @@ public class OidcProviderTest {
 
         mockHttpClient.setMockResponse(mockResponse);
 
-        MockHttpSession mockSession = new MockHttpSession();
+        String mockState = "this-is-a-random-id";
 
         // When...
-        String redirectUrl = oidcProvider.getConnectorRedirectUrl("my-client-id", "http://my.server/callback", mockSession);
+        String redirectUrl = oidcProvider.getConnectorRedirectUrl("my-client-id", "http://my.server/callback", mockState);
 
         // Then...
         assertThat(redirectUrl).isNotNull();

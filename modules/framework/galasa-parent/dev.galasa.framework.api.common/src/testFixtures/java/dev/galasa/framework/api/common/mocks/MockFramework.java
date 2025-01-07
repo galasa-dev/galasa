@@ -34,12 +34,13 @@ import java.util.Random;
 import javax.validation.constraints.NotNull;
 
 public class MockFramework implements IFramework {
-    IResultArchiveStore archiveStore;
-    IFrameworkRuns frameworkRuns;
-    MockIConfigurationPropertyStoreService cpsService = new MockIConfigurationPropertyStoreService("framework");
-    MockCredentialsService creds = new MockCredentialsService(new HashMap<>());
-    IAuthStoreService authStoreService;
+    private IResultArchiveStore archiveStore;
+    private IFrameworkRuns frameworkRuns;
+    private MockIConfigurationPropertyStoreService cpsService = new MockIConfigurationPropertyStoreService("framework");
+    private MockCredentialsService creds = new MockCredentialsService(new HashMap<>());
+    private IAuthStoreService authStoreService;
     private RBACService rbacService;
+    private IDynamicStatusStoreService dssService;
     
     public MockFramework() {
         // Do nothing...
@@ -63,6 +64,10 @@ public class MockFramework implements IFramework {
 
     public MockFramework(RBACService rbacService){ 
         this.rbacService = rbacService;
+    }
+
+    public MockFramework(IDynamicStatusStoreService dssService) {
+        this.dssService = dssService;
     }
 
     public MockFramework(IResultArchiveStore archiveStore, IFrameworkRuns frameworkRuns) {
@@ -109,6 +114,12 @@ public class MockFramework implements IFramework {
     }
 
     @Override
+    public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
+            throws DynamicStatusStoreException {
+        return this.dssService;
+    }
+
+    @Override
     public void setFrameworkProperties(Properties overrideProperties) {
         throw new UnsupportedOperationException("Unimplemented method 'setFrameworkProperties'");
     }
@@ -116,12 +127,6 @@ public class MockFramework implements IFramework {
     @Override
     public boolean isInitialised() {
         throw new UnsupportedOperationException("Unimplemented method 'isInitialised'");
-    }
-
-    @Override
-    public @NotNull IDynamicStatusStoreService getDynamicStatusStoreService(@NotNull String namespace)
-            throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'getDynamicStatusStoreService'");
     }
 
     @Override

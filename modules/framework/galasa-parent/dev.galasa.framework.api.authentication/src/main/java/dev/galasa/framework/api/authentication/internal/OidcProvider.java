@@ -30,9 +30,7 @@ import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -136,10 +134,10 @@ public class OidcProvider implements IOidcProvider {
      * Gets the URL of the upstream connector to authenticate with (e.g. a
      * github.com URL to authenticate with an OAuth application in GitHub).
      */
-    public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session) throws IOException, InterruptedException {
+    public String getConnectorRedirectUrl(String clientId, String callbackUrl, String stateId) throws IOException, InterruptedException {
         logger.info("Sending GET request to " + authorizationEndpoint);
 
-        HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl, session);
+        HttpResponse<String> authResponse = sendAuthorizationGet(clientId, callbackUrl, stateId);
         String redirectUrl = getLocationHeaderFromResponse(authResponse);
 
         // In case the "Location" header contains a relative URI, get an absolute URI from the response
@@ -155,17 +153,12 @@ public class OidcProvider implements IOidcProvider {
      * Sends a GET request to an OpenID Connect authorization endpoint, returning
      * the received response.
      */
-    public HttpResponse<String> sendAuthorizationGet(String clientId, String callbackUrl, HttpSession session) throws IOException, InterruptedException {
-        String state = RandomStringUtils.insecure().nextAlphanumeric(32);
+    public HttpResponse<String> sendAuthorizationGet(String clientId, String callbackUrl, String stateId) throws IOException, InterruptedException {
         String queryParams = "?response_type=code"
             + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
             + "&redirect_uri=" + URLEncoder.encode(callbackUrl, StandardCharsets.UTF_8)
             + "&scope=" + URLEncoder.encode(BEARER_TOKEN_SCOPE, StandardCharsets.UTF_8)
-            + "&state=" + state;
-
-        // Save the state in a session for validation later
-        logger.info("Storing state parameter in session");
-        session.setAttribute("state", state);
+            + "&state=" + stateId;
 
         String authUrl = authorizationEndpoint + queryParams;
         return sendGetRequest(URI.create(authUrl));

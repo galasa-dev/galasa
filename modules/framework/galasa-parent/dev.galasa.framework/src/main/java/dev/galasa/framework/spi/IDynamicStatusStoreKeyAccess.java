@@ -54,6 +54,16 @@ public interface IDynamicStatusStoreKeyAccess {
     void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException;
 
     /**
+     * Store a new key-value pair with a given expiry time in the server
+     * 
+     * @param key            - the key to store
+     * @param value          - the value to associate with the given key
+     * @param timeToLiveSecs - the amount of time in seconds for the key-value pair to remain available
+     * @throws DynamicStatusStoreException if there was an issue accessing the DSS
+     */
+    void put(@NotNull String key, @NotNull String value, @NotNull long timeToLiveSecs) throws DynamicStatusStoreException;
+
+    /**
      * Put a key/value pair in the server if the key is set to the oldValue.
      * 
      * @param key      - the key to use

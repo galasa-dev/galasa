@@ -29,6 +29,8 @@ import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.auth.spi.AuthServiceFactory;
 import dev.galasa.framework.auth.spi.IAuthService;
 import dev.galasa.framework.auth.spi.IAuthServiceFactory;
+import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.utils.SystemTimeService;
@@ -44,6 +46,7 @@ public class AuthenticationServlet extends BaseServlet {
     @Reference
     protected IFramework framework;
 
+    private static final String AUTH_DSS_NAMESPACE = "auth";
     private static final long serialVersionUID = 1L;
 
     private Log logger = LogFactory.getLog(getClass());
@@ -68,10 +71,17 @@ public class AuthenticationServlet extends BaseServlet {
             factory = new AuthServiceFactory(framework, env);
         }
 
+        IDynamicStatusStoreService dssService = null;
+        try {
+            dssService = framework.getDynamicStatusStoreService(AUTH_DSS_NAMESPACE);
+        } catch (DynamicStatusStoreException e) {
+            throw new ServletException("Failed to initialise authentication servlet");
+        }
+
         IAuthService authService = factory.getAuthService();
-        addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, authService, env));
+        addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, authService, env, dssService));
         addRoute(new AuthClientsRoute(getResponseBuilder(), authService));
-        addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl));
+        addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl, dssService));
         addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, authService, timeService, env));
         addRoute(new AuthTokensDetailsRoute(getResponseBuilder(), authService));
 

@@ -16,9 +16,10 @@ import org.junit.Test;
 
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.mocks.MockHttpSession;
+import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 
 public class AuthCallbackRouteTest extends BaseServletTest {
 
@@ -103,7 +104,9 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestWithBadCallbackUrlReturnsError() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFramework mockFramework = new MockFramework(mockDss);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockFramework);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -113,11 +116,9 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         queryParams.put("code", new String[] { expectedCode });
         queryParams.put("state", new String[] { expectedState });
 
-        MockHttpSession mockSession = new MockHttpSession();
-        mockSession.setAttribute("state", expectedState);
-        mockSession.setAttribute("callbackUrl", expectedCallbackUrl);
+        mockDss.put(expectedState + ".callback.url", expectedCallbackUrl);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback", mockSession);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -127,21 +128,16 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         // Then...
-        // Expecting this json:
-        // {
-        // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occurred when trying to execute request
-        // '/auth/callback'. Please check your request parameters or report the problem to your
-        // Galasa Ecosystem owner."
-        // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occurred when trying to execute request");
+        checkErrorStructure(outStream.toString(), 5103, "GAL5103E", "Unexpected 'state' query parameter value provided");
     }
 
     @Test
     public void testAuthCallbackGetRequestWithValidStateAndCodeReturnsCode() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFramework mockFramework = new MockFramework(mockDss);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockFramework);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -151,11 +147,9 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         queryParams.put("code", new String[] { expectedCode });
         queryParams.put("state", new String[] { expectedState });
 
-        MockHttpSession mockSession = new MockHttpSession();
-        mockSession.setAttribute("state", expectedState);
-        mockSession.setAttribute("callbackUrl", expectedCallbackUrl);
+        mockDss.put(expectedState + ".callback.url", expectedCallbackUrl);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback", mockSession);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
@@ -172,7 +166,9 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestCallbackUrlWithQueryAppendsCodeToQueryParams() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFramework mockFramework = new MockFramework(mockDss);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockFramework);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -182,11 +178,9 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         queryParams.put("code", new String[] { expectedCode });
         queryParams.put("state", new String[] { expectedState });
 
-        MockHttpSession mockSession = new MockHttpSession();
-        mockSession.setAttribute("state", expectedState);
-        mockSession.setAttribute("callbackUrl", expectedCallbackUrl);
+        mockDss.put(expectedState + ".callback.url", expectedCallbackUrl);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback", mockSession);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
@@ -203,7 +197,9 @@ public class AuthCallbackRouteTest extends BaseServletTest {
     @Test
     public void testAuthCallbackGetRequestWithInvalidStateReturnsBadRequest() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFramework mockFramework = new MockFramework(mockDss);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockFramework);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -212,10 +208,9 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         queryParams.put("code", new String[] { expectedCode });
         queryParams.put("state", new String[] { expectedState });
 
-        MockHttpSession mockSession = new MockHttpSession();
-        mockSession.setAttribute("state", "a different state");
+        mockDss.put("a-different-state.callback.url", "a-different-callback-url");
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback", mockSession);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -225,21 +220,16 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         // Then...
-        // Expecting this json:
-        // {
-        // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occurred when trying to execute request
-        // '/auth/callback'. Please check your request parameters or report the problem to your
-        // Galasa Ecosystem owner."
-        // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occurred when trying to execute request");
+        checkErrorStructure(outStream.toString(), 5103, "GAL5103E", "Unexpected 'state' query parameter value provided");
     }
 
     @Test
     public void testAuthCallbackGetRequestWithNoMatchingStateSessionReturnsBadRequest() throws Exception {
         // Given...
-        MockAuthenticationServlet servlet = new MockAuthenticationServlet();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFramework mockFramework = new MockFramework(mockDss);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockFramework);
 
         String expectedCode = "my-auth-code";
         String expectedState = "my-state";
@@ -248,10 +238,9 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         queryParams.put("code", new String[] { expectedCode });
         queryParams.put("state", new String[] { expectedState });
 
-        MockHttpSession mockSession = new MockHttpSession();
-        mockSession.setAttribute("not state", "something else");
+        mockDss.put("not.an.auth.property", "something else");
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback", mockSession);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -261,15 +250,8 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         // Then...
-        // Expecting this json:
-        // {
-        // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occurred when trying to execute request
-        // '/auth/callback'. Please check your request parameters or report the problem to your
-        // Galasa Ecosystem owner."
-        // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occurred when trying to execute request");
+        checkErrorStructure(outStream.toString(), 5103, "GAL5103E", "Unexpected 'state' query parameter value provided");
     }
 
     @Test
@@ -293,14 +275,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         // Then...
-        // Expecting this json:
-        // {
-        // "error_code" : 5400,
-        // "error_message" : "GAL5400E: Error occurred when trying to execute request
-        // '/auth/callback'. Please check your request parameters or report the problem to your
-        // Galasa Ecosystem owner."
-        // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occurred when trying to execute request");
+        checkErrorStructure(outStream.toString(), 5103, "GAL5103E", "Unexpected 'state' query parameter value provided");
     }
 }

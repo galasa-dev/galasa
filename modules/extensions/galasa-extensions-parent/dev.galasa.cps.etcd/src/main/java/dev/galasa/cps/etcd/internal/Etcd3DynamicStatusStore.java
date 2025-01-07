@@ -35,6 +35,7 @@ import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
+import io.etcd.jetcd.Lease;
 import io.etcd.jetcd.Txn;
 import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.Watch.Listener;
@@ -43,6 +44,7 @@ import io.etcd.jetcd.kv.DeleteResponse;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.kv.PutResponse;
 import io.etcd.jetcd.kv.TxnResponse;
+import io.etcd.jetcd.lease.LeaseGrantResponse;
 import io.etcd.jetcd.op.Cmp;
 import io.etcd.jetcd.op.CmpTarget;
 import io.etcd.jetcd.op.Op;
@@ -65,6 +67,7 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
     private final Client                            client;
     private final KV                                kvClient;
     private final Watch                             watchClient;
+    private final Lease                             leaseClient;
 
     private final HashMap<UUID, PassthroughWatcher> watchers = new HashMap<>();
 
@@ -81,6 +84,7 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
         client = Client.builder().endpoints(dssUri).build();
         kvClient = client.getKVClient();
         this.watchClient = client.getWatchClient();
+        this.leaseClient = client.getLeaseClient();
     }
 
     /**
@@ -130,6 +134,36 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
             throw new DynamicStatusStoreException("", e);
         }
 
+    }
+
+    /**
+     * Put a key-value pair into the DSS that expires after a given amount of time in seconds
+     * 
+     * @param key the key to be stored
+     * @param value the value to be associated with the given key
+     * @param timeToLiveSecs the amount of time in seconds for the key-value pair to be available for before expiring
+     * @throws DynamicStatusStoreException if there was an error accessing etcd
+     */
+    @Override
+    public void put(@NotNull String key, @NotNull String value, @NotNull long timeToLiveSecs) throws DynamicStatusStoreException {
+
+        // Create a new lease with the given time-to-live (TTL)
+        CompletableFuture<LeaseGrantResponse> leaseResponse = leaseClient.grant(timeToLiveSecs);
+        try {
+            LeaseGrantResponse lease = leaseResponse.get();
+            PutOption putOption = PutOption.builder()
+                .withLeaseId(lease.getID())
+                .build();
+            
+            // Set the key-value pair, applying the lease to it so the key expires after the given amount of time
+            ByteSequence bsKey = ByteSequence.from(key, UTF_8);
+            ByteSequence bsValue = ByteSequence.from(value, UTF_8);
+            kvClient.put(bsKey, bsValue, putOption).get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
+            throw new DynamicStatusStoreException("Could not set key-value pair with time-to-live", e);
+        }
     }
 
     /**

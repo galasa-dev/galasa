@@ -143,6 +143,8 @@ public enum ServletErrorMessage {
     GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED     (5101, "E: Unknown secret type detected. A secret retrieved from the credentials store is in an unknown or unsupported format. Report the problem to your Galasa Ecosystem owner."),
     GAL5102_INVALID_SECRET_DESCRIPTION_PROVIDED       (5102, "E: Invalid secret description provided. The description should not only contain spaces or tabs. When provided, it must contain characters in the Latin-1 character set. Report the problem to your Galasa Ecosystem owner."),
     
+    // Auth callback API...
+    GAL5103_UNEXPECTED_STATE_PARAMETER_PROVIDED       (5103, "E: Unexpected ''state'' query parameter value provided. The provided ''state'' parameter value does not match the stored state identifier. Check that the ''state'' query parameter is correct and try again."),
 
     // RBAC APIs...
     GAL5120_INVALID_ACTION_NAME_PROVIDED              (5120, "E: Invalid action name provided."),

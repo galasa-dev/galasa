@@ -85,6 +85,12 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
         this.dssStore.put(newKeyValues);
     }
 
+    @Override
+    public void put(@NotNull String key, @NotNull String value, @NotNull long timeToLiveSecs)
+            throws DynamicStatusStoreException {
+        this.dssStore.put(prefixKey(key), value, timeToLiveSecs);
+    }
+
     /*
      * (non-Javadoc)
      * 

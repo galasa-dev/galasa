@@ -17,6 +17,7 @@ import dev.galasa.framework.auth.spi.IDexGrpcClient;
 import dev.galasa.framework.auth.spi.internal.AuthService;
 import dev.galasa.framework.auth.spi.mocks.MockAuthServiceFactory;
 import dev.galasa.framework.auth.spi.mocks.MockDexGrpcClient;
+import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 
 public class MockAuthenticationServlet extends AuthenticationServlet {
@@ -26,7 +27,7 @@ public class MockAuthenticationServlet extends AuthenticationServlet {
     }
 
     public MockAuthenticationServlet(IDexGrpcClient dexGrpcClient) {
-        this(new MockOidcProvider(), dexGrpcClient, new MockFramework());
+        this(new MockOidcProvider(), dexGrpcClient, new MockFramework(new MockIDynamicStatusStoreService()));
     }
 
     public MockAuthenticationServlet(IOidcProvider oidcProvider) {
@@ -38,7 +39,7 @@ public class MockAuthenticationServlet extends AuthenticationServlet {
     }
 
     public MockAuthenticationServlet(IOidcProvider oidcProvider, IDexGrpcClient dexGrpcClient) {
-        this(oidcProvider, dexGrpcClient, new MockFramework());
+        this(oidcProvider, dexGrpcClient, new MockFramework(new MockIDynamicStatusStoreService()));
     }
 
     public MockAuthenticationServlet(IOidcProvider oidcProvider, IDexGrpcClient dexGrpcClient, IFramework framework) {
@@ -53,6 +54,10 @@ public class MockAuthenticationServlet extends AuthenticationServlet {
         IAuthService authService = new AuthService(framework.getAuthStoreService(), dexGrpcClient);
         setAuthServiceFactory(new MockAuthServiceFactory(authService));
         setResponseBuilder(new ResponseBuilder(env));
+    }
+
+    public void setFramework(IFramework framework) {
+        this.framework = framework;
     }
 
     @Override

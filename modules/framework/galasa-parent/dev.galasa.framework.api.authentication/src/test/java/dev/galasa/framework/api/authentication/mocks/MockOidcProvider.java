@@ -10,8 +10,6 @@ import java.net.http.HttpResponse;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
-import javax.servlet.http.HttpSession;
-
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.authentication.IOidcProvider;
@@ -59,7 +57,7 @@ public class MockOidcProvider implements IOidcProvider {
     }
 
     @Override
-    public String getConnectorRedirectUrl(String clientId, String callbackUrl, HttpSession session)
+    public String getConnectorRedirectUrl(String clientId, String callbackUrl, String stateId)
             throws IOException, InterruptedException {
         if (throwException) {
             throwIOException();
@@ -86,7 +84,7 @@ public class MockOidcProvider implements IOidcProvider {
     }
 
     @Override
-    public HttpResponse<String> sendAuthorizationGet(String clientId, String callbackUrl, HttpSession session)
+    public HttpResponse<String> sendAuthorizationGet(String clientId, String callbackUrl, String stateId)
             throws IOException, InterruptedException {
         if (throwException) {
             throwIOException();
