@@ -67,7 +67,8 @@ public class AuthCallbackRoute extends BaseRoute {
         }
 
         // Make sure the state parameter is the same as the state that was previously stored in the DSS
-        String callbackUrlDssKey = state + ".callback.url";
+        // using the 'dss.auth.STATEID.callback.url' property
+        String callbackUrlDssKey = state + AuthRoute.DSS_CALLBACK_URL_PROPERTY_SUFFIX;
         String clientCallbackUrl = dssService.get(callbackUrlDssKey);
 
         if (clientCallbackUrl == null) {

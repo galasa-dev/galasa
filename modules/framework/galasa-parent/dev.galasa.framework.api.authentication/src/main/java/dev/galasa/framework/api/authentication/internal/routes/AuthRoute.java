@@ -44,6 +44,9 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 public class AuthRoute extends BaseRoute {
 
+    // Suffix for the DSS auth property 'dss.auth.STATEID.callback.url'
+    public static final String DSS_CALLBACK_URL_PROPERTY_SUFFIX = ".callback.url";
+
     private IAuthStoreService authStoreService;
     private IOidcProvider oidcProvider;
     private IDexGrpcClient dexGrpcClient;
@@ -105,7 +108,7 @@ public class AuthRoute extends BaseRoute {
                 response.addHeader(HttpHeaders.LOCATION, authUrl);
 
                 // Store the callback URL in the DSS to redirect to at the end of the authentication process
-                dssService.put(stateId + ".callback.url", clientCallbackUrl, AUTH_DSS_STATE_EXPIRY_SECONDS);
+                dssService.put(stateId + DSS_CALLBACK_URL_PROPERTY_SUFFIX, clientCallbackUrl, AUTH_DSS_STATE_EXPIRY_SECONDS);
 
             } else {
                 ServletError error = new ServletError(GAL5054_FAILED_TO_GET_CONNECTOR_URL);
