@@ -158,7 +158,7 @@ public class OidcProvider implements IOidcProvider {
             + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
             + "&redirect_uri=" + URLEncoder.encode(callbackUrl, StandardCharsets.UTF_8)
             + "&scope=" + URLEncoder.encode(BEARER_TOKEN_SCOPE, StandardCharsets.UTF_8)
-            + "&state=" + stateId;
+            + "&state=" + URLEncoder.encode(stateId, StandardCharsets.UTF_8);
 
         String authUrl = authorizationEndpoint + queryParams;
         return sendGetRequest(URI.create(authUrl));
