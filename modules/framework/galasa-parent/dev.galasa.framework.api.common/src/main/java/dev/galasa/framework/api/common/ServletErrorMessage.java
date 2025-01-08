@@ -145,6 +145,9 @@ public enum ServletErrorMessage {
     
     // Auth callback API...
     GAL5103_UNEXPECTED_STATE_PARAMETER_PROVIDED       (5103, "E: Unexpected ''state'' query parameter value provided. The provided ''state'' parameter value does not match the stored state identifier or the auth request has timed out. Try to log in again."),
+    GAL5104_INVALID_CALLBACK_URL_PROVIDED             (5104, "E: Invalid callback URL provided. The callback URL must be a valid URL. Check your request parameters and try again."),
+    GAL5105_INTERNAL_DSS_ERROR                        (5105, "E: Error occurred when trying to access the Dynamic Status Store. Report the problem to your Galasa Ecosystem owner."),
+
 
     // RBAC APIs...
     GAL5120_INVALID_ACTION_NAME_PROVIDED              (5120, "E: Invalid action name provided."),

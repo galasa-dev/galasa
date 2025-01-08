@@ -278,4 +278,35 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(outStream.toString(), 5103, "GAL5103E", "Unexpected 'state' query parameter value provided");
     }
+
+    @Test
+    public void testGetAuthCallbackWithInvalidStoredCallbackUrlThrowsError() throws Exception {
+        // Given...
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFramework mockFramework = new MockFramework(mockDss);
+        MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockFramework);
+
+        String expectedCode = "my-auth-code";
+        String expectedState = "my-state";
+        String badCallbackUrl = "not a valid \n callback URL!";
+
+        Map<String, String[]> queryParams = new HashMap<>();
+        queryParams.put("code", new String[] { expectedCode });
+        queryParams.put("state", new String[] { expectedState });
+
+        mockDss.put(expectedState + ".callback.url", badCallbackUrl);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, "/callback");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(outStream.toString(), 5104, "GAL5104E", "Invalid callback URL provided");
+    }
 }

@@ -6,9 +6,6 @@
 package dev.galasa.framework.api.authentication.internal.routes;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpResponse;
 import java.util.UUID;
 
@@ -24,7 +21,6 @@ import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.authentication.internal.TokenPayloadValidator;
 import dev.galasa.framework.api.beans.TokenPayload;
-import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -42,10 +38,7 @@ import dev.galasa.framework.spi.auth.IInternalUser;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
-public class AuthRoute extends BaseRoute {
-
-    // Suffix for the DSS auth property 'dss.auth.STATEID.callback.url'
-    public static final String DSS_CALLBACK_URL_PROPERTY_SUFFIX = ".callback.url";
+public class AuthRoute extends AbstractAuthRoute {
 
     private IAuthStoreService authStoreService;
     private IOidcProvider oidcProvider;
@@ -89,8 +82,8 @@ public class AuthRoute extends BaseRoute {
 
         logger.info("AuthRoute: handleGetRequest() entered.");
         try {
-            String clientId = queryParams.getSingleString("client_id", null);
-            String clientCallbackUrl = queryParams.getSingleString("callback_url", null);
+            String clientId = sanitizeString(queryParams.getSingleString("client_id", null));
+            String clientCallbackUrl = sanitizeString(queryParams.getSingleString("callback_url", null));
 
             // Make sure the required query parameters exist
             if (clientId == null || clientCallbackUrl == null || !isUrlValid(clientCallbackUrl)) {
@@ -207,21 +200,6 @@ public class AuthRoute extends BaseRoute {
             }
         }
         return response;
-    }
-
-    /**
-     * Checks if a given URL is a valid URL.
-     */
-    private boolean isUrlValid(String url) {
-        boolean isValid = false;
-        try {
-            new URL(url).toURI();
-            isValid = true;
-            logger.info("Valid URL provided: '" + url + "'");
-        } catch (URISyntaxException | MalformedURLException e) {
-            logger.error("Invalid URL provided: '" + url + "'");
-        }
-        return isValid;
     }
 
     /**

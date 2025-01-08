@@ -12,17 +12,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.common.BaseRoute;
+import com.google.common.net.HttpHeaders;
+
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
-public class AuthCallbackRoute extends BaseRoute {
+public class AuthCallbackRoute extends AbstractAuthRoute {
 
     private static String externalApiServerUrl;
     private IDynamicStatusStoreService dssService;
@@ -58,40 +60,55 @@ public class AuthCallbackRoute extends BaseRoute {
 
         logger.info("handleGetRequest() entered");
 
-        String authCode = queryParams.getSingleString("code", null);
-        String state = queryParams.getSingleString("state", null);
+        String authCode = sanitizeString(queryParams.getSingleString("code", null));
+        String state = sanitizeString(queryParams.getSingleString("state", null));
 
         if (state == null || authCode == null) {
             ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
+        try {
+            String callbackUrlDssKey = state + DSS_CALLBACK_URL_PROPERTY_SUFFIX;
+            String clientCallbackUrl = getValidatedCallbackUrl(callbackUrlDssKey);
+
+            // We don't need the stored state anymore, so remove it from the DSS
+            dssService.delete(callbackUrlDssKey);
+
+            // If the callback URL already has query parameters, append to them
+            String authCodeQuery = "code=" + authCode;
+            clientCallbackUrl = appendQueryParameterToUrl(clientCallbackUrl, authCodeQuery);
+
+            // Redirect the user back to the callback URL provided in the original /auth request
+            response.addHeader(HttpHeaders.LOCATION, clientCallbackUrl);
+
+        } catch (DynamicStatusStoreException e) {
+            ServletError error = new ServletError(GAL5105_INTERNAL_DSS_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
+        logger.info("handleGetRequest() exiting");
+        return getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_FOUND);
+    }
+
+    private String getValidatedCallbackUrl(String callbackUrlDssKey) throws InternalServletException, DynamicStatusStoreException {
         // Make sure the state parameter is the same as the state that was previously stored in the DSS
         // using the 'dss.auth.STATEID.callback.url' property
-        String callbackUrlDssKey = state + AuthRoute.DSS_CALLBACK_URL_PROPERTY_SUFFIX;
         String clientCallbackUrl = dssService.get(callbackUrlDssKey);
-
         if (clientCallbackUrl == null) {
             logger.error("The provided 'state' query parameter does not match the stored state parameter");
             ServletError error = new ServletError(GAL5103_UNEXPECTED_STATE_PARAMETER_PROVIDED);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
+        if (!isUrlValid(clientCallbackUrl)) {
+            logger.error("The stored client callback URL is not valid");
+            ServletError error = new ServletError(GAL5104_INVALID_CALLBACK_URL_PROVIDED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
         logger.info("State query parameter matches previously-generated state");
-
-        // If the callback URL already has query parameters, append to them
-        String authCodeQuery = "code=" + authCode;
-        clientCallbackUrl = appendQueryParameterToUrl(clientCallbackUrl, authCodeQuery);
-
-        // We don't need the stored state anymore, so remove it from the DSS
-        dssService.delete(callbackUrlDssKey);
-
-        // Redirect the user back to the callback URL provided in the original /auth request
-        response.addHeader("Location", clientCallbackUrl);
-
-        logger.info("handleGetRequest() exiting");
-        return getResponseBuilder().buildResponse(request, response, null, null,
-                HttpServletResponse.SC_FOUND);
+        return clientCallbackUrl;
     }
 
     /**
