@@ -41,6 +41,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String method = "GET"; 
     private String contextPath = "/api";
     private String contentType = "application/json";
+    private String clientIp;
 
     private MockHttpSession session;
 
@@ -199,6 +200,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     @Override
+    public String getRemoteAddr() {
+        return this.clientIp;
+    }
+
+    public void setRemoteAddr(String clientIp) {
+        this.clientIp = clientIp;
+    }
+
+    @Override
     public Object getAttribute(String name) {
         throw new UnsupportedOperationException("Unimplemented method 'getAttribute'");
     }
@@ -246,11 +256,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public int getServerPort() {
         throw new UnsupportedOperationException("Unimplemented method 'getServerPort'");
-    }
-
-    @Override
-    public String getRemoteAddr() {
-        throw new UnsupportedOperationException("Unimplemented method 'getRemoteAddr'");
     }
 
     @Override

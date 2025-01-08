@@ -91,8 +91,7 @@ public class AuthRoute extends AbstractAuthRoute {
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
 
-            // Create a random ID to identify this auth request
-            String stateId = UUID.randomUUID().toString();
+            String stateId = generateStateId(request.getRemoteAddr());
 
             // Get the redirect URL to the upstream connector and add it to the response's "Location" header
             String authUrl = oidcProvider.getConnectorRedirectUrl(clientId, AuthCallbackRoute.getExternalAuthCallbackUrl(), stateId);
@@ -222,5 +221,14 @@ public class AuthRoute extends AbstractAuthRoute {
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
         logger.info("Stored token record in the auth store OK");
+    }
+
+    // Creates a random ID to identify an auth request
+    private String generateStateId(String clientIp) {
+        String stateId = UUID.randomUUID().toString();
+        if (clientIp != null && !clientIp.isBlank()) {
+            stateId += "-" + clientIp;
+        }
+        return stateId;
     }
 }

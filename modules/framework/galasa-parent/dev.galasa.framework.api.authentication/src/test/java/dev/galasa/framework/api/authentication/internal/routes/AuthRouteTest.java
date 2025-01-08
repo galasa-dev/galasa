@@ -414,6 +414,7 @@ public class AuthRouteTest extends BaseServletTest {
     public void testAuthGetRequestWithClientIdAndCallbackUrlRedirectsToConnector() throws Exception {
         // Given...
         String redirectLocation = "http://my.connector/auth";
+        String clientIp = "123.456.789.010";
         String clientId = "my-client";
         String clientCallbackUrl = "http://my.app";
 
@@ -430,6 +431,8 @@ public class AuthRouteTest extends BaseServletTest {
         );
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
+        mockRequest.setRemoteAddr(clientIp);
+
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
         // When...
@@ -445,6 +448,8 @@ public class AuthRouteTest extends BaseServletTest {
     @Test
     public void testAuthGetRequestWithEmptyReturnedLocationHeaderReturnsError() throws Exception {
         // Given...
+        String clientIp = "123.456.789.010";
+
         // No "Location" returned from the issuer, will not be able to redirect anywhere to authenticate
         Map<String, List<String>> headers = new HashMap<>();
         BiPredicate<String, String> defaultFilter = (a, b) -> true;
@@ -459,6 +464,8 @@ public class AuthRouteTest extends BaseServletTest {
         );
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
+        mockRequest.setRemoteAddr(clientIp);
+
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
