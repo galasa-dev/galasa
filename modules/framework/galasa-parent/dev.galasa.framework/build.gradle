@@ -25,7 +25,7 @@ dependencies {
     testFixturesImplementation project (':dev.galasa')
     testFixturesImplementation platform('dev.galasa:dev.galasa.platform:'+version)
     testFixturesImplementation 'javax.validation:validation-api'
-    testFixturesImplementation 'org.assertj:assertj-core:3.16.1'
+    testFixturesImplementation 'org.assertj:assertj-core:3.25.3'
     testFixturesImplementation 'junit:junit'
     testFixturesImplementation 'commons-io:commons-io'
     testFixturesImplementation 'org.apache.felix:org.apache.felix.bundlerepository'

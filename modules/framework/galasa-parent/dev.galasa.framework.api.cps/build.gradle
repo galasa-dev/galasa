@@ -11,7 +11,7 @@ dependencies {
     implementation project(':dev.galasa.framework.api.common')
 
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
-    testImplementation 'org.assertj:assertj-core:3.23.1'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
     // Overriding version 3.16.1 suggested by the Platform - as upgrading the other projects
     // to use 3.23.1 caused unit test failures. Fixes for this to be completed in a future story.
 }
