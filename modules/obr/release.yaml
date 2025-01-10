@@ -265,6 +265,10 @@ external:
     mvp: true
     isolated: true
 
+  - group: net.bytebuddy
+    artifact: byte-buddy
+    obr: true
+
   - group: org.apache.bcel
     artifact: bcel
     obr: true
@@ -380,7 +384,7 @@ external:
 
   - group: org.assertj
     artifact: assertj-core
-    version: 3.11.1
+    version: 3.25.3
     obr: true
     bom: true
     mvp: true

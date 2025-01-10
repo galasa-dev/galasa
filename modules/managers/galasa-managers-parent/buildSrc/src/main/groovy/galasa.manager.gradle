@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    api platform('dev.galasa:dev.galasa.platform:0.39.0')
+    api platform('dev.galasa:dev.galasa.platform:'+version)
     api 'dev.galasa:dev.galasa'
     
     implementation 'dev.galasa:dev.galasa.framework'
@@ -14,11 +14,11 @@ dependencies {
     implementation 'org.osgi:org.osgi.service.component.annotations'
     compileOnly 'javax.validation:validation-api'
 
-    testImplementation platform('dev.galasa:dev.galasa.platform:0.39.0')
+    testImplementation platform('dev.galasa:dev.galasa.platform:'+version)
     testImplementation 'junit:junit'
     testImplementation 'org.mockito:mockito-core:4.6.1' // Platform has 3.1.0
     testImplementation 'org.awaitility:awaitility'
-    testImplementation 'org.assertj:assertj-core:3.16.1'
+    testImplementation 'org.assertj:assertj-core'
     testImplementation 'dev.galasa:galasa-testharness'
     testCompileOnly 'javax.validation:validation-api'
 }

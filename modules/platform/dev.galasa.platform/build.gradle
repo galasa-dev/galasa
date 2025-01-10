@@ -250,10 +250,7 @@ dependencies {
 
         api 'org.apache.velocity:velocity-engine-core:2.4.1'
 
-        // Removing from the platform! Breaks the tests.
-        // api 'org.assertj:assertj-core:3.16.1'
-        // 3.23.1 found in dev.galasa.framework.api.cps but breaks Extensions unit tests when used in other bundles.
-        // So using 3.16.1 as the default and 3.23.1 as override in dev.galasa.framework.api.cps.
+        api 'org.assertj:assertj-core:3.25.3'
 
         api 'org.awaitility:awaitility:3.0.0'
 

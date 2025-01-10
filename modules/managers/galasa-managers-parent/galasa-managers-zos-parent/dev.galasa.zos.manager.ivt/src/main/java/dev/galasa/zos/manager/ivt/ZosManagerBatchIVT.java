@@ -166,7 +166,7 @@ public class ZosManagerBatchIVT {
     	IZosBatchJob job = batch.submitJob(jclInput, null);
     	job.waitForJob();
     	List<IZosBatchJob> jobs = batch.getJobs(job.getJobname().getName(), job.getOwner());
-    	assertThat(jobs).asList().size().isEqualTo(1);
+    	assertThat(jobs).hasSize(1);
     }
     
     //@Test

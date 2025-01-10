@@ -23,7 +23,7 @@ dependencies {
 	implementation 'commons-io:commons-io'
     // Overriding version 3.16.1 suggested by the Platform - as upgrading the other projects
     // to higher versions caused unit test failures. Fixes for this to be completed in a future story.
-	implementation 'org.assertj:assertj-core:3.25.3'
+	implementation 'org.assertj:assertj-core'
     implementation 'org.apache.httpcomponents:httpcore'
     implementation 'org.apache.httpcomponents:httpclient'
     implementation project(':dev.galasa.plugin.common')

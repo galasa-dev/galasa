@@ -18,7 +18,7 @@ dependencies {
     testFixturesImplementation 'org.apache.httpcomponents:httpcore-osgi'
     testFixturesImplementation 'dev.galasa:dev.galasa.framework'
     testFixturesImplementation 'javax.validation:validation-api'
-    testFixturesImplementation 'org.assertj:assertj-core:3.16.1'
+    testFixturesImplementation 'org.assertj:assertj-core'
 }
 
 // Note: These values are consumed by the parent build process
