@@ -53,7 +53,7 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
     }
 
     @Override
-    public void createUser(String loginId, String clientName) throws AuthStoreException {
+    public void createUser(String loginId, String clientName, String roleId) throws AuthStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'createUser'");
     }
 

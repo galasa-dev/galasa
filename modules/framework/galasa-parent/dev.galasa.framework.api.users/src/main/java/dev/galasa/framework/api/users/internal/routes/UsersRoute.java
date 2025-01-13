@@ -30,6 +30,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IUser;
+import dev.galasa.framework.spi.rbac.RBACService;
 
 public class UsersRoute extends BaseRoute {
 
@@ -41,14 +42,14 @@ public class UsersRoute extends BaseRoute {
     private BeanTransformer beanTransformer ;
 
     public UsersRoute(ResponseBuilder responseBuilder, Environment env,
-            IAuthService authService) {
+            IAuthService authService, RBACService rbacService) {
         super(responseBuilder, path);
         this.env = env;
         this.authStoreService = authService.getAuthStoreService();
 
         String baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
 
-        this.beanTransformer = new BeanTransformer(baseServletUrl);
+        this.beanTransformer = new BeanTransformer(baseServletUrl, rbacService);
     }
 
     @Override

@@ -24,7 +24,7 @@ velocity.log
 generated-openapi
 node_modules
 package-lock.json
-build/
+**/build/*
 .gradle/
 **/.idea/
 **/heapdump*

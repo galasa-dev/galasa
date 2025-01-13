@@ -66,9 +66,10 @@ public interface IAuthStoreService {
      *
      * @param loginId    the loginId of the user trying to access Galasa API
      * @param clientName the name of the frontend client being used.
+     * @param roleId     the id of the role this user has been assigned.
      * @throws AuthStoreException if there is an issue accessing the users store.
      */
-    void createUser(String loginId, String clientName) throws AuthStoreException;
+    void createUser(String loginId, String clientName, String roleId) throws AuthStoreException;
 
     /**
      * Retrieves a user record in the users database.

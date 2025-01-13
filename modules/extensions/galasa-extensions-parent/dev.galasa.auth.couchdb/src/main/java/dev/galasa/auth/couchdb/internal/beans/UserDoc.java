@@ -21,6 +21,9 @@ public class UserDoc {
     @SerializedName("_rev")
     private String version;
 
+    @SerializedName("role-id")
+    private String roleId;
+
     @SerializedName("login-id")
     private String loginId;
 
@@ -46,6 +49,14 @@ public class UserDoc {
 
     public String getVersion(){
         return version;
+    }
+
+    public void setRoleId(String newRoleId) {
+        this.roleId = newRoleId;
+    }
+
+    public String getRoleId() {
+        return this.roleId ;
     }
 
     public void setVersion(String version){

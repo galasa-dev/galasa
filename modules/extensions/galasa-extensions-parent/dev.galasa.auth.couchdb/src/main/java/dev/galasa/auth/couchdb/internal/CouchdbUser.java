@@ -14,6 +14,7 @@ public class CouchdbUser implements IInternalUser {
     @SerializedName(value = "loginId", alternate = { "login_id" })
     private String loginId;
     private String dexUserId;
+    private String roleId;
 
     public CouchdbUser(String loginId, String dexUserId) {
         this.loginId = loginId;
@@ -33,5 +34,10 @@ public class CouchdbUser implements IInternalUser {
     @Override
     public String getLoginId() {
         return loginId;
+    }
+
+    @Override
+    public String getRoleId() {
+        return roleId;
     }
 }

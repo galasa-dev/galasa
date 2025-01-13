@@ -49,7 +49,7 @@ public class RoleDetailsRouteTest {
         Role role1 = new MockRole("myRole1Name","myRole1Id","Description of myRole1Name", List.of(action1.getId(), action2.getId()));
         List<Role> roles = List.of(role1);
 
-        MockRBACService rbacService = new MockRBACService(roles , actions);
+        MockRBACService rbacService = new MockRBACService(roles , actions, role1);
         MockTimeService timeService = new MockTimeService(Instant.EPOCH);
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/roles/myRole1Id", REQUEST_HEADERS);
@@ -105,7 +105,7 @@ public class RoleDetailsRouteTest {
         Role role1 = new MockRole("myRole1Name","myRole1Id","Description of myRole1Name", List.of(action1.getId(), action2.getId()));
         List<Role> roles = List.of(role1);
 
-        MockRBACService rbacService = new MockRBACService(roles , actions);
+        MockRBACService rbacService = new MockRBACService(roles , actions, role1);
         MockTimeService timeService = new MockTimeService(Instant.EPOCH);
 
         ResponseBuilder respBuilder = new ResponseBuilder();

@@ -18,9 +18,14 @@ import java.time.Instant;
 import org.junit.Test;
 
 import dev.galasa.framework.api.beans.generated.FrontEndClient;
+import dev.galasa.framework.api.beans.generated.RBACRole;
+import dev.galasa.framework.api.beans.generated.RBACRoleData;
+import dev.galasa.framework.api.beans.generated.RBACRoleMetadata;
 import dev.galasa.framework.api.beans.generated.UserData;
 import dev.galasa.framework.auth.spi.mocks.MockFrontEndClient;
 import dev.galasa.framework.auth.spi.mocks.MockUser;
+import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.spi.auth.*;
 
 
@@ -45,7 +50,8 @@ public class BeanTransformerTest {
     
     @Test 
     public void testTransformsANullList() throws Exception {
-        BeanTransformer xform = new BeanTransformer(BASE_URL);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACService();
+        BeanTransformer xform = new BeanTransformer(BASE_URL, rbacService);
 
         Collection<UserData> data = xform.convertAllUsersToUserBean(null);
         assertThat(data).isNotNull();
@@ -54,7 +60,8 @@ public class BeanTransformerTest {
 
     @Test
     public void testTransformsEmptyList() throws Exception {
-        BeanTransformer xform = new BeanTransformer(BASE_URL);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACService();
+        BeanTransformer xform = new BeanTransformer(BASE_URL, rbacService);
 
         Collection<UserData> data = xform.convertAllUsersToUserBean(List.of());
 
@@ -64,13 +71,15 @@ public class BeanTransformerTest {
 
     @Test
     public void testTransformsListWithOneUserNoClients() throws Exception {
-        BeanTransformer xform = new BeanTransformer(BASE_URL);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACService();
+        BeanTransformer xform = new BeanTransformer(BASE_URL, rbacService);
 
         MockUser userIn = new MockUser();
         userIn.userNumber = "56789";
         userIn.version = "7890";
         userIn.loginId = "arvind";
         userIn.clients = null ;
+        userIn.roleId = rbacService.getDefaultRoleId();
 
         Collection<UserData> data = xform.convertAllUsersToUserBean(List.of(userIn));
 
@@ -92,12 +101,14 @@ public class BeanTransformerTest {
     @Test
     public void testTransformsListWithTwoUsersNoClients() throws Exception {
 
-        BeanTransformer xform = new BeanTransformer(BASE_URL);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACService();
+        BeanTransformer xform = new BeanTransformer(BASE_URL, rbacService);
 
         MockUser userIn1 = new MockUser();
         userIn1.userNumber = "56789";
         userIn1.version = "7890";
         userIn1.loginId = "arvind";
+        userIn1.roleId = rbacService.getDefaultRoleId();
         userIn1.clients = null ;
 
 
@@ -105,6 +116,7 @@ public class BeanTransformerTest {
         userIn2.userNumber = "5678asdasd9";
         userIn2.version = "789asdasd0";
         userIn2.loginId = "bilbo";
+        userIn2.roleId = rbacService.getDefaultRoleId();
         userIn2.clients = null ;
 
         Collection<UserData> data = xform.convertAllUsersToUserBean(List.of(userIn1, userIn2));
@@ -125,13 +137,16 @@ public class BeanTransformerTest {
 
     @Test
     public void testTransformsListWithOneUserOneClient() throws Exception {
-        BeanTransformer xform = new BeanTransformer(BASE_URL);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACService();
+        BeanTransformer xform = new BeanTransformer(BASE_URL, rbacService);
 
         MockUser userIn = new MockUser();
         userIn.userNumber = "56789";
         userIn.version = "7890";
         userIn.loginId = "arvind";
         userIn.clients = new ArrayList<IFrontEndClient>();
+        userIn.roleId = rbacService.getDefaultRoleId();
+
 
         IFrontEndClient clientIn1 = new MockFrontEndClient("web-ui");
         Instant now = Instant.MIN.plusSeconds(25);
@@ -158,13 +173,15 @@ public class BeanTransformerTest {
 
     @Test
     public void testTransformsListWithOneUserTwoClients() throws Exception {
-        BeanTransformer xform = new BeanTransformer(BASE_URL);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACService();
+        BeanTransformer xform = new BeanTransformer(BASE_URL, rbacService);
 
         MockUser userIn = new MockUser();
         userIn.userNumber = "56789";
         userIn.version = "7890";
         userIn.loginId = "arvind";
         userIn.clients = new ArrayList<IFrontEndClient>();
+        userIn.roleId = rbacService.getDefaultRoleId();
 
         Instant now = Instant.MIN.plusSeconds(25);
 
@@ -201,6 +218,51 @@ public class BeanTransformerTest {
         assertThat(clientsOut.get(1).getClientName()).isEqualTo("web-ui");
         assertThat(clientsOut.get(1).getLastLogin()).isEqualTo(now.toString());
 
+    }
+
+
+    @Test
+    public void testTransformsSingleUserCopiesRBACInfo() throws Exception {
+
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACService();
+        BeanTransformer xform = new BeanTransformer(BASE_URL, rbacService);
+
+        MockUser userIn1 = new MockUser();
+        userIn1.userNumber = "56789";
+        userIn1.version = "7890";
+        userIn1.loginId = "arvind";
+        userIn1.roleId = rbacService.getDefaultRoleId();
+        userIn1.clients = null ;
+
+
+        // When...
+        UserData userGotBack = xform.convertUserToUserBean(userIn1);
+
+        assertThat(userGotBack).isNotNull();
+
+        assertThat(userGotBack.getrole()).isEqualTo(userIn1.roleId);
+
+        assertThat(userGotBack.getsynthetic()).isNotNull();
+
+        RBACRole roleGotBack = userGotBack.getsynthetic().getrole();
+        assertThat(roleGotBack).isNotNull();
+        assertThat(roleGotBack.getApiVersion()).contains("galasa-dev/v1alpha1");
+        assertThat(roleGotBack.getkind()).isEqualTo("GalasaRole");
+
+        RBACRoleMetadata metadataGotBack = roleGotBack.getmetadata();
+        assertThat(metadataGotBack).isNotNull();
+        assertThat(metadataGotBack.getid()).isEqualTo(userIn1.roleId);
+        assertThat(metadataGotBack.getname()).isEqualTo("role1");
+        assertThat(metadataGotBack.getdescription()).isEqualTo("role1 description");
+
+        RBACRoleData roleDataGotBack = roleGotBack.getdata();
+        assertThat(roleDataGotBack).isNotNull();
+        String[] actionsGotBack = roleDataGotBack.getactions();
+        assertThat(actionsGotBack)
+            .isNotNull()
+            .hasSize(2)
+            .contains("CAN_DO_SOMETHING", "CAN_DO_SOMETHING_ELSE")
+            ;
     }
 
 }

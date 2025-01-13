@@ -24,6 +24,7 @@ public class MockAuthStoreService implements IAuthStoreService {
 
     public static final String DEFAULT_USER_VERSION_NUMBER = "567897867566";
     public static final String DEFAULT_USER_NUMBER = "hqjwkeh2q1223";
+    public static final String DEFAULT_USER_ROLE_ID = "2";
 
     List<IInternalAuthToken> tokens = new ArrayList<>();
     private ITimeService timeService;
@@ -168,7 +169,7 @@ public class MockAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public void createUser(String loginId, String clientName) throws AuthStoreException {
+    public void createUser(String loginId, String clientName, String roleId) throws AuthStoreException {
         MockUser user = new MockUser();
         user.loginId = loginId ;
         MockFrontEndClient client = new MockFrontEndClient(clientName);
@@ -176,6 +177,7 @@ public class MockAuthStoreService implements IAuthStoreService {
         user.addClient(client);
         user.version = DEFAULT_USER_VERSION_NUMBER ;
         user.userNumber = DEFAULT_USER_NUMBER;
+        user.roleId = DEFAULT_USER_ROLE_ID;
 
         users.put(loginId, user);
     }

@@ -24,20 +24,25 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.authentication.IOidcProvider;
 import dev.galasa.framework.api.authentication.mocks.MockAuthenticationServlet;
 import dev.galasa.framework.api.authentication.mocks.MockOidcProvider;
 import dev.galasa.framework.api.beans.AuthToken;
 import dev.galasa.framework.api.beans.User;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.InternalUser;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.*;
+import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
 import dev.galasa.framework.spi.auth.IUser;
+import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.auth.spi.IAuthService;
 import dev.galasa.framework.auth.spi.IDexGrpcClient;
 import dev.galasa.framework.auth.spi.internal.AuthService;
@@ -46,6 +51,8 @@ import dev.galasa.framework.auth.spi.mocks.MockDexGrpcClient;
 import dev.galasa.framework.auth.spi.mocks.MockFrontEndClient;
 import dev.galasa.framework.auth.spi.mocks.MockInternalAuthToken;
 import dev.galasa.framework.auth.spi.mocks.MockUser;
+import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockTimeService;
 
 public class AuthTokensRouteTest extends BaseServletTest {
@@ -109,7 +116,14 @@ public class AuthTokensRouteTest extends BaseServletTest {
     @Test
     public void testAuthTokensRouteRegexMatchesOnlyTokens(){
         //Given...
-        String tokensRoutePath = new AuthTokensRoute(null, null, new AuthService(null, null), null, null).getPathRegex().toString();
+        ResponseBuilder responseBuilder = null;
+        IOidcProvider oidcProvider = null;
+        IAuthService authService = new AuthService(null, null);    
+        ITimeService timeService = null ;
+        MockRBACService mockRBACService = createTestRBACKService();
+        Environment env = null;
+
+        String tokensRoutePath = new AuthTokensRoute(responseBuilder, oidcProvider, authService , timeService, mockRBACService, env).getPathRegex().toString();
 
         //When...
         Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
@@ -629,7 +643,9 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
-        MockFramework mockFramework = new MockFramework(mockAuthStoreService);
+        MockRBACService mockRBACService = createTestRBACKService();
+        MockFramework mockFramework = new MockFramework( (IAuthStoreService)mockAuthStoreService, (RBACService)mockRBACService);
+
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient, mockFramework);
 
@@ -688,7 +704,9 @@ public class AuthTokensRouteTest extends BaseServletTest {
         Instant tokenCreationTime = Instant.now();
         MockTimeService mockTimeService = new MockTimeService(tokenCreationTime);
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
-        MockFramework mockFramework = new MockFramework(mockAuthStoreService);
+
+        MockRBACService mockRBACService = createTestRBACKService();
+        MockFramework mockFramework = new MockFramework( (IAuthStoreService)mockAuthStoreService, (RBACService)mockRBACService);
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient, mockFramework);
 
@@ -747,7 +765,9 @@ public class AuthTokensRouteTest extends BaseServletTest {
         Instant tokenCreationTime = Instant.now();
         MockTimeService mockTimeService = new MockTimeService(tokenCreationTime);
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
-        MockFramework mockFramework = new MockFramework(mockAuthStoreService);
+
+        MockRBACService mockRBACService = createTestRBACKService();
+        MockFramework mockFramework = new MockFramework( (IAuthStoreService)mockAuthStoreService, (RBACService)mockRBACService);
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient, mockFramework);
 
@@ -929,11 +949,14 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient);
 
+        MockRBACService mockRBACService = createTestRBACKService();
+
         AuthTokensRoute route = new AuthTokensRoute(
             responseBuilder,
             mockOidcProvider,
             authService,
             mockTimeService,
+            mockRBACService,
             mockEnv);
 
         boolean isWebUiJustLoggedIn = true ;
@@ -999,11 +1022,14 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient);
 
+        MockRBACService mockRBACService = createTestRBACKService();
+
         AuthTokensRoute route = new AuthTokensRoute(
             responseBuilder,
             mockOidcProvider,
             authService,
             mockTimeService,
+            mockRBACService,
             mockEnv);
 
         // When...
@@ -1047,11 +1073,14 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient);
 
+        MockRBACService mockRBACService = createTestRBACKService();
+
         AuthTokensRoute route = new AuthTokensRoute(
             responseBuilder,
             mockOidcProvider,
             authService,
             mockTimeService,
+            mockRBACService,
             mockEnv);
 
         boolean isWebUiJustLoggedIn = true ;
@@ -1067,5 +1096,10 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         IFrontEndClient clientGotBack = userGotBack.getClient("web-ui");
         assertThat(clientGotBack.getLastLogin()).isEqualTo(now);
+    }
+
+    MockRBACService createTestRBACKService() {
+        MockRBACService service = FilledMockRBACService.createTestRBACService();
+        return service;
     }
 }

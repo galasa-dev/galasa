@@ -25,6 +25,7 @@ public class TestUserImpl {
         UserImpl docInput = new UserImpl();
         docInput.setUserNumber("1234");
         docInput.setLoginId("myLoginId");
+        docInput.setRoleId("role-id");
 
         // When..
         UserImpl docOutput = new UserImpl(docInput);
@@ -75,12 +76,14 @@ public class TestUserImpl {
     class MockIUser implements IUser {
         private String userNumber;
         private String loginId;
+        private String roleId;
 
         private List<IFrontEndClient> clients;
 
-        public MockIUser(String loginId, List<IFrontEndClient> clients) {
+        public MockIUser(String loginId, List<IFrontEndClient> clients, String roleId ) {
             this.loginId = loginId;
             this.clients = clients;
+            this.roleId = roleId;
         }
 
         @Override
@@ -113,6 +116,11 @@ public class TestUserImpl {
             return "0" ;
         }
 
+        @Override
+        public String getRoleId() {
+            return this.roleId;
+        }
+
     }
 
     @Test
@@ -121,6 +129,7 @@ public class TestUserImpl {
         UserImpl docInput = new UserImpl();
 
         docInput.setLoginId("myLoginId");
+        docInput.setRoleId("myRoleId");
         docInput.addClient(new FrontEndClient("myClient1",Instant.MIN));
 
         assertThat(docInput).isNotNull();
@@ -225,6 +234,17 @@ public class TestUserImpl {
 
         assertThat(version).isNotNull();
         assertThat(version).isEqualTo("1.0");
+    }
+
+    @Test
+    public void testCanSetAndGetROleId() throws Exception {
+        UserImpl docInput = new UserImpl();
+        docInput.setRoleId("myRoleId1");
+
+        String roleId = docInput.getRoleId();
+
+        assertThat(roleId).isNotNull();
+        assertThat(roleId).isEqualTo("myRoleId1");
     }
 
     @Test

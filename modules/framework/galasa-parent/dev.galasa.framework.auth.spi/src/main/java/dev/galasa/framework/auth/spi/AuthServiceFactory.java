@@ -17,7 +17,6 @@ public class AuthServiceFactory implements IAuthServiceFactory {
 
     private IFramework framework;
     private Environment env;
-
     private IAuthService authService;
 
     public AuthServiceFactory(IFramework framework, Environment env) {

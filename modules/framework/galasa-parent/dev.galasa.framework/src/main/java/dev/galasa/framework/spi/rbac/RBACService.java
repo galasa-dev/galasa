@@ -18,6 +18,8 @@ public interface RBACService {
 
     List<Role> getRolesSortedByName() throws RBACException;
 
+    String getDefaultRoleId() throws RBACException;
+
     /**
      * Gets all the actions available.
      * @return A map. The index is the action id. The value is the action object.

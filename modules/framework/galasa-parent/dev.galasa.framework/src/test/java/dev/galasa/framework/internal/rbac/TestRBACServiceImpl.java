@@ -146,4 +146,13 @@ public class TestRBACServiceImpl {
         // Only check the first one (alphabetically). Should be enough...
         assertThat(walker.next().getName()).isEqualTo("admin");
     }
+
+    @Test
+    public void testDefaultRoleIsAdmin() throws Exception {
+        RBACService service = new RBACServiceImpl();
+        String defaultRoleId = service.getDefaultRoleId();
+        Role defaultRole = service.getRoleById(defaultRoleId);
+        assertThat(defaultRole).isNotNull();
+        assertThat(defaultRole.getName()).isEqualTo("admin");
+    }
 }

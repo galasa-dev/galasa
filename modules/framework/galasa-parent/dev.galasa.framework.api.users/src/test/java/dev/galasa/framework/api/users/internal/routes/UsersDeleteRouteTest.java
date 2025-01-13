@@ -23,6 +23,7 @@ import dev.galasa.framework.api.common.InternalUser;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
+import dev.galasa.framework.mocks.FilledMockRBACService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.api.users.mocks.MockUsersServlet;
 import dev.galasa.framework.auth.spi.internal.AuthService;
@@ -33,7 +34,6 @@ import dev.galasa.framework.auth.spi.mocks.MockUser;
 import dev.galasa.framework.spi.auth.IInternalUser;
 
 public class UsersDeleteRouteTest extends BaseServletTest {
-
 
     Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
@@ -52,7 +52,7 @@ public class UsersDeleteRouteTest extends BaseServletTest {
 
         env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
         env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
-        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, null), env);
+        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, null), env, FilledMockRBACService.createTestRBACService());
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap);
         mockRequest.setMethod(HttpMethod.DELETE.toString());
@@ -83,7 +83,7 @@ public class UsersDeleteRouteTest extends BaseServletTest {
 
         env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
         env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
-        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, null), env);
+        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, null), env, FilledMockRBACService.createTestRBACService());
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap);
         mockRequest.setMethod(HttpMethod.DELETE.toString());
@@ -114,7 +114,7 @@ public class UsersDeleteRouteTest extends BaseServletTest {
 
         env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
         env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
-        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, null), env);
+        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, null), env, FilledMockRBACService.createTestRBACService());
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap);
         mockRequest.setMethod(HttpMethod.DELETE.toString());
@@ -151,7 +151,7 @@ public class UsersDeleteRouteTest extends BaseServletTest {
 
         env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
         env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
-        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, mockDexGrpcClient), env);
+        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, mockDexGrpcClient), env, FilledMockRBACService.createTestRBACService());
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap);
         mockRequest.setMethod(HttpMethod.DELETE.toString());

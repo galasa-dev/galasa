@@ -47,7 +47,7 @@ public class ActionDetailsRouteTest {
         Role role1 = new MockRole("myRole1Id","myRole1Name","Description of myRole1Name", List.of(action1.getId(), action2.getId()));
         List<Role> roles = List.of(role1);
 
-        MockRBACService rbacService = new MockRBACService(roles , actions);
+        MockRBACService rbacService = new MockRBACService(roles , actions, role1);
         MockTimeService timeService = new MockTimeService(Instant.EPOCH);
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/actions/ACTION_ID_1", REQUEST_HEADERS);

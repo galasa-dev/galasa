@@ -12,12 +12,14 @@ dependencies {
     implementation project(':dev.galasa.framework.api.beans')
     implementation project(':dev.galasa.framework.api.common')
     implementation project(':dev.galasa.framework.auth.spi')
+    implementation project(':dev.galasa.framework.api.rbac')
     implementation 'dev.galasa:dev.galasa.wrapping.io.grpc.java'
     implementation 'org.apache.commons:commons-lang3'
 
     compileOnly 'org.apache.tomcat:annotations-api'
     
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
+    
     testImplementation(testFixtures(project(':dev.galasa.framework.auth.spi')))
     testImplementation(testFixtures(project(':dev.galasa.framework')))
 }

@@ -11,6 +11,8 @@ public interface IUser {
     
     String getUserNumber();
 
+    String getRoleId();
+
     String getVersion();
 
     String getLoginId();

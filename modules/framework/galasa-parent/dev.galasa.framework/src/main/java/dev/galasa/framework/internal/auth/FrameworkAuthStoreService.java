@@ -66,8 +66,8 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public void createUser(String loginId, String clientName) throws AuthStoreException {
-        authStore.createUser(loginId, clientName);
+    public void createUser(String loginId, String clientName, String roleId) throws AuthStoreException {
+        authStore.createUser(loginId, clientName, roleId);
     }
 
     @Override

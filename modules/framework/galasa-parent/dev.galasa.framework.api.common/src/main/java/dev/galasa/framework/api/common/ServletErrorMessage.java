@@ -129,6 +129,7 @@ public enum ServletErrorMessage {
     GAL5083_ERROR_USER_NOT_FOUND                      (5083, "E: Unable to retrieve a user with the given user number. No such user exists. Check your request query parameters and try again."),
     GAL5084_FAILED_TO_DELETE_USER                     (5084, "E: Failed to delete a user with the given 'loginId' from the auth store. The auth store might be experiencing temporary issues. Report the problem to your Galasa Ecosystem owner."),
     GAL5085_FAILED_TO_GET_LOGIN_ID_FROM_URL           (5085, "E: Failed to retrieve a loginId from the request path. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
+    GAL5086_FAILED_TO_GET_DEFAULT_ROLE                (5086, "E: Failed to retrieve a default role id for a user with no role set."),
 
     // Secrets APIs...
     GAL5092_INVALID_SECRET_NAME_PROVIDED              (5092, "E: Invalid secret name provided. The name of a Galasa secret cannot be empty, contain only spaces or tabs, or contain dots ('.'), and must only contain characters in the Latin-1 character set. Check your request payload and try again."),
@@ -153,7 +154,8 @@ public enum ServletErrorMessage {
     GAL5120_INVALID_ACTION_NAME_PROVIDED              (5120, "E: Invalid action name provided."),
     GAL5121_INVALID_ROLE_ID_PROVIDED                  (5121, "E: Invalid role id provided."),
     GAL5122_ACTION_NAMED_NOT_FOUND                    (5122, "E: Action with that name not found."),
-    GAL5123_ROLE_ID_NOT_FOUND                         (5122, "E: Role with that ID not found."),
+    GAL5123_ROLE_ID_NOT_FOUND                         (5123, "E: Role with that ID not found."),
+    GAL5124_ROLE_ID_NOT_FOUND_FOR_USER                (5124, "E: A user has a role which cannot be found in the system. Inconsistent data. Report this issue to your Galasa systems administrator."),
     ;
 
 

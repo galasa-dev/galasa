@@ -579,7 +579,7 @@ public class TestCouchdbAuthStore {
                 logFactory, new MockCouchdbValidator(), mockTimeService);
 
         // When...
-        authStore.createUser("this-is-a-login-id", "rest-api");
+        authStore.createUser("this-is-a-login-id", "rest-api", "2");
 
         // Then the assertions made in the create users document interaction shouldn't
         // have failed.

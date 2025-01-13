@@ -45,6 +45,8 @@ import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
 import dev.galasa.framework.spi.auth.IUser;
+import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
@@ -68,18 +70,21 @@ public class AuthTokensRoute extends BaseRoute {
     private static final IBeanValidator<TokenPayload> validator = new TokenPayloadValidator();
 
     private ITimeService timeService;
+    private  RBACService rbacService;
 
     public AuthTokensRoute(
             ResponseBuilder responseBuilder,
             IOidcProvider oidcProvider,
             IAuthService authService,
             ITimeService timeService,
+            RBACService rbacService,
             Environment env) {
         super(responseBuilder, PATH_PATTERN);
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = authService.getDexGrpcClient();
         this.authStoreService = authService.getAuthStoreService();
         this.env = env;
+        this.rbacService = rbacService;
 
         this.timeService = timeService;
     }
@@ -328,7 +333,7 @@ public class AuthTokensRoute extends BaseRoute {
         user = authStoreService.getUserByLoginId(loginId);
 
         if (user == null) {
-            authStoreService.createUser(loginId, clientName);
+            authStoreService.createUser(loginId, clientName, getDefaultRoleId() );
         } else {
 
             // Only update the document if the user has not created a new Galasa Access Token
@@ -344,6 +349,16 @@ public class AuthTokensRoute extends BaseRoute {
                 authStoreService.updateUser(user);
             }
         }
+    }
+
+    private String getDefaultRoleId() throws AuthStoreException {
+        String defaultRoleId ;
+        try {
+            defaultRoleId = rbacService.getDefaultRoleId();
+        } catch( RBACException ex){
+            throw new AuthStoreException(ex);
+        }
+        return defaultRoleId;
     }
 
     private void validateLoginId(String loginId, String servletPath) throws InternalServletException {

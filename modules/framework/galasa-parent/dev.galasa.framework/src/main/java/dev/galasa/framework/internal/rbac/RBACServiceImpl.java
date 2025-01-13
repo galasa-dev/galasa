@@ -6,7 +6,6 @@
 package dev.galasa.framework.internal.rbac;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,7 +33,7 @@ public class RBACServiceImpl implements RBACService {
     private static Map<String,Action> actionsMapById ;
 
     private static Role roleAdmin ;
-    private static Role roleDefault;
+    private static Role roleTester;
 
     private static Role roleDeactivated;
 
@@ -59,13 +58,13 @@ public class RBACServiceImpl implements RBACService {
 
         roleAdmin= new RoleImpl("admin","2","Administrator access",allActionIds);
 
-        roleDefault = new RoleImpl("tester", "1", "Test developer and runner", 
+        roleTester = new RoleImpl("tester", "1", "Test developer and runner", 
             List.of( actionUserRoleUpdateAny.getId() , actionGeneralApiAccess.getId() )   
         );
 
         roleDeactivated = new RoleImpl("deactivated", "0", "User has no access", new ArrayList<String>());
 
-        List<Role> rolesUnsorted = List.of(roleAdmin, roleDefault, roleDeactivated);
+        List<Role> rolesUnsorted = List.of(roleAdmin, roleTester, roleDeactivated);
 
 
         rolesSortedByName = new ArrayList<Role>(rolesUnsorted);
@@ -105,6 +104,13 @@ public class RBACServiceImpl implements RBACService {
     @Override
     public List<Action> getActionsSortedByName() throws RBACException {
         return actionsSortedByName;
+    }
+
+    @Override
+    public String getDefaultRoleId() throws RBACException {
+        // We currently don't want to lock anyone out of doing anything, so defaulting to use the admin role for everyone 
+        // without a role already.
+        return roleAdmin.getId();
     }
     
 }

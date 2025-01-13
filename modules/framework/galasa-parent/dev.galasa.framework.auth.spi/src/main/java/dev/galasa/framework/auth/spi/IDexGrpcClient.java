@@ -6,7 +6,6 @@
 package dev.galasa.framework.auth.spi;
 
 import com.coreos.dex.api.DexOuterClass.Client;
-
 import dev.galasa.framework.api.common.InternalServletException;
 
 public interface IDexGrpcClient {

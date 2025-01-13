@@ -1,4 +1,9 @@
-package dev.galasa.framework.api.rbac.internal.routes;
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package dev.galasa.framework.api.rbac;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.Test;
 
 import dev.galasa.framework.api.beans.generated.*;
+import dev.galasa.framework.api.rbac.RoleTransform;
 import dev.galasa.framework.mocks.MockAction;
 import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.rbac.Role;

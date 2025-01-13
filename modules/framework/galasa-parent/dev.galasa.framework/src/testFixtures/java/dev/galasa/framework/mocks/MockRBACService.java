@@ -24,8 +24,11 @@ public class MockRBACService implements RBACService {
     private final Map<String,Action> actionMapByName;
     private List<Action> actionsSortedByName;
     private List<Role> rolesSortedByName;
+    private Role defaultRole ;
 
-    public MockRBACService( List<Role> roles, List<Action> actions) {
+    public MockRBACService( List<Role> roles, List<Action> actions, Role defaultRole ) {
+
+        this.defaultRole = defaultRole;
 
         roleMapById = new HashMap<String,Role>();
         for(Role role: roles) {
@@ -77,6 +80,11 @@ public class MockRBACService implements RBACService {
     @Override
     public List<Action> getActionsSortedByName() throws RBACException {
         return actionsSortedByName;
+    }
+
+    @Override
+    public String getDefaultRoleId() throws RBACException {
+       return this.defaultRole.getId();
     }
     
 }

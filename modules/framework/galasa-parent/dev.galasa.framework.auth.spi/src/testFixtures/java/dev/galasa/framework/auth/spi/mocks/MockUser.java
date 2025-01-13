@@ -15,6 +15,7 @@ public class MockUser implements IUser {
 
     public String userNumber;
     public String version;
+    public String roleId;
     public String loginId;
     public Collection<IFrontEndClient> clients = new ArrayList<IFrontEndClient>();
 
@@ -53,6 +54,11 @@ public class MockUser implements IUser {
     @Override
     public void addClient(IFrontEndClient client) {
         clients.add(client);
+    }
+
+    @Override
+    public String getRoleId() {
+        return roleId;
     }
 
 };

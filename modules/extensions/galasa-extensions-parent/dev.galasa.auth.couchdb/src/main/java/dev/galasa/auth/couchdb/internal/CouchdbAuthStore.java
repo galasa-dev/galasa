@@ -204,7 +204,7 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     }
 
     @Override
-    public void createUser(String loginId, String clientName) throws AuthStoreException {
+    public void createUser(String loginId, String clientName, String roleId) throws AuthStoreException {
 
         FrontEndClient client = new FrontEndClient();
 

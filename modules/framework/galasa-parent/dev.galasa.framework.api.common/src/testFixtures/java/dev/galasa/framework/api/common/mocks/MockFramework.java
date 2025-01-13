@@ -75,6 +75,13 @@ public class MockFramework implements IFramework {
         this.frameworkRuns = frameworkRuns;
     }
 
+    
+    
+    public MockFramework(IAuthStoreService authStoreService, RBACService rbacService) {
+        this.authStoreService = authStoreService;
+        this.rbacService = rbacService;
+    }
+
     public MockFramework(IConfigurationPropertyStoreService cpsService){
         this.cpsService = (MockIConfigurationPropertyStoreService) cpsService;
     }

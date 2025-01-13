@@ -30,7 +30,7 @@ import dev.galasa.framework.spi.auth.IUser;
 public class UsersDeleteRoute extends BaseRoute{
 
     // Regex to match endpoint /users/{userDocumentId}
-    protected static final String path = "\\/([a-zA-Z0-9\\-\\_]+)\\/?";
+    protected static final String path = "\\/([a-zA-Z0-9\\-\\_]+)\\/?" ;
 
     private IAuthStoreService authStoreService;
     private IAuthService authService;

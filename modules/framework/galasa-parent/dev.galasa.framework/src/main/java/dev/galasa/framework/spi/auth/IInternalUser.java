@@ -14,4 +14,6 @@ public interface IInternalUser {
     String getDexUserId();
 
     String getLoginId();
+
+    String getRoleId();
 }

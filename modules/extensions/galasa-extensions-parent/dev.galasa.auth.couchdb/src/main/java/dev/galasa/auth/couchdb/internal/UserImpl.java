@@ -53,6 +53,15 @@ public class UserImpl implements IUser {
     }
 
     @Override
+    public String getRoleId() {
+        return this.userDocBean.getRoleId();
+    }
+
+    public void setRoleId(String newRoleId) {
+        this.userDocBean.setRoleId(newRoleId);
+    }
+
+    @Override
     public String getUserNumber() {
         return this.userDocBean.getUserNumber();
     }

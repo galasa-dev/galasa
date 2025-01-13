@@ -20,6 +20,7 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.ServletErrorMessage;
+import dev.galasa.framework.api.rbac.RoleTransform;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.rbac.Role;

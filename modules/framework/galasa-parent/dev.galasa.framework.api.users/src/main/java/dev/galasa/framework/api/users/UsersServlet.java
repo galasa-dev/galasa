@@ -20,6 +20,8 @@ import dev.galasa.framework.auth.spi.AuthServiceFactory;
 import dev.galasa.framework.auth.spi.IAuthService;
 import dev.galasa.framework.auth.spi.IAuthServiceFactory;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.SystemEnvironment;
@@ -51,7 +53,14 @@ public class UsersServlet extends BaseServlet {
         }
 
         IAuthService authService = factory.getAuthService();
-        addRoute(new UsersRoute(getResponseBuilder(), env, authService));
+        RBACService rbacService ;
+        try {
+            rbacService = framework.getRBACService();
+        } catch ( RBACException ex) {
+            throw new ServletException(ex);
+        }
+        
+        addRoute(new UsersRoute(getResponseBuilder(), env, authService, rbacService));
         addRoute(new UsersDeleteRoute(getResponseBuilder(), env, authService));
 
         logger.info("Galasa Users API initialised");
