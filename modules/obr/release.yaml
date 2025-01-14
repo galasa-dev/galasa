@@ -268,6 +268,8 @@ external:
   - group: net.bytebuddy
     artifact: byte-buddy
     obr: true
+    mvp: true
+    isolated: true
 
   - group: org.apache.bcel
     artifact: bcel
