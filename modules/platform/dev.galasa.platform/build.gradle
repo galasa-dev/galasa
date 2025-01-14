@@ -19,7 +19,6 @@ dependencies {
     api platform('org.apache.httpcomponents:httpcomponents-client:4.5.14')
     api platform('org.apache.httpcomponents:httpcomponents-core:4.4.16')
     api platform('org.apache.httpcomponents:httpcomponents-parent:11')
-    api platform('org.assertj:assertj-parent-pom:2.2.1')
     api platform('org.slf4j:slf4j-parent:1.7.25')
 
     // TODO: Isolated/MVP contain multiple versions of these to be consolidated.
