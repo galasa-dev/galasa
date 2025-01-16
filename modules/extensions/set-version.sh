@@ -142,11 +142,6 @@ cat $BASEDIR/galasa-extensions-parent/buildSrc/src/main/groovy/galasa.extensions
 cp $temp_dir/galasa.extensions.gradle $BASEDIR/galasa-extensions-parent/buildSrc/src/main/groovy/galasa.extensions.gradle
 
 
-# The platform in the extensions gradle plugin src needs setting.
-cat $BASEDIR/galasa-extensions-parent/buildSrc/src/main/groovy/galasa.extensions.gradle | sed "s/'dev[.]galasa[:]dev[.]galasa[.]platform[:].*'/'dev.galasa:dev.galasa.platform:$component_version'/1" > $temp_dir/galasa.extensions.gradle
-cp $temp_dir/galasa.extensions.gradle $BASEDIR/galasa-extensions-parent/buildSrc/src/main/groovy/galasa.extensions.gradle
-
-
 # The top-level build.gradle has this: id 'dev.galasa.githash' version '$version' apply false
 cat $BASEDIR/galasa-extensions-parent/build.gradle | sed  "s/id 'dev[.]galasa[.]githash' version '.*'/id 'dev.galasa.githash' version '$component_version'/1" > $temp_dir/top-build.gradle
 cp $temp_dir/top-build.gradle $BASEDIR/galasa-extensions-parent/build.gradle

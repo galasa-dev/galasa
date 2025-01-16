@@ -146,16 +146,6 @@ function upgrade_build_gradle {
     success "Upgraded build.gradle file OK."
 }
 
-function upgrade_manager_gradle_plugin() {
-    h2 "Upgrading the gradle manager plugin in the managers module"
-
-    cat $BASEDIR/galasa-managers-parent/buildSrc/src/main/groovy/galasa.manager.gradle \
-    | sed "s/'dev[.]galasa[:]dev[.]galasa[.]platform:.*'/'dev.galasa:dev.galasa.platform:$component_version'/g" \
-    > $temp_dir/manager-gradle-plugin
-    cp $temp_dir/manager-gradle-plugin $BASEDIR/galasa-managers-parent/buildSrc/src/main/groovy/galasa.manager.gradle
-    success "OK"
-}
-
 function upgrade_kube_manager_ivt_readme() {
     cat $BASEDIR/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager.ivt/README.md \
     | sed "s/mvn[:]dev[.]galasa\/dev[.]galasa[.]uber[.]obr\/.*\/obr/mvn:dev.galasa\/dev.galasa.uber.obr\/$component_version\/obr/g" \
@@ -166,5 +156,4 @@ function upgrade_kube_manager_ivt_readme() {
 
 upgrade_build_gradle
 upgrade_dependencies_on_framework
-upgrade_manager_gradle_plugin
 upgrade_kube_manager_ivt_readme
