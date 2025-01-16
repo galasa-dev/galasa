@@ -23,7 +23,7 @@ framework:
 
 
   - artifact: dev.galasa.auth.couchdb
-    version: 0.39.0
+    version: 0.40.0
     obr:          true
     mvp:          false
     bom:          false
@@ -32,7 +32,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.cps.etcd
-    version: 0.39.0
+    version: 0.40.0
     obr:          true
     mvp:          false
     bom:          false
@@ -41,7 +41,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.cps.rest
-    version: 0.39.0
+    version: 0.40.0
     obr:          true
     mvp:          false
     bom:          false
@@ -50,7 +50,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.events.kafka
-    version: 0.39.0
+    version: 0.40.0
     obr:          true
     mvp:          false
     bom:          false
@@ -59,7 +59,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.extensions.common
-    version: 0.39.0
+    version: 0.40.0
     obr:          true
     mvp:          false
     bom:          false
@@ -68,7 +68,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.extensions.common.couchdb
-    version: 0.39.0
+    version: 0.40.0
     obr:          true
     mvp:          false
     bom:          false
@@ -77,7 +77,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.ras.couchdb
-    version: 0.39.0
+    version: 0.40.0
     obr:          true
     mvp:          false
     bom:          false

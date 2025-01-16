@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'biz.aQute.bnd.builder' version '5.3.0' apply false
-    id 'dev.galasa.githash' version '0.39.0' apply false
+    id 'dev.galasa.githash' version '0.40.0' apply false
     id 'jacoco'
     id 'maven-publish'
     id 'signing'
@@ -9,11 +9,11 @@ plugins {
 
 // Note: The following line is changed by the set-version.sh script.
 // It is also read by other build scrips as required.
-version = "0.39.0"
+version = "0.40.0"
 
 allprojects {
     group = 'dev.galasa'
-    version = "0.39.0"
+    version = "0.40.0"
 }
 
 signing {
@@ -310,7 +310,7 @@ publishing {
                 name = "Manifest for framework bundle versions"
                 artifactId = "dev.galasa.framework.manifest"
                 groupId = 'dev.galasa'
-                version = "0.39.0"
+                version = "0.40.0"
                 description = "Conveys bundle version information to OBR builds."
                 licenses {
                     license {

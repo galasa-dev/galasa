@@ -7,7 +7,7 @@
 	<groupId>dev.galasa</groupId>
 	<artifactId>galasa-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>0.39.0</version>
+	<version>0.40.0</version>
 
 	<name>Galasa Maven Plugin</name>
 	<description>Maven plugin for build Galasa artifacts such as the OBR, Test Catalog</description>
@@ -62,7 +62,7 @@
 			<dependency>
 				<groupId>dev.galasa</groupId>
 				<artifactId>dev.galasa.platform</artifactId>
-				<version>0.39.0</version>
+				<version>0.40.0</version>
 				<type>pom</type>
           		<scope>import</scope>
 			</dependency>
