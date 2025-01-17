@@ -1,0 +1,131 @@
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package dev.galasa.imstm.internal;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import dev.galasa.ICredentialsUsername;
+import dev.galasa.ICredentialsUsernamePassword;
+import dev.galasa.imstm.ImstmManagerException;
+import dev.galasa.imstm.IImsTerminal;
+import dev.galasa.imstm.internal.properties.DefaultLogonInitialText;
+import dev.galasa.imstm.spi.IImsSystemLogonProvider;
+import dev.galasa.framework.spi.IConfidentialTextService;
+import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.zos3270.Zos3270Exception;
+
+public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
+
+    private static final Log logger = LogFactory.getLog(ImstmDefaultLogonProvider.class);
+    private final ICredentialsService cs;
+    private final IConfidentialTextService cts;
+
+    private final String initialText;
+
+    public ImstmDefaultLogonProvider(IFramework framework) throws ImstmManagerException {
+
+        try {
+            this.cs = framework.getCredentialsService();
+        } catch (CredentialsException e) {
+            throw new ImstmManagerException("Could not obtain the Credentials service.", e);
+        }
+
+        this.cts = framework.getConfidentialTextService();
+
+        try {
+            initialText = DefaultLogonInitialText.get();
+        } catch (ImstmManagerException e) {
+            throw new ImstmManagerException("Problem retrieving logon text for the default logon provider", e);
+        }
+    }
+
+    @Override
+    public boolean logonToImsSystem(IImsTerminal imsTerminal) throws ImstmManagerException {
+
+        try {
+            if (!imsTerminal.isConnected()) {
+                imsTerminal.connect();
+            }
+
+            // Ensure we can type something first
+            imsTerminal.waitForKeyboard();
+
+            // Check we are at the right screen
+            if (initialText != null) {
+                checkForInitialText(imsTerminal);
+            }
+
+            imsTerminal.type("LOGON APPLID(" + imsTerminal.getImsSystem().getApplid() + ")").enter().wfk();
+
+            waitForSignonScreen(imsTerminal);
+            logger.debug("Logged onto " + imsTerminal.getImsSystem());
+
+            if (imsTerminal.getLoginCredentialsTag().isEmpty()) {
+                throw new ImstmManagerException("No login credentials provided");
+            } else {
+                ICredentialsUsername creds = (ICredentialsUsername) this.cs.getCredentials(imsTerminal.getLoginCredentialsTag());
+
+                imsTerminal.positionCursorToFieldContaining("USERID:");
+                imsTerminal.tab();
+                imsTerminal.type(creds.getUsername());
+                if (creds instanceof ICredentialsUsernamePassword) {
+                    String pw = ((ICredentialsUsernamePassword) creds).getPassword();
+                    cts.registerText(pw, "Password for credential tag: " + imsTerminal.getLoginCredentialsTag());
+                    imsTerminal.positionCursorToFieldContaining("PASSWORD:");
+                    imsTerminal.tab();
+                    imsTerminal.type(pw);
+                    }
+                imsTerminal.enter().wfk();
+
+                waitForSignedOnText(imsTerminal);
+                logger.debug("Logged into IMS TM as user: " + creds.getUsername());
+            }
+
+            imsTerminal.clear().wfk();
+
+        } catch (Zos3270Exception | CredentialsException e) {
+            throw new ImstmManagerException("Problem logging onto the IMS system", e);
+        }
+
+        return true;
+    }
+
+    private void checkForInitialText(IImsTerminal imsTerminal) throws ImstmManagerException {
+        try {
+            imsTerminal.waitForTextInField(initialText);
+        } catch (Exception e) {
+            throw new ImstmManagerException(
+                    "Unable to logon to CICS, initial screen does not contain '" + initialText + "'");
+        }
+    }
+
+    private void waitForSignonScreen(IImsTerminal imsTerminal) throws ImstmManagerException {
+        try {
+            imsTerminal.waitForTextInField("DFS3649A");
+        } catch (Exception e) {
+            throw new ImstmManagerException("Unable to wait for the initial IMS screen, looking for 'DFS3649I'",
+                    e);
+        }
+    }
+
+    private void waitForSignedOnText(IImsTerminal imsTerminal) throws ImstmManagerException {
+
+        String[] pass = { "DFS3650I" };
+        String[] fail = { "REJECTED" };  // Any signon failure will give us DFS3649A again, with REJECTED and a reason code.
+                                         // However, we can't search for DFS3649A as it's already on the screen.
+
+        try {
+            imsTerminal.waitForTextInField(pass, fail);
+        } catch (Exception e) {
+            throw new ImstmManagerException("Unable to sign on, looking for '" + String.join("', '", pass) + "'",
+                e);
+        }
+    }
+
+}
