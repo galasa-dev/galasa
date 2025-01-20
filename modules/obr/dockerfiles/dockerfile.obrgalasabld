@@ -12,5 +12,6 @@ FROM ${dockerRepository}/galasa-dev/obr-maven-artefacts:${tag}
 # 2. The `galasabld` exectuable is installed here.
 ARG platform
 COPY galasabld-${platform} /bin/galasabld
+RUN chmod +x /bin/galasabld
 
 ENTRYPOINT ["/bin/galasabld"]
