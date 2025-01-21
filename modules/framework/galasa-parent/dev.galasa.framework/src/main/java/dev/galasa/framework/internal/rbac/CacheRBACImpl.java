@@ -5,9 +5,7 @@
  */
 package dev.galasa.framework.internal.rbac;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
@@ -19,43 +17,39 @@ import dev.galasa.framework.spi.rbac.Role;
 
 public class CacheRBACImpl implements CacheRBAC {
 
-    private Map<String, List<String>> usersToActionsMap;
     private IAuthStoreService authStoreService;
     private RBACService rbacService;
     
     public CacheRBACImpl(IAuthStoreService authStoreService, RBACService rbacService) {
-        this.usersToActionsMap = new HashMap<>();
         this.authStoreService = authStoreService;
         this.rbacService = rbacService;
     }
 
     @Override
     public synchronized void addUser(String loginId, List<String> actionIds) throws RBACException {
-        usersToActionsMap.put(loginId, actionIds);
+        // Do nothing for now...
     }
 
     @Override
     public synchronized boolean isActionPermitted(String loginId, String actionId) throws RBACException {
-        boolean isActionPermitted = false;
-        List<String> userActionIds = usersToActionsMap.get(loginId);
-        if (userActionIds == null) {
-            addUserToCacheFromAuthStore(loginId);
-            userActionIds = usersToActionsMap.get(loginId);
+        IUser user = getUserFromAuthStore(loginId);
+        String userRoleId = user.getRoleId();
+        if (userRoleId == null) {
+            userRoleId = rbacService.getDefaultRoleId();
+            user.setRoleId(userRoleId);
         }
+        Role userRole = rbacService.getRoleById(userRoleId);
 
-        if (userActionIds != null) {
-            // Check if the user is allowed to perform the given action
-            isActionPermitted = userActionIds.contains(actionId);
-        }
-        return isActionPermitted;
+        // Check if the user is allowed to perform the given action
+        return userRole.getActionIds().contains(actionId);
     }
 
     @Override
     public synchronized void invalidateUser(String loginId) throws RBACException {
-        usersToActionsMap.remove(loginId);
+        // Do nothing for now...
     }
 
-    private IUser getUserFromAuthStore(String loginId) throws RBACException {
+    private synchronized IUser getUserFromAuthStore(String loginId) throws RBACException {
         IUser user = null;
         try {
             user = authStoreService.getUserByLoginId(loginId);
@@ -66,17 +60,5 @@ public class CacheRBACImpl implements CacheRBAC {
             throw new RBACException("Unable to find user with the given login ID", e);
         }
         return user;
-    }
-
-    private synchronized void addUserToCacheFromAuthStore(String loginId) throws RBACException {
-        IUser user = getUserFromAuthStore(loginId);
-        String userRoleId = user.getRoleId();
-        if (userRoleId == null) {
-            userRoleId = rbacService.getDefaultRoleId();
-            user.setRoleId(userRoleId);
-        }
-
-        Role userRole = rbacService.getRoleById(userRoleId);
-        addUser(loginId, userRole.getActionIds());
     }
 }
