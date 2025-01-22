@@ -19,7 +19,7 @@ import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.rbac.Action;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -72,7 +72,7 @@ public class TestBaseServlet extends BaseServletTest {
         }
 
         @Override
-        public boolean isActionPermitted(Action action, HttpServletRequest request) throws InternalServletException {
+        public boolean isActionPermitted(BuiltInAction action, HttpServletRequest request) throws InternalServletException {
             return true;
         }
     }

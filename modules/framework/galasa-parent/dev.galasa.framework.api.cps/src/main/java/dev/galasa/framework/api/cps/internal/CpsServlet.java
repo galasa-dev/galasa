@@ -43,7 +43,15 @@ public class CpsServlet extends BaseServlet {
 
 	private Log  logger  =  LogFactory.getLog(this.getClass());
 
-	protected Environment env = new SystemEnvironment();
+	private Environment env;
+
+	public CpsServlet() {
+		this(new SystemEnvironment());
+	}
+
+	public CpsServlet(Environment env) {
+		this.env = env;
+	}
  
 	protected IFramework getFramework() {
         return this.framework;

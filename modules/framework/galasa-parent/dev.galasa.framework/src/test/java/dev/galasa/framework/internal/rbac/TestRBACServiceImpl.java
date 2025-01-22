@@ -36,7 +36,7 @@ public class TestRBACServiceImpl {
         assertThat(roleGot.getActionIds())
             .hasSize(4)
             .contains("USER_ROLE_UPDATE_ANY")
-            .contains("SECRETS_GET")
+            .contains("SECRETS_GET_UNREDACTED_VALUES")
             .contains("GENERAL_API_ACCESS")
             .contains("CPS_PROPERTIES_SET");
     }
@@ -92,8 +92,8 @@ public class TestRBACServiceImpl {
         RBACService service = new RBACServiceImpl(mockAuthStoreService);
         Map<String,Action> actionMap = service.getActionsMapById();
 
-        Action action = actionMap.get("SECRETS_GET");
-        assertThat(action.getId()).isEqualTo("SECRETS_GET");
+        Action action = actionMap.get("SECRETS_GET_UNREDACTED_VALUES");
+        assertThat(action.getId()).isEqualTo("SECRETS_GET_UNREDACTED_VALUES");
     }
 
     @Test 
@@ -125,9 +125,9 @@ public class TestRBACServiceImpl {
         RBACService service = new RBACServiceImpl(mockAuthStoreService);
         Map<String,Action> actionMapById = service.getActionsMapById();
 
-        Action action = actionMapById.get("SECRETS_GET");
+        Action action = actionMapById.get("SECRETS_GET_UNREDACTED_VALUES");
 
-        assertThat(action.getId()).isEqualTo("SECRETS_GET");
+        assertThat(action.getId()).isEqualTo("SECRETS_GET_UNREDACTED_VALUES");
     }
 
     @Test
@@ -144,8 +144,8 @@ public class TestRBACServiceImpl {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
         RBACService service = new RBACServiceImpl(mockAuthStoreService);
-        Action actionGotBack = service.getActionById("SECRETS_GET");
-        assertThat(actionGotBack.getId()).isEqualTo("SECRETS_GET");
+        Action actionGotBack = service.getActionById("SECRETS_GET_UNREDACTED_VALUES");
+        assertThat(actionGotBack.getId()).isEqualTo("SECRETS_GET_UNREDACTED_VALUES");
     }
 
     @Test
@@ -153,8 +153,8 @@ public class TestRBACServiceImpl {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
         RBACService service = new RBACServiceImpl(mockAuthStoreService);
-        Action actionGotBack = service.getActionById("SECRETS_GET");
-        assertThat(actionGotBack.getId()).isEqualTo("SECRETS_GET");
+        Action actionGotBack = service.getActionById("SECRETS_GET_UNREDACTED_VALUES");
+        assertThat(actionGotBack.getId()).isEqualTo("SECRETS_GET_UNREDACTED_VALUES");
     }
 
     @Test
@@ -162,8 +162,8 @@ public class TestRBACServiceImpl {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
         RBACService service = new RBACServiceImpl(mockAuthStoreService);
-        Action actionGotBack = service.getActionById("SECRETS_GET");
-        assertThat(actionGotBack.getDescription()).contains("Able to get secret values");
+        Action actionGotBack = service.getActionById("SECRETS_GET_UNREDACTED_VALUES");
+        assertThat(actionGotBack.getDescription()).contains("Able to get unredacted secret values");
     }
 
     @Test 

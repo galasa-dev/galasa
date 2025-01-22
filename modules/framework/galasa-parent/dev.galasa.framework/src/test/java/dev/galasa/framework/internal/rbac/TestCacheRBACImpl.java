@@ -39,7 +39,7 @@ public class TestCacheRBACImpl {
         CacheRBAC cache = new CacheRBACImpl(mockAuthStoreService, mockRbacService);
 
         String apiAccessActionId = "GENERAL_API_ACCESS";
-        String secretsGetActionId = "SECRETS_GET";
+        String secretsGetActionId = "SECRETS_GET_UNREDACTED_VALUES";
 
         // When...
         boolean isApiAccessPermitted = cache.isActionPermitted(loginId, apiAccessActionId);
@@ -68,7 +68,7 @@ public class TestCacheRBACImpl {
         CacheRBAC cache = new CacheRBACImpl(mockAuthStoreService, mockRbacService);
 
         String apiAccessActionId = "GENERAL_API_ACCESS";
-        String secretsGetActionId = "SECRETS_GET";
+        String secretsGetActionId = "SECRETS_GET_UNREDACTED_VALUES";
         List<String> actions = List.of(apiAccessActionId, secretsGetActionId);
 
         cache.addUser(loginId, actions);
@@ -99,7 +99,7 @@ public class TestCacheRBACImpl {
         CacheRBAC cache = new CacheRBACImpl(mockAuthStoreService, mockRbacService);
 
         String apiAccessActionId = "GENERAL_API_ACCESS";
-        String secretsGetActionId = "SECRETS_GET";
+        String secretsGetActionId = "SECRETS_GET_UNREDACTED_VALUES";
         List<String> actions = List.of(apiAccessActionId, secretsGetActionId);
 
         cache.addUser(loginId, actions);
@@ -140,7 +140,7 @@ public class TestCacheRBACImpl {
         String loginId = "bob";
 
         String apiAccessActionId = "GENERAL_API_ACCESS";
-        String secretsGetActionId = "SECRETS_GET";
+        String secretsGetActionId = "SECRETS_GET_UNREDACTED_VALUES";
         List<String> actions = List.of(apiAccessActionId, secretsGetActionId);
 
         cache.addUser(loginId, actions);

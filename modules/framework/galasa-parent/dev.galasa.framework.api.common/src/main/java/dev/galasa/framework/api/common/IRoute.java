@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.rbac.Action;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 
 /**
  * IRoute provides methods for endpoints to implement when a request is sent through a servlet,
@@ -49,6 +49,5 @@ public interface IRoute {
      * @return true if the user is allowed to perform the given action, false otherwise
      * @throws InternalServletException if there was an issue accessing the RBAC service
      */
-    boolean isActionPermitted(Action action, HttpServletRequest request) throws InternalServletException;
-
+    boolean isActionPermitted(BuiltInAction action, HttpServletRequest request) throws InternalServletException;
 }

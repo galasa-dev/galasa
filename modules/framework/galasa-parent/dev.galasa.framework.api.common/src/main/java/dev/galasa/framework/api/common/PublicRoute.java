@@ -7,7 +7,7 @@ package dev.galasa.framework.api.common;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.galasa.framework.spi.rbac.Action;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 
 /**
  * This is an abstract class that represents a route that is publicly accessible and does not require a JWT.
@@ -20,7 +20,7 @@ public abstract class PublicRoute extends BaseRoute {
     }
 
     @Override
-    public boolean isActionPermitted(Action action, HttpServletRequest request) throws InternalServletException {
+    public boolean isActionPermitted(BuiltInAction action, HttpServletRequest request) throws InternalServletException {
         return true;
     }
 }

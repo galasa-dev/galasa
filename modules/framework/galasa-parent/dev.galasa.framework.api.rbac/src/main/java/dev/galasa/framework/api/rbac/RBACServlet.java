@@ -37,14 +37,21 @@ public class RBACServlet extends BaseServlet {
 	@Reference
 	protected IFramework framework;
 
-    protected Environment env = new SystemEnvironment();
-    protected ITimeService timeService = new SystemTimeService();
+    private Environment env;
+    private ITimeService timeService;
 
 	private static final long serialVersionUID = 1L;
 
 	private Log logger = LogFactory.getLog(this.getClass());
  
+    public RBACServlet() {
+        this(new SystemEnvironment(), new SystemTimeService());
+    }
 
+    public RBACServlet(Environment env, ITimeService timeService) {
+        this.env = env;
+        this.timeService = timeService;
+    }
     
 	@Override
 	public void init() throws ServletException {

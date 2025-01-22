@@ -97,12 +97,17 @@ public class MockRBACService implements RBACService {
         return this.roleMapByName.get(roleNameWanted);
     }
 
-    @Override
-    public CacheRBAC getUsersActionsCache() {
-        return usersToActionsCache;
-    }
-
     public void setUsersActionsCache(MockCacheRBAC cache) {
         this.usersToActionsCache = cache;
+    }
+
+    @Override
+    public boolean isActionPermitted(String loginId, String actionId) throws RBACException {
+        return usersToActionsCache.isActionPermitted(loginId, actionId);
+    }
+
+    @Override
+    public void invalidateUser(String loginId) throws RBACException {
+        usersToActionsCache.invalidateUser(loginId);
     }
 }

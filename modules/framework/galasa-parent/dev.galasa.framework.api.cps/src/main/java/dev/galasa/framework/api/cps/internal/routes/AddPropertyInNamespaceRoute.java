@@ -6,7 +6,6 @@
 package dev.galasa.framework.api.cps.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 import java.io.IOException;
 
@@ -31,6 +30,7 @@ import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
 
 public class AddPropertyInNamespaceRoute extends CPSRoute {
@@ -52,7 +52,7 @@ public class AddPropertyInNamespaceRoute extends CPSRoute {
     public HttpServletResponse handlePutRequest(String pathInfo, HttpServletRequest req, HttpServletResponse response)
             throws ServletException, FrameworkException, IOException {
 
-        validateActionPermitted(CPS_PROPERTIES_SET.getAction(), req);
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, req);
 
         getPropertyDetailsFromURL(pathInfo);
         checkNamespaceExists(namespaceName);

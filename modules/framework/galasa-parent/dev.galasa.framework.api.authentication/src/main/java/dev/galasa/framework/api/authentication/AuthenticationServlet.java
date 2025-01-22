@@ -55,11 +55,20 @@ public class AuthenticationServlet extends BaseServlet {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    protected Environment env = new SystemEnvironment();
-    protected ITimeService timeService = new SystemTimeService();
     protected IOidcProvider oidcProvider;
+    private Environment env;
+    private ITimeService timeService;
 
     private IAuthServiceFactory factory;
+
+	public AuthenticationServlet() {
+		this(new SystemEnvironment(), new SystemTimeService());
+	}
+
+	public AuthenticationServlet(Environment env, ITimeService timeService) {
+		this.env = env;
+        this.timeService = timeService;
+	}
 
     @Override
     public void init() throws ServletException {

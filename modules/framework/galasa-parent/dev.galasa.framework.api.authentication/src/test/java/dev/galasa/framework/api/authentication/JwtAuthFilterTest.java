@@ -34,7 +34,7 @@ public class JwtAuthFilterTest extends BaseServletTest {
     class MockJwtAuthFilter extends JwtAuthFilter {
 
         public MockJwtAuthFilter(Environment env, IOidcProvider oidcProvider) {
-            super.env = env;
+            super(env);
             super.oidcProvider = oidcProvider;
             super.responseBuilder = new ResponseBuilder(env);
         }

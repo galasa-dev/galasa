@@ -20,9 +20,8 @@ public class MockSecretsServlet extends SecretsServlet {
     }
 
     public MockSecretsServlet(MockFramework framework, MockEnvironment env, ITimeService timeService) {
+        super(env, timeService);
         super.framework = framework;
-        super.env = env;
-        super.timeService = timeService;
         setResponseBuilder(new ResponseBuilder(env));
     }
 }

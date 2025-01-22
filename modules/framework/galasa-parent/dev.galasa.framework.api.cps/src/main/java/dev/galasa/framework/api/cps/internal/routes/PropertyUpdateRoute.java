@@ -6,7 +6,6 @@
 package dev.galasa.framework.api.cps.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +25,7 @@ import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
 
 /**
@@ -84,7 +84,7 @@ public class PropertyUpdateRoute extends CPSRoute {
     public HttpServletResponse handlePutRequest(String pathInfo, HttpServletRequest request , HttpServletResponse response)
             throws  IOException, FrameworkException {
 
-        validateActionPermitted(CPS_PROPERTIES_SET.getAction(), request);
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, request);
 
         String namespaceName = getNamespaceFromURL(pathInfo);
         String name = getPropertyNameFromURL(pathInfo);

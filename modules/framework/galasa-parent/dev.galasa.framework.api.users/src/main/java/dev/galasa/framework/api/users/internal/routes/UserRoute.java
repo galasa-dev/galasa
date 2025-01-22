@@ -25,11 +25,9 @@ import dev.galasa.framework.auth.spi.IAuthService;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IUser;
-import dev.galasa.framework.spi.rbac.CacheRBAC;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
-
-import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 /**
  * Handles REST calls directed at a specific user record.
@@ -51,14 +49,11 @@ public class UserRoute extends AbstractUsersRoute {
 
     private UserUpdateRequestValidator updateRequestValidator = new UserUpdateRequestValidator();
 
-    private CacheRBAC usersActionsCache;
-
     public UserRoute(ResponseBuilder responseBuilder, Environment env,
             IAuthService authService, RBACService rbacService) {
         super(responseBuilder, path, authService , env, rbacService);
         this.pathPattern = getPathRegex();
         this.beanTransformer = new BeanTransformer(baseServletUrl, rbacService);
-        this.usersActionsCache = rbacService.getUsersActionsCache();
     }
 
     @Override
@@ -85,7 +80,7 @@ public class UserRoute extends AbstractUsersRoute {
         HttpServletResponse response
     ) throws FrameworkException, IOException {
 
-        validateActionPermitted(USER_ROLE_UPDATE_ANY.getAction(), request);
+        validateActionPermitted(BuiltInAction.USER_ROLE_UPDATE_ANY, request);
         logger.info("handlePutRequest() entered");
 
         IUser originalUser = getUser(pathInfo);
@@ -148,8 +143,8 @@ public class UserRoute extends AbstractUsersRoute {
         }
 
         if (isStoreUpdateRequired) {
-            usersActionsCache.invalidateUser(user.getLoginId());
             authStoreService.updateUser(user);
+            rbacService.invalidateUser(user.getLoginId());
         }
 
         return user;
@@ -169,9 +164,7 @@ public class UserRoute extends AbstractUsersRoute {
             }
 
             authStoreService.deleteUser(user);
-
-            CacheRBAC rbacCache = rbacService.getUsersActionsCache();
-            rbacCache.invalidateUser(loginId);
+            rbacService.invalidateUser(loginId);
 
             logger.info("The user with the given loginId was deleted OK");
 

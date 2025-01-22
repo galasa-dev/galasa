@@ -26,10 +26,10 @@ import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 public class PropertyRoute extends CPSRoute{
 
@@ -87,7 +87,7 @@ public class PropertyRoute extends CPSRoute{
             HttpServletRequest request, HttpServletResponse response)
             throws  IOException, FrameworkException {
 
-        validateActionPermitted(CPS_PROPERTIES_SET.getAction(), request);
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, request);
 
         String namespaceName = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);

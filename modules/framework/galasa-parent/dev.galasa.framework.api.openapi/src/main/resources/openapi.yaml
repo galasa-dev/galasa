@@ -2109,7 +2109,7 @@ paths:
                     data: 
                       actions:
                         - GENERAL_API_ACCESS
-                        - SECRETS_GET
+                        - SECRETS_GET_UNREDACTED_VALUES
                         - USER_ROLE_UPDATE_ANY
                         - CPS_PROPERTIES_SET
 
@@ -2160,7 +2160,7 @@ paths:
                   data: 
                     actions:
                       - GENERAL_API_ACCESS
-                      - SECRETS_GET
+                      - SECRETS_GET_UNREDACTED_VALUES
                       - USER_ROLE_UPDATE_ANY
                       - CPS_PROPERTIES_SET
         '404':

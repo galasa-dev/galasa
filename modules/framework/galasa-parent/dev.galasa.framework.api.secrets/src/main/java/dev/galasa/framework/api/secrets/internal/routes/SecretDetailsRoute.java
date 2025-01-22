@@ -7,7 +7,6 @@ package dev.galasa.framework.api.secrets.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static dev.galasa.framework.api.common.resources.GalasaSecretType.*;
-import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -39,6 +38,7 @@ import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
 import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.utils.ITimeService;
 
@@ -74,7 +74,7 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
         HttpServletResponse response
     ) throws FrameworkException {
 
-        boolean shouldRedactSecretValues = !isActionPermitted(SECRETS_GET.getAction(), request);
+        boolean shouldRedactSecretValues = !isActionPermitted(BuiltInAction.SECRETS_GET_UNREDACTED_VALUES, request);
 
         logger.info("handleGetRequest() entered. Getting secret with the given name");
         String secretName = getSecretNameFromPath(pathInfo);

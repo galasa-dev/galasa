@@ -6,7 +6,7 @@
 package dev.galasa.framework.api.secrets.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-import static dev.galasa.framework.spi.rbac.BuiltInAction.SECRETS_GET;
+import static dev.galasa.framework.spi.rbac.BuiltInAction.SECRETS_GET_UNREDACTED_VALUES;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class SecretsRoute extends AbstractSecretsRoute {
         HttpServletResponse response
     ) throws FrameworkException {
 
-        boolean shouldRedactSecretValues = !isActionPermitted(SECRETS_GET.getAction(), request);
+        boolean shouldRedactSecretValues = !isActionPermitted(SECRETS_GET_UNREDACTED_VALUES, request);
 
         logger.info("handleGetRequest() entered. Getting secrets from the credentials store");
         List<GalasaSecret> secrets = new ArrayList<>();

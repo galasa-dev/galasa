@@ -10,10 +10,10 @@ import org.junit.Test;
 import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.mocks.FilledMockRBACService;
-import dev.galasa.framework.mocks.MockAction;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.rbac.Action;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACService;
 
 import static org.assertj.core.api.Assertions.*;
@@ -50,7 +50,6 @@ public class TestProtectedRoute extends BaseServletTest {
     @Test
     public void testValidateActionPermittedWithMissingPermissionsThrowsError() throws Exception {
         // Given...
-        MockAction mockAction = new MockAction("MOCK_ACTION", "Mock action", "Action description");
         List<Action> userActions = new ArrayList<>();
 
         MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, userActions);
@@ -59,20 +58,21 @@ public class TestProtectedRoute extends BaseServletTest {
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            route.validateActionPermitted(mockAction, request);
+            route.validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, request);
         }, InternalServletException.class);
 
 
         // Then...
         assertThat(thrown).isNotNull();
-        checkErrorStructure(thrown.getMessage(), 5125, "GAL5125E", mockAction.getId());
+
+        String actionId = BuiltInAction.CPS_PROPERTIES_SET.getAction().getId();
+        checkErrorStructure(thrown.getMessage(), 5125, "GAL5125E", actionId);
     }
 
     @Test
     public void testValidateActionPermittedWithCorrectPermissionsSucceeds() throws Exception {
         // Given...
-        MockAction mockAction = new MockAction("MOCK_ACTION", "Mock action", "Action description");
-        List<Action> userActions = List.of(mockAction);
+        List<Action> userActions = List.of(BuiltInAction.SECRETS_GET_UNREDACTED_VALUES.getAction());
 
         MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, userActions);
         ProtectedRoute route = new MockProtectedRoute(rbacService);
@@ -80,7 +80,7 @@ public class TestProtectedRoute extends BaseServletTest {
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            route.validateActionPermitted(mockAction, request);
+            route.validateActionPermitted(BuiltInAction.SECRETS_GET_UNREDACTED_VALUES, request);
         }, InternalServletException.class);
 
 

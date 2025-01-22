@@ -20,8 +20,8 @@ import dev.galasa.framework.spi.IFramework;
 public class MockCpsServlet extends CpsServlet implements IServletUnderTest {
 
 	public MockCpsServlet() {
+		super(FilledMockEnvironment.createTestEnvironment());
 		setFramework(new MockFramework());
-		super.env = FilledMockEnvironment.createTestEnvironment();
 	}
 
 	@Override

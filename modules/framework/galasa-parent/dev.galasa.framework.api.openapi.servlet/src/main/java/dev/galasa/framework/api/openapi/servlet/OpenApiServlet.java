@@ -28,10 +28,18 @@ import static dev.galasa.framework.api.common.EnvironmentVariables.*;
 public class OpenApiServlet extends BaseServlet {
 
     private static final long serialVersionUID = 1L;
-
-    protected Environment env = new SystemEnvironment();
-
+    
     protected Log logger = LogFactory.getLog(this.getClass());
+    
+    private Environment env;
+
+    public OpenApiServlet() {
+        this(new SystemEnvironment());
+    }
+
+    public OpenApiServlet(Environment env) {
+        this.env = env;
+    }
 
     @Override
     public void init() throws ServletException {

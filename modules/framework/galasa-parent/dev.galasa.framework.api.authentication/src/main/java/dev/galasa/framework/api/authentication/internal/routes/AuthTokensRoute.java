@@ -45,10 +45,8 @@ import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
 import dev.galasa.framework.spi.auth.IUser;
-import dev.galasa.framework.spi.rbac.CacheRBAC;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
-import dev.galasa.framework.spi.rbac.Role;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 
@@ -346,9 +344,7 @@ public class AuthTokensRoute extends PublicRoute {
         user = authStoreService.getUserByLoginId(loginId);
 
         if (user == null) {
-            String roleId = getDefaultRoleId();
-            authStoreService.createUser(loginId, clientName, roleId);
-            addUserToRbacCache(loginId, roleId);
+            authStoreService.createUser(loginId, clientName, getDefaultRoleId());
         } else {
 
             // Only update the document if the user has not created a new Galasa Access Token
@@ -364,12 +360,6 @@ public class AuthTokensRoute extends PublicRoute {
                 authStoreService.updateUser(user);
             }
         }
-    }
-
-    private void addUserToRbacCache(String loginId, String roleId) throws RBACException {
-        CacheRBAC cache = rbacService.getUsersActionsCache();
-        Role role = rbacService.getRoleById(roleId);
-        cache.addUser(loginId, role.getActionIds());
     }
 
     private String getDefaultRoleId() throws AuthStoreException {

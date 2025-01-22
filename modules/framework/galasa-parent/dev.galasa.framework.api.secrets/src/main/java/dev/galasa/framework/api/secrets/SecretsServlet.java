@@ -37,12 +37,21 @@ public class SecretsServlet extends BaseServlet {
     @Reference
     protected IFramework framework;
 
-    protected Environment env = new SystemEnvironment();
-    protected ITimeService timeService = new SystemTimeService();
+    private Environment env;
+    private ITimeService timeService;
 
     private static final long serialVersionUID = 1L;
 
     private Log logger = LogFactory.getLog(this.getClass());
+
+    public SecretsServlet() {
+        this(new SystemEnvironment(), new SystemTimeService());
+    }
+
+    public SecretsServlet(Environment env, ITimeService timeService) {
+        this.env = env;
+        this.timeService = timeService;
+    }
  
     @Override
     public void init() throws ServletException {

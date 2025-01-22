@@ -9,7 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.FrameworkException;
-import dev.galasa.framework.spi.rbac.Action;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 import java.io.IOException;
@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 public class BaseServlet extends HttpServlet {
 
@@ -158,9 +157,9 @@ public class BaseServlet extends HttpServlet {
         }
         queryParameters.checkForUnsupportedQueryParameters(supportedQueryParameterNames);
         
-        Action apiAccessAction = GENERAL_API_ACCESS.getAction();
-        if (!route.isActionPermitted(apiAccessAction, req)) {
-            ServletError error = new ServletError(GAL5125_ACTION_NOT_PERMITTED, apiAccessAction.getId());
+        if (!route.isActionPermitted(BuiltInAction.GENERAL_API_ACCESS, req)) {
+            String actionId = BuiltInAction.GENERAL_API_ACCESS.getAction().getId();
+            ServletError error = new ServletError(GAL5125_ACTION_NOT_PERMITTED, actionId);
             throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
         }
 

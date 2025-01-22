@@ -25,18 +25,17 @@ import dev.galasa.framework.api.common.resources.ResourceAction;
 import dev.galasa.framework.api.resources.validators.GalasaPropertyValidator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.rbac.Action;
-import dev.galasa.framework.spi.rbac.CacheRBAC;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
 
 public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor implements IGalasaResourceProcessor {
 
     private CPSFacade cps;
-    private CacheRBAC usersToActionsCache;
+    private RBACService rbacService;
 
     public GalasaPropertyProcessor(CPSFacade cps, RBACService rbacService) {
         this.cps = cps;
-        this.usersToActionsCache = rbacService.getUsersActionsCache();
+        this.rbacService = rbacService;
     }
 
     @Override
@@ -89,7 +88,7 @@ public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor imp
             // Check if the user is allowed to set properties
             if (action == APPLY || action == CREATE || action == UPDATE) {
                 Action propertiesSetAction = CPS_PROPERTIES_SET.getAction();
-                if (!usersToActionsCache.isActionPermitted(loginId, propertiesSetAction.getId())) {
+                if (!rbacService.isActionPermitted(loginId, propertiesSetAction.getId())) {
                     ServletError error = new ServletError(GAL5125_ACTION_NOT_PERMITTED, propertiesSetAction.getId());
                     throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
                 }

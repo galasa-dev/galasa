@@ -19,7 +19,7 @@ import dev.galasa.framework.spi.IFramework;
 public class MockRasServlet extends RasServlet implements IServletUnderTest {
 
 	public MockRasServlet() {
-		super.env = FilledMockEnvironment.createTestEnvironment();
+		super(FilledMockEnvironment.createTestEnvironment());
 	}
 
 	@Override

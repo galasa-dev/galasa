@@ -16,7 +16,7 @@ import dev.galasa.framework.spi.rbac.RBACService;
 public class MockUsersServlet extends UsersServlet{
 
 	public MockUsersServlet(IAuthService authService, MockEnvironment env, RBACService rbacService ) {
-        this.env = env;
+        super(env);
         framework = new MockFramework(rbacService);
         setAuthServiceFactory(new MockAuthServiceFactory(authService));
         setResponseBuilder(new ResponseBuilder(env));

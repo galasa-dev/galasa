@@ -15,8 +15,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import dev.galasa.framework.FileSystem;
-import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.SystemEnvironment;
@@ -44,10 +42,17 @@ public class ResourcesServlet extends BaseServlet {
 
 	protected Log  logger  =  LogFactory.getLog(this.getClass());
 
-	protected IFileSystem fileSystem = new FileSystem();
+    private ITimeService timeService;
+    private Environment env;
 
-    protected ITimeService timeService = new SystemTimeService();
-    protected Environment env = new SystemEnvironment();
+	public ResourcesServlet() {
+		this(new SystemEnvironment(), new SystemTimeService());
+	}
+
+	public ResourcesServlet(Environment env, ITimeService timeService) {
+		this.env = env;
+		this.timeService = timeService;
+	}
 	
 	protected IFramework getFramework() {
         return this.framework;

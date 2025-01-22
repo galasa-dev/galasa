@@ -34,6 +34,7 @@ public interface RBACService {
 
     Role getRoleByName(String roleNameWanted) throws RBACException;
 
-    CacheRBAC getUsersActionsCache();
+    boolean isActionPermitted(String loginId, String actionId) throws RBACException;
 
+    void invalidateUser(String loginId) throws RBACException;
 }

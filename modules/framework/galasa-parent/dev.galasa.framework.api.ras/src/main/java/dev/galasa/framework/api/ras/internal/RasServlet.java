@@ -46,7 +46,15 @@ public class RasServlet extends BaseServlet {
 
 	protected IFileSystem fileSystem = new FileSystem();
 
-	protected Environment env = new SystemEnvironment();
+	private Environment env;
+
+    public RasServlet() {
+        this(new SystemEnvironment());
+    }
+
+    public RasServlet(Environment env) {
+        this.env = env;
+    }
 
 	@Override
 	public void init() throws ServletException {

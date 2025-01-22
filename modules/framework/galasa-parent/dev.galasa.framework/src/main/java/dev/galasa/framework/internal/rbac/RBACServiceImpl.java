@@ -131,7 +131,12 @@ public class RBACServiceImpl implements RBACService {
     }
 
     @Override
-    public CacheRBAC getUsersActionsCache() {
-        return userActionsCache;
+    public boolean isActionPermitted(String loginId, String actionId) throws RBACException {
+        return userActionsCache.isActionPermitted(loginId, actionId);
+    }
+
+    @Override
+    public void invalidateUser(String loginId) throws RBACException {
+        userActionsCache.invalidateUser(loginId);
     }
 }

@@ -12,7 +12,7 @@ import dev.galasa.framework.api.openapi.servlet.OpenApiServlet;
 public class MockOpenApiServlet extends OpenApiServlet {
 
     public MockOpenApiServlet(Environment env) {
-        super.env = env;
+        super(env);
         setResponseBuilder(new ResponseBuilder(env));
     }
 }
