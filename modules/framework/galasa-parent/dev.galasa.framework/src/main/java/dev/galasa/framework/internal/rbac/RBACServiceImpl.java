@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
@@ -76,8 +77,8 @@ public class RBACServiceImpl implements RBACService {
         }
     }
 
-    public RBACServiceImpl(IAuthStoreService authStoreService) {
-        userActionsCache = new CacheRBACImpl(authStoreService, this);
+    public RBACServiceImpl(IDynamicStatusStoreService dssService, IAuthStoreService authStoreService) {
+        userActionsCache = new CacheRBACImpl(dssService, authStoreService, this);
     }
 
     @Override
