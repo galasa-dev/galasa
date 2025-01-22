@@ -41,7 +41,8 @@ public class CacheRBACImpl implements CacheRBAC {
         Role userRole = rbacService.getRoleById(userRoleId);
 
         // Check if the user is allowed to perform the given action
-        return userRole.getActionIds().contains(actionId);
+        boolean isActionPermitted = userRole.getActionIds().contains(actionId);
+        return isActionPermitted;
     }
 
     @Override
