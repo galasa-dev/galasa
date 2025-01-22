@@ -18,7 +18,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -53,8 +52,8 @@ public abstract class RunsRoute extends ProtectedRoute {
 
     private IFramework framework;
 
-    public RunsRoute(ResponseBuilder responseBuilder, String path, IFramework framework, Environment env) throws RBACException {
-        super(responseBuilder, path, framework.getRBACService(), env);
+    public RunsRoute(ResponseBuilder responseBuilder, String path, IFramework framework) throws RBACException {
+        super(responseBuilder, path, framework.getRBACService());
         this.framework = framework;
     }
 

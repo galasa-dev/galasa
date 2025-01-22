@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.PublicRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.QueryParameters;
@@ -29,8 +30,10 @@ public class BootstrapExternalRoute extends PublicRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
+
+        HttpServletRequest request = requestContext.getRequest();
 
         Properties properties = new Properties();
         properties.store(response.getWriter(), "Galasa Bootstrap Properties");

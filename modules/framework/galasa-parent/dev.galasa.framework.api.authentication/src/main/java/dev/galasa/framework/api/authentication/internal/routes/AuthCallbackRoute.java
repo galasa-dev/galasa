@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.net.HttpHeaders;
 
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -69,9 +70,10 @@ public class AuthCallbackRoute extends AbstractAuthRoute {
      */
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-            HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+            HttpRequestContext requestContext, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
         logger.info("handleGetRequest() entered");
+        HttpServletRequest request = requestContext.getRequest();
 
         String authCode = sanitizeString(queryParams.getSingleString(QUERY_PARAMETER_CODE, null));
         String state = sanitizeString(queryParams.getSingleString(QUERY_PARAMETER_STATE, null));

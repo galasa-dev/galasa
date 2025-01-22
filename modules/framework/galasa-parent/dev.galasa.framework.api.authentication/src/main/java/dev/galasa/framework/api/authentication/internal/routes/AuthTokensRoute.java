@@ -28,6 +28,7 @@ import dev.galasa.framework.api.beans.AuthToken;
 import dev.galasa.framework.api.beans.TokenPayload;
 import dev.galasa.framework.api.beans.User;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.common.PublicRoute;
@@ -110,10 +111,11 @@ public class AuthTokensRoute extends PublicRoute {
      */
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws FrameworkException {
 
         logger.info("handleGetRequest() entered");
+        HttpServletRequest request = requestContext.getRequest();
 
         List<IInternalAuthToken> authTokensFromAuthStore = new ArrayList<>();
 
@@ -178,10 +180,11 @@ public class AuthTokensRoute extends PublicRoute {
      */
     @Override
     public HttpServletResponse handlePostRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
 
         logger.info("AuthRoute: handlePostRequest() entered.");
+        HttpServletRequest request = requestContext.getRequest();
 
         boolean isNewAccessTokenBeingCreated = false;
 

@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -47,11 +47,10 @@ public class SecretsRoute extends AbstractSecretsRoute {
     public SecretsRoute(
         ResponseBuilder responseBuilder,
         ICredentialsService credentialsService,
-        Environment env,
         ITimeService timeService,
         RBACService rbacService
     ) {
-        super(responseBuilder, PATH_PATTERN, env, timeService, rbacService);
+        super(responseBuilder, PATH_PATTERN, timeService, rbacService);
         this.credentialsService = credentialsService;
     }
 
@@ -59,11 +58,13 @@ public class SecretsRoute extends AbstractSecretsRoute {
     public HttpServletResponse handleGetRequest(
         String pathInfo,
         QueryParameters queryParams,
-        HttpServletRequest request,
+        HttpRequestContext requestContext,
         HttpServletResponse response
     ) throws FrameworkException {
 
-        boolean shouldRedactSecretValues = !isActionPermitted(SECRETS_GET_UNREDACTED_VALUES, request);
+        HttpServletRequest request = requestContext.getRequest();
+
+        boolean shouldRedactSecretValues = !isActionPermitted(SECRETS_GET_UNREDACTED_VALUES, requestContext.getUsername());
 
         logger.info("handleGetRequest() entered. Getting secrets from the credentials store");
         List<GalasaSecret> secrets = new ArrayList<>();
@@ -87,10 +88,12 @@ public class SecretsRoute extends AbstractSecretsRoute {
     @Override
     public HttpServletResponse handlePostRequest(
         String pathInfo,
-        HttpServletRequest request,
+        HttpRequestContext requestContext,
         HttpServletResponse response
     ) throws FrameworkException, IOException {
         logger.info("handlePostRequest() entered. Validating request payload");
+        HttpServletRequest request = requestContext.getRequest();
+
         checkRequestHasContent(request);
         SecretRequest secretPayload = parseRequestBody(request, SecretRequest.class);
         createSecretValidator.validate(secretPayload);
@@ -105,7 +108,7 @@ public class SecretsRoute extends AbstractSecretsRoute {
         }
 
         logger.info("Setting secret in credentials store");
-        String lastUpdatedByUser = getUsernameFromRequestJwt(request);
+        String lastUpdatedByUser = requestContext.getUsername();
         ICredentials decodedSecret = buildDecodedCredentialsToSet(secretPayload, lastUpdatedByUser);
         credentialsService.setCredentials(secretName, decodedSecret);
 

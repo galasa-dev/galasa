@@ -10,11 +10,11 @@ import java.io.OutputStream;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
+import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -41,38 +41,38 @@ public class TestBaseServlet extends BaseServletTest {
 
         @Override
         public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-                HttpServletRequest request, HttpServletResponse response
+                HttpRequestContext requestContext, HttpServletResponse response
         ) throws ServletException, IOException, FrameworkException {
-            return writeMockResponse(request, response);
+            return writeMockResponse(requestContext, response);
         }
 
         @Override
         public HttpServletResponse handlePutRequest(String pathInfo,
-                HttpServletRequest request, HttpServletResponse response
+                HttpRequestContext requestContext, HttpServletResponse response
         ) throws ServletException, IOException, FrameworkException {
-            return writeMockResponse(request, response);
+            return writeMockResponse(requestContext, response);
         }
 
         @Override
         public HttpServletResponse handlePostRequest(String pathInfo,
-                HttpServletRequest request, HttpServletResponse response
+                HttpRequestContext requestContext, HttpServletResponse response
         ) throws ServletException, IOException, FrameworkException {
-            return writeMockResponse(request, response);
+            return writeMockResponse(requestContext, response);
         }
 
         @Override
         public HttpServletResponse handleDeleteRequest(String pathInfo,
-                HttpServletRequest request, HttpServletResponse response
+                HttpRequestContext requestContext, HttpServletResponse response
         ) throws ServletException, IOException, FrameworkException {
-            return writeMockResponse(request, response);
+            return writeMockResponse(requestContext, response);
         }
 
-        private HttpServletResponse writeMockResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            return mockResponseBuilder.buildResponse(request, response, HttpServletResponse.SC_OK);
+        private HttpServletResponse writeMockResponse(HttpRequestContext requestContext, HttpServletResponse response) throws IOException {
+            return mockResponseBuilder.buildResponse(requestContext.getRequest(), response, HttpServletResponse.SC_OK);
         }
 
         @Override
-        public boolean isActionPermitted(BuiltInAction action, HttpServletRequest request) throws InternalServletException {
+        public boolean isActionPermitted(BuiltInAction action, String loginId) throws InternalServletException {
             return true;
         }
     }
@@ -81,7 +81,7 @@ public class TestBaseServlet extends BaseServletTest {
     @Test
     public void testBaseServletMatchesRouteGetRequestOk() throws Exception {
         // Given...
-        BaseServlet servlet = new BaseServlet();
+        BaseServlet servlet = new BaseServlet(FilledMockEnvironment.createTestEnvironment());
         MockRoute mockRoute = new MockRoute();
         servlet.addRoute(mockRoute);
 
@@ -99,7 +99,7 @@ public class TestBaseServlet extends BaseServletTest {
     @Test
     public void testBaseServletMatchesRoutePostRequestOk() throws Exception {
         // Given...
-        BaseServlet servlet = new BaseServlet();
+        BaseServlet servlet = new BaseServlet(FilledMockEnvironment.createTestEnvironment());
         MockRoute mockRoute = new MockRoute();
         servlet.addRoute(mockRoute);
 
@@ -117,7 +117,7 @@ public class TestBaseServlet extends BaseServletTest {
     @Test
     public void testBaseServletMatchesRouteDeleteRequestOk() throws Exception {
         // Given...
-        BaseServlet servlet = new BaseServlet();
+        BaseServlet servlet = new BaseServlet(FilledMockEnvironment.createTestEnvironment());
         MockRoute mockRoute = new MockRoute();
         servlet.addRoute(mockRoute);
 
@@ -135,7 +135,7 @@ public class TestBaseServlet extends BaseServletTest {
     @Test
     public void testBaseServletMatchesRoutePutRequestOk() throws Exception {
         // Given...
-        BaseServlet servlet = new BaseServlet();
+        BaseServlet servlet = new BaseServlet(FilledMockEnvironment.createTestEnvironment());
         MockRoute mockRoute = new MockRoute();
         servlet.addRoute(mockRoute);
 
@@ -153,7 +153,7 @@ public class TestBaseServlet extends BaseServletTest {
     @Test
     public void testBaseServletThrowsErrorWhenGivenUnsupportedRequestMethod() throws Exception {
         // Given...
-        BaseServlet servlet = new BaseServlet();
+        BaseServlet servlet = new BaseServlet(FilledMockEnvironment.createTestEnvironment());
         MockRoute mockRoute = new MockRoute();
         servlet.addRoute(mockRoute);
 
@@ -174,11 +174,11 @@ public class TestBaseServlet extends BaseServletTest {
     @Test
     public void testBaseServletWithRouteThatThrowsInternalServletErrorReturnsError() throws Exception {
         // Given...
-        BaseServlet servlet = new BaseServlet();
+        BaseServlet servlet = new BaseServlet(FilledMockEnvironment.createTestEnvironment());
         MockRoute mockRoute = new MockRoute() {
             @Override
             public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-                    HttpServletRequest request, HttpServletResponse response
+                    HttpRequestContext requestContext, HttpServletResponse response
             ) throws ServletException, IOException, FrameworkException {
                 // Simulate an unauthorised error coming back from the route
                 ServletError error = new ServletError(ServletErrorMessage.GAL5401_UNAUTHORIZED);
@@ -201,11 +201,11 @@ public class TestBaseServlet extends BaseServletTest {
     @Test
     public void testBaseServletWithRouteThatThrowsErrorReturnsInternalServerError() throws Exception {
         // Given...
-        BaseServlet servlet = new BaseServlet();
+        BaseServlet servlet = new BaseServlet(FilledMockEnvironment.createTestEnvironment());
         MockRoute mockRoute = new MockRoute() {
             @Override
             public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-                    HttpServletRequest request, HttpServletResponse response
+                    HttpRequestContext requestContext, HttpServletResponse response
             ) throws ServletException, IOException, FrameworkException {
                 throw new FrameworkException("simulating a failed framework operation");
             }
@@ -232,11 +232,11 @@ public class TestBaseServlet extends BaseServletTest {
     @Test
     public void testBaseServletWithNonMatchingRouteRequestReturnsNotFoundError() throws Exception {
         // Given...
-        BaseServlet servlet = new BaseServlet();
+        BaseServlet servlet = new BaseServlet(FilledMockEnvironment.createTestEnvironment());
         MockRoute mockRoute = new MockRoute() {
             @Override
             public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-                    HttpServletRequest request, HttpServletResponse response
+                    HttpRequestContext requestContext, HttpServletResponse response
             ) throws ServletException, IOException, FrameworkException {
                 throw new FrameworkException("simulating a failed framework operation");
             }

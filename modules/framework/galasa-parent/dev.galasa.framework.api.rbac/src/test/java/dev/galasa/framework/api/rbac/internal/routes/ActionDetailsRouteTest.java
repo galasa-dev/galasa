@@ -14,7 +14,9 @@ import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -53,14 +55,16 @@ public class ActionDetailsRouteTest {
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/actions/ACTION_ID_1", REQUEST_HEADERS);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ResponseBuilder respBuilder = new ResponseBuilder();
-        MockEnvironment env = new MockEnvironment();
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
         ActionDetailsRoute route = new ActionDetailsRoute(respBuilder, rbacService, env, timeService);
 
         QueryParameters queryParams = new QueryParameters(new HashMap<String,String[]>());
         String pathInfo = "/actions/ACTION_ID_1";
+
+        HttpRequestContext requestContext = new HttpRequestContext(mockRequest, env);
         
         // When...
-        route.handleGetRequest(pathInfo, queryParams, mockRequest, servletResponse);
+        route.handleGetRequest(pathInfo, queryParams, requestContext, servletResponse);
 
         // Then...
         ServletOutputStream outStream = servletResponse.getOutputStream();

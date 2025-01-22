@@ -41,7 +41,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexWithAcceptedSpecialCharactersReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 
 		//Then...
 		assertThat(expectedPath.matcher("/runs/cdb_1234/files/my.properties").matches())
@@ -65,7 +65,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexExpectedLocalPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/lcl-abcd-1234.run/files/run.log";
 
 		//When...
@@ -79,7 +79,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexExpectedPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/lcl-abcd-1234.run/files/artifacts/image123.png";
 
 		//When...
@@ -93,7 +93,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexExpectedCouchDBPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/cdb-efgh-5678.run/files/run.log";
 
 		//When...
@@ -107,7 +107,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexLowerCasePathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/cdbstoredrun/files/run.log";
 
 		//When...
@@ -121,7 +121,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/ABC-DEFG-5678.run/files/run.log";
 
 		//When...
@@ -135,7 +135,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexUpperCasePathReturnsFalse() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/cdb-EFGH-5678.run/FILES/run.log";
 
 		//When...
@@ -149,7 +149,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexExpectedPathWithLeadingNumberReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/cdb-EFGH-5678.run/files/1run.log";
 
 		//When...
@@ -163,7 +163,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/cdb-EFGH-5678.run/files/run.log/";
 
 		//When...
@@ -177,7 +177,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexNumberPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/cdb-EFGH-5678.run/files/run1.log";
 
 		//When...
@@ -191,7 +191,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexUnexpectedPathReturnsFalse() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/cdb-EFGH-5678.run/file/run.log";
 
 		//When...
@@ -205,7 +205,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexEmptyPathReturnsFalse() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "";
 
 		//When...
@@ -219,7 +219,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexSpecialCharactersInFilePathReturnsFalse() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 
 		//Then...
 		assertThat(expectedPath.matcher("/runs/cdb-EFGH-5678.run/files/run.log?").matches())
@@ -235,7 +235,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	public void TestPathRegexMultipleForwardSlashPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
-		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework, null).getPathRegex();
+		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
 		String inputPath = "/runs/cdb-EFGH-5678.run/files/run.log//////";
 
 		//When...

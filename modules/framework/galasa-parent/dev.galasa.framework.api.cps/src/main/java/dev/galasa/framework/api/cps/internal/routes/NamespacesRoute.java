@@ -16,7 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -40,18 +40,19 @@ public class NamespacesRoute extends CPSRoute {
     private static final GalasaGson gson = new GalasaGson();
 
 
-    public NamespacesRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+    public NamespacesRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
 		/* Regex to match endpoints: 
 		*  -> /cps
 		*  -> /cps/
 		*/
-		super(responseBuilder, path, framework, env);
+		super(responseBuilder, path, framework);
 	}
 
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
-        String namespaces = getNamespaces(req.getRequestURI());
-		return getResponseBuilder().buildResponse(req, response, "application/json", namespaces, HttpServletResponse.SC_OK); 
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
+        String namespaces = getNamespaces(request.getRequestURI());
+		return getResponseBuilder().buildResponse(request, response, "application/json", namespaces, HttpServletResponse.SC_OK); 
     }
 
     private String getNamespaces(String url) throws InternalServletException {

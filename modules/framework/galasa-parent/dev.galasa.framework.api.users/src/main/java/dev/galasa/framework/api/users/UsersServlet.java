@@ -40,8 +40,6 @@ public class UsersServlet extends BaseServlet {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    private Environment env;
-
     private IAuthServiceFactory factory;
 
     public UsersServlet() {
@@ -49,7 +47,7 @@ public class UsersServlet extends BaseServlet {
     }
 
     public UsersServlet(Environment env) {
-        this.env = env;
+        super(env);
     }
 
     @Override

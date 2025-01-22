@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 import dev.galasa.framework.api.ras.internal.common.RunActionJson;
 import dev.galasa.framework.api.ras.internal.common.RunActionStatus;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -45,19 +45,20 @@ public class RunDetailsRoute extends RunsRoute {
 
    protected static final String path = "\\/runs\\/([A-Za-z0-9.\\-=]+)\\/?";
 
-   public RunDetailsRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+   public RunDetailsRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
       //  Regex to match endpoint: /ras/runs/{runid}
-      super(responseBuilder, path, framework, env);
+      super(responseBuilder, path, framework);
       this.framework = framework;
    }
 
    @Override
-   public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+   public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+      HttpServletRequest request = requestContext.getRequest();
       String runId = getRunIdFromPath(pathInfo);
       try{
          RasRunResult run = getRunFromFramework(runId);
          String outputString = gson.toJson(run);
-         return getResponseBuilder().buildResponse(req, res, "application/json", outputString, HttpServletResponse.SC_OK );
+         return getResponseBuilder().buildResponse(request, res, "application/json", outputString, HttpServletResponse.SC_OK );
       }catch(ResultArchiveStoreException ex){
          ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
          throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, ex);
@@ -65,7 +66,8 @@ public class RunDetailsRoute extends RunsRoute {
    }
 
    @Override
-   public HttpServletResponse handlePutRequest(String pathInfo, HttpServletRequest request, HttpServletResponse response) throws DynamicStatusStoreException, FrameworkException, IOException {
+   public HttpServletResponse handlePutRequest(String pathInfo, HttpRequestContext requestContext, HttpServletResponse response) throws DynamicStatusStoreException, FrameworkException, IOException {
+      HttpServletRequest request = requestContext.getRequest();
       String runId = getRunIdFromPath(pathInfo);
       String runName = getRunNameFromRunId(runId);
 
@@ -76,7 +78,8 @@ public class RunDetailsRoute extends RunsRoute {
 
 
    @Override
-   public HttpServletResponse handleDeleteRequest(String pathInfo, HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException, FrameworkException {
+   public HttpServletResponse handleDeleteRequest(String pathInfo, HttpRequestContext requestContext, HttpServletResponse response ) throws ServletException, IOException, FrameworkException {
+      HttpServletRequest request = requestContext.getRequest();
       String runId = getRunIdFromPath(pathInfo);
       IRunResult run = getRunByRunId(runId);
       

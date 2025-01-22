@@ -18,7 +18,6 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
 import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
-import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -36,8 +35,8 @@ public class GroupRuns extends ProtectedRoute {
     private final GalasaGson gson = new GalasaGson();
     
 
-    public GroupRuns(ResponseBuilder responseBuilder, String path, IFramework framework, Environment env) throws RBACException {
-        super(responseBuilder, path, framework.getRBACService(), env);
+    public GroupRuns(ResponseBuilder responseBuilder, String path, IFramework framework) throws RBACException {
+        super(responseBuilder, path, framework.getRBACService());
         this.framework = framework;
     }
 

@@ -25,8 +25,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import dev.galasa.framework.api.common.Environment;
-import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.common.resources.CPSFacade;
@@ -138,9 +136,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         String jsonString = "[{},{},{}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
@@ -165,9 +162,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         String jsonString = "[{\"kind\":\"GalasaProperty\",\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
@@ -192,9 +188,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         String jsonString = "[{\"kind\":\"GalasaProperly\",\"apiVersion\":\"v1alpha1\","+namespace+"."+propertyname+":"+value+"}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
@@ -217,9 +212,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         String jsonString = "[null]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
 
@@ -243,9 +237,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         JsonArray propertyJson = generatePropertyArrayJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -268,9 +261,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         JsonArray propertyJson = generatePropertyArrayJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -293,9 +285,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         String jsonString = "[null, {\"kind\":\"GalasaProperty\",\"apiVersion\":\"galasa-dev/v1alpha1\","+namespace+"."+propertyname+":"+value+"},"+
             "{\"kind\":\"GalasaProperly\",\"apiVersion\":\"v1alpha1\","+namespace+"."+propertyname+":"+value+"},{}]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -326,9 +317,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -358,9 +348,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -392,9 +381,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -423,9 +411,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         String jsonString ="["+ generatePropertyJson(namespace,propertyname,value,"galasa-dev/v1alpha1");
         jsonString = jsonString+","+ generatePropertyJson(namespace,propertyNameTwo,valueTwo,"galasa-dev/v1alpha1") +"]";
         JsonArray propertyJson = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -458,9 +445,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         JsonObject requestJson = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -484,9 +470,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -510,9 +495,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -542,8 +526,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -572,8 +555,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -597,9 +579,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
         JsonObject jsonString = generateRequestJson(action, namespace,propertyname,value,"galasa-dev/v1alpha1");
 
         //When...
@@ -1127,9 +1108,8 @@ public class TestResourcesRoute extends ResourcesServletTest{
         IFramework mockFramework = servlet.getFramework();
         CPSFacade cps = new CPSFacade(mockFramework);
 
-        Environment mockEnv = FilledMockEnvironment.createTestEnvironment();
         RBACService rbacService = mockFramework.getRBACService();
-        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, mockEnv, rbacService);
+        ResourcesRoute resourcesRoute = new ResourcesRoute(null, cps, null, null, rbacService);
 
         // When...
         String json = resourcesRoute.getErrorsAsJson(errors);

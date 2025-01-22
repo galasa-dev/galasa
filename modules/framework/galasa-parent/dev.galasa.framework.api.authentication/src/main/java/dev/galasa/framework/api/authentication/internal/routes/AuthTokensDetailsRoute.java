@@ -12,10 +12,9 @@ import java.util.regex.Matcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
-import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.auth.spi.IAuthService;
@@ -32,17 +31,18 @@ public class AuthTokensDetailsRoute extends ProtectedRoute {
     public AuthTokensDetailsRoute(
         ResponseBuilder responseBuilder,
         IAuthService authService,
-        Environment env,
         RBACService rbacService
     ) {
-        super(responseBuilder, PATH_PATTERN, rbacService, env);
+        super(responseBuilder, PATH_PATTERN, rbacService);
         this.authService = authService;
     }
 
     @Override
     public HttpServletResponse handleDeleteRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws FrameworkException {
+
+        HttpServletRequest request = requestContext.getRequest();
 
         String tokenId = getTokenIdFromUrl(pathInfo);
         authService.revokeToken(tokenId);

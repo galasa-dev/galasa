@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
@@ -18,8 +19,6 @@ import dev.galasa.framework.spi.rbac.BuiltInAction;
 import static dev.galasa.framework.api.common.MimeType.APPLICATION_JSON;
 import static dev.galasa.framework.api.common.MimeType.TEXT_PLAIN;
 import static org.assertj.core.api.Assertions.*;
-
-import javax.servlet.http.HttpServletRequest;
 
 public class TestBaseRoute {
 
@@ -30,7 +29,7 @@ public class TestBaseRoute {
         }
 
         @Override
-        public boolean isActionPermitted(BuiltInAction action, HttpServletRequest request) throws InternalServletException {
+        public boolean isActionPermitted(BuiltInAction action, String loginId) throws InternalServletException {
             return true;
         }
     }
@@ -41,10 +40,11 @@ public class TestBaseRoute {
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("");
         MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestContext requestContext = new HttpRequestContext(request, FilledMockEnvironment.createTestEnvironment());
 
         // When...
          Throwable thrown = catchThrowable( () -> { 
-            route.handleGetRequest("",null,request,response);
+            route.handleGetRequest("",null,requestContext,response);
          });
 
         // Then...
@@ -58,10 +58,11 @@ public class TestBaseRoute {
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("", "", "PUT");
         MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestContext requestContext = new HttpRequestContext(request, FilledMockEnvironment.createTestEnvironment());
 
         // When...
          Throwable thrown = catchThrowable( () -> { 
-            route.handlePutRequest("",request,response);
+            route.handlePutRequest("",requestContext,response);
          });
 
         // Then...
@@ -75,10 +76,11 @@ public class TestBaseRoute {
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("", "", "POST");
         MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestContext requestContext = new HttpRequestContext(request, FilledMockEnvironment.createTestEnvironment());
 
         // When...
          Throwable thrown = catchThrowable( () -> { 
-            route.handlePostRequest("",request,response);
+            route.handlePostRequest("",requestContext,response);
          });
 
         // Then...
@@ -92,10 +94,11 @@ public class TestBaseRoute {
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("", "", "DELETE");
         MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestContext requestContext = new HttpRequestContext(request, FilledMockEnvironment.createTestEnvironment());
 
         // When...
          Throwable thrown = catchThrowable( () -> { 
-            route.handleDeleteRequest("",request,response);
+            route.handleDeleteRequest("",requestContext,response);
          });
 
         // Then...

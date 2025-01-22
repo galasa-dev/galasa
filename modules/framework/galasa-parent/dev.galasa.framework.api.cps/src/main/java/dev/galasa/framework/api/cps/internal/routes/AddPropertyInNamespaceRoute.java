@@ -19,9 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.beans.GalasaProperty;
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
@@ -40,29 +39,30 @@ public class AddPropertyInNamespaceRoute extends CPSRoute {
     private String propertyName;
     private String namespaceName;
     
-    public AddPropertyInNamespaceRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+    public AddPropertyInNamespaceRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
         /* Regex to match endpoints: 
 		*  -> /cps/namespace/namespaceName//property/propertyName
 		*  -> /cps/namespace/namespaceName//property/propertyName/
 		*/
-        super(responseBuilder, path, framework, env);
+        super(responseBuilder, path, framework);
     }
     
     @Override
-    public HttpServletResponse handlePutRequest(String pathInfo, HttpServletRequest req, HttpServletResponse response)
+    public HttpServletResponse handlePutRequest(String pathInfo, HttpRequestContext requestContext, HttpServletResponse response)
             throws ServletException, FrameworkException, IOException {
 
-        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, req);
+        HttpServletRequest request = requestContext.getRequest();
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, requestContext.getUsername());
 
         getPropertyDetailsFromURL(pathInfo);
         checkNamespaceExists(namespaceName);
-        checkRequestHasContent(req);
-        ServletInputStream body = req.getInputStream();
+        checkRequestHasContent(request);
+        ServletInputStream body = request.getInputStream();
         String jsonString = new String (body.readAllBytes(),StandardCharsets.UTF_8);
         body.close();
         JsonObject reqJson = gson.fromJson(jsonString,JsonObject.class);
         String properties = setNamespaceProperty(reqJson);
-        return getResponseBuilder().buildResponse(req, response, "application/json", properties, HttpServletResponse.SC_OK); 
+        return getResponseBuilder().buildResponse(request, response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
     private void getPropertyDetailsFromURL(String pathInfo) throws InternalServletException {

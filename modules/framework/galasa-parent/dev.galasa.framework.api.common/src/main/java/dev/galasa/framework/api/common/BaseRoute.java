@@ -53,37 +53,38 @@ public abstract class BaseRoute implements IRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, 
-            HttpServletRequest request, HttpServletResponse response) 
+            HttpRequestContext requestContext, HttpServletResponse response) 
             throws ServletException, IOException, FrameworkException {
-        throwMethodNotAllowedException(request, pathInfo);
+        throwMethodNotAllowedException(requestContext, pathInfo);
         return response;
     }
 
     @Override
     public HttpServletResponse handlePutRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response) 
+            HttpRequestContext requestContext, HttpServletResponse response) 
             throws ServletException, IOException, FrameworkException {
-        throwMethodNotAllowedException(request, pathInfo);
+        throwMethodNotAllowedException(requestContext, pathInfo);
         return response;
     }
 
     @Override
     public HttpServletResponse handlePostRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
-        throwMethodNotAllowedException(request, pathInfo);
+        throwMethodNotAllowedException(requestContext, pathInfo);
         return response;
     }
 
     @Override
     public HttpServletResponse handleDeleteRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response) 
+            HttpRequestContext requestContext, HttpServletResponse response) 
             throws ServletException, IOException, FrameworkException {
-        throwMethodNotAllowedException(request, pathInfo);
+        throwMethodNotAllowedException(requestContext, pathInfo);
         return response;
     }
 
-    private void throwMethodNotAllowedException(HttpServletRequest request, String pathInfo) throws InternalServletException {
+    private void throwMethodNotAllowedException(HttpRequestContext requestContext, String pathInfo) throws InternalServletException {
+        HttpServletRequest request = requestContext.getRequest();
         ServletError error = new ServletError(GAL5405_METHOD_NOT_ALLOWED, pathInfo, request.getMethod());
         throw new InternalServletException(error, HttpServletResponse.SC_METHOD_NOT_ALLOWED);        
     }

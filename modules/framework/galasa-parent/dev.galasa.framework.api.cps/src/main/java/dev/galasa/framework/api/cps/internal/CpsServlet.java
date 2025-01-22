@@ -43,14 +43,12 @@ public class CpsServlet extends BaseServlet {
 
 	private Log  logger  =  LogFactory.getLog(this.getClass());
 
-	private Environment env;
-
 	public CpsServlet() {
 		this(new SystemEnvironment());
 	}
 
 	public CpsServlet(Environment env) {
-		this.env = env;
+		super(env);
 	}
  
 	protected IFramework getFramework() {
@@ -68,13 +66,13 @@ public class CpsServlet extends BaseServlet {
 		super.init();
 
 		try {
-			addRoute(new NamespacesRoute(getResponseBuilder(), framework, env));
-			addRoute(new PropertyUpdateRoute(getResponseBuilder(), framework, env));
-			addRoute(new PropertyRoute(getResponseBuilder(), framework, env));
-			addRoute(new AllNamespaceRoute(getResponseBuilder(), framework, env));
-			addRoute(new AllPropertiesInNamespaceRoute(getResponseBuilder(), framework, env));
-			addRoute(new AllPropertiesInNamespaceFilteredRoute(getResponseBuilder(), framework, env));
-			addRoute(new AddPropertyInNamespaceRoute(getResponseBuilder(), framework, env));
+			addRoute(new NamespacesRoute(getResponseBuilder(), framework));
+			addRoute(new PropertyUpdateRoute(getResponseBuilder(), framework));
+			addRoute(new PropertyRoute(getResponseBuilder(), framework));
+			addRoute(new AllNamespaceRoute(getResponseBuilder(), framework));
+			addRoute(new AllPropertiesInNamespaceRoute(getResponseBuilder(), framework));
+			addRoute(new AllPropertiesInNamespaceFilteredRoute(getResponseBuilder(), framework));
+			addRoute(new AddPropertyInNamespaceRoute(getResponseBuilder(), framework));
 		} catch (RBACException e) {
 			throw new ServletException("Failed to initialise CPS servlet");
 		}

@@ -25,7 +25,7 @@ import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
 import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
 import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
 import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -52,10 +52,9 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
     public RunArtifactsListRoute(
         ResponseBuilder responseBuilder,
         IFileSystem fileSystem,
-        IFramework framework,
-        Environment env
+        IFramework framework
     ) throws RBACException {
-        super(responseBuilder, path, fileSystem, framework, env);
+        super(responseBuilder, path, fileSystem, framework);
         rootArtifacts = Arrays.asList(
             new RunLogArtifact(),
             new StructureJsonArtifact(),
@@ -65,11 +64,13 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
     }
 
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
+
         Matcher matcher = this.getPathRegex().matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);
-        return getResponseBuilder().buildResponse(req, res, "application/json", retrieveResults(runId), HttpServletResponse.SC_OK);
+        return getResponseBuilder().buildResponse(request, res, "application/json", retrieveResults(runId), HttpServletResponse.SC_OK);
     }
 
     private String retrieveResults(String runId) throws InternalServletException {

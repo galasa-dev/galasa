@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.PublicRoute;
@@ -60,10 +61,12 @@ public class OpenApiRoute extends PublicRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
 
         logger.info("OpenApiRoute: handleGetRequest() Entered");
+        HttpServletRequest request = requestContext.getRequest();
+
         String requestAcceptedTypes = request.getHeader("Accept");
         String responseContentType = getResponseType(requestAcceptedTypes, APPLICATION_JSON, SUPPORTED_CONTENT_TYPES);
 

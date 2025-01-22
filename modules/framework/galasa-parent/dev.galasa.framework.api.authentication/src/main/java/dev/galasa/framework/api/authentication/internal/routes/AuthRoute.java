@@ -22,6 +22,7 @@ import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.authentication.internal.TokenPayloadValidator;
 import dev.galasa.framework.api.beans.TokenPayload;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.IBeanValidator;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.InternalUser;
@@ -93,9 +94,11 @@ public class AuthRoute extends AbstractAuthRoute {
      */
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-            HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+            HttpRequestContext requestContext, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
         logger.info("AuthRoute: handleGetRequest() entered.");
+        HttpServletRequest request = requestContext.getRequest();
+
         try {
             String clientId = sanitizeString(queryParams.getSingleString(QUERY_PARAMETER_CLIENT_ID, null));
             String clientCallbackUrl = sanitizeString(queryParams.getSingleString(QUERY_PARAMETER_CALLBACK_URL, null));
@@ -137,9 +140,10 @@ public class AuthRoute extends AbstractAuthRoute {
      */
     @Override
     public HttpServletResponse handlePostRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+            HttpRequestContext requestContext, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
         logger.info("AuthRoute: handlePostRequest() entered.");
+        HttpServletRequest request = requestContext.getRequest();
 
         // Check that the request body contains the required payload
         TokenPayload requestPayload = parseRequestBody(request, TokenPayload.class);

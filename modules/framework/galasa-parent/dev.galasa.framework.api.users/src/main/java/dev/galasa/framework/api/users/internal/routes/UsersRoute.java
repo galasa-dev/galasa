@@ -20,9 +20,9 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.SupportedQueryParameterNames;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.users.UsersServlet;
 import dev.galasa.framework.auth.spi.IAuthService;
-import dev.galasa.framework.api.common.JwtWrapper;
 
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.auth.AuthStoreException;
@@ -54,10 +54,11 @@ public class UsersRoute extends AbstractUsersRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
 
         logger.info("UserRoute: handleGetRequest() entered.");
+        HttpServletRequest request = requestContext.getRequest();
 
         List<UserData> usersList = new ArrayList<UserData>();
         String payloadContent ;
@@ -65,7 +66,7 @@ public class UsersRoute extends AbstractUsersRoute {
         String loginId = queryParams.getSingleString(UsersServlet.QUERY_PARAM_LOGIN_ID, null);
 
         if (loginId != null) {
-            usersList = getUserByLoginIdList(request, loginId);
+            usersList = getUserByLoginIdList(requestContext.getUsername(), loginId);
         }
         else{
             Collection<IUser> users = authStoreService.getAllUsers();
@@ -78,16 +79,14 @@ public class UsersRoute extends AbstractUsersRoute {
                 request, response, "application/json", payloadContent, HttpServletResponse.SC_OK);
     }
 
-    private List<UserData> getUserByLoginIdList(HttpServletRequest request, String loginId)
+    private List<UserData> getUserByLoginIdList(String requestorUsername, String loginId)
             throws InternalServletException, AuthStoreException {
 
         List<UserData> usersList = new ArrayList<>();
         List<IUser> userDocs = new ArrayList<>();
 
-        JwtWrapper jwtWrapper = new JwtWrapper(request, env);
-
         if (loginId.equals(UsersServlet.QUERY_PARAMETER_LOGIN_ID_VALUE_MYSELF)) {
-            loginId = jwtWrapper.getUsername();
+            loginId = requestorUsername;
         }
 
         IUser currentUser = authStoreService.getUserByLoginId(loginId);

@@ -15,7 +15,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -35,23 +35,25 @@ public class PropertyUpdateRoute extends CPSRoute {
 
     protected static final String path = "\\/([a-z][a-z0-9]+)/properties/([a-zA-Z][a-zA-Z0-9\\.\\-\\_@]+)" ;
 
-    public PropertyUpdateRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+    public PropertyUpdateRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
 		/* Regex to match endpoints: 
 		*  -> /cps/<namespace>/properties/<propertyName>
 		*/
-		super(responseBuilder, path, framework, env);
+		super(responseBuilder, path, framework);
 	}
 
     /*
      * Handle Get Request
      */
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
+
         String namespace = getNamespaceFromURL(pathInfo);
         String propertyName = getPropertyNameFromURL(pathInfo);
         checkNamespaceExists(namespace);
         String property = retrieveProperty(namespace,propertyName);
-		return getResponseBuilder().buildResponse(req, response, "application/json", property, HttpServletResponse.SC_OK); 
+		return getResponseBuilder().buildResponse(request, response, "application/json", property, HttpServletResponse.SC_OK); 
     }
 
     private String retrieveProperty (String namespaceName, String propertyName) throws FrameworkException {
@@ -81,10 +83,11 @@ public class PropertyUpdateRoute extends CPSRoute {
      * Handle Put Request
      */
     @Override
-    public HttpServletResponse handlePutRequest(String pathInfo, HttpServletRequest request , HttpServletResponse response)
-            throws  IOException, FrameworkException {
-
-        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, request);
+    public HttpServletResponse handlePutRequest(String pathInfo, HttpRequestContext requestContext, HttpServletResponse response)
+            throws IOException, FrameworkException {
+        
+        HttpServletRequest request = requestContext.getRequest();
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, requestContext.getUsername());
 
         String namespaceName = getNamespaceFromURL(pathInfo);
         String name = getPropertyNameFromURL(pathInfo);
@@ -107,8 +110,10 @@ public class PropertyUpdateRoute extends CPSRoute {
      */
     @Override
     public HttpServletResponse handleDeleteRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
+
         String namespace = getNamespaceFromURL(pathInfo);
         String property = getPropertyNameFromURL(pathInfo);
         nameValidator.assertNamespaceCharPatternIsValid(namespace);

@@ -17,6 +17,7 @@ import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.api.beans.generated.UserData;
 import dev.galasa.framework.api.beans.generated.UserUpdateData;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -59,11 +60,12 @@ public class UserRoute extends AbstractUsersRoute {
     @Override
     public HttpServletResponse handleDeleteRequest(
         String pathInfo,
-        HttpServletRequest request,
+        HttpRequestContext requestContext,
         HttpServletResponse response
     ) throws FrameworkException {
 
         logger.info("handleDeleteRequest() entered");
+        HttpServletRequest request = requestContext.getRequest();
 
         IUser user = getUser(pathInfo);
 
@@ -76,12 +78,14 @@ public class UserRoute extends AbstractUsersRoute {
     @Override
     public HttpServletResponse handlePutRequest(
         String pathInfo,
-        HttpServletRequest request,
+        HttpRequestContext requestContext,
         HttpServletResponse response
     ) throws FrameworkException, IOException {
 
-        validateActionPermitted(BuiltInAction.USER_ROLE_UPDATE_ANY, request);
+        validateActionPermitted(BuiltInAction.USER_ROLE_UPDATE_ANY, requestContext.getUsername());
         logger.info("handlePutRequest() entered");
+
+        HttpServletRequest request = requestContext.getRequest();
 
         IUser originalUser = getUser(pathInfo);
 
@@ -109,11 +113,12 @@ public class UserRoute extends AbstractUsersRoute {
     public HttpServletResponse handleGetRequest(
         String pathInfo,
         QueryParameters queryParams,
-        HttpServletRequest request,
+        HttpRequestContext requestContext,
         HttpServletResponse response
     ) throws FrameworkException, IOException {
 
         logger.info("handleGetRequest() entered");
+        HttpServletRequest request = requestContext.getRequest();
 
         IUser userRecordFound = getUser(pathInfo);
 

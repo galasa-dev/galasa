@@ -2036,7 +2036,7 @@ public class TestRunQuery extends RasServletTest {
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
 		Throwable thrown = catchThrowable( () -> {
-        	new RunQueryRoute( new ResponseBuilder(), new MockFramework(), null).getQueriedFromTime(params,Instant.now());
+        	new RunQueryRoute( new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params,Instant.now());
         });
 
         assertThat(thrown).isNotNull();
@@ -2050,7 +2050,7 @@ public class TestRunQuery extends RasServletTest {
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
 		Throwable thrown = catchThrowable( () -> {
-            new RunQueryRoute( new ResponseBuilder(), new MockFramework(), null).getQueriedFromTime(params,Instant.now());
+            new RunQueryRoute( new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params,Instant.now());
         });
 
         assertThat(thrown).isNotNull();
@@ -2064,7 +2064,7 @@ public class TestRunQuery extends RasServletTest {
 		String fromString = fromInstant.toString();
         map.put("from", new String[] {fromString} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework(), null).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNotNull();
         assertThat(checker).isEqualTo(fromInstant);
@@ -2078,7 +2078,7 @@ public class TestRunQuery extends RasServletTest {
         map.put("from", new String[] {fromString} );
 		map.put("runname", new String[] {"runname"} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework(), null).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNotNull();
         assertThat(checker).isEqualTo(fromInstant);
@@ -2089,7 +2089,7 @@ public class TestRunQuery extends RasServletTest {
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("runname", new String[] {"runname"} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework(), null).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNull();
     }
@@ -2098,7 +2098,7 @@ public class TestRunQuery extends RasServletTest {
     public void testGetDefaultFromInstantIfNoQueryIsPresentNoQueryReturnsValue() throws Exception {
         Map<String,String[]> map = new HashMap<String,String[]>();
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework(), null).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNotNull();
     }

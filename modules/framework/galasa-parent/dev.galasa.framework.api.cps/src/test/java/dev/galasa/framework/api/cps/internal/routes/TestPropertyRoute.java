@@ -420,7 +420,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		MockFramework mockFramework = new MockFramework();
 
 		//When...
-		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework, null).filterPropertiesBySuffix(props, suffix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework).filterPropertiesBySuffix(props, suffix);
 		
 		//Then...
 		checkPropertiesMatch(results, expectedProperties);
@@ -444,7 +444,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		MockFramework mockFramework = new MockFramework();
 
 		//When...
-		Map<GalasaPropertyName,CPSProperty> results = new PropertyRoute(null, mockFramework, null).filterPropertiesBySuffix(props, suffix);
+		Map<GalasaPropertyName,CPSProperty> results = new PropertyRoute(null, mockFramework).filterPropertiesBySuffix(props, suffix);
 		
 		//Then...
 		checkPropertiesMatch(results, expectedProps);
@@ -472,7 +472,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		MockFramework mockFramework = new MockFramework();
 
 		//When...
-		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework, null).filterPropertiesBySuffix(props, suffix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework).filterPropertiesBySuffix(props, suffix);
 		
 		//Then...
 		checkPropertiesMatch(results, expectedProps);
@@ -496,7 +496,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		MockFramework mockFramework = new MockFramework();
 
 		//When...
-		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework, null).filterPropertiesByPrefix(namespace, props, prefix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework).filterPropertiesByPrefix(namespace, props, prefix);
 		
 		//Then...
 		checkPropertiesMatch(results, expectedProperties);
@@ -521,7 +521,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		MockFramework mockFramework = new MockFramework();
 
 		//When...
-		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework, null).filterPropertiesByPrefix(namespace, props, prefix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework).filterPropertiesByPrefix(namespace, props, prefix);
 		
 		//Then...
 		checkPropertiesMatch(results, expectedProps);
@@ -550,7 +550,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		MockFramework mockFramework = new MockFramework();
 
 		//When...
-		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework, null).filterPropertiesByPrefix(namespace, props, prefix);
+		Map<GalasaPropertyName, CPSProperty> results = new PropertyRoute(null, mockFramework).filterPropertiesByPrefix(namespace, props, prefix);
 		
 		//Then...
 		checkPropertiesMatch(results, expectedProps);

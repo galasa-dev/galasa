@@ -20,7 +20,7 @@ public abstract class AbstractUsersRoute extends ProtectedRoute {
     protected String baseServletUrl;
 
     public AbstractUsersRoute(ResponseBuilder responseBuilder, String path, IAuthService authService, Environment env, RBACService rbacService) {
-        super(responseBuilder,path, rbacService, env);
+        super(responseBuilder,path, rbacService);
         this.authService = authService;
         this.authStoreService = authService.getAuthStoreService();
 

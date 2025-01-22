@@ -14,10 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.coreos.dex.api.DexOuterClass.Client;
 
 import dev.galasa.framework.api.authentication.internal.beans.DexClient;
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
-import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.auth.spi.IAuthService;
@@ -36,10 +35,9 @@ public class AuthClientsRoute extends ProtectedRoute {
     public AuthClientsRoute(
         ResponseBuilder responseBuilder,
         IAuthService authService,
-        Environment env,
         RBACService rbacService
     ) {
-        super(responseBuilder, PATH_PATTERN, rbacService, env);
+        super(responseBuilder, PATH_PATTERN, rbacService);
         this.dexGrpcClient = authService.getDexGrpcClient();
     }
 
@@ -49,9 +47,10 @@ public class AuthClientsRoute extends ProtectedRoute {
      */
     @Override
     public HttpServletResponse handlePostRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+            HttpRequestContext requestContext, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
 
         logger.info("handlePostRequest() entered");
+        HttpServletRequest request = requestContext.getRequest();
 
         Client newDexClient = dexGrpcClient.createClient(AuthCallbackRoute.getExternalAuthCallbackUrl());
         if (newDexClient == null) {

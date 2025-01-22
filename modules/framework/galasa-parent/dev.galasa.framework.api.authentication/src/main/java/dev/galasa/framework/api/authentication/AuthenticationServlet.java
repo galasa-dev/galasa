@@ -56,19 +56,19 @@ public class AuthenticationServlet extends BaseServlet {
     private Log logger = LogFactory.getLog(getClass());
 
     protected IOidcProvider oidcProvider;
-    private Environment env;
+
     private ITimeService timeService;
 
     private IAuthServiceFactory factory;
 
-	public AuthenticationServlet() {
-		this(new SystemEnvironment(), new SystemTimeService());
-	}
+    public AuthenticationServlet() {
+        this(new SystemEnvironment(), new SystemTimeService());
+    }
 
-	public AuthenticationServlet(Environment env, ITimeService timeService) {
-		this.env = env;
+    public AuthenticationServlet(Environment env, ITimeService timeService) {
+        super(env);
         this.timeService = timeService;
-	}
+    }
 
     @Override
     public void init() throws ServletException {
@@ -96,11 +96,11 @@ public class AuthenticationServlet extends BaseServlet {
         rbacService = getRBACService(framework);
         
         addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, authService, env, dssService));
-        addRoute(new AuthClientsRoute(getResponseBuilder(), authService, env, rbacService));
+        addRoute(new AuthClientsRoute(getResponseBuilder(), authService, rbacService));
         addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl, dssService));
         addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, authService, timeService, rbacService, env ));
 
-        addRoute(new AuthTokensDetailsRoute(getResponseBuilder(), authService, env, rbacService));
+        addRoute(new AuthTokensDetailsRoute(getResponseBuilder(), authService, rbacService));
 
         logger.info("Galasa Authentication API initialised");
     }

@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.api.beans.generated.RBACRole;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.SupportedQueryParameterNames;
@@ -57,11 +58,12 @@ public class RolesRoute extends AbstractRBACRoute {
     public HttpServletResponse handleGetRequest(
         String pathInfo,
         QueryParameters queryParams,
-        HttpServletRequest request,
+        HttpRequestContext requestContext,
         HttpServletResponse response
     ) throws FrameworkException {
 
         logger.info("handleGetRequest() entered. Getting roles");
+        HttpServletRequest request = requestContext.getRequest();
 
         Collection<Role> roles ;
 

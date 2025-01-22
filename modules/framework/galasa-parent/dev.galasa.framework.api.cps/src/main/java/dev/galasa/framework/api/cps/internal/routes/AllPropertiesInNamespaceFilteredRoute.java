@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -37,12 +37,12 @@ public class AllPropertiesInNamespaceFilteredRoute extends CPSRoute {
     private String prefix;
     private String namespaceName;
     
-    public AllPropertiesInNamespaceFilteredRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+    public AllPropertiesInNamespaceFilteredRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
         /* Regex to match endpoints: 
 		*  -> /cps/namespace/namespaceName/prefix/propertyStartsWith/suffix/propertyEndsWith
 		*  -> /cps/namespace/namespaceName/prefix/propertyStartsWith/suffix/propertyEndsWith/
 		*/
-        super(responseBuilder, path, framework, env);
+        super(responseBuilder, path, framework);
     }
 
     @Override 
@@ -51,12 +51,13 @@ public class AllPropertiesInNamespaceFilteredRoute extends CPSRoute {
     }
     
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse response)
             throws ServletException, FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
         getPropertyDetailsFromURL(pathInfo);
         String properties = getNamespaceProperties(queryParams);
         checkNamespaceExists(namespaceName);
-        return getResponseBuilder().buildResponse(req, response, "application/json", properties, HttpServletResponse.SC_OK); 
+        return getResponseBuilder().buildResponse(request, response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
     private void getPropertyDetailsFromURL(String pathInfo) throws InternalServletException {

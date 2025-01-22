@@ -14,7 +14,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -35,8 +35,8 @@ public class PropertyRoute extends CPSRoute{
 
     protected static final String path = "\\/([a-z][a-z0-9]+)/properties([?]?|[^/])+$";
 
-    public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
-        super(responseBuilder, path , framework, env);
+    public PropertyRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
+        super(responseBuilder, path , framework);
     }
 
 
@@ -49,12 +49,13 @@ public class PropertyRoute extends CPSRoute{
      * Property Query
      */
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
         String namespace = getNamespaceFromURL(pathInfo);
         String properties = getNamespaceProperties(namespace, queryParams);
         checkNamespaceExists(namespace);
-        return getResponseBuilder().buildResponse(req, response, "application/json", properties, HttpServletResponse.SC_OK); 
+        return getResponseBuilder().buildResponse(request, response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
     private String getNamespaceProperties(String namespaceName, QueryParameters queryParams) throws InternalServletException{
@@ -84,10 +85,11 @@ public class PropertyRoute extends CPSRoute{
      */
     @Override
     public HttpServletResponse handlePostRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws  IOException, FrameworkException {
 
-        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, request);
+        HttpServletRequest request = requestContext.getRequest();
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, requestContext.getUsername());
 
         String namespaceName = getNamespaceFromURL(pathInfo);
         checkRequestHasContent(request);

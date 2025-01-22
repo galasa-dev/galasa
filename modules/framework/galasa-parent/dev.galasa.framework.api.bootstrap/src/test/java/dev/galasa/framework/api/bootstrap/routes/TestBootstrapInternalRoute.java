@@ -10,7 +10,9 @@ import java.util.Map;
 
 import dev.galasa.framework.api.bootstrap.BootstrapServletTest;
 import dev.galasa.framework.api.bootstrap.mocks.MockBootstrapServlet;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.spi.FrameworkException;
@@ -43,9 +45,11 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
         HttpServletResponse response = (HttpServletResponse) new MockHttpServletResponse();
         ServletOutputStream outStream = response.getOutputStream();
 
+        HttpRequestContext requestContext = new HttpRequestContext(req, FilledMockEnvironment.createTestEnvironment());
+
         // When...
         route.onModified(properties);
-        response = route.handleGetRequest(pathInfo,null,req,response);
+        response = route.handleGetRequest(pathInfo, null, requestContext, response);
 
         // Then...
         String output = outStream.toString();

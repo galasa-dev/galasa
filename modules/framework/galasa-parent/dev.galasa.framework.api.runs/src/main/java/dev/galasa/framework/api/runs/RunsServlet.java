@@ -33,8 +33,6 @@ public class RunsServlet extends BaseServlet {
 
 	private static final long serialVersionUID = 1L;
 
-    private Environment env;
-
 	private Log  logger  =  LogFactory.getLog(this.getClass());
 
 	public RunsServlet() {
@@ -42,7 +40,7 @@ public class RunsServlet extends BaseServlet {
 	}
 
 	public RunsServlet(Environment env) {
-		this.env = env;
+		super(env);
 	}
 
 	@Override

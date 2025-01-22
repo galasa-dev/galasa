@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -30,20 +30,21 @@ public class AllPropertiesInNamespaceRoute extends CPSRoute {
 
     protected static final String path = "\\/namespace\\/([a-z][a-z0-9]+)\\/?";
     
-    public AllPropertiesInNamespaceRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+    public AllPropertiesInNamespaceRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
         /* Regex to match endpoints: 
 		*  -> /cps/namespace/<NamespaceName>
 		*  -> /cps/namespace/<NamespaceName>/
 		*/
-        super(responseBuilder, path, framework, env);
+        super(responseBuilder, path, framework);
     }
 
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse response) throws ServletException, FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
         String namespace = getNamespaceNameFromURL(pathInfo);
         String properties = getNamespaceProperties(namespace);
         checkNamespaceExists(namespace);
-		return getResponseBuilder().buildResponse(req, response, "application/json", properties, HttpServletResponse.SC_OK); 
+		return getResponseBuilder().buildResponse(request, response, "application/json", properties, HttpServletResponse.SC_OK); 
     }
 
     private String getNamespaceNameFromURL(String pathInfo) throws InternalServletException {

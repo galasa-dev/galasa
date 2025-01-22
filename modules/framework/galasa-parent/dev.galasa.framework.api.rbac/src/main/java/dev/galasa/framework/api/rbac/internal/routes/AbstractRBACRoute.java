@@ -14,13 +14,15 @@ import dev.galasa.framework.spi.utils.ITimeService;
 public abstract class AbstractRBACRoute extends ProtectedRoute {
 
     private ITimeService timeService;
+    private Environment env;
 
     public AbstractRBACRoute(
         ResponseBuilder responseBuilder, String path, Environment env, 
         ITimeService timeService, RBACService rbacService
     ) {
-        super(responseBuilder, path, rbacService, env);
+        super(responseBuilder, path, rbacService);
         this.timeService = timeService;
+        this.env = env;
     }
 
     protected RBACService getRBACService() {

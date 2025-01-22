@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.ICredentials;
@@ -27,9 +26,7 @@ import dev.galasa.framework.api.beans.generated.SecretRequest;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
 import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
 import dev.galasa.framework.api.beans.generated.SecretRequestusername;
-import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -59,11 +56,10 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
     public AbstractSecretsRoute(
         ResponseBuilder responseBuilder,
         String path,
-        Environment env,
         ITimeService timeService,
         RBACService rbacService
     ) {
-        super(responseBuilder, path, rbacService, env);
+        super(responseBuilder, path, rbacService);
         this.timeService = timeService;
     }
 
@@ -217,10 +213,6 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
             existingSecretType = credentialsToSecretTypes.get(existingSecret.getClass());
         }
         return existingSecretType;
-    }
-
-    protected String getUsernameFromRequestJwt(HttpServletRequest request) throws InternalServletException {
-        return new JwtWrapper(request, env).getUsername();
     }
 
     protected void setSecretMetadataProperties(ICredentials secret, String description, String lastUpdatedByUser) {

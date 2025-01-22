@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.IFileSystem;
@@ -32,7 +31,7 @@ import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
 import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
 import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
 import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -67,12 +66,11 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
 
     private Map<String, IRunRootArtifact> rootArtifacts = new HashMap<>();
 
-    public RunArtifactsDownloadRoute(ResponseBuilder responseBuilder, IFileSystem fileSystem, IFramework framework, Environment env) throws RBACException {
+    public RunArtifactsDownloadRoute(ResponseBuilder responseBuilder, IFileSystem fileSystem, IFramework framework) throws RBACException {
         super(responseBuilder,
               path,
               fileSystem,
-              framework,
-              env
+              framework
         );
 
         rootArtifacts.put("run.log", new RunLogArtifact());
@@ -82,7 +80,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
     }
 
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse response) throws ServletException, IOException, FrameworkException {
         Matcher matcher = this.getPathRegex().matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);

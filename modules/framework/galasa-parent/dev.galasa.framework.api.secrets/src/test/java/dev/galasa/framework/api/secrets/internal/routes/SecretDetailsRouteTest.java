@@ -46,7 +46,7 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
     @Test
     public void testSecretDetailsRouteRegexMatchesExpectedPaths() throws Exception {
         // Given...
-        Pattern routePattern = new SecretDetailsRoute(null, null, null, null, null).getPathRegex();
+        Pattern routePattern = new SecretDetailsRoute(null, null, null, null).getPathRegex();
 
         // Then...
         // The servlet's whiteboard pattern will match /secrets, so this route should

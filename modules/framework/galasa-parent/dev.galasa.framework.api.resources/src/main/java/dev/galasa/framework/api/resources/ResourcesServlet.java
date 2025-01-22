@@ -43,14 +43,13 @@ public class ResourcesServlet extends BaseServlet {
 	protected Log  logger  =  LogFactory.getLog(this.getClass());
 
     private ITimeService timeService;
-    private Environment env;
 
 	public ResourcesServlet() {
 		this(new SystemEnvironment(), new SystemTimeService());
 	}
 
 	public ResourcesServlet(Environment env, ITimeService timeService) {
-		this.env = env;
+		super(env);
 		this.timeService = timeService;
 	}
 	
@@ -72,13 +71,11 @@ public class ResourcesServlet extends BaseServlet {
 			CPSFacade cpsFacade = new CPSFacade(framework);
 			ICredentialsService credsService = framework.getCredentialsService();
 			RBACService rbacService = framework.getRBACService();
-            addRoute(new ResourcesRoute(getResponseBuilder(), cpsFacade, credsService, timeService, env, rbacService));
+            addRoute(new ResourcesRoute(getResponseBuilder(), cpsFacade, credsService, timeService, rbacService));
         } catch (ConfigurationPropertyStoreException | CredentialsException | RBACException e) {
             logger.error("Failed to initialise the Resources servlet", e);
             throw new ServletException("Failed to initialise the Resources servlet", e);
         }
         logger.info("Resources servlet initialised");
 	}
-
-    
 }

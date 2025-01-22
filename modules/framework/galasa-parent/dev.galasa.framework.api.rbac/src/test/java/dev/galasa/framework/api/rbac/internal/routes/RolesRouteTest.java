@@ -14,7 +14,9 @@ import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.QueryParameters;
+import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -54,15 +56,17 @@ public class RolesRouteTest {
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", REQUEST_HEADERS);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ResponseBuilder respBuilder = new ResponseBuilder();
-        MockEnvironment env = new MockEnvironment();
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
 
         RolesRoute route = new RolesRoute(respBuilder, rbacService, env, timeService);
 
         QueryParameters queryParams = new QueryParameters(new HashMap<String,String[]>());
         String pathInfo = "myPathInfo";
+
+        HttpRequestContext requestContext = new HttpRequestContext(mockRequest, env);
         
         // When...
-        route.handleGetRequest(pathInfo, queryParams, mockRequest, servletResponse);
+        route.handleGetRequest(pathInfo, queryParams, requestContext, servletResponse);
 
         // Then...
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -118,7 +122,7 @@ public class RolesRouteTest {
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", REQUEST_HEADERS);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ResponseBuilder respBuilder = new ResponseBuilder();
-        MockEnvironment env = new MockEnvironment();
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
 
         RolesRoute route = new RolesRoute(respBuilder, rbacService, env, timeService);
 
@@ -128,9 +132,11 @@ public class RolesRouteTest {
         queryParamMap.put("name",nameQueryValue);
         QueryParameters queryParams = new QueryParameters(queryParamMap);
         String pathInfo = "myPathInfo";
+
+        HttpRequestContext requestContext = new HttpRequestContext(mockRequest, env);
         
         // When...
-        route.handleGetRequest(pathInfo, queryParams, mockRequest, servletResponse);
+        route.handleGetRequest(pathInfo, queryParams, requestContext, servletResponse);
 
         // Then...
         ServletOutputStream outStream = servletResponse.getOutputStream();

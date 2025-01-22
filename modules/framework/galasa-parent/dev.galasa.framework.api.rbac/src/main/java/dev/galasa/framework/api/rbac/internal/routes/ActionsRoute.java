@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.api.beans.generated.RBACActionMetadata;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.spi.FrameworkException;
@@ -45,9 +46,10 @@ public class ActionsRoute extends AbstractRBACRoute {
     public HttpServletResponse handleGetRequest(
         String pathInfo,
         QueryParameters queryParams,
-        HttpServletRequest request,
+        HttpRequestContext requestContext,
         HttpServletResponse response
     ) throws FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
         String baseUrl = request.getRequestURL().toString();
 
         logger.info("handleGetRequest() entered. Getting actions. "+baseUrl);

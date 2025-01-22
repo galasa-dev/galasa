@@ -24,7 +24,6 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.beans.GalasaProperty;
 import dev.galasa.framework.api.beans.GalasaPropertyData;
 import dev.galasa.framework.api.beans.GalasaPropertyMetadata;
-import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -70,8 +69,8 @@ public abstract class CPSRoute extends ProtectedRoute {
     protected IFramework framework;
     CPSFacade cps;
 
-    public CPSRoute(ResponseBuilder responseBuilder, String path, IFramework framework, Environment env) throws RBACException {
-        super(responseBuilder, path, framework.getRBACService(), env);
+    public CPSRoute(ResponseBuilder responseBuilder, String path, IFramework framework) throws RBACException {
+        super(responseBuilder, path, framework.getRBACService());
         this.framework = framework;
     }
 

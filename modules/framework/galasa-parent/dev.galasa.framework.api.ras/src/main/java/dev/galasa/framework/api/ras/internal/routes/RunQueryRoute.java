@@ -11,7 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import dev.galasa.api.ras.RasRunResult;
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -90,13 +90,13 @@ public class RunQueryRoute extends RunsRoute {
 
 	private static final GalasaGson gson = new GalasaGson();
 
-	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
 		/* Regex to match endpoints:
 		*  -> /ras/runs
 		*  -> /ras/runs/
 		*  -> /ras/runs?{querystring}
 		*/
-		super(responseBuilder, path, framework, env);
+		super(responseBuilder, path, framework);
 	}
 
 	@Override 
@@ -105,13 +105,13 @@ public class RunQueryRoute extends RunsRoute {
 	}
 
 	@Override
-	public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters generalQueryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+	public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters generalQueryParams, HttpRequestContext requestContext, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+		HttpServletRequest request = requestContext.getRequest();
+
 		RasQueryParameters queryParams = new RasQueryParameters(generalQueryParams);
 
-
-
 		String outputString = retrieveResults(queryParams);
-		return getResponseBuilder().buildResponse(req, res, "application/json", outputString, HttpServletResponse.SC_OK);
+		return getResponseBuilder().buildResponse(request, res, "application/json", outputString, HttpServletResponse.SC_OK);
 	}
 
 	private String retrieveResults(RasQueryParameters queryParams) throws InternalServletException {

@@ -5,8 +5,6 @@
  */
 package dev.galasa.framework.api.common;
 
-import javax.servlet.http.HttpServletRequest;
-
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 
 /**
@@ -20,7 +18,7 @@ public abstract class PublicRoute extends BaseRoute {
     }
 
     @Override
-    public boolean isActionPermitted(BuiltInAction action, HttpServletRequest request) throws InternalServletException {
+    public boolean isActionPermitted(BuiltInAction action, String loginId) throws InternalServletException {
         return true;
     }
 }

@@ -22,11 +22,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.JwtWrapper;
 import dev.galasa.framework.api.common.ProtectedRoute;
-import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.CPSFacade;
@@ -54,31 +52,31 @@ public class ResourcesRoute  extends ProtectedRoute {
     
     protected List<String> errors = new ArrayList<String>();
 
-    private Environment env;
-
     public ResourcesRoute(
         ResponseBuilder responseBuilder,
         CPSFacade cps,
         ICredentialsService credentialsService,
         ITimeService timeService,
-        Environment env,
         RBACService rbacService
     ) {
-        super(responseBuilder, path, rbacService, env);
-        this.env = env;
+        super(responseBuilder, path, rbacService);
 
         resourceProcessors.put(GALASA_PROPERTY, new GalasaPropertyProcessor(cps, rbacService));
         resourceProcessors.put(GALASA_SECRET, new GalasaSecretProcessor(credentialsService, timeService));
     }
 
     @Override
-     public HttpServletResponse handlePostRequest(String pathInfo,
-            HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, FrameworkException {  
+     public HttpServletResponse handlePostRequest(
+        String pathInfo,
+        HttpRequestContext requestContext,
+        HttpServletResponse response
+    ) throws ServletException, IOException, FrameworkException {  
         logger.info("ResourcesRoute - handlePostRequest() entered");
+        HttpServletRequest request = requestContext.getRequest();
 
         JsonObject jsonBody = parseRequestBody(request, JsonObject.class);
 
-        String requestUsername = new JwtWrapper(request, env).getUsername();
+        String requestUsername = requestContext.getUsername();
         List<String> errorsList = processRequest(jsonBody, requestUsername);
         if (errorsList.size() >0){
             response = getResponseBuilder().buildResponse(request, response, "application/json", getErrorsAsJson(errorsList), HttpServletResponse.SC_BAD_REQUEST);

@@ -16,7 +16,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.IFileSystem;
-import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
@@ -39,10 +38,9 @@ public abstract class RunArtifactsRoute extends RunsRoute {
         ResponseBuilder responseBuilder,
         String path,
         IFileSystem fileSystem,
-        IFramework framework,
-        Environment env
+        IFramework framework
     ) throws RBACException {
-        super(responseBuilder, path, framework, env);
+        super(responseBuilder, path, framework);
         this.fileSystem = fileSystem;
     }
 

@@ -16,7 +16,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -40,12 +40,12 @@ public class TestClassesRoute extends RunsRoute {
     private static final GalasaGson gson = new GalasaGson();
     private RasQueryParameters sortQueryParameterChecker;
 
-    public TestClassesRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+    public TestClassesRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
         /* Regex to match endpoints: 
 		*  -> /ras/testclasses
 		*  -> /ras/testclasses?
 		*/
-        super(responseBuilder, path, framework, env);
+        super(responseBuilder, path, framework);
     }
 
     @Override
@@ -54,11 +54,13 @@ public class TestClassesRoute extends RunsRoute {
     }
 
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,HttpServletRequest req, HttpServletResponse response)
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse response)
     throws ServletException, IOException, FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
+
         this.sortQueryParameterChecker = new RasQueryParameters(queryParams);
         String outputString = TestClasses();
-        return getResponseBuilder().buildResponse(req, response, "application/json", outputString, HttpServletResponse.SC_OK); 
+        return getResponseBuilder().buildResponse(request, response, "application/json", outputString, HttpServletResponse.SC_OK); 
     }
     
     private String TestClasses () throws ResultArchiveStoreException, ServletException, InternalServletException {

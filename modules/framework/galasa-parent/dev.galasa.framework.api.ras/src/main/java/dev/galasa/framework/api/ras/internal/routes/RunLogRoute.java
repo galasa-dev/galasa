@@ -14,7 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -32,19 +32,20 @@ public class RunLogRoute extends RunsRoute {
 
     protected static final String path = "\\/runs\\/([A-Za-z0-9.\\-=]+)\\/runlog\\/?";
 
-    public RunLogRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+    public RunLogRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
         //  Regex to match endpoint: /ras/runs/{runid}/runlog
-        super(responseBuilder, path, framework, env);
+        super(responseBuilder, path, framework);
     }
 
     @Override
-    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+    public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+        HttpServletRequest request = requestContext.getRequest();
         Matcher matcher = this.getPathRegex().matcher(pathInfo);
         matcher.matches();
         String runId = matcher.group(1);
         String runLog = getRunlog(runId);
         if (runLog != null) {
-            return getResponseBuilder().buildResponse(req, res, "text/plain", runLog, HttpServletResponse.SC_OK);
+            return getResponseBuilder().buildResponse(request, res, "text/plain", runLog, HttpServletResponse.SC_OK);
         } else {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);

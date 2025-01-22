@@ -37,7 +37,6 @@ public class RBACServlet extends BaseServlet {
 	@Reference
 	protected IFramework framework;
 
-    private Environment env;
     private ITimeService timeService;
 
 	private static final long serialVersionUID = 1L;
@@ -49,7 +48,7 @@ public class RBACServlet extends BaseServlet {
     }
 
     public RBACServlet(Environment env, ITimeService timeService) {
-        this.env = env;
+        super(env);
         this.timeService = timeService;
     }
     

@@ -37,7 +37,6 @@ public class SecretsServlet extends BaseServlet {
     @Reference
     protected IFramework framework;
 
-    private Environment env;
     private ITimeService timeService;
 
     private static final long serialVersionUID = 1L;
@@ -49,7 +48,7 @@ public class SecretsServlet extends BaseServlet {
     }
 
     public SecretsServlet(Environment env, ITimeService timeService) {
-        this.env = env;
+        super(env);
         this.timeService = timeService;
     }
  
@@ -60,8 +59,8 @@ public class SecretsServlet extends BaseServlet {
         try {
             ICredentialsService credentialsService = framework.getCredentialsService();
             RBACService rbacService = framework.getRBACService();
-            addRoute(new SecretsRoute(getResponseBuilder(), credentialsService, env, timeService, rbacService));
-            addRoute(new SecretDetailsRoute(getResponseBuilder(), credentialsService, env, timeService, rbacService));
+            addRoute(new SecretsRoute(getResponseBuilder(), credentialsService, timeService, rbacService));
+            addRoute(new SecretDetailsRoute(getResponseBuilder(), credentialsService, timeService, rbacService));
         } catch (CredentialsException | RBACException e) {
             throw new ServletException("Failed to initialise the Secrets servlet");
         }

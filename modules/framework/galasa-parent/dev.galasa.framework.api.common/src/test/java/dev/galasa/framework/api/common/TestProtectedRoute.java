@@ -7,8 +7,6 @@ package dev.galasa.framework.api.common;
 
 import org.junit.Test;
 
-import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
-import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.mocks.FilledMockRBACService;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.spi.FrameworkException;
@@ -20,27 +18,22 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class TestProtectedRoute extends BaseServletTest {
 
-    private Map<String, String> REQUEST_HEADERS = new HashMap<>(Map.of("Authorization", "Bearer " + DUMMY_JWT));
-
     public class MockProtectedRoute extends ProtectedRoute {
 
         public MockProtectedRoute(RBACService rbacService) {
-            super(new ResponseBuilder(), "/", rbacService, FilledMockEnvironment.createTestEnvironment());
+            super(new ResponseBuilder(), "/", rbacService);
         }
 
         @Override
         public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, 
-                HttpServletRequest request, HttpServletResponse response) 
+                HttpRequestContext requestContext, HttpServletResponse response) 
                 throws ServletException, IOException, FrameworkException {
             response.setStatus(HttpServletResponse.SC_OK);
             return response;
@@ -54,11 +47,10 @@ public class TestProtectedRoute extends BaseServletTest {
 
         MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, userActions);
         ProtectedRoute route = new MockProtectedRoute(rbacService);
-        MockHttpServletRequest request = new MockHttpServletRequest("", REQUEST_HEADERS);
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            route.validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, request);
+            route.validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, JWT_USERNAME);
         }, InternalServletException.class);
 
 
@@ -76,11 +68,10 @@ public class TestProtectedRoute extends BaseServletTest {
 
         MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, userActions);
         ProtectedRoute route = new MockProtectedRoute(rbacService);
-        MockHttpServletRequest request = new MockHttpServletRequest("", REQUEST_HEADERS);
 
         // When...
         InternalServletException thrown = catchThrowableOfType(() -> {
-            route.validateActionPermitted(BuiltInAction.SECRETS_GET_UNREDACTED_VALUES, request);
+            route.validateActionPermitted(BuiltInAction.SECRETS_GET_UNREDACTED_VALUES, JWT_USERNAME);
         }, InternalServletException.class);
 
 

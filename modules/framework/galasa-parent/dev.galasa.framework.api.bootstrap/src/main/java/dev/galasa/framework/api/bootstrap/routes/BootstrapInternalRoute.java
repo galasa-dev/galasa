@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.PublicRoute;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -34,8 +35,10 @@ public class BootstrapInternalRoute extends PublicRoute {
 
     @Override
     public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
-            HttpServletRequest request, HttpServletResponse response)
+            HttpRequestContext requestContext, HttpServletResponse response)
             throws ServletException, IOException, FrameworkException {
+
+        HttpServletRequest request = requestContext.getRequest();
 
         Properties actualBootstrap = new Properties();
         synchronized (this.configurationProperties) {
