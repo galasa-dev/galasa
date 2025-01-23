@@ -32,22 +32,9 @@ jobs:
         run: |
           echo "This workflow is running on GitHub ref ${{ env.BRANCH }}"
 
-  check-required-secrets-configured:
-    name: Check required secrets configured
-    uses: galasa-dev/galasa/.github/workflows/check-required-secrets-configured.yaml@main
-    with:
-      check_maven_settings_xml: 'true'
-      check_gpg_key: 'true'
-      check_gpg_passphrase: 'true'
-    secrets:
-      MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
-      GPG_KEY: ${{ secrets.GPG_KEY }}
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-
   build-wrapping:
     name: Build Wrapping source code and Docker image for development Maven registry
     runs-on: ubuntu-latest
-    needs: check-required-secrets-configured
 
     steps:
       - name: Checkout Code
