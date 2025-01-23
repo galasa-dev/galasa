@@ -555,7 +555,12 @@ public class Framework implements IFramework, IShuttableFramework {
     @Override
     public RBACService getRBACService() throws RBACException {
         if (this.rbacService == null) {
-            this.rbacService = new RBACServiceImpl(getAuthStoreService());
+            try {
+                IDynamicStatusStoreService dssService = getDynamicStatusStoreService("rbac");
+                this.rbacService = new RBACServiceImpl(dssService, getAuthStoreService());
+            } catch (DynamicStatusStoreException e) {
+                throw new RBACException("Failed to initialise Role-Based Access Control service", e);
+            }
         }
         return this.rbacService;
     }

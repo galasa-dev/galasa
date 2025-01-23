@@ -5,9 +5,11 @@
  */
 package dev.galasa.framework.mocks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import dev.galasa.framework.spi.rbac.CacheRBAC;
 import dev.galasa.framework.spi.rbac.RBACException;
@@ -25,8 +27,8 @@ public class MockCacheRBAC implements CacheRBAC {
     }
 
     @Override
-    public void addUser(String loginId, List<String> actionIds) throws RBACException {
-        usersToActionsMap.put(loginId, actionIds);
+    public void addUser(String loginId, Set<String> actionIds) throws RBACException {
+        usersToActionsMap.put(loginId, new ArrayList<>(actionIds));
     }
 
     @Override
