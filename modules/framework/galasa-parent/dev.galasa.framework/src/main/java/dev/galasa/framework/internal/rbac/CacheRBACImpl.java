@@ -110,7 +110,7 @@ public class CacheRBACImpl implements CacheRBAC {
 
     private String getUserActionsPropertyKey(String loginId) {
         // The users-to-actions DSS property is in the form:
-        // dss.rbac.user-<loginId>.actions = <comma-separated action IDs>
+        // dss.rbac.user.<loginId>.actions = <comma-separated action IDs>
         return USER_PROPERTY_PREFIX + loginId + ACTIONS_PROPERTY_SUFFIX;
     }
 }
