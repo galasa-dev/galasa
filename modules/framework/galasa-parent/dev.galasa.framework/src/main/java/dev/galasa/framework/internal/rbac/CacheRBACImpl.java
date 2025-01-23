@@ -29,7 +29,7 @@ public class CacheRBACImpl implements CacheRBAC {
     private IDynamicStatusStoreService dssService;
     private IAuthStoreService authStoreService;
     private RBACService rbacService;
-    
+
     public CacheRBACImpl(
         IDynamicStatusStoreService dssService,
         IAuthStoreService authStoreService,
@@ -59,22 +59,18 @@ public class CacheRBACImpl implements CacheRBAC {
         try {
             String userActionsKey = loginId + ACTIONS_PROPERTY_SUFFIX;
             String commaSeparatedUserActions = dssService.get(userActionsKey);
-    
+
             List<String> userActions = new ArrayList<>();
             if (commaSeparatedUserActions == null) {
                 // Cache miss, so get the user's actions from the auth store
-                IUser user = getUserFromAuthStore(loginId);
-                String userRoleId = user.getRoleId();
-                Role userRole = rbacService.getRoleById(userRoleId);
-    
-                userActions = userRole.getActionIds();
-    
+                userActions = getUserActionsFromAuthStore(loginId);
+
                 // Add this user to the cache
                 addUser(loginId, userActions);
             } else {
                 userActions = Arrays.asList(commaSeparatedUserActions.split(","));
             }
-    
+
             // Check if the user is allowed to perform the given action
             isActionPermitted = userActions.contains(actionId);
         } catch (DynamicStatusStoreException e) {
@@ -104,5 +100,13 @@ public class CacheRBACImpl implements CacheRBAC {
             throw new RBACException("Unable to find user with the given login ID", e);
         }
         return user;
+    }
+
+    private List<String> getUserActionsFromAuthStore(String loginId) throws RBACException {
+        IUser user = getUserFromAuthStore(loginId);
+        String userRoleId = user.getRoleId();
+        Role userRole = rbacService.getRoleById(userRoleId);
+
+        return userRole.getActionIds();
     }
 }
