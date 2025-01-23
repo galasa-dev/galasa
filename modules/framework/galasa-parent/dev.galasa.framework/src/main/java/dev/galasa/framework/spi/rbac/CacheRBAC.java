@@ -5,11 +5,11 @@
  */
 package dev.galasa.framework.spi.rbac;
 
-import java.util.List;
+import java.util.Set;
 
 public interface CacheRBAC {
 
-    void addUser(String loginId, List<String> actionIds) throws RBACException;
+    void addUser(String loginId, Set<String> actionIds) throws RBACException;
 
     boolean isActionPermitted(String loginId, String actionId) throws RBACException;
 

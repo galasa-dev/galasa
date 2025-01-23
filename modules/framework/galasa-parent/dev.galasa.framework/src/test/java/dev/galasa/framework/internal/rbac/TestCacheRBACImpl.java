@@ -8,6 +8,7 @@ package dev.galasa.framework.internal.rbac;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.*;
@@ -88,11 +89,8 @@ public class TestCacheRBACImpl {
 
         // The DSS should have a property of the form:
         // dss.rbac.loginId.actions = GENERAL_API_ACCESS,CPS_PROPERTIES_SET
-        String commaSeparatedActionsList = permittedActions.stream()
-            .map(Action::getId)
-            .collect(Collectors.joining(","));
-
-        assertThat(dssData.get(loginId + ".actions")).isEqualTo(commaSeparatedActionsList);
+        String[] actualActions = dssData.get("user." + loginId + ".actions").split(",");
+        assertThat(actualActions).containsExactlyInAnyOrder("GENERAL_API_ACCESS", "CPS_PROPERTIES_SET");
     }
 
     @Test
@@ -113,7 +111,7 @@ public class TestCacheRBACImpl {
         CacheRBAC cache = new CacheRBACImpl(mockDssService, mockAuthStoreService, mockRbacService);
 
         List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), SECRETS_GET_UNREDACTED_VALUES.getAction());
-        List<String> permittedActionsIds = permittedActions.stream().map(Action::getId).collect(Collectors.toList());
+        Set<String> permittedActionsIds = permittedActions.stream().map(Action::getId).collect(Collectors.toSet());
 
         cache.addUser(loginId, permittedActionsIds);
 
@@ -155,13 +153,13 @@ public class TestCacheRBACImpl {
         String loginId = "bob";
 
         List<Action> permittedActions = BuiltInAction.getActions();
-        List<String> permittedActionsIds = permittedActions.stream().map(Action::getId).collect(Collectors.toList());
+        Set<String> permittedActionsIds = permittedActions.stream().map(Action::getId).collect(Collectors.toSet());
 
         cache.addUser(loginId, permittedActionsIds);
 
         Map<String, String> dssData = mockDssService.data;
         assertThat(dssData).hasSize(1);
-        assertThat(dssData).containsKey(loginId + ".actions");
+        assertThat(dssData).containsKey("user." + loginId + ".actions");
 
         // When...
         cache.invalidateUser(loginId);

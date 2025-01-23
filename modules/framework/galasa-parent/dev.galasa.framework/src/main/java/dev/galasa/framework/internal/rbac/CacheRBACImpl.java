@@ -5,9 +5,8 @@
  */
 package dev.galasa.framework.internal.rbac;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -24,6 +23,7 @@ public class CacheRBACImpl implements CacheRBAC {
     // Only keep users-to-actions entries in the cache for 24 hours
     private static final long CACHED_ACTIONS_TIME_TO_LIVE_SECS = 24 * 60 * 60;
 
+    private static final String USER_PROPERTY_PREFIX = "user.";
     private static final String ACTIONS_PROPERTY_SUFFIX = ".actions";
 
     private IDynamicStatusStoreService dssService;
@@ -41,12 +41,10 @@ public class CacheRBACImpl implements CacheRBAC {
     }
 
     @Override
-    public synchronized void addUser(String loginId, List<String> actionIds) throws RBACException {
+    public synchronized void addUser(String loginId, Set<String> actionIds) throws RBACException {
         try {
-            // Create a property in the DSS of the form:
-            // dss.rbac.<loginId>.actions = <comma-separated action IDs>
             String commaSeparatedActionIds = String.join(",", actionIds);
-            String actionsKey = loginId + ACTIONS_PROPERTY_SUFFIX;
+            String actionsKey = getUserActionsPropertyKey(loginId);
             dssService.put(actionsKey, commaSeparatedActionIds, CACHED_ACTIONS_TIME_TO_LIVE_SECS);
         } catch (DynamicStatusStoreException e) {
             throw new RBACException("Failed to cache user actions", e);
@@ -57,10 +55,10 @@ public class CacheRBACImpl implements CacheRBAC {
     public synchronized boolean isActionPermitted(String loginId, String actionId) throws RBACException {
         boolean isActionPermitted = false;
         try {
-            String userActionsKey = loginId + ACTIONS_PROPERTY_SUFFIX;
+            String userActionsKey = getUserActionsPropertyKey(loginId);
             String commaSeparatedUserActions = dssService.get(userActionsKey);
 
-            List<String> userActions = new ArrayList<>();
+            Set<String> userActions = new HashSet<>();
             if (commaSeparatedUserActions == null) {
                 // Cache miss, so get the user's actions from the auth store
                 userActions = getUserActionsFromAuthStore(loginId);
@@ -68,7 +66,7 @@ public class CacheRBACImpl implements CacheRBAC {
                 // Add this user to the cache
                 addUser(loginId, userActions);
             } else {
-                userActions = Arrays.asList(commaSeparatedUserActions.split(","));
+                userActions = Set.of(commaSeparatedUserActions.split(","));
             }
 
             // Check if the user is allowed to perform the given action
@@ -82,7 +80,7 @@ public class CacheRBACImpl implements CacheRBAC {
     @Override
     public synchronized void invalidateUser(String loginId) throws RBACException {
         try {
-            String userActionsKey = loginId + ACTIONS_PROPERTY_SUFFIX;
+            String userActionsKey = getUserActionsPropertyKey(loginId);
             dssService.delete(userActionsKey);
         } catch (DynamicStatusStoreException e) {
             throw new RBACException("Failed to delete cached user actions", e);
@@ -102,11 +100,17 @@ public class CacheRBACImpl implements CacheRBAC {
         return user;
     }
 
-    private List<String> getUserActionsFromAuthStore(String loginId) throws RBACException {
+    private Set<String> getUserActionsFromAuthStore(String loginId) throws RBACException {
         IUser user = getUserFromAuthStore(loginId);
         String userRoleId = user.getRoleId();
         Role userRole = rbacService.getRoleById(userRoleId);
 
-        return userRole.getActionIds();
+        return new HashSet<>(userRole.getActionIds());
+    }
+
+    private String getUserActionsPropertyKey(String loginId) {
+        // The users-to-actions DSS property is in the form:
+        // dss.rbac.user-<loginId>.actions = <comma-separated action IDs>
+        return USER_PROPERTY_PREFIX + loginId + ACTIONS_PROPERTY_SUFFIX;
     }
 }
