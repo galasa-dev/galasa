@@ -172,30 +172,37 @@ log_file=${LOGS_DIR}/${project}.txt
 info "Log will be placed at ${log_file}"
 date > ${log_file}
 
-#------------------------------------------------------------------------------------
-function get_galasabld_binary_location {
-    # What's the architecture-variable name of the build tool we want for this local build ?
-    export ARCHITECTURE=$(uname -m) # arm64 or amd64
-    if [ $ARCHITECTURE == "x86_64" ]; then
-        export ARCHITECTURE="amd64"
-    fi
-
-    raw_os=$(uname -s) # eg: "Darwin"
+function get_architecture() {
+    h2 "Retrieving system architecture."
+        raw_os=$(uname -s) # eg: "Darwin"
     os=""
     case $raw_os in
         Darwin*)
             os="darwin"
             ;;
-        Windows*)
-            os="windows"
-            ;;
         Linux*)
             os="linux"
             ;;
         *)
-            error "Failed to recognise which operating system is in use. $raw_os"
+            error "Unsupported operating system is in use. $raw_os"
             exit 1
     esac
+
+    architecture=$(uname -m)
+    case $architecture in
+        aarch64)
+            architecture="arm64"
+            ;;
+        amd64)
+            architecture="x86_64"
+    esac
+}
+
+#------------------------------------------------------------------------------------
+function get_galasabld_binary_location {
+    # What's the architecture-variable name of the build tool we want for this local build ?
+    get_architecture
+    export ARCHITECTURE=${architecture}
     export GALASA_BUILD_TOOL_NAME=galasabld-${os}-${ARCHITECTURE}
 
     # Favour the galasabld tool if it's on the path, else use a locally-built version or fail if not available.
