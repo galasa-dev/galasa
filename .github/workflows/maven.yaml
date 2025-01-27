@@ -55,10 +55,6 @@ jobs:
         run : |
           mkdir /home/runner/work/secrets
 
-      - name: Copy settings.xml
-        run : |
-          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
-
       - name: Copy GPG passphrase
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
@@ -75,6 +71,10 @@ jobs:
       - name: Make GPG home directory
         run: |
           mkdir /home/runner/work/gpg
+
+      - name: Copy settings.xml
+        run : |
+          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
       
       - name: Change directory permissions
         run: |

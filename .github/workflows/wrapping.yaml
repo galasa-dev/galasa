@@ -62,14 +62,13 @@ jobs:
       - name: Make secrets directory
         run: |
           mkdir /home/runner/work/secrets
-      - name: Copy settings.xml
-        run: |
-          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
+
       - name: Copy GPG passphrase
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           echo $GPG_PASSPHRASE > /home/runner/work/secrets/passphrase.file
+
       - name: Copy GPG key
         env:
           GPG_KEY_BASE64: ${{ secrets.GPG_KEY }}
@@ -80,6 +79,10 @@ jobs:
       - name: Make GPG home directory
         run: |
           mkdir /home/runner/work/gpg
+
+      - name: Copy settings.xml
+        run : |
+          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
       
       - name: Change directory permissions
         run: |

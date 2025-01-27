@@ -53,10 +53,6 @@ jobs:
       - name: Make secrets directory
         run : |
           mkdir /home/runner/work/secrets
-
-      - name: Copy settings.xml
-        run : |
-          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
       
       - name: Copy GPG passphrase
         env:
@@ -74,6 +70,10 @@ jobs:
         run: |
           mkdir /home/runner/work/gpg
           chmod '700' /home/runner/work/gpg
+
+      - name: Copy settings.xml
+        run : |
+          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
         
       - name: Import GPG
         run: |
@@ -340,10 +340,6 @@ jobs:
         run : |
           mkdir /home/runner/work/secrets
 
-      - name: Copy settings.xml 
-        run : |
-          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
-
       - name: Copy GPG passphrase
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
@@ -360,6 +356,10 @@ jobs:
         run: |
           mkdir /home/runner/work/gpg
           chmod '700' /home/runner/work/gpg
+
+      - name: Copy settings.xml
+        run : |
+          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
 
       - name: Import GPG
         run: |
@@ -549,10 +549,6 @@ jobs:
       - name: Make secrets directory
         run : |
           mkdir /home/runner/work/secrets
-
-      - name: Copy settings.xml
-        run : |
-          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
       
       - name: Copy GPG passphrase
         env:
@@ -570,6 +566,10 @@ jobs:
         run: |
           mkdir /home/runner/work/gpg
           chmod '700' /home/runner/work/gpg
+
+      - name: Copy settings.xml
+        run : |
+          cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
         
       - name: Import GPG
         run: |
