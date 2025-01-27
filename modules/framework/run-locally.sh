@@ -183,6 +183,10 @@ function setup_galasa_dev() {
     # The GALASA_DEX_GRPC_HOSTNAME environment variable must match the "addr" value
     # within the "grpc" section in your local Dex server's configuration 
     export GALASA_DEX_GRPC_HOSTNAME="127.0.0.1:5557"
+
+    # In the test environment, when we log in for the first time, we want our userid to be given admin rights.
+    # This would normally be set to the "tester" role in the helm chart values, and given to the API pod as an env variable.
+    export GALASA_DEFAULT_USER_ROLE="admin"
 }
 
 
