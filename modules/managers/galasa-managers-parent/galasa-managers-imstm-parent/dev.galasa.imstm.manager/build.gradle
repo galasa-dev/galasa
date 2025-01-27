@@ -4,7 +4,7 @@ plugins {
 
 description = 'Galasa IMS/TM Manager'
 
-version = '0.39.0'
+version = '0.40.0'
 
 dependencies {
     api            project (':galasa-managers-zos-parent:dev.galasa.zos.manager')

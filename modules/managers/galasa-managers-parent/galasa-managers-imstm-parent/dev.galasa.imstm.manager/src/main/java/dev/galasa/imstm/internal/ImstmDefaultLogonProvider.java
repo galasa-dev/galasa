@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.ICredentialsUsername;
 import dev.galasa.ICredentialsUsernamePassword;
 import dev.galasa.imstm.ImstmManagerException;
+import dev.galasa.imstm.IImsSystem;
 import dev.galasa.imstm.IImsTerminal;
 import dev.galasa.imstm.internal.properties.DefaultLogonInitialText;
 import dev.galasa.imstm.spi.IImsSystemLogonProvider;
@@ -61,10 +62,11 @@ public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
                 checkForInitialText(imsTerminal);
             }
 
-            imsTerminal.type("LOGON APPLID(" + imsTerminal.getImsSystem().getApplid() + ")").enter().wfk();
+            IImsSystem system = imsTerminal.getImsSystem();
+            imsTerminal.type(system.getZosImage().getVtamLogonString(system.getApplid())).enter().wfk();
 
             waitForSignonScreen(imsTerminal);
-            logger.debug("Logged onto " + imsTerminal.getImsSystem());
+            logger.debug("Logged onto " + system);
 
             if (imsTerminal.getLoginCredentialsTag().isEmpty()) {
                 throw new ImstmManagerException("No login credentials provided");
