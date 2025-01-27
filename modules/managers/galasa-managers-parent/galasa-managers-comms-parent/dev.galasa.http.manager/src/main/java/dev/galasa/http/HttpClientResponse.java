@@ -273,32 +273,33 @@ public class HttpClientResponse<T> {
         try {
             response.populateGenericValues(httpResponse);
 
-            if (httpResponse.getEntity() != null) {
-                if (response.getStatusCode() == HttpStatus.SC_OK || contentOnBadResponse) {
-                    String sResponse = EntityUtils.toString(httpResponse.getEntity());
-                    
-                    if (sResponse.trim().startsWith("{")) {
-//                      JsonReader reader = new JsonReader(new InputStreamReader(httpResponse.getEntity().getContent()));
-                        JsonElement jsonElement = null;
-                        try{
-                            jsonElement = new GalasaGson().fromJson(sResponse, JsonElement.class);
-                        }catch(JsonSyntaxException jse){
-                            logger.info("Unable to parse JSON from the following: " + sResponse);
-                            throw jse;
-                        }
-                        if (jsonElement != null) {
-                            JsonObject json = jsonElement.getAsJsonObject();
-                            response.setContent(json);
+            try {
+                if (httpResponse.getEntity() != null) {
+                    if (response.getStatusCode() == HttpStatus.SC_OK || contentOnBadResponse) {
+                        String sResponse = EntityUtils.toString(httpResponse.getEntity());
+                        
+                        if (sResponse.trim().startsWith("{")) {
+    //                      JsonReader reader = new JsonReader(new InputStreamReader(httpResponse.getEntity().getContent()));
+                            JsonElement jsonElement = null;
+                            try{
+                                jsonElement = new GalasaGson().fromJson(sResponse, JsonElement.class);
+                            }catch(JsonSyntaxException jse){
+                                logger.info("Unable to parse JSON from the following: " + sResponse);
+                                throw jse;
+                            }
+                            if (jsonElement != null) {
+                                JsonObject json = jsonElement.getAsJsonObject();
+                                response.setContent(json);
+                            }
                         }
                     } else {
-                        logger.info("Did not attempt to parse JSON from the following: " + sResponse);
+                        EntityUtils.consume(httpResponse.getEntity());
                     }
-                } else {
-                    EntityUtils.consume(httpResponse.getEntity());
                 }
+            } finally {
+                httpResponse.close();
             }
 
-            httpResponse.close();
         } catch (IOException e) {
             throw new HttpClientException("Unable to extract response body to JSON object", e);
         }

@@ -509,8 +509,8 @@ public class TestCouchdbAuthStore {
         ViewResponse mockAllDocsResponse = new ViewResponse();
         mockAllDocsResponse.rows = mockDocs;
 
-        UserDoc mockUser = new UserDoc("user1", List.of());
-        UserDoc mockUser2 = new UserDoc("user2", List.of());
+        UserDoc mockUser = new UserDoc("user1", List.of(), "2");
+        UserDoc mockUser2 = new UserDoc("user2", List.of(), "2");
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         interactions.add(new GetAllDocumentsInteraction("https://my-users-store/galasa_users/_all_docs",
                 HttpStatus.SC_OK, mockAllDocsResponse));
@@ -604,7 +604,7 @@ public class TestCouchdbAuthStore {
         client.setClientName("web-ui");
         client.setLastLogin(Instant.now());
 
-        UserDoc mockUser = new UserDoc("johndoe", List.of(client));
+        UserDoc mockUser = new UserDoc("johndoe", List.of(client), "2");
 
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         interactions.add(new GetAllDocumentsInteraction(
@@ -642,7 +642,7 @@ public class TestCouchdbAuthStore {
         ViewResponse mockAllDocsResponse = new ViewResponse();
         mockAllDocsResponse.rows = mockDocs;
 
-        UserDoc mockUser = new UserDoc("johndoe", List.of(new FrontEndClient("web-ui", Instant.now())));
+        UserDoc mockUser = new UserDoc("johndoe", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
 
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         interactions.add(new GetAllDocumentsInteraction(
@@ -668,7 +668,7 @@ public class TestCouchdbAuthStore {
     @Test
     public void testUpdateUserUpdatesExisitingClientOK() throws Exception {
         // Given...
-        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("web-ui", Instant.MIN))));
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("web-ui", Instant.MIN)),"2"));
         mockUser.setVersion("1");
         mockUser.setUserNumber("user1");
 
@@ -686,7 +686,7 @@ public class TestCouchdbAuthStore {
     @Test
     public void testUpdateUserCouchDBPassesBackANullVersionField() throws Exception {
         // Given...
-        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN))));
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
         mockUser.setVersion("1");
         mockUser.setUserNumber("user1");
 
@@ -705,7 +705,7 @@ public class TestCouchdbAuthStore {
     @Test
     public void testUpdateUserCouchDBPassesBackADocIdWithWrongUserNumberField() throws Exception {
         // Given...
-        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN))));
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
         mockUser.setVersion("1");
         mockUser.setUserNumber("user1");
 
@@ -725,7 +725,7 @@ public class TestCouchdbAuthStore {
     public void testUpdateUserCouchDBPassesBackADocIdWithMissingIdField() throws Exception {
         // Given...
 
-        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN))));
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
         mockUser.setVersion("1");
         mockUser.setUserNumber("user1");
 
@@ -744,7 +744,7 @@ public class TestCouchdbAuthStore {
     @Test
     public void testUpdateUserCouchDBPassesBackAnUnexpectedServerError() throws Exception {
         // Given...
-        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN))));
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
         mockUser.setVersion("1");
         mockUser.setUserNumber("user1");
 
@@ -762,7 +762,7 @@ public class TestCouchdbAuthStore {
 
     @Test
     public void testUpdateUserWithBadUserNullIdFieldGetsDetectedAsError() throws Exception {
-        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN))));
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
         mockUser.setVersion("1");
         mockUser.setUserNumber(null);
 
@@ -775,7 +775,7 @@ public class TestCouchdbAuthStore {
 
     @Test
     public void testUpdateUserWithBadUserNullVersionFieldGetsDetectedAsError() throws Exception {
-        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN))));
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
         mockUser.setVersion(null);
         mockUser.setUserNumber("user1");
 
@@ -829,7 +829,7 @@ public class TestCouchdbAuthStore {
         client.setClientName("web-ui");
         client.setLastLogin(Instant.now());
 
-        UserDoc mockUser = new UserDoc("johndoe", List.of(client));
+        UserDoc mockUser = new UserDoc("johndoe", List.of(client),"2");
 
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user2",
@@ -863,7 +863,7 @@ public class TestCouchdbAuthStore {
         client.setClientName("web-ui");
         client.setLastLogin(Instant.now());
 
-        UserDoc mockUser = new UserDoc("johndoe", List.of(client));
+        UserDoc mockUser = new UserDoc("johndoe", List.of(client),"2");
         mockUser.setUserNumber("user2");
         mockUser.setVersion("v-1");
 
@@ -897,7 +897,7 @@ public class TestCouchdbAuthStore {
         client.setClientName("web-ui");
         client.setLastLogin(Instant.now());
 
-        UserDoc mockUser = new UserDoc("johndoe", List.of(client));
+        UserDoc mockUser = new UserDoc("johndoe", List.of(client),"2");
         mockUser.setUserNumber("user1");
         mockUser.setVersion("v-1");
 
@@ -1012,4 +1012,6 @@ public class TestCouchdbAuthStore {
         assertThat(thrown.getMessage()).contains("GAL6208E",
                 "Failed to delete user from the CouchDB users database.");
     }
+
+
 }

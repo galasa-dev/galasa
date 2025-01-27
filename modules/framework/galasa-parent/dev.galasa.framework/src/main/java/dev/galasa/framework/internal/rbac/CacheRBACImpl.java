@@ -53,6 +53,7 @@ public class CacheRBACImpl implements CacheRBAC {
 
     @Override
     public synchronized boolean isActionPermitted(String loginId, String actionId) throws RBACException {
+
         boolean isActionPermitted = false;
         try {
             String userActionsKey = getUserActionsPropertyKey(loginId);

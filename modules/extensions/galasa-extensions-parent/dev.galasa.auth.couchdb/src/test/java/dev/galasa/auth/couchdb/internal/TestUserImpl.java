@@ -35,6 +35,26 @@ public class TestUserImpl {
         assertThat(docOutput.getUserNumber()).isEqualTo("1234");
     }
 
+
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testDefaultUserRoleIdIsAlwaysSet() throws Exception  {
+        // Given...
+        UserImpl docInput = new UserImpl();
+        docInput.setUserNumber("1234");
+        docInput.setLoginId("myLoginId");
+        // Don't set the user role.
+
+        // When..
+        UserImpl docOutput = new UserImpl(docInput);
+        
+        // Then...
+        assertThat(docOutput.getRoleId()).isEqualTo(IUser.DEFAULT_ROLE_ID_WHEN_MISSING);
+    }
+
     @Test
     public void testCanConstructUserDocGivenAUserDocWithClient() throws Exception  {
 
@@ -294,7 +314,7 @@ public class TestUserImpl {
     }
 
     @Test
-    public void testCreateUserFromDocNullRoleIUserTransfersNullOK() {
+    public void testCreateUserFromDocNullRoleIUserTransfersToDefaultRoleWhenMissing() {
         // Given...
         IUser userIn = new MockIUser("user1-login-id", null, null);
 
@@ -302,6 +322,6 @@ public class TestUserImpl {
         UserImpl userOut = new UserImpl(userIn);
 
         // Then...
-        assertThat(userOut.getRoleId()).isEqualTo(null);
+        assertThat(userOut.getRoleId()).isEqualTo(IUser.DEFAULT_ROLE_ID_WHEN_MISSING);
     }
 }

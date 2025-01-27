@@ -34,8 +34,9 @@ public class UserDoc {
         setClients(new ArrayList<FrontEndClient>());
     }
 
-    public UserDoc(String loginId, List<FrontEndClient> clients) {
+    public UserDoc(String loginId, List<FrontEndClient> clients, String roleId ) {
         this.loginId = loginId;
+        this.roleId = roleId ;
         setClients( clients);
     }
 

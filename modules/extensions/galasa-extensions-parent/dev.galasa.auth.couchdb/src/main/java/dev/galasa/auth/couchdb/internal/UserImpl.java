@@ -8,6 +8,9 @@ package dev.galasa.auth.couchdb.internal;
 
 import java.util.Collection;
 import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import static dev.galasa.extensions.common.Errors.*;
 
@@ -47,10 +50,9 @@ public class UserImpl implements IUser {
             }
         }
 
-        this.userDocBean = new UserDoc( user.getLoginId() , trustedClients);
+        this.userDocBean = new UserDoc( user.getLoginId() , trustedClients, user.getRoleId());
         this.userDocBean.setVersion( user.getVersion() );
         this.userDocBean.setUserNumber( user.getUserNumber() );
-        this.userDocBean.setRoleId( user.getRoleId() );
     }
 
     public String toJson( GalasaGson gson) {
@@ -58,8 +60,14 @@ public class UserImpl implements IUser {
     }
 
     @Override
-    public String getRoleId() {
-        return this.userDocBean.getRoleId();
+    public @NotNull String getRoleId() {
+        String roleId = this.userDocBean.getRoleId();
+
+        // Make sure that a default roleId is returned if none is actually set.
+        if (roleId == null || roleId.trim().equals("")) {
+            roleId = IUser.DEFAULT_ROLE_ID_WHEN_MISSING ;
+        }
+        return roleId ;
     }
 
     public void setRoleId(String newRoleId) {

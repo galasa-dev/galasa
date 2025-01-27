@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
+import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.rbac.Action;
@@ -20,6 +23,8 @@ import dev.galasa.framework.spi.rbac.CacheRBAC;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.rbac.Role;
+
+import org.apache.commons.logging.*;
 
 import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
@@ -77,8 +82,13 @@ public class RBACServiceImpl implements RBACService {
         }
     }
 
-    public RBACServiceImpl(IDynamicStatusStoreService dssService, IAuthStoreService authStoreService) {
+
+    private Environment env;
+    private final Log logger = LogFactory.getLog(getClass());
+
+    public RBACServiceImpl(IDynamicStatusStoreService dssService, IAuthStoreService authStoreService , @NotNull Environment env ) {
         userActionsCache = new CacheRBACImpl(dssService, authStoreService, this);
+        this.env = env ;
     }
 
     @Override
@@ -113,9 +123,25 @@ public class RBACServiceImpl implements RBACService {
 
     @Override
     public String getDefaultRoleId() throws RBACException {
+
+        String roleIdToReturn = roleDeactivated.getId();
+
         // We currently don't want to lock anyone out of doing anything, so defaulting to use the admin role for everyone 
         // without a role already.
-        return roleAdmin.getId();
+        String defaultRoleNameFromEnvVars = env.getenv(ENV_VARIABLE_GALASA_DEFAULT_USER_ROLE_NAME);
+        if (defaultRoleNameFromEnvVars==null || defaultRoleNameFromEnvVars.trim().equals("") ) {
+            logger.warn("Warning: Environment variable "+ENV_VARIABLE_GALASA_DEFAULT_USER_ROLE_NAME+
+                " is not set. Your Galasa service owner can set it in the helm chart or kubernetes deployment descriptor for this pod."+
+                " Default behaviour is to set new users to the 'deactivated' role which later requires an administratory"+
+                " to set up their most approriate role once they have initially logged in successfully.");
+        } else {
+            logger.info("Environment variable GALASA_DEFAULT_USER_ROLE is :"+defaultRoleNameFromEnvVars);
+            Role role = getRoleByName(defaultRoleNameFromEnvVars);
+            roleIdToReturn = role.getId();
+        }
+
+        logger.info("getDefaultRoleId: returning role Id "+roleIdToReturn);
+        return roleIdToReturn;
     }
 
     @Override

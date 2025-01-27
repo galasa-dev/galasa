@@ -80,7 +80,14 @@ public class Framework implements IFramework, IShuttableFramework {
 
     private IRun                               run;
 
+    private Environment env ;
+
     public Framework() {
+        this( new SystemEnvironment() );
+    }
+
+    protected Framework(Environment env) {
+        this.env = env ;
         this.random = new Random();
     }
 
@@ -557,7 +564,7 @@ public class Framework implements IFramework, IShuttableFramework {
         if (this.rbacService == null) {
             try {
                 IDynamicStatusStoreService dssService = getDynamicStatusStoreService("rbac");
-                this.rbacService = new RBACServiceImpl(dssService, getAuthStoreService());
+                this.rbacService = new RBACServiceImpl(dssService, getAuthStoreService(), this.env);
             } catch (DynamicStatusStoreException e) {
                 throw new RBACException("Failed to initialise Role-Based Access Control service", e);
             }

@@ -82,12 +82,7 @@ public class BeanTransformer {
     private String getRoleId( IUser userIn ) throws InternalServletException {
         String roleId = userIn.getRoleId();
         if (roleId==null || roleId.trim().equals("")) {
-            try {
-                roleId = rbacService.getDefaultRoleId();
-            } catch( RBACException ex) {
-                ServletError err = new ServletError(GAL5086_FAILED_TO_GET_DEFAULT_ROLE);
-                throw new InternalServletException(err, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex);
-            }
+            roleId = IUser.DEFAULT_ROLE_ID_WHEN_MISSING;
         }
         return roleId;
     }

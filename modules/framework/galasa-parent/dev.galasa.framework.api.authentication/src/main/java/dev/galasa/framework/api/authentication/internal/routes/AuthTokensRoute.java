@@ -17,6 +17,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.coreos.dex.api.DexOuterClass.Client;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -76,6 +79,7 @@ public class AuthTokensRoute extends PublicRoute {
         QUERY_PARAM_LOGIN_ID
     );
 
+    private Log logger = LogFactory.getLog(this.getClass());
     private ITimeService timeService;
     private  RBACService rbacService;
 
@@ -347,7 +351,9 @@ public class AuthTokensRoute extends PublicRoute {
         user = authStoreService.getUserByLoginId(loginId);
 
         if (user == null) {
-            authStoreService.createUser(loginId, clientName, getDefaultRoleId());
+            String newUserRoleId = getDefaultRoleId();
+            logger.info("recordUserJustLoggedIn() ; User logged in for first time. Creating a user record. Role is "+newUserRoleId);
+            authStoreService.createUser(loginId, clientName, newUserRoleId);
         } else {
 
             // Only update the document if the user has not created a new Galasa Access Token

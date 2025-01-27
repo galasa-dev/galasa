@@ -206,12 +206,13 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     @Override
     public void createUser(String loginId, String clientName, String roleId) throws AuthStoreException {
 
+        logger.info("createUser: Creating user loginId:"+loginId+" clientName:"+clientName+" roleId:"+roleId );
         FrontEndClient client = new FrontEndClient();
 
         client.setClientName(clientName);
         client.setLastLogin(Instant.now());
 
-        String userJson = gson.toJson(new UserDoc(loginId, List.of(client)));
+        String userJson = gson.toJson(new UserDoc(loginId, List.of(client), roleId));
 
         try {
             createDocument(USERS_DATABASE_NAME, userJson);
