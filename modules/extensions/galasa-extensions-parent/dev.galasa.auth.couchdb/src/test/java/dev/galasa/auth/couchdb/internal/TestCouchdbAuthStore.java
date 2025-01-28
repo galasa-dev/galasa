@@ -35,7 +35,6 @@ import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IUser;
-import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class TestCouchdbAuthStore {
 
