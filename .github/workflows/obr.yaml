@@ -79,7 +79,7 @@ jobs:
         run: |
           gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
 
-      # This is required so the openapi2beans image can be run in the next step.
+      # This is required so the galasabld-amd64 image can be run in the next step.
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
         env:
@@ -171,7 +171,7 @@ jobs:
           path: modules/obr/galasa-bom-build.log
           retention-days: 7
 
-      # This is required so the openapi2beans image can be run in the next step.
+      # This is required so the galasabld-amd64 image can be run in the next step.
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
         env:
@@ -388,7 +388,7 @@ jobs:
         run: |
           gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
 
-      # This is required so the openapi2beans image can be run in the next step.
+      # This is required so the galasabld-amd64 image can be run in the next step.
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
         env:
@@ -610,7 +610,7 @@ jobs:
         run: |
           gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
 
-      # This is required so the openapi2beans image can be run in the next step.
+      # This is required so the galasabld-amd64 image can be run in the next step.
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
         env:
