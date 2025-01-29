@@ -42,9 +42,9 @@ public enum ServletErrorMessage {
 
     // GenericErrors...
     GAL5000_GENERIC_API_ERROR                         (5000,"E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."),
-    GAL5400_BAD_REQUEST                               (5400,"E: Error occurred when trying to execute request ''{0}''. Please check your request parameters or report the problem to your Galasa Ecosystem owner."),
+    GAL5400_BAD_REQUEST                               (5400,"E: Error occurred when trying to execute request ''{0}''. Check your request parameters or report the problem to your Galasa Ecosystem owner."),
     GAL5401_UNAUTHORIZED                              (5401,"E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."),
-    GAL5404_UNRESOLVED_ENDPOINT_ERROR                 (5404,"E: Error occurred when trying to identify the endpoint ''{0}''. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
+    GAL5404_UNRESOLVED_ENDPOINT_ERROR                 (5404,"E: Error occurred when trying to identify the endpoint ''{0}''. Check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
     GAL5405_METHOD_NOT_ALLOWED                        (5405,"E: Error occurred when trying to access the endpoint ''{0}''. The method ''{1}'' is not allowed."),
     GAL5406_UNSUPPORTED_CONTENT_TYPE_REQUESTED        (5406, "E: Unsupported ''Accept'' header value set. Supported response types are: [{0}]. Ensure the ''Accept'' header in your request contains a valid value and try again"),
     GAL5411_NO_REQUEST_BODY                           (5411,"E: Error occurred when trying to access the endpoint ''{0}''. The request body is empty."),
@@ -66,7 +66,7 @@ public enum ServletErrorMessage {
     GAL5022_UNABLE_TO_PARSE_SHARED_ENVIRONMENT_PHASE  (5022, "E: Error occurred trying parse the sharedEnvironmentPhase ''{0}''. Valid options are 'BUILD', 'DISCARD'."),
 
     //Galasa Property...
-    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY          (5023, "E: Error occurred trying to interpret resource ''{0}''. This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program."),
+    GAL5023_UNABLE_TO_CAST_TO_GALASAPROPERTY          (5023, "E: Error occurred trying to interpret resource ''{0}''. This could indicate a mis-match between client and server levels. Check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program."),
     GAL5024_INVALID_GALASAPROPERTY                    (5024, "E: Error occurred because the Galasa Property is invalid. ''{0}''"),
     GAL5031_EMPTY_NAMESPACE                           (5031, "E: Invalid namespace. Namespace is empty."),
     GAL5032_INVALID_FIRST_CHARACTER_NAMESPACE         (5032, "E: Invalid namespace name. ''{0}'' must not start with the ''{1}'' character. Allowable first characters are 'a'-'z' or 'A'-'Z'."),
@@ -84,12 +84,12 @@ public enum ServletErrorMessage {
     GAL5044_INVALID_PROPERTY_NAME_TRAILING_DOT        (5044, "E: Invalid property name. Property name ''{0}'' must not end with a '.' (dot) separator."),
 
     //Resources APIs...
-    GAL5025_UNSUPPORTED_ACTION                        (5025, "E: Error occurred. The field ''action'' in the request body is invalid. Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
-    GAL5026_UNSUPPORTED_RESOURCE_TYPE                 (5026, "E: Error occurred. The field ''kind'' in the request body is invalid. This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
-    GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occurred. The field ''apiVersion'' in the request body is invalid. Currently the ecosystem accepts the ''{0}'' api version. This could indicate a mis-match between client and server levels. Please check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
-    GAL5067_NULL_RESOURCE_IN_BODY                     (5067, "E: Error occurred. A ''NULL'' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator."),
-    GAL5068_EMPTY_JSON_RESOURCE_IN_BODY               (5068, "E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator."),
-    GAL5069_MISSING_REQUIRED_FIELDS                   (5069, "E: Invalid request body provided. The following mandatory fields are missing from the request body: [{0}]. Please check that your request body contains these fields and try again."),
+    GAL5025_UNSUPPORTED_ACTION                        (5025, "E: Error occurred. The field ''action'' in the request body is invalid. Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels.Check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
+    GAL5026_UNSUPPORTED_RESOURCE_TYPE                 (5026, "E: Error occurred. The field ''kind'' in the request body is invalid. This could indicate a mis-match between client and server levels. Check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
+    GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occurred. The field ''apiVersion'' in the request body is invalid. Currently the ecosystem accepts the ''{0}'' api version. This could indicate a mis-match between client and server levels. Check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
+    GAL5067_NULL_RESOURCE_IN_BODY                     (5067, "E: Error occurred. A ''NULL'' value is not a valid resource. Check the request format, or check with your Ecosystem administrator."),
+    GAL5068_EMPTY_JSON_RESOURCE_IN_BODY               (5068, "E: Error occurred. The JSON element for a resource can not be empty. Check the request format, or check with your Ecosystem administrator."),
+    GAL5069_MISSING_REQUIRED_FIELDS                   (5069, "E: Invalid request body provided. The following mandatory fields are missing from the request body: [{0}]. Check that your request body contains these fields and try again."),
 
     // GalasaSecret validation...
     GAL5070_INVALID_GALASA_SECRET_MISSING_FIELDS      (5070, "E: Invalid GalasaSecret provided. One or more of the following mandatory fields are missing from the ''{0}'' field: [{1}]. Check that your request payload is correct and try again."),
@@ -103,8 +103,8 @@ public enum ServletErrorMessage {
     GAL5079_FAILED_TO_GET_SECRET                      (5079, "E: Failed to retrieve the secret with the given ID from the credentials store. A secret with the provided name does not exist and therefore cannot be updated."),
 
     // Auth APIs...
-    GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
-    GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Please ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
+    GAL5051_INVALID_GALASA_TOKEN_PROVIDED             (5051, "E: Invalid GALASA_TOKEN value provided. Ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
+    GAL5052_FAILED_TO_RETRIEVE_CLIENT                 (5052, "E: Unable to retrieve client for authentication. Ensure you have set the correct GALASA_TOKEN property for the targeted ecosystem at ''{0}'' and try again."),
     GAL5053_FAILED_TO_RETRIEVE_TOKENS                 (5053, "E: Internal server error occurred when retrieving tokens from the auth store. The auth store could be badly configured or could be experiencing temporary issues. Report the problem to your Galasa Ecosystem owner."),
     GAL5054_FAILED_TO_GET_CONNECTOR_URL               (5054, "E: Internal server error. The REST API server could not get the URL of the authentication provider (e.g. GitHub/LDAP) from the Galasa Dex component. The Dex component of Galasa could be badly configured, or could be experiencing a temporary issue. Report the problem to your Galasa Ecosystem owner."),
     GAL5055_FAILED_TO_GET_TOKENS_FROM_ISSUER          (5055, "E: Failed to get a JWT and a refresh token from the Galasa Dex server. The Dex server did not respond with a JWT and refresh token. This could be because the Dex server is experiencing an outage or other temporary issues. Report the problem to your Galasa Ecosystem owner."),
@@ -114,24 +114,25 @@ public enum ServletErrorMessage {
     GAL5059_INVALID_ISSUER_URI_PROVIDED               (5059, "E: Invalid Galasa Dex server URL provided. This could be because the Galasa Ecosystem is badly configured. Report the problem to your Galasa Ecosystem owner."),
     GAL5060_INVALID_OIDC_URI_RECEIVED                 (5060, "E: Internal server error. Invalid OpenID Connect URL received from the Galasa Dex server. Report the problem to your Galasa Ecosystem owner."),
     GAL5061_MISMATCHED_OIDC_URI_RECEIVED              (5061, "E: Internal server error. OpenID Connect URL received from the Galasa Dex server does not match the expected Dex server scheme or host. Report the problem to your Galasa Ecosystem owner."),
-    GAL5062_INVALID_TOKEN_REQUEST_BODY                (5062, "E: Invalid request body provided. Please ensure that you have provided a client ID and either a refresh token or a authorization code in your request. Allowable characters for these parameters are 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), and '_' (underscore)"),
+    GAL5062_INVALID_TOKEN_REQUEST_BODY                (5062, "E: Invalid request body provided. Ensure that you have provided a client ID and either a refresh token or a authorization code in your request. Allowable characters for these parameters are 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), and '_' (underscore)"),
     GAL5063_FAILED_TO_DELETE_CLIENT                   (5063, "E: Internal server error. Failed to delete Dex client with the given ID. Report the problem to your Galasa Ecosystem owner."),
-    GAL5064_FAILED_TO_REVOKE_TOKEN                    (5064, "E: Failed to revoke the token with the given ID. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
-    GAL5065_FAILED_TO_GET_TOKEN_ID_FROM_URL           (5065, "E: Failed to retrieve a token ID from the request path. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
-    GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
-    GAL5067_ERROR_INVALID_LOGINID                   (5057, "E: Invalid login ID provided. This could be because no value was given for the loginId query parameter. Please check your provided loginId query parameter value and try again."),
+    GAL5064_FAILED_TO_REVOKE_TOKEN                    (5064, "E: Failed to revoke the token with the given ID. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
+    GAL5065_FAILED_TO_GET_TOKEN_ID_FROM_URL           (5065, "E: Failed to retrieve a token ID from the request path. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
+    GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
+    GAL5067_ERROR_INVALID_LOGINID                     (5057, "E: Invalid login ID provided. This could be because no value was given for the loginId query parameter. Check your provided loginId query parameter value and try again."),
 
     // OpenAPI Servlet...
     GAL5071_FAILED_TO_PARSE_YAML_INTO_JSON            (5071, "E: Internal server error. Failed to convert OpenAPI specification from YAML into JSON. Report the problem to your Galasa Ecosystem owner"),
 
     // User APIs...
-    GAL5081_INVALID_QUERY_PARAM_VALUE                 (5081, "E: A request to get the user details for a particular user failed. The query parameter provided is not valid. Supported values for the 'loginId' query parameter are : 'me'. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program."),
-    GAL5082_NO_LOGINID_PARAM_PROVIDED                 (5082, "E: A request to get the user details failed. The request did not supply a 'loginId' filter. A 'loginId' query parameter with a value of : 'me' was expected. This problem is caused by the client program sending a bad request. Please report this problem to the owner of your client program."),
+    GAL5081_INVALID_QUERY_PARAM_VALUE                 (5081, "E: A request to get the user details for a particular user failed. The query parameter provided is not valid. Supported values for the 'loginId' query parameter are : 'me'. This problem is caused by the client program sending a bad request. Report this problem to the owner of your client program."),
+    GAL5082_NO_LOGINID_PARAM_PROVIDED                 (5082, "E: A request to get the user details failed. The request did not supply a 'loginId' filter. A 'loginId' query parameter with a value of : 'me' was expected. This problem is caused by the client program sending a bad request. Report this problem to the owner of your client program."),
     GAL5083_ERROR_USER_NOT_FOUND                      (5083, "E: Unable to retrieve a user with the given user number. No such user exists. Check your request query parameters and try again."),
     GAL5084_FAILED_TO_DELETE_USER                     (5084, "E: Failed to delete a user with the given 'loginId' from the auth store. The auth store might be experiencing temporary issues. Report the problem to your Galasa Ecosystem owner."),
-    GAL5085_FAILED_TO_GET_LOGIN_ID_FROM_URL           (5085, "E: Failed to retrieve a loginId from the request path. Please ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
+    GAL5085_FAILED_TO_GET_LOGIN_ID_FROM_URL           (5085, "E: Failed to retrieve a loginId from the request path. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     GAL5086_FAILED_TO_GET_DEFAULT_ROLE                (5086, "E: Failed to retrieve a default role id for a user with no role set."),
     GAL5087_BAD_USER_UPDATE_FIELD_ROLE                (5087, "E: Server detected an invalid 'role' field value from a client wishing to update a user record. The role field must be less than 128 characters and a consist of alphanumeric characters, '-' (hyphen) or '_' (underscore)"),
+    GAL5088_FORBIDDEN_USER_DELETE_THEMSELVES          (5088, "E: It is not permitted for a user to delete their own user record. Ask another Galasa service administrator to delete your user record for you."),
 
     // Secrets APIs...
     GAL5092_INVALID_SECRET_NAME_PROVIDED              (5092, "E: Invalid secret name provided. The name of a Galasa secret cannot be empty, contain only spaces or tabs, or contain dots ('.'), and must only contain characters in the Latin-1 character set. Check your request payload and try again."),

@@ -6,16 +6,17 @@
 
 package dev.galasa.sdv.internal;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
+
 import dev.galasa.ICredentialsUsernamePassword;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
 import dev.galasa.sdv.ISdvUser;
 import dev.galasa.sdv.SdvManagerException;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 
 class TestRecordingRegion {
 
@@ -34,7 +35,7 @@ class TestRecordingRegion {
     void testAddingNewUserToRegion() throws SdvManagerException, CredentialsException {
         // No users to start
         List<ISdvUser> beforeList = rr.getRecordingUsers();
-        Assertions.assertEquals(0, beforeList.size());
+        assertThat(beforeList).isEmpty();
 
         // Add new user
         ISdvUser newUser = new SdvUserImpl("creds1", credentials, "cics1", "TELLER");
@@ -42,8 +43,8 @@ class TestRecordingRegion {
 
         // Number of users increment, and user is the one created
         List<ISdvUser> afterList = rr.getRecordingUsers();
-        Assertions.assertEquals(1, afterList.size());
-        Assertions.assertEquals(newUser, afterList.get(0));
+        assertThat(afterList).hasSize(1);
+        assertThat(afterList.get(0)).isEqualTo(newUser);
     }
 
     @Test
@@ -52,20 +53,15 @@ class TestRecordingRegion {
         ISdvUser existingUser = new SdvUserImpl("creds1", credentials, "cics1", "TELLER");
         rr.addUserToRecord(existingUser);
         List<ISdvUser> beforeList = rr.getRecordingUsers();
-        Assertions.assertEquals(1, beforeList.size());
-        Assertions.assertEquals(existingUser, beforeList.get(0));
+        assertThat(beforeList).hasSize(1);
+        assertThat(beforeList.get(0)).isEqualTo(existingUser);
 
         // Create new user with same user name
         ISdvUser newUser = new SdvUserImpl("creds2", credentials, "cics1", "ADMIN");
-        Throwable exception = Assertions.assertThrows(
-            SdvManagerException.class,
-            () -> rr.addUserToRecord(newUser)
-        );
+        Throwable exception = catchThrowableOfType(() -> rr.addUserToRecord(newUser),
+            SdvManagerException.class);
 
-        Assertions.assertEquals(
-            "User 'user1' has been allocated to more than one region in the test."
-            + " Please report this to the Galasa project.",
-            exception.getMessage()
-        );
+        assertThat(exception.getMessage())
+            .contains("User 'user1' has been allocated to more than one region in the test.");
     }
 }

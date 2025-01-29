@@ -180,7 +180,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5068","E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
+        assertThat(thrown.getMessage()).contains("GAL5068","E: Error occurred. The JSON element for a resource can not be empty.");
     }
 
     @Test
@@ -195,7 +195,7 @@ public class TestBaseRoute {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5067","E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        assertThat(thrown.getMessage()).contains("GAL5067","E: Error occurred. A 'NULL' value is not a valid resource.");
     }
     
     @Test

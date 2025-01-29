@@ -7,6 +7,7 @@ package dev.galasa.framework.api.resources.processors;
 
 import static org.assertj.core.api.Assertions.*;
 import static dev.galasa.framework.api.common.resources.ResourceAction.*;
+import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 import java.time.Instant;
 import java.util.Base64;
@@ -22,12 +23,16 @@ import com.google.gson.JsonObject;
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.mocks.MockCredentialsService;
+import dev.galasa.framework.api.common.RBACValidator;
+import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.api.resources.ResourcesServletTest;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
 import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
+import dev.galasa.framework.spi.rbac.Action;
 
 public class GalasaSecretProcessorTest extends ResourcesServletTest {
 
@@ -108,7 +113,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -135,7 +143,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -162,7 +173,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -191,7 +205,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -220,7 +237,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -249,7 +269,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -273,7 +296,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -296,7 +322,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UNKNOWN TYPE!";
@@ -319,7 +348,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UNKNOWN TYPE!";
@@ -351,7 +383,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         Instant lastUpdatedTime = Instant.EPOCH;
         MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -381,7 +416,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -414,7 +452,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Token";
@@ -444,7 +485,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernameToken";
@@ -477,7 +521,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Username";
@@ -513,7 +560,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         existingCreds.put("another-secret", new CredentialsUsername("another-username"));
 
         MockCredentialsService mockCreds = new MockCredentialsService(existingCreds);
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String type = "Username";
         String encoding = null;
@@ -542,7 +592,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         existingCreds.put("another-secret", new CredentialsUsername("another-username"));
 
         MockCredentialsService mockCreds = new MockCredentialsService(existingCreds);
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String type = "Username";
         String encoding = null;
@@ -571,7 +624,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         credsMap.put("ABC", new CredentialsUsername("my-username"));
 
         MockCredentialsService mockCreds = new MockCredentialsService(credsMap);
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Username";
@@ -596,7 +652,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Given...
         MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Token";
@@ -623,7 +682,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
         mockCreds.setThrowError(true);
 
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Token";
@@ -650,7 +712,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
         mockCreds.setThrowError(true);
 
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "Token";
@@ -676,7 +741,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         Instant lastUpdatedTime = Instant.EPOCH;
         MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -701,7 +769,10 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         Instant lastUpdatedTime = Instant.EPOCH;
         MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
         MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
-        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService);
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
         String requestUsername = "myuser";
         String secretName = "ABC";
         String type = "UsernamePassword";
@@ -721,5 +792,93 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         assertThat(errors).hasSize(1);
         checkErrorStructure(errors.get(0), 5102, "GAL5102E",
             "Invalid secret description provided");
+    }
+
+    @Test
+    public void testValidateCreatePermissionsWithMissingSecretSetReturnsForbidden() throws Exception {
+        // Given...
+        Instant lastUpdatedTime = Instant.EPOCH;
+        MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
+        MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, permittedActions);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
+
+        // When...
+        InternalServletException thrown = catchThrowableOfType(() -> {
+            secretProcessor.validateActionPermissions(CREATE, JWT_USERNAME);
+        }, InternalServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        checkErrorStructure(thrown.getMessage(), 5125, "GAL5125E", "SECRETS_SET");
+    }
+
+    @Test
+    public void testValidateApplyPermissionsWithMissingSecretSetReturnsForbidden() throws Exception {
+        // Given...
+        Instant lastUpdatedTime = Instant.EPOCH;
+        MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
+        MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, permittedActions);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
+
+        // When...
+        InternalServletException thrown = catchThrowableOfType(() -> {
+            secretProcessor.validateActionPermissions(APPLY, JWT_USERNAME);
+        }, InternalServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        checkErrorStructure(thrown.getMessage(), 5125, "GAL5125E", "SECRETS_SET");
+    }
+
+    @Test
+    public void testValidateUpdatePermissionsWithMissingSecretSetReturnsForbidden() throws Exception {
+        // Given...
+        Instant lastUpdatedTime = Instant.EPOCH;
+        MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
+        MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, permittedActions);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
+
+        // When...
+        InternalServletException thrown = catchThrowableOfType(() -> {
+            secretProcessor.validateActionPermissions(UPDATE, JWT_USERNAME);
+        }, InternalServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        checkErrorStructure(thrown.getMessage(), 5125, "GAL5125E", "SECRETS_SET");
+    }
+
+    @Test
+    public void testValidateDeletePermissionsWithMissingSecretDeleteReturnsForbidden() throws Exception {
+        // Given...
+        Instant lastUpdatedTime = Instant.EPOCH;
+        MockTimeService mockTimeService = new MockTimeService(lastUpdatedTime);
+        MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, permittedActions);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
+
+        // When...
+        InternalServletException thrown = catchThrowableOfType(() -> {
+            secretProcessor.validateActionPermissions(DELETE, JWT_USERNAME);
+        }, InternalServletException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        checkErrorStructure(thrown.getMessage(), 5125, "GAL5125E", "SECRETS_DELETE");
     }
 }

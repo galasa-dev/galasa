@@ -22,11 +22,13 @@ public class RasServletTest extends BaseServletTest {
 	protected MockFileSystem mockFileSystem;
 
 	protected List<IRunResult> generateTestData(String runId, String runName, String runLog) {
+		return generateTestData(runId, runName, runLog, "galasa");
+	}
+
+	protected List<IRunResult> generateTestData(String runId, String runName, String runLog, String requestor) {
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
 
 		// Build the results the DB will return.
-		String requestor = "galasa";
-
 		TestStructure testStructure = new TestStructure();
 		testStructure.setRunName(runName);
 		testStructure.setRequestor(requestor);

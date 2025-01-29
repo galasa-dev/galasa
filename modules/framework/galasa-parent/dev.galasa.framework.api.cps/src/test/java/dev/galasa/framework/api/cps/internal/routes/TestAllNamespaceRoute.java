@@ -267,7 +267,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"E: Error occurred when trying to identify the endpoint '.'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"E: Error occurred when trying to identify the endpoint '.'."
 		);
     }
 

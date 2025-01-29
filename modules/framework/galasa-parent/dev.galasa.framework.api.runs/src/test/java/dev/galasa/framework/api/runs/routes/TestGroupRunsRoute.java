@@ -25,7 +25,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
      */
 
     @Test
-    public void TestPathRegexExpectedPathReturnsTrue(){
+    public void testPathRegexExpectedPathReturnsTrue(){
         //Given...
         String expectedPath = GroupRunsRoute.path;
         String inputPath = "/correct-ID_1234";
@@ -38,7 +38,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPathRegexLowerCasePathReturnsTrue(){
+    public void testPathRegexLowerCasePathReturnsTrue(){
         //Given...
         String expectedPath = GroupRunsRoute.path;
         String inputPath = "/thisisavalidpath";
@@ -51,7 +51,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPathRegexUpperCasePathReturnsTrue(){
+    public void testPathRegexUpperCasePathReturnsTrue(){
         //Given...
         String expectedPath = GroupRunsRoute.path;
         String inputPath = "/ALLCAPITALS";
@@ -64,7 +64,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPathRegexNumberPathReturnsTrue(){
+    public void testPathRegexNumberPathReturnsTrue(){
         //Given...
         String expectedPath = GroupRunsRoute.path;
         String inputPath = "/1234";
@@ -77,7 +77,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPathRegexUnexpectedPathReturnsTrue(){
+    public void testPathRegexUnexpectedPathReturnsTrue(){
         //Given...
         String expectedPath = GroupRunsRoute.path;
         String inputPath = "/incorrect-?ID_1234";
@@ -90,7 +90,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPathRegexEmptyPathReturnsFalse(){
+    public void testPathRegexEmptyPathReturnsFalse(){
         //Given...
         String expectedPath = GroupRunsRoute.path;
         String inputPath = "";
@@ -103,7 +103,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPathRegexDotPathReturnsFalse(){
+    public void testPathRegexDotPathReturnsFalse(){
         //Given...
         String expectedPath = GroupRunsRoute.path;
         String inputPath = "/random.String";
@@ -116,7 +116,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+    public void testPathRegexSpecialCharacterPathReturnsFalse(){
         //Given...
         String expectedPath = GroupRunsRoute.path;
         String inputPath = "/?";
@@ -129,7 +129,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+    public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
         //Given...
         String expectedPath = GroupRunsRoute.path;
         String inputPath = "//////";
@@ -146,7 +146,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
      */
 
     @Test
-    public void TestGetRunsWithInvalidGroupNameReturnsError() throws Exception {
+    public void testGetRunsWithInvalidGroupNameReturnsError() throws Exception {
         // Given...
         // /runs/empty is an empty runs set and should return an error as runs can not be null
 		String groupName = "invalid";
@@ -170,7 +170,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestGetRunsWithValidGroupNameWithNullRunsReturnsError() throws Exception {
+    public void testGetRunsWithValidGroupNameWithNullRunsReturnsError() throws Exception {
         // Given...
         // /runs/empty is an empty runs set and should return an error as runs can not be null
 		String groupName = "nullgroup";
@@ -194,7 +194,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestGetRunsWithEmptyGroupNameReturnsOK() throws Exception {
+    public void testGetRunsWithEmptyGroupNameReturnsOK() throws Exception {
         // Given...
         // /runs/empty is an empty runs set and should return an error as runs can not be null
 		String groupName = "empty";
@@ -214,7 +214,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestGetRunsWithValidGroupNameReturnsOk() throws Exception {
+    public void testGetRunsWithValidGroupNameReturnsOk() throws Exception {
         // Given...
 		String groupName = "framework";
         addRun("name1", "type1", "requestor1", "test1", "FINISHED","bundle1", "testClass1", groupName);
@@ -235,7 +235,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestGetRunsWithValidGroupNameReturnsMultiple() throws Exception {
+    public void testGetRunsWithValidGroupNameReturnsMultiple() throws Exception {
         // Given...
 		String groupName = "framework";
         addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName);
@@ -257,7 +257,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
      @Test
-    public void TestGetRunsWithValidGroupNameMultipleWithFinishedRunReturnsCompleteFalse() throws Exception {
+    public void testGetRunsWithValidGroupNameMultipleWithFinishedRunReturnsCompleteFalse() throws Exception {
         // Given...
 		String groupName = "framework";
         addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName);
@@ -287,7 +287,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestGetRunsWithUUIDGroupNameMultipleWithFinishedRunReturnsCompleteFalse() throws Exception {
+    public void testGetRunsWithUUIDGroupNameMultipleWithFinishedRunReturnsCompleteFalse() throws Exception {
         // Given...
 		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
         addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName);
@@ -321,7 +321,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
      */
 
     @Test
-    public void TestPostRunsNoFrameworkReturnsError() throws Exception {
+    public void testPostRunsNoFrameworkReturnsError() throws Exception {
         //Given...
         String payload = "{\"classNames\": [\"Class/name\"]," +
         "\"requestorType\": \"requestorType\"," +
@@ -358,7 +358,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostRunsWithNoBodyReturnsError() throws Exception {
+    public void testPostRunsWithNoBodyReturnsError() throws Exception {
         // Given...
 		String groupName = "valid";
         String value = "";
@@ -382,7 +382,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostRunsWithInvalidBodyReturnsError() throws Exception {
+    public void testPostRunsWithInvalidBodyReturnsError() throws Exception {
         // Given...
 		String groupName = "valid";
         String value = "Invalid";
@@ -406,7 +406,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostRunsWithBadBodyReturnsError() throws Exception {
+    public void testPostRunsWithBadBodyReturnsError() throws Exception {
         // Given...
 		String groupName = "valid";
         String payload = "{\"classNames\": [\"badClassName\"]," +
@@ -439,7 +439,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
     
     @Test
-    public void TestPostRunsWithValidBodyBadEnvPhaseReturnsError() throws Exception {
+    public void testPostRunsWithValidBodyBadEnvPhaseReturnsError() throws Exception {
         // Given...
 		String groupName = "valid";
         String payload = "{\"classNames\": [\"Class/name\"]," +
@@ -472,7 +472,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostRunsWithValidBodyGoodEnvPhaseReturnsOK() throws Exception {
+    public void testPostRunsWithValidBodyGoodEnvPhaseReturnsOK() throws Exception {
         // Given...
 		String groupName = "valid";
         String payload = "{\"classNames\": [\"Class/name\"]," +
@@ -506,7 +506,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostRunsWithValidBodyReturnsOK() throws Exception {
+    public void testPostRunsWithValidBodyReturnsOK() throws Exception {
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class/name"};
@@ -529,7 +529,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostRunsWithEmptyDetailsBodyReturnsError() throws Exception {
+    public void testPostRunsWithEmptyDetailsBodyReturnsError() throws Exception {
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class/name"};
@@ -554,7 +554,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostRunsWithValidBodyAndMultipleClassesReturnsOK() throws Exception {
+    public void testPostRunsWithValidBodyAndMultipleClassesReturnsOK() throws Exception {
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
@@ -577,7 +577,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostUUIDGroupNameRunsWithValidBodyAndMultipleClassesReturnsOK() throws Exception {
+    public void testPostUUIDGroupNameRunsWithValidBodyAndMultipleClassesReturnsOK() throws Exception {
         // Given...
 		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
@@ -604,7 +604,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
      */
 
     @Test
-    public void TestPostRunsWithValidBodyGoodEnvPhaseAndJWTReturnsOKWithRequestorFromJWT() throws Exception {
+    public void testPostRunsWithValidBodyGoodEnvPhaseAndJWTReturnsOKWithRequestorFromJWT() throws Exception {
         // Given...
 		String groupName = "valid";
         String payload = "{\"classNames\": [\"Class/name\"]," +
@@ -639,7 +639,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostRunsWithValidBodyAndJWTReturnsOKWithRequestorFromJWT() throws Exception {
+    public void testPostRunsWithValidBodyAndJWTReturnsOKWithRequestorFromJWT() throws Exception {
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class/name"};
@@ -662,7 +662,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostRunsWithValidBodyAndMultipleClassesReturnsWithRequestorFromJWT() throws Exception {
+    public void testPostRunsWithValidBodyAndMultipleClassesReturnsWithRequestorFromJWT() throws Exception {
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
@@ -685,7 +685,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     }
 
     @Test
-    public void TestPostUUIDGroupNameRunsWithValidBodyAndMultipleClassesReturnsWithRequestorFromJWT() throws Exception {
+    public void testPostUUIDGroupNameRunsWithValidBodyAndMultipleClassesReturnsWithRequestorFromJWT() throws Exception {
         // Given...
 		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
@@ -706,4 +706,5 @@ public class TestGroupRunsRoute extends RunsServletTest{
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
+
 }

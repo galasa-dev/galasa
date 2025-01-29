@@ -41,16 +41,16 @@ func init() {
 
 func executeHarbor(cmd *cobra.Command, args []string) {
 	if harborRepository == "" {
-		panic("Please provide a Harbor endpoint URL using the --harbor flag")
+		panic("Provide a Harbor endpoint URL using the --harbor flag")
 	}
 	if project == "" {
-		panic("Please provide a project using the --project flag")
+		panic("Provide a project using the --project flag")
 	}
 	if repository == "" {
-		panic("Please provide a Harbor repository using the --repository flag")
+		panic("Provide a Harbor repository using the --repository flag")
 	}
 	if tag == "" {
-		panic("Please provide a repository tag using the --tag flag")
+		panic("Provide a repository tag using the --tag flag")
 	}
 
 	client := http.Client{
@@ -79,10 +79,10 @@ func executeHarbor(cmd *cobra.Command, args []string) {
 func setBasicAuth(req *http.Request) {
 	if harborCredentials == "" {
 		if harborUsername == "" {
-			panic("Please provide a username using the --username flag")
+			panic("Provide a username using the --username flag")
 		}
 		if harborPassword == "" {
-			panic("Please provide a password using the --password flag")
+			panic("Provide a password using the --password flag")
 		}
 
 		req.SetBasicAuth(harborPassword, harborUsername)

@@ -24,7 +24,7 @@ Where **operatingSystem** is `darwin` or `linux`,
 **yamlPath** is the location of the yaml you wish to generate from is,
 **outputPath** is the location of the java project you wish to generate to,
 and **outputPackage** is the java package you wish the generated code to be located in, the program auto-generates the files to match this.
-**Please note that the output package folder is deleted when generating**
+**Note: the output package folder is deleted when generating**
 
 For example:
 ```

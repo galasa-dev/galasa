@@ -401,7 +401,7 @@ public class TestPropertyRoute extends CpsServletTest{
 			5404,
 			"GAL5404E:",
 			" Error occurred when trying to identify the endpoint '/j!ndex/properties'. ",
-			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"Check your endpoint URL or report the problem to your Galasa Ecosystem owner."
 		);
 	}
 
@@ -1105,8 +1105,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occurred when trying to identify the endpoint '/camelCase/properties'. "+
-			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"Error occurred when trying to identify the endpoint '/camelCase/properties'."
 		);
     }
 
@@ -1134,8 +1133,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occurred when trying to identify the endpoint '/NotCamelcase/properties'. "+
-			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"Error occurred when trying to identify the endpoint"
 		);     
     }
 
@@ -1163,8 +1161,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occurred when trying to identify the endpoint '/notcamelcasE/properties'. "+
-			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"Error occurred when trying to identify the endpoint '/notcamelcasE/properties'."
 		);   
     }
 
@@ -1192,8 +1189,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occurred when trying to identify the endpoint '/camel3Case/properties'. "+
-			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"Error occurred when trying to identify the endpoint '/camel3Case/properties'."
 		);      
     }
 
@@ -1221,8 +1217,7 @@ public class TestPropertyRoute extends CpsServletTest{
 		checkErrorStructure(
 			outStream.toString(),
 			5404,
-			"Error occurred when trying to identify the endpoint '/camelCase3/properties'. "+
-			"Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"Error occurred when trying to identify the endpoint '/camelCase3/properties'."
 		);         
     }
 

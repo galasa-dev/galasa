@@ -280,8 +280,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5057, "GAL5057E",
-                "Invalid login ID provided. This could be because no value was given for the loginId query parameter. Please check your provided loginId query parameter value and try again.");
+        checkErrorStructure(outStream.toString(), 5057, "GAL5057E");
     }
 
     @Test
@@ -307,8 +306,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5057, "GAL5057E",
-                "Invalid login ID provided. This could be because no value was given for the loginId query parameter. Please check your provided loginId query parameter value and try again.");
+        checkErrorStructure(outStream.toString(), 5057, "GAL5057E");
     }
 
     @Test

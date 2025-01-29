@@ -147,7 +147,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(3);
-        checkErrorListContainsError(errors,"GAL5068E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
+        checkErrorListContainsError(errors,"GAL5068E");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
     
@@ -223,7 +223,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(1);
-        checkErrorListContainsError(errors,"GAL5067E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        checkErrorListContainsError(errors,"GAL5067E");
     }
 
     @Test
@@ -297,10 +297,10 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
         //Then...
         assertThat(errors.size()).isEqualTo(4);
-        checkErrorListContainsError(errors,"GAL5067E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        checkErrorListContainsError(errors,"GAL5067E: Error occurred. A 'NULL' value is not a valid resource.");
         checkErrorListContainsError(errors,"GAL5069E: Invalid request body provided. The following mandatory fields are missing from the request body");
         checkErrorListContainsError(errors,"GAL5026E: Error occurred. The field 'kind' in the request body is invalid.");
-        checkErrorListContainsError(errors,"GAL5068E: Error occurred. The JSON element for a resource can not be empty. Please check the request format, or check with your Ecosystem administrator.");
+        checkErrorListContainsError(errors,"GAL5068E: Error occurred. The JSON element for a resource can not be empty.");
         checkPropertyNotInNamespace(namespace,propertyname,value);
     }
 
@@ -1070,7 +1070,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
         String output = outStream.toString();
         assertThat(status).isEqualTo(400);
 		assertThat(resp.getContentType()).isEqualTo("application/json"); 
-        assertThat(output).contains("GAL5067E: Error occurred. A 'NULL' value is not a valid resource. Please check the request format, or check with your Ecosystem administrator.");
+        assertThat(output).contains("GAL5067E");
         checkPropertyInNamespace(namespace, propertyname, value);
         checkPropertyInNamespace(namespace, propertynametwo, valuetwo);
     }

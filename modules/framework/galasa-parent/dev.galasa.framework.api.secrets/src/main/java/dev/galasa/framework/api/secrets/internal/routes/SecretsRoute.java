@@ -6,7 +6,6 @@
 package dev.galasa.framework.api.secrets.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-import static dev.galasa.framework.spi.rbac.BuiltInAction.SECRETS_GET_UNREDACTED_VALUES;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.secrets.internal.SecretRequestValidator;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.utils.ITimeService;
 
@@ -64,7 +64,7 @@ public class SecretsRoute extends AbstractSecretsRoute {
 
         HttpServletRequest request = requestContext.getRequest();
 
-        boolean shouldRedactSecretValues = !isActionPermitted(SECRETS_GET_UNREDACTED_VALUES, requestContext.getUsername());
+        boolean shouldRedactSecretValues = !isActionPermitted(BuiltInAction.SECRETS_GET_UNREDACTED_VALUES, requestContext.getUsername());
 
         logger.info("handleGetRequest() entered. Getting secrets from the credentials store");
         List<GalasaSecret> secrets = new ArrayList<>();
@@ -93,6 +93,8 @@ public class SecretsRoute extends AbstractSecretsRoute {
     ) throws FrameworkException, IOException {
         logger.info("handlePostRequest() entered. Validating request payload");
         HttpServletRequest request = requestContext.getRequest();
+
+        validateActionPermitted(BuiltInAction.SECRETS_SET, requestContext.getUsername());
 
         checkRequestHasContent(request);
         SecretRequest secretPayload = parseRequestBody(request, SecretRequest.class);

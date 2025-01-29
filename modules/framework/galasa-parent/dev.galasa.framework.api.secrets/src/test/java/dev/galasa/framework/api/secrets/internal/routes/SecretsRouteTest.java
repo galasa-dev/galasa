@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.common.HttpMethod;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.mocks.MockCredentialsService;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -315,6 +316,43 @@ public class SecretsRouteTest extends SecretsServletTest {
         CredentialsToken createdCredentials = (CredentialsToken) credsService.getCredentials(secretName);
         assertThat(createdCredentials).isNotNull();
         assertThat(createdCredentials.getToken()).isEqualTo(token.getBytes());
+    }
+
+    @Test
+    public void testCreateSecretWithMissingSecretsSetPermissionsReturnsForbidden() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB_TOKEN";
+        String token = "my-token";
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("token", createSecretJson(token));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, permittedActions);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+        mockFramework.setRBACService(mockRbacService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", secretJsonStr, HttpMethod.POST.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(403);
+        assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
+        checkErrorStructure(outStream.toString(), 5125, "GAL5125E", "SECRETS_SET");
     }
 
     @Test

@@ -529,7 +529,7 @@ public class AuthRouteTest extends BaseServletTest {
         // {
         // "error_code" : 5400,
         // "error_message" : "GAL5400E: Error occurred when trying to execute request
-        // "/auth". Please check your request parameters or report the problem to your Galasa Ecosystem owner."
+        // "/auth". Check your request parameters or report the problem to your Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(outStream.toString(), 5400, "GAL5400E", "Error occurred when trying to execute request");

@@ -112,6 +112,8 @@ public class PropertyUpdateRoute extends CPSRoute {
     public HttpServletResponse handleDeleteRequest(String pathInfo,
             HttpRequestContext requestContext, HttpServletResponse response)
             throws FrameworkException {
+
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_DELETE, requestContext.getUsername());
         HttpServletRequest request = requestContext.getRequest();
 
         String namespace = getNamespaceFromURL(pathInfo);

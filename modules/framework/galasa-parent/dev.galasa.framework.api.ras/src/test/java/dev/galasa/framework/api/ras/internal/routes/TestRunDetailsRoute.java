@@ -13,6 +13,8 @@ import dev.galasa.framework.api.ras.internal.mocks.MockArchiveStore;
 import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
 import dev.galasa.framework.api.ras.internal.mocks.MockResultArchiveStoreDirectoryService;
 import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
+import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.api.ras.RasTestStructure;
 import dev.galasa.framework.api.common.HttpMethod;
@@ -25,8 +27,10 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.rbac.Action;
 
 import static org.assertj.core.api.Assertions.*;
+import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -790,6 +794,41 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(204);
 		assertThat(deletedRun.isLoadingArtifactsEnabled()).as("The fake run result's artifacts should not have been loaded.").isFalse();
 		assertThat(deletedRun.isDiscarded()).as("The fake run result has not been discarded.").isTrue();
+	}
+
+	@Test
+	public void testDeleteRunWithMissingRunsDeleteOtherUsersPermissionReturnsForbidden() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+		String existingRunRequestor = "another-user";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null, existingRunRequestor);
+		MockResultArchiveStoreDirectoryService mockRasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockRasService);
+
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, permittedActions);
+
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices));
+		mockFramework.setRBACService(mockRbacService);
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, null, HttpMethod.DELETE.toString());
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(403);
+		checkErrorStructure(outStream.toString(), 5125, "GAL5125E", "RUNS_DELETE_OTHER_USERS");
 	}
 
 

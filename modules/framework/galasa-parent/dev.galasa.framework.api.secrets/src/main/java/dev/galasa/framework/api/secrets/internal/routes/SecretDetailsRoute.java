@@ -95,6 +95,8 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
     ) throws FrameworkException, IOException {
         logger.info("handlePutRequest() entered. Validating request payload");
 
+        validateActionPermitted(BuiltInAction.SECRETS_SET, requestContext.getUsername());
+
         HttpServletRequest request = requestContext.getRequest();
         checkRequestHasContent(request);
 
@@ -136,6 +138,7 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
         HttpServletResponse response
     ) throws FrameworkException {
         logger.info("handleDeleteRequest() entered");
+        validateActionPermitted(BuiltInAction.SECRETS_DELETE, requestContext.getUsername());
 
         HttpServletRequest request = requestContext.getRequest();
 

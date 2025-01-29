@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.common.HttpMethod;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.mocks.MockCredentialsService;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -1098,6 +1099,79 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(updatedCredentials.getDescription()).isEqualTo(description);
         assertThat(updatedCredentials.getLastUpdatedTime()).isEqualTo(lastUpdatedTime);
         assertThat(updatedCredentials.getLastUpdatedByUser()).isEqualTo(JWT_USERNAME);
+    }
+
+    @Test
+    public void testUpdateSecretWithMissingSecretsSetPermissionReturnsForbidden() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        String oldUsername = "my-username";
+        String oldPassword = "not-a-password";
+        String newUsername = "my-new-username";
+
+        // Put an existing secret into the credentials store
+        creds.put(secretName, new CredentialsUsernamePassword(oldUsername, oldPassword));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("username", createSecretJson(newUsername));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, permittedActions);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+        mockFramework.setRBACService(mockRbacService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(403);
+        assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
+        checkErrorStructure(outStream.toString(), 5125, "GAL5125E", "SECRETS_SET");
+    }
+
+    @Test
+    public void testDeleteSecretWithMissingSecretsDeletePermissionReturnsForbidden() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "BOB";
+        creds.put(secretName, new CredentialsUsername("my-user"));
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, permittedActions);
+        mockFramework.setRBACService(mockRbacService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
+        mockRequest.setMethod(HttpMethod.DELETE.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doDelete(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(403);
+        checkErrorStructure(outStream.toString(), 5125, "GAL5125E", "SECRETS_DELETE");
     }
 }
 

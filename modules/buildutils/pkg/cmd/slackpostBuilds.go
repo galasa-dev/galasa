@@ -46,7 +46,7 @@ func slackpostBuildsExecute(cmd *cobra.Command, args []string) {
 	if branch != "" {
 		branchString = fmt.Sprintf(" when building the '%s' branch", branch)
 	}
-	content := fmt.Sprintf("Galasa build pipeline failure:\n\n'%s' pipeline failed%s. Please see %s for details.", pipeline, branchString, linkToPipelineRun)
+	content := fmt.Sprintf("Galasa build pipeline failure:\n\n'%s' pipeline failed%s. See %s for details.", pipeline, branchString, linkToPipelineRun)
 
 	client := http.Client{
 		Timeout: time.Second * 30,

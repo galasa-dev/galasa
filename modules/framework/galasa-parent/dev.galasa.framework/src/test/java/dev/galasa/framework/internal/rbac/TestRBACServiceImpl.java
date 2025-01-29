@@ -38,11 +38,16 @@ public class TestRBACServiceImpl {
         assertThat(roleGot.getDescription()).contains("Administrator access");
 
         assertThat(roleGot.getActionIds())
-            .hasSize(4)
+            .hasSize(9)
             .contains("USER_ROLE_UPDATE_ANY")
             .contains("SECRETS_GET_UNREDACTED_VALUES")
             .contains("GENERAL_API_ACCESS")
-            .contains("CPS_PROPERTIES_SET");
+            .contains("CPS_PROPERTIES_DELETE")
+            .contains("CPS_PROPERTIES_SET")
+            .contains("SECRETS_SET")
+            .contains("SECRETS_DELETE")
+            .contains("USER_DELETE_OTHER")
+            .contains("RUNS_DELETE_OTHER_USERS");
     }
 
     @Test
@@ -106,6 +111,58 @@ public class TestRBACServiceImpl {
 
         Action action = actionMap.get("SECRETS_GET_UNREDACTED_VALUES");
         assertThat(action.getId()).isEqualTo("SECRETS_GET_UNREDACTED_VALUES");
+    }
+
+    @Test 
+    public void testActionsMapByIdContainsActionSecretsSet() throws Exception {
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
+        Map<String,Action> actionMap = service.getActionsMapById();
+
+        Action action = actionMap.get("SECRETS_SET");
+        assertThat(action.getId()).isEqualTo("SECRETS_SET");
+    }
+
+    @Test 
+    public void testActionsMapByIdContainsActionCpsPropertiesDelete() throws Exception {
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
+        Map<String,Action> actionMap = service.getActionsMapById();
+
+        Action action = actionMap.get("CPS_PROPERTIES_DELETE");
+        assertThat(action.getId()).isEqualTo("CPS_PROPERTIES_DELETE");
+    }
+
+    @Test 
+    public void testActionsMapByIdContainsActionSecretsDelete() throws Exception {
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
+        Map<String,Action> actionMap = service.getActionsMapById();
+
+        Action action = actionMap.get("SECRETS_DELETE");
+        assertThat(action.getId()).isEqualTo("SECRETS_DELETE");
+    }
+
+    @Test 
+    public void testActionsMapByIdContainsActionRunsDeleteOtherUsers() throws Exception {
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
+        Map<String,Action> actionMap = service.getActionsMapById();
+
+        Action action = actionMap.get("RUNS_DELETE_OTHER_USERS");
+        assertThat(action.getId()).isEqualTo("RUNS_DELETE_OTHER_USERS");
     }
 
     @Test 
@@ -182,6 +239,50 @@ public class TestRBACServiceImpl {
     }
 
     @Test
+    public void testServiceCanLookupSetSecretsActionById() throws Exception {
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
+        Action actionGotBack = service.getActionById("SECRETS_SET");
+        assertThat(actionGotBack.getId()).isEqualTo("SECRETS_SET");
+    }
+
+    @Test
+    public void testServiceCanLookupDeletePropertiesActionById() throws Exception {
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
+        Action actionGotBack = service.getActionById("CPS_PROPERTIES_DELETE");
+        assertThat(actionGotBack.getId()).isEqualTo("CPS_PROPERTIES_DELETE");
+    }
+
+    @Test
+    public void testServiceCanLookupRunsDeleteOtherUsersActionById() throws Exception {
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
+        Action actionGotBack = service.getActionById("RUNS_DELETE_OTHER_USERS");
+        assertThat(actionGotBack.getId()).isEqualTo("RUNS_DELETE_OTHER_USERS");
+    }
+
+    @Test
+    public void testServiceCanLookupDeleteSecretsActionById() throws Exception {
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
+        Action actionGotBack = service.getActionById("SECRETS_DELETE");
+        assertThat(actionGotBack.getId()).isEqualTo("SECRETS_DELETE");
+    }
+
+    @Test
     public void testGetSecretsActionHasDescription() throws Exception {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
@@ -215,7 +316,7 @@ public class TestRBACServiceImpl {
         Iterator<Action> walker = service.getActionsSortedByName().iterator();
         assertThat(walker.hasNext()).isTrue();
         // Only check the first one. Should be enough...
-        assertThat(walker.next().getId()).isEqualTo("CPS_PROPERTIES_SET");
+        assertThat(walker.next().getId()).isEqualTo("CPS_PROPERTIES_DELETE");
     }
 
     @Test

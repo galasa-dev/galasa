@@ -66,10 +66,11 @@ public class UserRoute extends AbstractUsersRoute {
 
         logger.info("handleDeleteRequest() entered");
         HttpServletRequest request = requestContext.getRequest();
+        String requestingUserLoginId = requestContext.getUsername();
 
         IUser user = getUser(pathInfo);
 
-        deleteUser(user);
+        deleteUser(user, requestingUserLoginId);
 
         logger.info("handleDeleteRequest() exiting");
         return getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_NO_CONTENT);
@@ -156,11 +157,25 @@ public class UserRoute extends AbstractUsersRoute {
     }
 
 
-
-    private void deleteUser(IUser user) throws InternalServletException{
+    void checkRequestorHasPermissionToDeleteUserRecord( String loginIdToBeDeleted, String loginIdOfRequestor ) throws InternalServletException {
+        if (!loginIdToBeDeleted.equals(loginIdOfRequestor)) {
+            // The user is trying to delete someone else's user record.
+            // This is only allowed if you have permissions.
+            validateActionPermitted(BuiltInAction.USER_DELETE_OTHER , loginIdOfRequestor);
+        } else {
+            // The user is trying to delete their own record. This is never allowed.
+            // Enforcing this makes it less likely that the last admin on the sysyem will delete themselves.
+            ServletError error = new ServletError(GAL5088_FORBIDDEN_USER_DELETE_THEMSELVES);
+            throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
+        }
+    }
+    
+    private void deleteUser(IUser user, String requestingUserLoginId ) throws InternalServletException{
 
         try {
             String loginId = user.getLoginId();
+
+            checkRequestorHasPermissionToDeleteUserRecord(loginId, requestingUserLoginId);
 
             //Need to delete access tokens of a user if we delete the user
             List<IInternalAuthToken> tokens = authStoreService.getTokensByLoginId(loginId);

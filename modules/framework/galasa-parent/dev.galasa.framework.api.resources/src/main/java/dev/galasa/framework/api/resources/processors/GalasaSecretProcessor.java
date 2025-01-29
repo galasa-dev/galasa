@@ -29,12 +29,14 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.GalasaSecretType;
 import dev.galasa.framework.api.common.resources.ResourceAction;
 import dev.galasa.framework.api.common.resources.Secret;
+import dev.galasa.framework.api.common.RBACValidator;
 import dev.galasa.framework.api.resources.validators.GalasaSecretValidator;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
 import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
 import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.utils.ITimeService;
 
 /**
@@ -47,7 +49,12 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
     private ICredentialsService credentialsService;
     private ITimeService timeService;
 
-    public GalasaSecretProcessor(ICredentialsService credentialsService, ITimeService timeService) {
+    public GalasaSecretProcessor(
+        ICredentialsService credentialsService,
+        ITimeService timeService,
+        RBACValidator rbacValidator
+    ) {
+        super(rbacValidator);
         this.credentialsService = credentialsService;
         this.timeService = timeService;
     }
@@ -162,8 +169,8 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
     }
 
     @Override
-    public void validateActionPermissions(ResourceAction action, String username) throws InternalServletException {
-        // TODO: Implement SECRETS_SET and SECRETS_DELETE as part of story https://github.com/galasa-dev/projectmanagement/issues/2110
-        // Do nothing for now...
+    public void validateActionPermissions(ResourceAction action, String loginId) throws InternalServletException {
+        BuiltInAction requestedAction = getResourceActionAsBuiltInAction(action, BuiltInAction.SECRETS_SET, BuiltInAction.SECRETS_DELETE);
+        rbacValidator.validateActionPermitted(requestedAction, loginId);
     }
 }

@@ -82,7 +82,7 @@ public class SdvUserPool {
                 "No user credential tags provided for role '" + role
                         + "' on z/OS image '"
                         + cicsRegion.getZosImage().getImageID()
-                        + "'. Please create or update CPS property 'sdv.zosImage."
+                        + "'. Create or update CPS property 'sdv.zosImage."
                         + cicsRegion.getZosImage().getImageID()
                         + ".role."
                         + role

@@ -61,8 +61,8 @@ public class ResourcesRoute  extends ProtectedRoute {
     ) {
         super(responseBuilder, path, rbacService);
 
-        resourceProcessors.put(GALASA_PROPERTY, new GalasaPropertyProcessor(cps, rbacService));
-        resourceProcessors.put(GALASA_SECRET, new GalasaSecretProcessor(credentialsService, timeService));
+        resourceProcessors.put(GALASA_PROPERTY, new GalasaPropertyProcessor(cps, rbacValidator));
+        resourceProcessors.put(GALASA_SECRET, new GalasaSecretProcessor(credentialsService, timeService, rbacValidator));
     }
 
     @Override

@@ -81,7 +81,7 @@ function check_secrets {
     cd ${BASEDIR}
     detect-secrets scan --exclude-files "go.sum|openapi2beans/go.sum" --update .secrets.baseline
     rc=$? 
-    check_exit_code $rc "Failed to run detect-secrets. Please check it is installed properly" 
+    check_exit_code $rc "Failed to run detect-secrets.  Check it is installed properly" 
     success "updated secrets file"
 
     h2 "running audit for secrets"

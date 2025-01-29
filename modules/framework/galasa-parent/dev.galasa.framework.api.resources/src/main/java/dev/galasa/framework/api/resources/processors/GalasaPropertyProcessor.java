@@ -7,7 +7,6 @@ package dev.galasa.framework.api.resources.processors;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static dev.galasa.framework.api.common.resources.ResourceAction.*;
-import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 import java.util.List;
 
@@ -22,20 +21,18 @@ import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.ResourceAction;
+import dev.galasa.framework.api.common.RBACValidator;
 import dev.galasa.framework.api.resources.validators.GalasaPropertyValidator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.rbac.Action;
-import dev.galasa.framework.spi.rbac.RBACException;
-import dev.galasa.framework.spi.rbac.RBACService;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 
 public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor implements IGalasaResourceProcessor {
 
     private CPSFacade cps;
-    private RBACService rbacService;
 
-    public GalasaPropertyProcessor(CPSFacade cps, RBACService rbacService) {
+    public GalasaPropertyProcessor(CPSFacade cps, RBACValidator rbacValidator) {
+        super(rbacValidator);
         this.cps = cps;
-        this.rbacService = rbacService;
     }
 
     @Override
@@ -84,18 +81,7 @@ public class GalasaPropertyProcessor extends AbstractGalasaResourceProcessor imp
 
     @Override
     public void validateActionPermissions(ResourceAction action, String loginId) throws InternalServletException {
-        try {
-            // Check if the user is allowed to set properties
-            if (action == APPLY || action == CREATE || action == UPDATE) {
-                Action propertiesSetAction = CPS_PROPERTIES_SET.getAction();
-                if (!rbacService.isActionPermitted(loginId, propertiesSetAction.getId())) {
-                    ServletError error = new ServletError(GAL5125_ACTION_NOT_PERMITTED, propertiesSetAction.getId());
-                    throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
-                }
-            }
-        } catch (RBACException e) {
-            ServletError error = new ServletError(GAL5126_INTERNAL_RBAC_ERROR);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
+        BuiltInAction requestedAction = getResourceActionAsBuiltInAction(action, BuiltInAction.CPS_PROPERTIES_SET, BuiltInAction.CPS_PROPERTIES_DELETE);
+        rbacValidator.validateActionPermitted(requestedAction, loginId);
     }
 }

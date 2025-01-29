@@ -4,13 +4,18 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.cps.internal.routes;
+import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
+import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockRBACService;
+import dev.galasa.framework.spi.rbac.Action;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
+import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
@@ -415,7 +420,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 			outStream.toString(),
 			5404,
 			"GAL5404E: ",
-			"Error occurred when trying to identify the endpoint '/framework/properties/.badproperty'. Please check your endpoint URL or report the problem to your Galasa Ecosystem owner."
+			"Error occurred when trying to identify the endpoint '/framework/properties/.badproperty'."
 		);
     }
 
@@ -794,6 +799,35 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
         assertThat(output).isEqualTo("Successfully deleted property property.1 in framework");
         assertThat(checkNewPropertyInNamespace(namespace, propertyName, value)).isFalse(); 
+    }
+
+    @Test
+    public void testDeletePropertyWithMissingPermissionsReturnsForbidden() throws Exception{
+        // Given...
+		String namespace = "framework";
+        String propertyName = "property.1";
+
+        List<Action> actions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, actions);
+
+		MockFramework mockFramework = new MockFramework();
+		mockFramework.setRBACService(rbacService);
+
+		setServlet("/framework/properties/"+propertyName, namespace, null, "DELETE", mockFramework);
+		MockCpsServlet servlet = getServlet();
+
+		HttpServletRequest req = getRequest();
+		HttpServletResponse resp = getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();	
+        
+		// When...
+		servlet.init();
+		servlet.doDelete(req,resp);
+        
+		// Then...
+        assertThat(resp.getStatus()).isEqualTo(403);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+		checkErrorStructure(outStream.toString(), 5125, "GAL5125E", "CPS_PROPERTIES_DELETE");
     }
 
 	@Test

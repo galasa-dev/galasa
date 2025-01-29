@@ -166,7 +166,7 @@ class TestSdvUserPool {
 
         Assertions.assertEquals(
                 "No user credential tags provided for role '" + roleName + "' on z/OS image '"
-                        + zosImageId + "'. Please create or update CPS property 'sdv.zosImage."
+                        + zosImageId + "'. Create or update CPS property 'sdv.zosImage."
                         + zosImageId + ".role." + roleName + ".credTags'.",
                 exception.getMessage());
     }

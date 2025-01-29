@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.users.internal.routes;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -24,6 +25,7 @@ import dev.galasa.framework.api.beans.generated.UserUpdateData;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.HttpMethod;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.InternalUser;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -42,6 +44,7 @@ import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
+import io.grpc.netty.shaded.io.netty.handler.codec.http.HttpResponseStatus;
 
 public class UserRouteTest extends BaseServletTest {
 
@@ -467,4 +470,133 @@ public class UserRouteTest extends BaseServletTest {
         assertThat(userGotBackInPayload.getrole()).isEqualTo(originalRole);
     } 
 
+
+    @Test
+    public void testDeleteUserIsNotAllowedIfRequestorIsDeletingThemselves() throws Exception {
+
+        // Given...
+        MockEnvironment env = new MockEnvironment();
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
+
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+
+        String baseUrl = "http://my.server/api";
+        String userNumber = "docid";
+
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+        env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
+        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, mockDexGrpcClient), env, FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap);
+        mockRequest.setMethod(HttpMethod.DELETE.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        IInternalUser owner = new InternalUser(JWT_USERNAME, "dexId");
+        authStoreService.storeToken("some-client-id", "test-token", owner);
+       
+        MockUser mockUser1 = createMockUser(JWT_USERNAME, "docid", "web-ui");
+        authStoreService.addUser(mockUser1);
+
+        // When...
+        servlet.init();
+        servlet.doDelete(mockRequest, servletResponse);
+
+        int statusCode = servletResponse.getStatus();
+        assertThat(statusCode).isEqualTo(HttpResponseStatus.FORBIDDEN.code());
+
+        // Now check a few things about the payload which was returned.
+        // It should contain the rendered json of the updated user record.
+        String payloadGotBack ;
+        try ( ServletOutputStream outStream = servletResponse.getOutputStream() ) {
+            payloadGotBack = outStream.toString();
+        }
+        assertThat(payloadGotBack).contains("GAL5088E","not permitted for a user to delete their own user record");
+    }
+
+    @Test
+    public void testDeleteOtherUserIsDeniedIfRequestorHasNoPermissionsToDeleteOther() throws Exception {
+        // Given...
+        MockEnvironment env = new MockEnvironment();
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
+
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+
+        String baseUrl = "http://my.server/api";
+        String userNumber = "docid";
+
+        List<Action> actions = new ArrayList<>();
+        actions.add( BuiltInAction.GENERAL_API_ACCESS.getAction());
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME,actions);
+
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+        env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
+        MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, mockDexGrpcClient), env, rbacService );
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap);
+        mockRequest.setMethod(HttpMethod.DELETE.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+
+        IInternalUser owner = new InternalUser("user-1", "dexId");
+        authStoreService.storeToken("some-client-id", "test-token", owner);
+
+        MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
+        authStoreService.addUser(mockUser1);
+
+        // When...
+        servlet.init();
+        servlet.doDelete(mockRequest, servletResponse);
+
+        int statusCode = servletResponse.getStatus();
+        assertThat(statusCode).isEqualTo(HttpResponseStatus.FORBIDDEN.code());
+
+        // Now check a few things about the payload which was returned.
+        // It should contain the rendered json of the updated user record.
+        String payloadGotBack ;
+        try ( ServletOutputStream outStream = servletResponse.getOutputStream() ) {
+            payloadGotBack = outStream.toString();
+        }
+        assertThat(payloadGotBack).contains("GAL5125E");
+    }
+
+    @Test
+    public void testDeleteOtherUserIsAllowedIfRequestorHasPermissionToDeleteOther() throws Exception {
+       // Given...
+       MockEnvironment env = new MockEnvironment();
+       MockTimeService mockTimeService = new MockTimeService(Instant.now());
+       MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
+
+       MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+
+       String baseUrl = "http://my.server/api";
+       String userNumber = "docid";
+
+       env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+       env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
+       MockUsersServlet servlet = new MockUsersServlet(new AuthService(authStoreService, mockDexGrpcClient), env, FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME));
+
+       MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap);
+       mockRequest.setMethod(HttpMethod.DELETE.toString());
+
+       MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+       IInternalUser owner = new InternalUser("user-1", "dexId");
+       authStoreService.storeToken("some-client-id", "test-token", owner);
+       
+       MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
+       authStoreService.addUser(mockUser1);
+
+       // When...
+       servlet.init();
+       servlet.doDelete(mockRequest, servletResponse);
+
+       assertThat(servletResponse.getStatus()).isEqualTo(204);
+       assertThat(authStoreService.getUser(userNumber)).isNull();
+       assertThat(authStoreService.getTokensByLoginId("user-1")).hasSize(0);
+
+    }
 }

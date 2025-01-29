@@ -148,6 +148,23 @@ public class BaseServlet extends HttpServlet {
         return routeMatched;
     }
 
+    private void validateQueryParameters(IRoute route , HttpMethod requestMethod, QueryParameters queryParameters) throws InternalServletException {
+        // Check that the user hasn't supplied extra query parameters...
+        // There shouldn't be any on any call except GET
+        SupportedQueryParameterNames supportedQueryParameterNames = SupportedQueryParameterNames.NO_QUERY_PARAMETERS_SUPPORTED ;
+        if (requestMethod == HttpMethod.GET) {
+            supportedQueryParameterNames = route.getSupportedQueryParameterNames();
+        }
+        queryParameters.checkForUnsupportedQueryParameters(supportedQueryParameterNames);
+    }
+
+    private void validateActionIsPermitted(IRoute route, HttpRequestContext requestContext) throws InternalServletException {
+        if (!route.isActionPermitted(BuiltInAction.GENERAL_API_ACCESS, requestContext.getUsername())) {
+            String actionId = BuiltInAction.GENERAL_API_ACCESS.getAction().getId();
+            ServletError error = new ServletError(GAL5125_ACTION_NOT_PERMITTED, actionId);
+            throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
+        }
+    }
 
     private void handleRoute(
         IRoute route,
@@ -160,21 +177,11 @@ public class BaseServlet extends HttpServlet {
         String requestMethodStr = req.getMethod();
         HttpMethod requestMethod = HttpMethod.getFromString(requestMethodStr);
 
-        // Check that the user hasn't supplied extra query parameters...
-        // There shouldn't be any on any call except GET
-        SupportedQueryParameterNames supportedQueryParameterNames = SupportedQueryParameterNames.NO_QUERY_PARAMETERS_SUPPORTED ;
-        if (requestMethod == HttpMethod.GET) {
-            supportedQueryParameterNames = route.getSupportedQueryParameterNames();
-        }
-        queryParameters.checkForUnsupportedQueryParameters(supportedQueryParameterNames);
+        validateQueryParameters(route, requestMethod, queryParameters);
         
         HttpRequestContext requestContext = new HttpRequestContext(req, env);
 
-        if (!route.isActionPermitted(BuiltInAction.GENERAL_API_ACCESS, requestContext.getUsername())) {
-            String actionId = BuiltInAction.GENERAL_API_ACCESS.getAction().getId();
-            ServletError error = new ServletError(GAL5125_ACTION_NOT_PERMITTED, actionId);
-            throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
-        }
+        validateActionIsPermitted(route, requestContext);
 
         boolean isBadMethod = false ;
         if (requestMethod == null) {

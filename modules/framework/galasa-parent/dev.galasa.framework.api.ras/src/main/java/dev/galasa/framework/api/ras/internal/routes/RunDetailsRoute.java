@@ -31,6 +31,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
@@ -82,6 +83,15 @@ public class RunDetailsRoute extends RunsRoute {
       HttpServletRequest request = requestContext.getRequest();
       String runId = getRunIdFromPath(pathInfo);
       IRunResult run = getRunByRunId(runId);
+
+      String runRequestor = run.getTestStructure().getRequestor();
+      String requestUsername = requestContext.getUsername();
+      
+      // Check if the user sending this request is allowed to delete runs submitted by other users
+      if (!runRequestor.equals(requestUsername) && !isActionPermitted(BuiltInAction.RUNS_DELETE_OTHER_USERS, requestUsername)) {
+         ServletError error = new ServletError(GAL5125_ACTION_NOT_PERMITTED, BuiltInAction.RUNS_DELETE_OTHER_USERS.getAction().getId());
+         throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
+      }
       
       run.discard();
 
