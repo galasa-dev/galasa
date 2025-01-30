@@ -118,7 +118,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
      */
 
 	@Test
-	public void testPathRegexExpectedLocalPathReturnsTrue(){
+	public void TestPathRegexExpectedLocalPathReturnsTrue(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/lcl-abcd-1234.run/artifacts";
@@ -131,7 +131,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexExpectedCouchDBPathReturnsTrue(){
+	public void TestPathRegexExpectedCouchDBPathReturnsTrue(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/cdb-efgh-5678.run/artifacts";
@@ -144,7 +144,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexLowerCasePathReturnsTrue(){
+	public void TestPathRegexLowerCasePathReturnsTrue(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/cdbstoredrun/artifacts";
@@ -157,7 +157,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
+	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/ABC-DEFG-5678.run/artifacts";
@@ -170,7 +170,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexUpperCasePathReturnsFalse(){
+	public void TestPathRegexUpperCasePathReturnsFalse(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/ARTIFACTS";
@@ -183,7 +183,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+	public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/1artifacts";
@@ -196,7 +196,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/artifacts/";
@@ -209,7 +209,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexNumberPathReturnsFalse(){
+	public void TestPathRegexNumberPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/artifacts1";
@@ -222,7 +222,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexUnexpectedPathReturnsFalse(){
+	public void TestPathRegexUnexpectedPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/artifact";
@@ -235,7 +235,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexEmptyPathReturnsFalse(){
+	public void TestPathRegexEmptyPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "";
@@ -248,7 +248,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexSpecialCharacterPathReturnsFalse(){
+	public void TestPathRegexSpecialCharacterPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/artifacts/?";
@@ -261,7 +261,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
+	public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunArtifactsListRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/artifacts//////";

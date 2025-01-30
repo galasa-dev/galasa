@@ -13,7 +13,7 @@ import org.junit.Test;
 public class TestGherkinVariables {
 
     @Test
-    public void testProcessHeaderSplitsColumnsOkWithNoData() throws Exception {
+    public void TestProcessHeaderSplitsColumnsOkWithNoData() throws Exception {
         // Given...
         GherkinVariables varsToTest = new GherkinVariables();
 
@@ -48,7 +48,7 @@ public class TestGherkinVariables {
 
 
     @Test
-    public void testProcessHeaderAnd2DataLinesOk() throws Exception {
+    public void TestProcessHeaderAnd2DataLinesOk() throws Exception {
         // Given...
         GherkinVariables varsToTest = new GherkinVariables();
         varsToTest.processHeaderLine("| a | b | c |\n");
@@ -62,7 +62,7 @@ public class TestGherkinVariables {
     }
 
     @Test
-    public void testProcessingDataLinesCanBeGotOutUsingInstsanceNumber() throws Exception {
+    public void TestProcessingDataLinesCanBeGotOutUsingInstsanceNumber() throws Exception {
          // Given...
         GherkinVariables varsToTest = new GherkinVariables();
         varsToTest.processHeaderLine("| a | b | c |\n");
@@ -80,7 +80,7 @@ public class TestGherkinVariables {
 
 
     @Test
-    public void testGetVariableInstanceBeyondValidInstance() throws Exception {
+    public void TestGetVariableInstanceBeyondValidInstance() throws Exception {
         // Given...
         GherkinVariables varsToTest = new GherkinVariables();
         varsToTest.processHeaderLine("| a | b | c |\n");
@@ -97,7 +97,7 @@ public class TestGherkinVariables {
     }
 
     @Test
-    public void testGetVariablesDoesntReturnADeepCopy() throws Exception {
+    public void TestGetVariablesDoesntReturnADeepCopy() throws Exception {
         // Given...
         GherkinVariables varsToTest = new GherkinVariables();
         varsToTest.processHeaderLine("| a | b | c |\n");
@@ -113,7 +113,7 @@ public class TestGherkinVariables {
     }
 
     @Test 
-    public void testGetNumberOfInstancesWhenTableEmpty() throws Exception {
+    public void TestGetNumberOfInstancesWhenTableEmpty() throws Exception {
         // Given...
         GherkinVariables varsToTest = new GherkinVariables();
         varsToTest.processHeaderLine("| a | b | c |\n");

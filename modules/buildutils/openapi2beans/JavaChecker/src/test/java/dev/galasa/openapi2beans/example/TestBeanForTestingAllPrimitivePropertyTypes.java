@@ -17,7 +17,7 @@ import dev.galasa.openapi2beans.example.generated.BeanForTestingAllPrimitiveProp
 public class TestBeanForTestingAllPrimitivePropertyTypes {
     
     @Test
-    public void testCanSerialiseTheBean() throws Exception {
+    public void TestCanSerialiseTheBean() throws Exception {
         BeanForTestingAllPrimitivePropertyTypes beanUnderTest = new BeanForTestingAllPrimitivePropertyTypes();
         beanUnderTest.setAStringVariable("hello");
         beanUnderTest.setABooleanVariable(true);

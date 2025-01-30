@@ -38,7 +38,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestFailsWellWithNullGherkinUri() throws Exception {
+    public void TestGherkinTestFailsWellWithNullGherkinUri() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
 
@@ -49,7 +49,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestWithInvalidGherkinUriMissingSchemaFailsWell() throws Exception {
+    public void TestGherkinTestWithInvalidGherkinUriMissingSchemaFailsWell() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String INVALID_URI_NO_SCHEMA = "asd+23d3ddadw";
@@ -62,7 +62,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestWithInvalidGherkinUriNotAFileFailsWell() throws Exception {
+    public void TestGherkinTestWithInvalidGherkinUriNotAFileFailsWell() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String INVALID_URI_NON_FILE_SCHEMA = "http://asd23d3ddadw";
@@ -75,7 +75,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithSimpleFeature() throws Exception {
+    public void TestGherkinTestCreatableWithSimpleFeature() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -94,7 +94,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithDataExampleTableSingleLine() throws Exception {
+    public void TestGherkinTestCreatableWithDataExampleTableSingleLine() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -127,7 +127,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithDataExampleTableInScenarioShowsError() throws Exception {
+    public void TestGherkinTestCreatableWithDataExampleTableInScenarioShowsError() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -159,7 +159,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithDataExampleMissingFromScenarioOutline() throws Exception {
+    public void TestGherkinTestCreatableWithDataExampleMissingFromScenarioOutline() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -188,7 +188,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithDataExampleTableThreeLines() throws Exception {
+    public void TestGherkinTestCreatableWithDataExampleTableThreeLines() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -225,7 +225,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithSingleScenario() throws Exception {
+    public void TestGherkinTestCreatableWithSingleScenario() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -267,7 +267,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithTwoScenarios() throws Exception {
+    public void TestGherkinTestCreatableWithTwoScenarios() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -317,7 +317,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithScenarioAndScenarioOutline() throws Exception {
+    public void TestGherkinTestCreatableWithScenarioAndScenarioOutline() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -371,7 +371,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithScenarioOutlineAndScenarioOutline() throws Exception {
+    public void TestGherkinTestCreatableWithScenarioOutlineAndScenarioOutline() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -428,7 +428,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithScenarioOutlineAndScenario() throws Exception {
+    public void TestGherkinTestCreatableWithScenarioOutlineAndScenario() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";
@@ -482,7 +482,7 @@ public class TestGherkinTest {
     }
 
     @Test
-    public void testGherkinTestCreatableWithScenarioWithComment() throws Exception {
+    public void TestGherkinTestCreatableWithScenarioWithComment() throws Exception {
         TestStructure testStructure = new TestStructure();
         MockRun run = new MockRun();
         String GOOD_URI = "file://toSimpleSchema";

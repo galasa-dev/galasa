@@ -42,7 +42,7 @@ public class TestGalasaProperty {
 
     
     @Test
-    public void testGalasaPropertyDefaultApiVersion() throws InternalServletException{
+    public void TestGalasaPropertyDefaultApiVersion() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -61,7 +61,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void testGalasaPropertyCustomApiVersion() throws InternalServletException{
+    public void TestGalasaPropertyCustomApiVersion() throws InternalServletException{
         //Given...
         String apiVersion = "randomApi";
         String namespace = "randomnamespace";
@@ -81,7 +81,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void testGalasaPropertyNoDataIsInvalid() throws InternalServletException{
+    public void TestGalasaPropertyNoDataIsInvalid() throws InternalServletException{
         //Given...
         String apiVersion = null;
         String namespace = null;
@@ -102,7 +102,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void testGalasaPropertyNoDataDefaultApiVersionIsInvalid() throws InternalServletException{
+    public void TestGalasaPropertyNoDataDefaultApiVersionIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = null;
@@ -122,7 +122,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void testGalasaPropertyNamespaceOnlyIsInvalid() throws InternalServletException{
+    public void TestGalasaPropertyNamespaceOnlyIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = null;
@@ -142,7 +142,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void testGalasaPropertyPartialDataIsInvalid() throws InternalServletException{
+    public void TestGalasaPropertyPartialDataIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "property";
@@ -162,7 +162,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void testGalasaPropertyNoNamespaceIsInvalid() throws InternalServletException{
+    public void TestGalasaPropertyNoNamespaceIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = "property";
@@ -181,7 +181,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void testGalasaPropertyNoNameIsInvalid() throws InternalServletException{
+    public void TestGalasaPropertyNoNameIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "";
@@ -200,7 +200,7 @@ public class TestGalasaProperty {
     }
 
     @Test
-    public void testGalasaPropertyNoValueIsInvalid() throws InternalServletException{
+    public void TestGalasaPropertyNoValueIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "property";

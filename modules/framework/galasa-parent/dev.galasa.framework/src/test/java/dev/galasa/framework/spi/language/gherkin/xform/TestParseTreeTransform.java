@@ -23,7 +23,7 @@ public class TestParseTreeTransform {
     }
 
     @Test
-    public void testAnEmptyFeatureCreatesNoTestMethods() throws Exception {
+    public void TestAnEmptyFeatureCreatesNoTestMethods() throws Exception {
         // Given...
         List<String> lines = List.of(
             "Feature: my feature"
@@ -42,7 +42,7 @@ public class TestParseTreeTransform {
     }
 
     @Test
-    public void testFeatureWithOneEmptyScenario() throws Exception {
+    public void TestFeatureWithOneEmptyScenario() throws Exception {
         // Given...
         List<String> lines = List.of(
             "Feature: my feature",
@@ -66,7 +66,7 @@ public class TestParseTreeTransform {
     }
 
     @Test
-    public void testFeatureWithOneComplexScenario() throws Exception {
+    public void TestFeatureWithOneComplexScenario() throws Exception {
         // Given...
         List<String> lines = List.of(
             "Feature: my feature",
@@ -98,7 +98,7 @@ public class TestParseTreeTransform {
     }
 
     @Test
-    public void testFeatureWithTwoComplexScenarios() throws Exception {
+    public void TestFeatureWithTwoComplexScenarios() throws Exception {
         // Given...
         List<String> lines = List.of(
             "Feature: my feature",

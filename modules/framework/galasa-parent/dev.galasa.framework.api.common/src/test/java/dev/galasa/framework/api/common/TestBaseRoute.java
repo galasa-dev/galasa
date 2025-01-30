@@ -35,7 +35,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testBaseRouteHandleGetReturnsMethodNotAllowed() throws Exception {
+    public void TestBaseRouteHandleGetReturnsMethodNotAllowed() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("");
@@ -53,7 +53,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testBaseRouteHandlePutReturnsMethodNotAllowed() throws Exception {
+    public void TestBaseRouteHandlePutReturnsMethodNotAllowed() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("", "", "PUT");
@@ -71,7 +71,7 @@ public class TestBaseRoute {
     }
     
     @Test
-    public void testBaseRouteHandlePostReturnsMethodNotAllowed() throws Exception {
+    public void TestBaseRouteHandlePostReturnsMethodNotAllowed() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("", "", "POST");
@@ -89,7 +89,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testBaseRouteHandleDeleteReturnsMethodNotAllowed() throws Exception {
+    public void TestBaseRouteHandleDeleteReturnsMethodNotAllowed() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("", "", "DELETE");
@@ -107,7 +107,7 @@ public class TestBaseRoute {
     }
     
     @Test
-    public void testCheckRequestHasContentReturnsError() throws Exception {
+    public void TestCheckRequestHasContentReturnsError() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("", "", "DELETE");
@@ -123,7 +123,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestHasContentNullPointerReturnsError() throws Exception {
+    public void TestCheckRequestHasContentNullPointerReturnsError() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("");
@@ -139,7 +139,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestHasContentReturnsTrue() throws Exception {
+    public void TestCheckRequestHasContentReturnsTrue() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         MockHttpServletRequest request = new MockHttpServletRequest("", "my content", "DELETE");
@@ -152,7 +152,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckJsonElementIsValidJsonValidJsonReturnsNoError() throws Exception {
+    public void TestCheckJsonElementIsValidJsonValidJsonReturnsNoError() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         JsonObject json = new JsonObject();
@@ -168,7 +168,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckJsonElementIsValidJsonEmptyJsonReturnsError() throws Exception {
+    public void TestCheckJsonElementIsValidJsonEmptyJsonReturnsError() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         JsonObject json = new JsonObject();
@@ -184,7 +184,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckJsonElementIsValidJsonNullJsonReturnsError() throws Exception {
+    public void TestCheckJsonElementIsValidJsonNullJsonReturnsError() throws Exception {
         // Given...
         BaseRoute route = new MockBaseRoute();
         JsonElement json = JsonNull.INSTANCE;
@@ -199,7 +199,7 @@ public class TestBaseRoute {
     }
     
     @Test
-    public void testparseRequestBodyReturnsContent() throws Exception {
+    public void TestparseRequestBodyReturnsContent() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -216,7 +216,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentNoHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentNoHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -232,7 +232,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentAllowAllHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentAllowAllHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -249,7 +249,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentApplicationAllHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentApplicationAllHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -266,7 +266,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentApplicationJsonHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentApplicationJsonHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -283,7 +283,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentTextPlainHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentTextPlainHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -300,7 +300,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentMultipleHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentMultipleHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -317,7 +317,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentMultipleWeightedHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentMultipleWeightedHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -334,7 +334,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentJsonHeaderWithTextPlainReturnsError() throws Exception {
+    public void TestCheckRequestorAcceptContentJsonHeaderWithTextPlainReturnsError() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -353,7 +353,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentApplicationYamlHeaderReturnsException() throws Exception {
+    public void TestCheckRequestorAcceptContentApplicationYamlHeaderReturnsException() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -372,7 +372,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentAnyHeaderReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentAnyHeaderReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -389,7 +389,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentTextHeaderAnyAllowedReturnsOK() throws Exception {
+    public void TestCheckRequestorAcceptContentTextHeaderAnyAllowedReturnsOK() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();
@@ -406,7 +406,7 @@ public class TestBaseRoute {
     }
 
     @Test
-    public void testCheckRequestorAcceptContentTextHeaderExplicitAnyReturnsError() throws Exception {
+    public void TestCheckRequestorAcceptContentTextHeaderExplicitAnyReturnsError() throws Exception {
         // Given...
         String content = "{\"my\":\"content\"}";
         BaseRoute route = new MockBaseRoute();

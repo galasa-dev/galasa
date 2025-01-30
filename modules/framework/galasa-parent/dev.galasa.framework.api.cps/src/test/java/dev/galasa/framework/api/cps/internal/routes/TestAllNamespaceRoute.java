@@ -28,7 +28,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
      */
 
     @Test
-    public void testPathRegexExpectedPathReturnsTrue(){
+    public void TestPathRegexExpectedPathReturnsTrue(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "/namespace";
@@ -41,7 +41,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexExpectedPathWithTrailingSlashReturnsTrue(){
+    public void TestPathRegexExpectedPathWithTrailingSlashReturnsTrue(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "/namespace/";
@@ -54,7 +54,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexLowerCasePathReturnsFalse(){
+    public void TestPathRegexLowerCasePathReturnsFalse(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "/thisisapath";
@@ -67,7 +67,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexUpperCasePathReturnsFalse(){
+    public void TestPathRegexUpperCasePathReturnsFalse(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "/ALLCAPITALS";
@@ -80,7 +80,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexNumberPathReturnsFalse(){
+    public void TestPathRegexNumberPathReturnsFalse(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "/1234";
@@ -93,7 +93,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexUnexpectedPathReturnsTrue(){
+    public void TestPathRegexUnexpectedPathReturnsTrue(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "/incorrect-?ID_1234";
@@ -106,7 +106,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexEmptyPathReturnsFalse(){
+    public void TestPathRegexEmptyPathReturnsFalse(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "";
@@ -119,7 +119,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexDotPathReturnsFalse(){
+    public void TestPathRegexDotPathReturnsFalse(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "/random.String";
@@ -132,7 +132,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexSpecialCharacterPathReturnsFalse(){
+    public void TestPathRegexSpecialCharacterPathReturnsFalse(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "/?";
@@ -145,7 +145,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
+    public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
         //Given...
         String expectedPath = AllNamespaceRoute.path;
         String inputPath = "//////";
@@ -162,7 +162,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
      */
 
     @Test
-	public void testGetNamespacesWithFrameworkNoDataReturnsDefaults() throws Exception{
+	public void TestGetNamespacesWithFrameworkNoDataReturnsDefaults() throws Exception{
 		// Given...
 		setServlet("/namespace/","empty",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -181,7 +181,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
 
 	@Test
-	public void testGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
+	public void TestGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
 		// Given...
 		setServlet("/namespace","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -200,7 +200,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 	}
 
 	@Test
-	public void testGetNamespacesWithAcceptHeaderWithFrameworkWithDataReturnsOk() throws Exception{
+	public void TestGetNamespacesWithAcceptHeaderWithFrameworkWithDataReturnsOk() throws Exception{
 		// Given...
 		Map<String, String> headerMap = new HashMap<String,String>();
         headerMap.put("Accept", "application/json");
@@ -221,7 +221,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 	}
 
     @Test
-	public void testGetNamespacesWithFrameworkNullNamespacesReturnsError() throws Exception{
+	public void TestGetNamespacesWithFrameworkNullNamespacesReturnsError() throws Exception{
 		// Given...
 		setServlet("/namespace","error",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -247,7 +247,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
     }
     
     @Test
-	public void testGetNamespacesWithFrameworkBadPathReturnsError() throws Exception{
+	public void TestGetNamespacesWithFrameworkBadPathReturnsError() throws Exception{
 		// Given...
 		setServlet(".","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -275,7 +275,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 	 * TEST - HANDLE PUT REQUEST - should error as this method is not supported by this API end-point
 	 */
 	@Test
-	public void testGetNamespacesPUTRequestReturnsError() throws Exception{
+	public void TestGetNamespacesPUTRequestReturnsError() throws Exception{
 		// Given...
 		setServlet("/namespace","framework", null , "PUT");
 		MockCpsServlet servlet = getServlet();
@@ -303,7 +303,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 	 * TEST - HANDLE POST REQUEST - should error as this method is not supported by this API end-point
 	 */
 	@Test
-	public void testGetNamespacesPOSTRequestReturnsError() throws Exception{
+	public void TestGetNamespacesPOSTRequestReturnsError() throws Exception{
 		// Given...
 		setServlet("/namespace","framework",null, "POST");
 		MockCpsServlet servlet = getServlet();
@@ -331,7 +331,7 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 	 * TEST - HANDLE DELETE REQUEST - should error as this method is not supported by this API end-point
 	 */
 	@Test
-	public void testGetNamespacesDELETERequestReturnsError() throws Exception{
+	public void TestGetNamespacesDELETERequestReturnsError() throws Exception{
 		// Given...
 		setServlet("/namespace","framework",null, "DELETE");
 		MockCpsServlet servlet = getServlet();

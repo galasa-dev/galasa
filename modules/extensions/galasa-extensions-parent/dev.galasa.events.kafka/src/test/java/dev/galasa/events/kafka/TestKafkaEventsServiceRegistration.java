@@ -20,12 +20,12 @@ import dev.galasa.framework.spi.IEventsService;
 public class TestKafkaEventsServiceRegistration {
 
     @Test
-    public void testCanCreateARegistrationOK() {
+    public void TestCanCreateARegistrationOK() {
         new KafkaEventsServiceRegistration();
     }
 
     @Test
-    public void testWhenRemoteRunCanInitialiseARegistrationOK() throws Exception {
+    public void TestWhenRemoteRunCanInitialiseARegistrationOK() throws Exception {
         // Given...
         KafkaEventsServiceRegistration registration = new KafkaEventsServiceRegistration();
 
@@ -42,7 +42,7 @@ public class TestKafkaEventsServiceRegistration {
     }
 
     @Test
-    public void testWhenLocalRunDoesNotInitialiseRegistration() throws Exception {
+    public void TestWhenLocalRunDoesNotInitialiseRegistration() throws Exception {
         // Given...
         KafkaEventsServiceRegistration registration = new KafkaEventsServiceRegistration();
 

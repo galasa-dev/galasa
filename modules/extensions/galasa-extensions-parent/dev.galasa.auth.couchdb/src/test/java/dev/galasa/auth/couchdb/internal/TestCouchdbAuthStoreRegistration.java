@@ -23,12 +23,12 @@ import static org.assertj.core.api.Assertions.*;
 public class TestCouchdbAuthStoreRegistration {
 
     @Test
-    public void testCanCreateARegistrationOK() {
+    public void TestCanCreateARegistrationOK() {
         new CouchdbAuthStoreRegistration();
     }
 
     @Test
-    public void testCanInitialiseARegistrationOK() throws Exception {
+    public void TestCanInitialiseARegistrationOK() throws Exception {
         // Given...
         URI uri = new URI("couchdb:https://my.server:5984");
         CouchdbAuthStoreRegistration registration = new CouchdbAuthStoreRegistration(
@@ -50,7 +50,7 @@ public class TestCouchdbAuthStoreRegistration {
     }
 
     @Test
-    public void testInitialiseARegistrationWithWrongSchemaGetsIgnoredSilently() throws Exception {
+    public void TestInitialiseARegistrationWithWrongSchemaGetsIgnoredSilently() throws Exception {
         // Given...
         // Wrong schema in this URL.
         URI uri = new URI("notcouchdb:http://my.server/blah");
@@ -73,7 +73,7 @@ public class TestCouchdbAuthStoreRegistration {
     }
 
     @Test
-    public void testInitialiseRegistrationWithFailingValidationReturnsError() throws Exception {
+    public void TestInitialiseRegistrationWithFailingValidationReturnsError() throws Exception {
         // Given...
         URI uri = new URI("couchdb:http://my.server:1234");
         MockCouchdbValidator mockCouchdbValidator = new MockCouchdbValidator();

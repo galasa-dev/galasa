@@ -30,7 +30,7 @@ import org.junit.Test;
 public class TestBootstrapInternalRoute extends BootstrapServletTest {
 
     @Test
-    public void testBootstrapInternalRouteHandleGetRequestReturnsOK() throws ServletException, IOException, FrameworkException{
+    public void TestBootstrapInternalRouteHandleGetRequestReturnsOK() throws ServletException, IOException, FrameworkException{
         // Given...
         Map<String, Object> properties = Map.of(
             "framework.config.store", "mystore",
@@ -60,7 +60,7 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
     }
 
     @Test
-    public void testBootstrapInternalRequestReturnsProperties() throws Exception {
+    public void TestBootstrapInternalRequestReturnsProperties() throws Exception {
         // Given...
         Map<String, Object> properties = Map.of(
             "framework.config.store", "mystore",
@@ -89,7 +89,7 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
     }
 
     @Test
-    public void testBootstrapInternalRequestWithGoodAcceptHeaderReturnsProperties() throws Exception {
+    public void TestBootstrapInternalRequestWithGoodAcceptHeaderReturnsProperties() throws Exception {
         // Given...
         Map<String, Object> properties = Map.of(
             "framework.config.store", "mystore",
@@ -121,7 +121,7 @@ public class TestBootstrapInternalRoute extends BootstrapServletTest {
     }
 
     @Test
-    public void testBootstrapInternalRequestWithNoPropertiesReturnsHeaderOnly() throws Exception {
+    public void TestBootstrapInternalRequestWithNoPropertiesReturnsHeaderOnly() throws Exception {
         // Given...
         Map<String, Object> properties = new HashMap<>();
 

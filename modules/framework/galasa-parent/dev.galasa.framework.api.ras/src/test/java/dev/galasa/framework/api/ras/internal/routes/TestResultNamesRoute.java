@@ -106,7 +106,7 @@ public class TestResultNamesRoute extends RasServletTest{
      */
 
 	@Test
-	public void testPathRegexExpectedReturnsTrue(){
+	public void TestPathRegexExpectedReturnsTrue(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "/resultnames/";
@@ -119,7 +119,7 @@ public class TestResultNamesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "/resultnames";
@@ -132,7 +132,7 @@ public class TestResultNamesRoute extends RasServletTest{
 	}
 	
 	@Test
-	public void testPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
+	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "/Resultnames/";
@@ -145,7 +145,7 @@ public class TestResultNamesRoute extends RasServletTest{
 	}
 	
 	@Test
-	public void testPathRegexUpperCasePathReturnsFalse(){
+	public void TestPathRegexUpperCasePathReturnsFalse(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "/RESULTNAMES/";
@@ -158,7 +158,7 @@ public class TestResultNamesRoute extends RasServletTest{
 	}
  
 	@Test
-	public void testPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+	public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "/10resultnames/";
@@ -171,7 +171,7 @@ public class TestResultNamesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexNumberPathReturnsFalse(){
+	public void TestPathRegexNumberPathReturnsFalse(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "/resultnames1";
@@ -184,7 +184,7 @@ public class TestResultNamesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexUnexpectedPathReturnsFalse(){
+	public void TestPathRegexUnexpectedPathReturnsFalse(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "/resultnamesfromtests";
@@ -197,7 +197,7 @@ public class TestResultNamesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexEmptyPathReturnsFalse(){
+	public void TestPathRegexEmptyPathReturnsFalse(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "";
@@ -210,7 +210,7 @@ public class TestResultNamesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexSpecialCharacterPathReturnsFalse(){
+	public void TestPathRegexSpecialCharacterPathReturnsFalse(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "/resultnames!";
@@ -223,7 +223,7 @@ public class TestResultNamesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
+	public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
 		//Given...
 		String expectedPath = ResultNamesRoute.path;
 		String inputPath = "/resultnames//////";

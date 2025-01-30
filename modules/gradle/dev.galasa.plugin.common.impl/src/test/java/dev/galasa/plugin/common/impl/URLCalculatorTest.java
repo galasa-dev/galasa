@@ -18,7 +18,7 @@ import dev.galasa.plugin.common.test.MockLog;
 public class URLCalculatorTest {
 
     @Test
-    public void testCalculateTestCatalogUrlAddsSuffixesOk() throws Exception {
+    public void TestCalculateTestCatalogUrlAddsSuffixesOk() throws Exception {
         String streamName = "mystream";
         String apiServerUrl = "https://myserver/api";
         MockLog mockLog = new MockLog();
@@ -30,7 +30,7 @@ public class URLCalculatorTest {
 
 
     @Test
-    public void testCalculateApiServerUrlUsesBootstrapPropertyIfSet() throws Exception {
+    public void TestCalculateApiServerUrlUsesBootstrapPropertyIfSet() throws Exception {
         Properties props = new Properties();
         props.setProperty("framework.testcatalog.url", "https://my.explicitly.set/testcatalog");
         URL bootstrapUrl = new URL("https://my/bootstrap");
@@ -42,7 +42,7 @@ public class URLCalculatorTest {
     }
 
     @Test
-    public void testCalculateTestCatalogUrlUsesBootstrapUrlByDefault() throws Exception {
+    public void TestCalculateTestCatalogUrlUsesBootstrapUrlByDefault() throws Exception {
         Properties props = new Properties();
         MockLog mockLog = new MockLog();
         ErrorRaiser<MockException> raiser = new MockErrorRaiser(mockLog);
@@ -52,7 +52,7 @@ public class URLCalculatorTest {
     }
 
     @Test
-    public void testCalculateTestCatalogUrlSpotsBootstrapUrlWhichDoesntEndInBootstrap() throws Exception {
+    public void TestCalculateTestCatalogUrlSpotsBootstrapUrlWhichDoesntEndInBootstrap() throws Exception {
         Properties props = new Properties();
         MockLog mockLog = new MockLog();
         ErrorRaiser<MockException> raiser = new MockErrorRaiser(mockLog);

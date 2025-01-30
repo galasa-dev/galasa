@@ -249,7 +249,7 @@ public class TestRunQuery extends RasServletTest {
      */
 
 	@Test
-	public void testPathRegexExpectedPathReturnsTrue(){
+	public void TestPathRegexExpectedPathReturnsTrue(){
 		//Given...
 		String expectedPath = RunQueryRoute.path;
 		String inputPath = "/runs";
@@ -262,7 +262,7 @@ public class TestRunQuery extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexExpectedPathWithNumbersReturnsFalse(){
+	public void TestPathRegexExpectedPathWithNumbersReturnsFalse(){
 		//Given...
 		String expectedPath = RunQueryRoute.path;
 		String inputPath = "/r0ns";
@@ -275,7 +275,7 @@ public class TestRunQuery extends RasServletTest {
 	}
 
 	@Test
-	public void testPathRegexLowerCasePathReturnsTrue(){
+	public void TestPathRegexLowerCasePathReturnsTrue(){
 		//Given...
 		String expectedPath = RunQueryRoute.path;
 		String inputPath = "/runs";
@@ -288,7 +288,7 @@ public class TestRunQuery extends RasServletTest {
 	}
 	
 	@Test
-	public void testPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
+	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
 		//Given...
 		String expectedPath = RunQueryRoute.path;
 		String inputPath = "/Runs";
@@ -301,7 +301,7 @@ public class TestRunQuery extends RasServletTest {
 	}
 	
 	@Test
-	public void testPathRegexUpperCasePathReturnsFalse(){
+	public void TestPathRegexUpperCasePathReturnsFalse(){
 		//Given...
 		String expectedPath = RunQueryRoute.path;
 		String inputPath = "/RUNS";
@@ -314,7 +314,7 @@ public class TestRunQuery extends RasServletTest {
 	}
  
 	 @Test
-	 public void testPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+	 public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
 		 //Given...
 		 String expectedPath = RunQueryRoute.path;
 		 String inputPath = "/0rans";
@@ -327,7 +327,7 @@ public class TestRunQuery extends RasServletTest {
 	 }
  
 	 @Test
-	 public void testPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+	 public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
 		 //Given...
 		 String expectedPath = RunQueryRoute.path;
 		 String inputPath = "/runs/";
@@ -340,7 +340,7 @@ public class TestRunQuery extends RasServletTest {
 	 }
  
 	 @Test
-	 public void testPathRegexNumberPathReturnsFalse(){
+	 public void TestPathRegexNumberPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = RunQueryRoute.path;
 		 String inputPath = "/runs1234";
@@ -353,7 +353,7 @@ public class TestRunQuery extends RasServletTest {
 	 }
  
 	 @Test
-	 public void testPathRegexUnexpectedPathReturnsFalse(){
+	 public void TestPathRegexUnexpectedPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = RunQueryRoute.path;
 		 String inputPath = "/requestor";
@@ -366,7 +366,7 @@ public class TestRunQuery extends RasServletTest {
 	 }
  
 	 @Test
-	 public void testPathRegexEmptyPathReturnsFalse(){
+	 public void TestPathRegexEmptyPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = RunQueryRoute.path;
 		 String inputPath = "";
@@ -379,7 +379,7 @@ public class TestRunQuery extends RasServletTest {
 	 }
  
 	 @Test
-	 public void testPathRegexSpecialCharacterPathReturnsFalse(){
+	 public void TestPathRegexSpecialCharacterPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = RunQueryRoute.path;
 		 String inputPath = "/runs/?";
@@ -392,7 +392,7 @@ public class TestRunQuery extends RasServletTest {
 	 }
  
 	 @Test
-	 public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
+	 public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = RunQueryRoute.path;
 		 String inputPath = "/runs//////";

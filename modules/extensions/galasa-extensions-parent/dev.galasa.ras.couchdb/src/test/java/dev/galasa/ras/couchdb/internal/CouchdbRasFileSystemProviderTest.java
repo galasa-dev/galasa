@@ -107,7 +107,7 @@ public class CouchdbRasFileSystemProviderTest {
 
 
     @Test 
-    public void testFileCloseCausesCouchDBArtifactToBeSaved() throws Exception {
+    public void TestFileCloseCausesCouchDBArtifactToBeSaved() throws Exception {
 
         // Given...
         String fileContent = CouchdbTestFixtures.ATTACHMENT_CONTENT1 ;
@@ -137,7 +137,7 @@ public class CouchdbRasFileSystemProviderTest {
     }
 
     @Test 
-    public void testTwoFileClosesCausesCouchDBArtifactsToBeSavedInSingleDocument() throws Exception {
+    public void TestTwoFileClosesCausesCouchDBArtifactsToBeSavedInSingleDocument() throws Exception {
 
         // Given...
         String fileContent = CouchdbTestFixtures.ATTACHMENT_CONTENT1 ;

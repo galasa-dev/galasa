@@ -37,7 +37,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
      */
 
     @Test
-    public void testPathRegexExpectedPathReturnsTrue(){
+    public void TestPathRegexExpectedPathReturnsTrue(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/namespace/name/property/property.name";
@@ -50,7 +50,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexExpectedPathWithAtSymbolReturnsTrue(){
+    public void TestPathRegexExpectedPathWithAtSymbolReturnsTrue(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/namespace/name/property/GalasaDelivery@ibm.com";
@@ -63,7 +63,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexExpectedPathWithTrailingSlashReturnsTrue(){
+    public void TestPathRegexExpectedPathWithTrailingSlashReturnsTrue(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/namespace/name/property/property.name/";
@@ -76,7 +76,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexNoSuffixInPathReturnsFalse(){
+    public void TestPathRegexNoSuffixInPathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/namespace/name/prefix/prop/suffix";
@@ -89,7 +89,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexIncompletePathReturnsFalse(){
+    public void TestPathRegexIncompletePathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/namespace/name/";
@@ -102,7 +102,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
 	@Test
-    public void testPathRegexHalfPathReturnsFalse(){
+    public void TestPathRegexHalfPathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/namespace/";
@@ -115,7 +115,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexLowerCasePathReturnsFalse(){
+    public void TestPathRegexLowerCasePathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/thisisapath";
@@ -128,7 +128,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexUpperCasePathReturnsFalse(){
+    public void TestPathRegexUpperCasePathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/ALLCAPITALS";
@@ -141,7 +141,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexNumberPathReturnsFalse(){
+    public void TestPathRegexNumberPathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/1234";
@@ -154,7 +154,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexUnexpectedPathReturnsTrue(){
+    public void TestPathRegexUnexpectedPathReturnsTrue(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/incorrect-?ID_1234";
@@ -167,7 +167,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexEmptyPathReturnsFalse(){
+    public void TestPathRegexEmptyPathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "";
@@ -180,7 +180,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexDotPathReturnsFalse(){
+    public void TestPathRegexDotPathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/random.String";
@@ -193,7 +193,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexSpecialCharacterPathReturnsFalse(){
+    public void TestPathRegexSpecialCharacterPathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "/?";
@@ -206,7 +206,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-    public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
+    public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
         //Given...
         String expectedPath = AddPropertyInNamespaceRoute.path;
         String inputPath = "//////";
@@ -223,7 +223,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
      */
 
 	@Test
-	public void testGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
+	public void TestGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/property/property.456","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -250,7 +250,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
 	 */
 
     @Test
-    public void testGetNamespacesPUTRequestWithAcceptHeaderReturnsOK() throws Exception{
+    public void TestGetNamespacesPUTRequestWithAcceptHeaderReturnsOK() throws Exception{
         // Given...
         String namespace = "framework";
         String propertyName = "property.6";
@@ -292,7 +292,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
 	@Test
-	public void testGetNamespacesPUTRequestReturnsOK() throws Exception{
+	public void TestGetNamespacesPUTRequestReturnsOK() throws Exception{
 		// Given...
         String namespace = "framework";
         String propertyName = "property.6";
@@ -332,7 +332,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-	public void testCreatePropertyWithMissingPermissionsReturnsForbiddenError() throws Exception{
+	public void TestCreatePropertyWithMissingPermissionsReturnsForbiddenError() throws Exception{
 		// Given...
         String namespace = "framework";
         String propertyName = "property.6";
@@ -363,7 +363,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-	public void testGetPropertyWithAtSymbolPUTRequestReturnsOK() throws Exception{
+	public void TestGetPropertyWithAtSymbolPUTRequestReturnsOK() throws Exception{
 		// Given...
         String namespace = "framework";
         String propertyName = "Galasadelivery@ibm.com";
@@ -403,7 +403,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
     }
 
     @Test
-	public void testPropertyNamrMismatchPUTRequestReturnsError() throws Exception{
+	public void TestPropertyNamrMismatchPUTRequestReturnsError() throws Exception{
 		// Given...
         String namespace = "framework";
         String propertyName = "property.6";
@@ -434,7 +434,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
 	 * TEST - HANDLE POST REQUEST - should error as this method is not supported by this API end-point
 	 */
 	@Test
-	public void testGetNamespacesPOSTRequestReturnsError() throws Exception{
+	public void TestGetNamespacesPOSTRequestReturnsError() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/property/property.456","framework",null, "POST");
 		MockCpsServlet servlet = getServlet();
@@ -462,7 +462,7 @@ public class TestAddPropertyInNamespaceRoute extends CpsServletTest {
 	 * TEST - HANDLE DELETE REQUEST - should error as this method is not supported by this API end-point
 	 */
 	@Test
-	public void testGetNamespacesDELETERequestReturnsError() throws Exception{
+	public void TestGetNamespacesDELETERequestReturnsError() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/property/property.456","framework",null, "DELETE");
 		MockCpsServlet servlet = getServlet();

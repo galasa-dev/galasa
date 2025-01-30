@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.*;
 public class TestGalasaResourceType {
 
     @Test
-    public void testResourceTypeGalasaPropertyReturnGalasaProperty(){
+    public void TestResourceTypeGalasaPropertyReturnGalasaProperty(){
         //Given...
         GalasaResourceType resourceType = GalasaResourceType.GALASA_PROPERTY;
         //When...
@@ -22,7 +22,7 @@ public class TestGalasaResourceType {
     }
 
     @Test
-    public void testResourceTypeGalasaPropertyLowerCaseFromStringReturnGalasaProperty(){
+    public void TestResourceTypeGalasaPropertyLowerCaseFromStringReturnGalasaProperty(){
         //Given...
         GalasaResourceType resourceType = GalasaResourceType.getFromString("galasaproperty");
         //When...
@@ -32,7 +32,7 @@ public class TestGalasaResourceType {
     }
 
     @Test
-    public void testResourceTypeGalasaPropertyUpperCaseFromStringReturnGalasaProperty(){
+    public void TestResourceTypeGalasaPropertyUpperCaseFromStringReturnGalasaProperty(){
         //Given...
         GalasaResourceType resourceType = GalasaResourceType.getFromString("GALASAPROPERTY");
         //When...
@@ -42,7 +42,7 @@ public class TestGalasaResourceType {
     }
 
     @Test
-    public void testResourceTypeGalasaPropertyMixedCaseFromStringReturnGalasaProperty(){
+    public void TestResourceTypeGalasaPropertyMixedCaseFromStringReturnGalasaProperty(){
         //Given...
         GalasaResourceType resourceType = GalasaResourceType.getFromString("GaLaSaPrOpErTy");
         //When...

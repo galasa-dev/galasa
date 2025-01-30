@@ -102,7 +102,7 @@ public class TestTestClassesRoute extends RasServletTest{
      */
 
 	@Test
-	public void testPathRegexExpectedPathReturnsTrue(){
+	public void TestPathRegexExpectedPathReturnsTrue(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/testclasses";
@@ -115,7 +115,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexExpectedPathWithQueryReturnsFalse(){
+	public void TestPathRegexExpectedPathWithQueryReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/testclasses?requestor=Mickey";
@@ -128,7 +128,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexExpectedPathWithNumbersReturnsFalse(){
+	public void TestPathRegexExpectedPathWithNumbersReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/t3stclass3s";
@@ -141,7 +141,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexLowerCasePathReturnsTrue(){
+	public void TestPathRegexLowerCasePathReturnsTrue(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/testclasses";
@@ -154,7 +154,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 	
 	@Test
-	public void testPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
+	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/Testclasses";
@@ -167,7 +167,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 	
 	@Test
-	public void testPathRegexUpperCasePathReturnsFalse(){
+	public void TestPathRegexUpperCasePathReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/TESTCLASSES";
@@ -180,7 +180,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
  
 	@Test
-	public void testPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+	public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/0testclasses";
@@ -193,7 +193,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/testclasses/";
@@ -206,7 +206,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexNumberPathReturnsFalse(){
+	public void TestPathRegexNumberPathReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/testclasses1234";
@@ -219,7 +219,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexUnexpectedPathReturnsFalse(){
+	public void TestPathRegexUnexpectedPathReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/testclass";
@@ -232,7 +232,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexEmptyPathReturnsFalse(){
+	public void TestPathRegexEmptyPathReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "";
@@ -245,7 +245,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexSpecialCharacterPathReturnsFalse(){
+	public void TestPathRegexSpecialCharacterPathReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/testclasses/?";
@@ -258,7 +258,7 @@ public class TestTestClassesRoute extends RasServletTest{
 	}
 
 	@Test
-	public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
+	public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
 		//Given...
 		String expectedPath = TestClassesRoute.path;
 		String inputPath = "/testclasses//////";

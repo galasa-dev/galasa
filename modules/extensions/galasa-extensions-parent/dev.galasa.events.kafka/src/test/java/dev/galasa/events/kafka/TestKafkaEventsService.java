@@ -37,12 +37,12 @@ public class TestKafkaEventsService {
     }
 
     @Test
-    public void testCanCreateAKafkaEventsService() throws ConfigurationPropertyStoreException {
+    public void TestCanCreateAKafkaEventsService() throws ConfigurationPropertyStoreException {
         createKafkaEventsService();
     }
 
     @Test
-    public void testCanProduceAnEventWithValidTopicAndValidEvent() throws Exception {
+    public void TestCanProduceAnEventWithValidTopicAndValidEvent() throws Exception {
         // Given...
         KafkaEventsService kafkaEventsService = createKafkaEventsService();
 
@@ -67,7 +67,7 @@ public class TestKafkaEventsService {
     }
 
     @Test
-    public void testProduceTwoEventsWithSameTopicUsesCachedProducer() throws EventsException {
+    public void TestProduceTwoEventsWithSameTopicUsesCachedProducer() throws EventsException {
         // Given...
         KafkaEventsService kafkaEventsService = createKafkaEventsService();
 
@@ -94,7 +94,7 @@ public class TestKafkaEventsService {
     }
 
     @Test
-    public void testProduceTwoEventsWithDifferentTopicsUseDifferentProducers() throws EventsException {
+    public void TestProduceTwoEventsWithDifferentTopicsUseDifferentProducers() throws EventsException {
         // Given...
         KafkaEventsService kafkaEventsService = createKafkaEventsService();
 
@@ -123,7 +123,7 @@ public class TestKafkaEventsService {
     }
 
     @Test
-    public void testProduceEventWithEmptyTopicReturnsError() throws EventsException {
+    public void TestProduceEventWithEmptyTopicReturnsError() throws EventsException {
         // Given...
         KafkaEventsService kafkaEventsService = createKafkaEventsService();
 
@@ -145,7 +145,7 @@ public class TestKafkaEventsService {
     }
 
     @Test
-    public void testCanShutdown() throws EventsException {
+    public void TestCanShutdown() throws EventsException {
         // Given...
         KafkaEventsService kafkaEventsService = createKafkaEventsService();
 

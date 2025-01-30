@@ -29,13 +29,13 @@ import org.junit.Test;
 public class TestGherkinTestRunner {
     
     @Test
-    public void testCanCreateAGherkinTestRunner() throws Exception {
+    public void TestCanCreateAGherkinTestRunner() throws Exception {
         new GherkinTestRunner();
     }
 
     // This is a guiding test. It's not running just yet, but it's a start down that path.
     // @Test
-    // public void testCanGetThroughGoldenPathOK() throws Exception {
+    // public void TestCanGetThroughGoldenPathOK() throws Exception {
 
     //     String TEST_STREAM_REPO_URL = "http://myhost/myRepositoryForMyRun";
     //     String TEST_BUNDLE_NAME = "myTestBundle";

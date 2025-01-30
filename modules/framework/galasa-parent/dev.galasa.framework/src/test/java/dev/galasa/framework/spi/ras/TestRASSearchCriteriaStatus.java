@@ -34,7 +34,7 @@ public class TestRASSearchCriteriaStatus {
 	*/
     
     @Test
-    public void testGetDefaultStatusNames(){
+    public void TestGetDefaultStatusNames(){
         //Given ...
         List<TestRunLifecycleStatus> statuses = Arrays.asList(TestRunLifecycleStatus.values());
         RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
@@ -45,7 +45,7 @@ public class TestRASSearchCriteriaStatus {
     } 
 
     @Test
-    public void testCriteriaMatchedReturnsTrueWhenValidStatusInTestStructure(){
+    public void TestCriteriaMatchedReturnsTrueWhenValidStatusInTestStructure(){
         //Given ...
         RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
 
@@ -57,7 +57,7 @@ public class TestRASSearchCriteriaStatus {
     } 
 
     @Test
-    public void testCriteriaMatchedReturnsFalseWhenInvalidStatusInTestStructure(){
+    public void TestCriteriaMatchedReturnsFalseWhenInvalidStatusInTestStructure(){
         //Given ...
        RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
 
@@ -69,7 +69,7 @@ public class TestRASSearchCriteriaStatus {
     }
 
     @Test
-    public void testCriteriaMatchedReturnsFalseWhenGivenNullStatusInTestStructure(){
+    public void TestCriteriaMatchedReturnsFalseWhenGivenNullStatusInTestStructure(){
         //Given ...
         RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
 
@@ -81,7 +81,7 @@ public class TestRASSearchCriteriaStatus {
     }
 
     @Test
-    public void testMultipleCriteriaReturnsAsStringArray(){
+    public void TestMultipleCriteriaReturnsAsStringArray(){
         //Given ...
         RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
         String[] expectedStatuses = {"finished","building","generating","running","rundone","up","started","provstart","ending"};

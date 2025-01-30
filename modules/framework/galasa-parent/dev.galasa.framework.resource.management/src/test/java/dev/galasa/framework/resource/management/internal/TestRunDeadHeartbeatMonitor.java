@@ -25,7 +25,7 @@ import dev.galasa.framework.spi.IRun;
 public class TestRunDeadHeartbeatMonitor {
     
     @Test
-    public void testCanInstantiateTheMonitor() throws Exception {
+    public void TestCanInstantiateTheMonitor() throws Exception {
         MockFrameworkRuns runs = new MockFrameworkRuns();
         MockFramework framework = new MockFramework() {
             @Override
@@ -92,7 +92,7 @@ public class TestRunDeadHeartbeatMonitor {
     }
 
     @Test
-    public void testCanRunMonitorWhenItDetectsNothing() throws Exception {
+    public void TestCanRunMonitorWhenItDetectsNothing() throws Exception {
         MockFrameworkRuns runs = new MockFrameworkRuns() {
             @Override
             public List<IRun> getActiveRuns() throws FrameworkException {
@@ -127,7 +127,7 @@ public class TestRunDeadHeartbeatMonitor {
 
 
     @Test
-    public void testCanRunMonitorWhenItDetectsAnRecentRunWithAHeartBeatSaysItsOK() throws Exception {
+    public void TestCanRunMonitorWhenItDetectsAnRecentRunWithAHeartBeatSaysItsOK() throws Exception {
         String testRunName = "myTestRunName";
         MockRun run = new MockRun(
             "myTestBundle", 
@@ -181,7 +181,7 @@ public class TestRunDeadHeartbeatMonitor {
 
 
     @Test
-    public void testCanRunMonitorWhenItDetectsAnAncientRemoteRunWithAHeartBeatGetsReset() throws Exception {
+    public void TestCanRunMonitorWhenItDetectsAnAncientRemoteRunWithAHeartBeatGetsReset() throws Exception {
         String testRunName = "myTestRunName";
         MockRun run = new MockRun(
             "myTestBundle", 
@@ -233,7 +233,7 @@ public class TestRunDeadHeartbeatMonitor {
     }
 
     @Test
-    public void testCanRunMonitorWhenItDetectsAnAncientRemoteRunWithNoHeartBeatGetsIgnoredInitially() throws Exception {
+    public void TestCanRunMonitorWhenItDetectsAnAncientRemoteRunWithNoHeartBeatGetsIgnoredInitially() throws Exception {
         String testRunName = "myTestRunName";
         MockRun run = new MockRun(
             "myTestBundle", 
@@ -290,7 +290,7 @@ public class TestRunDeadHeartbeatMonitor {
     }
 
     @Test
-    public void testCanRunMonitorWhenItDetectsAnAncientRemoteRunWithNoHeartBeatGetsCleanedUpEventually() throws Exception {
+    public void TestCanRunMonitorWhenItDetectsAnAncientRemoteRunWithNoHeartBeatGetsCleanedUpEventually() throws Exception {
         String testRunName = "myTestRunName";
         MockRun run = new MockRun(
             "myTestBundle", 
@@ -363,7 +363,7 @@ public class TestRunDeadHeartbeatMonitor {
 
 
     @Test
-    public void testCanRunMonitorDebrisInNoHeartbeatCacheGetsCleanedUpOverTime() throws Exception {
+    public void TestCanRunMonitorDebrisInNoHeartbeatCacheGetsCleanedUpOverTime() throws Exception {
         String testRunName = "myTestRunName";
         MockRun run = new MockRun(
             "myTestBundle", 

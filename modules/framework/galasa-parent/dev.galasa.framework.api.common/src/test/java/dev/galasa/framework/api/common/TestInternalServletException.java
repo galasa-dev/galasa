@@ -22,7 +22,7 @@ public class TestInternalServletException {
     }
 
     @Test
-    public void testCanCreateExceptionWithCause() {
+    public void TestCanCreateExceptionWithCause() {
         InternalServletException ex = createException();
         assertThat(ex).isNotNull();
     }
