@@ -68,6 +68,20 @@ To set a repository variable:
 1. GPG_PASSPHRASE: This requires your passphrase for your GPG key in plain text.
 1. WRITE_GITHUB_PACKAGES_TOKEN: This requires your GitHub Personal Access Token with write:packages scope that you want to use to log into GitHub Container Registry.
 
+For the GPG related secrets, you can either use an existing key, or create a new key.
+
+**How to create a new GPG key**:
+1. Generate a new GPG key with `gpg --full-generate-key`
+2. Select the type of key using the following options:
+    * RSA and RSA (default)
+    * 4096 bits long
+    * Select an expiration date
+3. Enter your User ID for the key:
+    * Name: Your full name
+    * Email: Your email address
+    * Comment: N/A
+4. Enter a password, and ensure to remember it or note it down, as you will need it later.
+
 **How to set the GPG_KEYID repository secret**: 
 
 1. Get your GPG key information with `gpg --list-secret-keys --keyid-format=short`. The output will contain something like the block below. In this example, your GPG key ID is `XXXXXXXX`. 
