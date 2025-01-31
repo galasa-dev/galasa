@@ -179,7 +179,7 @@ jobs:
       
       - name: Upload Jacoco report
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: framework-unit-tests
           path: modules/framework/galasa-parent/**/build/reports/**/*.html

@@ -19,7 +19,7 @@ public class TestBeanWithMixOfArrayAndPrimitiveProperties {
     
     
     @Test
-    public void TestCanSerialiseTheBean() throws Exception {
+    public void testCanSerialiseTheBean() throws Exception {
         BeanWithMixOfArrayAndPrimitiveProperties beanUnderTest = new BeanWithMixOfArrayAndPrimitiveProperties();
         beanUnderTest.setAStringVariable("hello");
         beanUnderTest.setAnIntVariable(11);

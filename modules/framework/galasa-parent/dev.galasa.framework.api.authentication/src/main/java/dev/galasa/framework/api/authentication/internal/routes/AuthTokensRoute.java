@@ -384,7 +384,7 @@ public class AuthTokensRoute extends PublicRoute {
     private void validateLoginId(String loginId, String servletPath) throws InternalServletException {
 
         if (loginId == null || loginId.trim().length() == 0) {
-            ServletError error = new ServletError(GAL5067_ERROR_INVALID_LOGINID, servletPath);
+            ServletError error = new ServletError(GAL5127_ERROR_INVALID_LOGINID, servletPath);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 

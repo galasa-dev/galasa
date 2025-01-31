@@ -47,8 +47,8 @@ public class UsersRouteTest extends BaseServletTest {
         MockEnvironment env = new MockEnvironment();
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
-        IAuthService authService = new AuthService(authStoreService, null);
         MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        IAuthService authService = new AuthService(authStoreService, null, rbacService);
 
         String baseUrl = "http://my.server/api";
 
@@ -119,8 +119,8 @@ public class UsersRouteTest extends BaseServletTest {
         MockEnvironment env = new MockEnvironment();
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
-        IAuthService authService = new AuthService(authStoreService, null);
         MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        IAuthService authService = new AuthService(authStoreService, null, rbacService);
 
         String baseUrl = "http://my.server/api";
 

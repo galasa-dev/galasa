@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.*;
 public class TestVisibility {
 
     @Test
-    public void TestNamespaceTypeNormalReturnNormal(){
+    public void testNamespaceTypeNormalReturnNormal(){
         //Given...
         Visibility namespaceType = Visibility.NORMAL;
         //When...
@@ -22,7 +22,7 @@ public class TestVisibility {
     }
 
     @Test
-    public void TestNamespaceTypeSecureReturnSecure(){
+    public void testNamespaceTypeSecureReturnSecure(){
         //Given...
         Visibility namespaceType = Visibility.SECURE;
         //When...
@@ -32,7 +32,7 @@ public class TestVisibility {
     }
 
     @Test
-    public void TestNamespaceTypeGetFromStringNormalReturnNormal(){
+    public void testNamespaceTypeGetFromStringNormalReturnNormal(){
         //Given...
         Visibility namespaceType = Visibility.getfromString("NoRmal");
         //When...
@@ -42,7 +42,7 @@ public class TestVisibility {
     }
 
     @Test
-    public void TestNamespaceTypeGetFromStringSecureReturnSecure(){
+    public void testNamespaceTypeGetFromStringSecureReturnSecure(){
         //Given...
         Visibility namespaceType = Visibility.getfromString("SecUre");
         //When...

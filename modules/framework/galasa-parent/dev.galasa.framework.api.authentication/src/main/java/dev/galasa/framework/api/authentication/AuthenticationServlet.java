@@ -25,6 +25,7 @@ import dev.galasa.framework.api.authentication.internal.routes.AuthTokensRoute;
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.auth.spi.AuthServiceFactory;
 import dev.galasa.framework.auth.spi.IAuthService;
@@ -91,7 +92,12 @@ public class AuthenticationServlet extends BaseServlet {
             throw new ServletException("Failed to initialise authentication servlet");
         }
 
-        IAuthService authService = factory.getAuthService();
+        IAuthService authService ;
+        try {
+            authService = factory.getAuthService();
+        } catch( InternalServletException ex) {
+            throw new ServletException(ex);
+        }
 
         rbacService = getRBACService(framework);
         

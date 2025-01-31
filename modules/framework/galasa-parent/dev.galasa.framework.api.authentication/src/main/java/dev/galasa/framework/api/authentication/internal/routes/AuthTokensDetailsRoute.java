@@ -43,9 +43,11 @@ public class AuthTokensDetailsRoute extends ProtectedRoute {
             throws FrameworkException {
 
         HttpServletRequest request = requestContext.getRequest();
+        String requestorUserLoginId = requestContext.getUsername();
 
         String tokenId = getTokenIdFromUrl(pathInfo);
-        authService.revokeToken(tokenId);
+
+        authService.revokeToken(tokenId,requestorUserLoginId);
 
         String responseBody = "Successfully revoked token with ID '" + tokenId + "'";
         return getResponseBuilder().buildResponse(request, response, "text/plain", responseBody, HttpServletResponse.SC_OK);

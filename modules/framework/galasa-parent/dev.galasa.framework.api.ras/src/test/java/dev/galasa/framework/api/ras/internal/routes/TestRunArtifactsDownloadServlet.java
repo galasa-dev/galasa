@@ -38,7 +38,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
      */
 
 	@Test
-	public void TestPathRegexWithAcceptedSpecialCharactersReturnsTrue() throws Exception {
+	public void testPathRegexWithAcceptedSpecialCharactersReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -62,7 +62,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexExpectedLocalPathReturnsTrue() throws Exception {
+	public void testPathRegexExpectedLocalPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -76,7 +76,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexExpectedPathReturnsTrue() throws Exception {
+	public void testPathRegexExpectedPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -90,7 +90,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexExpectedCouchDBPathReturnsTrue() throws Exception {
+	public void testPathRegexExpectedCouchDBPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -104,7 +104,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexLowerCasePathReturnsTrue() throws Exception {
+	public void testPathRegexLowerCasePathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -118,7 +118,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 	
 	@Test
-	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue() throws Exception {
+	public void testPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -132,7 +132,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 	
 	@Test
-	public void TestPathRegexUpperCasePathReturnsFalse() throws Exception {
+	public void testPathRegexUpperCasePathReturnsFalse() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -146,7 +146,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
  
 	@Test
-	public void TestPathRegexExpectedPathWithLeadingNumberReturnsTrue() throws Exception {
+	public void testPathRegexExpectedPathWithLeadingNumberReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -160,7 +160,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue() throws Exception {
+	public void testPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -174,7 +174,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexNumberPathReturnsTrue() throws Exception {
+	public void testPathRegexNumberPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -188,7 +188,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexUnexpectedPathReturnsFalse() throws Exception {
+	public void testPathRegexUnexpectedPathReturnsFalse() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -202,7 +202,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexEmptyPathReturnsFalse() throws Exception {
+	public void testPathRegexEmptyPathReturnsFalse() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -216,7 +216,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexSpecialCharactersInFilePathReturnsFalse() throws Exception {
+	public void testPathRegexSpecialCharactersInFilePathReturnsFalse() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();
@@ -232,7 +232,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexMultipleForwardSlashPathReturnsTrue() throws Exception {
+	public void testPathRegexMultipleForwardSlashPathReturnsTrue() throws Exception {
 		//Given...
 		MockFramework mockFramework = new MockFramework();
 		Pattern expectedPath = new RunArtifactsDownloadRoute(null, null, mockFramework).getPathRegex();

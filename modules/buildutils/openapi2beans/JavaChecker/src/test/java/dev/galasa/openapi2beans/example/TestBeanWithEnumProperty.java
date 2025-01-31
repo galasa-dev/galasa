@@ -19,7 +19,7 @@ import dev.galasa.openapi2beans.example.generated.BeanWithEnumPropertyAnEnumProp
 public class TestBeanWithEnumProperty {
     
     @Test
-    public void TestCanSerialiseTheBean() throws Exception {
+    public void testCanSerialiseTheBean() throws Exception {
         BeanWithEnumPropertyAnEnumProperty enumProperty = BeanWithEnumPropertyAnEnumProperty.STRING_1;
         BeanWithEnumProperty beanUnderTest = new BeanWithEnumProperty(enumProperty);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

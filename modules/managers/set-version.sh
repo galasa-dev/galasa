@@ -45,26 +45,16 @@ blue=$(tput setaf 25)
 # Headers and Logging
 #
 #-----------------------------------------------------------------------------------------                   
-underline() { printf "${underline}${bold}%s${reset}\n" "$@"
-}
-h1() { printf "\n${underline}${bold}${blue}%s${reset}\n" "$@"
-}
-h2() { printf "\n${underline}${bold}${white}%s${reset}\n" "$@"
-}
-debug() { printf "${white}%s${reset}\n" "$@"
-}
-info() { printf "${white}➜ %s${reset}\n" "$@"
-}
-success() { printf "${green}✔ %s${reset}\n" "$@"
-}
-error() { printf "${red}✖ %s${reset}\n" "$@"
-}
-warn() { printf "${tan}➜ %s${reset}\n" "$@"
-}
-bold() { printf "${bold}%s${reset}\n" "$@"
-}
-note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@"
-}
+underline() { printf "${underline}${bold}%s${reset}\n" "$@" ; }
+h1() { printf "\n${underline}${bold}${blue}%s${reset}\n" "$@" ; }
+h2() { printf "\n${underline}${bold}${white}%s${reset}\n" "$@" ; }
+debug() { printf "${white}[.] %s${reset}\n" "$@" ; }
+info()  { printf "${white}[➜] %s${reset}\n" "$@" ; }
+success() { printf "${white}[${green}✔${white}] ${green}%s${reset}\n" "$@" ; }
+error() { printf "${white}[${red}✖${white}] ${red}%s${reset}\n" "$@" ; }
+warn() { printf "${white}[${tan}➜${white}] ${tan}%s${reset}\n" "$@" ; }
+bold() { printf "${bold}%s${reset}\n" "$@" ; }
+note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@" ; }
 
 #-----------------------------------------------------------------------------------------                   
 # Functions

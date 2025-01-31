@@ -28,7 +28,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
      */
 
     @Test
-    public void TestPathRegexExpectedPathReturnsTrue(){
+    public void testPathRegexExpectedPathReturnsTrue(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/namespace/name/prefix/prop/suffix/erty";
@@ -41,7 +41,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexExpectedPathWithTrailingSlashReturnsTrue(){
+    public void testPathRegexExpectedPathWithTrailingSlashReturnsTrue(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/namespace/name/prefix/prop/suffix/erty/";
@@ -54,7 +54,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
 	@Test
-    public void TestPathRegexExpectedPathWithAtSymbolReturnsTrue(){
+    public void testPathRegexExpectedPathWithAtSymbolReturnsTrue(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/namespace/name/prefix/Galasadelivery@ibm.com/suffix/erty/";
@@ -67,7 +67,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexNoSuffixInPathReturnsFalse(){
+    public void testPathRegexNoSuffixInPathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/namespace/name/prefix/prop/suffix";
@@ -80,7 +80,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexIncompletePathReturnsFalse(){
+    public void testPathRegexIncompletePathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/namespace/name/";
@@ -93,7 +93,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
 	@Test
-    public void TestPathRegexHalfPathReturnsFalse(){
+    public void testPathRegexHalfPathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/namespace/";
@@ -106,7 +106,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexLowerCasePathReturnsFalse(){
+    public void testPathRegexLowerCasePathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/thisisapath";
@@ -119,7 +119,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexUpperCasePathReturnsFalse(){
+    public void testPathRegexUpperCasePathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/ALLCAPITALS";
@@ -132,7 +132,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexNumberPathReturnsFalse(){
+    public void testPathRegexNumberPathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/1234";
@@ -145,7 +145,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexUnexpectedPathReturnsTrue(){
+    public void testPathRegexUnexpectedPathReturnsTrue(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/incorrect-?ID_1234";
@@ -158,7 +158,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexEmptyPathReturnsFalse(){
+    public void testPathRegexEmptyPathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "";
@@ -171,7 +171,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexDotPathReturnsFalse(){
+    public void testPathRegexDotPathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/random.String";
@@ -184,7 +184,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+    public void testPathRegexSpecialCharacterPathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "/?";
@@ -197,7 +197,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
     @Test
-    public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+    public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
         //Given...
         String expectedPath = AllPropertiesInNamespaceFilteredRoute.path;
         String inputPath = "//////";
@@ -214,7 +214,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
      */
 
     @Test
-	public void TestGetNamespacesWithFrameworkNoDataReturnsNotFound() throws Exception{
+	public void testGetNamespacesWithFrameworkNoDataReturnsNotFound() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/prefix/prop/suffix/erty","empty",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -237,7 +237,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
     }
 
 	@Test
-	public void TestGetNamespacesWithFrameworkWithDataNoMatchReturnsOk() throws Exception{
+	public void testGetNamespacesWithFrameworkWithDataNoMatchReturnsOk() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/prefix/prop/suffix/erty","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -256,7 +256,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 	}
 
 	@Test
-	public void TestGetNamespacesWithFrameworkWithDataNoMatchAcceptHeaderReturnsOk() throws Exception{
+	public void testGetNamespacesWithFrameworkWithDataNoMatchAcceptHeaderReturnsOk() throws Exception{
 		// Given...
 		Map<String, String> headerMap = new HashMap<String,String>();
         headerMap.put("Accept", "application/json");
@@ -277,7 +277,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 	}
 
     @Test
-	public void TestGetNamespacesWithFrameworkWithDataReturnsValue() throws Exception{
+	public void testGetNamespacesWithFrameworkWithDataReturnsValue() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/prefix/property/suffix/1","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -296,7 +296,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 	}
    
     @Test
-	public void TestGetNamespacesWithFrameworkBadPathReturnsError() throws Exception{
+	public void testGetNamespacesWithFrameworkBadPathReturnsError() throws Exception{
 		// Given...
 		setServlet(".","framework",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -324,7 +324,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 	 * TEST - HANDLE PUT REQUEST - should error as this method is not supported by this API end-point
 	 */
 	@Test
-	public void TestGetNamespacesPUTRequestReturnsError() throws Exception{
+	public void testGetNamespacesPUTRequestReturnsError() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/prefix/prop/suffix/erty","framework", null , "PUT");
 		MockCpsServlet servlet = getServlet();
@@ -352,7 +352,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 	 * TEST - HANDLE POST REQUEST - should error as this method is not supported by this API end-point
 	 */
 	@Test
-	public void TestGetNamespacesPOSTRequestReturnsError() throws Exception{
+	public void testGetNamespacesPOSTRequestReturnsError() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/prefix/prop/suffix/erty","framework",null, "POST");
 		MockCpsServlet servlet = getServlet();
@@ -380,7 +380,7 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 	 * TEST - HANDLE DELETE REQUEST - should error as this method is not supported by this API end-point
 	 */
 	@Test
-	public void TestGetNamespacesDELETERequestReturnsError() throws Exception{
+	public void testGetNamespacesDELETERequestReturnsError() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/prefix/prop/suffix/erty","framework",null, "DELETE");
 		MockCpsServlet servlet = getServlet();

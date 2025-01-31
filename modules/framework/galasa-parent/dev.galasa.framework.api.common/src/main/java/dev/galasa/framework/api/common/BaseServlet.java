@@ -107,16 +107,21 @@ public class BaseServlet extends HttpServlet {
         }
     }
 
-    private void processRoutes(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, IOException, FrameworkException, InterruptedException {
+    private String extractUrlFromPath(HttpServletRequest req) {
         String url = req.getPathInfo();
         if (url == null) {
             // There is no path information, so this must be a root path (e.g. /cps)
             url = "";
         }
+        return url;
+    }
+
+    private void processRoutes(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException, FrameworkException, InterruptedException {
 
         QueryParameters queryParameters = new QueryParameters(req.getParameterMap());
 
+        String url = extractUrlFromPath(req);
         IRoute route = selectRoute(url);
 
         if (route == null) {

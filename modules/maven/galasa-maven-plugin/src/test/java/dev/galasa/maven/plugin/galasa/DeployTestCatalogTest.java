@@ -13,12 +13,12 @@ import org.apache.maven.project.MavenProject;
 public class DeployTestCatalogTest { 
 
     @Test
-    public void TestCanCreateDeployTestCatalog() {
+    public void testCanCreateDeployTestCatalog() {
         new DeployTestCatalog();
     }
 
     @Test
-    public void TestSkipCatalogDeployOldSpellingStillSkipsDoingWork() throws Exception {
+    public void testSkipCatalogDeployOldSpellingStillSkipsDoingWork() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -40,7 +40,7 @@ public class DeployTestCatalogTest {
     }
 
     @Test
-    public void TestSkipCatalogDeployNewSpellingStillSkipsDoingWork() throws Exception {
+    public void testSkipCatalogDeployNewSpellingStillSkipsDoingWork() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -62,7 +62,7 @@ public class DeployTestCatalogTest {
     }
 
     @Test
-    public void TestSkipCatalogDeployNewAndOldSpellingStillSkipsDoingWork() throws Exception {
+    public void testSkipCatalogDeployNewAndOldSpellingStillSkipsDoingWork() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -85,7 +85,7 @@ public class DeployTestCatalogTest {
     }
 
     @Test
-    public void TestSkipBundleCatalogNewSpellingStillSkipsDoingWork() throws Exception {
+    public void testSkipBundleCatalogNewSpellingStillSkipsDoingWork() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -107,7 +107,7 @@ public class DeployTestCatalogTest {
     }
 
     @Test
-    public void TestSkipBundleCatalogOldpellingStillSkipsDoingWork() throws Exception {
+    public void testSkipBundleCatalogOldpellingStillSkipsDoingWork() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -129,7 +129,7 @@ public class DeployTestCatalogTest {
     }
 
     @Test
-    public void TestSkipsIfNoArtifactPresent() throws Exception {
+    public void testSkipsIfNoArtifactPresent() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -148,7 +148,7 @@ public class DeployTestCatalogTest {
     }
 
     @Test
-    public void TestSkipsWorkIfProjectNotAnOBR() throws Exception {
+    public void testSkipsWorkIfProjectNotAnOBR() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -168,7 +168,7 @@ public class DeployTestCatalogTest {
     }
 
     @Test
-    public void TestSkipsIfStreamNotSpecified() throws Exception {
+    public void testSkipsIfStreamNotSpecified() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -185,7 +185,7 @@ public class DeployTestCatalogTest {
     }
 
     @Test
-    public void TestSkipsIfBootstrapNotProvided() throws Exception {
+    public void testSkipsIfBootstrapNotProvided() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -203,7 +203,7 @@ public class DeployTestCatalogTest {
     }
 
     @Test
-    public void TestSkipsNonObrProjects() throws Exception {
+    public void testSkipsNonObrProjects() throws Exception {
         DeployTestCatalog command = new DeployTestCatalog();
         MockMavenLog mockLog = new MockMavenLog();
         command.setLog(mockLog);
@@ -232,7 +232,7 @@ public class DeployTestCatalogTest {
     // 
     // @SuppressWarnings("deprecation")
     // @Test
-    // public void TestXXX() throws Exception {
+    // public void testXXX() throws Exception {
     //     DeployTestCatalog command = new DeployTestCatalog();
     //     MockMavenLog mockLog = new MockMavenLog();
     //     command.setLog(mockLog);

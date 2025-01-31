@@ -5,8 +5,8 @@
  */
 package dev.galasa.framework.auth.spi;
 
-import javax.servlet.ServletException;
+import dev.galasa.framework.api.common.InternalServletException;
 
 public interface IAuthServiceFactory {
-    IAuthService getAuthService() throws ServletException;
+    IAuthService getAuthService() throws InternalServletException;
 }

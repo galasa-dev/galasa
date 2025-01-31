@@ -20,7 +20,7 @@ public class TestGalasaNamespace {
     }
 
     @Test
-    public void TestGalasaNamespaceCreateNormalNamespaceFromCPSNamespace() throws ConfigurationPropertyStoreException{
+    public void testGalasaNamespaceCreateNormalNamespaceFromCPSNamespace() throws ConfigurationPropertyStoreException{
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
@@ -39,7 +39,7 @@ public class TestGalasaNamespace {
     }
 
     @Test
-    public void TestGalasaNamespaceCreateNormalNamespaceFromJSONString() throws ConfigurationPropertyStoreException{
+    public void testGalasaNamespaceCreateNormalNamespaceFromJSONString() throws ConfigurationPropertyStoreException{
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
@@ -57,7 +57,7 @@ public class TestGalasaNamespace {
     }
 
     @Test
-    public void TestGalasaNamespaceCreateSecureNamespaceFromCPSNamespace() throws ConfigurationPropertyStoreException{
+    public void testGalasaNamespaceCreateSecureNamespaceFromCPSNamespace() throws ConfigurationPropertyStoreException{
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";
@@ -76,7 +76,7 @@ public class TestGalasaNamespace {
     }
 
     @Test
-    public void TestGalasaNamespaceCreateSecureNamespaceFromJSONString() throws ConfigurationPropertyStoreException{
+    public void testGalasaNamespaceCreateSecureNamespaceFromJSONString() throws ConfigurationPropertyStoreException{
         //Given...
         String expectedName = "NameSpace1";
         String expectedUrl = "/NameSpace1/properties";

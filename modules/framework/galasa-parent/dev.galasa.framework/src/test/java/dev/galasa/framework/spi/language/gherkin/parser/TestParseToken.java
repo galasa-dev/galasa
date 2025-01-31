@@ -11,14 +11,14 @@ import org.junit.Test;
 
 public class TestParseToken {
     @Test
-    public void TestOneParseTokenEqualsTheOther() throws Exception {
+    public void testOneParseTokenEqualsTheOther() throws Exception {
         ParseToken token1 = new ParseToken(TokenType.DATA_LINE,"abc",12);
         ParseToken token2 = new ParseToken(TokenType.DATA_LINE,"abc",12);
         assertThat(token1).isEqualTo(token2);
     }
     
     @Test
-    public void TestOneParseTokenAgainstNullDoesNotBlowUp() throws Exception {
+    public void testOneParseTokenAgainstNullDoesNotBlowUp() throws Exception {
         ParseToken token1 = new ParseToken(TokenType.DATA_LINE,"abc",12);
         if (token1.equals(null)) {
             fail("Could not compare token with null");
@@ -26,7 +26,7 @@ public class TestParseToken {
     }
 
     @Test
-    public void TestOneParseTokenAgainstStringDoesNotBlowUp() throws Exception {
+    public void testOneParseTokenAgainstStringDoesNotBlowUp() throws Exception {
         ParseToken token1 = new ParseToken(TokenType.DATA_LINE,"abc",12);
         if (token1.equals("asdasd")) {
             fail("Could not compare token with string");
@@ -34,28 +34,28 @@ public class TestParseToken {
     }
 
     @Test
-    public void TestOneParseTokenHashCodeEqualsTheOther() throws Exception {
+    public void testOneParseTokenHashCodeEqualsTheOther() throws Exception {
         ParseToken token1 = new ParseToken(TokenType.DATA_LINE,"abc",12);
         ParseToken token2 = new ParseToken(TokenType.DATA_LINE,"abc",12);
         assertThat(token1.hashCode()).isEqualTo(token2.hashCode());
     }
     
     @Test
-    public void TestOneParseTokenWithTheOtherTypesDiffer() throws Exception {
+    public void testOneParseTokenWithTheOtherTypesDiffer() throws Exception {
         ParseToken token1 = new ParseToken(TokenType.DATA_LINE,"abc",12);
         ParseToken token2 = new ParseToken(TokenType.SCENARIO_START,"abc",12);
         assertThat(token1).isNotEqualTo(token2);
     }
 
     @Test
-    public void TestOneParseTokenWithTheOtherTextDiffers() throws Exception {
+    public void testOneParseTokenWithTheOtherTextDiffers() throws Exception {
         ParseToken token1 = new ParseToken(TokenType.DATA_LINE,"abc",12);
         ParseToken token2 = new ParseToken(TokenType.DATA_LINE,"abcd",12);
         assertThat(token1).isNotEqualTo(token2);
     }
 
     @Test
-    public void TestOneParseTokenWithTheOtherLineNumbersDiffer() throws Exception {
+    public void testOneParseTokenWithTheOtherLineNumbersDiffer() throws Exception {
         ParseToken token1 = new ParseToken(TokenType.DATA_LINE,"abc",12);
         ParseToken token2 = new ParseToken(TokenType.DATA_LINE,"abc",13);
         assertThat(token1).isNotEqualTo(token2);

@@ -21,7 +21,7 @@ import org.junit.Test;
 public class TestBootstrapExternalRoute extends BootstrapServletTest {
 
     @Test
-    public void TestBootstrapExternalRouteHandleGetRequestReturnsOK() throws Exception {
+    public void testBootstrapExternalRouteHandleGetRequestReturnsOK() throws Exception {
         // Given...
         setServlet();
         BootstrapServlet servlet = getServlet();
@@ -42,7 +42,7 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
     }
 
     @Test
-    public void TestGetBootstrapExternalRouteWithGoodAcceptHeaderReturnsOK() throws Exception {
+    public void testGetBootstrapExternalRouteWithGoodAcceptHeaderReturnsOK() throws Exception {
         // Given...
         setServlet();
         BootstrapServlet servlet = getServlet();
@@ -65,7 +65,7 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
     }
 
     @Test
-    public void TestBootstrapInternalRequestReturnsProperties() throws Exception{
+    public void testBootstrapInternalRequestReturnsProperties() throws Exception{
         // Given...
         setServlet("/external");
         MockBootstrapServlet servlet = getServlet();

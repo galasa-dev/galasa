@@ -26,12 +26,12 @@ public class TestRestCPSRegistration {
     public TestName testName = new TestName();
 
     @Test
-    public void TestCanCreateARegistrationOK() {
+    public void testCanCreateARegistrationOK() {
         new RestCPSRegistration();
     }
 
     @Test
-    public void TestCanInitialiseARegistrationOK() throws Exception {
+    public void testCanInitialiseARegistrationOK() throws Exception {
         URI uri = new URI("galasacps://my.server/api");
         RestCPSRegistration registration = new RestCPSRegistration(
             new MockHttpClientFactory(null),
@@ -50,7 +50,7 @@ public class TestRestCPSRegistration {
     }
 
     @Test
-    public void TestInitialiseARegistrationWithWrongSchemaGetsIgnoredSilently() throws Exception {
+    public void testInitialiseARegistrationWithWrongSchemaGetsIgnoredSilently() throws Exception {
         URI uri = new URI("notrest:http://my.server/api"); // Wrong schema in this URL.
         RestCPSRegistration registration = new RestCPSRegistration();
 

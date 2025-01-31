@@ -18,7 +18,7 @@ import dev.galasa.openapi2beans.example.generated.BeanWithArray;
 public class TestBeanWithArray {
     
     @Test
-    public void TestCanSerialiseTheBean() throws Exception {
+    public void testCanSerialiseTheBean() throws Exception {
         BeanWithArray beanUnderTest = new BeanWithArray();
         beanUnderTest.setAnArrayVariable(new String[]{"string0", "string1"});
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

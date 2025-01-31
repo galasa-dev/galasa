@@ -263,7 +263,7 @@ public class CouchdbValidatorImplTest {
     }
 
     @Test
-    public void TestRasStoreCreateBlowsUpIfCouchDBDoesntReturnWelcomeString() throws Exception {
+    public void testRasStoreCreateBlowsUpIfCouchDBDoesntReturnWelcomeString() throws Exception {
 
         List <HttpInteraction> interactions = new ArrayList<HttpInteraction>();
 
@@ -284,7 +284,7 @@ public class CouchdbValidatorImplTest {
     }
 
     @Test
-    public void TestRasStoreCreatesDBIfCouchDBReturnsWelcomeString() throws Exception {
+    public void testRasStoreCreatesDBIfCouchDBReturnsWelcomeString() throws Exception {
         List <HttpInteraction> interactions = new ArrayList<HttpInteraction>();
 
         //Check Welcome Screen
@@ -334,7 +334,7 @@ public class CouchdbValidatorImplTest {
     }
 
     @Test
-    public void TestRasStoreCreatesDBIfDBNotPresentThrowsException() throws Exception {
+    public void testRasStoreCreatesDBIfDBNotPresentThrowsException() throws Exception {
         List <HttpInteraction> interactions = new ArrayList<HttpInteraction>();
 
         //Check Welcome Screen
@@ -395,7 +395,7 @@ public class CouchdbValidatorImplTest {
     }
 
     @Test
-    public void TestRasStoreCreatesDBIfDBNotPresentConflictResultsInExceptionAfterRetries() throws Exception {
+    public void testRasStoreCreatesDBIfDBNotPresentConflictResultsInExceptionAfterRetries() throws Exception {
         List <HttpInteraction> interactions = new ArrayList<HttpInteraction>();
 
         //Check Welcome Screen

@@ -123,7 +123,10 @@ public class AuthTokensRouteTest extends BaseServletTest {
         //Given...
         ResponseBuilder responseBuilder = null;
         IOidcProvider oidcProvider = null;
-        IAuthService authService = new AuthService(null, null);    
+        
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        IAuthService authService = new AuthService(null, null, rbacService);    
         ITimeService timeService = null ;
         MockRBACService mockRBACService = createTestRBACKService();
         Environment env = null;
@@ -280,7 +283,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5057, "GAL5057E");
+        checkErrorStructure(outStream.toString(), 5127, "GAL5127E");
     }
 
     @Test
@@ -306,7 +309,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         servlet.doGet(mockRequest, servletResponse);
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(outStream.toString(), 5057, "GAL5057E");
+        checkErrorStructure(outStream.toString(), 5127, "GAL5127E");
     }
 
     @Test
@@ -956,7 +959,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
         mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS,"sub");
         String dummyJwt = DUMMY_JWT;
 
-        IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient, rbacService);
 
         MockRBACService mockRBACService = createTestRBACKService();
 
@@ -1029,7 +1033,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
         mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS,"sub");
         String dummyJwt = DUMMY_JWT;
 
-        IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient, rbacService);
 
         MockRBACService mockRBACService = createTestRBACKService();
 
@@ -1080,7 +1085,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
         mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS,"sub");
         String dummyJwt = DUMMY_JWT;
 
-        IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient, rbacService);
 
         MockRBACService mockRBACService = createTestRBACKService();
 

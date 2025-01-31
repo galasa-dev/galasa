@@ -14,7 +14,7 @@ import dev.galasa.plugin.common.ErrorRaiser;
 
 public class ErrorRaiserMavenImplTest {
     @Test
-    public void TestCanLogErrorWithOneParameterOk() throws Exception {
+    public void testCanLogErrorWithOneParameterOk() throws Exception {
 
         MockMavenLog mockLog = new MockMavenLog();
         ErrorRaiser<MojoExecutionException> raiser = new ErrorRaiserMavenImpl(mockLog);
@@ -25,7 +25,7 @@ public class ErrorRaiserMavenImplTest {
     }
 
     @Test
-    public void TestCanLogErrorWithTwoParametersOk() throws Exception {
+    public void testCanLogErrorWithTwoParametersOk() throws Exception {
         MockMavenLog mockLog = new MockMavenLog();
         ErrorRaiser<MojoExecutionException> raiser = new ErrorRaiserMavenImpl(mockLog);
         Exception ex = catchException(()-> raiser.raiseError("simple template {0} {1}","param1","param2"));
@@ -35,7 +35,7 @@ public class ErrorRaiserMavenImplTest {
     }
 
     @Test
-    public void TestCanLogErrorWithZeroParametersOk() throws Exception {
+    public void testCanLogErrorWithZeroParametersOk() throws Exception {
         MockMavenLog mockLog = new MockMavenLog();
         ErrorRaiser<MojoExecutionException> raiser = new ErrorRaiserMavenImpl(mockLog);
         Exception ex = catchException(()-> raiser.raiseError("simple template"));

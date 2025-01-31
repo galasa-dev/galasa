@@ -24,6 +24,7 @@ import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.SystemEnvironment;
 
 @Component(service = Servlet.class, scope = ServiceScope.PROTOTYPE, property = {
@@ -58,11 +59,12 @@ public class UsersServlet extends BaseServlet {
             factory = new AuthServiceFactory(framework, env);
         }
 
-        IAuthService authService = factory.getAuthService();
+        IAuthService authService ;
         RBACService rbacService ;
         try {
+            authService = factory.getAuthService();
             rbacService = framework.getRBACService();
-        } catch ( RBACException ex) {
+        } catch ( InternalServletException | RBACException ex) {
             throw new ServletException(ex);
         }
         

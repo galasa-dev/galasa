@@ -34,7 +34,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyDefaultApiVersion() throws InternalServletException{
+    public void testCPSPropertyDefaultApiVersion() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -51,7 +51,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyFromString() throws InternalServletException{
+    public void testCPSPropertyFromString() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -69,7 +69,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyFromMapEntry() throws InternalServletException{
+    public void testCPSPropertyFromMapEntry() throws InternalServletException{
         //Given...
         String namespace = "mynamespace";
         String propertyName = "new.property.name";
@@ -88,7 +88,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyCustomApiVersion() throws InternalServletException{
+    public void testCPSPropertyCustomApiVersion() throws InternalServletException{
         //Given...
         String namespace = "randomnamespace";
         String propertyName = "random.property.name";
@@ -105,7 +105,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyNoDataIsInvalid() throws InternalServletException{
+    public void testCPSPropertyNoDataIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = null;
@@ -128,7 +128,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyNoDataDefaultApiVersionIsInvalid() throws InternalServletException{
+    public void testCPSPropertyNoDataDefaultApiVersionIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = null;
@@ -151,7 +151,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyNamespaceOnlyIsInvalid() throws InternalServletException{
+    public void testCPSPropertyNamespaceOnlyIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = null;
@@ -174,7 +174,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyPartialDataIsInvalid() throws InternalServletException{
+    public void testCPSPropertyPartialDataIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "property";
@@ -197,7 +197,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyNoNamespaceIsInvalid() throws InternalServletException{
+    public void testCPSPropertyNoNamespaceIsInvalid() throws InternalServletException{
         //Given...
         String namespace = null;
         String propertyName = "property";
@@ -220,7 +220,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyNoNameIsInvalid() throws InternalServletException{
+    public void testCPSPropertyNoNameIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "";
@@ -243,7 +243,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestCPSPropertyNoValueIsInvalid() throws InternalServletException{
+    public void testCPSPropertyNoValueIsInvalid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "property";
@@ -266,7 +266,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGetOutputValueFromNormalNamespaceReturnsNormalValue() throws ConfigurationPropertyStoreException{
+    public void testGetOutputValueFromNormalNamespaceReturnsNormalValue() throws ConfigurationPropertyStoreException{
         //Given...
         String propertyNamespace = "random";
         String propertyName = "property.name";
@@ -288,7 +288,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestGetOutputValueFromSecureNamespaceReturnsRedactedValue() throws ConfigurationPropertyStoreException{
+    public void testGetOutputValueFromSecureNamespaceReturnsRedactedValue() throws ConfigurationPropertyStoreException{
         //Given...
         String propertyNamespace = "secure";
         String propertyName = "property.name";
@@ -310,7 +310,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestDeletePropertyFromStoreReturnsOk() throws InternalServletException, ConfigurationPropertyStoreException{
+    public void testDeletePropertyFromStoreReturnsOk() throws InternalServletException, ConfigurationPropertyStoreException{
         //Given...
         String propertyNamespace = "random";
         String propertyName = "property.name";
@@ -332,7 +332,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestDeletePropertyFromStoreInvalidNameReturnsError() throws Exception{
+    public void testDeletePropertyFromStoreInvalidNameReturnsError() throws Exception{
         //Given...
         String propertyNamespace = "random";
         String propertyName = "property.name";
@@ -359,7 +359,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestDeletePropertyFromStoreEmptyValueReturnsOk() throws InternalServletException, ConfigurationPropertyStoreException{
+    public void testDeletePropertyFromStoreEmptyValueReturnsOk() throws InternalServletException, ConfigurationPropertyStoreException{
         //Given...
         String propertyNamespace = "random";
         String propertyName = "property.name";
@@ -381,7 +381,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void TestDeletePropertyFromStoreInvalidNamespaceReturnsError() throws Exception{
+    public void testDeletePropertyFromStoreInvalidNamespaceReturnsError() throws Exception{
         //Given...
         String invalidNamespace = "random";
         String propertyName = "property.name";
@@ -409,7 +409,7 @@ public class TestCPSProperty extends BaseServletTest {
 
 
     @Test
-    public void TestDeletePropertyFromStoreSecureNamespaceReturnsOk() throws Exception{
+    public void testDeletePropertyFromStoreSecureNamespaceReturnsOk() throws Exception{
         //Given...
         String propertyNamespace = "secure";
         String propertyName = "property.name";

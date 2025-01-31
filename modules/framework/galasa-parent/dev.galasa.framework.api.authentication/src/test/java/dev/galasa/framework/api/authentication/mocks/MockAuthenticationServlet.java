@@ -54,7 +54,8 @@ public class MockAuthenticationServlet extends AuthenticationServlet {
         super.oidcProvider = oidcProvider;
         super.framework = framework;
         super.rbacService = rbacService;
-        IAuthService authService = new AuthService(framework.getAuthStoreService(), dexGrpcClient);
+        
+        IAuthService authService = new AuthService(framework.getAuthStoreService(), dexGrpcClient, rbacService);
         setAuthServiceFactory(new MockAuthServiceFactory(authService));
         setResponseBuilder(new ResponseBuilder(env));
     }

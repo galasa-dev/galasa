@@ -12,13 +12,13 @@ import org.junit.Test;
 
 public class TestGherkinLexicalScanner {
     @Test
-    public void TestCanInstantiateScannerImpl() throws Exception {
+    public void testCanInstantiateScannerImpl() throws Exception {
         List<String> lines = List.of("First line only");
         new GherkinLexicalScanner(lines);
     }
     
     @Test
-    public void TestCanScanNullReturnsEndOfFile() throws Exception {
+    public void testCanScanNullReturnsEndOfFile() throws Exception {
         GherkinLexicalScanner scanner = new GherkinLexicalScanner(null);
         ParseToken token1 = scanner.getNextToken();
         assertThat(token1.getLineNumber()).isEqualTo(1);
@@ -27,7 +27,7 @@ public class TestGherkinLexicalScanner {
     }
 
     @Test
-    public void TestCanScanCanParseFeatureThenEOF() throws Exception {
+    public void testCanScanCanParseFeatureThenEOF() throws Exception {
         List<String> lines = List.of("Feature: My first feature");
 
         List<Object> expectedTokens = List.of(
@@ -39,7 +39,7 @@ public class TestGherkinLexicalScanner {
     }
 
     @Test
-    public void TestCanScanCanParseFeatureThenEOFThenEOF() throws Exception {
+    public void testCanScanCanParseFeatureThenEOFThenEOF() throws Exception {
         List<String> lines = List.of("Feature: My first feature");
 
         List<Object> expectedTokens = List.of(
@@ -52,7 +52,7 @@ public class TestGherkinLexicalScanner {
     }
 
     @Test
-    public void TestCanScanCanPushBackAToken() throws Exception {
+    public void testCanScanCanPushBackAToken() throws Exception {
         List<String> lines = List.of("Feature: My first feature");
         GherkinLexicalScanner scanner = new GherkinLexicalScanner(lines);
 
@@ -75,7 +75,7 @@ public class TestGherkinLexicalScanner {
     }
 
     @Test
-    public void TestCanGetSequenceOfTokens() throws Exception {
+    public void testCanGetSequenceOfTokens() throws Exception {
 
         List<String> lines = List.of(
             "Feature: Browse the catalog and order\n",
@@ -110,7 +110,7 @@ public class TestGherkinLexicalScanner {
     }
 
     @Test
-    public void TestCanGetScenarioTokens() throws Exception {
+    public void testCanGetScenarioTokens() throws Exception {
 
         List<String> lines = List.of(
             "Scenario: Browse the catalog and order\n"
@@ -125,7 +125,7 @@ public class TestGherkinLexicalScanner {
     }
 
     @Test
-    public void TestCommentsGetIgnored() throws Exception {
+    public void testCommentsGetIgnored() throws Exception {
 
         List<String> lines = List.of(
             "# This is a comment"

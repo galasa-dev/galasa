@@ -49,7 +49,7 @@ public class TestCicstsManagerImpl {
     }
 
     @Test
-    public void TestGenerateCicsTerminalBadReturnsError() throws Exception{
+    public void testGenerateCicsTerminalBadReturnsError() throws Exception{
         // Given...
         DummyTestBad dummyTest = new DummyTestBad();
         List<IManager> managersList = new ArrayList<IManager>();

@@ -17,7 +17,7 @@ public class CouchdbRasStoreTest {
         
     // Creating the Ras store causes the test structure in the couchdb 
     @Test
-    public void TestCanCreateCouchdbRasStoreOK() throws Exception {
+    public void testCanCreateCouchdbRasStoreOK() throws Exception {
 
         // See if we can create a store...
         fixtures.createCouchdbRasStore(null);

@@ -31,7 +31,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
      */
 
 	@Test
-	public void TestPathRegexExpectedPathReturnsTrue(){
+	public void testPathRegexExpectedPathReturnsTrue(){
 		//Given...
 		String expectedPath = PropertyUpdateRoute.path;
 		String inputPath = "/namespace/properties/property.name.entry";
@@ -44,7 +44,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	}
 
 	@Test
-	public void TestPathRegexExpectedPathWithNumbersReturnsTrue(){
+	public void testPathRegexExpectedPathWithNumbersReturnsTrue(){
 		//Given...
 		String expectedPath = PropertyUpdateRoute.path;
 		String inputPath = "/namespace/properties/computer01";
@@ -57,7 +57,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	}
 
 	@Test
-	public void TestPathRegexLowerCasePathReturnsTrue(){
+	public void testPathRegexLowerCasePathReturnsTrue(){
 		//Given...
 		String expectedPath = PropertyUpdateRoute.path;
 		String inputPath = "/namespace/properties/thisisavalidpath";
@@ -70,7 +70,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	}
 	
 	@Test
-	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
+	public void testPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
 		//Given...
 		String expectedPath = PropertyUpdateRoute.path;
 		String inputPath = "/namespace/properties/CAPITAL01.Property";
@@ -83,7 +83,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	}
 
 	@Test
-	public void TestPathRegexUpperCasePathReturnsTrue(){
+	public void testPathRegexUpperCasePathReturnsTrue(){
 		//Given...
 		String expectedPath = PropertyUpdateRoute.path;
 		String inputPath = "/namespace/properties/ALLCAPITALS";
@@ -96,7 +96,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	}
 
 	@Test
-	public void TestPathRegexAtSymbolPathReturnsTrue(){
+	public void testPathRegexAtSymbolPathReturnsTrue(){
 		//Given...
 		String expectedPath = PropertyUpdateRoute.path;
 		String inputPath = "/namespace/properties/Galasadelivery@ibm.com";
@@ -109,7 +109,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	}
 	
 	@Test
-	public void TestPathRegexExpectedPathWithoutPropertyNameReturnsFalse(){
+	public void testPathRegexExpectedPathWithoutPropertyNameReturnsFalse(){
 		//Given...
 		String expectedPath = PropertyUpdateRoute.path;
 		String inputPath = "/namespace/properties";
@@ -122,7 +122,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	}
  
 	 @Test
-	 public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+	 public void testPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
 		 //Given...
 		 String expectedPath = PropertyUpdateRoute.path;
 		 String inputPath = "/namespace/properties/01server";
@@ -135,7 +135,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	 }
  
 	 @Test
-	 public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsFalse(){
+	 public void testPathRegexExpectedPathWithTrailingForwardSlashReturnsFalse(){
 		 //Given...
 		 String expectedPath = PropertyUpdateRoute.path;
 		 String inputPath = "/namespace/properties/propertyname/";
@@ -148,7 +148,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	 }
  
 	 @Test
-	 public void TestPathRegexNumberPathReturnsFalse(){
+	 public void testPathRegexNumberPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = PropertyUpdateRoute.path;
 		 String inputPath = "/namespace/properties/1234";
@@ -161,7 +161,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	 }
  
 	 @Test
-	 public void TestPathRegexUnexpectedPathReturnsFalse(){
+	 public void testPathRegexUnexpectedPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = PropertyUpdateRoute.path;
 		 String inputPath = "/namespace/properties/incorrect-?ID_1234";
@@ -174,7 +174,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	 }
  
 	 @Test
-	 public void TestPathRegexEmptyPathReturnsFalse(){
+	 public void testPathRegexEmptyPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = PropertyUpdateRoute.path;
 		 String inputPath = "";
@@ -187,7 +187,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	 }
  
 	 @Test
-	 public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+	 public void testPathRegexSpecialCharacterPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = PropertyUpdateRoute.path;
 		 String inputPath = "/namespace/properties/?";
@@ -200,7 +200,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	 }
  
 	 @Test
-	 public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+	 public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
 		 //Given...
 		 String expectedPath = PropertyUpdateRoute.path;
 		 String inputPath = "/namespace/properties//////";
@@ -216,7 +216,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
      * TESTS  -- GET requests
      */
     @Test
-    public void TestPropertyRouteGETBadNamespaceReturnsError() throws Exception{
+    public void testPropertyRouteGETBadNamespaceReturnsError() throws Exception{
 		// Given...
 		setServlet("/error/properties/property1","error" ,new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -241,7 +241,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteGETWithExistingNamespaceReturnsOk() throws Exception {
+    public void testPropertyRouteGETWithExistingNamespaceReturnsOk() throws Exception {
         // Given...
         setServlet("/framework/properties/property.1", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -263,7 +263,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteGETWithProtectedNamespaceReturnsOk() throws Exception {
+    public void testPropertyRouteGETWithProtectedNamespaceReturnsOk() throws Exception {
         // Given...
         setServlet("/secure/properties/property.1", "secure", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -285,7 +285,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteGETWithHiddenNamespaceReturnsError() throws Exception {
+    public void testPropertyRouteGETWithHiddenNamespaceReturnsError() throws Exception {
         // Given...
         setServlet("/dss/properties/property.1", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -311,7 +311,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteGETWithExistingNamespaceDifferentPropertyReturnsOk() throws Exception {
+    public void testPropertyRouteGETWithExistingNamespaceDifferentPropertyReturnsOk() throws Exception {
         // Given...
         setServlet("/framework/properties/property.3", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -333,7 +333,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteGETWithExistingNamespaceBadPropertyNameReturnsEmpty() throws Exception {
+    public void testPropertyRouteGETWithExistingNamespaceBadPropertyNameReturnsEmpty() throws Exception {
         // Given...
         setServlet("/framework/properties/in.property", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -353,7 +353,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteGETWithExistingNamespaceIncopmpletePropertyNameReturnsEmpty() throws Exception {
+    public void testPropertyRouteGETWithExistingNamespaceIncopmpletePropertyNameReturnsEmpty() throws Exception {
         // Given...
         setServlet("/framework/properties/roperty.1", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -373,7 +373,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteGETPropertyNameWithNoDotsReturnsError() throws Exception {
+    public void testPropertyRouteGETPropertyNameWithNoDotsReturnsError() throws Exception {
         // Given...
         setServlet("/framework/properties/badproperty", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -399,7 +399,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteGETPropertyNameStartingWithADotReturnsError() throws Exception {
+    public void testPropertyRouteGETPropertyNameStartingWithADotReturnsError() throws Exception {
         // Given...
         setServlet("/framework/properties/.badproperty", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -425,7 +425,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteGETPropertyNameWithTrailingDotReturnsError() throws Exception {
+    public void testPropertyRouteGETPropertyNameWithTrailingDotReturnsError() throws Exception {
         // Given...
         setServlet("/framework/properties/badproperty.", "framework", new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -455,7 +455,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
      */
 
     @Test
-    public void TestPropertyRoutePUTFrameworkReturnsError() throws Exception{
+    public void testPropertyRoutePUTFrameworkReturnsError() throws Exception{
 		// Given...
 		String json = generatePropertyJSON("namespace1", "property.1", "value12", "galasa-dev/v1alpha1");
 		setServlet("/namespace1/properties/property.1","error" ,json, "PUT");
@@ -481,7 +481,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
     
     @Test
-    public void TestPropertyRoutePUTBadNamespaceReturnsError() throws Exception{
+    public void testPropertyRoutePUTBadNamespaceReturnsError() throws Exception{
 		// Given...
 		String json = generatePropertyJSON("error", "property.1", "value12", "galasa-dev/v1alpha1");
 		setServlet("/error/properties/property1","error" ,json, "PUT");
@@ -507,7 +507,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteWithExistingNamespacePUTExistingPropertyReturnsOK() throws Exception {
+    public void testPropertyRouteWithExistingNamespacePUTExistingPropertyReturnsOK() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyName = "property.5";
@@ -533,7 +533,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteWithProtectedNamespacePUTExistingPropertyReturnsOK() throws Exception {
+    public void testPropertyRouteWithProtectedNamespacePUTExistingPropertyReturnsOK() throws Exception {
         // Given...
 		String namespace = "secure";
         String propertyName = "property.5";
@@ -559,7 +559,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRoutePUTWithHiddenNamespaceReturnsError() throws Exception {
+    public void testPropertyRoutePUTWithHiddenNamespaceReturnsError() throws Exception {
         // Given...
 		String namespace = "dss";
         String propertyName = "property.5";
@@ -589,7 +589,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteWithExistingNamespacePUTNewPropertyReturnsError() throws Exception {
+    public void testPropertyRouteWithExistingNamespacePUTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyName = "property.6";
@@ -617,7 +617,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteWithErroneousNamespacePUTNewPropertyReturnsError() throws Exception {
+    public void testPropertyRouteWithErroneousNamespacePUTNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyName = "property.5";
@@ -645,7 +645,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
     
     @Test
-    public void TestPropertyRouteWithNamespaceNoValuePUTNewPropertyReturnsError() throws Exception {
+    public void testPropertyRouteWithNamespaceNoValuePUTNewPropertyReturnsError() throws Exception {
         // Given...
         String propertyName = "property5";
         String value = "";
@@ -672,7 +672,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteWithNamespaceNullValuePUTNewPropertyReturnsError() throws Exception {
+    public void testPropertyRouteWithNamespaceNullValuePUTNewPropertyReturnsError() throws Exception {
         // Given...
         String propertyName = "property6";
         String value = null;
@@ -703,7 +703,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
      */
 
 	@Test
-    public void TestPropertyRouteDELETEWithHiddenNamespaceReturnsError() throws Exception {
+    public void testPropertyRouteDELETEWithHiddenNamespaceReturnsError() throws Exception {
         // Given...
         String propertyName = "property.5";
         setServlet("/dss/properties/"+propertyName, "framework", null, "DELETE");
@@ -730,7 +730,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
     
     @Test
-    public void TestPropertyRouteDELETEBadNamespaceReturnsError() throws Exception{
+    public void testPropertyRouteDELETEBadNamespaceReturnsError() throws Exception{
         // Given...
 		setServlet("/error/properties/property.1", "error", null, "DELETE");
 		MockCpsServlet servlet = getServlet();
@@ -755,7 +755,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
         }
         
     @Test
-    public void TestPropertyRouteDELETEBadPropertyReturnsErrorOK() throws Exception{
+    public void testPropertyRouteDELETEBadPropertyReturnsErrorOK() throws Exception{
         // Given...
 		setServlet("/framework/properties/bad.property", "framework", null, "DELETE");
 		MockCpsServlet servlet = getServlet();
@@ -777,7 +777,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
     @Test
-    public void TestPropertyRouteDELETEPropertyReturnsOk() throws Exception{
+    public void testPropertyRouteDELETEPropertyReturnsOk() throws Exception{
         // Given...
 		String namespace = "framework";
         String propertyName = "property.1";
@@ -831,7 +831,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteDELETEPropertyWithAtSymbolReturnsOk() throws Exception{
+    public void testPropertyRouteDELETEPropertyWithAtSymbolReturnsOk() throws Exception{
         // Given...
 		String namespace = "framework";
         String propertyName = "Galasadelivery@ibm.com";
@@ -856,7 +856,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
     }
 
 	@Test
-    public void TestPropertyRouteDELETEPropertyinProtectedNamespaceReturnOK() throws Exception{
+    public void testPropertyRouteDELETEPropertyinProtectedNamespaceReturnOK() throws Exception{
         // Given...
 		String namespace = "secure";
         String propertyName = "property.1";
@@ -884,7 +884,7 @@ public class TestPropertyUpdateRoute extends CpsServletTest{
 	 */
 	
 	@Test
-	public void TestPropertyRoutePOSTPropertyReturnsError() throws Exception{
+	public void testPropertyRoutePOSTPropertyReturnsError() throws Exception{
 		// Given...
 		String namespace = "framework";
         String propertyName = "property1";

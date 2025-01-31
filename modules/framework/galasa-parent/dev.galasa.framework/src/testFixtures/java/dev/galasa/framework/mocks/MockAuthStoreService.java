@@ -30,6 +30,7 @@ public class MockAuthStoreService implements IAuthStoreService {
     private int tokenIdCounter = 0;
 
     private boolean throwException = false;
+    private boolean isThrowExceptionOnDeleteToken = false ;
 
     public MockAuthStoreService(List<IInternalAuthToken> tokens) {
         this.tokens = tokens;
@@ -38,6 +39,10 @@ public class MockAuthStoreService implements IAuthStoreService {
 
     public MockAuthStoreService(ITimeService timeService) {
         this.timeService = timeService;
+    }
+
+    public void setThrowExceptionOnDeleteToken(boolean isThrowExceptionOnDeleteToken) {
+        this.isThrowExceptionOnDeleteToken = isThrowExceptionOnDeleteToken ;
     }
 
     public void setThrowException(boolean throwException) {
@@ -67,7 +72,7 @@ public class MockAuthStoreService implements IAuthStoreService {
 
     @Override
     public void deleteToken(String tokenId) throws AuthStoreException {
-        if (throwException) {
+        if (isThrowExceptionOnDeleteToken) {
             throwAuthStoreException();
         }
 

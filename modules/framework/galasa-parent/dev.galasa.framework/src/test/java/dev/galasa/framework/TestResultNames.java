@@ -14,7 +14,7 @@ import org.junit.Test;
 public class TestResultNames {
 
     @Test
-    public void TestGetDefaultResultNames(){
+    public void testGetDefaultResultNames(){
         List<String> resultNames = ResultNames.getDefaultResultNames();
         assertArrayEquals(resultNames.toArray(), new String[]{"Ignored","Passed","Failed","EnvFail","Cancelled"});
     } 

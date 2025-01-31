@@ -204,7 +204,7 @@ public class TestGherkinParser {
     }
 
     @Test
-    public void TestFeatureWithTwoComplexScenarios() throws Exception {
+    public void testFeatureWithTwoComplexScenarios() throws Exception {
         // Given...
         List<String> lines = List.of(
             "Feature: my feature",
@@ -253,7 +253,7 @@ public class TestGherkinParser {
     }
 
     @Test
-    public void TestFeatureWithScenarioOutline() throws Exception {
+    public void testFeatureWithScenarioOutline() throws Exception {
         // Given...
         List<String> lines = List.of(
             "Feature: Browse the catalog and order\n",

@@ -120,8 +120,8 @@ info "Boot jar is at ${BOOT_FOLDER}/${boot_jar_name}"
 
 # Work out where the locally-build-OBR is held...
 framework_version=$(cat $BASEDIR/galasa-parent/build.gradle | grep "version =" | cut -f2 -d'"' | head -1 | xargs)
-OBR_VERSION=$framework_version
-info "Using OBR version $OBR_VERSION"
+export GALASA_VERSION=$framework_version
+info "Using OBR version $GALASA_VERSION"
 
 M2_PATH=~/.m2
 
@@ -170,8 +170,8 @@ EOF
 
 function setup_galasa_dev() {
     info "Setting environment variables"
-    export GALASA_OBR_VERSION=0.36.0
-    export GALASA_BOOT_JAR_VERSION=0.36.0
+    export GALASA_OBR_VERSION=$GALASA_VERSION
+    export GALASA_BOOT_JAR_VERSION=$GALASA_VERSION
     export GALASA_EXTERNAL_API_URL="http://localhost:8080"
     export GALASA_USERNAME_CLAIMS="preferred_username,name,sub"
     export GALASA_ALLOWED_ORIGINS="*"
@@ -201,7 +201,7 @@ function launch_api_server {
     --localmaven file:${M2_PATH}/repository/ \
     --bootstrap ${GALASA_BOOTSTRAP} \
     --overrides file://${GALASA_HOME}/overrides.properties \
-    --obr mvn:dev.galasa/dev.galasa.uber.obr/${OBR_VERSION}/obr \
+    --obr mvn:dev.galasa/dev.galasa.uber.obr/${GALASA_VERSION}/obr \
     --api"
 
     #  Add this flag back in if we want more trace: --trace \

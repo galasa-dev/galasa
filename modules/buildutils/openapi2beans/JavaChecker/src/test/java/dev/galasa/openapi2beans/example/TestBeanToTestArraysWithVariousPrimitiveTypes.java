@@ -17,7 +17,7 @@ import dev.galasa.openapi2beans.example.generated.BeanToTestArraysWithVariousPri
 public class TestBeanToTestArraysWithVariousPrimitiveTypes {
     
     @Test
-    public void TestCanSerialiseTheBean() throws Exception {
+    public void testCanSerialiseTheBean() throws Exception {
         BeanToTestArraysWithVariousPrimitiveTypes beanUnderTest = new BeanToTestArraysWithVariousPrimitiveTypes();
         beanUnderTest.setAStringArray(new String[]{"randString0", "randString1"});
         beanUnderTest.setABooleanArray(new boolean[]{true, false});

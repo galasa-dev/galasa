@@ -19,7 +19,7 @@ import dev.galasa.extensions.common.api.HttpRequestFactory;
 public class HttpRequestFactoryTest {
 
     @Test
-    public void TestGETRequestReturnsRequestWithGETMethod() {
+    public void testGETRequestReturnsRequestWithGETMethod() {
         //Given ...
         String token = "myvalue";
         String authType = "Basic";
@@ -39,7 +39,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void TestHEADRequestReturnsRequestWithHEADMethod() {
+    public void testHEADRequestReturnsRequestWithHEADMethod() {
         //Given ...
         String token = "iamnottryingtogetahead";
         String authType = "Basic";
@@ -59,7 +59,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void TestPOSTRequestReturnsRequestWithPOSTMethod() {
+    public void testPOSTRequestReturnsRequestWithPOSTMethod() {
         //Given ...
         String token = "mysecretPOSTtoken";
         String authType = "Basic";
@@ -79,7 +79,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void TestPUTRequestReturnsRequestWithPUTMethod() {
+    public void testPUTRequestReturnsRequestWithPUTMethod() {
         //Given ...
         String token = "iPut";
         String authType = "Basic";
@@ -99,7 +99,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void TestDELETERequestReturnsRequestWithDELETEMethod() {
+    public void testDELETERequestReturnsRequestWithDELETEMethod() {
         //Given ...
         String token = "idontneedthisanymore";
         String authType = "Basic";
@@ -119,7 +119,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void TestGETRequestwithExtraHeadersReturnsRequestWithExtraHeaders() {
+    public void testGETRequestwithExtraHeadersReturnsRequestWithExtraHeaders() {
         //Given ...
         String token = "getwithextraheaders";
         String authType = "Basic";
@@ -145,7 +145,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void TestPOSTRequestwithUpdatedHeadersReturnsRequestWithUpdatedHeaders() {
+    public void testPOSTRequestwithUpdatedHeadersReturnsRequestWithUpdatedHeaders() {
         //Given ...
         String token = "getwithextraheaders";
         String authType = "Basic";

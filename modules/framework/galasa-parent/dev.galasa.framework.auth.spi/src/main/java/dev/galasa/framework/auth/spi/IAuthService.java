@@ -10,7 +10,7 @@ import dev.galasa.framework.spi.auth.IAuthStoreService;
 
 public interface IAuthService {
 
-    void revokeToken(String tokenId) throws InternalServletException;
+    void revokeToken(String tokenId, String requestorUserLoginId) throws InternalServletException;
 
     IDexGrpcClient getDexGrpcClient();
     IAuthStoreService getAuthStoreService();

@@ -17,14 +17,14 @@ public class TestFrameworkErrorDetailsBase {
     }
 
     @Test
-    public void TestWithErrorCodeAndMessage(){
+    public void testWithErrorCodeAndMessage(){
         FrameworkErrorDetailsBase details = new FrameworkErrorDetailsBase( 100, "the message");
         assertThat(details.getErrorCode()).isEqualTo(100);
         assertThat(details.getMessage()).isEqualTo("the message");
     }
 
     @Test
-    public void TestJsonRendersCodeAndMessage() {
+    public void testJsonRendersCodeAndMessage() {
         FrameworkErrorDetailsBase details = new FrameworkErrorDetailsBase( 100, "the message");
         String json = details.toJson();
 

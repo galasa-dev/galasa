@@ -16,8 +16,10 @@ import org.junit.Test;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.InternalUser;
 import dev.galasa.framework.auth.spi.mocks.MockDexGrpcClient;
+import dev.galasa.framework.mocks.FilledMockRBACService;
 import dev.galasa.framework.mocks.MockAuthStoreService;
 import dev.galasa.framework.mocks.MockInternalAuthToken;
+import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
 import dev.galasa.framework.spi.auth.IInternalUser;
 
@@ -30,7 +32,9 @@ public class AuthServiceTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
-        IInternalUser owner = new InternalUser("username", "dexId");
+
+        String userIdDeletingTokens = "usernameDeletingTokens";
+        IInternalUser owner = new InternalUser(userIdDeletingTokens, "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
         tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
@@ -40,11 +44,13 @@ public class AuthServiceTest {
         mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
         mockDexGrpcClient.addMockRefreshToken(owner.getLoginId(), clientId);
 
-        AuthService authService = new AuthService(authStoreService, mockDexGrpcClient);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(userIdDeletingTokens);
+
+        AuthService authService = new AuthService(authStoreService, mockDexGrpcClient, rbacService);
         assertThat(tokens).hasSize(1);
 
         // When...
-        authService.revokeToken(tokenId);
+        authService.revokeToken(tokenId, userIdDeletingTokens);
 
         // Then...
         assertThat(tokens).isEmpty();
@@ -70,12 +76,15 @@ public class AuthServiceTest {
         mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
         mockDexGrpcClient.addMockRefreshToken(owner.getLoginId(), clientId);
 
-        AuthService authService = new AuthService(authStoreService, mockDexGrpcClient);
+        String userIdDeletingTokens = "usernameDeletingTokens";
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(userIdDeletingTokens);
+
+        AuthService authService = new AuthService(authStoreService, mockDexGrpcClient, rbacService);
         assertThat(tokens).hasSize(1);
 
         // When...
         InternalServletException thrown = catchThrowableOfType(
-            () -> authService.revokeToken(tokenId),
+            () -> authService.revokeToken(tokenId,userIdDeletingTokens),
             InternalServletException.class
         );
 

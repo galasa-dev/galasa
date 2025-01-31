@@ -119,7 +119,7 @@ public enum ServletErrorMessage {
     GAL5064_FAILED_TO_REVOKE_TOKEN                    (5064, "E: Failed to revoke the token with the given ID. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     GAL5065_FAILED_TO_GET_TOKEN_ID_FROM_URL           (5065, "E: Failed to retrieve a token ID from the request path. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS                (5066, "E: No such token with the given ID exists. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
-    GAL5067_ERROR_INVALID_LOGINID                     (5057, "E: Invalid login ID provided. This could be because no value was given for the loginId query parameter. Check your provided loginId query parameter value and try again."),
+    GAL5127_ERROR_INVALID_LOGINID                     (5127, "E: Invalid login ID provided. This could be because no value was given for the loginId query parameter. Check your provided loginId query parameter value and try again."),
 
     // OpenAPI Servlet...
     GAL5071_FAILED_TO_PARSE_YAML_INTO_JSON            (5071, "E: Internal server error. Failed to convert OpenAPI specification from YAML into JSON. Report the problem to your Galasa Ecosystem owner"),
@@ -162,10 +162,15 @@ public enum ServletErrorMessage {
     GAL5125_ACTION_NOT_PERMITTED                      (5125, "E: Insufficient privileges to perform the requested operation. Check with your Galasa systems administrator that you have been assigned the correct role with the ''{0}'' action before trying again."),
     GAL5126_INTERNAL_RBAC_ERROR                       (5126, "E: Error occurred when trying to access the Role Based Access Control service. Report the problem to your Galasa systems administrator."),
 
-
     ;
 
-
+    // >>>
+    // >>> Note: Please keep this up to date, to save us wondering what to allocate next... 
+    // >>>       otherwise you have to find a 'gap' in the range.
+    // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
+    // >>>       If you do use this number for a new error template, please incriment this value.
+    // >>>
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5413 ;
 
 
     private String template ;

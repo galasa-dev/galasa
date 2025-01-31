@@ -16,7 +16,7 @@ import com.google.gson.GsonBuilder;
 public class TestBeanWithPrimitiveProperty {
     
     @Test
-    public void TestCanSerialiseTheBean() throws Exception {
+    public void testCanSerialiseTheBean() throws Exception {
         BeanWithPrimitiveProperty beanUnderTest = new BeanWithPrimitiveProperty();
         beanUnderTest.setAStringVariable("hello");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

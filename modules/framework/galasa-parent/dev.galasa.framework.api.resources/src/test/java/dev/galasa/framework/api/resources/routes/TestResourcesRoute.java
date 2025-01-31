@@ -44,7 +44,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
      */
 
     @Test
-    public void TestPathRegexExpectedPathReturnsTrue(){
+    public void testPathRegexExpectedPathReturnsTrue(){
         //Given...
         String expectedPath = ResourcesRoute.path;
         String inputPath = "/";
@@ -57,7 +57,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestPathRegexEmptyPathReturnsFalse(){
+    public void testPathRegexEmptyPathReturnsFalse(){
         //Given...
         String expectedPath = ResourcesRoute.path;
         String inputPath = "";
@@ -70,7 +70,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestPathRegexRandomPathReturnsFalse(){
+    public void testPathRegexRandomPathReturnsFalse(){
         //Given...
         String expectedPath = ResourcesRoute.path;
         String inputPath = "/randomString";
@@ -83,7 +83,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+    public void testPathRegexSpecialCharacterPathReturnsFalse(){
         //Given...
         String expectedPath = ResourcesRoute.path;
         String inputPath = "/?";
@@ -96,7 +96,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestPathRegexNumberPathReturnsFalse(){
+    public void testPathRegexNumberPathReturnsFalse(){
         //Given...
         String expectedPath = ResourcesRoute.path;
         String inputPath = "/3";
@@ -109,7 +109,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+    public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
         //Given...
         String expectedPath = ResourcesRoute.path;
         String inputPath = "//////";
@@ -126,7 +126,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
      */
 
     @Test
-    public void TestProcessDataArrayBadJsonArrayReturnsError() throws Exception{
+    public void testProcessDataArrayBadJsonArrayReturnsError() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -152,7 +152,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
     
     @Test
-    public void TestProcessDataArrayBadJsonReturnsError() throws Exception{
+    public void testProcessDataArrayBadJsonReturnsError() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -178,7 +178,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayBadKindReturnsError() throws Exception{
+    public void testProcessDataArrayBadKindReturnsError() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -204,7 +204,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayNullJsonObjectReturnsError() throws Exception{
+    public void testProcessDataArrayNullJsonObjectReturnsError() throws Exception{
         //Given...
         String namespace = "framework";
         setServlet(namespace);
@@ -227,7 +227,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayCorrectJSONReturnsOK() throws Exception{
+    public void testProcessDataArrayCorrectJSONReturnsOK() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -251,7 +251,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayCorrectJSONWithAtSymbolInPropertyReturnsOK() throws Exception{
+    public void testProcessDataArrayCorrectJSONWithAtSymbolInPropertyReturnsOK() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "Galasadelivery@ibm.com";
@@ -275,7 +275,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayThreeBadJsonReturnsErrors() throws Exception{
+    public void testProcessDataArrayThreeBadJsonReturnsErrors() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -305,7 +305,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayCreateWithOneExistingRecordJSONReturnsOneError() throws Exception{
+    public void testProcessDataArrayCreateWithOneExistingRecordJSONReturnsOneError() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -336,7 +336,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayCreateWithTwoExistingRecordsJSONReturnsTwoErrors() throws Exception{
+    public void testProcessDataArrayCreateWithTwoExistingRecordsJSONReturnsTwoErrors() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.1";
@@ -369,7 +369,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayUpdateWithOneNewRecordJSONReturnsOneError() throws Exception{
+    public void testProcessDataArrayUpdateWithOneNewRecordJSONReturnsOneError() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -399,7 +399,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessDataArrayUpdateWithTwoNewRecordsJSONReturnsTwoError() throws Exception{
+    public void testProcessDataArrayUpdateWithTwoNewRecordsJSONReturnsTwoError() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -434,7 +434,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
      */
 
      @Test
-    public void TestProcessRequestApplyActionReturnsOK() throws Exception{
+    public void testProcessRequestApplyActionReturnsOK() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -459,7 +459,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessRequestCreateActionReturnsOK() throws Exception{
+    public void testProcessRequestCreateActionReturnsOK() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -484,7 +484,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessRequestUpdateActionReturnsOK() throws Exception{
+    public void testProcessRequestUpdateActionReturnsOK() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.1";
@@ -510,7 +510,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
 
     @Test
-    public void TestCreatePropertyWithMissingPermissionsReturnsForbidden() throws Exception{
+    public void testCreatePropertyWithMissingPermissionsReturnsForbidden() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -539,7 +539,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestApplyPropertyWithMissingPermissionsReturnsForbidden() throws Exception{
+    public void testApplyPropertyWithMissingPermissionsReturnsForbidden() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.1";
@@ -568,7 +568,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestProcessRequestBadActionReturnsError() throws Exception{
+    public void testProcessRequestBadActionReturnsError() throws Exception{
         //Given...
         String namespace = "framework";
         String propertyname = "property.name";
@@ -598,7 +598,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithApplySingleNewPropertyReturnsSuccess() throws Exception {
+    public void testHandlePOSTwithApplySingleNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.name";
@@ -622,7 +622,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithCreateSingleNewPropertyReturnsSuccess() throws Exception {
+    public void testHandlePOSTwithCreateSingleNewPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.name";
@@ -646,7 +646,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithUpdateSingleNewPropertyReturnsError() throws Exception {
+    public void testHandlePOSTwithUpdateSingleNewPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.name";
@@ -673,7 +673,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithApplyMultipleNewPropertiesReturnsSuccess() throws Exception {
+    public void testHandlePOSTwithApplyMultipleNewPropertiesReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.6";
@@ -703,7 +703,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithApplySingleExistingPropertyReturnsSuccess() throws Exception {
+    public void testHandlePOSTwithApplySingleExistingPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.1";
@@ -727,7 +727,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithCreateSingleExistingPropertyReturnsError() throws Exception {
+    public void testHandlePOSTwithCreateSingleExistingPropertyReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.1";
@@ -754,7 +754,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithUpdateSingleExistingPropertyReturnsSuccess() throws Exception {
+    public void testHandlePOSTwithUpdateSingleExistingPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.1";
@@ -778,7 +778,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithApplyMultipleExistingPropertiesReturnsSuccess() throws Exception {
+    public void testHandlePOSTwithApplyMultipleExistingPropertiesReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.5";
@@ -808,7 +808,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithApplyMultipleExistingAndNewPropertiesReturnsSuccess() throws Exception {
+    public void testHandlePOSTwithApplyMultipleExistingAndNewPropertiesReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "new.property";
@@ -838,7 +838,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithDeleteSingleExistingPropertyReturnsSuccess() throws Exception {
+    public void testHandlePOSTwithDeleteSingleExistingPropertyReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.1";
@@ -862,7 +862,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithDeleteMultipleExistingPropertiesReturnsSuccess() throws Exception {
+    public void testHandlePOSTwithDeleteMultipleExistingPropertiesReturnsSuccess() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.5";
@@ -892,7 +892,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithDeleteSingleNewPropertyReturnsOk() throws Exception {
+    public void testHandlePOSTwithDeleteSingleNewPropertyReturnsOk() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.10";
@@ -916,7 +916,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithDeleteMultipleNewPropertiesReturnsOk() throws Exception {
+    public void testHandlePOSTwithDeleteMultipleNewPropertiesReturnsOk() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.53";
@@ -946,7 +946,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithDeleteExistingAndNewPropertiesReturnsOk() throws Exception {
+    public void testHandlePOSTwithDeleteExistingAndNewPropertiesReturnsOk() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.5";
@@ -976,7 +976,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithDeleteSingleExistingPropertyRaisesExceptionReturnsError() throws Exception {
+    public void testHandlePOSTwithDeleteSingleExistingPropertyRaisesExceptionReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.1";
@@ -1003,7 +1003,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithDeleteMultipleExistingPropertiesRaisesExceptionsReturnsError() throws Exception {
+    public void testHandlePOSTwithDeleteMultipleExistingPropertiesRaisesExceptionsReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.5";
@@ -1037,7 +1037,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithApplyMultipleExistingAndNewAndNullPropertiesReturnsError() throws Exception {
+    public void testHandlePOSTwithApplyMultipleExistingAndNewAndNullPropertiesReturnsError() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "new.property";
@@ -1076,7 +1076,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestHandlePOSTwithNoDataReturnsOK() throws Exception {
+    public void testHandlePOSTwithNoDataReturnsOK() throws Exception {
         // Given...
 		JsonObject propertyJson = generateRequestJson("apply", new ArrayList<>());
 		setServlet("/", "framework", propertyJson , "POST");
@@ -1098,7 +1098,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
     }
 
     @Test
-    public void TestGetErrorsAsJsonReturnsJsonString() throws Exception{
+    public void testGetErrorsAsJsonReturnsJsonString() throws Exception{
         // Given...
         List<String> errors = new ArrayList<String>();
         errors.add("{\"error_code\":5030,\"error_message\":\"GAL5030E: Error occurred when trying to delete Property 'property.5'. Report the problem to your Galasa Ecosystem owner.\"}");
@@ -1132,7 +1132,7 @@ public class TestResourcesRoute extends ResourcesServletTest{
 
 
     @Test
-    public void TestHandlePOSTwithDeleteMultipleExistingPropertiesRaisesExceptionsReturnsErrorArray() throws Exception {
+    public void testHandlePOSTwithDeleteMultipleExistingPropertiesRaisesExceptionsReturnsErrorArray() throws Exception {
         // Given...
 		String namespace = "framework";
         String propertyname = "property.5";

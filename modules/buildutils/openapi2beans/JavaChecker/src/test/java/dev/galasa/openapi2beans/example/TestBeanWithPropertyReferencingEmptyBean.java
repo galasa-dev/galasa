@@ -18,7 +18,7 @@ import dev.galasa.openapi2beans.example.generated.EmptyBean;
 public class TestBeanWithPropertyReferencingEmptyBean {
     
     @Test
-    public void TestCanSerialiseTheBean() throws Exception {
+    public void testCanSerialiseTheBean() throws Exception {
         BeanWithPropertyReferencingEmptyBean beanUnderTest = new BeanWithPropertyReferencingEmptyBean();
         EmptyBean emptyBean = new EmptyBean();
         beanUnderTest.setReferencingProperty(emptyBean);

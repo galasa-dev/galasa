@@ -17,7 +17,7 @@ import dev.galasa.framework.spi.language.gherkin.parser.*;
 public class TestParseTreePrinter {
     
     @Test
-    public void TestComplexParseTreePrintsOut() throws Exception {
+    public void testComplexParseTreePrintsOut() throws Exception {
         // Given...
         List<String> lines = List.of(
             "Feature: my feature",
@@ -55,7 +55,7 @@ public class TestParseTreePrinter {
     }
 
     @Test
-    public void TestComplexParseTreePrintsOutWithCapturedOutput() throws Exception {
+    public void testComplexParseTreePrintsOutWithCapturedOutput() throws Exception {
         // Given...
         List<String> lines = List.of(
             "Feature: my feature",

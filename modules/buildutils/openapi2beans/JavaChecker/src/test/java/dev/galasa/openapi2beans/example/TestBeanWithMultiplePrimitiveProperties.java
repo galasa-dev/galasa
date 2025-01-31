@@ -18,7 +18,7 @@ import dev.galasa.openapi2beans.example.generated.BeanWithMultiplePrimitivePrope
 public class TestBeanWithMultiplePrimitiveProperties {
     
     @Test
-    public void TestCanSerialiseTheBean() throws Exception {
+    public void testCanSerialiseTheBean() throws Exception {
         BeanWithMultiplePrimitiveProperties beanUnderTest = new BeanWithMultiplePrimitiveProperties();
         beanUnderTest.setAStringVariable("hello");
         beanUnderTest.setAIntVariable(11);

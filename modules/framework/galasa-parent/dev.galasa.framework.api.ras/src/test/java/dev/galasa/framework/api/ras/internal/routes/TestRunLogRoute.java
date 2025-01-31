@@ -57,7 +57,7 @@ public class TestRunLogRoute extends RasServletTest {
      */
 
 	@Test
-	public void TestPathRegexExpectedLocalPathReturnsTrue(){
+	public void testPathRegexExpectedLocalPathReturnsTrue(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/lcl-abcd-1234.run/runlog";
@@ -70,7 +70,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexExpectedCouchDBPathReturnsTrue(){
+	public void testPathRegexExpectedCouchDBPathReturnsTrue(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/cdb-efgh-5678.run/runlog";
@@ -83,7 +83,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexLowerCasePathReturnsTrue(){
+	public void testPathRegexLowerCasePathReturnsTrue(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/cdbstoredrun/runlog";
@@ -96,7 +96,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 	
 	@Test
-	public void TestPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
+	public void testPathRegexExpectedPathWithCapitalLeadingLetterReturnsTrue(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/ABC-DEFG-5678.run/runlog";
@@ -109,7 +109,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 	
 	@Test
-	public void TestPathRegexUpperCasePathReturnsFalse(){
+	public void testPathRegexUpperCasePathReturnsFalse(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/RUNLOG";
@@ -122,7 +122,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
  
 	@Test
-	public void TestPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
+	public void testPathRegexExpectedPathWithLeadingNumberReturnsFalse(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/1runlog";
@@ -135,7 +135,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
+	public void testPathRegexExpectedPathWithTrailingForwardSlashReturnsTrue(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/runlog/";
@@ -148,7 +148,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexNumberPathReturnsFalse(){
+	public void testPathRegexNumberPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/runlog1";
@@ -161,7 +161,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexUnexpectedPathReturnsFalse(){
+	public void testPathRegexUnexpectedPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/runawaylog";
@@ -174,7 +174,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexEmptyPathReturnsFalse(){
+	public void testPathRegexEmptyPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "";
@@ -187,7 +187,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexSpecialCharacterPathReturnsFalse(){
+	public void testPathRegexSpecialCharacterPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/runlog/?";
@@ -200,7 +200,7 @@ public class TestRunLogRoute extends RasServletTest {
 	}
 
 	@Test
-	public void TestPathRegexMultipleForwardSlashPathReturnsFalse(){
+	public void testPathRegexMultipleForwardSlashPathReturnsFalse(){
 		//Given...
 		String expectedPath = RunLogRoute.path;
 		String inputPath = "/runs/cdb-EFGH-5678.run/runlog//////";

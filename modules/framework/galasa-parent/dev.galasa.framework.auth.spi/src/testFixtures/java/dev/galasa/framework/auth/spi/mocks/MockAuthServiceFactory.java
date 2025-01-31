@@ -5,8 +5,7 @@
  */
 package dev.galasa.framework.auth.spi.mocks;
 
-import javax.servlet.ServletException;
-
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.auth.spi.IAuthService;
 import dev.galasa.framework.auth.spi.IAuthServiceFactory;
 
@@ -19,7 +18,7 @@ public class MockAuthServiceFactory implements IAuthServiceFactory {
     }
 
     @Override
-    public IAuthService getAuthService() throws ServletException {
+    public IAuthService getAuthService() throws InternalServletException {
         return authService;
     }
 }

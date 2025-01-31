@@ -38,15 +38,14 @@ public class TestRBACServiceImpl {
         assertThat(roleGot.getDescription()).contains("Administrator access");
 
         assertThat(roleGot.getActionIds())
-            .hasSize(9)
-            .contains("USER_ROLE_UPDATE_ANY")
+            .hasSize(8)
+            .contains("USER_EDIT_OTHER")
             .contains("SECRETS_GET_UNREDACTED_VALUES")
             .contains("GENERAL_API_ACCESS")
             .contains("CPS_PROPERTIES_DELETE")
             .contains("CPS_PROPERTIES_SET")
             .contains("SECRETS_SET")
             .contains("SECRETS_DELETE")
-            .contains("USER_DELETE_OTHER")
             .contains("RUNS_DELETE_OTHER_USERS");
     }
 
@@ -65,7 +64,7 @@ public class TestRBACServiceImpl {
 
         assertThat(roleGot.getActionIds())
             .hasSize(2)
-            .contains("USER_ROLE_UPDATE_ANY")
+            .contains("USER_EDIT_OTHER")
             .contains("GENERAL_API_ACCESS");
     }
 
@@ -95,8 +94,8 @@ public class TestRBACServiceImpl {
         RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
         Map<String,Action> actionMap = service.getActionsMapById();
 
-        Action action = actionMap.get("USER_ROLE_UPDATE_ANY");
-        assertThat(action.getId()).isEqualTo("USER_ROLE_UPDATE_ANY");
+        Action action = actionMap.get("USER_EDIT_OTHER");
+        assertThat(action.getId()).isEqualTo("USER_EDIT_OTHER");
     }
 
 

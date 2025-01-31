@@ -2161,7 +2161,7 @@ paths:
                     actions:
                       - GENERAL_API_ACCESS
                       - SECRETS_GET_UNREDACTED_VALUES
-                      - USER_ROLE_UPDATE_ANY
+                      - USER_EDIT_OTHER
                       - CPS_PROPERTIES_SET
         '404':
           $ref: '#/components/responses/NotFound'

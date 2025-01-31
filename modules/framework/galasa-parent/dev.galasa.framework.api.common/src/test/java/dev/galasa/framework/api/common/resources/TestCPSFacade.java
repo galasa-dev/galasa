@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.*;
 public class TestCPSFacade {
 
     @Test
-    public void TestNamespacesListContainsFramework() throws ConfigurationPropertyStoreException{
+    public void testNamespacesListContainsFramework() throws ConfigurationPropertyStoreException{
 
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         
@@ -36,7 +36,7 @@ public class TestCPSFacade {
     }
 
     @Test
-    public void TestNamespacesListContainsDSS() throws ConfigurationPropertyStoreException{
+    public void testNamespacesListContainsDSS() throws ConfigurationPropertyStoreException{
 
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
@@ -51,7 +51,7 @@ public class TestCPSFacade {
     }
 
     @Test
-    public void TestNamespacesListContainsDex() throws ConfigurationPropertyStoreException{
+    public void testNamespacesListContainsDex() throws ConfigurationPropertyStoreException{
 
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
@@ -65,7 +65,7 @@ public class TestCPSFacade {
     }
 
     @Test
-    public void TestNamespacesListContainsSecure() throws ConfigurationPropertyStoreException{
+    public void testNamespacesListContainsSecure() throws ConfigurationPropertyStoreException{
 
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         IFramework mockFramework = new MockFramework(cps);
@@ -80,7 +80,7 @@ public class TestCPSFacade {
 
 
     @Test
-    public void TestGetNamespacesDrawsFromCPSService() throws Exception {
+    public void testGetNamespacesDrawsFromCPSService() throws Exception {
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
 
         cps.setProperty("myNamespace.myProperties.a","myValue");
@@ -96,7 +96,7 @@ public class TestCPSFacade {
     }
 
     @Test
-    public void TestGetNamespacesDrawsFromCPSServiceSecureVisibilityNotOverwritten() throws Exception {
+    public void testGetNamespacesDrawsFromCPSServiceSecureVisibilityNotOverwritten() throws Exception {
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
 
         cps.setProperty("secure.myProperties.a","myValue");
@@ -122,22 +122,22 @@ public class TestCPSFacade {
     }
 
     @Test
-    public void TestGetNamespaceFrameworkNamespaceIsNormal() throws ConfigurationPropertyStoreException {
+    public void testGetNamespaceFrameworkNamespaceIsNormal() throws ConfigurationPropertyStoreException {
         checkGetOfNamespace("framework",false,false);
     }
 
     @Test
-    public void TestGetNamespaceSecureNamespaceIsSecure() throws ConfigurationPropertyStoreException {
+    public void testGetNamespaceSecureNamespaceIsSecure() throws ConfigurationPropertyStoreException {
         checkGetOfNamespace("secure",true,false);
     }
 
     @Test
-    public void TestGetNamespaceDssNamespaceIsHidden() throws ConfigurationPropertyStoreException {
+    public void testGetNamespaceDssNamespaceIsHidden() throws ConfigurationPropertyStoreException {
         checkGetOfNamespace("dss",false,true);
     }
 
     @Test
-    public void TestGetNamespaceDexNamespaceIsHidden() throws ConfigurationPropertyStoreException {
+    public void testGetNamespaceDexNamespaceIsHidden() throws ConfigurationPropertyStoreException {
         checkGetOfNamespace("dex",false,true);
     }
 }

@@ -65,7 +65,7 @@ public class RBACServiceImpl implements RBACService {
         roleAdmin= new RoleImpl("admin","2","Administrator access",allActionIds);
 
         roleTester = new RoleImpl("tester", "1", "Test developer and runner", 
-            List.of( USER_ROLE_UPDATE_ANY.getAction().getId() , GENERAL_API_ACCESS.getAction().getId() )   
+            List.of( USER_EDIT_OTHER.getAction().getId() , GENERAL_API_ACCESS.getAction().getId() )   
         );
 
         roleDeactivated = new RoleImpl("deactivated", "0", "User has no access", new ArrayList<String>());

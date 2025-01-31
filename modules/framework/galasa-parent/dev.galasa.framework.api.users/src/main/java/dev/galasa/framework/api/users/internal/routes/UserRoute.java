@@ -83,7 +83,7 @@ public class UserRoute extends AbstractUsersRoute {
         HttpServletResponse response
     ) throws FrameworkException, IOException {
 
-        validateActionPermitted(BuiltInAction.USER_ROLE_UPDATE_ANY, requestContext.getUsername());
+        validateActionPermitted(BuiltInAction.USER_EDIT_OTHER, requestContext.getUsername());
         logger.info("handlePutRequest() entered");
 
         HttpServletRequest request = requestContext.getRequest();
@@ -161,7 +161,7 @@ public class UserRoute extends AbstractUsersRoute {
         if (!loginIdToBeDeleted.equals(loginIdOfRequestor)) {
             // The user is trying to delete someone else's user record.
             // This is only allowed if you have permissions.
-            validateActionPermitted(BuiltInAction.USER_DELETE_OTHER , loginIdOfRequestor);
+            validateActionPermitted(BuiltInAction.USER_EDIT_OTHER , loginIdOfRequestor);
         } else {
             // The user is trying to delete their own record. This is never allowed.
             // Enforcing this makes it less likely that the last admin on the sysyem will delete themselves.
@@ -180,7 +180,7 @@ public class UserRoute extends AbstractUsersRoute {
             //Need to delete access tokens of a user if we delete the user
             List<IInternalAuthToken> tokens = authStoreService.getTokensByLoginId(loginId);
             for (IInternalAuthToken token : tokens) {
-                authService.revokeToken(token.getTokenId());
+                authService.revokeToken(token.getTokenId(),requestingUserLoginId);
             }
 
             authStoreService.deleteUser(user);
