@@ -172,6 +172,7 @@ function setup_galasa_dev() {
     info "Setting environment variables"
     export GALASA_OBR_VERSION=$GALASA_VERSION
     export GALASA_BOOT_JAR_VERSION=$GALASA_VERSION
+    export GALASA_OWNER_LOGIN_IDS="tester"
     export GALASA_EXTERNAL_API_URL="http://localhost:8080"
     export GALASA_USERNAME_CLAIMS="preferred_username,name,sub"
     export GALASA_ALLOWED_ORIGINS="*"

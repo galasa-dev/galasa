@@ -155,6 +155,9 @@ public class UserRoute extends AbstractUsersRoute {
         // Only apply the update to the user if it's different to the original values.
         String desiredRoleId = updatePayload.getrole();
         if (desiredRoleId != null ) {
+
+            validateUserIsNotUpdatingRoleOfAServiceOwner(rbacService, user.getLoginId());
+
             if (! desiredRoleId.equals(user.getRoleId() )) {
 
                 validateUserIsNotUpdatingTheirOwnRole(requestingUserLoginId, user);
@@ -172,6 +175,16 @@ public class UserRoute extends AbstractUsersRoute {
         return user;
     }
 
+    private void validateUserIsNotUpdatingRoleOfAServiceOwner(RBACService rbacService, String userLoginInIdBeingUpdated) throws InternalServletException {
+        if (rbacService.isOwner(userLoginInIdBeingUpdated)) {
+            // The caller is trying to update the role of the Galasa system owner.
+            // This isn't allowed. A system owner will remain a system owner until
+            // the service is re-configured.
+            ServletError msg = new ServletError(GAL5414_USER_CANNOT_UPDATE_SERVICE_OWNER_ROLE);
+            throw new InternalServletException(msg, HttpStatus.SC_FORBIDDEN);
+        }
+    }
+
     void validateUserIsNotUpdatingTheirOwnRole(
         String requestingUserLoginId, 
         IUser userRecordBeingUpdated
@@ -185,6 +198,12 @@ public class UserRoute extends AbstractUsersRoute {
 
 
     void checkRequestorHasPermissionToDeleteUserRecord( String loginIdToBeDeleted, String loginIdOfRequestor ) throws InternalServletException {
+        
+        if (rbacService.isOwner(loginIdToBeDeleted)) {
+            ServletError error = new ServletError(GAL5089_FORBIDDEN_USER_DELETE_SERVICE_OWNER);
+            throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
+        }
+
         if (!loginIdToBeDeleted.equals(loginIdOfRequestor)) {
             // The user is trying to delete someone else's user record.
             // This is only allowed if you have permissions.

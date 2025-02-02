@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -40,6 +42,7 @@ public class RBACServiceImpl implements RBACService {
 
     private static Role roleAdmin ;
     private static Role roleTester;
+    private static Role roleOwner ;
 
     private static Role roleDeactivated;
 
@@ -63,6 +66,7 @@ public class RBACServiceImpl implements RBACService {
         }
 
         roleAdmin= new RoleImpl("admin","2","Administrator access",allActionIds);
+        roleOwner= new RoleImpl("owner","3","Galasa service owner",allActionIds);
 
         roleTester = new RoleImpl("tester", "1", "Test developer and runner", 
             List.of( USER_EDIT_OTHER.getAction().getId() , GENERAL_API_ACCESS.getAction().getId() )   
@@ -70,7 +74,7 @@ public class RBACServiceImpl implements RBACService {
 
         roleDeactivated = new RoleImpl("deactivated", "0", "User has no access", new ArrayList<String>());
 
-        List<Role> rolesUnsorted = List.of(roleAdmin, roleTester, roleDeactivated);
+        List<Role> rolesUnsorted = List.of(roleAdmin, roleTester, roleDeactivated, roleOwner);
 
 
         rolesSortedByName = new ArrayList<Role>(rolesUnsorted);
@@ -80,15 +84,62 @@ public class RBACServiceImpl implements RBACService {
         for( Role role : rolesUnsorted ) {
             rolesMapById.put( role.getId(), role);
         }
+
+
     }
 
-
+    private Set<String> owners;
     private Environment env;
     private final Log logger = LogFactory.getLog(getClass());
+    private Set<String> ownerLoginIdSet;
 
-    public RBACServiceImpl(IDynamicStatusStoreService dssService, IAuthStoreService authStoreService , @NotNull Environment env ) {
+    public RBACServiceImpl(
+        IDynamicStatusStoreService dssService, 
+        IAuthStoreService authStoreService,
+        @NotNull Environment env 
+    ) {
         userActionsCache = new CacheRBACImpl(dssService, authStoreService, this);
         this.env = env ;
+        owners = getOwnerLoginIdSet();
+    }
+
+    @Override
+    public boolean isOwner(String loginIdToCheck) {
+        boolean result = false ;
+        
+        if (owners.contains(loginIdToCheck)) {
+            result = true ;
+        }
+        return result;
+    }
+
+    private Set<String> getOwnerLoginIdSet() {
+        Set<String> setToReturn = null ;
+        synchronized(this) {
+            if (this.ownerLoginIdSet == null) {
+                // the owner login IDs have not been loaded yet. Load them now.
+                this.ownerLoginIdSet = loadOwnerLoginIdSetFromEnvironmentVar(this.env);
+            }
+            setToReturn = this.ownerLoginIdSet;
+        }
+        return setToReturn;
+
+    }
+
+    private Set<String> loadOwnerLoginIdSetFromEnvironmentVar(Environment env) {
+        Set<String> loadedSet = new HashSet<String>();
+
+        String ownerLoginIdsVarValue = env.getenv(ENV_VARIABLE_GALASA_OWNER_LOGIN_IDS);
+        if (ownerLoginIdsVarValue!=null) {
+            String[] ownerLoginIds = ownerLoginIdsVarValue.split(",");
+            for( String unTrimmedOwnerLoginId : ownerLoginIds){
+                String trimmedOwnerLoginId = unTrimmedOwnerLoginId.trim();
+                if (!trimmedOwnerLoginId.isBlank()) {
+                    loadedSet.add(trimmedOwnerLoginId);
+                }
+            }
+        }
+        return loadedSet;
     }
 
     @Override
@@ -144,6 +195,7 @@ public class RBACServiceImpl implements RBACService {
         return roleIdToReturn;
     }
 
+
     @Override
     public Role getRoleByName(String roleNameWanted) throws RBACException {
         Role roleFound = null;
@@ -159,7 +211,14 @@ public class RBACServiceImpl implements RBACService {
 
     @Override
     public boolean isActionPermitted(String loginId, String actionId) throws RBACException {
-        return userActionsCache.isActionPermitted(loginId, actionId);
+        boolean isPermitted ;
+        if (isOwner(loginId)) {
+            // The service owner can always do everything.
+            isPermitted = true ;
+        } else {
+            isPermitted = userActionsCache.isActionPermitted(loginId, actionId);
+        }
+        return isPermitted ;
     }
 
     @Override

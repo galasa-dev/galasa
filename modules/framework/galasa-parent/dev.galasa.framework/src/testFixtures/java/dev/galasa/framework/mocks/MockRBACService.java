@@ -28,6 +28,7 @@ public class MockRBACService implements RBACService {
     private List<Role> rolesSortedByName;
     private Role defaultRole;
     private CacheRBAC usersToActionsCache;
+    private boolean isOwner = false;
 
     public MockRBACService( List<Role> roles, List<Action> actions, Role defaultRole ) {
         this.usersToActionsCache = new MockCacheRBAC();
@@ -109,5 +110,14 @@ public class MockRBACService implements RBACService {
     @Override
     public void invalidateUser(String loginId) throws RBACException {
         usersToActionsCache.invalidateUser(loginId);
+    }
+
+    @Override
+    public boolean isOwner(String loginIdToCheck) {
+        return isOwner ;
+    }
+
+    public void setOwner(boolean isOwnerNewValue) {
+        this.isOwner = isOwnerNewValue;
     }
 }

@@ -627,4 +627,97 @@ public class UserRouteTest extends BaseServletTest {
        assertThat(authStoreService.getTokensByLoginId("user-1")).hasSize(0);
 
     }
+
+    @Test
+    public void testDeleteOwnerShouldFail() throws Exception {
+       // Given...
+       MockEnvironment env = new MockEnvironment();
+       MockTimeService mockTimeService = new MockTimeService(Instant.now());
+       MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
+
+       MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+
+       String baseUrl = "http://my.server/api";
+       String userNumber = "docid";
+
+       env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+       env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
+
+       MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+       rbacService.setOwner(true);
+       AuthService authService = new AuthService(authStoreService, mockDexGrpcClient, rbacService);
+       MockUsersServlet servlet = new MockUsersServlet(authService, env, rbacService);
+
+       MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap);
+       mockRequest.setMethod(HttpMethod.DELETE.toString());
+
+       MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+       IInternalUser owner = new InternalUser("user-1", "dexId");
+       authStoreService.storeToken("some-client-id", "test-token", owner);
+       
+       MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
+       authStoreService.addUser(mockUser1);
+
+       // When...
+       servlet.init();
+       servlet.doDelete(mockRequest, servletResponse);
+
+       assertThat(servletResponse.getStatus()).isEqualTo(403); // FORBIDDEN because the user-1 is the system owner.
+    }
+
+
+    @Test
+    public void testUpdateUserWhoIsAnOwnerReturnsForbiddenError() throws Exception {
+        // Given...
+        MockEnvironment env = new MockEnvironment();
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
+
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+
+        String baseUrl = "http://my.server/api";
+        String userNumber = "user-1-number";
+
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+        env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        AuthService authService = new AuthService(authStoreService, mockDexGrpcClient,rbacService);
+        MockUsersServlet servlet = new MockUsersServlet(authService, env, rbacService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap); // Ask for the wrong user number.
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+        mockRequest.setContentType("application/json");
+
+        // Now set up some value data.
+        UserUpdateData putData = new UserUpdateData();
+        String desiredUpdatedRoleId = "2";
+        putData.setrole(desiredUpdatedRoleId);
+        GalasaGsonBuilder builder = new GalasaGsonBuilder();
+        Gson gson = builder.getGson();
+        String jsonPayload = gson.toJson(putData);
+        mockRequest.setPayload(jsonPayload);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();     
+
+        IInternalUser owner = new InternalUser("user-1", "dexId");
+        authStoreService.storeToken("some-client-id", "test-token", owner);
+        
+        MockUser mockUser1 = createMockUser("user-1", "user-1-number", "web-ui");
+
+        String originalRole = "1";
+        mockUser1.setRoleId(originalRole);
+        authStoreService.addUser(mockUser1);
+
+        // Make it so that when user-1 gets checked, the rbac service says it's one of the galasa service owner.
+        rbacService.setOwner(true);
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(403);
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+        checkErrorStructure(outStream.toString(), 5414, "GAL5414", "not allowed to update the role of the Galasa service owner.");
+    }
 }

@@ -133,6 +133,7 @@ public enum ServletErrorMessage {
     GAL5086_FAILED_TO_GET_DEFAULT_ROLE                (5086, "E: Failed to retrieve a default role id for a user with no role set."),
     GAL5087_BAD_USER_UPDATE_FIELD_ROLE                (5087, "E: Server detected an invalid 'role' field value from a client wishing to update a user record. The role field must be less than 128 characters and a consist of alphanumeric characters, '-' (hyphen) or '_' (underscore)"),
     GAL5088_FORBIDDEN_USER_DELETE_THEMSELVES          (5088, "E: It is not permitted for a user to delete their own user record. Ask another Galasa service administrator to delete your user record for you."),
+    GAL5089_FORBIDDEN_USER_DELETE_SERVICE_OWNER       (5089, "E: It is not permitted for a user to delete an owner of the Galasa service. Ask a Galasa service administrator to change the list of owners in the kubernetes configuration."),
 
     // Secrets APIs...
     GAL5092_INVALID_SECRET_NAME_PROVIDED              (5092, "E: Invalid secret name provided. The name of a Galasa secret cannot be empty, contain only spaces or tabs, or contain dots ('.'), and must only contain characters in the Latin-1 character set. Check your request payload and try again."),
@@ -162,6 +163,7 @@ public enum ServletErrorMessage {
     GAL5125_ACTION_NOT_PERMITTED                      (5125, "E: Insufficient privileges to perform the requested operation. Check with your Galasa systems administrator that you have been assigned the correct role with the ''{0}'' action before trying again."),
     GAL5126_INTERNAL_RBAC_ERROR                       (5126, "E: Error occurred when trying to access the Role Based Access Control service. Report the problem to your Galasa systems administrator."),
     GAL5413_USER_CANNOT_UPDATE_OWN_USER_ROLE          (5413, "E: A user is not allowed to update their own role. Ask a Galasa service administrator to change your role instead."),
+    GAL5414_USER_CANNOT_UPDATE_SERVICE_OWNER_ROLE     (5414, "E: A user is not allowed to update the role of the Galasa service owner. Ask a Galasa service administrator to change the list of owners and update the kubernetes configuration of the service."),
 
     ;
 
@@ -171,7 +173,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5414 ;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5415 ;
 
 
     private String template ;
