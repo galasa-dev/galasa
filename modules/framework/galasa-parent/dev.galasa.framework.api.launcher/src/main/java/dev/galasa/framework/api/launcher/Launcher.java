@@ -17,6 +17,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 
 import dev.galasa.framework.FrameworkInitialisation;
+import dev.galasa.framework.FrameworkType;
 import dev.galasa.framework.spi.FrameworkException;
 
 @Component(configurationPid = { "dev.galasa" }, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -54,6 +55,6 @@ public class Launcher {
 
     public FrameworkInitialisation init(Properties bootstrap, Properties overrides)
             throws FrameworkException, InvalidSyntaxException, URISyntaxException {
-        return new FrameworkInitialisation(bootstrap, overrides);
+        return new FrameworkInitialisation(bootstrap, overrides, FrameworkType.launcher);
     }
 }

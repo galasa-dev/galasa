@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.FrameworkInitialisation;
+import dev.galasa.framework.FrameworkType;
 import dev.galasa.framework.IAnnotationExtractor;
 import dev.galasa.framework.IBundleManager;
 import dev.galasa.framework.IFileSystem;
@@ -34,8 +35,7 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
         
         FrameworkInitialisation frameworkInitialisation = null;
         try {
-            boolean isThisATestRun = true ;
-            frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, isThisATestRun);
+            frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, FrameworkType.test);
             framework = frameworkInitialisation.getShutableFramework();
             cps = framework.getConfigurationPropertyService("framework");
             dss = framework.getDynamicStatusStoreService("framework");

@@ -24,6 +24,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.FrameworkInitialisation;
+import dev.galasa.framework.FrameworkType;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -75,7 +76,7 @@ public class MetricsServer implements IMetricsServer {
             // *** Initialise the framework services
             FrameworkInitialisation frameworkInitialisation = null;
             try {
-                frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+                frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, FrameworkType.server);
             } catch (Exception e) {
                 throw new FrameworkException("Unable to initialise the Framework Services", e);
             }

@@ -95,7 +95,6 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
         // Given...
         Properties bootstrapProperties = bootstrapProps;
         Properties overrideProperties = new Properties();
-        boolean isTestrun = true ;
         Log logger = new MockLog();
 
         // A fake OSGi service registry...
@@ -131,7 +130,7 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
         FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation( 
             bootstrapProperties,  
             overrideProperties, 
-            isTestrun,
+            FrameworkType.test,
             logger,
             bundleContext,
             mockFileSystem,
@@ -160,7 +159,6 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
         // Given...
         Properties bootstrapProperties = new Properties();
         Properties overrideProperties = new Properties();
-        boolean isTestrun = true ;
         Log logger = new MockLog();
         MockEnvironment mockEnv = new MockEnvironment();
 
@@ -177,7 +175,7 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
             new FrameworkInitialisation( 
                 bootstrapProperties,  
                 overrideProperties, 
-                isTestrun,
+                FrameworkType.test,
                 logger, 
                 bundleContext,
                 mockFileSystem,
@@ -199,7 +197,6 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
         // Given...
         Properties bootstrapProperties = new Properties();
         Properties overrideProperties = new Properties();
-        boolean isTestrun = true ;
         Log logger = new MockLog();
         MockEnvironment mockEnv = new MockEnvironment();
         mockEnv.setProperty("user.home","/home");
@@ -224,7 +221,7 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
             frameworkInitUnderTest = new FrameworkInitialisation( 
                 bootstrapProperties,  
                 overrideProperties, 
-                isTestrun,
+                FrameworkType.test,
                 logger, 
                 bundleContext,
                 mockFileSystem,

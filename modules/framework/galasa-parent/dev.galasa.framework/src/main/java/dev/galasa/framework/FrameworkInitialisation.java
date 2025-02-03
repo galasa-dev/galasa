@@ -38,22 +38,13 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private String galasaHome;
 
     private static final GalasaGson gson = new GalasaGson();
-    
-    public FrameworkInitialisation(
-        Properties bootstrapProperties, 
-        Properties overrideProperties
-    ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, false, null, 
-        getBundleContext() , new FileSystem() , new SystemEnvironment());
-    }
-
 
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
         Properties overrideProperties, 
-        boolean testrun
+        FrameworkType type
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, testrun, null, 
+        this(bootstrapProperties, overrideProperties, type, null, 
         getBundleContext() , new FileSystem(), new SystemEnvironment());
     }
 
@@ -61,17 +52,17 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
         Properties overrideProperties,
-        boolean testrun,
+        FrameworkType type,
         Log initLogger
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, testrun, initLogger, 
+        this(bootstrapProperties, overrideProperties, type, initLogger, 
         getBundleContext(), new FileSystem(), new SystemEnvironment());
     }
 
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
         Properties overrideProperties, 
-        boolean testrun,
+        FrameworkType type,
         Log initLogger,
         BundleContext bundleContext , 
         IFileSystem fileSystem,
@@ -105,7 +96,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         this.framework.setFrameworkProperties(overrideProperties);
 
         // *** If this is a test run, then we need to install the log4j capture routine
-        if (testrun) {
+        if (type == FrameworkType.test) {
             this.framework.installLogCapture();
         }
 
@@ -117,13 +108,23 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             this.logger, overrideProperties, this.cpsFramework, this.fileSystem);
         this.dssFramework = initialiseDynamicStatusStore(logger,bundleContext);
 
-        if (testrun) {
-            // *** Is this a test run,
-            // *** Then we need to make sure we have a runname for the RAS. If there isnt
-            // one, we need to allocate one
-            // *** Need the DSS for this as the latest run number number is stored in there
-            String runName = locateRunName(this.cpsFramework);
-            this.framework.setTestRunName(runName);
+        switch(type) {
+            case test: {
+                // *** Is this a test run,
+                // *** Then we need to make sure we have a runname for the RAS. If there isnt
+                // one, we need to allocate one
+                // *** Need the DSS for this as the latest run number number is stored in there
+                String runName = locateRunName(this.cpsFramework);
+                this.framework.setTestRunName(runName);
+            } break;
+
+            case resourceManagement: {
+                this.framework.setTestRunName("resourceManagement");
+            } break;
+
+            default: {
+                // The default is we don't set the TestRunName
+            } break;
         }
 
         this.uriResultArchiveStores = createUriResultArchiveStores(overrideProperties, this.cpsFramework);
@@ -146,7 +147,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         // *** If this is a test run, add the overrides from the run dss properties to
         // these overrides
-        if (testrun) {
+        if (type == FrameworkType.test) {
             loadOverridePropertiesFromDss(overrideProperties);
         }
     }
