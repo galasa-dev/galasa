@@ -3,6 +3,8 @@ plugins {
     id 'jacoco'
     id 'maven-publish'
     id 'signing'
+    id 'dev.galasa.tests'
+    id 'dev.galasa.testcatalog'
 }
 
 // Note: The following version number is updated using the set-version.sh tool.
