@@ -192,3 +192,9 @@ jobs:
           -Dgalasa.skip.bundletestcatalog=false \
           --batch-mode --errors --fail-at-end \
           --settings ${{ github.workspace }}/modules/managers/settings.xml 2>&1 | tee maven-build.log
+
+      - name: Upload IVT testcatalog
+        uses: actions/upload-artifact@v4
+        with:
+          name: testcatalog
+          path: modules/managers/repo
