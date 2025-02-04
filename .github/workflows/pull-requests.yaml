@@ -57,7 +57,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          ./.github/scripts/get-changed-modules-pull-request.sh --github-repo ${{ github.event.pull_request.head.repo.full_name }} --pr-number ${{ github.event.number }}
+          ./.github/scripts/get-changed-modules-pull-request.sh --github-repo ${{ github.event.pull_request.base.repo.full_name }} --pr-number ${{ github.event.number }}
 
   find-artifacts:
     name: Get Workflow Run ID to download artifacts from
