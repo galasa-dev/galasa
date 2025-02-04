@@ -1,0 +1,40 @@
+plugins {
+    id 'dev.galasa.obr' version '0.40.0'
+    id 'dev.galasa.testcatalog' version '0.40.0'
+}
+
+group = 'dev.galasa.core.manager.ivt.obr'
+version = '0.40.0'
+
+// tasks.withType(PublishToMavenLocal) { task ->
+//     task.dependsOn genobr
+//     task.dependsOn mergetestcat
+// }
+
+def obrFile = file('build/galasa.obr')
+def testcatalog = file('build/testcatalog.json')
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact obrFile
+            artifact (testcatalog) {
+                classifier "testcatalog"
+                extension "json"
+            }
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = 'https://development.galasa.dev/main/maven-repo/obr'
+    }
+    mavenCentral()
+}
+
+// Here, all OSGi Bundles to be included in the OBR must be listed using the 'bundle' configuration
+dependencies {
+    bundle project(':dev.galasa.core.manager.ivt')
+}
