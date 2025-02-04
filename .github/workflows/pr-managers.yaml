@@ -178,3 +178,16 @@ jobs:
         with:
           name: managers
           path: modules/managers/repo
+
+      # Attempting to build a new test catalog with the IVTs
+      - name: Building IVTs Test Catalog with Maven
+        run: |
+          set -o pipefail
+          mvn -f galasa-managers-parent/pom.xml deploy -X \
+          -Dgalasa.source.repo=file:${{ github.workspace }}/modules/artifacts \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/modules/managers/repo \
+          -Dgalasa.skip.deploytestcatalog=true \
+          -Dgalasa.skip.bundletestcatalog=false \
+          --batch-mode --errors --fail-at-end \
+          --settings ${{ github.workspace }}/modules/managers/settings.xml 2>&1 | tee maven-build.log
