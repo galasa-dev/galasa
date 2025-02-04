@@ -1,6 +1,6 @@
 # Contributing
 
-Welcome to Galasa! To learn more about contributing to the [galasa-dev repositories](https://github.com/galasa-dev), please read this Contributor's Guide.
+Welcome to Galasa! To learn more about contributing to this repository, please read this Contributor's Guide.
 
 ## How can you contribute?
 
@@ -29,7 +29,12 @@ Welcome to Galasa! To learn more about contributing to the [galasa-dev repositor
 
 ### How to set up a fork of a repository
 
-1. Fork the repository using the GitHub UI
+1. On GitHub, navigate to the repository.
+1. In the top-right corner of the page, click Fork. (insert screenshot)
+1. Select an owner for the forked repository from the dropdown menu under "Owner".
+1. The fork will be named the same as the upstream repository as default. Optionally, to further distinguish your fork, type a name in the "Repository name" field.
+1. Optionally, type a description for your fork in the "Description" field.
+1. Optionally, select "Copy the `main` branch only".
 1. You will need to enable the GitHub Actions workflows by going to the Actions tab and clicking 'I understand my workflows, go ahead and enable them'
 1. You will need to trigger an initial workflow run of the 'Main Build Orchestrator' before making any Pull Requests from a branch to your main branch on your fork. You can do this by going to the Actions tab, clicking 'Main Build Orchestrator', and submitting 'Run workflow'. (todo: expand on this, explain about how the artifact caching works)
 
