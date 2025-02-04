@@ -181,6 +181,7 @@ jobs:
 
       # Attempting to build a new test catalog with the IVTs
       - name: Building IVTs Test Catalog with Maven
+        working-directory: modules/managers
         run: |
           set -o pipefail
           mvn -f galasa-managers-parent/pom.xml deploy -X \
