@@ -23,20 +23,8 @@ public class DseImsImpl extends BaseImsImpl {
 
     @Override
     public ProductVersion getVersion() throws ImstmManagerException {
-        if (this.version != null) {
-            return this.version;
-        }
-
-        String versionString = DseVersion.get(this.getTag());
-
-        if (versionString == null) {
-            throw new ImstmManagerException("The version was missing for DSE tag " + this.getTag());
-        }
-
-        try {
-            this.version = ProductVersion.parse(versionString);
-        } catch (Exception e) {
-            throw new ImstmManagerException("Invalid version string for DSE tag " + this.getTag() + ", format should be 0.0.0", e);
+        if (this.version == null) {
+            this.version = DseVersion.get(this.getTag());
         }
 
         return this.version;

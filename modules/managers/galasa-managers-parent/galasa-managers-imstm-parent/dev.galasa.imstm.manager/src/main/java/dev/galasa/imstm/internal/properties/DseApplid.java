@@ -23,7 +23,7 @@ import dev.galasa.framework.spi.cps.CpsProperties;
  * 
  * @galasa.default None
  * 
- * @galasa.valid_values A value VTAM applid
+ * @galasa.valid_values A valid VTAM applid
  * 
  * @galasa.examples 
  * <code>imstm.dse.tag.PRIMARY.applid=IMS1</code><br>
@@ -33,7 +33,7 @@ public class DseApplid extends CpsProperties {
 
     public static String get(String tag) throws ImstmManagerException {
         try {
-            String applid = getStringNulled(ImstmPropertiesSingleton.cps(), "dse.tag." + tag, "applid");
+            String applid = getStringNulled(ImstmPropertiesSingleton.cps(), "dse.tag", "applid", tag);
             return applid != null? applid.toUpperCase(): applid;
         } catch (ConfigurationPropertyStoreException e) {
             throw new ImstmManagerException("Problem asking CPS for the DSE applid for tag " + tag, e); 
