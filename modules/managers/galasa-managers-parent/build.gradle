@@ -3,6 +3,9 @@ plugins {
     id 'jacoco'
     id 'maven-publish'
     id 'signing'
+    id 'dev.galasa.githash' version '0.33.0' apply false
+    id 'dev.galasa.testcatalog' version '0.33.0' apply false
+    id 'dev.galasa.tests' version '0.33.0' apply false
 }
 
 // Note: The following version number is updated using the set-version.sh tool.
@@ -20,6 +23,47 @@ allprojects {
 configurations {
     archives
     release_metadata
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'dev.galasa.githash'
+
+    tasks.withType(PublishToMavenRepository) {
+        onlyIf { jar.didWork }
+    }
+
+        repositories {
+        maven {
+            url "$sourceMaven"
+            
+        }
+        maven {
+            url "$centralMaven"
+        }
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from components.java
+            }
+        }
+        repositories {
+            maven {
+                url  = "$targetMaven"
+                
+            
+                if ("$targetMaven".startsWith('http')) {
+                    credentials {
+                        username System.getenv('GITHUB_ACTOR')
+                        password System.getenv('GITHUB_TOKEN')
+                    }
+                }
+            }
+        }
+    }
 }
 
 //  Get all the sub projects with jacoco plugin to add itself to the merge 

@@ -184,7 +184,7 @@ jobs:
         working-directory: modules/managers
         run: |
           set -o pipefail
-          mvn -f galasa-managers-parent/pom.xml deploy -X \
+          mvn -f galasa-managers-parent/galasa-managers-core-parent/dev.galasa.core.manager.ivt.pom.xml deploy -X \
           -Dgalasa.source.repo=file:${{ github.workspace }}/modules/artifacts \
           -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
           -Dgalasa.release.repo=file:${{ github.workspace }}/modules/managers/repo \

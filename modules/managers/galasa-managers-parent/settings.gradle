@@ -19,7 +19,7 @@ include 'galasa-managers-common-parent:dev.galasa.common'
 include 'galasa-managers-core-parent:dev.galasa.core.manager'
 include 'galasa-managers-core-parent:dev.galasa.artifact.manager'
 include 'galasa-managers-core-parent:dev.galasa.textscan.manager'
-include 'galasa-managers-core-parent:dev.galasa.core.manager.ivt.obr'
+// include 'galasa-managers-core-parent:dev.galasa.core.manager.ivt.obr'
 include 'galasa-managers-core-parent:dev.galasa.core.manager.ivt'
 include 'galasa-managers-core-parent:dev.galasa.artifact.manager.ivt'
 // galasa-manager-database-parent
