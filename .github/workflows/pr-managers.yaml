@@ -149,7 +149,7 @@ jobs:
         working-directory: modules/managers
         run: |
           set -o pipefail
-          gradle -b galasa-managers-parent/build.gradle check publish --info \
+          gradle -b galasa-managers-parent/build.gradle check publish publishToMavenLocal --info \
           --no-daemon --console plain \
           -Dorg.gradle.jvmargs=-Xmx4096M \
           -PsourceMaven=${{ github.workspace }}/modules/artifacts \
