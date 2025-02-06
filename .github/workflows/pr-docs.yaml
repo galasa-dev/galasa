@@ -1,0 +1,78 @@
+name: Build and publish to github pages
+on:
+  pull_request:
+    branches: '*'
+  # push:
+  #   # Whenever a new tag is created/release is created...
+  #   tags:
+  #     - 'v[0-9]+.[0-9]+.[0-9]+'
+  #   # Or a branch gets pushed...
+  #   branches:
+  #     - '*'         # matches every branch that doesn't contain a '/'
+  #     - '*/*'       # matches every branch containing a single '/'
+  #     - '**'        # matches every branch
+  #     - '!gh-pages' # exclude pushes to gh-pages branch always.
+permissions:
+  contents: write
+# env:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # TODO: Make sure the pull request is approved for building prior to going any further.
+
+      - uses: actions/checkout@v4
+        name: Configure Git Credentials
+
+      - run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - id: vars
+        run: |
+          echo "cache_id=$(date --utc '+%V')" >> $GITHUB_OUTPUT
+          echo "galasa_version=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "gh_pages_folder=pull-request" >> $GITHUB_OUTPUT
+          echo "zip_file_name=galasa-docs-pr-${{ github.event.pull_request.number }}.zip" >> $GITHUB_OUTPUT
+ 
+      - uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ steps.vars.outputs.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-${{ steps.vars.outputs.cache_id }}
+
+      - name: Install python packages
+        run: |
+          pip install mkdocs-material 
+
+      - name: build documentation
+        id:  build-docs-zip
+        run: |
+          mkdocs build --clean --no-strict --theme material
+                --use-directory-urls --site-dir ${{ github.workspace }}/build/site --verbose
+
+      - name: pack documentation into a zio file
+        id: packaging
+        run: |
+          zip -r ${{ github.workspace }}/${{ steps.vars.outputs.zip_file_name }} ${{ github.workspace }}/build/site
+
+
+      
+      - name: Get the gh-pages branch contents
+        run: |
+          git fetch
+          git checkout -t origin/gh-pages
+          git pull
+          
+      - name: Unpack the zip file into the gh-pages branch
+        run: |
+          unzip ${{ github.workspace }}/${{ steps.vars.outputs.zip_file_name }} ${{ github.workspace }}/build/site
+
+
+      

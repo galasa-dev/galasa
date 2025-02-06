@@ -1,0 +1,27 @@
+
+
+version="0.40.0"
+
+
+task packageIntoAZip(type: Zip) {
+    from 'build/site'
+    into 'resources'
+    destinationDirectory = file('build/libs')
+    archiveFileName = "galasa-docs-"+version+".zip"
+}
+
+task mkdocs(type: Exec) {
+     commandLine 'mkdocs', 'build', '--clean', '--no-strict', '--theme', 'material', 
+                '--use-directory-urls', '--site-dir', 'build/site', '--verbose'
+}
+
+task clean() {
+    delete 'build/libs'
+    delete 'build/site'
+}
+
+task build(dependsOn: [clean,mkdocs,packageIntoAZip]) {
+    doLast{
+    }
+}
+
