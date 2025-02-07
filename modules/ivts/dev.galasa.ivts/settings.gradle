@@ -7,7 +7,7 @@ pluginManagement {
         mavenLocal()
         // To use the bleeding edge version of galasa's obr plugin, use the development obr
         maven {
-           url 'https://development.galasa.dev/main/maven-repo/obr'
+           url = "$sourceMaven"
         }
 
         gradlePluginPortal()

@@ -13,21 +13,19 @@ repositories {
     mavenCentral()
     // To use the bleeding edge version of galasa's obr plugin, use the development obr
     maven {
-       url 'https://development.galasa.dev/main/maven-repo/obr'
+       url = "$sourceMaven"
     }
 
 }
 
 // Set the variables which will control what the built OSGi bundle will be called
 // and the name it will be published under in the maven repository.
-group = 'dev.galasa.ivts'
-version = '0.40.0'
 description = 'Galasa Core Manager IVTs'
 
 // What are the dependencies of the test code ? 
 // When more managers and dependencies are added, this list will need to grow.
 dependencies {
-    implementation platform('dev.galasa:galasa-bom:0.40.0')
+    implementation platform('dev.galasa:galasa-bom:'+version)
 
     implementation 'dev.galasa:dev.galasa'
     implementation 'dev.galasa:dev.galasa.framework'
