@@ -98,9 +98,22 @@ fi
 temp_dir=$BASEDIR/temp/version_bump
 mkdir -p $temp_dir
 
+function upgrade_read_me_example {
+
+    # Updates the version in the galasactl runs submit local example in the README.md
+
+    h2 "upgrading the ivts README.md"
+
+    cat $BASEDIR/README.md | sed "s/dev[.]galasa[.]ivts[.]obr\/.*\/obr/dev.galasa.ivts.obr\/$component_version\/obr/1" > $temp_dir/ivts-README.md
+    cp $temp_dir/ivts-README.md $BASEDIR/README.md
+
+    success "ivts README.md upgraded OK."
+    
+}
+
 function upgrade_parent_build_gradle {
 
-        # Updates the version in 'allprojects' for the IVTs bundle which sets the version of each IVT bundle.
+    # Updates the version in 'allprojects' for the IVTs bundle which sets the version of each IVT bundle.
 
     h2 "upgrading the dev.galasa.ivts parent build.gradle"
 
@@ -140,6 +153,7 @@ function upgrade_plugins_in_ivt_bundles {
     # More bundles to be added...
 }
 
-upgrade_parent_build_gradle
-upgrade_obr_build_gradle
-upgrade_plugins_in_ivt_bundles
+upgrade_read_me_example
+# upgrade_parent_build_gradle
+# upgrade_obr_build_gradle
+# upgrade_plugins_in_ivt_bundles
