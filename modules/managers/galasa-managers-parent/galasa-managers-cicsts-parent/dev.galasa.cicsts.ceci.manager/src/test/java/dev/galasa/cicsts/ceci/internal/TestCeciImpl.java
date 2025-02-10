@@ -75,7 +75,7 @@ public class TestCeciImpl {
         Mockito.when(ceciTerminalMock.type(Mockito.any())).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.enter()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.pf2()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.pf3()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.pf3()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.pf4()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.pf5()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.pf9()).thenReturn(ceciTerminalMock);
@@ -835,7 +835,7 @@ public class TestCeciImpl {
     @Test
     public void testCheckForSyntaxMessagesException1() throws Exception {
         setTerminalMockOnCeciSpy();
-        Field f1 = ceciSpy.getClass().getSuperclass().getDeclaredField("command");
+        Field f1 = ceciSpy.getClass().getDeclaredField("command");
         f1.setAccessible(true);
         f1.set(ceciSpy,COMMAND_VALUE);
 
@@ -985,7 +985,7 @@ public class TestCeciImpl {
     }
 
     private void setTerminalMockOnCeciSpy() throws Exception{
-        Field f1 = ceciSpy.getClass().getSuperclass().getDeclaredField("terminal");
+        Field f1 = ceciSpy.getClass().getDeclaredField("terminal");
         f1.setAccessible(true);
         f1.set(ceciSpy,ceciTerminalMock);
     }
