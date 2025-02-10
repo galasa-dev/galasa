@@ -108,7 +108,7 @@ function upgrade_read_me_example {
     cp $temp_dir/ivts-README.md $BASEDIR/README.md
 
     success "ivts README.md upgraded OK."
-    
+
 }
 
 function upgrade_parent_build_gradle {
@@ -154,6 +154,6 @@ function upgrade_plugins_in_ivt_bundles {
 }
 
 upgrade_read_me_example
-# upgrade_parent_build_gradle
-# upgrade_obr_build_gradle
-# upgrade_plugins_in_ivt_bundles
+upgrade_parent_build_gradle
+upgrade_obr_build_gradle
+upgrade_plugins_in_ivt_bundles

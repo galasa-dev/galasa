@@ -90,6 +90,7 @@ module_names=(\
     "extensions" \
     "managers" \
     "obr" \
+    "ivts" \
 )
 
 function check_module_name_is_supported() {
@@ -257,7 +258,18 @@ function build_module() {
     if [[ "$module" == "obr" ]]; then
         h2 "Building $module"
         cd ${PROJECT_DIR}/modules/$module
-        info "Using SOURCE_MAVEN of $SOURCE_MAVEN"
+        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
+        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
+        success "Built module $module OK"
+        if [[ "$chain" == "true" ]]; then 
+            module="ivts"
+        fi
+    fi
+
+    # ivts
+    if [[ "$module" == "ivts" ]]; then
+        h2 "Building $module"
+        cd ${PROJECT_DIR}/modules/$module
         ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
         rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
         success "Built module $module OK"
