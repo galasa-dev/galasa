@@ -183,7 +183,7 @@ jobs:
         run: |
           gradle build check publish --info \
           --no-daemon --console plain \
-          -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
+          -PsourceMaven=${{ github.workspace }}/modules/artifacts \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
           -PtargetMaven=${{ github.workspace }}/modules/ivts/repo
 

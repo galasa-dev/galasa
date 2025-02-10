@@ -50,6 +50,48 @@ jobs:
           gradle-version: 8.9
           cache-disabled: true
 
+      - name: Download platform from this workflow
+        id: download-platform
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: modules/artifacts
+
+      - name: Download wrapping artifacts from this workflow
+        id: download-wrapping
+        uses: actions/download-artifact@v4
+        with:
+          name: wrapping
+          path: modules/artifacts
+
+      - name: Download gradle artifacts from this workflow
+        id: download-gradle
+        uses: actions/download-artifact@v4
+        with:
+          name: gradle
+          path: modules/artifacts
+
+      - name: Download maven artifacts from this workflow
+        id: download-maven
+        uses: actions/download-artifact@v4
+        with:
+          name: maven
+          path: modules/artifacts
+
+      - name: Download framework artifacts from this workflow
+        id: download-framework
+        uses: actions/download-artifact@v4
+        with:
+          name: framework
+          path: modules/artifacts
+
+      - name: Download managers artifacts from this workflow
+        id: download-managers
+        uses: actions/download-artifact@v4
+        with:
+          name: managers
+          path: modules/artifacts
+
       - name: Build IVTs
         working-directory: modules/ivts/dev.galasa.ivts
         env:
@@ -61,7 +103,7 @@ jobs:
           set -o pipefail
           gradle build check publish --info \
           --no-daemon --console plain \
-          -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
+          -PsourceMaven=${{ github.workspace }}/modules/artifacts \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
           -PtargetMaven=${{ github.workspace }}/modules/ivts/repo \
           -PisMainOrRelease=${{ inputs.sign_artifacts }} 2>&1 | tee build.log
