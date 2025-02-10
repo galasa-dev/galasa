@@ -151,17 +151,6 @@ jobs:
       changed: ${{ needs.get-changed-modules.outputs.managers_changed }}
       artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
-  # The IVTs can be built directly after Managers as they just require
-  # the Manager code (and anything required to build that).
-  pr-build-ivts:
-    name: Build the 'ivts' module
-    needs: [get-changed-modules, find-artifacts, pr-build-managers]
-    uses: ./.github/workflows/pr-ivts.yaml
-    secrets: inherit
-    with:
-      changed: ${{ needs.get-changed-modules.outputs.ivts_changed }}
-      artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
-
   pr-build-obr:
     name: Build the 'obr' module
     needs: [get-changed-modules, find-artifacts, pr-build-extensions, pr-build-managers]
@@ -169,6 +158,16 @@ jobs:
     secrets: inherit
     with:
       changed: ${{ needs.get-changed-modules.outputs.obr_changed }}
+      artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+  # The IVTs are built after the OBR as they require the galasa-bom to get dependencies.
+  pr-build-ivts:
+    name: Build the 'ivts' module
+    needs: [get-changed-modules, find-artifacts, pr-build-obr]
+    uses: ./.github/workflows/pr-ivts.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.ivts_changed }}
       artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
   # This is required as all previous jobs are optional based on if a module has changed.

@@ -94,12 +94,6 @@ jobs:
     uses: ./.github/workflows/managers.yaml
     secrets: inherit
 
-  build-ivts:
-    name: Build the 'ivts' module
-    needs: [build-managers]
-    uses: ./.github/workflows/ivts.yaml
-    secrets: inherit
-
   build-obr:
     name: Build the 'obr' module
     needs: [build-extensions, build-managers, set-build-properties]
@@ -107,4 +101,11 @@ jobs:
     secrets: inherit
     with:
       galasa-version: "${{ needs.set-build-properties.outputs.galasa-version }}"
+
+  # The IVTs are built after the OBR as they require the galasa-bom to get dependencies.
+  build-ivts:
+    name: Build the 'ivts' module
+    needs: [build-obr]
+    uses: ./.github/workflows/ivts.yaml
+    secrets: inherit
 
