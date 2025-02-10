@@ -96,14 +96,6 @@ jobs:
           name: framework
           path: modules/artifacts
 
-      - name: Download extensions artifacts from this workflow
-        id: download-extensions
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: extensions
-          path: modules/artifacts
-
       - name: Download managers artifacts from this workflow
         id: download-managers
         continue-on-error: true
@@ -159,15 +151,6 @@ jobs:
             path: modules/artifacts
             github-token: ${{ github.token }}
             run-id: ${{ inputs.artifact-id }}
-
-      - name: Download extensions artifacts from last successful workflow
-        if: ${{ steps.download-extensions.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: extensions
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.artifact-id }}
 
       - name: Download managers artifacts from last successful workflow
         if: ${{ steps.download-managers.outcome == 'failure' }}
