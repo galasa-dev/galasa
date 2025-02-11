@@ -11,8 +11,9 @@ plugins {
 
 // What are the dependencies of the obr ? 
 dependencies {
-    bundle project(':dev.galasa.ivts.core')
     bundle project(':dev.galasa.ivts.artifact')
+    bundle project(':dev.galasa.ivts.core')
+    bundle project(':dev.galasa.ivts.docker')
     bundle project(':dev.galasa.ivts.http')
 }
 
