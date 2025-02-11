@@ -30,8 +30,6 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
 
     private final ImstmManagerImpl imstmManager;
 
-    private HashMap<String, DseImsImpl> dseImsSystems = new HashMap<>();
-
     private final boolean enabled;
 
     public DseProvisioningImpl(ImstmManagerImpl imstmManager) {
@@ -79,23 +77,6 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
         logger.info("Provisioned DSE " + imsSystem.toString() + " on zOS Image " + imsSystem.getZosImage().getImageID() + " for tag '" + imsSystem.getTag());
 
         return imsSystem;
-    }
-
-    @NotNull
-    public List<IImsSystemProvisioned> getSystems() {
-        ArrayList<IImsSystemProvisioned> systems = new ArrayList<>();
-        systems.addAll(dseImsSystems.values());
-        return systems;
-    }
-
-    public IImsSystemProvisioned getTaggedSystem(String tag) {
-        DseImsImpl system = this.dseImsSystems.get(tag);
-
-        if (system != null) {
-            logger.info("Provisioned DSE " + system + " for tag " + tag);
-        }
-
-        return system;
     }
 
     @Override
