@@ -126,7 +126,7 @@ function build_ivts() {
     cd $BASEDIR/dev.galasa.ivts
     rc=$?
     check_exit_code $rc "Failed to cd to the ivts source folder"
-    gradle build check publish -PtargetMaven=${TARGET_MAVEN_FOLDER} -PsourceMaven=${SOURCE_MAVEN}
+    gradle clean build check publish -PtargetMaven=${TARGET_MAVEN_FOLDER} -PsourceMaven=${SOURCE_MAVEN}
     rc=$?
     check_exit_code $rc "Failed to build the ivts module source"
     success "OK"

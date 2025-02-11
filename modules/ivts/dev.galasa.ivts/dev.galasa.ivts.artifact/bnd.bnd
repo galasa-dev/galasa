@@ -1,0 +1,3 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa Artifact Manager IVTs
+Export-Package: dev.galasa.ivts.artifact
