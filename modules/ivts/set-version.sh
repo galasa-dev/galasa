@@ -123,37 +123,18 @@ function upgrade_parent_build_gradle {
     success "dev.galasa.ivts parent build.gradle upgraded OK."
 }
 
-function upgrade_obr_build_gradle {
+function upgrade_plugin_versions {
 
-    # Updates the version of the dev.galasa.obr and dev.galasa.testcatalog plugins used in the IVT OBR.
+    # Updates the version in the buildSrc build.gradle which sets the version of the Galasa plugins being used.
 
-    h2 "upgrading the dev.galasa.ivts.obr build.gradle"
+    h2 "upgrading Galasa plugin versions in the buildSrc build.gradle"
 
-    cat $BASEDIR/dev.galasa.ivts/dev.galasa.ivts.obr/build.gradle \
-    | sed "s/id 'dev[.]galasa[.]obr' version '.*'/id 'dev.galasa.obr' version '$component_version'/1" \
-    | sed "s/id 'dev[.]galasa[.]testcatalog' version '.*'/id 'dev.galasa.testcatalog' version '$component_version'/1" \
-    > $temp_dir/obr-build.gradle
-    cp $temp_dir/obr-build.gradle $BASEDIR/dev.galasa.ivts/dev.galasa.ivts.obr/build.gradle
+    cat $BASEDIR/dev.galasa.ivts/buildSrc/build.gradle | sed "s/version[ ]*=.*/version = '$component_version'/1" > $temp_dir/plugins-build.gradle
+    cp $temp_dir/plugins-build.gradle $BASEDIR/dev.galasa.ivts/buildSrc/build.gradle
 
-    success "dev.galasa.ivts.obr build.gradle upgraded OK."
-
-}
-
-function upgrade_plugins_in_ivt_bundles {
-
-    # Updates the version of the dev.galasa.tests plugin used in each IVT bundle.
-
-    h2 "upgrading the dev.galasa.ivts.core build.gradle"
-
-    cat $BASEDIR/dev.galasa.ivts/dev.galasa.ivts.core/build.gradle | sed "s/id 'dev[.]galasa[.]tests' version '.*'/id 'dev.galasa.tests' version '$component_version'/1" > $temp_dir/core-build.gradle
-    cp $temp_dir/core-build.gradle $BASEDIR/dev.galasa.ivts/dev.galasa.ivts.core/build.gradle
-
-    success "dev.galasa.ivts.core build.gradle upgraded OK."
-
-    # More bundles to be added...
+    success "Galasa plugin versions in buildSrc build.gradle upgraded OK."
 }
 
 upgrade_read_me_example
 upgrade_parent_build_gradle
-upgrade_obr_build_gradle
-upgrade_plugins_in_ivt_bundles
+upgrade_plugin_versions

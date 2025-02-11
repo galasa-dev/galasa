@@ -1,6 +1,3 @@
-
-
-
 // Tell gradle where it should look to find the plugins and dependencies it needs to build.
 pluginManagement {
     repositories {

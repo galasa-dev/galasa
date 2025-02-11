@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'biz.aQute.bnd.builder'
+    id 'dev.galasa.tests'
+}
+
+// This section tells gradle where it should look for any dependencies
+repositories {
+    mavenLocal()
+    mavenCentral()
+    // To use the bleeding edge version of galasa's obr plugin, use the development obr
+    maven {
+       url = "$sourceMaven"
+    }
+}
+
+dependencies {
+    implementation platform('dev.galasa:galasa-bom:'+version)
+
+    implementation 'dev.galasa:dev.galasa'
+    implementation 'dev.galasa:dev.galasa.framework'
+    implementation 'commons-logging:commons-logging'
+    implementation 'org.assertj:assertj-core'
+}
+
+// Tell gradle to publish the built OSGi bundles as maven artifacts on the 
+// local maven repository.
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url  = "$targetMaven"
+            
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv('GITHUB_ACTOR')
+                    password System.getenv('GITHUB_TOKEN')
+                }
+            }
+        }
+    }
+}
