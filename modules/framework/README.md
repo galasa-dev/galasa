@@ -42,7 +42,7 @@ the environment variable of the same name, which in turn overrides the default o
 See [test-api-locally.md](./test-api-locally.md) for instructions on how to set up your environment to test the API locally.
 
 ## License
-This code is under the [Eclipse Public License 2.0](https://github.com/galasa-dev/maven/blob/main/LICENSE).
+This code is under the [Eclipse Public License 2.0](https://github.com/galasa-dev/galasa/blob/main/LICENSE).
 
 ## Developer setup instructions
 See the developer instructions [here](./dev-instructions.md)

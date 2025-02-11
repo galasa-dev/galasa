@@ -59,4 +59,4 @@ Take a look at the [contribution guidelines](https://github.com/galasa-dev/proje
 
 ## License
 
-This code is under the [Eclipse Public License 2.0](https://github.com/galasa-dev/maven/blob/main/LICENSE).
+This code is under the [Eclipse Public License 2.0](https://github.com/galasa-dev/galasa/blob/main/LICENSE).

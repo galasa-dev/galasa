@@ -23,7 +23,7 @@ Other Galasa repositories are available on [GitHub](https://github.com/galasa-de
 
 
 ## License
-This code is under the [Eclipse Public License 2.0](https://github.com/galasa-dev/maven/blob/main/LICENSE).
+This code is under the [Eclipse Public License 2.0](https://github.com/galasa-dev/galasa/blob/main/LICENSE).
 
 
 ## Building locally
