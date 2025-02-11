@@ -1,0 +1,10 @@
+ARG baseVersion
+ARG dockerRepository
+FROM ${dockerRepository}/galasa-dev/base-image:${baseVersion}
+
+ARG branch
+
+RUN sed -i "s/--branchname--/${branch}/"     /usr/local/apache2/conf/httpd.conf
+RUN sed -i 's/--repositoryname--/ivts/'  /usr/local/apache2/conf/httpd.conf
+
+COPY repo/ /usr/local/apache2/htdocs/

@@ -7,6 +7,9 @@ package dev.galasa.framework.api.common;
 
 import java.text.MessageFormat;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.google.gson.JsonObject;
 
 public class ServletError {
@@ -15,6 +18,8 @@ public class ServletError {
     ServletErrorMessage template ;
     String message ;
 
+    private static final Log logger = LogFactory.getLog(ServletError.class);
+
     public ServletError( ServletErrorMessage template , String... params ) {
 
         String templateString = template.toString();        
@@ -22,6 +27,8 @@ public class ServletError {
 
         this.template = template;
         this.params = params;
+
+        logger.info("ServletError(...) "+message);
     }
 
     public String toJsonString() {

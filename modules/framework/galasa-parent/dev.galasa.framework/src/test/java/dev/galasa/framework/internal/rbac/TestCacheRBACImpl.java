@@ -21,7 +21,6 @@ import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.mocks.MockUser;
 import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
-import dev.galasa.framework.spi.rbac.CacheRBAC;
 import dev.galasa.framework.spi.rbac.RBACException;
 
 import static org.assertj.core.api.Assertions.*;
@@ -119,8 +118,12 @@ public class TestCacheRBACImpl {
         assertThat(cache.isActionPermitted(loginId, "not_a_permitted_action")).isFalse();
     }
 
+    // If the user has a valid JWT, but their user record has been deleted, then 
+    // the cache will be empty, and the user will have no user record.
+    // If they are checking permissions, then a boolean should be returned rather
+    // than an exception.
     @Test
-    public void testIsActionPermittedThrowsErrorForUnknownUsers() throws Exception {
+    public void testIsActionPermittedSaysNotPermittedForUnknownUsers() throws Exception {
         // Given...
         MockTimeService timeService = new MockTimeService(Instant.now());
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
@@ -132,13 +135,10 @@ public class TestCacheRBACImpl {
         String apiAccessActionId = "GENERAL_API_ACCESS";
 
         // When...
-        RBACException thrown = catchThrowableOfType(() -> {
-            cache.isActionPermitted(loginId, apiAccessActionId);
-        }, RBACException.class);
+        boolean isPermitted = cache.isActionPermitted(loginId, apiAccessActionId);
 
         // Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("No user with the given login ID exists");
+        assertThat(isPermitted).isFalse();
     }
 
     @Test

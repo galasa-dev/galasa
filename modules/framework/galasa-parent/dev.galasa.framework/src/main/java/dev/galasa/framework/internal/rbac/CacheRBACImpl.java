@@ -8,15 +8,18 @@ package dev.galasa.framework.internal.rbac;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.LogFactory;
+
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.auth.AuthStoreException;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IUser;
-import dev.galasa.framework.spi.rbac.CacheRBAC;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.rbac.Role;
+
+import org.apache.commons.logging.*;
 
 public class CacheRBACImpl implements CacheRBAC {
 
@@ -29,6 +32,7 @@ public class CacheRBACImpl implements CacheRBAC {
     private IDynamicStatusStoreService dssService;
     private IAuthStoreService authStoreService;
     private RBACService rbacService;
+    private final Log logger = LogFactory.getLog(getClass());
 
     public CacheRBACImpl(
         IDynamicStatusStoreService dssService,
@@ -62,10 +66,19 @@ public class CacheRBACImpl implements CacheRBAC {
             Set<String> userActions = new HashSet<>();
             if (commaSeparatedUserActions == null) {
                 // Cache miss, so get the user's actions from the auth store
-                userActions = getUserActionsFromAuthStore(loginId);
+                IUser user = getUserFromAuthStore(loginId);
+                if (user==null) {
+                    // The user record doesn't exist.
+                    // So we know the user isn't permitted right now.
+                    logger.info("User does not have a user record. Permission denied.");
+                    isActionPermitted = false;
+                } else {
 
-                // Add this user to the cache
-                addUser(loginId, userActions);
+                    userActions = getUserActionsFromAuthStore(user);
+
+                    // Add this user to the cache
+                    addUser(loginId, userActions);
+                }
             } else {
                 userActions = Set.of(commaSeparatedUserActions.split(","));
             }
@@ -92,17 +105,13 @@ public class CacheRBACImpl implements CacheRBAC {
         IUser user = null;
         try {
             user = authStoreService.getUserByLoginId(loginId);
-            if (user == null) {
-                throw new RBACException("No user with the given login ID exists");
-            }
         } catch (AuthStoreException e) {
-            throw new RBACException("Unable to find user with the given login ID", e);
+            throw new RBACException("Internal Server Error: Authorisation store returned an unexpected failure when looking up a user record.", e);
         }
         return user;
     }
 
-    private Set<String> getUserActionsFromAuthStore(String loginId) throws RBACException {
-        IUser user = getUserFromAuthStore(loginId);
+    private Set<String> getUserActionsFromAuthStore(IUser user) throws RBACException {
         String userRoleId = user.getRoleId();
         Role userRole = rbacService.getRoleById(userRoleId);
 

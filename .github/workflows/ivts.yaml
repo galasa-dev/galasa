@@ -1,0 +1,173 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: IVTs Main Build
+
+on:
+  workflow_call:
+    inputs:
+      jacoco_enabled:
+        description: 'True if Jacoco code coverage should be enabled (set to "false" for release builds)'
+        required: false
+        default: 'true'
+        type: string
+      sign_artifacts:
+        description: 'True if the artifacts built should be signed (set to "false" for development branch builds)'
+        required: false
+        default: 'true'
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: ${{ github.repository_owner }}
+  BRANCH: ${{ github.ref_name }}
+
+jobs:
+  log-github-ref:
+    name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log GitHub ref of workflow
+        run: |
+          echo "This workflow is running on GitHub ref ${{ env.BRANCH }}"
+
+  build-ivts:
+    name: Build IVTs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            modules/ivts
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.9
+          cache-disabled: true
+
+      - name: Download platform from this workflow
+        id: download-platform
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: modules/artifacts
+
+      - name: Download wrapping artifacts from this workflow
+        id: download-wrapping
+        uses: actions/download-artifact@v4
+        with:
+          name: wrapping
+          path: modules/artifacts
+
+      - name: Download gradle artifacts from this workflow
+        id: download-gradle
+        uses: actions/download-artifact@v4
+        with:
+          name: gradle
+          path: modules/artifacts
+
+      - name: Download maven artifacts from this workflow
+        id: download-maven
+        uses: actions/download-artifact@v4
+        with:
+          name: maven
+          path: modules/artifacts
+
+      - name: Download framework artifacts from this workflow
+        id: download-framework
+        uses: actions/download-artifact@v4
+        with:
+          name: framework
+          path: modules/artifacts
+
+      - name: Download managers artifacts from this workflow
+        id: download-managers
+        uses: actions/download-artifact@v4
+        with:
+          name: managers
+          path: modules/artifacts
+
+      - name: Download obr artifacts from this workflow
+        id: download-obr
+        uses: actions/download-artifact@v4
+        with:
+          name: obr
+          path: modules/artifacts
+
+      - name: Build IVTs
+        working-directory: modules/ivts/dev.galasa.ivts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_GRADLE_PROJECT_signingKeyId:  ${{ secrets.GPG_KEYID }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          set -o pipefail
+          gradle build check publish --info \
+          --no-daemon --console plain \
+          -PsourceMaven=${{ github.workspace }}/modules/artifacts \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/modules/ivts/repo \
+          -PisMainOrRelease=${{ inputs.sign_artifacts }} 2>&1 | tee build.log
+
+      - name: Upload Gradle build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ivts-gradle-build-log
+          path: modules/ivts/build.log
+
+      - name: Upload IVT artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ivts
+          path: modules/ivts/repo
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        env:
+          WRITE_GITHUB_PACKAGES_USERNAME: ${{ vars.WRITE_GITHUB_PACKAGES_USERNAME }}
+          WRITE_GITHUB_PACKAGES_TOKEN: ${{ secrets.WRITE_GITHUB_PACKAGES_TOKEN }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.WRITE_GITHUB_PACKAGES_USERNAME }}
+          password: ${{ env.WRITE_GITHUB_PACKAGES_TOKEN }}
+    
+      - name: Extract metadata for IVTs
+        id: metadata
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/ivts-maven-artefacts
+    
+      - name: Build IVTs image for development Maven registry
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/ivts
+          file: modules/ivts/dockerfiles/dockerfile.ivts
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            baseVersion=latest
+            dockerRepository=${{ env.REGISTRY }}
+            branch=${{ env.BRANCH }}
+
+  report-failure:
+    # Skip this job for forks
+    if: ${{ failure() && github.repository_owner == 'galasa-dev' }}
+    name: Report failure in workflow
+    runs-on: ubuntu-latest
+    needs: [log-github-ref, build-ivts]
+
+    steps:
+      - name: Report failure in workflow to Slack
+        env: 
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run : |
+          docker run --rm ghcr.io/galasa-dev/galasabld-ibm:main slackpost workflows --repo "galasa" --module "ivts" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" --ref "${{ env.BRANCH }}" --hook "${{ env.SLACK_WEBHOOK }}"

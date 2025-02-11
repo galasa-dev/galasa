@@ -80,10 +80,23 @@ public class BeanTransformer {
     }
 
     private String getRoleId( IUser userIn ) throws InternalServletException {
-        String roleId = userIn.getRoleId();
-        if (roleId==null || roleId.trim().equals("")) {
-            roleId = IUser.DEFAULT_ROLE_ID_WHEN_MISSING;
+        String roleId ;
+        
+        if (rbacService.isOwner(userIn.getLoginId())) {
+            try {
+                Role ownerRole = rbacService.getRoleByName("owner");
+                roleId = ownerRole.getId();
+            } catch( RBACException ex) {
+                ServletError error = new ServletError(GAL5124_ROLE_ID_NOT_FOUND_FOR_USER);
+                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            roleId = userIn.getRoleId();
+            if (roleId==null || roleId.trim().equals("")) {
+                roleId = IUser.DEFAULT_ROLE_ID_WHEN_MISSING;
+            }
         }
+
         return roleId;
     }
 

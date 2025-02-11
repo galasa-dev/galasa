@@ -172,6 +172,7 @@ function setup_galasa_dev() {
     info "Setting environment variables"
     export GALASA_OBR_VERSION=$GALASA_VERSION
     export GALASA_BOOT_JAR_VERSION=$GALASA_VERSION
+    export GALASA_OWNER_LOGIN_IDS="owner"
     export GALASA_EXTERNAL_API_URL="http://localhost:8080"
     export GALASA_USERNAME_CLAIMS="preferred_username,name,sub"
     export GALASA_ALLOWED_ORIGINS="*"
@@ -187,7 +188,6 @@ function setup_galasa_dev() {
     # In the test environment, when we log in for the first time, we want our userid to be given admin rights.
     export GALASA_DEFAULT_USER_ROLE="admin"
 }
-
 
 
 
@@ -322,7 +322,7 @@ function launch_dex_in_docker {
 
     info "Making sure the .dex config is set up, containing the dex admin password."
     mkdir -p ~/.dex
-    cat << EOF >> ~/.dex/config-dev.yaml
+    cat << EOF > ~/.dex/config-dev.yaml
 
 # The base path of dex and the external name of the OpenID Connect service.
 # This is the canonical URL that all clients MUST use to refer to dex. If a
@@ -384,10 +384,34 @@ enablePasswordDB: true
 #
 # If this option isn't chosen users may be added through the gRPC API.
 
+
+
+# For testing purposes, it helps to have multiple user IDs who can log in
+# to the web UI and REST interface.
+# For example: To use one admin to change the role of a different user.
+# Lets define one user for each role in the sysytem.
+# Note: They will all have the default role assigned, regardless of their
+# account email or username
 staticPasswords:
+- email: "owner@example.com"
+  hash: "${DEX_ADMIN_PASSWORD}"
+  username: "owner"
+  userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
 - email: "admin@example.com"
   hash: "${DEX_ADMIN_PASSWORD}"
   username: "admin"
+  userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+- email: "tester@example.com"
+  hash: "${DEX_ADMIN_PASSWORD}"
+  username: "tester"
+  userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+- email: "deactivated@example.com"
+  hash: "${DEX_ADMIN_PASSWORD}"
+  username: "deactivated"
+  userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+- email: "owner@example.com"
+  hash: "${DEX_ADMIN_PASSWORD}"
+  username: "owner"
   userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
 
 EOF

@@ -28,6 +28,7 @@ public abstract class ProtectedRoute extends BaseRoute {
     }
 
     protected void validateActionPermitted(BuiltInAction action, String loginId) throws InternalServletException {
+        logger.info("Checking to make sure user "+loginId+" has action "+action.getAction().getId());
         rbacValidator.validateActionPermitted(action, loginId);
     }
 

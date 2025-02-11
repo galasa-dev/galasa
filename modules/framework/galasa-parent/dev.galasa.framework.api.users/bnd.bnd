@@ -3,4 +3,5 @@ Bundle-Name: Galasa API Users microservices
 Export-Package: !dev.galasa.framework.api.users.internal*;dev.galasa.framework.api.users*;
 Import-Package: dev.galasa.framework.api.common,\
 dev.galasa.framework.api.rbac,\
+org.apache.http,\
                 *

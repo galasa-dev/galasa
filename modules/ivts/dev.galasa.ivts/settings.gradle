@@ -1,0 +1,20 @@
+
+
+
+// Tell gradle where it should look to find the plugins and dependencies it needs to build.
+pluginManagement {
+    repositories {
+        mavenLocal()
+        // To use the bleeding edge version of galasa's obr plugin, use the development obr
+        maven {
+           url = "$sourceMaven"
+        }
+
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+// Tell gradle to build the sub-projects in child folders
+include 'dev.galasa.ivts.core'
+include 'dev.galasa.ivts.obr'

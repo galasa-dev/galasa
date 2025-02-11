@@ -173,7 +173,7 @@ info "Log will be placed at ${log_file}"
 function clean_maven_repo {
     h2 "Removing .m2 artifacts"
     rm -fr ~/.m2/repository/dev/galasa/dev.galasa.cps.etcd
-    rm -fr ~/.m2/repository/dev/galasa/dev.galasa.raw.couchdb
+    rm -fr ~/.m2/repository/dev/galasa/dev.galasa.ras.couchdb
     rm -fr ~/.m2/repository/dev/galasa/dev.galasa.cps.rest
     rm -fr ~/.m2/repository/dev/galasa/dev.galasa.events.kafka
     success "OK"

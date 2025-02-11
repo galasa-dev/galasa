@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import dev.galasa.framework.spi.rbac.CacheRBAC;
+import dev.galasa.framework.internal.rbac.CacheRBAC;
 import dev.galasa.framework.spi.rbac.RBACException;
 
 public class MockCacheRBAC implements CacheRBAC {

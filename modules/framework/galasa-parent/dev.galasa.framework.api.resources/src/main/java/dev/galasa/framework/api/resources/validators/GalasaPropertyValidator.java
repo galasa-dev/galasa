@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.api.resources.validators;
 
-import static dev.galasa.framework.api.common.ServletErrorMessage.GAL5024_INVALID_GALASAPROPERTY;
+import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static dev.galasa.framework.api.common.resources.ResourceAction.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -63,8 +63,7 @@ public class GalasaPropertyValidator extends GalasaResourceValidator<JsonObject>
                 validationErrors.add(e.getMessage());   
             }
         } else {
-            String message = "The 'metadata' field cannot be empty. The fields 'name' and 'namespace' are mandatory for the type GalasaProperty.";
-            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
+            ServletError error = new ServletError(GAL5415_INVALID_GALASAPROPERTY_EMPTY_METADATA);
             validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
         }
     }
@@ -74,14 +73,12 @@ public class GalasaPropertyValidator extends GalasaResourceValidator<JsonObject>
         JsonObject data = propertyJson.get("data").getAsJsonObject();
         if (data.size() > 0 && data.has("value")) {
             String value = data.get("value").getAsString();
-            if (value == null || value.isBlank()) {
-                String message = "The 'value' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.";
-                ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
+            if (value == null ) {
+                ServletError error = new ServletError(GAL5416_INVALID_GALASAPROPERTY_NULL_VALUE);
                 validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
             }
         } else {
-            String message = "The 'data' field cannot be empty. The field 'value' is mandatory for the type GalasaProperty.";
-            ServletError error = new ServletError(GAL5024_INVALID_GALASAPROPERTY, message);
+            ServletError error = new ServletError(GAL5417_INVALID_GALASAPROPERTY_DATA_FIELD_MISSING);
             validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
         }
     }

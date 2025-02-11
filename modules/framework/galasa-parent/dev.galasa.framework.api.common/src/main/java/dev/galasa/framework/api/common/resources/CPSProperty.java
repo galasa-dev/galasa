@@ -141,7 +141,7 @@ public class CPSProperty {
     }
 
     private boolean isPropertyValueValid() {
-        return this.value != null && !this.value.isBlank();
+        return this.value != null ;
     }
 
     public boolean isPropertyValid() throws InternalServletException {

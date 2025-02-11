@@ -43,6 +43,7 @@ jobs:
       framework_changed: ${{ steps.get-changed-modules.outputs.FRAMEWORK_CHANGED }}
       extensions_changed: ${{ steps.get-changed-modules.outputs.EXTENSIONS_CHANGED }}
       managers_changed: ${{ steps.get-changed-modules.outputs.MANAGERS_CHANGED }}
+      ivts_changed: 'true'
       obr_changed: ${{ steps.get-changed-modules.outputs.OBR_CHANGED }}
 
     steps:
@@ -57,7 +58,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          ./.github/scripts/get-changed-modules-pull-request.sh --github-repo ${{ github.event.pull_request.head.repo.full_name }} --pr-number ${{ github.event.number }}
+          ./.github/scripts/get-changed-modules-pull-request.sh --github-repo ${{ github.event.pull_request.base.repo.full_name }} --pr-number ${{ github.event.number }}
 
   find-artifacts:
     name: Get Workflow Run ID to download artifacts from
@@ -159,11 +160,21 @@ jobs:
       changed: ${{ needs.get-changed-modules.outputs.obr_changed }}
       artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
+  # The IVTs are built after the OBR as they require the galasa-bom to get dependencies.
+  pr-build-ivts:
+    name: Build the 'ivts' module
+    needs: [get-changed-modules, find-artifacts, pr-build-obr]
+    uses: ./.github/workflows/pr-ivts.yaml
+    secrets: inherit
+    with:
+      changed: ${{ needs.get-changed-modules.outputs.ivts_changed }}
+      artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
   # This is required as all previous jobs are optional based on if a module has changed.
   # This job is set in the branch protection rules as required to merge a Pull Request.
   end-pull-request-build:
     name: Pull Request build was successful
-    needs: [pr-build-obr, detect-secrets]
+    needs: [pr-build-obr, pr-build-ivts, detect-secrets]
     runs-on: ubuntu-latest
 
     steps:

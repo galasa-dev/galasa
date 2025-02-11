@@ -1,0 +1,206 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: IVTs PR Build
+
+on:
+  workflow_call:
+    inputs:
+      changed:
+        description: 'True if this module has been changed and should be rebuilt'
+        required: true
+        type: string
+      artifact-id:
+        description: 'The Workflow Run ID of the last workflow containing artifacts to download'
+        required: true
+        type: string
+
+jobs:
+
+  log-unchanged:
+    name: IVTs are unchanged
+    if: ${{ inputs.changed == 'false' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log this module is unchanged
+        run: |
+          echo "The IVTs module is unchanged"
+
+  build-ivts:
+    name: Build IVTs
+    if: ${{ inputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            modules/ivts
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.9
+          cache-disabled: true
+
+      # For any modules that were changed in this PR,
+      # download their artifacts from this workflow run.
+
+      - name: Download platform from this workflow
+        id: download-platform
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: modules/artifacts
+
+      - name: Download wrapping artifacts from this workflow
+        id: download-wrapping
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: wrapping
+          path: modules/artifacts
+
+      - name: Download gradle artifacts from this workflow
+        id: download-gradle
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: gradle
+          path: modules/artifacts
+
+      - name: Download maven artifacts from this workflow
+        id: download-maven
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: maven
+          path: modules/artifacts
+
+      - name: Download framework artifacts from this workflow
+        id: download-framework
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: framework
+          path: modules/artifacts
+
+      - name: Download managers artifacts from this workflow
+        id: download-managers
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: managers
+          path: modules/artifacts
+
+      - name: Download obr artifacts from this workflow
+        id: download-obr
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: obr
+          path: modules/artifacts
+
+      # For any modules that weren't changed in this PR,
+      # download artifacts from the last successful workflow.
+
+      - name: Download platform from last successful workflow
+        if: ${{ steps.download-platform.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: modules/artifacts
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.artifact-id }}
+
+      - name: Download wrapping artifacts from last successful workflow
+        if: ${{ steps.download-wrapping.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+            name: wrapping
+            path: modules/artifacts
+            github-token: ${{ github.token }}
+            run-id: ${{ inputs.artifact-id }}
+
+      - name: Download gradle artifacts from last successful workflow
+        if: ${{ steps.download-gradle.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+            name: gradle
+            path: modules/artifacts
+            github-token: ${{ github.token }}
+            run-id: ${{ inputs.artifact-id }}
+
+      - name: Download maven artifacts from last successful workflow
+        if: ${{ steps.download-maven.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+            name: maven
+            path: modules/artifacts
+            github-token: ${{ github.token }}
+            run-id: ${{ inputs.artifact-id }}
+
+      - name: Download framework artifacts from last successful workflow
+        if: ${{ steps.download-framework.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+            name: framework
+            path: modules/artifacts
+            github-token: ${{ github.token }}
+            run-id: ${{ inputs.artifact-id }}
+
+      - name: Download managers artifacts from last successful workflow
+        if: ${{ steps.download-managers.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+            name: managers
+            path: modules/artifacts
+            github-token: ${{ github.token }}
+            run-id: ${{ inputs.artifact-id }}
+
+      - name: Download obr artifacts from last successful workflow
+        if: ${{ steps.download-obr.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+            name: obr
+            path: modules/artifacts
+            github-token: ${{ github.token }}
+            run-id: ${{ inputs.artifact-id }}
+
+      - name: Build IVTs
+        working-directory: modules/ivts/dev.galasa.ivts
+        run: |
+          gradle build check publish --info \
+          --no-daemon --console plain \
+          -PsourceMaven=${{ github.workspace }}/modules/artifacts \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/modules/ivts/repo
+
+      - name: Upload IVT artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ivts
+          path: modules/ivts/repo
+
+      - name: Build IVTs image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/ivts
+          file: modules/ivts/dockerfiles/dockerfile.ivts
+          load: true
+          tags: ivts-maven-artefacts:test
+          build-args: |
+            baseVersion=latest
+            dockerRepository=ghcr.io
+            branch=main

@@ -3,9 +3,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.spi.rbac;
+package dev.galasa.framework.internal.rbac;
 
 import java.util.Set;
+
+import dev.galasa.framework.spi.rbac.RBACException;
 
 public interface CacheRBAC {
 

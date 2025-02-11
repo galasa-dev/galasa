@@ -1,0 +1,66 @@
+   
+// This section tells gradle which gradle plugins to use to build this project.
+plugins {
+    id 'base'
+    id 'maven-publish'
+    id 'dev.galasa.obr' version '0.40.0'
+    id 'dev.galasa.testcatalog' version '0.40.0'
+}
+
+// Set the variables which will control what the built OSGi bundle will be called
+// and the name it will be published under in the maven repository.
+
+// What are the dependencies of the obr ? 
+dependencies {
+    bundle project(':dev.galasa.ivts.core')
+}
+
+def testcatalog = file('build/testcatalog.json')
+def obrFile = file('build/galasa.obr')
+
+
+tasks.withType(PublishToMavenLocal) { task ->
+    task.dependsOn genobr
+    task.dependsOn mergetestcat
+}
+
+tasks.withType(PublishToMavenRepository) { task ->
+    task.dependsOn genobr
+    task.dependsOn mergetestcat
+}
+
+// Tell gradle to publish the built OBR as a maven artifact on the 
+// local maven repository.
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact obrFile
+            artifact (testcatalog) {
+                classifier "testcatalog"
+                extension "json"
+            }
+        }
+    }
+    repositories {
+        maven {
+            url  = "$targetMaven"
+            
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv('GITHUB_ACTOR')
+                    password System.getenv('GITHUB_TOKEN')
+                }
+            }
+        }
+    }
+}
+
+// If we are deploying a test catalog using the galasa plugin,
+// directly to the ecosystem, then we can get the properties
+// we need from the system properties, passed on the command line using
+// -DGALASA_STREAM=xxx -DGALASA_BOOTSTRAP=xxx -DGALASA_TOKEN=xxx
+deployTestCatalog {
+    bootstrap = System.getProperty("GALASA_BOOTSTRAP")
+    stream = System.getProperty("GALASA_STREAM")
+    token = System.getProperty("GALASA_TOKEN");
+}

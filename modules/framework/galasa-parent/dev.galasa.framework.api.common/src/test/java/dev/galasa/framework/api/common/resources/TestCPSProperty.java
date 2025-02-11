@@ -243,7 +243,7 @@ public class TestCPSProperty extends BaseServletTest {
     }
 
     @Test
-    public void testCPSPropertyNoValueIsInvalid() throws InternalServletException{
+    public void testCPSPropertyBlankValueIsValid() throws InternalServletException{
         //Given...
         String namespace = "framework";
         String propertyName = "property";
@@ -257,12 +257,9 @@ public class TestCPSProperty extends BaseServletTest {
         assertThat(property.getNamespace()).isEqualTo(namespace);
         assertThat(property.getName()).isEqualTo(propertyName);
         assertThat(property.getValue()).isEqualTo(propertyValue);
-        Throwable thrown = catchThrowable( () -> {
-            property.isPropertyValid();
-        });
+        boolean isValid = property.isPropertyValid();
 
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("GAL5024","value");
+        assertThat(isValid).isTrue();
     }
 
     @Test

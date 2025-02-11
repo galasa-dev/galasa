@@ -11,6 +11,12 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.apache.http.HttpStatus;
+
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
@@ -45,6 +51,8 @@ public class UserRoute extends AbstractUsersRoute {
     protected static final String path = "\\/([a-zA-Z0-9\\-\\_]+)\\/?" ;
 
     protected Pattern pathPattern;
+
+    private Log logger = LogFactory.getLog(getClass());
 
     private BeanTransformer beanTransformer ;
 
@@ -83,7 +91,8 @@ public class UserRoute extends AbstractUsersRoute {
         HttpServletResponse response
     ) throws FrameworkException, IOException {
 
-        validateActionPermitted(BuiltInAction.USER_EDIT_OTHER, requestContext.getUsername());
+        String requestingUserLoginId = requestContext.getUsername();
+        validateActionPermitted(BuiltInAction.USER_EDIT_OTHER, requestingUserLoginId);
         logger.info("handlePutRequest() entered");
 
         HttpServletRequest request = requestContext.getRequest();
@@ -97,7 +106,7 @@ public class UserRoute extends AbstractUsersRoute {
 
         updateRequestValidator.validateUpdateRequest(updatePayload);
 
-        IUser updatedUser = updateUser(originalUser, updatePayload);
+        IUser updatedUser = updateUser(originalUser, updatePayload, requestingUserLoginId);
 
         UserData updatedUserBean = beanTransformer.convertUserToUserBean(updatedUser);
 
@@ -135,14 +144,24 @@ public class UserRoute extends AbstractUsersRoute {
     }
 
 
-    private IUser updateUser(IUser user , UserUpdateData updatePayload) throws AuthStoreException, InternalServletException, RBACException{
+    private IUser updateUser(
+        IUser user, 
+        UserUpdateData updatePayload, 
+        String requestingUserLoginId
+    ) throws AuthStoreException, InternalServletException, RBACException{
 
         boolean isStoreUpdateRequired = false ;
 
         // Only apply the update to the user if it's different to the original values.
         String desiredRoleId = updatePayload.getrole();
         if (desiredRoleId != null ) {
+
+            validateUserIsNotUpdatingRoleOfAServiceOwner(rbacService, user.getLoginId());
+
             if (! desiredRoleId.equals(user.getRoleId() )) {
+
+                validateUserIsNotUpdatingTheirOwnRole(requestingUserLoginId, user);
+
                 user.setRoleId(desiredRoleId);
                 isStoreUpdateRequired = true;
             }
@@ -156,8 +175,35 @@ public class UserRoute extends AbstractUsersRoute {
         return user;
     }
 
+    private void validateUserIsNotUpdatingRoleOfAServiceOwner(RBACService rbacService, String userLoginInIdBeingUpdated) throws InternalServletException {
+        if (rbacService.isOwner(userLoginInIdBeingUpdated)) {
+            // The caller is trying to update the role of the Galasa system owner.
+            // This isn't allowed. A system owner will remain a system owner until
+            // the service is re-configured.
+            ServletError msg = new ServletError(GAL5414_USER_CANNOT_UPDATE_SERVICE_OWNER_ROLE);
+            throw new InternalServletException(msg, HttpStatus.SC_FORBIDDEN);
+        }
+    }
+
+    void validateUserIsNotUpdatingTheirOwnRole(
+        String requestingUserLoginId, 
+        IUser userRecordBeingUpdated
+    ) throws InternalServletException {
+        String loginIdBeingUpdated = userRecordBeingUpdated.getLoginId();
+        if (requestingUserLoginId.equals(loginIdBeingUpdated)) {
+            ServletError msg = new ServletError(GAL5413_USER_CANNOT_UPDATE_OWN_USER_ROLE);
+            throw new InternalServletException(msg, HttpStatus.SC_FORBIDDEN);
+        }
+    }
+
 
     void checkRequestorHasPermissionToDeleteUserRecord( String loginIdToBeDeleted, String loginIdOfRequestor ) throws InternalServletException {
+        
+        if (rbacService.isOwner(loginIdToBeDeleted)) {
+            ServletError error = new ServletError(GAL5089_FORBIDDEN_USER_DELETE_SERVICE_OWNER);
+            throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
+        }
+
         if (!loginIdToBeDeleted.equals(loginIdOfRequestor)) {
             // The user is trying to delete someone else's user record.
             // This is only allowed if you have permissions.

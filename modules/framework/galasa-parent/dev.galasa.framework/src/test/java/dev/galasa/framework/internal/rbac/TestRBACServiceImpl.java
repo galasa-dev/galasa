@@ -7,6 +7,7 @@ package dev.galasa.framework.internal.rbac;
 
 import java.time.Instant;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.*;
@@ -16,6 +17,7 @@ import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.spi.rbac.Action;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.rbac.Role;
 
@@ -332,6 +334,24 @@ public class TestRBACServiceImpl {
     }
 
     @Test
+    public void testOwnerRoleHasSameNumberOfActionsAsAdmin() throws Exception {
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        RBACService service = new RBACServiceImpl(mockDssService, mockAuthStoreService, new MockEnvironment());
+        Role ownerRole = service.getRoleByName("owner");
+        assertThat(ownerRole).isNotNull();
+        List<String> ownerActionIds = ownerRole.getActionIds();
+
+        Role adminRole = service.getRoleByName("admin");
+        assertThat(adminRole).isNotNull();
+        List<String> adminActionIds = ownerRole.getActionIds();
+
+        assertThat(ownerActionIds).hasSize(adminActionIds.size());
+    }
+
+    @Test
     public void testDefaultRoleIsDeactivated() throws Exception {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
@@ -355,5 +375,60 @@ public class TestRBACServiceImpl {
         Role defaultRole = service.getRoleById(defaultRoleId);
         assertThat(defaultRole).isNotNull();
         assertThat(defaultRole.getName()).isEqualTo("tester");
+    }
+
+    @Test
+    public void testCanLoadOwnerSetFromEnvVariablesWithOneOwner() {
+        MockEnvironment env = new MockEnvironment();
+        env.setenv( RBACService.ENV_VARIABLE_GALASA_OWNER_LOGIN_IDS, "user1");
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+        env.setenv("GALASA_DEFAULT_USER_ROLE", "tester");
+        RBACServiceImpl service = new RBACServiceImpl(mockDssService, mockAuthStoreService, env);
+
+        boolean isOwner = service.isOwner("user1");
+        assertThat(isOwner).isTrue();
+        isOwner = service.isOwner("user2");
+        assertThat(isOwner).isFalse();
+    }
+
+    @Test
+    public void testCanLoadOwnerSetFromEnvVariablesWithOneTwoOwner() {
+        MockEnvironment env = new MockEnvironment();
+        env.setenv( RBACService.ENV_VARIABLE_GALASA_OWNER_LOGIN_IDS, "user1 , user2");
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+        env.setenv("GALASA_DEFAULT_USER_ROLE", "tester");
+        RBACServiceImpl service = new RBACServiceImpl(mockDssService, mockAuthStoreService, env);
+
+        boolean isOwner = service.isOwner("user1");
+        assertThat(isOwner).isTrue();
+        isOwner = service.isOwner("user2");
+        assertThat(isOwner).isTrue();
+        isOwner = service.isOwner("user3");
+        assertThat(isOwner).isFalse();
+    }
+    
+
+    @Test
+    public void testOwnerIsPermittedToGetSecretValues() throws Exception {
+        MockEnvironment env = new MockEnvironment();
+        env.setenv( RBACService.ENV_VARIABLE_GALASA_OWNER_LOGIN_IDS, "user1");
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+        env.setenv("GALASA_DEFAULT_USER_ROLE", "tester");
+        RBACServiceImpl service = new RBACServiceImpl(mockDssService, mockAuthStoreService, env);
+
+        boolean isOwner = service.isOwner("user1");
+        assertThat(isOwner).isTrue();
+
+        boolean isPermitted = service.isActionPermitted("user1", BuiltInAction.SECRETS_GET_UNREDACTED_VALUES.getAction().getName());
+        assertThat(isPermitted).isTrue();
     }
 }
