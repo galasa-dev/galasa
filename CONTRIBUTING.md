@@ -25,22 +25,29 @@ Welcome to Galasa! To learn more about contributing to this repository, please r
 
 - Fix typos, improve examples, or enhance explanations.
 
-## Making your first contribution
+## How to make a contribution?
 
-### How to set up a fork of a repository
+### Set up a fork of a repository
 
 1. On GitHub, navigate to the repository.
-1. In the top-right corner of the page, click Fork. (insert screenshot)
+1. In the top-right corner of the page, click Fork.
 1. Select an owner for the forked repository from the dropdown menu under "Owner".
 1. The fork will be named the same as the upstream repository as default. Optionally, to further distinguish your fork, type a name in the "Repository name" field.
 1. Optionally, type a description for your fork in the "Description" field.
 1. Optionally, select "Copy the `main` branch only".
-1. You will need to enable the GitHub Actions workflows by going to the Actions tab and clicking 'I understand my workflows, go ahead and enable them'
-1. You will need to trigger an initial workflow run of the 'Main Build Orchestrator' before making any Pull Requests from a branch to your main branch on your fork. You can do this by going to the Actions tab, clicking 'Main Build Orchestrator', and submitting 'Run workflow'. (todo: expand on this, explain about how the artifact caching works)
+1. Click "Create fork".
 
-### How to configure repository secrets and variables
+### Get your fork ready to start contributing and building
 
-To run certain workflows on your fork, you will need to configure some repository secrets and variables so that the workflows can access them. (todo: expand...)
+The 'galasa' repository is divided into several modules that are stored within the `/modules` directory. Certain modules require artifacts from other modules as they have a dependency on them. The build workflow attempts to download these artifacts either from the same workflow run or from a previously successful completed workflow run. Therefore, before you can open a Pull Request on your forked repository from one branch to another, you will need to run an initial workflow run of the "Main Build Orchestrator".
+
+1. As default, GitHub Actions will be disabled on your fork. You will need to enable the GitHub Actions workflows by going to the Actions tab on your fork and clicking "I understand my workflows, go ahead and enable them".
+1. To run the "Main Build Orchestrator" on your fork, you will need to configure some repository secrets and variables. Follow the section below [Configure repository secrets and variables](#configure-repository-secrets-and-variables).
+1. Trigger an initial workflow run of the "Main Build Orchestrator". You can do this by going to the Actions tab, selecting "Main Build Orchestrator" from the list of workflows on the left (you may need to click "Show more workflows..."), then clicking "Run workflow" on the right.
+
+### Configure repository secrets and variables
+
+To run certain workflows on your fork, you will need to configure some repository secrets and variables so that the workflows can access them. These secrets and variables are used for things such as authenticating to the GitHub Container Registry and supplying Maven and Gradle builds with your GPG key information to sign artifacts.
 
 #### Repository secrets and variables that required configuring
 
@@ -66,7 +73,7 @@ To set a repository variable:
 1. Select 'New repository secret'.
 1. Enter the secret name and value, then click 'Add secret'. Once you have done this, you will not be able to view the secret value again.
 
-**Required repository secrets:**
+###### Required repository secrets:
 
 1. GPG_KEY: This requires your Base 64 encoded GPG key payload.
 1. GPG_KEYID: This requires the ID of your GPG key in plain text.
@@ -75,7 +82,7 @@ To set a repository variable:
 
 For the GPG related secrets, you can either use an existing key, or create a new key.
 
-**How to create a new GPG key**:
+###### How to create a new GPG key:
 1. Generate a new GPG key with `gpg --full-generate-key`
 2. Select the type of key using the following options:
     * RSA and RSA (default)
@@ -87,7 +94,7 @@ For the GPG related secrets, you can either use an existing key, or create a new
     * Comment: N/A
 4. Enter a password, and ensure to remember it or note it down, as you will need it later.
 
-**How to set the GPG_KEYID repository secret**: 
+###### How to set the GPG_KEYID repository secret: 
 
 1. Get your GPG key information with `gpg --list-secret-keys --keyid-format=short`. The output will contain something like the block below. In this example, your GPG key ID is `XXXXXXXX`. 
 ```
@@ -97,18 +104,18 @@ sec   rsa4096/XXXXXXXX 2023-05-22 [SC] [expires: 2025-05-21]
 2. Create a repository secret called `GPG_KEYID` and add the value of the GPG key ID in plain text.
 
 
-**How to set the GPG_KEY repository secret**: 
+###### How to set the GPG_KEY repository secret: 
 
 1. Use your GPG key ID from above to get your GPG key payload in a Base 64 encoded format with `gpg --export-secret-keys XXXXXXXX | base64`. Ensure it is on one line.
 1. Add the output to your repository secrets for GPG_KEY.
 
-**How to set the GPG_PASSPHRASE repository secret**: 
+###### How to set the GPG_PASSPHRASE repository secret: 
 
 1. Get the passphrase for your GPG key in plain text.
-1. If you have forgotten the passphrase for your GPG key, (todo: explain how to find lost password or explain how to create new key...)
+1. If you have forgotten the passphrase for your GPG key, unfortunately you will not be able to retrieve the passphrase, so follow the steps to create a new key in [How to create a new GPG key](#how-to-create-a-new-gpg-key).
 1. Add it to your repository secrets for GPG_PASSPHRASE.
 
-**How to set the WRITE_GITHUB_PACKAGES_TOKEN repository secret**: 
+###### How to set the WRITE_GITHUB_PACKAGES_TOKEN repository secret: 
 
 You will first need to create a new GitHub Personal access token (classic) or Fine-grained personal access token.
 
@@ -118,13 +125,19 @@ To create a GitHub Personal access token (classic):
 1. Select write:packages access and give the token a name.
 1. Copy the token as it will disappear, and add this to your repository secrets for WRITE_GITHUB_PACKAGES_TOKEN.
 
-To create a Fine-grained personal access token:
-1. TO DO
-1. ... add this to your repository secrets for WRITE_GITHUB_PACKAGES_TOKEN.
+<!-- To create a Fine-grained personal access token:
+1. (TO DO)
+1. ... add this to your repository secrets for WRITE_GITHUB_PACKAGES_TOKEN. -->
 
-### How to contribute code back to the project
-1. Clone your fork of the repository locally (todo: does this need expanding on?)
-1. Add `upstream` as a remote, and ensure you cannot push to it:
+### Clone the forked repository and make changes
+1. Clone your forked repository to your machine:
+```
+git clone https://github.com/YOUR-USERNAME/galasa.git
+```
+2. Make your changes and ensure they build locally with the `/tools/build-locally.sh` script and that the unit tests pass.
+
+### Contribute code back to the project
+1. Add the original 'galasa' repository, `upstream`, as a remote, and ensure you cannot push to it:
 ```
 # replace <upstream git repo> with the upstream repo URL
 # example:
@@ -134,20 +147,20 @@ To create a Fine-grained personal access token:
 git remote add upstream <upstream git repo>
 git remote set-url --push upstream no_push
 ```
-1. Verify this step by listing your configured remote repositories:
+2. Verify this step by listing your configured remote repositories:
 ```
 git remote -v
 ```
-1. Create a new branch for your contribution:
+3. Create a new branch for your contribution:
 ```
 git checkout -b issue-number/contribution-description
 ```
-1. Make your changes and commit them, ensuring to DCO and GPG sign your commits:
+4. Make your changes and commit them, ensuring to DCO and GPG sign your commits:
 ```
 git commit -s -S -m "Add a meaningful commit message"
 ```
-1. Push your changes to your fork:
+5. Push your changes to your fork:
 ```
 git push origin issue-number/contribution-description
 ```
-1. Open a pull request and explain your changes.
+6. Open a pull request from your forked repository branch to the main branch of the 'galasa repository', and explain your changes.
