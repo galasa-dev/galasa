@@ -5,7 +5,7 @@
  */
 package dev.galasa.imstm.internal.properties;
 
-import org.junit.After;
+import org.junit.Before;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +22,7 @@ public class TestImstmPropertiesSingleton {
     @Mock
     private static IConfigurationPropertyStoreService cps;
 
-    @After
+    @Before
     public void deactivate() {
         singleton.deactivate();
     }
