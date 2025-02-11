@@ -1,4 +1,3 @@
-   
 // This section tells gradle which gradle plugins to use to build this project.
 plugins {
     id 'base'
@@ -14,6 +13,7 @@ plugins {
 dependencies {
     bundle project(':dev.galasa.ivts.core')
     bundle project(':dev.galasa.ivts.artifact')
+    bundle project(':dev.galasa.ivts.http')
 }
 
 def testcatalog = file('build/testcatalog.json')

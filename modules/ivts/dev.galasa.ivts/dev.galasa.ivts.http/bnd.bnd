@@ -1,0 +1,12 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa HTTP Manager IVTs
+Export-Package: dev.galasa.ivts.http
+Import-Package: com.google.gson,\
+    dev.galasa,\
+    dev.galasa.core.manager,\
+    dev.galasa.http,\
+    org.apache.commons.logging,\
+    org.apache.http,\
+    org.apache.http.client.methods,\
+    org.assertj.core.api
+

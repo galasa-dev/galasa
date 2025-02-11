@@ -1,0 +1,11 @@
+plugins {
+    id 'galasa.ivt'
+}
+
+description = 'Galasa HTTP Manager IVTs'
+
+dependencies {
+    implementation 'dev.galasa:dev.galasa.http.manager'
+    implementation 'dev.galasa:dev.galasa.core.manager'
+    implementation 'com.google.code.gson:gson'
+}
