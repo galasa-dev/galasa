@@ -30,7 +30,6 @@ dependencies {
     implementation 'dev.galasa:dev.galasa'
     implementation 'dev.galasa:dev.galasa.framework'
     implementation 'dev.galasa:dev.galasa.core.manager'
-    implementation 'dev.galasa:dev.galasa.artifact.manager'
     implementation 'commons-logging:commons-logging'
     implementation 'org.assertj:assertj-core'
 }
