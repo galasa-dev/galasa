@@ -12,6 +12,7 @@ plugins {
 // What are the dependencies of the obr ? 
 dependencies {
     bundle project(':dev.galasa.ivts')
+    bundle project(':dev.galasa.zos.ivts')
 }
 
 def testcatalog = file('build/testcatalog.json')

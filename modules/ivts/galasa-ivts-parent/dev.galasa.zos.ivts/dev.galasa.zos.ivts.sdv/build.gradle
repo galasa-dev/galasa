@@ -1,0 +1,15 @@
+plugins {
+    id 'galasa.ivt'
+}
+
+description = 'Galasa SDV Manager IVT'
+
+dependencies {
+    implementation 'dev.galasa:dev.galasa.cicsts.ceci.manager'
+    implementation 'dev.galasa:dev.galasa.core.manager'
+    implementation 'dev.galasa:dev.galasa.cicsts.manager'
+    implementation 'dev.galasa:dev.galasa.zos3270.manager'
+    implementation 'dev.galasa:dev.galasa.zos.manager'
+    implementation 'dev.galasa:dev.galasa.artifact.manager'
+    implementation 'dev.galasa:dev.galasa.sdv.manager'
+}
