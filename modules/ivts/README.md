@@ -8,6 +8,19 @@ The IVTs are currently in the process of being migrated from within the Managers
 
 IVTs that have been moved over and are within this module are:
 * CoreManagerIVT: Tests the Core Manager
+* ArtifactManagerIVT: Tests the Artifact Manager
+* HttpManagerIVT: Tests the HTTP Manager
+* DockerManagerIVT: Tests the Docker Manager
+* CECIManagerIVT: Tests the CECI Manager
+* CedaManagerIVT: Tests the CEDA Manager
+* CEMTManagerIVT: Tests the CEMT Manager
+* CICSTSManagerIVT: Tests the CICS TS Manager
+* SdvManagerIVT: Tests the SDV Manager
+* ZosManagerIVT: Tests the z/OS Manager
+* ZosManagerBatchIVT: Tests the z/OS Batch Manager
+* ZosManagerFileDatasetIVT, ZosManagerFileIVT, ZosManagerFileVSAMIVT: Tests the z/OS File Manager
+* ZosManagerTSOCommandIVT: Tests the z/OS TSO Command Manager
+* Zos3270IVT: Tests the z/OS 3270 Terminal Manager
 
 ## How this module is used
 
