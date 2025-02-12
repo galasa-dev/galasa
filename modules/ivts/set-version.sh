@@ -115,12 +115,12 @@ function upgrade_parent_build_gradle {
 
     # Updates the version in 'allprojects' for the IVTs bundle which sets the version of each IVT bundle.
 
-    h2 "upgrading the dev.galasa.ivts parent build.gradle"
+    h2 "upgrading the galasa-ivts-parent build.gradle"
 
-    cat $BASEDIR/dev.galasa.ivts/build.gradle | sed "s/version[ ]*=.*/version = '$component_version'/1" > $temp_dir/ivts-build.gradle
-    cp $temp_dir/ivts-build.gradle $BASEDIR/dev.galasa.ivts/build.gradle
+    cat $BASEDIR/galasa-ivts-parent/build.gradle | sed "s/version[ ]*=.*/version = '$component_version'/1" > $temp_dir/ivts-build.gradle
+    cp $temp_dir/ivts-build.gradle $BASEDIR/galasa-ivts-parent/build.gradle
 
-    success "dev.galasa.ivts parent build.gradle upgraded OK."
+    success "galasa-ivts-parent build.gradle upgraded OK."
 }
 
 function upgrade_plugin_versions {
@@ -129,8 +129,8 @@ function upgrade_plugin_versions {
 
     h2 "upgrading Galasa plugin versions in the buildSrc build.gradle"
 
-    cat $BASEDIR/dev.galasa.ivts/buildSrc/build.gradle | sed "s/version[ ]*=.*/version = '$component_version'/1" > $temp_dir/plugins-build.gradle
-    cp $temp_dir/plugins-build.gradle $BASEDIR/dev.galasa.ivts/buildSrc/build.gradle
+    cat $BASEDIR/galasa-ivts-parent/buildSrc/build.gradle | sed "s/version[ ]*=.*/version = '$component_version'/1" > $temp_dir/plugins-build.gradle
+    cp $temp_dir/plugins-build.gradle $BASEDIR/galasa-ivts-parent/buildSrc/build.gradle
 
     success "Galasa plugin versions in buildSrc build.gradle upgraded OK."
 }

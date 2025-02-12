@@ -179,7 +179,7 @@ jobs:
             run-id: ${{ inputs.artifact-id }}
 
       - name: Build IVTs
-        working-directory: modules/ivts/dev.galasa.ivts
+        working-directory: modules/ivts/galasa-ivts-parent
         run: |
           gradle build check publish --info \
           --no-daemon --console plain \

@@ -4,7 +4,7 @@ This module contains the Galasa Installation Verification Tests (IVTs) that are 
 
 ## IVTs in this module
 
-The IVTs are currently in the process of being migrated from within the Managers module to this module. IVTs were previously stored in their own bundles within the Managers module in the same subdirectory as the Manager bundle they tested. However, they are now being moved to this module and added as a submodule of the 'dev.galasa.ivts' bundle to simplify the project's testing.
+The IVTs are currently in the process of being migrated from within the Managers module to this module. IVTs were previously stored in their own bundles within the Managers module in the same subdirectory as the Manager bundle they tested. However, they are now being moved to this module and added as subprojects of the 'dev.galasa.ivts' bundle to simplify the project's testing.
 
 IVTs that have been moved over and are within this module are:
 * CoreManagerIVT: Tests the Core Manager
@@ -14,6 +14,12 @@ IVTs that have been moved over and are within this module are:
 The IVTs contained in this module are built as part of the GitHub Actions build process which builds the test cases, OBR and a test catalog, which altogether represent a test stream called 'ivts'. See the build process in the [.github directory](../../.github/workflows/ivts.yaml).
 
 This test stream is referenced in the CPS properties of a Galasa service which can then run tests from the stream remotely in the Galasa service with `galasactl runs submit`. These tests are run on a daily basis to test the functionality of the Managers and check for any regressions.
+
+IVTs in this module are organised into two parent bundles:
+- `dev.galasa.ivts`: IVTs that do not require mainframe resources to run
+- `dev.galasa.zos.ivts`: IVTs that require mainframe resources to run
+
+Each of these bundles contains a set of subprojects, where each subproject is a bundle of its own containing IVTs for a certain manager.
 
 ## Building locally
 
@@ -29,7 +35,7 @@ As an example, to run the `CoreManagerIVT` locally, run the following command:
 ```
 galasactl runs submit local \
 --obr mvn:dev.galasa/dev.galasa.ivts.obr/0.40.0/obr \
---class dev.galasa.ivts.core/dev.galasa.ivts.core.CoreManagerIVT \
+--class dev.galasa.ivts/dev.galasa.ivts.core.CoreManagerIVT \
 --log -
 ```
 
