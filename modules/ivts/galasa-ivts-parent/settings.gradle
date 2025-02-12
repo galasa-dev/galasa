@@ -15,6 +15,7 @@ pluginManagement {
 // Tell gradle to build the sub-projects in child folders
 include 'dev.galasa.ivts.obr'
 
+include 'dev.galasa.ivts'
 include 'dev.galasa.ivts:dev.galasa.ivts.artifact'
 include 'dev.galasa.ivts:dev.galasa.ivts.core'
 include 'dev.galasa.ivts:dev.galasa.ivts.docker'
