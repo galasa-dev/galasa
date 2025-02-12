@@ -2,12 +2,16 @@ plugins {
     id 'galasa.ivt'
 }
 
+// Add the IVT subprojects as dependencies of this parent bundle so that the IVT classes 
+// can be called from this parent bundle, while keeping the IVTs in separate bundles.
 dependencies {
     subprojects.each { subproject -> 
         implementation project(subproject.path)
     }
 }
 
+// Some IVTs have resource files under src/main/resources so add the resources into
+// this parent bundle's JAR file so that they can be resolved when running IVTs.
 jar {
     subprojects.each { subproject ->
         from(subproject.fileTree(dir: 'src/main/resources')) {
