@@ -2,7 +2,7 @@
 Gradle plugins for Galasa 
 
 ## OBR Plugin
-The OBR plugin allows you to build OSGi Bundle Repositories using Gradle. If you would like to build OBRs using Maven, please refer to the [Maven OBR plugin](https://github.com/galasa-dev/maven). 
+The OBR plugin allows you to build OSGi Bundle Repositories using Gradle. If you would like to build OBRs using Maven, please refer to the [Maven OBR plugin](https://github.com/galasa-dev/galasa/blob/main/modules/maven/README.md). 
 
 ### Usage 
 To use the Gradle OBR plugin in a Gradle test project:
