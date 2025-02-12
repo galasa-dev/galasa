@@ -1,0 +1,11 @@
+plugins {
+    id 'galasa.ivt'
+}
+
+description = 'Galasa zOS Manager IVTs'
+
+dependencies {
+    implementation 'dev.galasa:dev.galasa.zos.manager'
+    implementation 'dev.galasa:dev.galasa.core.manager'
+    implementation 'dev.galasa:dev.galasa.artifact.manager'
+}

@@ -1,0 +1,6 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS Manager IVTs
+Export-Package: dev.galasa.zos.ivts.zos
+Import-Package: dev.galasa.*,\
+    org.assertj.core.api,\
+    org.apache.commons.logging
