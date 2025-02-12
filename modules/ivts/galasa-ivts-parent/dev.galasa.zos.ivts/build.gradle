@@ -1,0 +1,17 @@
+plugins {
+    id 'galasa.ivt'
+}
+
+dependencies {
+    subprojects.each { subproject -> 
+        implementation project(subproject.path)
+    }
+}
+
+jar {
+    subprojects.each { subproject ->
+        from(subproject.fileTree(dir: 'src/main/resources')) {
+            into '/'
+        }
+    }
+}

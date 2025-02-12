@@ -1,0 +1,5 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa CEDA Manager IVTs
+Export-Package: dev.galasa.zos.ivts.ceda
+Import-Package: !javax.validation.constraints, \
+                *

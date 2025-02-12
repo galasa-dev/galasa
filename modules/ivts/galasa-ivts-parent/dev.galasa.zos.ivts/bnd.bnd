@@ -1,0 +1,3 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa zOS-based IVTs
+Export-Package: dev.galasa.zos.ivts.*

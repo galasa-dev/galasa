@@ -1,0 +1,10 @@
+plugins {
+    id 'galasa.ivt'
+}
+
+description = 'Galasa zOS 3270 Terminal Manager - IVTs'
+
+dependencies {
+    implementation 'dev.galasa:dev.galasa.zos3270.manager'
+    implementation 'dev.galasa:dev.galasa.core.manager'
+}

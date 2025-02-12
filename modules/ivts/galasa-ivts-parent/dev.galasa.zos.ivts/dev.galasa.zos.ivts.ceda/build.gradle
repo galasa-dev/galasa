@@ -1,0 +1,11 @@
+plugins {
+    id 'galasa.ivt'
+}
+
+description = 'Galasa CEDA Manager IVTs'
+
+dependencies {
+    implementation 'dev.galasa:dev.galasa.core.manager'
+    implementation 'dev.galasa:dev.galasa.cicsts.ceda.manager'
+    implementation 'dev.galasa:dev.galasa.zos3270.manager'
+}
