@@ -54,19 +54,18 @@ The table below outlines which secrets/variables are required for the build of t
 | Module | Build tool | Secrets/variables required |
 | --- | --- | --- |
 | platform | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE` |
-| buildutils | Go and Docker | `WRITE_GITHUB_PACKAGES_USERNAME, WRITE_GITHUB_PACKAGES_TOKEN` |
+| buildutils | Go and Docker | `WRITE_GITHUB_PACKAGES_USERNAME`, `WRITE_GITHUB_PACKAGES_TOKEN` |
 | wrapping | Maven | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE` |
 | gradle | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE` |
 | maven | Maven | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE` |
-| framework | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE`, `WRITE_GITHUB_PACKAGES_USERNAME, WRITE_GITHUB_PACKAGES_TOKEN` |
+| framework | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE`, `WRITE_GITHUB_PACKAGES_USERNAME`, `WRITE_GITHUB_PACKAGES_TOKEN` |
 | extensions | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE` |
 | managers | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE` |
-| obr | Maven | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE`, `WRITE_GITHUB_PACKAGES_USERNAME, WRITE_GITHUB_PACKAGES_TOKEN` |
-| ivts | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE`, `WRITE_GITHUB_PACKAGES_USERNAME, WRITE_GITHUB_PACKAGES_TOKEN` |
+| obr | Maven | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE`, `WRITE_GITHUB_PACKAGES_USERNAME`, `WRITE_GITHUB_PACKAGES_TOKEN` |
+| ivts | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE`, `WRITE_GITHUB_PACKAGES_USERNAME`, `WRITE_GITHUB_PACKAGES_TOKEN` |
 
-#### Repository variables that need configuring
+#### How to set repository variables:
 
-To set a repository variable:
 1. Navigate to your repository settings.
 1. Select 'Secrets and variables', then 'Actions' from the menu.
 1. Click the 'Variables' tab.
@@ -75,18 +74,17 @@ To set a repository variable:
 
 WRITE_GITHUB_PACKAGES_USERNAME is the only repository variable required.
 
-1. WRITE_GITHUB_PACKAGES_USERNAME: This requires the GitHub username you want to use to log into GitHub Container Registry. Enter your GitHub username in the value for this variable.
+1. WRITE_GITHUB_PACKAGES_USERNAME: This requires your GitHub username so you can authenticate to GitHub Container Registry and push images to your personal GitHub Packages. Enter your GitHub username in the value for this variable.
 
-#### Repository secrets that need configuring
+#### How to set repository secrets:
 
-To set a repository secret:
 1. Navigate to your repository settings.
 1. Select 'Secrets and variables', then 'Actions' from the menu.
 1. Click the 'Secrets' tab.
 1. Select 'New repository secret'.
 1. Enter the secret name and value, then click 'Add secret'. Once you have done this, you will not be able to view the secret value again.
 
-##### Required repository secrets:
+##### Required repository secrets
 
 1. GPG_KEY: This requires your Base 64 encoded GPG key payload.
 1. GPG_KEYID: This requires the ID of your GPG key in plain text.
