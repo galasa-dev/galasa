@@ -762,7 +762,7 @@ jobs:
           build-args: |
             tag=${{ env.BRANCH }}
             dockerRepository=${{ env.REGISTRY }}
-            jdkImage=harbor.galasa.dev/docker_proxy_cache/library/openjdk:17
+            jdkImage=ghcr.io/galasa-dev/openjdk:17
 
       - name: Extract metadata for Galasa IBM boot embedded image
         id: metadata-ibm-boot-embedded

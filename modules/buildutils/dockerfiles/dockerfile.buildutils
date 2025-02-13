@@ -1,4 +1,4 @@
-FROM harbor.galasa.dev/docker_proxy_cache/library/httpd:alpine
+FROM ghcr.io/galasa-dev/httpd:alpine
 
 RUN rm -v /usr/local/apache2/htdocs/*
 COPY dockerfiles/httpdconf/httpd.conf /usr/local/apache2/conf/httpd.conf

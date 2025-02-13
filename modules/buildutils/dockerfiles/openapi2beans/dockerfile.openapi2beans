@@ -1,4 +1,4 @@
-FROM harbor.galasa.dev/docker_proxy_cache/library/alpine:3.18.4
+FROM ghcr.io/galasa-dev/alpine:3.18.4
 
 ARG platform
 
