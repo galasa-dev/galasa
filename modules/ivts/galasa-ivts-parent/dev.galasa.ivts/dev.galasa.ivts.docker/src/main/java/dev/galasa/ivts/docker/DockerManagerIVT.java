@@ -58,7 +58,9 @@ import dev.galasa.http.IHttpClient;
  *  
  *
  */
-@Test
+// Temporarily disabled this IVT as it needs to connect to a remote Docker engine to run.
+// This IVT should be re-enabled as part of https://github.com/galasa-dev/projectmanagement/issues/2144
+// @Test
 public class DockerManagerIVT {
 
     @Logger
