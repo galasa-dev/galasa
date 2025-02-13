@@ -43,7 +43,9 @@ import dev.galasa.zosbatch.ZosBatch;
 
 import org.apache.commons.logging.Log;
 
-@Test
+// Temporarily disabled this IVT as it needs to connect to a CICS region with some pre-installed programs.
+// This IVT should be re-enabled as part of https://github.com/galasa-dev/projectmanagement/issues/2144
+// @Test
 public class CECIManagerIVT {
 
    @Logger
