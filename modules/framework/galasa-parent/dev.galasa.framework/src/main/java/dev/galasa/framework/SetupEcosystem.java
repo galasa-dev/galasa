@@ -46,7 +46,7 @@ public class SetupEcosystem {
 
         FrameworkInitialisation frameworkInitialisation = null;
         try {
-            frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+            frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, FrameworkType.ecosystem);
         } catch (Exception e) {
             throw new FrameworkException("Unable to initialise the Framework Service", e);
         }

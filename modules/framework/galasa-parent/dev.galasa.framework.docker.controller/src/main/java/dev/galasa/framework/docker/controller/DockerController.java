@@ -28,6 +28,7 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 
 import dev.galasa.framework.FrameworkInitialisation;
+import dev.galasa.framework.FrameworkType;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -58,7 +59,7 @@ public class DockerController {
             // *** Initialise the framework services
             FrameworkInitialisation frameworkInitialisation = null;
             try {
-                frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+                frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, FrameworkType.controller);
             } catch (Exception e) {
                 throw new FrameworkException("Unable to initialise the Framework Services", e);
             }
