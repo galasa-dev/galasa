@@ -6,8 +6,6 @@
 name: Buildutils Main Build
 
 on:
-  pull_request:
-    branches: [main]
   workflow_call:
 
 env:
@@ -156,6 +154,8 @@ jobs:
         uses: actions/setup-go@v5
         with: 
           go-version: 1.22
+          cache-dependency-path: |
+            modules/buildutils/openapi2beans/go.sum
       
       - name: Build openapi2beans using the Makefile
         working-directory: modules/buildutils
@@ -224,6 +224,9 @@ jobs:
         uses: actions/setup-go@v5
         with: 
           go-version: 1.22
+          cache-dependency-path: |
+            modules/buildutils/go.sum
+            modules/buildutils/openapi2beans/go.sum
           
       - name: Build galasabld using the Makefile
         working-directory: modules/buildutils
