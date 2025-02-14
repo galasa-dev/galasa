@@ -158,8 +158,8 @@ jobs:
           -Dgalasa.source.repo=file:${{ github.workspace }}/modules/artifacts \
           -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
           -Dgalasa.release.repo=file:${{ github.workspace }}/modules/obr/repo \
-          -Dgpg.key.id=${{ env.GPG_KEYID }} \
-          -Dgpg.passphrase=${{ env.GPG_PASSPHRASE }} \
+          -Dgpg.key.id="${{ env.GPG_KEYID }}" \
+          -Dgpg.passphrase="${{ env.GPG_PASSPHRASE }}" \
           --batch-mode --errors --fail-at-end \
           --settings /home/runner/work/gpg/settings.xml 2>&1 | tee galasa-bom-build.log
         
@@ -201,8 +201,8 @@ jobs:
           -Dgalasa.source.repo=file:${{ github.workspace }}/modules/artifacts \
           -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
           -Dgalasa.release.repo=file:${{ github.workspace }}/modules/obr/repo \
-          -Dgpg.key.id=${{ env.GPG_KEYID }} \
-          -Dgpg.passphrase=${{ env.GPG_PASSPHRASE }} \
+          -Dgpg.key.id="${{ env.GPG_KEYID }}" \
+          -Dgpg.passphrase="${{ env.GPG_PASSPHRASE }}" \
           --batch-mode --errors --fail-at-end \
           --settings /home/runner/work/gpg/settings.xml 2>&1 | tee galasa-obr-build.log
     
@@ -468,8 +468,8 @@ jobs:
           -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
           -Dgalasa.release.repo=file:${{ github.workspace }}/modules/obr/javadocs/docker/repo \
           -Dmaven.javadoc.failOnError=false \
-          -Dgpg.key.id=${{ env.GPG_KEYID }} \
-          -Dgpg.passphrase=${{ env.GPG_PASSPHRASE }} \
+          -Dgpg.key.id="${{ env.GPG_KEYID }}" \
+          -Dgpg.passphrase="${{ env.GPG_PASSPHRASE }}" \
           --batch-mode --errors --fail-at-end \
           --settings /home/runner/work/gpg/settings.xml 2>&1 | tee build.log
       
@@ -697,8 +697,8 @@ jobs:
           mvn -f pom.xml process-sources -X \
           -Dgalasa.source.repo=file:${{ github.workspace }}/modules/artifacts \
           -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
-          -Dgpg.key.id=${{ env.GPG_KEYID }} \
-          -Dgpg.passphrase=${{ env.GPG_PASSPHRASE }} \
+          -Dgpg.key.id="${{ env.GPG_KEYID }}" \
+          -Dgpg.passphrase="${{ env.GPG_PASSPHRASE }}" \
           dev.galasa:galasa-maven-plugin:${{inputs.galasa-version}}:obrembedded \
           --batch-mode --errors --fail-at-end \
           --settings /home/runner/work/gpg/settings.xml 2>&1 | tee build.log

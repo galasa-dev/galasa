@@ -111,8 +111,8 @@ jobs:
           -Dgalasa.release.repo=file:${{ github.workspace }}/modules/maven/repo \
           -Dgalasa.jacocoEnabled=${{ inputs.jacoco_enabled }} \
           -Dgalasa.isRelease=${{ inputs.sign_artifacts }} \
-          -Dgpg.key.id=${{ env.GPG_KEYID }} \
-          -Dgpg.passphrase=${{ env.GPG_PASSPHRASE }} \
+          -Dgpg.key.id="${{ env.GPG_KEYID }}" \
+          -Dgpg.passphrase="${{ env.GPG_PASSPHRASE }}" \
           --batch-mode --errors --fail-at-end \
           --settings /home/runner/work/gpg/settings.xml 2>&1 | tee build.log
       
