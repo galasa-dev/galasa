@@ -38,3 +38,7 @@ $galasabld versioning suffix remove --sourcefolderpath {my-source-folder}
 ```
 This will recursively look for module versions, stripping off any existing suffix.
 So for example, `0.0.1-SNAPSHOT` will be changed to `0.0.1`
+
+### How to contribute to this module
+
+Take a look at the [Contributor's Guide](https://github.com/galasa-dev/galasa/blob/main/CONTRIBUTING.md).
