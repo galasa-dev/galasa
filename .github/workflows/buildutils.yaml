@@ -6,6 +6,8 @@
 name: Buildutils Main Build
 
 on:
+  pull_request:
+    branches: [main]
   workflow_call:
 
 env:
@@ -29,6 +31,8 @@ jobs:
         uses: actions/setup-go@v5
         with: 
           go-version: 1.22
+          cache-dependency-path: |
+            modules/buildutils
       
       - name: Build galasabld using the Makefile
         working-directory: modules/buildutils
