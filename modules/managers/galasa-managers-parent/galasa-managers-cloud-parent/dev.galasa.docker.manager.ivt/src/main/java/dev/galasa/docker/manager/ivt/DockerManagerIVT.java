@@ -64,13 +64,13 @@ public class DockerManagerIVT {
     @Logger
     public Log logger;
 
-    @DockerContainer(image = "library/httpd:latest", dockerContainerTag = "a", start = false)
+    @DockerContainer(image = "httpd", dockerContainerTag = "a", start = false)
     public IDockerContainer container;
 
-    @DockerContainer(image = "library/httpd:latest", dockerContainerTag = "b", start = false)
+    @DockerContainer(image = "httpd", dockerContainerTag = "b", start = false)
     public IDockerContainer containerSecondry;
     
-    @DockerContainer(image = "library/httpd:latest", dockerContainerTag = "AUTOSTART", start = true)
+    @DockerContainer(image = "httpd", dockerContainerTag = "AUTOSTART", start = true)
     public IDockerContainer containerAutoStart;
 
     @DockerContainerConfig
