@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.Environment;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
@@ -31,14 +32,11 @@ import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Affinity;
-import io.kubernetes.client.openapi.models.V1ConfigMapKeySelector;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1EnvVar;
-import io.kubernetes.client.openapi.models.V1EnvVarSource;
 import io.kubernetes.client.openapi.models.V1NodeAffinity;
 import io.kubernetes.client.openapi.models.V1NodeSelectorRequirement;
 import io.kubernetes.client.openapi.models.V1NodeSelectorTerm;
-import io.kubernetes.client.openapi.models.V1ObjectFieldSelector;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
@@ -46,7 +44,6 @@ import io.kubernetes.client.openapi.models.V1PodSpec;
 import io.kubernetes.client.openapi.models.V1PodStatus;
 import io.kubernetes.client.openapi.models.V1PreferredSchedulingTerm;
 import io.kubernetes.client.openapi.models.V1ResourceRequirements;
-import io.kubernetes.client.openapi.models.V1SecretKeySelector;
 import io.kubernetes.client.openapi.models.V1SecretVolumeSource;
 import io.kubernetes.client.openapi.models.V1Toleration;
 import io.kubernetes.client.openapi.models.V1Volume;
@@ -71,13 +68,14 @@ public class TestPodScheduler implements Runnable {
 
     private Counter                          submittedRuns;
     private Environment                      env              = new SystemEnvironment();
+    private CPSFacade cpsFacade ;
 
 
-    public TestPodScheduler(IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
-        this(new SystemEnvironment(), dss, settings, api, runs);
+    public TestPodScheduler(IDynamicStatusStoreService dss, IConfigurationPropertyStoreService cps, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
+        this(new SystemEnvironment(), dss, cps, settings, api, runs);
     }
 
-    public TestPodScheduler(Environment env, IDynamicStatusStoreService dss, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
+    public TestPodScheduler(Environment env, IDynamicStatusStoreService dss, IConfigurationPropertyStoreService cps, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
         this.env = env;
         this.settings = settings;
         this.api = api;
@@ -89,6 +87,7 @@ public class TestPodScheduler implements Runnable {
         this.submittedRuns = Counter.build().name("galasa_k8s_controller_submitted_runs")
                 .help("The number of runs submitted by the Kubernetes controller").register();
 
+        this.cpsFacade = new CPSFacade(cps);
     }
 
     @Override
@@ -143,7 +142,21 @@ public class TestPodScheduler implements Runnable {
                 startPod(selectedRun);
 
                 if (!queuedRuns.isEmpty()) {
-                    Thread.sleep(600); // *** Slight delay to allow Kubernetes to catch up
+                    // Slight delay to allow Kubernetes to catch up....
+                    //
+                    // Why do this ? 
+                    //
+                    // If we don't do this, then all the tests get scheduled on the same node, and the 
+                    // node will run out of memory.
+                    //
+                    // We assume that's because the usage statistics on a pod are not synchronized totally at
+                    // real-time, but have a lag in which they catch up. Hopefully this delay is greater
+                    // than the lag and when we actually schedule the next pod it gets evenly distributed over
+                    // the nodes which are available.
+                    //
+                    // This may or may not be necessary if the scheduling policies in the cluster are changed. Not sure.
+                    long launchIntervalMilliseconds = cpsFacade.getKubeLaunchIntervalMilliseconds();
+                    Thread.sleep(launchIntervalMilliseconds); 
                 } else {
                     return;
                 }
@@ -425,29 +438,6 @@ public class TestPodScheduler implements Runnable {
         return envs;
     }
 
-    private HashMap<String, Pool> getPools(@NotNull List<IRun> runs) {
-        HashMap<String, Pool> pools = new HashMap<>();
-
-        for (IRun run : runs) {
-            String poolid = getPoolId(run);
-            Pool pool = pools.get(poolid);
-            if (pool == null) {
-                pool = new Pool(poolid);
-            }
-            pool.runs.add(run);
-        }
-
-        return pools;
-    }
-
-    private String getPoolId(IRun run) {
-        if (settings.getRequestorsByGroup().contains(run.getRequestor())) {
-            return run.getRequestor() + "/" + run.getGroup();
-        }
-
-        return run.getRequestor();
-    }
-
     public static @NotNull List<V1Pod> getPods(CoreV1Api api, Settings settings) throws K8sControllerException {
         LinkedList<V1Pod> pods = new LinkedList<>();
 
@@ -501,21 +491,6 @@ public class TestPodScheduler implements Runnable {
         }
     }
 
-    private static class Pool implements Comparable<Pool> {
-        private String          id;
-        private ArrayList<IRun> runs = new ArrayList<>();
-
-        public Pool(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public int compareTo(Pool o) {
-            return runs.size() - o.runs.size();
-        }
-
-    }
-
     private static class QueuedComparator implements Comparator<IRun> {
 
         @Override
@@ -529,53 +504,6 @@ public class TestPodScheduler implements Runnable {
         V1EnvVar env = new V1EnvVar();
         env.setName(name);
         env.setValue(value);
-
-        return env;
-    }
-
-    private V1EnvVar createConfigMapEnv(String name, String configMap, String key) {
-        V1EnvVar env = new V1EnvVar();
-        env.setName(name);
-
-        V1EnvVarSource source = new V1EnvVarSource();
-        env.setValueFrom(source);
-
-        V1ConfigMapKeySelector configMapKeyRef = new V1ConfigMapKeySelector();
-        source.setConfigMapKeyRef(configMapKeyRef);
-
-        configMapKeyRef.setName(configMap);
-        configMapKeyRef.setKey(key);
-
-        return env;
-    }
-
-    private V1EnvVar createSecretEnv(String name, String secret, String key) {
-        V1EnvVar env = new V1EnvVar();
-        env.setName(name);
-
-        V1EnvVarSource source = new V1EnvVarSource();
-        env.setValueFrom(source);
-
-        V1SecretKeySelector secretKeyRef = new V1SecretKeySelector();
-        source.setSecretKeyRef(secretKeyRef);
-
-        secretKeyRef.setName(secret);
-        secretKeyRef.setKey(key);
-
-        return env;
-    }
-
-    private V1EnvVar createFieldEnv(String name, String path) {
-        V1EnvVar env = new V1EnvVar();
-        env.setName(name);
-
-        V1EnvVarSource source = new V1EnvVarSource();
-        env.setValueFrom(source);
-
-        V1ObjectFieldSelector fieldKeyRef = new V1ObjectFieldSelector();
-        source.setFieldRef(fieldKeyRef);
-
-        fieldKeyRef.setFieldPath(path);
 
         return env;
     }

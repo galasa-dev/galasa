@@ -143,7 +143,7 @@ public class K8sController {
             // *** Start the run polling
             runDeleted = new RunDeleted(settings, api, pc, framework.getFrameworkRuns());
             scheduleDelete();
-            podScheduler = new TestPodScheduler(dss, settings, api, framework.getFrameworkRuns());
+            podScheduler = new TestPodScheduler(dss, cps, settings, api, framework.getFrameworkRuns());
             schedulePoll();
 
             
