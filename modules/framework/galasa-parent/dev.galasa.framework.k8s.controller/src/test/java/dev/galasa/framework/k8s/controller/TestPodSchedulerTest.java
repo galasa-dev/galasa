@@ -89,7 +89,6 @@ public class TestPodSchedulerTest {
         checkPodSpec(pod, settings);
     }
 
-    // @SuppressWarnings("null")
     private void checkPodMetadata(V1Pod pod, String expectedRunName, String expectedPodName, Settings settings) {
         V1ObjectMeta expectedMetadata = new V1ObjectMeta()
             .labels(Map.of("galasa-run", expectedRunName, "galasa-engine-controller", settings.getEngineLabel()))
@@ -124,7 +123,6 @@ public class TestPodSchedulerTest {
         return preferred;
     }
 
-    // @SuppressWarnings("null")
     private void checkPodSpec(V1Pod pod, Settings settings) {
 
         // Check the pod's spec is as expected
@@ -155,7 +153,6 @@ public class TestPodSchedulerTest {
         }
     }
 
-    // @SuppressWarnings("null")
     private void checkPodContainer(V1Pod pod, String expectedEncryptionKeysMountPath, Settings settings) {
         // Check that test container has been added
         V1PodSpec actualPodSpec = pod.getSpec();
@@ -176,7 +173,6 @@ public class TestPodSchedulerTest {
         assertThat(encryptionKeysVolumeMount.getReadOnly()).isTrue();
     }
 
-    // @SuppressWarnings("null")
     private void checkPodVolumes(V1Pod pod, Settings settings) {
         // Check that the encryption keys volume has been added
         V1PodSpec actualPodSpec = pod.getSpec();

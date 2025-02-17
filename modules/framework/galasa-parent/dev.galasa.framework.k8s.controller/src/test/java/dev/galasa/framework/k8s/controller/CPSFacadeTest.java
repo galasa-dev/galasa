@@ -30,7 +30,7 @@ public class CPSFacadeTest {
     }
 
     @Test 
-    public void testCPSFacadeCanCopeWithNoCPSPropertyFountForKubeLaunchIntervalMilliseconds() {
+    public void testCPSFacadeCanCopeWithNoCPSPropertyFoundForKubeLaunchIntervalMilliseconds() {
         MockIConfigurationPropertyStoreService mockCPS = new MockIConfigurationPropertyStoreService();
         CPSFacade cpsFacade = new CPSFacade(mockCPS);
         long intervalMs = cpsFacade.getKubeLaunchIntervalMilliseconds();
