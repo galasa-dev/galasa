@@ -103,7 +103,7 @@ public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
             imsTerminal.waitForTextInField(initialText);
         } catch (Exception e) {
             throw new ImstmManagerException(
-                    "Unable to logon to CICS, initial screen does not contain '" + initialText + "'");
+                    "Unable to logon to IMS, initial screen does not contain '" + initialText + "'");
         }
     }
 
