@@ -72,21 +72,21 @@ public class TestCeciImpl {
         ceciSpy = Mockito.spy(ceci);
 
         // Mock all terminal function
-        Mockito.when(ceciTerminalMock.type(Mockito.any())).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.type(Mockito.any())).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.enter()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.pf2()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.pf2()).thenReturn(ceciTerminalMock);
         Mockito.lenient().when(ceciTerminalMock.pf3()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.pf4()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.pf5()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.pf9()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.pf10()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.pf4()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.pf5()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.pf9()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.pf10()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.pf11()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.tab()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.home()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.home()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.newLine()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.eraseEof()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.waitForKeyboard()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.reportScreenWithCursor()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.reportScreenWithCursor()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.getCicsRegion()).thenReturn(cicsRegionMock);
         Mockito.when(wrongCeciTerminalMock.getCicsRegion()).thenReturn(wrongCicsRegionMock);
     }
