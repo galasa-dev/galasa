@@ -23,15 +23,16 @@ public abstract class BaseCicsImpl implements ICicsRegionProvisioned {
     private final String applid;
     private final IZosImage zosImage;
     private final MasType   masType;
+    private final String sysid;
 
     private int lastTerminalId;
-    
+
     private ICeci ceci;
     private ICeda ceda;
     private ICemt cemt;
     private ICicsResource cicsResource;
 	private IZosUNIXFile runTemporaryUNIXPath;
-    
+
     private static final String SLASH_SYBMOL = "/";
 
     public BaseCicsImpl(ICicstsManagerSpi cicstsManager, String cicsTag, IZosImage zosImage, String applid, MasType masType) {
@@ -40,6 +41,16 @@ public abstract class BaseCicsImpl implements ICicsRegionProvisioned {
         this.applid = applid;
         this.zosImage = zosImage;
         this.masType  = masType;
+        this.sysid = null;
+    }
+    
+    public BaseCicsImpl(ICicstsManagerSpi cicstsManager, String cicsTag, IZosImage zosImage, String applid, MasType masType, String sysid) {
+        this.cicstsManager = cicstsManager;
+        this.cicsTag = cicsTag;
+        this.applid = applid;
+        this.zosImage = zosImage;
+        this.masType  = masType;
+        this.sysid = sysid;
     }
 
     @Override
@@ -50,6 +61,11 @@ public abstract class BaseCicsImpl implements ICicsRegionProvisioned {
     @Override
     public String getApplid() {
         return this.applid;
+    }
+    
+    @Override
+    public String getSysid() {
+        return this.sysid;
     }
 
     @Override
@@ -67,16 +83,16 @@ public abstract class BaseCicsImpl implements ICicsRegionProvisioned {
         lastTerminalId++;
         return this.applid + "_" + Integer.toString(lastTerminalId);
     }
-    
+
     @Override
     public MasType getMasType() {
         return this.masType;
     }
-    
+
     protected  ICicstsManagerSpi getCicstsManager() {
         return this.cicstsManager;
     }
-    
+
     @Override
     public ICeci ceci() throws CicstsManagerException {
         if (this.ceci == null) {
@@ -111,7 +127,7 @@ public abstract class BaseCicsImpl implements ICicsRegionProvisioned {
 
 	@Override
 	public IZosUNIXFile getRunTemporaryUNIXDirectory() throws CicstsManagerException {
-		if (this.runTemporaryUNIXPath == null) { 
+		if (this.runTemporaryUNIXPath == null) {
 	        try {
 	            this.runTemporaryUNIXPath = this.cicstsManager.getZosFileHandler().newUNIXFile(getZosImage().getRunTemporaryUNIXPath() + SLASH_SYBMOL + getApplid() + SLASH_SYBMOL, getZosImage());
 	            if (!this.runTemporaryUNIXPath.exists()) {
@@ -125,5 +141,5 @@ public abstract class BaseCicsImpl implements ICicsRegionProvisioned {
 		}
 		return this.runTemporaryUNIXPath;
 	}
-	
+
 }

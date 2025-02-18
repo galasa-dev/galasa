@@ -27,6 +27,13 @@ public interface ICicsRegion {
      * @throws CicstsManagerException If the applid is not available
      */
     String getApplid();
+    
+    /***
+     * Retrieve the CICS TS Region sysid
+     * @return the sysid of the CICS TS Region
+     * @throws CicstsManagerException If the applid is not available
+     */
+    String getSysid();
 
     /***
      * Retrieve the CICS TS Region version
