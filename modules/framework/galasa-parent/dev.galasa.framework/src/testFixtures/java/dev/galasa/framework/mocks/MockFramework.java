@@ -10,6 +10,7 @@ import dev.galasa.framework.internal.cps.FpfConfigurationPropertyStore;
 import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 
@@ -25,6 +26,10 @@ public class MockFramework extends Framework {
 
     private MockDSSStore mockDss;
     private MockCPSStore mockCps;
+
+    private String runName ;
+
+    public boolean isLogCaptured = false ;
 
     public MockFramework() {
         super();
@@ -72,5 +77,20 @@ public class MockFramework extends Framework {
 
     public void setMockDss(MockDSSStore mockDss) {
         this.mockDss = mockDss;
+    }
+
+    @Override
+    public void setTestRunName(String runName) throws FrameworkException {
+        this.runName = runName;
+    }
+
+    @Override
+    public String getTestRunName() {
+        return this.runName ;
+    }
+    
+    @Override
+    public void installLogCapture() {
+        this.isLogCaptured = true;
     }
 }

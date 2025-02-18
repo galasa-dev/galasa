@@ -82,7 +82,6 @@ public class Launcher {
     private String                  testClassName;
     private String                  runName;
     private String                  gherkinName;
-    private String                  filePath;
 
     private String                  galasaHome;
 
@@ -91,13 +90,13 @@ public class Launcher {
     private Properties              bootstrapProperties;
     private Properties              overridesProperties;
 
-    private boolean                 testRun;
-    private boolean                 resourceManagement;
-    private boolean                 k8sController;
-    private boolean                 dockerController;
-    private boolean                 metricsServer;
-    private boolean                 api;
-    private boolean                 dryRun;
+    private boolean                 isTestRun;
+    private boolean                 isResourceManagement;
+    private boolean                 isK8sController;
+    private boolean                 isDockerController;
+    private boolean                 isMetricsServer;
+    private boolean                 isApiServer;
+    private boolean                 isDryRun;
     private boolean                 setupEco;
     private boolean                 validateEco;
 
@@ -155,7 +154,7 @@ public class Launcher {
             // Build the Framework
             buildFramework();
 
-            if (testRun) {
+            if (isTestRun) {
                 if (testBundleName != null && testClassName != null) {
                     // Run test class
                     logger.debug("Test Bundle: " + testBundleName);
@@ -170,19 +169,19 @@ public class Launcher {
                 }
 
                 felixFramework.runTest(bootstrapProperties, overridesProperties);
-            } else if (resourceManagement) {
+            } else if (isResourceManagement) {
                 logger.debug("Resource Management");
                 felixFramework.runResourceManagement(bootstrapProperties, overridesProperties, bundles, metrics, health);
-            } else if (k8sController) {
+            } else if (isK8sController) {
                 logger.debug("Kubernetes Controller");
                 felixFramework.runK8sController(bootstrapProperties, overridesProperties, bundles, metrics, health);
-            } else if (dockerController) {
+            } else if (isDockerController) {
                 logger.debug("Docker Controller");
                 felixFramework.runDockerController(bootstrapProperties, overridesProperties, bundles, metrics, health);
-            } else if (metricsServer) {
+            } else if (isMetricsServer) {
                 logger.debug("Metrics Server");
                 felixFramework.runMetricsServer(bootstrapProperties, overridesProperties, bundles, metrics, health);
-            } else if (api) {
+            } else if (isApiServer) {
                 logger.debug("Web API Server");
                 felixFramework.runWebApiServer(bootstrapProperties, overridesProperties, bundles, metrics, health);
             } else if (setupEco) {
@@ -298,17 +297,17 @@ public class Launcher {
         checkForLocalMaven(commandLine);
         checkForRemoteMaven(commandLine);
 
-        testRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION) || commandLine.hasOption(GHERKIN_OPTION);
-        resourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
-        k8sController = commandLine.hasOption(K8SCONTROLLER_OPTION);
-        dockerController = commandLine.hasOption(DOCKERCONTROLLER_OPTION);
-        metricsServer = commandLine.hasOption(METRICSERVER_OPTION);
-        api = commandLine.hasOption(API_OPTION);
-        dryRun = commandLine.hasOption(DRY_RUN_OPTION);
+        isTestRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION) || commandLine.hasOption(GHERKIN_OPTION);
+        isResourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
+        isK8sController = commandLine.hasOption(K8SCONTROLLER_OPTION);
+        isDockerController = commandLine.hasOption(DOCKERCONTROLLER_OPTION);
+        isMetricsServer = commandLine.hasOption(METRICSERVER_OPTION);
+        isApiServer = commandLine.hasOption(API_OPTION);
+        isDryRun = commandLine.hasOption(DRY_RUN_OPTION);
         setupEco = commandLine.hasOption(SETUPECO_OPTION);
         validateEco = commandLine.hasOption(VALIDATEECO_OPTION);
 
-        if (testRun) {
+        if (isTestRun) {
             runName = commandLine.getOptionValue(RUN_OPTION);
             testName = commandLine.getOptionValue(TEST_OPTION);
             gherkinName = commandLine.getOptionValue(GHERKIN_OPTION);
@@ -334,23 +333,23 @@ public class Launcher {
             return;
         }
 
-        if (resourceManagement) {
+        if (isResourceManagement) {
             return;
         }
 
-        if (k8sController) {
+        if (isK8sController) {
             return;
         }
 
-        if (dockerController) {
+        if (isDockerController) {
             return;
         }
 
-        if (metricsServer) {
+        if (isMetricsServer) {
             return;
         }
         
-        if (api) {
+        if (isApiServer) {
             return;
         }
         

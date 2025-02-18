@@ -95,7 +95,7 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
         // Given...
         Properties bootstrapProperties = bootstrapProps;
         Properties overrideProperties = new Properties();
-        boolean isTestrun = true ;
+        boolean isTestRun = true ;
         Log logger = new MockLog();
 
         // A fake OSGi service registry...
@@ -131,11 +131,12 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
         FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation( 
             bootstrapProperties,  
             overrideProperties, 
-            isTestrun,
             logger,
             bundleContext,
             mockFileSystem,
-            mockEnv);
+            mockEnv,
+            isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
+        );
 
         // Then...
         assertThat(mockFramework.getConfidentialTextService()).isEqualTo(mockConfidentialTextStore);
@@ -160,7 +161,7 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
         // Given...
         Properties bootstrapProperties = new Properties();
         Properties overrideProperties = new Properties();
-        boolean isTestrun = true ;
+        boolean isTestRun = true ;
         Log logger = new MockLog();
         MockEnvironment mockEnv = new MockEnvironment();
 
@@ -177,11 +178,12 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
             new FrameworkInitialisation( 
                 bootstrapProperties,  
                 overrideProperties, 
-                isTestrun,
                 logger, 
                 bundleContext,
                 mockFileSystem,
-                mockEnv);
+                mockEnv,
+                isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
+            );
             fail("There is no CPS service configured on purpose, there should have been an error thrown!");
         } catch( Exception ex ) {
             assertThat(ex)
@@ -199,7 +201,7 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
         // Given...
         Properties bootstrapProperties = new Properties();
         Properties overrideProperties = new Properties();
-        boolean isTestrun = true ;
+        boolean isTestRun = true ;
         Log logger = new MockLog();
         MockEnvironment mockEnv = new MockEnvironment();
         mockEnv.setProperty("user.home","/home");
@@ -224,11 +226,12 @@ public class TestFrameworkInitialisation extends FrameworkInitialisationTestBase
             frameworkInitUnderTest = new FrameworkInitialisation( 
                 bootstrapProperties,  
                 overrideProperties, 
-                isTestrun,
                 logger, 
                 bundleContext,
                 mockFileSystem,
-                mockEnv);
+                mockEnv,
+                isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
+            );
             fail("There is no CPS service configured on purpose, there should have been an error thrown!");
         } catch( Exception ex ) {
             assertThat(ex)

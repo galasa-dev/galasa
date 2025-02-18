@@ -13,10 +13,8 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.*;
 import org.osgi.framework.*;
 
-import dev.galasa.framework.beans.Property;
 import dev.galasa.framework.spi.*;
 import dev.galasa.framework.spi.creds.*;
-import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
 
@@ -36,50 +34,79 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private IFileSystem fileSystem ;
 
     private String galasaHome;
-
-    private static final GalasaGson gson = new GalasaGson();
     
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
         Properties overrideProperties
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, false, null, 
-        getBundleContext() , new FileSystem() , new SystemEnvironment());
+        this(bootstrapProperties, overrideProperties, null, 
+        getBundleContext() , new FileSystem() , new SystemEnvironment(),
+        GalasaFactory.getInstance().newDefaultInitStrategy());
     }
 
+
+    // public FrameworkInitialisation(
+    //     Properties bootstrapProperties, 
+    //     Properties overrideProperties, 
+    //     boolean isTestRun
+    // ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+    //     this(bootstrapProperties, overrideProperties, null, 
+    //         getBundleContext() , new FileSystem(), new SystemEnvironment(),
+    //         isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
+    //     );
+    // }
 
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
         Properties overrideProperties, 
-        boolean testrun
+        IFrameworkInitialisationStrategy initStrategy
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, testrun, null, 
-        getBundleContext() , new FileSystem(), new SystemEnvironment());
+        this(bootstrapProperties, overrideProperties, null, 
+            getBundleContext() , new FileSystem(), new SystemEnvironment(),
+            initStrategy
+        );
     }
 
 
-    public FrameworkInitialisation(
-        Properties bootstrapProperties, 
-        Properties overrideProperties,
-        boolean testrun,
-        Log initLogger
-    ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        this(bootstrapProperties, overrideProperties, testrun, initLogger, 
-        getBundleContext(), new FileSystem(), new SystemEnvironment());
-    }
+    // public FrameworkInitialisation(
+    //     Properties bootstrapProperties, 
+    //     Properties overrideProperties,
+    //     boolean isTestRun,
+    //     Log initLogger
+    // ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+    //     this(bootstrapProperties, overrideProperties, initLogger, 
+    //         getBundleContext(), new FileSystem(), new SystemEnvironment(),
+    //         isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
+    //     );
+    // }
 
+    // public FrameworkInitialisation(
+    //     Properties bootstrapProperties, 
+    //     Properties overrideProperties, 
+    //     boolean isTestRun,
+    //     Log initLogger,
+    //     BundleContext bundleContext , 
+    //     IFileSystem fileSystem,
+    //     Environment env
+    // ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+    //     this(bootstrapProperties, overrideProperties, initLogger, bundleContext, fileSystem, env, 
+    //         isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
+    //     );
+    // }
+    
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
         Properties overrideProperties, 
-        boolean testrun,
         Log initLogger,
         BundleContext bundleContext , 
         IFileSystem fileSystem,
-        Environment env
+        Environment env,
+        IFrameworkInitialisationStrategy initStrategy
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
 
         this.fileSystem = fileSystem;
 
+        // Allows unit tests to inject the logger.
         if (initLogger == null) {
             logger = LogFactory.getLog(this.getClass());
         } else {
@@ -104,10 +131,8 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
 
         this.framework.setFrameworkProperties(overrideProperties);
 
-        // *** If this is a test run, then we need to install the log4j capture routine
-        if (testrun) {
-            this.framework.installLogCapture();
-        }
+        // The initialisation strategy may wish to install Log capture at this point ?
+        initStrategy.startLoggingCapture(framework);
 
         this.uriConfigurationPropertyStore = locateConfigurationPropertyStore(
             this.logger, overrideProperties, this.fileSystem);
@@ -117,14 +142,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             this.logger, overrideProperties, this.cpsFramework, this.fileSystem);
         this.dssFramework = initialiseDynamicStatusStore(logger,bundleContext);
 
-        if (testrun) {
-            // *** Is this a test run,
-            // *** Then we need to make sure we have a runname for the RAS. If there isnt
-            // one, we need to allocate one
-            // *** Need the DSS for this as the latest run number number is stored in there
-            String runName = locateRunName(this.cpsFramework);
-            this.framework.setTestRunName(runName);
-        }
+        initStrategy.setTestRunName(framework, this.cpsFramework);
 
         this.uriResultArchiveStores = createUriResultArchiveStores(overrideProperties, this.cpsFramework);
         logger.debug("Result Archive Stores are " + this.uriResultArchiveStores.toString());
@@ -144,31 +162,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             logger.info("The Framework does not think it is initialised, but we didn't get any errors");
         }
 
-        // *** If this is a test run, add the overrides from the run dss properties to
-        // these overrides
-        if (testrun) {
-            loadOverridePropertiesFromDss(overrideProperties);
-        }
+        overrideProperties = initStrategy.applyOverrides(framework, this.dssFramework, overrideProperties);
+        
     }
-
-    private void loadOverridePropertiesFromDss(Properties overrideProperties) throws DynamicStatusStoreException {
-        // The overrides DSS property contains a JSON array of overrides in the form:
-        // dss.framework.run.X.overrides=[{ "key1": "value1" }, { "key2", "value2" }]
-        String runOverridesProp = "run." + framework.getTestRunName() + ".overrides";
-        String runOverrides = this.dssFramework.get(runOverridesProp);
-        if (runOverrides != null && !runOverrides.isBlank()) {
-            Property[] properties = gson.fromJson(runOverrides, Property[].class);
-            for (Property override : properties) {
-                String key = override.getKey();
-                String value = override.getValue();
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Setting run override " + key + "=" + value);
-                }
-                overrideProperties.put(key, value);
-            }
-        }
-    }
-
 
     private static BundleContext getBundleContext() {
         return FrameworkUtil.getBundle(FrameworkInitialisation.class).getBundleContext();
@@ -226,7 +222,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
      * @param input
      * @return The stripped (or unaltered) string.
      */
-    String stripLeadingAndTrailingQuotes(String input ) {
+    private String stripLeadingAndTrailingQuotes(String input ) {
         String output = input ;
         if (output.startsWith("\"")) {
             output = output.replaceFirst("\"", "");
@@ -235,39 +231,6 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             output = output.substring(0,output.length()-1);
         }
         return output;
-    }
-
-    
-
-    /**
-     * Submit the run and return the run name.
-     * 
-     * @param runBundleClass
-     * @param language
-     * @return The name of the run created.
-     * @throws FrameworkException
-     */
-    protected String submitRun(String runBundleClass, String language) throws FrameworkException {
-        IRun run = null;
-        IFrameworkRuns frameworkRuns = this.framework.getFrameworkRuns();
-
-        switch(language) {
-            case "java": 
-                String split[] = runBundleClass.split("/");
-                String bundle = split[0];
-                String test = split[1];
-                run = frameworkRuns.submitRun("local", null, bundle, test, null, null, null, null, true, false, null, null, null, language);
-                break;
-            case "gherkin":
-                run = frameworkRuns.submitRun("local", null, null, runBundleClass, null, null, null, null, true, false, null, null, null, language);
-                break;
-            default:
-                throw new FrameworkException("Unknown language to create run");
-        }
-
-        logger.info("Allocated Run Name " + run.getName() + " to this run");
-
-        return run.getName();
     }
 
     /**
@@ -508,25 +471,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         }
     }
 
-    // Find the run name of the test run, if it's not a set property 
-    // ("framework.run.name")
-    // then create a run name by submitting the run, based on language, properties.
-    private String locateRunName(IConfigurationPropertyStoreService cpsFramework) throws FrameworkException {
-        //*** Ensure the shared environment = true is set for Shenv runs
-        String runName = AbstractManager.nulled(cpsFramework.getProperty("run", "name"));
-        if (runName == null) {
-            String testName = AbstractManager.nulled(cpsFramework.getProperty("run", "testbundleclass"));
-            String testLanguage  = "java";
-            if (testName == null) {
-                testName = AbstractManager.nulled(cpsFramework.getProperty("run", "gherkintest"));
-                testLanguage = "gherkin";
-            }
-            logger.info("Submitting test "+testName);
-            runName = submitRun(testName, testLanguage);
-        }
-        logger.info("Run name is "+runName);
-        return runName;
-    }
+
 
     private void processRASlocationProperty(String rasProperty , List<URI> uriResultArchiveStores) throws URISyntaxException {
         if((rasProperty != null) && !rasProperty.isEmpty()){
