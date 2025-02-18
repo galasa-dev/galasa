@@ -158,6 +158,23 @@ jobs:
             dockerRepository=${{ env.REGISTRY }}
             branch=${{ env.BRANCH }}
 
+      - name: Recycle 'ivts' application in ArgoCD
+        # Skip this job for forks
+        if: ${{ github.repository_owner == 'galasa-dev' }}
+        env:
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app actions run ${{ env.BRANCH }}-ivts restart --kind Deployment --resource-name ivts-${{ env.BRANCH }} --server argocd.galasa.dev
+
+      - name: Wait for 'ivts' application health in ArgoCD
+        # Skip this job for forks
+        if: ${{ github.repository_owner == 'galasa-dev' }}
+        env:
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app wait ${{ env.BRANCH }}-ivts --resource apps:Deployment:ivts-${{ env.BRANCH }} --health --server argocd.galasa.dev
+
+
   report-failure:
     # Skip this job for forks
     if: ${{ failure() && github.repository_owner == 'galasa-dev' }}
