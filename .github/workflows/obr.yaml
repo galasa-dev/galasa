@@ -581,6 +581,12 @@ jobs:
           distribution: 'semeru'
           # cache: 'maven'
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Make secrets directory
         run : |
           mkdir /home/runner/work/secrets
@@ -737,18 +743,11 @@ jobs:
           tags: ${{ steps.metadata-obr-generic.outputs.tags }}
           labels: ${{ steps.metadata-obr-generic.outputs.labels }}
 
-      - name: Copy files from kubectl image for Galasa boot embedded images
-        run: |
-          mkdir -p /opt/k8s/bin
-          curl -L https://dl.k8s.io/release/v1.22.0/bin/linux/amd64/kubectl -o /opt/k8s/bin/kubectl
-          chmod +x /opt/k8s/bin/kubectl
-          cp -vr /opt/k8s/bin/kubectl ${{ github.workspace }}/modules/obr/dockerfiles/trace-log4j.properties ${{ github.workspace }}/modules/obr/obr-generic/
-
       - name: Extract metadata for Galasa boot embedded image
         id: metadata-boot-embedded
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasa-boot-embedded-x86_64
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasa-boot-embedded
   
       - name: Build and push Galasa boot embedded image
         id: build-boot-embedded
@@ -756,6 +755,7 @@ jobs:
         with:
           context: modules/obr
           file: modules/obr/dockerfiles/dockerfile.bootembedded
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.metadata-boot-embedded.outputs.tags }}
           labels: ${{ steps.metadata-boot-embedded.outputs.labels }}
@@ -768,7 +768,7 @@ jobs:
         id: metadata-ibm-boot-embedded
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasa-ibm-boot-embedded-x86_64
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasa-ibm-boot-embedded
   
       - name: Build and push Galasa IBM boot embedded image
         id: build-ibm-boot-embedded
@@ -776,13 +776,13 @@ jobs:
         with:
           context: modules/obr
           file: modules/obr/dockerfiles/dockerfile.ibmbootembedded
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.metadata-ibm-boot-embedded.outputs.tags }}
           labels: ${{ steps.metadata-ibm-boot-embedded.outputs.labels }}
           build-args: |
             tag=${{ env.BRANCH }}
             dockerRepository=${{ env.REGISTRY }}
-            platform=x86_64
 
   trigger-next-workflows:
     # Skip this job for forks
