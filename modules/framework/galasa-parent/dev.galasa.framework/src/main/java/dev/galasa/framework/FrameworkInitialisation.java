@@ -45,16 +45,20 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
 
-    // public FrameworkInitialisation(
-    //     Properties bootstrapProperties, 
-    //     Properties overrideProperties, 
-    //     boolean isTestRun
-    // ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-    //     this(bootstrapProperties, overrideProperties, null, 
-    //         getBundleContext() , new FileSystem(), new SystemEnvironment(),
-    //         isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
-    //     );
-    // }
+    /**
+     * @deprecated Use one of the other constructors.
+     */
+    @Deprecated(since = "0.40.0", forRemoval = true)
+    public FrameworkInitialisation(
+        Properties bootstrapProperties, 
+        Properties overrideProperties, 
+        boolean isTestRun
+    ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+        this(bootstrapProperties, overrideProperties, null, 
+            getBundleContext() , new FileSystem(), new SystemEnvironment(),
+            isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
+        );
+    }
 
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
@@ -68,32 +72,54 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
 
-    // public FrameworkInitialisation(
-    //     Properties bootstrapProperties, 
-    //     Properties overrideProperties,
-    //     boolean isTestRun,
-    //     Log initLogger
-    // ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-    //     this(bootstrapProperties, overrideProperties, initLogger, 
-    //         getBundleContext(), new FileSystem(), new SystemEnvironment(),
-    //         isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
-    //     );
-    // }
+    /**
+     * @deprecated Use one of the other constructors.
+     */
+    @Deprecated(since = "0.40.0", forRemoval = true)
+    public FrameworkInitialisation(
+        Properties bootstrapProperties, 
+        Properties overrideProperties,
+        boolean isTestRun,
+        Log initLogger
+    ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+        this(bootstrapProperties, overrideProperties, initLogger, 
+            getBundleContext(), new FileSystem(), new SystemEnvironment(),
+            isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
+        );
+    }
 
-    // public FrameworkInitialisation(
-    //     Properties bootstrapProperties, 
-    //     Properties overrideProperties, 
-    //     boolean isTestRun,
-    //     Log initLogger,
-    //     BundleContext bundleContext , 
-    //     IFileSystem fileSystem,
-    //     Environment env
-    // ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-    //     this(bootstrapProperties, overrideProperties, initLogger, bundleContext, fileSystem, env, 
-    //         isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
-    //     );
-    // }
+    /**
+     * @deprecated Use one of the other constructors.
+     */
+    @Deprecated(since = "0.40.0", forRemoval = true)
+    public FrameworkInitialisation(
+        Properties bootstrapProperties, 
+        Properties overrideProperties, 
+        boolean isTestRun,
+        Log initLogger,
+        BundleContext bundleContext , 
+        IFileSystem fileSystem,
+        Environment env
+    ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
+        this(bootstrapProperties, overrideProperties, initLogger, bundleContext, fileSystem, env, 
+            isTestRun? GalasaFactory.getInstance().newTestRunInitStrategy(): GalasaFactory.getInstance().newDefaultInitStrategy()
+        );
+    }
     
+    /**
+     * 
+     * @param bootstrapProperties
+     * @param overrideProperties
+     * @param initLogger
+     * @param bundleContext
+     * @param fileSystem
+     * @param env
+     * @param initStrategy One of the initialisation strategies, depending on what you want to use the Framework for.
+     * See `GalasaFactory.getInstance().newDefaultInitStrategy()` or one of the other `newXXXStrategy` methods.
+     * @throws URISyntaxException
+     * @throws InvalidSyntaxException
+     * @throws FrameworkException
+     */
     public FrameworkInitialisation(
         Properties bootstrapProperties, 
         Properties overrideProperties, 
@@ -643,7 +669,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }  
 
 
-    void initialiseResultsArchiveStore(Log logger, BundleContext bundleContext) throws FrameworkException, InvalidSyntaxException {
+    private void initialiseResultsArchiveStore(Log logger, BundleContext bundleContext) throws FrameworkException, InvalidSyntaxException {
         this.logger.trace("Searching for RAS providers");
         final ServiceReference<?>[] rasServiceReference = bundleContext
                 .getAllServiceReferences(IResultArchiveStoreRegistration.class.getName(), null);
@@ -673,7 +699,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     }
 
 
-    void initialiseCredentialsStore(
+    private void initialiseCredentialsStore(
         Log logger, 
         BundleContext bundleContext 
     ) throws FrameworkException, InvalidSyntaxException {
