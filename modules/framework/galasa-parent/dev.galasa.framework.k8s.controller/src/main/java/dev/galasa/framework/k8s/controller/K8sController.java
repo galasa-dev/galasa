@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.FrameworkInitialisation;
+import dev.galasa.framework.FrameworkType;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -64,7 +65,7 @@ public class K8sController {
             // *** Initialise the framework services
             FrameworkInitialisation frameworkInitialisation = null;
             try {
-                frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+                frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, FrameworkType.controller);
             } catch (Exception e) {
                 throw new FrameworkException("Unable to initialise the Framework Services", e);
             }

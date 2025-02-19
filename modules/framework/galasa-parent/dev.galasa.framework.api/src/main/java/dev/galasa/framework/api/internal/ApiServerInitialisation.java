@@ -20,6 +20,7 @@ import org.osgi.framework.ServiceReference;
 
 import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.FrameworkInitialisation;
+import dev.galasa.framework.FrameworkType;
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.FrameworkException;
@@ -42,7 +43,8 @@ public class ApiServerInitialisation extends FrameworkInitialisation implements 
 
     public ApiServerInitialisation(
         Properties bootstrapProperties,
-        Properties overrideProperties
+        Properties overrideProperties,
+        FrameworkType type
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
         this(bootstrapProperties, overrideProperties, null, getBundleContext(), new FileSystem(), new SystemEnvironment());
     }
@@ -55,7 +57,7 @@ public class ApiServerInitialisation extends FrameworkInitialisation implements 
         IFileSystem fileSystem, 
         Environment env
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
-        super(bootstrapProperties, overrideProperties, false, initLogger, bundleContext, fileSystem, env);
+        super(bootstrapProperties, overrideProperties, FrameworkType.server, initLogger, bundleContext, fileSystem, env);
 
         if (initLogger == null) {
             logger = LogFactory.getLog(this.getClass());
