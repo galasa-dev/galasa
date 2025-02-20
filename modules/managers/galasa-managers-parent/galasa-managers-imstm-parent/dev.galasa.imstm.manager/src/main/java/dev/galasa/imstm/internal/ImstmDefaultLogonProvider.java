@@ -29,6 +29,12 @@ public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
 
     private final String initialText;
 
+    private static final String SIGNON_CHALLENGE = "DFS3649A";
+    private static final String[] SIGNON_SUCCESSFUL = { "DFS3650I" };
+    // Any signon failure will give us DFS3649A again, with REJECTED and a reason code.
+    // However, we can't search for DFS3649A as it's already on the screen.
+    private static final String[] SIGNON_FAILED = { "REJECTED" };  
+
     public ImstmDefaultLogonProvider(IFramework framework) throws ImstmManagerException {
 
         try {
@@ -109,23 +115,18 @@ public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
 
     private void waitForSignonScreen(IImsTerminal imsTerminal) throws ImstmManagerException {
         try {
-            imsTerminal.waitForTextInField("DFS3649A");
+            imsTerminal.waitForTextInField(SIGNON_CHALLENGE);
         } catch (Exception e) {
-            throw new ImstmManagerException("Unable to wait for the initial IMS screen, looking for 'DFS3649I'",
+            throw new ImstmManagerException("Unable to wait for the initial IMS screen, looking for '" + SIGNON_CHALLENGE + "'",
                     e);
         }
     }
 
     private void waitForSignedOnText(IImsTerminal imsTerminal) throws ImstmManagerException {
-
-        String[] pass = { "DFS3650I" };
-        String[] fail = { "REJECTED" };  // Any signon failure will give us DFS3649A again, with REJECTED and a reason code.
-                                         // However, we can't search for DFS3649A as it's already on the screen.
-
         try {
-            imsTerminal.waitForTextInField(pass, fail);
+            imsTerminal.waitForTextInField(SIGNON_SUCCESSFUL, SIGNON_FAILED);
         } catch (Exception e) {
-            throw new ImstmManagerException("Unable to sign on, looking for '" + String.join("', '", pass) + "'",
+            throw new ImstmManagerException("Unable to sign on, looking for '" + String.join("', '", SIGNON_SUCCESSFUL) + "'",
                 e);
         }
     }

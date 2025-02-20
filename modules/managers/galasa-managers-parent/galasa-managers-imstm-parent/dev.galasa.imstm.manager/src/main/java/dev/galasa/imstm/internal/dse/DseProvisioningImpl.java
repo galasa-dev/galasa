@@ -6,8 +6,7 @@
 package dev.galasa.imstm.internal.dse;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -30,7 +29,7 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
 
     private final ImstmManagerImpl imstmManager;
 
-    private final boolean enabled;
+    private final boolean isEnabled;
 
     public DseProvisioningImpl(ImstmManagerImpl imstmManager) {
         this.imstmManager = imstmManager;
@@ -39,10 +38,10 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
         switch (provisionType) {
             case "DSE":
             case "MIXED":
-                this.enabled = true;
+                this.isEnabled = true;
                 break;
             default:
-                this.enabled = false;
+                this.isEnabled = false;
         }
     }
     
@@ -54,7 +53,7 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
     @Override
     public IImsSystemProvisioned provision(@NotNull String imsTag, @NotNull String imageTag,
             @NotNull List<Annotation> annotations) throws ManagerException {
-        if (!this.enabled) {
+        if (!this.isEnabled) {
             return null;
         }
         
@@ -74,7 +73,10 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
 
         DseImsImpl imsSystem = new DseImsImpl(this.imstmManager, imsTag, zosImage, applid);
 
-        logger.info("Provisioned DSE " + imsSystem.toString() + " on zOS Image " + imsSystem.getZosImage().getImageID() + " for tag '" + imsSystem.getTag());
+        logger.info(MessageFormat.format("Provisioned DSE {0} on zOS Image {1} for tag ''{2}''", 
+                                            imsSystem.toString(), 
+                                            imsSystem.getZosImage().getImageID(), 
+                                            imsSystem.getTag()));
 
         return imsSystem;
     }

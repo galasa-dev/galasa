@@ -13,9 +13,6 @@ import java.lang.annotation.Target;
 /**
  * Used to annotate annotations that are to be used for Test Class fields. To be
  * populated by the Manager.
- *
- *  
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })

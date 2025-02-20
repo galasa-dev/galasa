@@ -45,7 +45,7 @@ public class DseVersion extends CpsProperties {
             // Prevent ImstmManagerExceptions from being caught by the more generic ManagerException
             throw e;
         } catch (ManagerException e) {
-            throw new ImstmManagerException("Failed to parse the IMS version '" + version + "' for tag '" + tag + "', format should be 0.0.0", e); 
+            throw new ImstmManagerException("Failed to parse the IMS version '" + version + "' for tag '" + tag + "', should be a valid V.R.M version format, for example 15.5.0", e); 
         } catch (ConfigurationPropertyStoreException e) {
             throw new ImstmManagerException("Problem accessing the CPS for the IMS version, for tag " + tag, e);
         }

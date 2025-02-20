@@ -15,12 +15,7 @@ import dev.galasa.framework.spi.ValidAnnotatedFields;
 /**
  * A zOS 3270 Terminal for use with an IMS TM System that has access to the default IMS screens
  * 
- * <p>
  * Used to populate a {@link IImsTerminal} field
- * </p>
- * 
- *  
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
@@ -29,18 +24,21 @@ import dev.galasa.framework.spi.ValidAnnotatedFields;
 public @interface ImsTerminal {
 
     /**
-     * The tag of the IMS system terminal is to be associated with
+     * The tag of the IMS system terminal is to be associated with.
+     * Default value is <b>PRIMARY</b>.
      */
     String imsTag() default "PRIMARY";
     
     /**
-     * The IMS TM Manager will automatically connect the terminal to the IMS TM System when ever it starts 
+     * The IMS TM Manager will automatically connect the terminal to the IMS TM System whenever it starts.
+     * Default value is <b>true</b>.
      */
     boolean connectAtStartup() default true;
     
     /**
      * The IMS TM Manager will automatically log into the IMS TM region using the terminal with 
-     * the specified secure credentials when it connects
+     * the specified secure credentials when it connects.
+     * Default value is an empty string.
      */
     String loginCredentialsTag() default "";
 }

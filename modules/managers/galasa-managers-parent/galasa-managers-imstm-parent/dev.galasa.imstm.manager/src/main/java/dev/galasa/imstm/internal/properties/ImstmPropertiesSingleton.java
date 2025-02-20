@@ -34,19 +34,20 @@ public class ImstmPropertiesSingleton {
     }
     
     public static IConfigurationPropertyStoreService cps() throws ImstmManagerException {
-        if (singletonInstance != null) {
-            return singletonInstance.cps;
+        if (singletonInstance == null) {
+            throw new ImstmManagerException("Attempt to access manager CPS before it has been initialised");
         }
         
-        throw new ImstmManagerException("Attempt to access manager CPS before it has been initialised");
+        return singletonInstance.cps;
     }
     
     public static void setCps(IConfigurationPropertyStoreService cps) throws ImstmManagerException {
-        if (singletonInstance != null) {
+        try {
             singletonInstance.cps = cps;
-            return;
+        } catch (NullPointerException e) {
+            throw new ImstmManagerException("Attempt to set manager CPS before instance created");
         }
-        
-        throw new ImstmManagerException("Attempt to set manager CPS before instance created");
+
+        return;
     }
 }

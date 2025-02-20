@@ -35,18 +35,19 @@ import dev.galasa.framework.spi.cps.CpsProperties;
 public class DefaultVersion extends CpsProperties {
 
     private static final Log logger = LogFactory.getLog(DefaultVersion.class);
+    private static final ProductVersion DEFAULT_VERSION = ProductVersion.v(15).r(5).m(0);
 
     public static ProductVersion get() {
         String version = "";
         try {
-            version = getStringWithDefault(ImstmPropertiesSingleton.cps(), "15.5.0", "default", "version");
+            version = getStringWithDefault(ImstmPropertiesSingleton.cps(), DEFAULT_VERSION.toString(), "default", "version");
             return ProductVersion.parse(version);
         } catch (ImstmManagerException e) {
-            logger.error("Problem accessing the CPS for the default IMS version, defaulting to 15.5.0");
-            return ProductVersion.v(15).r(5).m(0);
+            logger.error("Problem accessing the CPS for the default IMS version, defaulting to " + DEFAULT_VERSION.toString());
+            return DEFAULT_VERSION;
         } catch (ManagerException e) {
-            logger.error("Failed to parse default IMS version '" + version + "', defaulting to 15.5.0");
-            return ProductVersion.v(15).r(5).m(0);
+            logger.error("Failed to parse default IMS version '" + version + "', defaulting to " + DEFAULT_VERSION.toString());
+            return DEFAULT_VERSION;
         }
     }
 }

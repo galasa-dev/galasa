@@ -35,15 +35,15 @@ public class ExtraBundles extends CpsProperties {
 
     public static List<String> get() throws ImstmManagerException {
         try {
-            List<String> list = getStringList(ImstmPropertiesSingleton.cps(), "extra", "bundles");
+            List<String> bundles = getStringList(ImstmPropertiesSingleton.cps(), "extra", "bundles");
 
-            if (list.size() == 1) {
-                if (list.get(0).equalsIgnoreCase("none")) {
+            if (bundles.size() == 1) {
+                if (bundles.get(0).equalsIgnoreCase("none")) {
                     return new ArrayList<>(0);
                 }
             }
             
-            return list;
+            return bundles;
         } catch (ConfigurationPropertyStoreException e) {
             throw new ImstmManagerException("Problem asking CPS for the IMS TM extra bundles", e); 
         }

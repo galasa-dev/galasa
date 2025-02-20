@@ -53,7 +53,7 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
     protected static final String NAMESPACE = "imstm";
 
     private static final Log logger = LogFactory.getLog(ImstmManagerImpl.class);
-    private boolean required;
+    private boolean isManagerRequired = false;
 
     private IZosManagerSpi zosManager;
     private ITextScannerManagerSpi textScanner;
@@ -64,17 +64,17 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
     private final ArrayList<ImsTerminalImpl> terminals = new ArrayList<>();
     private final ArrayList<IImsSystemLogonProvider> logonProviders = new ArrayList<>();
 
-    private String provisionType;
+    private String provisionType;  // Obtained from the imstm.provision.type CPS property
     
     @Override
     public void initialise(@NotNull IFramework framework, @NotNull List<IManager> allManagers,
             @NotNull List<IManager> activeManagers, @NotNull GalasaTest galasaTest) throws ManagerException {
         super.initialise(framework, allManagers, activeManagers, galasaTest);
-        // *** Check to see if any of our annotations are present in the test class
-        // *** If there is, we need to activate
+        // Check to see if any of our annotations are present in the test class
+        // If there is, we need to activate
         if(galasaTest.isJava()) {
             List<AnnotatedField> ourFields = findAnnotatedFields(ImstmManagerField.class);
-            if (ourFields.isEmpty() && !required) {
+            if (ourFields.isEmpty() && !isManagerRequired) {
                 return;
             }
 
@@ -89,7 +89,7 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
             return;
         }
 
-        this.required = true;
+        this.isManagerRequired = true;
         activeManagers.add(this);
 
         this.zosManager = addDependentManager(allManagers, activeManagers, galasaTest, IZosManagerSpi.class);
@@ -224,7 +224,7 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
     public IImsSystem locateImsSystem(String tag) throws ImstmManagerException {
     	IImsSystemProvisioned system = this.provisionedImsSystems.get(tag);
         if (system == null) {
-            throw new ImstmManagerException("Unable to setup IMS Terminal for tag " + tag + ", no system was provisioned");
+            throw new ImstmManagerException("Unable to locate IMS System for tag " + tag);
         }
         return system;
     }

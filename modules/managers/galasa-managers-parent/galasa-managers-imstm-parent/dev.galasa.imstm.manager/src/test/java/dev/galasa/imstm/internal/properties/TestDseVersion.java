@@ -78,7 +78,7 @@ public class TestDseVersion {
     @Test
     public void testParseException() throws Exception {
         Mockito.when(cps.getProperty("dse.tag", "version", TAG)).thenReturn(INVALID_VERSION_TEXT);
-        String expectedMessage = "Failed to parse the IMS version '" + INVALID_VERSION_TEXT + "' for tag '" + TAG + "', format should be 0.0.0";
+        String expectedMessage = "Failed to parse the IMS version '" + INVALID_VERSION_TEXT + "' for tag '" + TAG + "', should be a valid V.R.M version format, for example 15.5.0";
         ImstmManagerException expectedException = Assert.assertThrows("expected exception should be thrown", ImstmManagerException.class, ()->{
         	DseVersion.get(TAG);
         });

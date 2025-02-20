@@ -34,7 +34,7 @@ public class DseApplid extends CpsProperties {
     public static String get(String tag) throws ImstmManagerException {
         try {
             String applid = getStringNulled(ImstmPropertiesSingleton.cps(), "dse.tag", "applid", tag);
-            return applid != null? applid.toUpperCase(): applid;
+            return applid != null? applid.toUpperCase().trim(): applid;
         } catch (ConfigurationPropertyStoreException e) {
             throw new ImstmManagerException("Problem asking CPS for the DSE applid for tag " + tag, e); 
         }
