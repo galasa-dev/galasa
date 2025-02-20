@@ -46,3 +46,6 @@ This code is under the [Eclipse Public License 2.0](https://github.com/galasa-de
 
 ## Developer setup instructions
 See the developer instructions [here](./dev-instructions.md)
+
+## Design Notes on the Framework component
+See [the framework design notes](./docs/design/design-intro.md).
