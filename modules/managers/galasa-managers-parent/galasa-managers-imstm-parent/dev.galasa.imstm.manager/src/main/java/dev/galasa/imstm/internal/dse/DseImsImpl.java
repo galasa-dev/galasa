@@ -52,7 +52,7 @@ public class DseImsImpl extends BaseImsImpl {
     }
 
     @Override
-    public boolean hasRegionStarted() throws ImstmManagerException {
+    public boolean isSystemStarted() throws ImstmManagerException {
         throw new ImstmManagerException("Unable to check DSE IMS TM systems has started");
     }
 }

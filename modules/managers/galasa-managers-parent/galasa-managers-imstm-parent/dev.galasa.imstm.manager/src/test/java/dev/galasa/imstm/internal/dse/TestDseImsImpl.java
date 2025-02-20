@@ -79,7 +79,7 @@ public class TestDseImsImpl {
         dii = new DseImsImpl(null, null, null, null);
         String expectedMessage = "Unable to check DSE IMS TM systems has started";
         ImstmManagerException expectedException = Assert.assertThrows("expected exception should be thrown", ImstmManagerException.class, ()->{
-        	dii.hasRegionStarted();
+        	dii.isSystemStarted();
         });
     	Assert.assertEquals("Exception should contain expected message", expectedMessage, expectedException.getMessage());
     }

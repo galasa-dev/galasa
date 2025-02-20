@@ -14,6 +14,6 @@ public interface IImsSystemProvisioned extends IImsSystem {
     
     
     void submitRuntimeJcl() throws ImstmManagerException;
-    boolean hasRegionStarted() throws ImstmManagerException; 
+    boolean isSystemStarted() throws ImstmManagerException; 
 
 }

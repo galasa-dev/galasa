@@ -11,8 +11,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to annotate annotations that are to be used for Test Class fields. To be
- * populated by the Manager.
+ * Used to annotate the classes that are used to annotate IMS TM fields in user 
+ * test classes. These fields will be populated by the IMS TM Manager during 
+ * initialization.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })

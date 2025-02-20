@@ -13,8 +13,8 @@ import dev.galasa.ICredentialsUsernamePassword;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.IImsSystem;
 import dev.galasa.imstm.IImsTerminal;
-import dev.galasa.imstm.internal.properties.DefaultLogonInitialText;
 import dev.galasa.imstm.spi.IImsSystemLogonProvider;
+import dev.galasa.zos.IZosImage;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.creds.CredentialsException;
@@ -26,8 +26,6 @@ public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
     private static final Log logger = LogFactory.getLog(ImstmDefaultLogonProvider.class);
     private final ICredentialsService cs;
     private final IConfidentialTextService cts;
-
-    private final String initialText;
 
     private static final String SIGNON_CHALLENGE = "DFS3649A";
     private static final String[] SIGNON_SUCCESSFUL = { "DFS3650I" };
@@ -44,12 +42,6 @@ public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
         }
 
         this.cts = framework.getConfidentialTextService();
-
-        try {
-            initialText = DefaultLogonInitialText.get();
-        } catch (ImstmManagerException e) {
-            throw new ImstmManagerException("Problem retrieving logon text for the default logon provider", e);
-        }
     }
 
     @Override
@@ -63,12 +55,15 @@ public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
             // Ensure we can type something first
             imsTerminal.waitForKeyboard();
 
+            IImsSystem system = imsTerminal.getImsSystem();
+            IZosImage zos = system.getZosImage();
+
             // Check we are at the right screen
+            String initialText = zos.getLogonInitialText();
             if (initialText != null) {
-                checkForInitialText(imsTerminal);
+                checkForInitialText(imsTerminal, initialText);
             }
 
-            IImsSystem system = imsTerminal.getImsSystem();
             imsTerminal.type(system.getZosImage().getVtamLogonString(system.getApplid())).enter().wfk();
 
             waitForSignonScreen(imsTerminal);
@@ -104,7 +99,7 @@ public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
         return true;
     }
 
-    private void checkForInitialText(IImsTerminal imsTerminal) throws ImstmManagerException {
+    private void checkForInitialText(IImsTerminal imsTerminal, String initialText) throws ImstmManagerException {
         try {
             imsTerminal.waitForTextInField(initialText);
         } catch (Exception e) {
