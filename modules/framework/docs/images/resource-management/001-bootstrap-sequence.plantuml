@@ -1,0 +1,31 @@
+@startuml 001-bootstrap-sequence
+title "Bootstrapping"
+
+participant ResourceManagementPod
+participant Bootstrap
+
+create Bootstrap
+ResourceManagementPod -> Bootstrap : starts up, calls
+
+create FelixFramework
+Bootstrap -> FelixFramework : runResourceManagement(overrides, bundles...)
+note right of FelixFramework
+loads the galasa framework bundle
+looks through all repositories, fishing out resource manager classes from the bundle metadata
+loads bundles
+end note
+
+create ResourceManagement
+FelixFramework -> ResourceManagement : load bundle
+note right of FelixFramework
+adds health port to the overrides
+adds metrics port to the overrides
+gets the service reference for each resource manager
+reflects into the service class, looking for the 'run' method
+invokes the run method on the resource manager
+end note
+
+FelixFramework -> ResourceManagement : run()
+
+
+@enduml

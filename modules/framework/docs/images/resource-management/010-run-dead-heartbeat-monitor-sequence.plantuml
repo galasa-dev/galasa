@@ -1,0 +1,30 @@
+@startuml 010-run-dead-heartbeat-monitor-sequence
+title "What does the RunDeadHeartbeatMonitor do ?"
+
+
+
+RunResourceManagement -> RunDeadHeartbeatMonitor : calls runnable every 20 seconds
+RunDeadHeartbeatMonitor -> RunDeadHeartbeatMonitor : getMaxDeadHearbeatTimeSecs 
+note right
+Uses cps property framework.resource.management.dead.heartbeat.timeout or 300 (unit: 1 minute)
+gets all active runs
+for each in turn:
+end note
+RunDeadHeartbeatMonitor --> RunDeadHeartbeatMonitor : OK
+
+note right
+If there is no heartbeat value in the dss
+end note
+RunDeadHeartbeatMonitor --> RunDeadHeartbeatMonitor : processRunWithNoHeartbeat
+note right
+gets the run name from the dss
+
+if the run is older than framework.resource.management.dead.heartbeat.timeout or 300 then it deletes the run from dss
+Presumably this means the run never even got to save it's first tick of the heartbeat.
+
+keeps a record of the run last checked time in it's in-memory cache of runs
+end note
+
+
+
+@enduml

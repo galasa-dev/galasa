@@ -180,7 +180,7 @@ public class RunDeadHeartbeatMonitor implements Runnable {
         String runName, Instant now, int defaultDeadHeartbeatTimeSecs) 
         throws DynamicStatusStoreException {
 
-            RunWithNoHeartbeatRecord noHeartBeatRun = runsWithNoHeartbeatCache.get(runName);
+        RunWithNoHeartbeatRecord noHeartBeatRun = runsWithNoHeartbeatCache.get(runName);
         if (noHeartBeatRun==null) {
             // We've never noticed that this run has no heartbeat.
             // Remember the fact, and the time we noticed it for later.

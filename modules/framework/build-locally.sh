@@ -54,6 +54,7 @@ blue=$(tput setaf 25)
 underline() { printf "${underline}${bold}%s${reset}\n" "$@" ;}
 h1() { printf "\n${underline}${bold}${blue}%s${reset}\n" "$@" ;}
 h2() { printf "\n${underline}${bold}${white}%s${reset}\n" "$@" ;}
+h3() { printf "\n${underline}${bold}${green}%s${reset}\n" "$@" ;}
 debug() { printf "${white}%s${reset}\n" "$@" ;}
 info() { printf "${white}➜ %s${reset}\n" "$@" ;}
 success() { printf "${green}✔ %s${reset}\n" "$@" ;}
@@ -345,6 +346,32 @@ function update_release_yaml {
     fi
 }
 
+function build_framework_uml_diagrams {
+
+    make_sure_plantuml_tool_is_available
+
+    h2 "Building plantuml diagrams for framework internal docs." 
+    java -jar $BASEDIR/temp/plantuml.jar -tpng "${BASEDIR}/docs/images/**.plantuml"
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate UML diagrams" ; exit 1 ; fi
+
+}
+
+function make_sure_plantuml_tool_is_available {
+    h2 "Making sure the plantuml tool is available"
+    mkdir -p temp || exit 1
+    if [[ -e $BASEDIR/temp/plantuml.jar ]]; then
+        info "Plantuml jar is already downloaded. No need to download it again"
+    else 
+        info "Downloading the plantuml tool..."
+        url=https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-epl-1.2024.3.jar
+        cd "$BASEDIR/temp" || exit 1
+        curl -O $url
+        rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to download the plantuml tool jar." ; exit 1 ; fi
+        mv plantuml-*.jar plantuml.jar
+        cd - || exit 1
+    fi
+    success "OK"
+}
 
 #-----------------------------------------------------------------------------------------
 # Process parameters
@@ -439,27 +466,29 @@ log_file=${LOGS_DIR}/${project}.txt
 info "Log will be placed at ${log_file}"
 
 
+build_framework_uml_diagrams
+
+# cleaning_up_before_we_start
+
+# # Currently the bean generation stuff doesn't work 100%
+# # So I generated beans locally, fixed them up, and have started to use them.
+# generate_beans
 
 
-cleaning_up_before_we_start
 
-# Currently the bean generation stuff doesn't work 100%
-# So I generated beans locally, fixed them up, and have started to use them.
-generate_beans
+# build_code
+# publish_to_maven
+# update_release_yaml
 
-build_code
-publish_to_maven
-update_release_yaml
+# if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
+#     download_dependencies
+# fi
 
-if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
-    download_dependencies
-fi
+# generate_rest_docs
 
-generate_rest_docs
-
-if [[ "$detectsecrets" == "true" ]]; then
-    $REPO_ROOT/tools/detect-secrets.sh 
-    check_exit_code $? "Failed to detect secrets"
-fi
+# if [[ "$detectsecrets" == "true" ]]; then
+#     $REPO_ROOT/tools/detect-secrets.sh 
+#     check_exit_code $? "Failed to detect secrets"
+# fi
 
 success "Project ${project} built - OK - log is at ${log_file}"

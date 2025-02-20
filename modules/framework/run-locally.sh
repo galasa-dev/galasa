@@ -92,6 +92,8 @@ while [ "$1" != "" ]; do
                                 ;;
             --all )             run_component="all"
                                 ;;
+            --resourceManager ) run_component="resourceManager"
+                                ;;
         -h | --help )           usage
                                 exit
                                 ;;
@@ -428,6 +430,26 @@ EOF
     success "Launched dex ok."
 }
 
+function launch_resource_manager_locally() {
+  h2 "Launching the resource manager locally..."
+
+EOF
+  cmd="${JAVA_HOME}/bin/java \
+  -jar ${boot_jar_name} \
+  --obr \
+  mvn:dev.galasa/dev.galasa.uber.obr/${GALASA_VERSION}/obr \
+  --resourcemanagement \
+"
+
+  mkdir -p $BASEDIR/temp
+
+  info "About to execute this command: $cmd"
+  $cmd 2>&1 | tee $BASEDIR/temp/resource-manager.log
+  assert_previous_command_worked "Failed to run the resource manager"
+
+  success "OK"
+}
+
 set_up_bootstrap
 
 case $run_component in
@@ -438,6 +460,8 @@ case $run_component in
   etcd ) launch_etcd_in_docker
   ;;
   dex ) launch_dex_in_docker
+  ;;
+  resourceManager ) launch_resource_manager_locally
   ;;
   all )
     launch_etcd_in_docker

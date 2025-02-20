@@ -1,0 +1,42 @@
+@startuml 004-service-launching-sequence
+title "How does a pod kick off a resource manager?"
+
+FelixFramework -> ResourceManagement : run(bootstrapProps,overrideProps)
+note right
+initialises framework
+initialises cps
+initialises dss
+
+uses cps:"framework.server.name"
+or falls back to "framework.server.name" env variable.
+
+uses framework.resource.management.threads or falls back to 5
+uses framework.resource.management.metrics.port or falls back to 9010
+uses framework.resource.management.health.port of falls back to 9011
+
+creates a scheduler pool with that number of threads to play with.
+
+creates a metrics server listening on an HTTP port
+
+creates a health server listening on an HTTP port
+
+looks for resource management providers in the framework using service references for IResourceManagementProvider
+end note
+
+ResourceManagement -> MyResourceManagementProviderXXX : initialise
+ResourceManagement -> RunResourceManagement : initialise
+
+ResourceManagement -> MyResourceManagementProviderXXX : start
+ResourceManagement -> RunResourceManagement : start
+
+RunResourceManagement -> RunDeadHeartbeatMonitor : calls runnable every 20 seconds
+RunResourceManagement -> RunExpiredSharedEnvironmenet : calls runnable every 5 seconds
+RunResourceManagement -> RunFinishedRuns : calls runnable every 20 seconds
+RunResourceManagement -> RunWaitingRuns : calls runnable every 20 seconds
+
+note right of RunResourceManagement
+Never stops or shuts down cleanly.
+end note
+
+
+@enduml
