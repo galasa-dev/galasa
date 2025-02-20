@@ -7,8 +7,6 @@ package dev.galasa.imstm.internal.dse;
 
 import static org.mockito.Mockito.mockConstruction;
 
-import java.nio.charset.Charset;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,12 +17,10 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import dev.galasa.ICredentials;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.internal.ImstmManagerImpl;
 import dev.galasa.imstm.internal.properties.DseApplid;
 import dev.galasa.imstm.spi.IImsSystemProvisioned;
-import dev.galasa.ipnetwork.IIpHost;
 import dev.galasa.zos.ZosManagerException;
 import dev.galasa.zos.IZosImage;
 import dev.galasa.zos.spi.IZosManagerSpi;
@@ -41,28 +37,15 @@ public class TestDseProvisioningImpl {
     private static String TAG = "tag";
     private static String TAG2 = "tag2";
     private static String APPLID = "APPLID";
-    private static IZosImage zosImage = new IZosImage() {
-        public String getImageID() {return "IMAGE";}
-        public String getSysname() {return null;}
-        public String getVtamLogonString(String applid) {return null;}
-        public String getSysplexID() {return null;}
-        public String getClusterID() {return null;}
-        public Charset getCodePage() {return null;}
-        public String getDefaultHostname() throws ZosManagerException {return null;}
-        public ICredentials getDefaultCredentials() throws ZosManagerException {return null;}
-        public IIpHost getIpHost() {return null;}
-        public String getHome() throws ZosManagerException {return null;}
-        public String getRunTemporaryUNIXPath() throws ZosManagerException {return null;}
-        public String getJavaHome() throws ZosManagerException {return null;}
-        public String getLibertyInstallDir() throws ZosManagerException {return null;}
-        public String getZosConnectInstallDir() throws ZosManagerException {return null;}
-    };
+    @Mock
+    private static IZosImage zosImage;
 
     @Before
     public void setup() throws Exception{
         Mockito.when(manager.getProvisionType()).thenReturn("DSE");
         Mockito.when(manager.getZosManager()).thenReturn(zosManager);
         Mockito.when(zosManager.getImageForTag(TAG2)).thenReturn(zosImage);
+        Mockito.when(zosImage.getImageID()).thenReturn("IMAGE");
     }
 
     @Test
