@@ -257,6 +257,7 @@ function get_architecture() {
     esac
 }
 
+#-------------------------------------------------------------
 function generate_beans {
     check_openapi2beans_is_installed
 
@@ -296,6 +297,7 @@ function download_openapi2beans {
 
 }
 
+#-------------------------------------------------------------
 function check_secrets {
     h2 "updating secrets baseline"
     cd ${BASEDIR}
@@ -331,6 +333,7 @@ function check_secrets {
     success "secrets baseline timestamp content has been removed ok"
 }
 
+#-------------------------------------------------------------
 function update_release_yaml {
     h2 "Updating release.yaml"
 
@@ -346,12 +349,13 @@ function update_release_yaml {
     fi
 }
 
+#-------------------------------------------------------------
 function build_framework_uml_diagrams {
 
     make_sure_plantuml_tool_is_available
 
     h2 "Building plantuml diagrams for framework internal docs." 
-    java -jar $BASEDIR/temp/plantuml.jar -tpng "${BASEDIR}/docs/images/**.plantuml"
+    java -jar $BASEDIR/temp/plantuml.jar -tpng "${BASEDIR}/docs/design/**.plantuml"
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate UML diagrams" ; exit 1 ; fi
 
 }
@@ -468,27 +472,27 @@ info "Log will be placed at ${log_file}"
 
 build_framework_uml_diagrams
 
-# cleaning_up_before_we_start
+cleaning_up_before_we_start
 
-# # Currently the bean generation stuff doesn't work 100%
-# # So I generated beans locally, fixed them up, and have started to use them.
-# generate_beans
+# Currently the bean generation stuff doesn't work 100%
+# So I generated beans locally, fixed them up, and have started to use them.
+generate_beans
 
 
 
-# build_code
-# publish_to_maven
-# update_release_yaml
+build_code
+publish_to_maven
+update_release_yaml
 
-# if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
-#     download_dependencies
-# fi
+if [[ -z ${SWAGGER_CODEGEN_CLI_JAR} ]]; then
+    download_dependencies
+fi
 
-# generate_rest_docs
+generate_rest_docs
 
-# if [[ "$detectsecrets" == "true" ]]; then
-#     $REPO_ROOT/tools/detect-secrets.sh 
-#     check_exit_code $? "Failed to detect secrets"
-# fi
+if [[ "$detectsecrets" == "true" ]]; then
+    $REPO_ROOT/tools/detect-secrets.sh 
+    check_exit_code $? "Failed to detect secrets"
+fi
 
 success "Project ${project} built - OK - log is at ${log_file}"
