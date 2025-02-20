@@ -5,11 +5,20 @@
  */
 package dev.galasa;
 
+import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
+
+/**
+ * A ProductVersion represents a {version}.{release}.{modification} level way of semantic numbering.
+ * where {version} {release} and {modification} are integers, joined with a period.
+ * 
+ * This class allows you to create versions which can then be compared.
+ * 
+ */
 public class ProductVersion implements Comparable<ProductVersion> {
 
     protected static final Pattern patternVersion = Pattern.compile("(\\d+)(\\.(\\d+)(\\.(\\d+))?)?");
@@ -18,28 +27,78 @@ public class ProductVersion implements Comparable<ProductVersion> {
     private final int release;
     private final int modification;
 
-    protected ProductVersion(int version, int release, int modification) {
+    /**
+     * @param version
+     * @param release
+     * @param modification
+     * @throws ManagerException When any of the numbers are negative.
+     */
+    public ProductVersion(int version, int release, int modification) throws ManagerException {
+        if (version < 0 || release < 0 || modification < 0 ) {
+            throw new ManagerException(
+                MessageFormat.format(
+                    "Invalid product version string '{0}.{1},{2}' - all parts must be non-negative integers.",
+                    Integer.toString(version), 
+                    Integer.toString(release), 
+                    Integer.toString(modification)
+                )
+            );
+        }
         this.version = version;
         this.release = release;
         this.modification = modification;
     }
 
-    protected ProductVersion(ProductVersion productVersion) {
+    public ProductVersion(ProductVersion productVersion) {
         this.version = productVersion.version;
         this.release = productVersion.release;
         this.modification = productVersion.modification;
     }
 
+
+    /**
+     * Note. Using this method is less efficient than using the class constructor.
+     * @param version A version number. Negative numbers are treated as 0.
+     * @return A ProductVersion which has the specified version, but the release and modification are zero.
+     */
     public static ProductVersion v(int version) {
-        return new ProductVersion(version, 0, 0);
+        ProductVersion result = null;
+        try {
+            result = new ProductVersion( Math.max(version,0), 0, 0);
+        } catch(ManagerException ex) {
+            // Ignored. Not possible.
+        }
+        return result ;
     }
 
+    /**
+     * Note. Using this method is less efficient than using the class constructor.
+     * @param version A version number. Negative numbers are treated as 0.
+     * @return A ProductVersion which has the the specified release
+     */
     public ProductVersion r(int release) {
-        return new ProductVersion(this.version, release, 0);
+        ProductVersion result = null;
+        try {
+            result = new ProductVersion( version, Math.max(release, 0), 0);
+        } catch(ManagerException ex) {
+            // Ignored. Not possible.
+        }
+        return result ;
     }
 
+    /**
+     * Note. Using this method is less efficient than using the class constructor.
+     * @param version A version number. Negative numbers are treated as 0.
+     * @return A ProductVersion which has the the specified modification level
+     */
     public ProductVersion m(int modification) {
-        return new ProductVersion(this.version, this.release, modification);
+        ProductVersion result = null;
+        try {
+            result =  new ProductVersion( version, release, Math.max(modification, 0));
+        } catch(ManagerException ex) {
+            // Ignored. Not possible.
+        }
+        return result ;    
     }
 
     @Override
@@ -61,6 +120,16 @@ public class ProductVersion implements Comparable<ProductVersion> {
         }
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + version ;
+        result = prime * result + release ;
+        result = prime * result + modification ;
+        return result;
     }
 
     @Override
@@ -92,21 +161,21 @@ public class ProductVersion implements Comparable<ProductVersion> {
             throw new ManagerException("Invalid product version string '" + versionString + "'");
         }
 
-        String v = matcherVersion.group(1);
-        String r = matcherVersion.group(3);
-        String m = matcherVersion.group(5);
+        int v = extractValue(matcherVersion,1);
+        int r = extractValue(matcherVersion,3);
+        int m = extractValue(matcherVersion,5);
 
-        ProductVersion pVersion = ProductVersion.v(Integer.parseInt(v));
-
-        if (r != null) {
-            pVersion = pVersion.r(Integer.parseInt(r));
-        }
-
-        if (m != null) {
-            pVersion = pVersion.m(Integer.parseInt(m));
-        }
-
+        ProductVersion pVersion = new ProductVersion(v, r, m);
         return pVersion;
+    }
+
+    private static int extractValue(Matcher  matcherVersion , int groupIndex) {
+        String partStr = matcherVersion.group(groupIndex);
+        int partValue = 0 ;
+        if (partStr != null) {
+            partValue = Integer.parseInt(partStr);
+        }
+        return partValue ;
     }
 
 }
