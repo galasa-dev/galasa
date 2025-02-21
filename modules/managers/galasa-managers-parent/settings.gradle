@@ -63,6 +63,9 @@ include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.resource.manager'
 include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.ceda.manager.ivt'
 include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.cemt.manager.ivt'
 include 'galasa-managers-cicsts-parent:dev.galasa.cicsts.ceci.manager.ivt'
+// galasa-managers-imstm-parent
+include 'galasa-managers-imstm-parent:dev.galasa.imstm.manager'
+include 'galasa-managers-imstm-parent:dev.galasa.imstm.manager.ivt'
 // galasa-managers-unix-parent
 include 'galasa-managers-unix-parent:dev.galasa.linux.manager'
 include 'galasa-managers-unix-parent:dev.galasa.linux.manager.ivt'

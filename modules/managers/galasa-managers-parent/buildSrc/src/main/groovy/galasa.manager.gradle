@@ -16,7 +16,7 @@ dependencies {
 
     testImplementation platform('dev.galasa:dev.galasa.platform:'+version)
     testImplementation 'junit:junit'
-    testImplementation 'org.mockito:mockito-core:4.6.1' // Platform has 3.1.0
+    testImplementation 'org.mockito:mockito-core:5.15.2' // Platform has 3.1.0
     testImplementation 'org.awaitility:awaitility'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'dev.galasa:galasa-testharness'

@@ -1,0 +1,6 @@
+-snapshot: ${tstamp}
+Bundle-Name: Galasa IMS/TM Manager
+Export-Package: dev.galasa.imstm,\
+    dev.galasa.imstm.spi
+Import-Package: !javax.validation.constraints, \
+                *

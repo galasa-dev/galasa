@@ -303,6 +303,24 @@ managers:
     isolated:     false
     codecoverage: false
 
+  - artifact: dev.galasa.imstm.manager
+    version: 0.40.0
+    obr:          true
+    mvp:          true
+    bom:          true
+    javadoc:      true
+    isolated:     true
+    codecoverage: true
+
+  - artifact: dev.galasa.imstm.manager.ivt
+    version: 0.40.0
+    obr:          true
+    mvp:          true
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: false
+
   - artifact: dev.galasa.java.manager
     version: 0.40.0
     obr:          true

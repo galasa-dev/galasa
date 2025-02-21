@@ -1,0 +1,27 @@
+plugins {
+    id 'galasa.manager'
+}
+
+description = 'Galasa IMS/TM Manager'
+
+version = '0.40.0'
+
+dependencies {
+    api            project (':galasa-managers-zos-parent:dev.galasa.zos.manager')
+    implementation project (':galasa-managers-zos-parent:dev.galasa.zos3270.manager')
+    
+}
+
+// Note: These values are consumed by the parent build process
+// They indicate which packages of functionality this OSGi bundle should be delivered inside,
+// or referenced from.
+// The settings here are gathered together by the build process to create a release.yaml file 
+// which gathers-up all the packaging metadata about all the OSGi bundles in this component.
+ext.projectName=project.name
+ext.includeInOBR          = true
+ext.includeInMVP          = true
+ext.includeInBOM          = true
+ext.includeInIsolated     = true
+ext.includeInCodeCoverage = true
+ext.includeInJavadoc      = true
+

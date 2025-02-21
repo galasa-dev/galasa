@@ -47,6 +47,13 @@ public interface IZosImage {
     String getVtamLogonString(String applid);
     
     /**
+     * Get the initial logon text for the zOS Image. 
+     * 
+     * @return The initial logon text
+     */
+    String getLogonInitialText();
+    
+    /**
      * Get the name of the Sysplex this Image belongs to
      * 
      * @return the sysplex id, if the sysplexid has not been defined, the imageid will be returned
