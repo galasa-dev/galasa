@@ -89,6 +89,8 @@ public class TestClassWrapper {
      */
     public void parseTestClass() throws TestRunException {
 
+        logger.debug("Parsing test class...");
+
         ArrayList<GenericMethodWrapper> temporaryBeforeMethods = new ArrayList<>();
         ArrayList<GenericMethodWrapper> temporaryAfterMethods = new ArrayList<>();
         ArrayList<Method> temporaryTestMethods = new ArrayList<>();
@@ -147,6 +149,8 @@ public class TestClassWrapper {
      * @throws TestRunException
      */
     public void instantiateTestClass() throws TestRunException {
+
+        logger.debug("Instantiating test class...");
         try {
             testClassObject = testClass.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | NullPointerException | 
@@ -355,6 +359,13 @@ public class TestClassWrapper {
     }
 
     protected void setResult(Result result) {
+        String from ;
+        if( this.result == null) {
+            from = "null";
+        } else {
+            from = this.result.getName();
+        }
+        logger.info("Result in test structure changed from "+from+" to "+result);
         this.result = result;
     }
 
