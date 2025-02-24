@@ -166,7 +166,7 @@ public class TestRunner extends BaseTestRunner {
                     break;
                     default:
                         // Logic error. 
-                        logger.error("Logic error. A RunType has been added for which the cleanup logic has not been impplemented!");
+                        logger.error("Logic error. A RunType has been added for which the cleanup logic has not been implemented!");
                         cleanupTestState(managers);
                 }
 
@@ -270,7 +270,7 @@ public class TestRunner extends BaseTestRunner {
         } catch (Exception e) {
             // Managers are custom code, may be prone to failure if they are immature...
             // so catch any exception and turn it into a TestRunException.
-            String msg = "Exception Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
+            String msg = "Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
             logger.error(msg);
             reportEnvFailFinishedResult(e);
             throw new TestRunException("Problem initialising the Managers for a test run", e);
