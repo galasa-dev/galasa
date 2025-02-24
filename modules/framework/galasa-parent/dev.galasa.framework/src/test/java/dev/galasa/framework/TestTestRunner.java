@@ -22,6 +22,7 @@ import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.mocks.*;
 import dev.galasa.framework.mocks.MockTestRunnerEventsProducer.ProducedEvent;
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class TestTestRunner {
@@ -372,12 +373,7 @@ public class TestTestRunner {
             annotationToReturn
         );
 
-        TestRunner runner = new TestRunner() {
-            @Override
-            protected ITestRunManagers initialiseManagers(Class<?> testClass , ITestRunnerDataProvider dataProvider) throws TestRunException {
-                throw new NullPointerException("Simulated failure");
-            }
-        };
+        TestRunner runner = new TestRunner() ;
 
         runner.mavenRepository = mockMavenRepo;
         runner.repositoryAdmin = mockRepoAdmin;
@@ -403,12 +399,37 @@ public class TestTestRunner {
             mockTestRunManagers,
             mockFileSystem,
             mockEventsPublisher
-        );
+        ) {
+
+            // *********** this is the 'spicey bit' for this test, where we simulate a failure.
+            @Override
+            public ITestRunManagers createTestRunManagers(GalasaTest galasaTest) throws TestRunException {
+                throw new NullPointerException("Simulating a bad failure in a custom manager");
+            }
+        };
 
         // When...
         TestRunException ex = catchThrowableOfType( ()->runner.runTest(testRunData), TestRunException.class);
 
         /// Then...
         assertThat(ex).isNotNull();      
+
+        // Check the RAS history
+        // We expect started->generating->building->provstart->running->rundone->ending->finished
+        List<TestStructure> rasHistory = ras.getTestStructureHistory();
+        assertThat(rasHistory).hasSize(3);
+
+        // initial setup.
+        assertThat(rasHistory.get(0)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun",null,null, null, "daffyduck", null,null);
+
+        // status = started
+        assertThat(rasHistory.get(1)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun",null,null, null, "daffyduck", "started",null);
+
+        // status = finished
+        assertThat(rasHistory.get(2)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
+            .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", "MyActualTestClass", "daffyduck", "finished","EnvFail");
+
     }
 }

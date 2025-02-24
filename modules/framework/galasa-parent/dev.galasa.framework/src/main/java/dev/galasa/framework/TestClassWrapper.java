@@ -78,6 +78,12 @@ public class TestClassWrapper {
         this.testClass = testClass;
         this.testStructure = testStructure;
 
+        // Fill-in as much of the test structure as we can at this point.
+        // If any failures occur after this, they will at least have the correct test name/bundle...etc attached.
+        this.testStructure.setBundle(testBundle);
+        this.testStructure.setTestName(testClass.getName());
+        this.testStructure.setTestShortName(testClass.getSimpleName());
+
         this.continueOnTestFailure = this.testRunner.getContinueOnTestFailureFromCPS();
     }
 
@@ -119,11 +125,9 @@ public class TestClassWrapper {
             .add(new TestMethodWrapper(method, this.testClass, temporaryBeforeMethods, temporaryAfterMethods));
         }
 
-        // *** Create the reporting Test Structure
 
-        this.testStructure.setBundle(testBundle);
-        this.testStructure.setTestName(testClass.getName());
-        this.testStructure.setTestShortName(testClass.getSimpleName());
+        // Populate more fields in the test structure, so reporting is better.
+
         ArrayList<TestMethod> structureMethods = new ArrayList<>();
         this.testStructure.setMethods(structureMethods);
 

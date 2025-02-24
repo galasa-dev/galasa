@@ -128,6 +128,10 @@ public class TestRunner extends BaseTestRunner {
 
             ITestRunManagers managers = null;
             try {
+                // Create the test wrapper as soon as we can, as it populates some data into the 
+                // test structure about the test being executed.
+                // Failures from this point have the name of the test class, bundle name...etc.
+                TestClassWrapper testClassWrapper = createTestClassWrapper(testBundleName, testClass, testStructure);
 
                 loadCoreManagerBundle();
 
@@ -138,7 +142,6 @@ public class TestRunner extends BaseTestRunner {
                     return ; 
                 }
                 
-                TestClassWrapper testClassWrapper = createTestClassWrapper(testBundleName, testClass, testStructure);
                 testClassWrapper.parseTestClass();
                 testClassWrapper.instantiateTestClass();
 
@@ -258,8 +261,7 @@ public class TestRunner extends BaseTestRunner {
         return isIgnore;
     }
 
-    /** Protected so we can unit test the calling code easier. */
-    protected ITestRunManagers initialiseManagers(Class<?> testClass , ITestRunnerDataProvider dataProvider) throws TestRunException {
+    private ITestRunManagers initialiseManagers(Class<?> testClass , ITestRunnerDataProvider dataProvider) throws TestRunException {
         // *** Initialise the Managers ready for the test run
         ITestRunManagers managers ;
         try {
