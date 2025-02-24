@@ -27,7 +27,6 @@ import dev.galasa.framework.internal.runner.RunTypeDetails;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
@@ -148,9 +147,12 @@ public class TestRunner extends BaseTestRunner {
             try {
                 GalasaTest galasaTest = new GalasaTest(testClass);
                 managers = dataProvider.createTestRunManagers(galasaTest);
-            } catch (TestRunException e) {
+            } catch (Exception e) {
+                // Managers are custom code, may be prone to failure if they are immature...
+                // so catch any exception and turn it into a TestRunException.
                 String msg = "Exception Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
                 logger.error(msg);
+                reportEnvFailFinishedResult(e);
                 throw new TestRunException("Problem initialising the Managers for a test run", e);
             }
 
@@ -163,9 +165,10 @@ public class TestRunner extends BaseTestRunner {
                     updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                     return; // TODO handle ignored classes
                 }
-            } catch (FrameworkException e) {
+            } catch (Exception e) {
                 String msg = "Problem asking Managers for an ignore reason";
-                logger.error(msg+" "+e.getMessage());
+                logger.error(msg);
+                reportEnvFailFinishedResult(e);
                 throw new TestRunException(msg, e);
             }
             logger.debug("Test class should not be ignored.");
@@ -173,11 +176,11 @@ public class TestRunner extends BaseTestRunner {
             
             TestClassWrapper testClassWrapper;
             try { 
-                
                 testClassWrapper = new TestClassWrapper(this, testBundleName, testClass, testStructure);
-            } catch(ConfigurationPropertyStoreException e) {
+            } catch(Exception e) {
                 String msg = "Problem with the CPS when adding a wrapper";
                 logger.error(msg+" "+e.getMessage());
+                reportEnvFailFinishedResult(e);
                 throw new TestRunException(msg,e);
             }
 
@@ -281,7 +284,15 @@ public class TestRunner extends BaseTestRunner {
         }
     }
 
-
+    private void reportEnvFailFinishedResult(Exception ex) {
+        try {
+            this.testStructure.setResult(Result.envfail(ex).getName());
+            updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+        } catch (Exception failureProcessingException) {
+            String msg2 = "Exception caught while dealing with manager failure. "+failureProcessingException.getMessage();
+            logger.error(msg2);
+        }
+    }
 
     private void generateEnvironment(TestClassWrapper testClassWrapper, ITestRunManagers managers, IDynamicStatusStoreService dss, String runName , boolean isRunOK) throws TestRunException {
         if(isRunOK){
