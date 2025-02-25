@@ -40,7 +40,7 @@ public class DefaultVersion extends CpsProperties {
     public static ProductVersion get() {
         String version = "";
         try {
-            version = getStringWithDefault(ImstmPropertiesSingleton.cps(), DEFAULT_VERSION.toString(), "default", "version");
+            version = getStringWithDefault(ImstmPropertiesSingleton.getCps(), DEFAULT_VERSION.toString(), "default", "version");
             return ProductVersion.parse(version);
         } catch (ImstmManagerException e) {
             logger.error("Problem accessing the CPS for the default IMS version, defaulting to " + DEFAULT_VERSION.toString());

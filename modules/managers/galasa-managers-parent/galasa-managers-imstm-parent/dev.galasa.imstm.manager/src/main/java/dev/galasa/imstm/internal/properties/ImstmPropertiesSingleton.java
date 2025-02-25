@@ -33,7 +33,7 @@ public class ImstmPropertiesSingleton {
         setInstance(null);
     }
     
-    public static IConfigurationPropertyStoreService cps() throws ImstmManagerException {
+    public static IConfigurationPropertyStoreService getCps() throws ImstmManagerException {
         if (singletonInstance == null) {
             throw new ImstmManagerException("Attempt to access manager CPS before it has been initialised");
         }

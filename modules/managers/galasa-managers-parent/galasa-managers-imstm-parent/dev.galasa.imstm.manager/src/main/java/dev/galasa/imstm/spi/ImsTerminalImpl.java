@@ -64,7 +64,7 @@ public class ImsTerminalImpl extends Zos3270TerminalImpl implements IImsTerminal
     }
 
     @Override
-    public boolean connectToImsSystem() throws ImstmManagerException {
+    public void connectToImsSystem() throws ImstmManagerException {
     	if (this.imstmManager.getLogonProviders().isEmpty()) {
     		throw new ImstmManagerException("Missing an IMS TM logon provider, none have been registered");
     	}
@@ -72,14 +72,14 @@ public class ImsTerminalImpl extends Zos3270TerminalImpl implements IImsTerminal
         try {
             for(IImsSystemLogonProvider logonProvider : this.imstmManager.getLogonProviders()) {
                 if (logonProvider.logonToImsSystem(this)) {
-                    return true;
+                    return;
                 }
             }
         } catch(Exception e) {
             throw new ImstmManagerException("Failed to connect terminal",e);
         }
 
-        return false;
+        throw new ImstmManagerException("Failed to connect terminal to IMS TM system");
     }
 
     @Override

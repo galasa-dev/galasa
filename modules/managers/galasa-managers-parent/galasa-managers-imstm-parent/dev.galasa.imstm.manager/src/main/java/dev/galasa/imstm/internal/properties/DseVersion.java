@@ -35,7 +35,7 @@ public class DseVersion extends CpsProperties {
     public static ProductVersion get(String tag) throws ImstmManagerException {
         String version = null;
         try {
-            version = getStringNulled(ImstmPropertiesSingleton.cps(), "dse.tag", "version", tag);
+            version = getStringNulled(ImstmPropertiesSingleton.getCps(), "dse.tag", "version", tag);
             if (version == null) {
                 return null;
             } else {

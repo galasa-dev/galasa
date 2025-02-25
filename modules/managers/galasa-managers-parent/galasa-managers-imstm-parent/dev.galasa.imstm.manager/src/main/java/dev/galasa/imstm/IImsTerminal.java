@@ -11,7 +11,7 @@ public interface IImsTerminal extends ITerminal {
 
     IImsSystem getImsSystem();
 
-    boolean connectToImsSystem() throws ImstmManagerException;
+    void connectToImsSystem() throws ImstmManagerException;
     
     IImsTerminal resetAndClear() throws ImstmManagerException;
 

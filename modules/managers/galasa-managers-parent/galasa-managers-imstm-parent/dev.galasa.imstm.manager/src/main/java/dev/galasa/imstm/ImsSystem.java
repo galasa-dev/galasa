@@ -31,12 +31,14 @@ import dev.galasa.zos.spi.ZosImageDependencyField;
 public @interface ImsSystem {
 
     /**
-     * The tag of the IMS system this variable is to be populated with
+     * The tag of the IMS system this variable is to be populated with.
+     * Default value is <b>PRIMARY</b>. 
      */
     String imsTag() default "PRIMARY";
     
     /**
-     * The tag of the zOS Image that this region will be provisioned on 
+     * The tag of the zOS Image that this region will be provisioned on.
+     * Default value is <b>PRIMARY</b>.
      */
     String imageTag() default "PRIMARY";
 }

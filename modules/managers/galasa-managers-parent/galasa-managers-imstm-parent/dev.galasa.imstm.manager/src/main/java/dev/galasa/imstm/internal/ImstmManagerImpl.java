@@ -336,9 +336,7 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
         for(ImsTerminalImpl terminal : terminals) {
             if (terminal.getImsSystem() == system) {
                 if (terminal.isConnectAtStartup()) {
-                    if (!terminal.connectToImsSystem()) {
-                        throw new ImstmManagerException("Failed to connect terminal to IMS TM system");
-                    }
+                    terminal.connectToImsSystem();
                 }
             }
         }

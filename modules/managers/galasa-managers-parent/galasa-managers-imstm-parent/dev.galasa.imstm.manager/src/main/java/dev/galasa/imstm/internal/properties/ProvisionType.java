@@ -11,6 +11,6 @@ import dev.galasa.framework.spi.cps.CpsProperties;
 public class ProvisionType extends CpsProperties {
 
     public static String get() throws ImstmManagerException {
-        return getStringWithDefault(ImstmPropertiesSingleton.cps(), "provisioned", "provision", "type").toUpperCase();
+        return getStringWithDefault(ImstmPropertiesSingleton.getCps(), "provisioned", "provision", "type").toUpperCase();
     }
 }

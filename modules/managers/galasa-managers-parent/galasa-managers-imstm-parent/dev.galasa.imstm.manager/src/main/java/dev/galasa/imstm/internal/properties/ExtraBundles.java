@@ -35,7 +35,7 @@ public class ExtraBundles extends CpsProperties {
 
     public static List<String> get() throws ImstmManagerException {
         try {
-            List<String> bundles = getStringList(ImstmPropertiesSingleton.cps(), "extra", "bundles");
+            List<String> bundles = getStringList(ImstmPropertiesSingleton.getCps(), "extra", "bundles");
 
             if (bundles.size() == 1) {
                 if (bundles.get(0).equalsIgnoreCase("none")) {
