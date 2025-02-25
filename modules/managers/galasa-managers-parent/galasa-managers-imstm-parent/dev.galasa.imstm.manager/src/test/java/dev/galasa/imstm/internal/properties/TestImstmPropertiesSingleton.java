@@ -31,7 +31,7 @@ public class TestImstmPropertiesSingleton {
     public void testCpsNotActivated() throws Exception {
         String expectedMessage = "Attempt to access manager CPS before it has been initialised";
         ImstmManagerException expectedException = Assert.assertThrows("expected exception should be thrown", ImstmManagerException.class, ()->{
-        	ImstmPropertiesSingleton.cps();
+        	ImstmPropertiesSingleton.getCps();
         });
     	Assert.assertEquals("Exception should contain expected message", expectedMessage, expectedException.getMessage());
     }
@@ -61,7 +61,7 @@ public class TestImstmPropertiesSingleton {
     public void testCpsActivatedNotSet() throws Exception {
         singleton.activate();
         try {
-            Assert.assertNull("No CPS expected", ImstmPropertiesSingleton.cps());
+            Assert.assertNull("No CPS expected", ImstmPropertiesSingleton.getCps());
         } catch (Exception e) {
             Assert.assertFalse("Exception is not expected", false);
         }
@@ -72,7 +72,7 @@ public class TestImstmPropertiesSingleton {
         singleton.activate();
         try {
             ImstmPropertiesSingleton.setCps(cps);
-            Assert.assertEquals("Unexpected CPS returned", cps, ImstmPropertiesSingleton.cps());
+            Assert.assertEquals("Unexpected CPS returned", cps, ImstmPropertiesSingleton.getCps());
         } catch (Exception e) {
             Assert.assertFalse("Exception is not expected", false);
         }
@@ -84,7 +84,7 @@ public class TestImstmPropertiesSingleton {
         singleton.deactivate();
         String expectedMessage = "Attempt to access manager CPS before it has been initialised";
         ImstmManagerException expectedException = Assert.assertThrows("expected exception should be thrown", ImstmManagerException.class, ()->{
-        	ImstmPropertiesSingleton.cps();
+        	ImstmPropertiesSingleton.getCps();
         });
     	Assert.assertEquals("Exception should contain expected message", expectedMessage, expectedException.getMessage());
     }
