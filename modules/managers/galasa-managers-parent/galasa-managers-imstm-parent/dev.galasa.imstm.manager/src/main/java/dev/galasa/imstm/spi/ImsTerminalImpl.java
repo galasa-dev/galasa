@@ -25,15 +25,15 @@ public class ImsTerminalImpl extends Zos3270TerminalImpl implements IImsTerminal
 
     private Log logger = LogFactory.getLog(getClass());
 
-    public final IImsSystemProvisioned imsSystem;
+    public final IImsSystem imsSystem;
     public final IImstmManagerSpi imstmManager;
 
     public final boolean connectAtStartup;
     public final String loginCredentialsTag;
 
-    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystemProvisioned imsSystem, String host, int port, boolean ssl, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag)
+    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystem imsSystem, String host, int port, boolean ssl, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag)
             throws TerminalInterruptedException, Zos3270ManagerException, ZosManagerException {
-        super(imsSystem.getNextTerminalId(), host, port, ssl, framework, false, imsSystem.getZosImage(), new TerminalSize(80, 24), new TerminalSize(0, 0), textScanner);
+        super(imstmManager.getNextTerminalId(imsSystem), host, port, ssl, framework, false, imsSystem.getZosImage(), new TerminalSize(80, 24), new TerminalSize(0, 0), textScanner);
 
         this.imsSystem = imsSystem;
         this.imstmManager = imstmManager;
@@ -43,17 +43,17 @@ public class ImsTerminalImpl extends Zos3270TerminalImpl implements IImsTerminal
         setAutoReconnect(connectAtStartup);
     }
 
-    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystemProvisioned imsSystem, IIpHost ipHost, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag)
+    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystem imsSystem, IIpHost ipHost, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag)
             throws TerminalInterruptedException, IpNetworkManagerException, Zos3270ManagerException, ZosManagerException {
         this(imstmManager, framework, imsSystem, ipHost.getHostname(), ipHost.getTelnetPort(), ipHost.isTelnetPortTls(), connectAtStartup, textScanner, loginCredentialsTag);
     }
 
-    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystemProvisioned imsSystem, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag) throws TerminalInterruptedException, IpNetworkManagerException,
+    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystem imsSystem, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag) throws TerminalInterruptedException, IpNetworkManagerException,
     Zos3270ManagerException, ZosManagerException {
         this(imstmManager, framework, imsSystem, imsSystem.getZosImage().getIpHost(), connectAtStartup, textScanner, loginCredentialsTag);
     }
 
-    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystemProvisioned imsSystem, boolean connectAtStartup, ITextScannerManagerSpi textScanner) throws TerminalInterruptedException, IpNetworkManagerException,
+    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystem imsSystem, boolean connectAtStartup, ITextScannerManagerSpi textScanner) throws TerminalInterruptedException, IpNetworkManagerException,
     Zos3270ManagerException, ZosManagerException {
         this(imstmManager, framework, imsSystem, imsSystem.getZosImage().getIpHost(), connectAtStartup, textScanner, "");
     }

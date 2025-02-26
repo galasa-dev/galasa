@@ -12,10 +12,11 @@ import javax.validation.constraints.NotNull;
 
 import dev.galasa.ManagerException;
 import dev.galasa.framework.spi.ResourceUnavailableException;
+import dev.galasa.imstm.IImsSystem;
 
 public interface IImsSystemProvisioner {
 
-    IImsSystemProvisioned provision(@NotNull String imsTag, @NotNull String imageTag, @NotNull List<Annotation> annotations) throws ManagerException;
+    IImsSystem provision(@NotNull String imsTag, @NotNull String imageTag, @NotNull List<Annotation> annotations) throws ManagerException;
 
     void imsProvisionGenerate() throws ManagerException, ResourceUnavailableException;
 

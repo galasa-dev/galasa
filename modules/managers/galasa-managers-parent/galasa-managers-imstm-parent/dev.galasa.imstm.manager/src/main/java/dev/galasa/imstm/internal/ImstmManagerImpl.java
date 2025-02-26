@@ -40,7 +40,6 @@ import dev.galasa.imstm.internal.properties.ExtraBundles;
 import dev.galasa.imstm.internal.properties.ImstmPropertiesSingleton;
 import dev.galasa.imstm.internal.properties.ProvisionType;
 import dev.galasa.imstm.spi.IImsSystemLogonProvider;
-import dev.galasa.imstm.spi.IImsSystemProvisioned;
 import dev.galasa.imstm.spi.IImsSystemProvisioner;
 import dev.galasa.imstm.spi.IImstmManagerSpi;
 import dev.galasa.imstm.spi.ImsTerminalImpl;
@@ -58,11 +57,12 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
     private IZosManagerSpi zosManager;
     private ITextScannerManagerSpi textScanner;
 
-    private final HashMap<String, IImsSystemProvisioned> provisionedImsSystems = new HashMap<>();
+    private final HashMap<String, IImsSystem> provisionedImsSystems = new HashMap<>();
 
     private final ArrayList<IImsSystemProvisioner> provisioners = new ArrayList<>();
     private final ArrayList<ImsTerminalImpl> terminals = new ArrayList<>();
     private final ArrayList<IImsSystemLogonProvider> logonProviders = new ArrayList<>();
+    private final Map<IImsSystem, Integer> lastTerminalId = new HashMap<IImsSystem, Integer>(); 
 
     private String provisionType;  // Obtained from the imstm.provision.type CPS property
     
@@ -163,13 +163,13 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
         String tag = defaultString(annotationIms.imsTag(), "PRIMARY").toUpperCase();
 
         // Have we already got it
-        IImsSystemProvisioned system = this.provisionedImsSystems.get(tag);
+        IImsSystem system = this.provisionedImsSystems.get(tag);
         if (system != null) {
             return system;
         }
 
         for (IImsSystemProvisioner provisioner : provisioners) {
-            IImsSystemProvisioned newSystem = provisioner.provision(tag, annotationIms.imageTag(), annotations);
+            IImsSystem newSystem = provisioner.provision(tag, annotationIms.imageTag(), annotations);
             if (newSystem != null) {
                 this.provisionedImsSystems.put(tag, newSystem);
                 return newSystem;
@@ -186,7 +186,7 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
         String tag = defaultString(annotation.imsTag(), "PRIMARY").toUpperCase();
         String loginCredentialsTag = defaultString(annotation.loginCredentialsTag(), "").toUpperCase();
         
-        IImsSystemProvisioned system = this.provisionedImsSystems.get(tag);
+        IImsSystem system = this.provisionedImsSystems.get(tag);
         if (system == null) {
             throw new ImstmManagerException("Unable to setup IMS Terminal for field '" + field.getName() + "', for system with tag '"
             + tag + "' as a system with a matching 'imsTag' tag was not found, or the system was not provisioned.");
@@ -205,7 +205,7 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
     
     @Override
     public IImsTerminal generateImsTerminal(String tag) throws ImstmManagerException{
-    	IImsSystemProvisioned system = this.provisionedImsSystems.get(tag);
+    	IImsSystem system = this.provisionedImsSystems.get(tag);
         if (system == null) {
             throw new ImstmManagerException("Unable to setup IMS Terminal for tag " + tag + ", no system was provisioned");
         }
@@ -222,7 +222,7 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
     
     @Override
     public IImsSystem locateImsSystem(String tag) throws ImstmManagerException {
-    	IImsSystemProvisioned system = this.provisionedImsSystems.get(tag);
+    	IImsSystem system = this.provisionedImsSystems.get(tag);
         if (system == null) {
             throw new ImstmManagerException("Unable to locate IMS System for tag " + tag);
         }
@@ -343,9 +343,9 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
     }
 
 	@Override
-	public Map<String, IImsSystemProvisioned> getTaggedImsSystems() {
-		HashMap<String, IImsSystemProvisioned> clonedTaggedImsSystems = new HashMap<>();
-		for(Map.Entry<String, IImsSystemProvisioned> entry : this.provisionedImsSystems.entrySet()) {
+	public Map<String, IImsSystem> getTaggedImsSystems() {
+		HashMap<String, IImsSystem> clonedTaggedImsSystems = new HashMap<String, IImsSystem>();
+		for(Map.Entry<String, IImsSystem> entry : this.provisionedImsSystems.entrySet()) {
 			clonedTaggedImsSystems.put(entry.getKey(), entry.getValue());
 		}		
 		return clonedTaggedImsSystems;
@@ -355,4 +355,18 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
 	public List<IImsTerminal> getImsTerminals() {	
 		return new ArrayList<>(this.terminals);
 	}
+
+    @Override
+    public String getNextTerminalId(IImsSystem imsSystem) {
+        Integer lastTerminalIdInteger = lastTerminalId.get(imsSystem);
+        int lastTerminalIdInt;
+        if (lastTerminalIdInteger == null) {
+            lastTerminalIdInt = 1;
+        } else {
+            lastTerminalIdInt = lastTerminalIdInteger.intValue() + 1;
+        }
+
+        lastTerminalId.put(imsSystem, Integer.valueOf(lastTerminalIdInt));
+        return imsSystem.getApplid() + "_" + Integer.toString(lastTerminalIdInt);
+    }
 }

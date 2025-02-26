@@ -24,6 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import dev.galasa.ManagerException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStore;
+import dev.galasa.imstm.IImsSystem;
 import dev.galasa.imstm.IImsTerminal;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.internal.ImstmManagerImpl;
@@ -46,7 +47,7 @@ public class TestImsTerminalImpl {
 
     @Mock private ImstmManagerImpl imsManager;
     @Mock private IFramework framework;
-    @Mock private IImsSystemProvisioned system;
+    @Mock private IImsSystem system;
     @Mock private ITextScannerManagerSpi textScanManager;
     @Mock private IZosImage zosImage;
     @Mock private IResultArchiveStore ras;
@@ -63,7 +64,6 @@ public class TestImsTerminalImpl {
 
     @Before
     public void setup() throws Exception {
-        Mockito.when(system.getNextTerminalId()).thenReturn(TERMID);
         Mockito.when(system.getZosImage()).thenReturn(zosImage);
         Mockito.when(framework.getResultArchiveStore()).thenReturn(ras);
         Mockito.when(ras.getStoredArtifactsRoot()).thenReturn(FileSystems.getDefault().getPath("testdir"));   
@@ -73,6 +73,7 @@ public class TestImsTerminalImpl {
         Mockito.when(zosImage.getIpHost()).thenReturn(ipHost);
         logonProviders = new ArrayList<IImsSystemLogonProvider>();
         logonProviders.add(logonProvider);
+        Mockito.when(imsManager.getNextTerminalId(system)).thenReturn(TERMID);
         Mockito.when(imsManager.getLogonProviders()).thenReturn(logonProviders);
     }
 

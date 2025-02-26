@@ -33,9 +33,11 @@ public interface IImstmManagerSpi {
 
 	public IImsTerminal generateImsTerminal(String tag) throws ImstmManagerException;
 	
-	public Map<String, IImsSystemProvisioned> getTaggedImsSystems();
+	public Map<String, IImsSystem> getTaggedImsSystems();
 
 	public IImsSystem locateImsSystem(String tag) throws ImstmManagerException;
 
 	public List<IImsTerminal> getImsTerminals();
+
+    public String getNextTerminalId(IImsSystem imsSystem);
 }

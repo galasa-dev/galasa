@@ -32,7 +32,6 @@ import dev.galasa.imstm.internal.properties.ExtraBundles;
 import dev.galasa.imstm.internal.properties.ImstmPropertiesSingleton;
 import dev.galasa.imstm.internal.properties.ProvisionType;
 import dev.galasa.imstm.spi.IImsSystemLogonProvider;
-import dev.galasa.imstm.spi.IImsSystemProvisioned;
 import dev.galasa.imstm.spi.IImsSystemProvisioner;
 import dev.galasa.imstm.spi.IImstmManagerSpi;
 import dev.galasa.imstm.spi.ImsTerminalImpl;
@@ -109,11 +108,12 @@ public class TestImstmManagerImpl {
     @Mock
     private IConfigurationPropertyStoreService cpss;
     @Mock
-    private IImsSystemProvisioned system;
+    private IImsSystem system;
     
     private MockImstmManagerImpl imsTmManager;
     private List<IManager> activeManagers, allManagers;
 
+    private static String APPLID = "APPLID01";
     private static String BUNDLE = "test.bundle";
     private static String TEST_IMS_TAG = "SYS01";
     private static String TEST_IMAGE_TAG = "MVS1";
@@ -128,6 +128,7 @@ public class TestImstmManagerImpl {
         allManagers = new ArrayList<IManager>();
         Mockito.when(galasaTest.isJava()).thenReturn(true);
         Mockito.doReturn(ValidTest.class).when(galasaTest).getJavaTestClass();
+        Mockito.when(system.getApplid()).thenReturn(APPLID);
     }
 
     @Test
@@ -291,7 +292,7 @@ public class TestImstmManagerImpl {
                     List<?> arguments = context.arguments();
                     Assert.assertEquals("Wrong IMS TM Manager passed to terminal constructor", imsTmManager, (IImstmManagerSpi) arguments.get(0));
                     Assert.assertEquals("Wrong Framework passed to terminal constructor", framework, (IFramework) arguments.get(1));
-                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystemProvisioned) arguments.get(2));
+                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", false, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                     Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
@@ -304,7 +305,7 @@ public class TestImstmManagerImpl {
             Mockito.verify(provisioner).provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations);
 
             // Verify generated system
-            Map<String, IImsSystemProvisioned> systems = imsTmManager.getTaggedImsSystems();
+            Map<String, IImsSystem> systems = imsTmManager.getTaggedImsSystems();
             Assert.assertEquals("Wrong number of IMS systems provisioned", 1, systems.size());
             Assert.assertTrue("Wrong system provisioned", systems.containsValue(system));
 
@@ -336,7 +337,7 @@ public class TestImstmManagerImpl {
                     List<?> arguments = context.arguments();
                     Assert.assertEquals("Wrong IMS TM Manager passed to terminal constructor", imsTmManager, (IImstmManagerSpi) arguments.get(0));
                     Assert.assertEquals("Wrong Framework passed to terminal constructor", framework, (IFramework) arguments.get(1));
-                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystemProvisioned) arguments.get(2));
+                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", true, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                     Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", DEFAULT_CREDENTIALS, (String) arguments.get(5));
@@ -349,7 +350,7 @@ public class TestImstmManagerImpl {
             Mockito.verify(provisioner).provision(DEFAULT_TAG, DEFAULT_TAG, annotations);
 
             // Verify generated system
-            Map<String, IImsSystemProvisioned> systems = imsTmManager.getTaggedImsSystems();
+            Map<String, IImsSystem> systems = imsTmManager.getTaggedImsSystems();
             Assert.assertEquals("Wrong number of IMS systems provisioned", 1, systems.size());
             Assert.assertTrue("Wrong system provisioned", systems.containsValue(system));
 
@@ -385,7 +386,7 @@ public class TestImstmManagerImpl {
             Mockito.verify(provisioner).provision(DEFAULT_TAG, DEFAULT_TAG, annotations);
 
             // Verify generated system
-            Map<String, IImsSystemProvisioned> systems = imsTmManager.getTaggedImsSystems();
+            Map<String, IImsSystem> systems = imsTmManager.getTaggedImsSystems();
             Assert.assertEquals("Wrong number of IMS systems provisioned", 1, systems.size());
             Assert.assertTrue("Wrong system provisioned", systems.containsValue(system));
 
@@ -438,7 +439,7 @@ public class TestImstmManagerImpl {
                     List<?> arguments = context.arguments();
                     Assert.assertEquals("Wrong IMS TM Manager passed to terminal constructor", imsTmManager, (IImstmManagerSpi) arguments.get(0));
                     Assert.assertEquals("Wrong Framework passed to terminal constructor", framework, (IFramework) arguments.get(1));
-                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystemProvisioned) arguments.get(2));
+                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", false, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                     Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
@@ -453,7 +454,7 @@ public class TestImstmManagerImpl {
             Mockito.verifyNoMoreInteractions(provisioner); 
 
             // Verify generated system
-            Map<String, IImsSystemProvisioned> systems = imsTmManager.getTaggedImsSystems();
+            Map<String, IImsSystem> systems = imsTmManager.getTaggedImsSystems();
             Assert.assertEquals("Wrong number of IMS systems provisioned", 1, systems.size());
             Assert.assertTrue("Wrong system provisioned", systems.containsValue(system));
 
@@ -509,7 +510,7 @@ public class TestImstmManagerImpl {
             Mockito.verify(provisioner).provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations);
 
             // Verify generated system
-            Map<String, IImsSystemProvisioned> systems = imsTmManager.getTaggedImsSystems();
+            Map<String, IImsSystem> systems = imsTmManager.getTaggedImsSystems();
             Assert.assertEquals("Wrong number of IMS systems provisioned", 1, systems.size());
             Assert.assertTrue("Wrong system provisioned", systems.containsValue(system));
         }
@@ -532,7 +533,7 @@ public class TestImstmManagerImpl {
             Mockito.verify(provisioner).provision(DEFAULT_TAG, DEFAULT_TAG, annotations);
 
             // Verify generated system
-            Map<String, IImsSystemProvisioned> systems = imsTmManager.getTaggedImsSystems();
+            Map<String, IImsSystem> systems = imsTmManager.getTaggedImsSystems();
             Assert.assertEquals("Wrong number of IMS systems provisioned", 1, systems.size());
             Assert.assertTrue("Wrong system provisioned", systems.containsValue(system));
         }
@@ -557,7 +558,7 @@ public class TestImstmManagerImpl {
             Mockito.verifyNoMoreInteractions(provisioner); 
 
             // Verify generated system
-            Map<String, IImsSystemProvisioned> systems = imsTmManager.getTaggedImsSystems();
+            Map<String, IImsSystem> systems = imsTmManager.getTaggedImsSystems();
             Assert.assertEquals("Wrong number of IMS systems provisioned", 1, systems.size());
             Assert.assertTrue("Wrong system provisioned", systems.containsValue(system));
         }
@@ -594,7 +595,7 @@ public class TestImstmManagerImpl {
                     List<?> arguments = context.arguments();
                     Assert.assertEquals("Wrong IMS TM Manager passed to terminal constructor", imsTmManager, (IImstmManagerSpi) arguments.get(0));
                     Assert.assertEquals("Wrong Framework passed to terminal constructor", framework, (IFramework) arguments.get(1));
-                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystemProvisioned) arguments.get(2));
+                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", false, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                     Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
@@ -627,7 +628,7 @@ public class TestImstmManagerImpl {
                     List<?> arguments = context.arguments();
                     Assert.assertEquals("Wrong IMS TM Manager passed to terminal constructor", imsTmManager, (IImstmManagerSpi) arguments.get(0));
                     Assert.assertEquals("Wrong Framework passed to terminal constructor", framework, (IFramework) arguments.get(1));
-                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystemProvisioned) arguments.get(2));
+                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", true, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                     Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", DEFAULT_CREDENTIALS, (String) arguments.get(5));
@@ -680,7 +681,7 @@ public class TestImstmManagerImpl {
                     Assert.assertEquals("Wrong number of arguments", 5, arguments.size());
                     Assert.assertEquals("Wrong IMS TM Manager passed to terminal constructor", imsTmManager, (IImstmManagerSpi) arguments.get(0));
                     Assert.assertEquals("Wrong Framework passed to terminal constructor", framework, (IFramework) arguments.get(1));
-                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystemProvisioned) arguments.get(2));
+                    Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", true, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                 })) {
@@ -1168,6 +1169,12 @@ public class TestImstmManagerImpl {
             Mockito.verify(terminal).getImsSystem();
             Mockito.verifyNoMoreInteractions(terminal);
         }
+    }
+
+    @Test
+    public void testGetNextTerminalId() {
+        Assert.assertEquals("Wrong terminal id returned by getNextTerminalId()", APPLID + "_1", imsTmManager.getNextTerminalId(system));
+        Assert.assertEquals("Wrong terminal id returned by getNextTerminalId()", APPLID + "_2", imsTmManager.getNextTerminalId(system));
     }
 
     private List<Annotation> getSystemAnnotations(Class<?> testClass) throws NoSuchFieldException, SecurityException {

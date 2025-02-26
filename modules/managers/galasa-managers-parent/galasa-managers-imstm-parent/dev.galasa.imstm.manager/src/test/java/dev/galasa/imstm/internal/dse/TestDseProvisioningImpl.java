@@ -20,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.internal.ImstmManagerImpl;
 import dev.galasa.imstm.internal.properties.DseApplid;
-import dev.galasa.imstm.spi.IImsSystemProvisioned;
+import dev.galasa.imstm.IImsSystem;
 import dev.galasa.zos.ZosManagerException;
 import dev.galasa.zos.IZosImage;
 import dev.galasa.zos.spi.IZosManagerSpi;
@@ -91,7 +91,7 @@ public class TestDseProvisioningImpl {
 
                 Mockito.when(dseIms.getZosImage()).thenReturn(zosImage);
             })) {
-                IImsSystemProvisioned ims = dpi.provision(TAG, TAG2, null);
+                IImsSystem ims = dpi.provision(TAG, TAG2, null);
                 Assert.assertEquals("Wrong IMS system returned", mc.constructed().get(0), ims);
             }
         }
@@ -111,7 +111,7 @@ public class TestDseProvisioningImpl {
 
                 Mockito.when(dseIms.getZosImage()).thenReturn(zosImage);
             })) {
-                IImsSystemProvisioned ims = dpi.provision(TAG, TAG2, null);
+                IImsSystem ims = dpi.provision(TAG, TAG2, null);
                 Assert.assertEquals("Wrong IMS system returned", mc.constructed().get(0), ims);
             }
         }

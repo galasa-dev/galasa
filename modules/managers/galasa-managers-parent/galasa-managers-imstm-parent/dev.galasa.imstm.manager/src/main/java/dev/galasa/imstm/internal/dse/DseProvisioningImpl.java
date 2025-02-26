@@ -19,7 +19,7 @@ import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.internal.ImstmManagerImpl;
 import dev.galasa.imstm.internal.properties.DseApplid;
-import dev.galasa.imstm.spi.IImsSystemProvisioned;
+import dev.galasa.imstm.IImsSystem;
 import dev.galasa.imstm.spi.IImsSystemProvisioner;
 import dev.galasa.zos.IZosImage;
 import dev.galasa.zos.ZosManagerException;
@@ -51,7 +51,7 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
 
 
     @Override
-    public IImsSystemProvisioned provision(@NotNull String imsTag, @NotNull String imageTag,
+    public IImsSystem provision(@NotNull String imsTag, @NotNull String imageTag,
             @NotNull List<Annotation> annotations) throws ManagerException {
         if (!this.isEnabled) {
             return null;

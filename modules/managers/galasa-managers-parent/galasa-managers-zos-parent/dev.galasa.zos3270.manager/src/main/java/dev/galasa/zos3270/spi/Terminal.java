@@ -139,6 +139,7 @@ public class Terminal implements ITerminal {
             try {
                 networkThread.join();
             } catch (InterruptedException e) {
+                logger.warn("Interrupted while waiting for network thread to end. Network thread might still be active.");
                 throw new TerminalInterruptedException("Join of the network thread was interrupted",e);
             }
             networkThread = null;

@@ -5,20 +5,47 @@
  */
 package dev.galasa.imstm.internal.dse;
 
+import dev.galasa.imstm.IImsSystem;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.internal.ImstmManagerImpl;
 import dev.galasa.imstm.internal.properties.DseVersion;
-import dev.galasa.imstm.spi.BaseImsImpl;
+import dev.galasa.imstm.spi.IImstmManagerSpi;
 import dev.galasa.ProductVersion;
 import dev.galasa.zos.IZosImage;
 
-public class DseImsImpl extends BaseImsImpl {
+public class DseImsImpl implements IImsSystem {
 
     private ProductVersion version;
+    protected final IImstmManagerSpi imstmManager;
+    private final String imsTag;
+    private final String applid;
+    private final IZosImage zosImage;
 
-    public DseImsImpl(ImstmManagerImpl imstmManager, String imsTag, IZosImage image, String applid)
-            throws ImstmManagerException {
-        super(imstmManager, imsTag, image, applid);
+    public DseImsImpl(ImstmManagerImpl imstmManager, String imsTag, IZosImage image, String applid) {
+        this.imstmManager = imstmManager;
+        this.imsTag = imsTag;
+        this.applid = applid;
+        this.zosImage = image;
+    }
+
+    @Override
+    public String getTag() {
+        return this.imsTag;
+    }
+
+    @Override
+    public String getApplid() {
+        return this.applid;
+    }
+
+    @Override
+    public IZosImage getZosImage() {
+        return this.zosImage;
+    }
+
+    @Override
+    public String toString() {
+        return "IMS System[" + this.applid + "]";
     }
 
     @Override
@@ -44,15 +71,5 @@ public class DseImsImpl extends BaseImsImpl {
     @Override
     public void shutdown() throws ImstmManagerException {
         throw new ImstmManagerException("Unable to shutdown DSE IMS TM systems");
-    }
-
-    @Override
-    public void submitRuntimeJcl() throws ImstmManagerException {
-        throw new ImstmManagerException("Unable to submit DSE IMS TM systems");
-    }
-
-    @Override
-    public boolean isSystemStarted() throws ImstmManagerException {
-        throw new ImstmManagerException("Unable to check DSE IMS TM systems has started");
     }
 }
