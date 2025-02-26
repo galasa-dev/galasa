@@ -7,6 +7,7 @@ package dev.galasa.docker.internal.properties;
 
 import dev.galasa.docker.DockerManagerException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.cps.CpsProperties;
 
 /**
@@ -38,10 +39,11 @@ public class DockerRegistryBusyboxImage extends CpsProperties {
 
     public static String get(String[] dockerRegistries) throws DockerManagerException {
 		String busyboxImage = "";
+        IConfigurationPropertyStoreService cps = DockerPropertiesSingleton.cps();
 		if (dockerRegistries.length > 0) {
 			for (String dockerRegistry : dockerRegistries) {
 				try {
-					busyboxImage = getStringNulled(DockerPropertiesSingleton.cps(), "registry", "busybox.image", dockerRegistry);
+					busyboxImage = getStringNulled(cps, "registry", "busybox.image", dockerRegistry);
 				} catch (ConfigurationPropertyStoreException e) {
 					throw new DockerManagerException("Problem asking the CPS for the Busybox image name on registry ID: "  + dockerRegistry, e);
 				}
@@ -50,7 +52,7 @@ public class DockerRegistryBusyboxImage extends CpsProperties {
 				}
 			}
 		}
-		if (busyboxImage == null || busyboxImage.equals("")) {
+		if (busyboxImage == null || busyboxImage.isBlank()) {
 			busyboxImage = "library/busybox:latest";
 		}
 		return busyboxImage;
