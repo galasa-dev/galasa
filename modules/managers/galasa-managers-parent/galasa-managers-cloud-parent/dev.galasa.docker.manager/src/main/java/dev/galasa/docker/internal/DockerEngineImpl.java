@@ -31,6 +31,8 @@ import dev.galasa.docker.internal.properties.DockerDSEEngine;
 import dev.galasa.docker.internal.properties.DockerEngine;
 import dev.galasa.docker.internal.properties.DockerEnginePort;
 import dev.galasa.docker.internal.properties.DockerEngines;
+import dev.galasa.docker.internal.properties.DockerRegistry;
+import dev.galasa.docker.internal.properties.DockerRegistryBusyboxImage;
 import dev.galasa.docker.internal.properties.DockerSlots;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -381,7 +383,9 @@ public class DockerEngineImpl implements IDockerEngine {
 	}
 	
 	public String getBusybox() throws DockerManagerException {
-		DockerImageImpl image = new DockerImageImpl(framework, dockerManager, this, "library/busybox:latest");
+		String[] dockerRegistries = DockerRegistry.get();
+		String busyboxImageName = DockerRegistryBusyboxImage.get(dockerRegistries);
+		DockerImageImpl image = new DockerImageImpl(framework, dockerManager, this, busyboxImageName);
 		image.locateImage();
 		return image.getFullName();
 	}

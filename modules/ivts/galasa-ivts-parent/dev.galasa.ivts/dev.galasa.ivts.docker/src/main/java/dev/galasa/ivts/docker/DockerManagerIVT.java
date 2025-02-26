@@ -66,13 +66,13 @@ public class DockerManagerIVT {
     @Logger
     public Log logger;
 
-    @DockerContainer(image = "library/httpd:latest", dockerContainerTag = "a", start = false)
+    @DockerContainer(image = "galasa-dev/httpd:2.4.59", dockerContainerTag = "a", start = false)
     public IDockerContainer container;
 
-    @DockerContainer(image = "library/httpd:latest", dockerContainerTag = "b", start = false)
+    @DockerContainer(image = "galasa-dev/httpd:2.4.59", dockerContainerTag = "b", start = false)
     public IDockerContainer containerSecondry;
-    
-    @DockerContainer(image = "library/httpd:latest", dockerContainerTag = "AUTOSTART", start = true)
+
+    @DockerContainer(image = "galasa-dev/httpd:2.4.59", dockerContainerTag = "AUTOSTART", start = true)
     public IDockerContainer containerAutoStart;
 
     @DockerContainerConfig
