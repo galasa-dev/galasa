@@ -20,6 +20,9 @@ import java.util.concurrent.ExecutionException;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import dev.galasa.framework.spi.DssAdd;
 import dev.galasa.framework.spi.DssDelete;
 import dev.galasa.framework.spi.DssDeletePrefix;
@@ -68,6 +71,7 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
     private final KV                                kvClient;
     private final Watch                             watchClient;
     private final Lease                             leaseClient;
+    private Log logger = LogFactory.getLog(Etcd3DynamicStatusStore.class);
 
     private final HashMap<UUID, PassthroughWatcher> watchers = new HashMap<>();
 
@@ -300,6 +304,8 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
      */
     @Override
     public @NotNull Map<String, String> getPrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
+
+        logger.debug("Etcd extension getting property with a prefix of "+keyPrefix);
         ByteSequence bsPrefix = ByteSequence.from(keyPrefix, UTF_8);
 
         ByteSequence prefixEnd = OptionsUtil.prefixEndOf(bsPrefix);
