@@ -202,7 +202,9 @@ public class ResourceManagement implements IResourceManagement {
 
             // *** Start the providers
             for (IResourceManagementProvider provider : resourceManagementProviders) {
+                logger.debug("starting provider "+provider.getClass().getCanonicalName());
                 provider.start();
+                logger.debug("started provider "+provider.getClass().getCanonicalName());
             }
 
             // *** Start the Run watch thread
@@ -244,6 +246,7 @@ public class ResourceManagement implements IResourceManagement {
             for (IResourceManagementProvider provider : resourceManagementProviders) {
                 logger.info("Requesting Resource Management Provider " + provider.getClass().getName() + " shutdown");
                 provider.shutdown();
+                logger.debug("Resource Management Provider " + provider.getClass().getName() + " shutdown OK");
             }
 
             // *** Stop the metics server
@@ -285,7 +288,9 @@ public class ResourceManagement implements IResourceManagement {
 
     public void runFinishedOrDeleted(String runName) {
         for (IResourceManagementProvider provider : resourceManagementProviders) {
+            logger.debug("About to call runFinishedOrDeleted() for provider "+provider.getClass().getCanonicalName());
             provider.runFinishedOrDeleted(runName);
+            logger.debug("Returned from call runFinishedOrDeleted() for provider "+provider.getClass().getCanonicalName());
         }
     }
 
