@@ -2,10 +2,9 @@ ARG dockerRepository
 ARG tag
 ARG jdkImage
 
-FROM --platform=${BUILDPLATFORM:-linux/amd64} ${jdkImage}
+FROM ${jdkImage}
 
 # Pre-defined arguments that Docker makes available for multi-platform builds
-ARG BUILDPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 
