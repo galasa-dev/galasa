@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.ProductVersion;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.IImsSystem;
 import dev.galasa.imstm.IImsTerminal;
@@ -25,10 +24,6 @@ public interface IImstmManagerSpi {
     @NotNull
     String getProvisionType();
 
-    @NotNull
-    ProductVersion getDefaultVersion();
-    
-    
     public void imstmSystemStarted(IImsSystem region) throws ImstmManagerException;
 
 	public IImsTerminal generateImsTerminal(String tag) throws ImstmManagerException;

@@ -18,7 +18,7 @@ import dev.galasa.ManagerException;
 import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.internal.ImstmManagerImpl;
-import dev.galasa.imstm.internal.properties.DseApplid;
+import dev.galasa.imstm.internal.ImstmProperties;
 import dev.galasa.imstm.IImsSystem;
 import dev.galasa.imstm.spi.IImsSystemProvisioner;
 import dev.galasa.zos.IZosImage;
@@ -28,11 +28,13 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
     private static final Log logger = LogFactory.getLog(DseProvisioningImpl.class);
 
     private final ImstmManagerImpl imstmManager;
+    private final ImstmProperties properties;
 
     private final boolean isEnabled;
 
-    public DseProvisioningImpl(ImstmManagerImpl imstmManager) {
+    public DseProvisioningImpl(ImstmManagerImpl imstmManager, ImstmProperties properties) {
         this.imstmManager = imstmManager;
+        this.properties = properties;
 
         String provisionType = this.imstmManager.getProvisionType();
         switch (provisionType) {
@@ -57,7 +59,7 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
             return null;
         }
         
-        String applid = DseApplid.get(imsTag);
+        String applid = properties.getDseApplid(imsTag);
         if (applid == null) {
             logger.warn("Unable to get APPLID for IMS system tagged " + imsTag);
             return null;
@@ -71,7 +73,7 @@ public class DseProvisioningImpl implements IImsSystemProvisioner {
         }
 
 
-        DseImsImpl imsSystem = new DseImsImpl(this.imstmManager, imsTag, zosImage, applid);
+        DseImsImpl imsSystem = new DseImsImpl(this.imstmManager, properties, imsTag, zosImage, applid);
 
         logger.info(MessageFormat.format("Provisioned DSE {0} on zOS Image {1} for tag ''{2}''", 
                                             imsSystem.toString(), 

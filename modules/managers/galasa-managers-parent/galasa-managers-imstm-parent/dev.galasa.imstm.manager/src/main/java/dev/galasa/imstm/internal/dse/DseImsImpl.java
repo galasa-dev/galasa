@@ -8,7 +8,7 @@ package dev.galasa.imstm.internal.dse;
 import dev.galasa.imstm.IImsSystem;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.internal.ImstmManagerImpl;
-import dev.galasa.imstm.internal.properties.DseVersion;
+import dev.galasa.imstm.internal.ImstmProperties;
 import dev.galasa.imstm.spi.IImstmManagerSpi;
 import dev.galasa.ProductVersion;
 import dev.galasa.zos.IZosImage;
@@ -17,12 +17,14 @@ public class DseImsImpl implements IImsSystem {
 
     private ProductVersion version;
     protected final IImstmManagerSpi imstmManager;
+    private final ImstmProperties properties;
     private final String imsTag;
     private final String applid;
     private final IZosImage zosImage;
 
-    public DseImsImpl(ImstmManagerImpl imstmManager, String imsTag, IZosImage image, String applid) {
+    public DseImsImpl(ImstmManagerImpl imstmManager, ImstmProperties properties, String imsTag, IZosImage image, String applid) {
         this.imstmManager = imstmManager;
+        this.properties = properties;
         this.imsTag = imsTag;
         this.applid = applid;
         this.zosImage = image;
@@ -51,7 +53,7 @@ public class DseImsImpl implements IImsSystem {
     @Override
     public ProductVersion getVersion() throws ImstmManagerException {
         if (this.version == null) {
-            this.version = DseVersion.get(this.getTag());
+            this.version = properties.getDseVersion(this.getTag());
         }
 
         return this.version;

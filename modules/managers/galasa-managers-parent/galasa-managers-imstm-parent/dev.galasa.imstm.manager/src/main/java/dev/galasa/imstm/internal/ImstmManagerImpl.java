@@ -8,6 +8,7 @@ package dev.galasa.imstm.internal;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.ManagerException;
-import dev.galasa.ProductVersion;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.AnnotatedField;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -35,10 +35,6 @@ import dev.galasa.imstm.ImsTerminal;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.ImstmManagerField;
 import dev.galasa.imstm.internal.dse.DseProvisioningImpl;
-import dev.galasa.imstm.internal.properties.DefaultVersion;
-import dev.galasa.imstm.internal.properties.ExtraBundles;
-import dev.galasa.imstm.internal.properties.ImstmPropertiesSingleton;
-import dev.galasa.imstm.internal.properties.ProvisionType;
 import dev.galasa.imstm.spi.IImsSystemLogonProvider;
 import dev.galasa.imstm.spi.IImsSystemProvisioner;
 import dev.galasa.imstm.spi.IImstmManagerSpi;
@@ -53,6 +49,7 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
 
     private static final Log logger = LogFactory.getLog(ImstmManagerImpl.class);
     private boolean isManagerRequired = false;
+    private ImstmProperties properties; 
 
     private IZosManagerSpi zosManager;
     private ITextScannerManagerSpi textScanner;
@@ -101,19 +98,19 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
             throw new ImstmManagerException("The Text Scanner Manager is not available");
         }
 
-        this.provisionType = ProvisionType.get();
-        this.provisioners.add(new DseProvisioningImpl(this));
+        this.provisionType = properties.getProvisionType();
+        this.provisioners.add(new DseProvisioningImpl(this, properties));
     }
 
     @Override
     public List<String> extraBundles(@NotNull IFramework framework) throws ManagerException {
         try {
-            ImstmPropertiesSingleton.setCps(framework.getConfigurationPropertyService(NAMESPACE));
+            properties = new ImstmProperties(framework);
         } catch (ConfigurationPropertyStoreException e) {
             throw new ImstmManagerException("Unable to request framework services", e);
         }
 
-        return ExtraBundles.get();
+        return Collections.emptyList();
     }
 
     @Override
@@ -320,11 +317,6 @@ public class ImstmManagerImpl extends AbstractManager implements IImstmManagerSp
     @NotNull
     public List<IImsSystemLogonProvider> getLogonProviders() {
         return new ArrayList<>(this.logonProviders);
-    }
-
-    @Override
-    public @NotNull ProductVersion getDefaultVersion() {
-        return DefaultVersion.get();
     }
 
 	@Override
