@@ -60,13 +60,17 @@ public class CicstsDefaultLogonProvider implements ICicsRegionLogonProvider {
             // Ensure we can type something first
             cicsTerminal.waitForKeyboard();
 
-            // Check we are at the right screen
-            if (initialText != null) {
-                checkForInitialText(cicsTerminal);
-            }
-
             ICicsRegion region = cicsTerminal.getCicsRegion();
-            cicsTerminal.type(region.getZosImage().getVtamLogonString(region.getApplid())).enter().wfk();
+            IZosImage zosImage = region.getZosImage();
+
+            // Check we are at the right screen
+            String logonInitialText = initialText;
+            if (logonInitialText == null) {
+                logonInitialText = zosImage.getLogonInitialText();
+            }
+            checkForInitialText(cicsTerminal, logonInitialText);
+
+            cicsTerminal.type(zosImage.getVtamLogonString(region.getApplid())).enter().wfk();
 
             waitForGmText(cicsTerminal);
 
@@ -106,12 +110,14 @@ public class CicstsDefaultLogonProvider implements ICicsRegionLogonProvider {
         return true;
     }
 
-    private void checkForInitialText(ICicsTerminal cicsTerminal) throws CicstsManagerException {
+    private void checkForInitialText(ICicsTerminal cicsTerminal, String logonInitialText) throws CicstsManagerException {
         try {
-            cicsTerminal.waitForTextInField(initialText);
+            if (logonInitialText != null) {
+                cicsTerminal.waitForTextInField(logonInitialText);
+            }
         } catch (Exception e) {
             throw new CicstsManagerException(
-                    "Unable to logon to CICS, initial screen does not contain '" + initialText + "'");
+                    "Unable to logon to CICS, initial screen does not contain '" + logonInitialText + "'");
         }
     }
 
