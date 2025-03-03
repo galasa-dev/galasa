@@ -105,7 +105,7 @@ public class GherkinTestRunner extends BaseTestRunner {
             try {
                 managers = dataProvider.createTestRunManagers(new GalasaTest(gherkinTest));
             } catch (TestRunException e) {
-                String msg = "Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
+                String msg = "Exception Exception caught. "+e.getMessage()+" Shutting down and Re-throwing.";
                 logger.error(msg);
                 throw new TestRunException("Problem initialising the Managers for a test run", e);
             }

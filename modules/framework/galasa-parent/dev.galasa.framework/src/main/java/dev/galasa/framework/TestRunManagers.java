@@ -68,6 +68,7 @@ public class TestRunManagers implements ITestRunManagers {
 
         logger.debug("The following Managers are sorted in provisioning order:-");
         reportManagers(false);
+
     }
 
     /**
@@ -159,7 +160,7 @@ public class TestRunManagers implements ITestRunManagers {
         for (IManager manager : allManagers) {
             try {
                 manager.initialise(framework, allManagers, activeManagers, galasaTest);
-            } catch (Exception e) {
+            } catch (ManagerException e) {
                 throw new FrameworkException("Unable to initialise Manager " + manager.getClass().getName(), e);
             }
         }

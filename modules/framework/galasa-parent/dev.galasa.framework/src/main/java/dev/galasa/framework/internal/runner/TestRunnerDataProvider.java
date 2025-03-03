@@ -99,8 +99,8 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
         ITestRunManagers managers ;
         try {
             managers = new TestRunManagers(this.framework, galasaTest);
-        } catch (Exception e) {
-            String msg = "Exception caught. "+e.getMessage();
+        } catch (FrameworkException e) {
+            String msg = "FrameworkException Exception caught. "+e.getMessage();
             throw new TestRunException(msg,e);
         }
         return managers;

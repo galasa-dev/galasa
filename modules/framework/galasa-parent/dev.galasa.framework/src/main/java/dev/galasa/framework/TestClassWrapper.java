@@ -78,12 +78,6 @@ public class TestClassWrapper {
         this.testClass = testClass;
         this.testStructure = testStructure;
 
-        // Fill-in as much of the test structure as we can at this point.
-        // If any failures occur after this, they will at least have the correct test name/bundle...etc attached.
-        this.testStructure.setBundle(testBundle);
-        this.testStructure.setTestName(testClass.getName());
-        this.testStructure.setTestShortName(testClass.getSimpleName());
-
         this.continueOnTestFailure = this.testRunner.getContinueOnTestFailureFromCPS();
     }
 
@@ -94,8 +88,6 @@ public class TestClassWrapper {
      * @throws TestRunException
      */
     public void parseTestClass() throws TestRunException {
-
-        logger.debug("Parsing test class...");
 
         ArrayList<GenericMethodWrapper> temporaryBeforeMethods = new ArrayList<>();
         ArrayList<GenericMethodWrapper> temporaryAfterMethods = new ArrayList<>();
@@ -125,9 +117,11 @@ public class TestClassWrapper {
             .add(new TestMethodWrapper(method, this.testClass, temporaryBeforeMethods, temporaryAfterMethods));
         }
 
+        // *** Create the reporting Test Structure
 
-        // Populate more fields in the test structure, so reporting is better.
-
+        this.testStructure.setBundle(testBundle);
+        this.testStructure.setTestName(testClass.getName());
+        this.testStructure.setTestShortName(testClass.getSimpleName());
         ArrayList<TestMethod> structureMethods = new ArrayList<>();
         this.testStructure.setMethods(structureMethods);
 
@@ -153,8 +147,6 @@ public class TestClassWrapper {
      * @throws TestRunException
      */
     public void instantiateTestClass() throws TestRunException {
-
-        logger.debug("Instantiating test class...");
         try {
             testClassObject = testClass.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | NullPointerException | 
@@ -363,13 +355,6 @@ public class TestClassWrapper {
     }
 
     protected void setResult(Result result) {
-        String from ;
-        if( this.result == null) {
-            from = "null";
-        } else {
-            from = this.result.getName();
-        }
-        logger.info("Result in test structure changed from "+from+" to "+result);
         this.result = result;
     }
 
