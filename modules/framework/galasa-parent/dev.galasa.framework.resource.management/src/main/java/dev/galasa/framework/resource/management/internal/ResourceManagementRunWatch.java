@@ -20,6 +20,8 @@ import dev.galasa.framework.spi.IFramework;
 
 public class ResourceManagementRunWatch  {
 
+    private static final int RESOURCE_MANAGEMENT_RUN_WATCH_POLL_INTERVAL_SECONDS = 5;
+
     private final Log logger = LogFactory.getLog(this.getClass());
     private DssEventWatcher watcher;
 
@@ -35,7 +37,7 @@ public class ResourceManagementRunWatch  {
     
         scheduledExecutorService.scheduleWithFixedDelay(processor, 
 				framework.getRandom().nextInt(20),
-				5, 
+				RESOURCE_MANAGEMENT_RUN_WATCH_POLL_INTERVAL_SECONDS,
 				TimeUnit.SECONDS);
 
         IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
