@@ -81,7 +81,7 @@ public class ResourceManagementRunWatch  {
             logger.debug("getting dss event from queue.");
             DssEvent event = null ;
             synchronized(queue) {
-                event = queue.remove();
+                event = queue.poll();
             }
             logger.debug("returning "+event.toString());
             return event;
@@ -158,11 +158,16 @@ public class ResourceManagementRunWatch  {
      * This watcher must not block for long, as it needs to get execution back to etcd.
      */
     class DSSWatcher implements IDynamicStatusStoreWatcher {
+        // \Q is the start of a literal string
+        // \E is the end of a literal string
+        // So it matches something like this:
+        // run.U4657.status
+        // TODO: Needs unit tests.
+        // Why are the '.' characters not escaped in this, as '.' has special meaning in a regex. ?
         private final Pattern runTestPattern = Pattern.compile("^\\Qrun.\\E(\\w+)\\Q.status\\E$");
         private final DssEventQueue eventQueue ;
         private UUID watchID;
         private final IDynamicStatusStoreService dss;
-
 
         public DSSWatcher(DssEventQueue eventQueue, IDynamicStatusStoreService dss) {
             this.eventQueue = eventQueue;
