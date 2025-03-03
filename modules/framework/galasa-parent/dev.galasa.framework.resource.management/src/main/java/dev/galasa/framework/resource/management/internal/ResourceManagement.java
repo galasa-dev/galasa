@@ -208,7 +208,7 @@ public class ResourceManagement implements IResourceManagement {
             }
 
             // *** Start the Run watch thread
-            ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, this);
+            ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, resourceManagementProviders, scheduledExecutorService);
 
             logger.info("Resource Manager has started");
 
@@ -284,14 +284,6 @@ public class ResourceManagement implements IResourceManagement {
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
-    }
-
-    public void runFinishedOrDeleted(String runName) {
-        for (IResourceManagementProvider provider : resourceManagementProviders) {
-            logger.debug("About to call runFinishedOrDeleted() for provider "+provider.getClass().getCanonicalName());
-            provider.runFinishedOrDeleted(runName);
-            logger.debug("Returned from call runFinishedOrDeleted() for provider "+provider.getClass().getCanonicalName());
-        }
     }
 
     @Override

@@ -5,9 +5,11 @@
  */
 package dev.galasa.framework.resource.management.internal;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +23,7 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher.Event;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IResourceManagementProvider;
 
 public class ResourceManagementRunWatch  {
 
@@ -65,44 +68,7 @@ public class ResourceManagementRunWatch  {
         public String getOldValue() {
             return this.oldValue;
         }
-    }
-
-    /**
-     * A queue of dss events to be processed.
-     * 
-     * Calls to this queue do not block for long.
-     */
-    class DssEventQueue {
-
-        Queue<DssEvent> queue = new LinkedList<DssEvent>();
-
-        public DssEvent get() {
-            
-            logger.debug("DssEventQueue: getting dss event from queue.");
-            DssEvent event = null ;
-            synchronized(queue) {
-                event = queue.poll();
-            }
-            if (event == null) {
-                logger.debug("DssEventQueue: get(): No events to process.");
-            } else {
-                logger.debug("DssEventQueue: get(): returning "+event.toString());
-            }
-            return event;
-        }
-        
-        public void add(DssEvent newDssEvent) {
-            synchronized(queue) {
-                queue.add(newDssEvent);
-            }
-            if (newDssEvent == null) {
-                logger.debug("DssEventQueue: add(): No events to process.");
-            } else {
-                logger.debug("DssEventQueue: add(): adding event "+newDssEvent.toString());
-            }
-        }
-    }
-                
+    }           
 
     /**
      * A runnable thread which processes events coming out of DSS.
@@ -113,12 +79,12 @@ public class ResourceManagementRunWatch  {
      */
     class WatchEventProcessor implements Runnable {
 
-        private final DssEventQueue queue ;
-        private final ResourceManagement resourceManagement;
+        private final BlockingQueue<DssEvent> queue;
+        private final ArrayList<IResourceManagementProvider> resourceManagementProviders ;
 
-        public WatchEventProcessor( DssEventQueue queue , ResourceManagement resourceManagement) {
-            this.queue = queue ;
-            this.resourceManagement = resourceManagement;
+        public WatchEventProcessor(BlockingQueue<DssEvent> queue, ArrayList<IResourceManagementProvider> resourceManagementProviders) {
+            this.queue = queue;
+            this.resourceManagementProviders = resourceManagementProviders ;
         }
 
         /**
@@ -128,34 +94,45 @@ public class ResourceManagementRunWatch  {
         @Override
         public void run() {
 
-            boolean isDone = false ;
+            try {
+                boolean isDone = false;
 
-            while(!isDone) {
+                while(!isDone) {
 
-                DssEvent dssEvent = queue.get();
-                if (dssEvent == null) {
-                    isDone = true ;
-                } else {
+                    // queue.take() blocks momentarily.
+                    DssEvent dssEvent = queue.take();
+                    if (dssEvent == null) {
+                        isDone = true;
+                    } else {
 
-                    Event event = dssEvent.getEventType();
-                    String runName = dssEvent.getRunName();
-                    String newValue = dssEvent.getNewValue();
+                        Event event = dssEvent.getEventType();
+                        String runName = dssEvent.getRunName();
+                        String newValue = dssEvent.getNewValue();
 
-                    if (event == Event.DELETE) {
-                        logger.debug("Detected deleted run " + runName);
-                        this.resourceManagement.runFinishedOrDeleted(runName);
-                        return;
-                    }
-            
-                    if ("Finished".equals(newValue)) {
-                        logger.debug("Detected finished run " + runName);
-                        this.resourceManagement.runFinishedOrDeleted(runName);
-                        return;
+                        if (event == Event.DELETE) {
+                            logger.debug("Detected deleted run " + runName);
+                            this.runFinishedOrDeleted(runName, this.resourceManagementProviders);
+                        } else {
+                
+                            if ("Finished".equals(newValue)) {
+                                logger.debug("Detected finished run " + runName);
+                                this.runFinishedOrDeleted(runName, this.resourceManagementProviders);
+                            }
+                        }
                     }
                 }
+            } catch( Exception ex ) {
+                logger.warn("Exception caught and ignored in WatchEventProcessor: "+ex);
             }
         }
 
+        private void runFinishedOrDeleted(String runName, ArrayList<IResourceManagementProvider> resourceManagementProviders) {
+            for (IResourceManagementProvider provider : resourceManagementProviders) {
+                logger.debug("About to call runFinishedOrDeleted() for provider "+provider.getClass().getCanonicalName());
+                provider.runFinishedOrDeleted(runName);
+                logger.debug("Returned from call runFinishedOrDeleted() for provider "+provider.getClass().getCanonicalName());
+            }
+        }
     }
 
 
@@ -174,11 +151,11 @@ public class ResourceManagementRunWatch  {
         // TODO: Needs unit tests.
         // Why are the '.' characters not escaped in this, as '.' has special meaning in a regex. ?
         private final Pattern runTestPattern = Pattern.compile("^\\Qrun.\\E(\\w+)\\Q.status\\E$");
-        private final DssEventQueue eventQueue ;
+        private final BlockingQueue<DssEvent> eventQueue ;
         private UUID watchID;
         private final IDynamicStatusStoreService dss;
 
-        public DSSWatcher(DssEventQueue eventQueue, IDynamicStatusStoreService dss) {
+        public DSSWatcher(BlockingQueue<DssEvent> eventQueue, IDynamicStatusStoreService dss) {
             this.eventQueue = eventQueue;
             this.dss = dss;
         }
@@ -205,20 +182,23 @@ public class ResourceManagementRunWatch  {
     
             String runName = matcher.group(1);
 
-            DssEvent dssEvent = new DssEvent(event, runName, newValue, oldValue);
+            DssEvent dssEvent = new DssEvent(event, runName, oldValue, newValue);
     
             eventQueue.add(dssEvent);
         }
     }
 
-    protected ResourceManagementRunWatch(IFramework framework, ResourceManagement resourceManagement)
-            throws FrameworkException {
+    protected ResourceManagementRunWatch(
+        IFramework framework,
+        ArrayList<IResourceManagementProvider> resourceManagementProviders,
+        ScheduledExecutorService scheduledExecutorService
+    ) throws FrameworkException {
 
         logger.debug("ResourceManagementRunWatch: entered.");
-        DssEventQueue eventQueue = new DssEventQueue();
-        WatchEventProcessor processor = new WatchEventProcessor(eventQueue, resourceManagement);
+        BlockingQueue<DssEvent> eventQueue = new LinkedBlockingQueue<DssEvent>();
+        WatchEventProcessor processor = new WatchEventProcessor(eventQueue, resourceManagementProviders);
     
-        resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(processor, 
+        scheduledExecutorService.scheduleWithFixedDelay(processor, 
 				framework.getRandom().nextInt(20),
 				10, 
 				TimeUnit.SECONDS);
