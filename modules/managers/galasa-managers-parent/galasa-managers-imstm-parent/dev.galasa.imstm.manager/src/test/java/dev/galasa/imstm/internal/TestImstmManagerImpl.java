@@ -55,7 +55,7 @@ public class TestImstmManagerImpl {
 
     private class ValidDefaultTest {
 
-        @ImsTerminal
+        @ImsTerminal(loginCredentialsTag = "CRED01")
         public IImsTerminal terminal;
 
         @ImsSystem
@@ -75,7 +75,7 @@ public class TestImstmManagerImpl {
 
     private class BadDummyTest {
 
-        @ImsTerminal(imsTag = "TERM01")
+        @ImsTerminal(imsTag = "TERM01", loginCredentialsTag = "CRED01")
         public IImsTerminal terminal;
 
         @ImsSystem(imsTag = "SYS01")
@@ -112,7 +112,6 @@ public class TestImstmManagerImpl {
     private static String TEST_IMAGE_TAG = "MVS1";
     private static String DEFAULT_TAG = "PRIMARY";
     private static String TEST_CREDENTIALS = "CRED01";
-    private static String DEFAULT_CREDENTIALS = "";
 
     @Before
     public void setup() throws Exception{
@@ -340,7 +339,7 @@ public class TestImstmManagerImpl {
                     Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", true, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
-                    Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", DEFAULT_CREDENTIALS, (String) arguments.get(5));
+                    Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
                 })) {
             imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
@@ -651,7 +650,7 @@ public class TestImstmManagerImpl {
                     Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", true, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
-                    Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", DEFAULT_CREDENTIALS, (String) arguments.get(5));
+                    Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
                 })) {
             imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
