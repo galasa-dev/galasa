@@ -9,7 +9,8 @@ Import-Package: \
     dev.galasa.framework.spi,\
     dev.galasa.framework.spi.creds,\
     javax.net.ssl,\
-    javax.security.cert
+    javax.security.cert,\
+    org.apache.commons.logging
 Embed-Transitive: true
 Embed-Dependency: *;scope=compile|runtime
 -includeresource: \

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -19,7 +18,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import dev.galasa.ProductVersion;
 import dev.galasa.imstm.internal.ImstmManagerImpl;
-import dev.galasa.imstm.internal.properties.ImstmPropertiesSingleton;
 import dev.galasa.framework.spi.IManager;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.testharness.TestHarnessFramework;
@@ -34,8 +32,6 @@ public class TestGoldenPath {
 
     private SampleGalasaTst testClass;
     
-    private static ImstmPropertiesSingleton imsProperties;
-
     @Mock
     private IZosManagerInt zosManager;
     @Mock
@@ -44,16 +40,9 @@ public class TestGoldenPath {
     @Mock
     private IZosImage zosImage;
 
-    @BeforeClass
-    public static void beforeClass() {
-        imsProperties = new ImstmPropertiesSingleton();
-        imsProperties.activate();
-    }
-
     @Before
     public void before() throws Exception {
         this.framework = new TestHarnessFramework();
-
         testClass = new SampleGalasaTst();
     }
 

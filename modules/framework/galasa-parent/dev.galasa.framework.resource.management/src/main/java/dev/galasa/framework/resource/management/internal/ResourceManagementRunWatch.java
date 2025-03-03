@@ -5,9 +5,11 @@
  */
 package dev.galasa.framework.resource.management.internal;
 
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,62 +17,45 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IResourceManagementProvider;
 
-public class ResourceManagementRunWatch implements IDynamicStatusStoreWatcher {
+public class ResourceManagementRunWatch  {
 
-    private final Log                        logger         = LogFactory.getLog(this.getClass());
+    private final Log logger = LogFactory.getLog(this.getClass());
+    private DssEventWatcher watcher;
 
-    private final Pattern                    runTestPattern = Pattern.compile("^\\Qrun.\\E(\\w+)\\Q.status\\E$");
+    protected ResourceManagementRunWatch(
+        IFramework framework,
+        List<IResourceManagementProvider> resourceManagementProviders,
+        ScheduledExecutorService scheduledExecutorService
+    ) throws FrameworkException {
 
-    private final IFramework                 framework;
-    private final ResourceManagement         resourceManagement;
-    private final IDynamicStatusStoreService dssFramework;
-    private final UUID                       watchID;
+        logger.debug("ResourceManagementRunWatch: entered.");
+        BlockingQueue<DssEvent> eventQueue = new LinkedBlockingQueue<DssEvent>();
+        DssWatchEventProcessor processor = new DssWatchEventProcessor(eventQueue, resourceManagementProviders);
+    
+        scheduledExecutorService.scheduleWithFixedDelay(processor, 
+				framework.getRandom().nextInt(20),
+				5, 
+				TimeUnit.SECONDS);
 
-    protected ResourceManagementRunWatch(IFramework framework, ResourceManagement resourceManagement)
-            throws FrameworkException {
-        this.framework = framework;
-        this.resourceManagement = resourceManagement;
-        this.dssFramework = this.framework.getDynamicStatusStoreService("framework");
+        IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
 
-        this.watchID = this.dssFramework.watchPrefix(this, "run");
-        this.dssFramework.watch(this, "mike");
+        DssEventWatcher watcher = new DssEventWatcher(eventQueue, dss);
+        
+        watcher.startWatching();
+        logger.debug("ResourceManagementRunWatch: exiting.");
     }
 
-    @Override
-    public void propertyModified(String key, Event event, String oldValue, String newValue) {
-
-        if (event == null || key == null) {
-            return;
-        }
-
-        Matcher matcher = runTestPattern.matcher(key);
-        if (!matcher.find()) {
-            return;
-        }
-
-        String runName = matcher.group(1);
-
-        if (event == Event.DELETE) {
-            logger.debug("Detected deleted run " + runName);
-            this.resourceManagement.runFinishedOrDeleted(runName);
-            return;
-        }
-
-        if ("Finished".equals(newValue)) {
-            logger.debug("Detected finished run " + runName);
-            this.resourceManagement.runFinishedOrDeleted(runName);
-            return;
-        }
-    }
 
     public void shutdown() {
+        logger.debug("ResourceManagementRunWatch: shutdown() entered.");
         try {
-            this.dssFramework.unwatch(watchID);
+            this.watcher.stopWatching();
         } catch (DynamicStatusStoreException e) {
         }
+        logger.debug("ResourceManagementRunWatch: shutdown() exiting.");
     }
 
 }

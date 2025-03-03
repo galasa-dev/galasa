@@ -105,11 +105,8 @@ public class ResourceManagement implements IResourceManagement {
             int healthPort = getHealthPort(cps);
  
 
-
-            // *** Setup scheduler
             scheduledExecutorService = new ScheduledThreadPoolExecutor(numberOfRunThreads);
 
-            // *** Start the metrics server
             this.metricsServer = startMetricsServer(metricsPort);
 
             // *** Create metrics
@@ -121,19 +118,14 @@ public class ResourceManagement implements IResourceManagement {
 
             this.healthServer = createHealthServer(healthPort);
 
-            // *** Locate all the Resource Management providers in the framework
-
-
             this.resourceManagementProviders = initialiseResourceManagementProviders(framework, cps, bundleContext);
 
             startProviders(this.resourceManagementProviders);
 
             // *** Start the Run watch thread
-            ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, this);
+            ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, resourceManagementProviders, scheduledExecutorService);
 
             logger.info("Resource Manager has started");
-
-        
 
             // *** Loop until we are asked to shutdown
             long heartbeatExpire = 0;
@@ -160,7 +152,6 @@ public class ResourceManagement implements IResourceManagement {
                 logger.error("Unable to shutdown the scheduler");
             }
 
-            // *** Ask the run watch to terminate
             runWatch.shutdown();
 
             shutdownProviders(resourceManagementProviders);
@@ -344,12 +335,6 @@ public class ResourceManagement implements IResourceManagement {
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
-    }
-
-    public void runFinishedOrDeleted(String runName) {
-        for (IResourceManagementProvider provider : resourceManagementProviders) {
-            provider.runFinishedOrDeleted(runName);
-        }
     }
 
     @Override

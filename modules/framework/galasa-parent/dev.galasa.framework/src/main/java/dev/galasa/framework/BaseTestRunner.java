@@ -83,7 +83,6 @@ public class BaseTestRunner {
     }
 
     protected void shutdownFramework(IShuttableFramework framework) {
-        logger.debug("Cleaning up framework...");
         try {
             framework.shutdown();
         } catch(Exception e) {
@@ -203,7 +202,6 @@ public class BaseTestRunner {
 
     protected void writeTestStructure() {
         try {
-            logger.debug("Writing test structure to RAS. status: "+testStructure.getStatus()+" result:"+testStructure.getResult());
             this.ras.updateTestStructure(testStructure);
         } catch (ResultArchiveStoreException e) {
             logger.warn("Unable to write the test structure to the RAS", e);
@@ -313,7 +311,6 @@ public class BaseTestRunner {
     }
 
     protected void updateStatus(TestRunLifecycleStatus status, String dssTimePropSuffix) throws TestRunException {
-        
         Instant time = Instant.now();
 
         this.testStructure.setStatus(status.toString());

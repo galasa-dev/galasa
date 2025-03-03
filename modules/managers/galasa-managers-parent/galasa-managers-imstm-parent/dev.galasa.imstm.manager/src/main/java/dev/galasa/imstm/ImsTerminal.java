@@ -38,7 +38,7 @@ public @interface ImsTerminal {
     /**
      * The IMS TM Manager will automatically log into the IMS TM region using the terminal with 
      * the specified secure credentials when it connects.
-     * Default value is an empty string.
+     * This field is mandatory.
      */
-    String loginCredentialsTag() default "";
+    String loginCredentialsTag();
 }

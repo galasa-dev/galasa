@@ -4,6 +4,10 @@ ARG jdkImage
 
 FROM ${jdkImage}
 
+# Pre-defined arguments that Docker makes available for multi-platform builds
+ARG TARGETOS
+ARG TARGETARCH
+
 RUN touch /var/run/docker.sock && \
     chmod 666 /var/run/docker.sock
 
@@ -11,7 +15,8 @@ RUN mkdir /galasa
 RUN useradd --home-dir /galasa galasa       && \
     chown -R galasa:galasa /galasa
 
-COPY obr-generic/kubectl /usr/bin/kubectl
+RUN curl -L https://dl.k8s.io/release/v1.22.0/bin/${TARGETOS}/${TARGETARCH}/kubectl -o /usr/bin/kubectl && \
+    chmod +x /usr/bin/kubectl
 
 WORKDIR /galasa
 
@@ -30,7 +35,7 @@ RUN mkdir /galasa/.galasa                          && \
     mkdir /galasa/load
 
 
-COPY obr-generic/trace-log4j.properties /galasa/
+COPY dockerfiles/trace-log4j.properties /galasa/
 
 VOLUME /galasa/.galasa
 VOLUME /galasa/load

@@ -1,8 +1,7 @@
 ARG dockerRepository
 ARG tag
-ARG platform
 
-FROM ${dockerRepository}/galasa-dev/galasa-boot-embedded-${platform}:${tag}
+FROM ${dockerRepository}/galasa-dev/galasa-boot-embedded:${tag}
 
 USER root
 

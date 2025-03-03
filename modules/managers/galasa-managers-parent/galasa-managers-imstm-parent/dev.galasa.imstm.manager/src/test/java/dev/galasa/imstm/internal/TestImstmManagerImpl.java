@@ -18,7 +18,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -27,10 +26,6 @@ import dev.galasa.imstm.ImsTerminal;
 import dev.galasa.imstm.ImstmManagerException;
 import dev.galasa.imstm.internal.dse.DseImsImpl;
 import dev.galasa.imstm.internal.dse.DseProvisioningImpl;
-import dev.galasa.imstm.internal.properties.DefaultVersion;
-import dev.galasa.imstm.internal.properties.ExtraBundles;
-import dev.galasa.imstm.internal.properties.ImstmPropertiesSingleton;
-import dev.galasa.imstm.internal.properties.ProvisionType;
 import dev.galasa.imstm.spi.IImsSystemLogonProvider;
 import dev.galasa.imstm.spi.IImsSystemProvisioner;
 import dev.galasa.imstm.spi.IImstmManagerSpi;
@@ -42,7 +37,6 @@ import dev.galasa.zos3270.TerminalInterruptedException;
 import dev.galasa.imstm.IImsSystem;
 import dev.galasa.imstm.IImsTerminal;
 import dev.galasa.ManagerException;
-import dev.galasa.ProductVersion;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -61,7 +55,7 @@ public class TestImstmManagerImpl {
 
     private class ValidDefaultTest {
 
-        @ImsTerminal
+        @ImsTerminal(loginCredentialsTag = "CRED01")
         public IImsTerminal terminal;
 
         @ImsSystem
@@ -81,7 +75,7 @@ public class TestImstmManagerImpl {
 
     private class BadDummyTest {
 
-        @ImsTerminal(imsTag = "TERM01")
+        @ImsTerminal(imsTag = "TERM01", loginCredentialsTag = "CRED01")
         public IImsTerminal terminal;
 
         @ImsSystem(imsTag = "SYS01")
@@ -114,12 +108,10 @@ public class TestImstmManagerImpl {
     private List<IManager> activeManagers, allManagers;
 
     private static String APPLID = "APPLID01";
-    private static String BUNDLE = "test.bundle";
     private static String TEST_IMS_TAG = "SYS01";
     private static String TEST_IMAGE_TAG = "MVS1";
     private static String DEFAULT_TAG = "PRIMARY";
     private static String TEST_CREDENTIALS = "CRED01";
-    private static String DEFAULT_CREDENTIALS = "";
 
     @Before
     public void setup() throws Exception{
@@ -168,10 +160,12 @@ public class TestImstmManagerImpl {
     public void testInitialise() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
-        MockedConstruction<DseProvisioningImpl> provisioner = Mockito.mockConstruction(DseProvisioningImpl.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
-            imsTmManager.initialise(null, allManagers, activeManagers, galasaTest);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+            Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
+                MockedConstruction<DseProvisioningImpl> provisioner = Mockito.mockConstruction(DseProvisioningImpl.class)) {
+            imsTmManager.extraBundles(framework);
+            imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             Assert.assertEquals("Unexpected number of provisioners created", 1, provisioner.constructed().size());
             Assert.assertTrue("Wrong type of provisioner created", provisioner.constructed().get(0) instanceof DseProvisioningImpl);
         }
@@ -212,9 +206,11 @@ public class TestImstmManagerImpl {
     public void testYouAreRequired() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
-        MockedConstruction<DseProvisioningImpl> provisioner = Mockito.mockConstruction(DseProvisioningImpl.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+            Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
+                MockedConstruction<DseProvisioningImpl> provisioner = Mockito.mockConstruction(DseProvisioningImpl.class)) {
+            imsTmManager.extraBundles(framework);
             imsTmManager.youAreRequired(allManagers, activeManagers, galasaTest);
             Assert.assertEquals("Unexpected number of provisioners created", 1, provisioner.constructed().size());
             Assert.assertTrue("Wrong type of provisioner created", provisioner.constructed().get(0) instanceof DseProvisioningImpl);
@@ -245,15 +241,10 @@ public class TestImstmManagerImpl {
 
     @Test
     public void testExtraBundles() throws Exception{
-        Mockito.when(framework.getConfigurationPropertyService("imstm")).thenReturn(cpss);
-        List<String> bundlesIn = new ArrayList<String>();
-        bundlesIn.add(BUNDLE);
-        try (MockedStatic<ExtraBundles> eb = Mockito.mockStatic(ExtraBundles.class);
-                MockedStatic<ImstmPropertiesSingleton> ips = Mockito.mockStatic(ImstmPropertiesSingleton.class)) {
-            eb.when(() -> ExtraBundles.get()).thenReturn(bundlesIn);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class)) {
             List<String> bundlesOut = imsTmManager.extraBundles(framework);
-            Assert.assertEquals("Wrong number of extra bundles returned", 1, bundlesOut.size());
-            Assert.assertEquals("Wrong bundle returned", BUNDLE, bundlesOut.get(0));
+            Assert.assertEquals("Wrong number of extra bundles returned", 0, bundlesOut.size());
+            Assert.assertEquals("ImstmProperties were not initialized", 1, properties.constructed().size());
         }
     }
 
@@ -261,9 +252,11 @@ public class TestImstmManagerImpl {
     public void testAreYouProvisionalDependentOnTrue() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
-            imsTmManager.initialise(null, allManagers, activeManagers, galasaTest);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+            Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                })) {
+            imsTmManager.extraBundles(framework);
+            imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
         }
         Assert.assertTrue("IMS TM Manager not dependent on zOS Manager", imsTmManager.areYouProvisionalDependentOn(zosManager));
     }
@@ -272,11 +265,13 @@ public class TestImstmManagerImpl {
     public void testAreYouProvisionalDependentOnFalse() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
-            imsTmManager.initialise(null, allManagers, activeManagers, galasaTest);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+            Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                })) {
+            imsTmManager.extraBundles(framework);
+            imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
         }
-        Assert.assertFalse("IMS TM Manager not dependent on zOS Manager", imsTmManager.areYouProvisionalDependentOn(textScanManager));
+        Assert.assertFalse("IMS TM Manager dependent on Text Scan Manager", imsTmManager.areYouProvisionalDependentOn(textScanManager));
     }
 
     @Test
@@ -284,7 +279,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -297,7 +294,7 @@ public class TestImstmManagerImpl {
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                     Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -329,7 +326,9 @@ public class TestImstmManagerImpl {
         allManagers.add(textScanManager);
         Mockito.doReturn(ValidDefaultTest.class).when(galasaTest).getJavaTestClass();
         List<Annotation> annotations = getSystemAnnotations(ValidDefaultTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(DEFAULT_TAG, DEFAULT_TAG, annotations)).thenReturn(system);
                 });
@@ -340,9 +339,9 @@ public class TestImstmManagerImpl {
                     Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", true, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
-                    Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", DEFAULT_CREDENTIALS, (String) arguments.get(5));
+                    Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -374,11 +373,13 @@ public class TestImstmManagerImpl {
         allManagers.add(textScanManager);
         Mockito.doReturn(SystemOnlyTest.class).when(galasaTest).getJavaTestClass();
         List<Annotation> annotations = getSystemAnnotations(SystemOnlyTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(DEFAULT_TAG, DEFAULT_TAG, annotations)).thenReturn(system);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -405,11 +406,13 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         Mockito.doReturn(BadDummyTest.class).when(galasaTest).getJavaTestClass();
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, DEFAULT_TAG, getSystemAnnotations(BadDummyTest.class))).thenReturn(system);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             String expectedMessage1 = "Problem generating Test Class fields";
             String expectedMessage2 = "Unable to setup IMS Terminal for field 'terminal', for system with tag 'TERM01' as a system with a matching 'imsTag' tag was not found, or the system was not provisioned.";
@@ -431,7 +434,9 @@ public class TestImstmManagerImpl {
         allManagers.add(textScanManager);
         Field f = ValidTest.class.getField("imsSystem");
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -444,7 +449,7 @@ public class TestImstmManagerImpl {
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                     Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.generateImsSystem(f, annotations);
             DseProvisioningImpl provisioner = provisioners.constructed().get(0);
@@ -476,9 +481,11 @@ public class TestImstmManagerImpl {
     public void testProvisionGenerateProvisionFails() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
 
             // Mocked provisioner will return a null system on provision
@@ -499,11 +506,13 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.generateImsSystem(ValidTest.class.getField("imsSystem"), annotations);
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -522,11 +531,13 @@ public class TestImstmManagerImpl {
         allManagers.add(textScanManager);
         Mockito.doReturn(ValidDefaultTest.class).when(galasaTest).getJavaTestClass();
         List<Annotation> annotations = getSystemAnnotations(ValidDefaultTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(DEFAULT_TAG, DEFAULT_TAG, annotations)).thenReturn(system);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.generateImsSystem(ValidDefaultTest.class.getField("imsSystem"), annotations);
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -545,11 +556,13 @@ public class TestImstmManagerImpl {
         allManagers.add(textScanManager);
         Field f = ValidTest.class.getField("imsSystem");
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.generateImsSystem(f, annotations);
             DseProvisioningImpl provisioner = provisioners.constructed().get(0);
@@ -568,9 +581,11 @@ public class TestImstmManagerImpl {
     public void testGenerateImsSystemProvisionFails() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
 
             // Mocked provisioner will return a null system on provision
@@ -587,7 +602,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -600,7 +617,7 @@ public class TestImstmManagerImpl {
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                     Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.generateImsSystem(ValidTest.class.getField("imsSystem"), annotations);
             imsTmManager.generateImsTerminal(ValidTest.class.getField("terminal"), getTerminalAnnotations(ValidTest.class));
@@ -620,7 +637,9 @@ public class TestImstmManagerImpl {
         allManagers.add(textScanManager);
         Mockito.doReturn(ValidDefaultTest.class).when(galasaTest).getJavaTestClass();
         List<Annotation> annotations = getSystemAnnotations(ValidDefaultTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(DEFAULT_TAG, DEFAULT_TAG, annotations)).thenReturn(system);
                 });
@@ -631,9 +650,9 @@ public class TestImstmManagerImpl {
                     Assert.assertEquals("Wrong IMS System passed to terminal constructor", system, (IImsSystem) arguments.get(2));
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", true, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
-                    Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", DEFAULT_CREDENTIALS, (String) arguments.get(5));
+                    Assert.assertEquals("Wrong 'Login credentials' value passed to terminal constructor", TEST_CREDENTIALS, (String) arguments.get(5));
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.generateImsSystem(ValidDefaultTest.class.getField("imsSystem"), annotations);
             imsTmManager.generateImsTerminal(ValidDefaultTest.class.getField("terminal"), getTerminalAnnotations(ValidDefaultTest.class));
@@ -652,8 +671,10 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         Mockito.doReturn(BadDummyTest.class).when(galasaTest).getJavaTestClass();
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                })) {
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             String expectedMessage = "Unable to setup IMS Terminal for field 'terminal', for system with tag 'TERM01' as a system with a matching 'imsTag' tag was not found, or the system was not provisioned.";
             ManagerException expectedException = Assert.assertThrows("expected exception should be thrown", ManagerException.class, ()->{
@@ -672,7 +693,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -685,7 +708,7 @@ public class TestImstmManagerImpl {
                     Assert.assertEquals("Wrong 'Connect at startup' value passed to terminal constructor", true, (Boolean) arguments.get(3));
                     Assert.assertEquals("Wrong text scanner passed to terminal constructor", textScanManager, (ITextScannerManagerSpi) arguments.get(4));
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.generateImsSystem(ValidTest.class.getField("imsSystem"), annotations);
             imsTmManager.generateImsTerminal("SYS01");
@@ -704,8 +727,10 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         Mockito.doReturn(BadDummyTest.class).when(galasaTest).getJavaTestClass();
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                })) {
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             String expectedMessage = "Unable to setup IMS Terminal for tag TERM01, no system was provisioned";
             ManagerException expectedException = Assert.assertThrows("expected exception should be thrown", ManagerException.class, ()->{
@@ -724,11 +749,13 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.generateImsSystem(ValidTest.class.getField("imsSystem"), annotations);
             IImsSystem located = imsTmManager.locateImsSystem("SYS01");
@@ -742,8 +769,9 @@ public class TestImstmManagerImpl {
     public void testLocateImsSystemNotFound() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class);
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class)) {
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             String expectedMessage = "Unable to locate IMS System for tag SYS01";
             ManagerException expectedException = Assert.assertThrows("expected exception should be thrown", ManagerException.class, ()->{
@@ -757,9 +785,11 @@ public class TestImstmManagerImpl {
     public void testProvisionBuild() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionBuild();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0);
@@ -771,10 +801,12 @@ public class TestImstmManagerImpl {
     public void testProvisionStartNoTerminals() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class);
                 MockedConstruction<ImstmDefaultLogonProvider> lp = Mockito.mockConstruction(ImstmDefaultLogonProvider.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionStart();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0);
@@ -794,7 +826,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -802,7 +836,7 @@ public class TestImstmManagerImpl {
                 MockedConstruction<ImsTerminalImpl> terminals = Mockito.mockConstruction(ImsTerminalImpl.class, (mock, context) -> {
                     Mockito.when(mock.isConnected()).thenReturn(true);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -827,7 +861,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -836,7 +872,7 @@ public class TestImstmManagerImpl {
                     Mockito.when(mock.isConnected()).thenReturn(false);
                     Mockito.when(mock.isConnectAtStartup()).thenReturn(false);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -862,7 +898,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -872,8 +910,8 @@ public class TestImstmManagerImpl {
                     Mockito.when(mock.isConnectAtStartup()).thenReturn(true);
                     Mockito.when(mock.getImsSystem()).thenReturn(system);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
             Mockito.when(system.isProvisionStart()).thenReturn(false);
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -900,7 +938,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -910,8 +950,8 @@ public class TestImstmManagerImpl {
                     Mockito.when(mock.isConnectAtStartup()).thenReturn(true);
                     Mockito.when(mock.getImsSystem()).thenReturn(system);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
             Mockito.when(system.isProvisionStart()).thenReturn(true);
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -939,7 +979,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -950,9 +992,9 @@ public class TestImstmManagerImpl {
                     Mockito.when(mock.getImsSystem()).thenReturn(system);
                     Mockito.doThrow(new ImstmManagerException()).when(mock).connectToImsSystem();
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
             Mockito.when(system.isProvisionStart()).thenReturn(true);
             Mockito.when(system.toString()).thenReturn("TEST SYSTEM");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0); 
@@ -977,9 +1019,11 @@ public class TestImstmManagerImpl {
     public void testProvisionStopNoTerminals() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionStop();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0);
@@ -992,12 +1036,14 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
                 MockedConstruction<ImsTerminalImpl> terminals = Mockito.mockConstruction(ImsTerminalImpl.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             imsTmManager.provisionStop();
@@ -1015,7 +1061,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -1025,7 +1073,7 @@ public class TestImstmManagerImpl {
                     Mockito.when(mock.getImsSystem()).thenReturn(system);
                     Mockito.doThrow(new TerminalInterruptedException()).when(mock).disconnect();
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             imsTmManager.provisionStop();
@@ -1042,9 +1090,11 @@ public class TestImstmManagerImpl {
     public void testProvisionDiscard() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionDiscard();
             DseProvisioningImpl provisioner = provisioners.constructed().get(0);
@@ -1056,8 +1106,9 @@ public class TestImstmManagerImpl {
     public void testRegisterProvisioner() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                })) {
             IImsSystemProvisioner provisioner = Mockito.mock(DseProvisioningImpl.class);
             imsTmManager.registerProvisioner(provisioner);
             imsTmManager.provisionDiscard();
@@ -1069,8 +1120,10 @@ public class TestImstmManagerImpl {
     public void testGetZosManager() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                })) {
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             Assert.assertTrue("Wrong Zos Manager returned", imsTmManager.getZosManager() == zosManager);
         }
@@ -1080,30 +1133,24 @@ public class TestImstmManagerImpl {
     public void testGetProvisionType() throws Exception{
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class)) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("ABC");
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                 Mockito.when(mock.getProvisionType()).thenReturn("ABC");
+                })) {
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             Assert.assertEquals("Wrong provision type returned", "ABC", imsTmManager.getProvisionType());
         }
     }
 
     @Test
-    public void testGetDefaultVersion() throws Exception{
-        allManagers.add(zosManager);
-        allManagers.add(textScanManager);
-        try (MockedStatic<DefaultVersion> defaultVersion = Mockito.mockStatic(DefaultVersion.class)) {
-            ProductVersion vrm = ProductVersion.v(1).r(2).m(3);
-            defaultVersion.when(() -> DefaultVersion.get()).thenReturn(vrm);
-            Assert.assertEquals("Wrong default version returned", vrm, imsTmManager.getDefaultVersion());
-        }
-    }
-
-    @Test
     public void testImstmSystemStartedNoAutoconnect() throws Exception{
         allManagers.add(zosManager);
-        allManagers.add(textScanManager);
+        allManagers.add(textScanManager);            imsTmManager.extraBundles(framework);
+
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -1111,7 +1158,7 @@ public class TestImstmManagerImpl {
                     Mockito.when(mock.getImsSystem()).thenReturn(system);
                     Mockito.when(mock.isConnectAtStartup()).thenReturn(false);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             imsTmManager.imstmSystemStarted(system);
@@ -1127,7 +1174,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -1136,7 +1185,7 @@ public class TestImstmManagerImpl {
                     Mockito.when(mock.isConnectAtStartup()).thenReturn(true);
                     Mockito.when(mock.getImsSystem()).thenReturn(system);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             imsTmManager.imstmSystemStarted(system);
@@ -1153,7 +1202,9 @@ public class TestImstmManagerImpl {
         allManagers.add(zosManager);
         allManagers.add(textScanManager);
         List<Annotation> annotations = getSystemAnnotations(ValidTest.class);
-        try (MockedStatic<ProvisionType> provisionType = Mockito.mockStatic(ProvisionType.class);
+        try (MockedConstruction<ImstmProperties> properties = Mockito.mockConstruction(ImstmProperties.class, (mock, context) -> {
+                    Mockito.when(mock.getProvisionType()).thenReturn("DSE");
+                });
                 MockedConstruction<DseProvisioningImpl> provisioners = Mockito.mockConstruction(DseProvisioningImpl.class, (mock, context) -> {
                     Mockito.when(mock.provision(TEST_IMS_TAG, TEST_IMAGE_TAG, annotations)).thenReturn(system);
                 });
@@ -1161,7 +1212,7 @@ public class TestImstmManagerImpl {
                     Mockito.when(mock.getImsSystem()).thenReturn(system);
                     Mockito.when(mock.isConnectAtStartup()).thenReturn(false);
                 })) {
-            provisionType.when(() -> ProvisionType.get()).thenReturn("DSE");
+            imsTmManager.extraBundles(framework);
             imsTmManager.initialise(framework, allManagers, activeManagers, galasaTest);
             imsTmManager.provisionGenerate();
             imsTmManager.imstmSystemStarted(Mockito.mock(DseImsImpl.class));
