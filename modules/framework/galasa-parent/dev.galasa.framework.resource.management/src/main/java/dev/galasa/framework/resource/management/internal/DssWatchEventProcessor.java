@@ -5,12 +5,9 @@
  */
 package dev.galasa.framework.resource.management.internal;
 
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-import dev.galasa.framework.spi.IResourceManagementProvider;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher.Event;
-
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,9 +24,12 @@ class DssWatchEventProcessor implements Runnable {
     private Log logger = LogFactory.getLog(getClass());
 
     private final BlockingQueue<DssEvent> queue;
-    private final List<IResourceManagementProvider> resourceManagementProviders;
+    private final ResourceManagementProviders resourceManagementProviders;
 
-    public DssWatchEventProcessor(BlockingQueue<DssEvent> queue, List<IResourceManagementProvider> resourceManagementProviders) {
+    public DssWatchEventProcessor(
+        BlockingQueue<DssEvent> queue, 
+        ResourceManagementProviders resourceManagementProviders    
+    ) {
         this.queue = queue;
         this.resourceManagementProviders = resourceManagementProviders;
     }
@@ -59,12 +59,12 @@ class DssWatchEventProcessor implements Runnable {
 
                     if (event == Event.DELETE) {
                         logger.debug("Detected deleted run " + runName);
-                        this.runFinishedOrDeleted(runName, this.resourceManagementProviders);
+                        this.resourceManagementProviders.runFinishedOrDeleted(runName);
                     } else {
             
                         if ("finished".equalsIgnoreCase(newValue)) {
                             logger.debug("Detected finished run " + runName);
-                            this.runFinishedOrDeleted(runName, this.resourceManagementProviders);
+                            this.resourceManagementProviders.runFinishedOrDeleted(runName);
                         }
                     }
                 }
@@ -75,13 +75,5 @@ class DssWatchEventProcessor implements Runnable {
         }
     }
 
-    private void runFinishedOrDeleted(String runName, List<IResourceManagementProvider> resourceManagementProviders) {
-        logger.debug("runFinishedOrDeleted() entered");
-        for (IResourceManagementProvider provider : resourceManagementProviders) {
-            logger.debug("About to call runFinishedOrDeleted() for provider "+provider.getClass().getCanonicalName());
-            provider.runFinishedOrDeleted(runName);
-            logger.debug("Returned from call runFinishedOrDeleted() for provider "+provider.getClass().getCanonicalName());
-        }
-        logger.debug("runFinishedOrDeleted() exiting");
-    }
+
 }

@@ -5,7 +5,6 @@
  */
 package dev.galasa.framework.resource.management.internal;
 
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,7 +17,6 @@ import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IResourceManagementProvider;
 
 public class ResourceManagementRunWatch  {
 
@@ -27,7 +25,7 @@ public class ResourceManagementRunWatch  {
 
     protected ResourceManagementRunWatch(
         IFramework framework,
-        List<IResourceManagementProvider> resourceManagementProviders,
+        ResourceManagementProviders resourceManagementProviders,
         ScheduledExecutorService scheduledExecutorService
     ) throws FrameworkException {
 
@@ -47,7 +45,6 @@ public class ResourceManagementRunWatch  {
         watcher.startWatching();
         logger.debug("ResourceManagementRunWatch: exiting.");
     }
-
 
     public void shutdown() {
         logger.debug("ResourceManagementRunWatch: shutdown() entered.");

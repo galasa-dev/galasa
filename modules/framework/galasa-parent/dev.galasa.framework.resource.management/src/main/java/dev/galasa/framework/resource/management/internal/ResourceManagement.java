@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -20,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
@@ -34,7 +31,6 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResourceManagement;
-import dev.galasa.framework.spi.IResourceManagementProvider;
 import io.prometheus.client.Counter;
 import io.prometheus.client.exporter.HTTPServer;
 
@@ -44,12 +40,11 @@ import io.prometheus.client.exporter.HTTPServer;
 @Component(service = { ResourceManagement.class })
 public class ResourceManagement implements IResourceManagement {
 
-    private Log                                          logger                             = LogFactory
-            .getLog(this.getClass());
+    private Log logger = LogFactory.getLog(this.getClass());
 
     private BundleContext                                bundleContext;
 
-    private List<IResourceManagementProvider>            resourceManagementProviders ;
+    private ResourceManagementProviders                  resourceManagementProviders ;
     private ScheduledExecutorService                     scheduledExecutorService;
 
     // This flag is set by one thread, and read by another, so we always want the variable to be in memory rather than 
@@ -118,10 +113,10 @@ public class ResourceManagement implements IResourceManagement {
 
             this.healthServer = createHealthServer(healthPort);
 
-            this.resourceManagementProviders = initialiseResourceManagementProviders(framework, cps, bundleContext);
+            this.resourceManagementProviders = new ResourceManagementProviders(framework, cps, bundleContext, this);
 
-            startProviders(this.resourceManagementProviders);
-
+            this.resourceManagementProviders.start();
+            
             // *** Start the Run watch thread
             ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, resourceManagementProviders, scheduledExecutorService);
 
@@ -154,7 +149,7 @@ public class ResourceManagement implements IResourceManagement {
 
             runWatch.shutdown();
 
-            shutdownProviders(resourceManagementProviders);
+            resourceManagementProviders.shutdown();
             stopMetricsServer(this.metricsServer);
             stopHealthServer(this.healthServer);
 
@@ -179,18 +174,7 @@ public class ResourceManagement implements IResourceManagement {
         }
     }
 
-    private void shutdownProviders(List<IResourceManagementProvider> providers) {
-        for (IResourceManagementProvider provider : resourceManagementProviders) {
-            logger.info("Requesting Resource Management Provider " + provider.getClass().getName() + " shutdown");
-            provider.shutdown();
-        }
-    }
 
-    private void startProviders(List<IResourceManagementProvider> providers) {
-        for (IResourceManagementProvider provider : resourceManagementProviders) {
-            provider.start();
-        }
-    }
 
     private ResourceManagementHealth createHealthServer(int healthPort) throws FrameworkException {
         ResourceManagementHealth healthServer = null;
@@ -279,44 +263,7 @@ public class ResourceManagement implements IResourceManagement {
         return serverName;
     }
 
-    private List<IResourceManagementProvider> initialiseResourceManagementProviders(
-        IFramework framework , IConfigurationPropertyStoreService cps, BundleContext bundleContext
-    ) throws FrameworkException {
-
-        List<IResourceManagementProvider> resourceManagementProviders = new ArrayList<IResourceManagementProvider>() ;
-
-        try {
-            final ServiceReference<?>[] rmpServiceReference = bundleContext
-                    .getAllServiceReferences(IResourceManagementProvider.class.getName(), null);
-            if ((rmpServiceReference == null) || (rmpServiceReference.length == 0)) {
-                logger.info("No additional Resource Manager providers have been found");
-            } else {
-
-                for (final ServiceReference<?> rmpReference : rmpServiceReference) {
-
-                    final IResourceManagementProvider rmpStoreRegistration = (IResourceManagementProvider) bundleContext
-                            .getService(rmpReference);
-                    try {
-                        if (rmpStoreRegistration.initialise(framework, this)) {
-                            logger.info(
-                                    "Found Resource Management Provider " + rmpStoreRegistration.getClass().getName());
-                            resourceManagementProviders.add(rmpStoreRegistration);
-                        } else {
-                            logger.info("Resource Management Provider " + rmpStoreRegistration.getClass().getName()
-                                    + " opted out of this Resource Management run");
-                        }
-                    } catch (Exception e) {
-                        logger.error("Failed initialisation of Resource Management Provider "
-                                + rmpStoreRegistration.getClass().getName() + " ignoring", e);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new FrameworkException("Problem during Resource Manager initialisation", e);
-        }
-
-        return resourceManagementProviders ;
-    }
+    
 
     private void updateHeartbeat(IDynamicStatusStoreService dss) {
         Instant time = Instant.now();
