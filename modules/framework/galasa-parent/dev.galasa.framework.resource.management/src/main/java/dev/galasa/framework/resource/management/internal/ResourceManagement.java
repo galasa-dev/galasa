@@ -119,33 +119,14 @@ public class ResourceManagement implements IResourceManagement {
             this.successfulRunsCounter = Counter.build().name("galasa_resource_management_successfull_runs")
                     .help("The number of successfull resource management runs").register();
 
-            // *** Create Health Server
-            if (healthPort > 0) {
-                this.healthServer = new ResourceManagementHealth(this, healthPort);
-                logger.info("Health monitoring on port " + healthPort);
-            } else {
-                logger.info("Health monitoring disabled");
-            }
+            this.healthServer = createHealthServer(healthPort);
 
             // *** Locate all the Resource Management providers in the framework
-            try {
-                final ServiceReference<?>[] rmpServiceReference = bundleContext
-                        .getAllServiceReferences(IResourceManagementProvider.class.getName(), null);
-                if ((rmpServiceReference == null) || (rmpServiceReference.length == 0)) {
-                    logger.info("No additional Resource Manager providers have been found");
-                } else {
 
-                    this.resourceManagementProviders = initialiseResourceManagementProviders(framework, cps, rmpServiceReference);
 
-                }
-            } catch (Exception e) {
-                throw new FrameworkException("Problem during Resource Manager initialisation", e);
-            }
+            this.resourceManagementProviders = initialiseResourceManagementProviders(framework, cps, bundleContext);
 
-            // *** Start the providers
-            for (IResourceManagementProvider provider : resourceManagementProviders) {
-                provider.start();
-            }
+            startProviders(this.resourceManagementProviders);
 
             // *** Start the Run watch thread
             ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, this);
@@ -182,21 +163,9 @@ public class ResourceManagement implements IResourceManagement {
             // *** Ask the run watch to terminate
             runWatch.shutdown();
 
-            // *** shutdown the providers
-            for (IResourceManagementProvider provider : resourceManagementProviders) {
-                logger.info("Requesting Resource Management Provider " + provider.getClass().getName() + " shutdown");
-                provider.shutdown();
-            }
-
-            // *** Stop the metics server
-            if (metricsPort > 0) {
-                this.metricsServer.close();
-            }
-
-            // *** Stop the health server
-            if (healthPort > 0) {
-                this.healthServer.shutdown();
-            }
+            shutdownProviders(resourceManagementProviders);
+            stopMetricsServer(this.metricsServer);
+            stopHealthServer(this.healthServer);
 
         } finally {
             logger.info("Resource Management shutdown is complete.");
@@ -204,6 +173,43 @@ public class ResourceManagement implements IResourceManagement {
             // Let the ShutDownHook know that the main thread has shut things down via this shared-state boolean.
             shutdownComplete = true;
         }
+    }
+
+    private void stopHealthServer(ResourceManagementHealth healthServer) {
+        // *** Stop the health server
+        if (healthServer != null) {
+            healthServer.shutdown();
+        }
+    }
+
+    private void stopMetricsServer(HTTPServer metricsServer) {
+        if (metricsServer != null) {
+            metricsServer.close();
+        }
+    }
+
+    private void shutdownProviders(List<IResourceManagementProvider> providers) {
+        for (IResourceManagementProvider provider : resourceManagementProviders) {
+            logger.info("Requesting Resource Management Provider " + provider.getClass().getName() + " shutdown");
+            provider.shutdown();
+        }
+    }
+
+    private void startProviders(List<IResourceManagementProvider> providers) {
+        for (IResourceManagementProvider provider : resourceManagementProviders) {
+            provider.start();
+        }
+    }
+
+    private ResourceManagementHealth createHealthServer(int healthPort) throws FrameworkException {
+        ResourceManagementHealth healthServer = null;
+        if (healthPort > 0) {
+            healthServer = new ResourceManagementHealth(this, healthPort);
+            logger.info("Health monitoring on port " + healthPort);
+        } else {
+            logger.info("Health monitoring disabled");
+        }
+        return healthServer ;
     }
 
     private HTTPServer startMetricsServer(int metricsPort) throws FrameworkException {
@@ -282,27 +288,40 @@ public class ResourceManagement implements IResourceManagement {
         return serverName;
     }
 
-    private List<IResourceManagementProvider> initialiseResourceManagementProviders(IFramework framework , IConfigurationPropertyStoreService cps, ServiceReference<?>[] rmpServiceReference) {
-        
-        List<IResourceManagementProvider> resourceManagementProviders = new ArrayList<IResourceManagementProvider>();
+    private List<IResourceManagementProvider> initialiseResourceManagementProviders(
+        IFramework framework , IConfigurationPropertyStoreService cps, BundleContext bundleContext
+    ) throws FrameworkException {
 
-        for (final ServiceReference<?> rmpReference : rmpServiceReference) {
+        List<IResourceManagementProvider> resourceManagementProviders = new ArrayList<IResourceManagementProvider>() ;
 
-            final IResourceManagementProvider rmpStoreRegistration = (IResourceManagementProvider) bundleContext
-                    .getService(rmpReference);
-            try {
-                if (rmpStoreRegistration.initialise(framework, this)) {
-                    logger.info(
-                            "Found Resource Management Provider " + rmpStoreRegistration.getClass().getName());
-                    resourceManagementProviders.add(rmpStoreRegistration);
-                } else {
-                    logger.info("Resource Management Provider " + rmpStoreRegistration.getClass().getName()
-                            + " opted out of this Resource Management run");
+        try {
+            final ServiceReference<?>[] rmpServiceReference = bundleContext
+                    .getAllServiceReferences(IResourceManagementProvider.class.getName(), null);
+            if ((rmpServiceReference == null) || (rmpServiceReference.length == 0)) {
+                logger.info("No additional Resource Manager providers have been found");
+            } else {
+
+                for (final ServiceReference<?> rmpReference : rmpServiceReference) {
+
+                    final IResourceManagementProvider rmpStoreRegistration = (IResourceManagementProvider) bundleContext
+                            .getService(rmpReference);
+                    try {
+                        if (rmpStoreRegistration.initialise(framework, this)) {
+                            logger.info(
+                                    "Found Resource Management Provider " + rmpStoreRegistration.getClass().getName());
+                            resourceManagementProviders.add(rmpStoreRegistration);
+                        } else {
+                            logger.info("Resource Management Provider " + rmpStoreRegistration.getClass().getName()
+                                    + " opted out of this Resource Management run");
+                        }
+                    } catch (Exception e) {
+                        logger.error("Failed initialisation of Resource Management Provider "
+                                + rmpStoreRegistration.getClass().getName() + " ignoring", e);
+                    }
                 }
-            } catch (Exception e) {
-                logger.error("Failed initialisation of Resource Management Provider "
-                        + rmpStoreRegistration.getClass().getName() + " ignoring", e);
             }
+        } catch (Exception e) {
+            throw new FrameworkException("Problem during Resource Manager initialisation", e);
         }
 
         return resourceManagementProviders ;
