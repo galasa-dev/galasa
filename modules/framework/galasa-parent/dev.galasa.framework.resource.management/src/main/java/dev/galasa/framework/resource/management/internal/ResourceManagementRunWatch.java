@@ -78,18 +78,27 @@ public class ResourceManagementRunWatch  {
 
         public DssEvent get() {
             
-            logger.debug("getting dss event from queue.");
+            logger.debug("DssEventQueue: getting dss event from queue.");
             DssEvent event = null ;
             synchronized(queue) {
                 event = queue.poll();
             }
-            logger.debug("returning "+event.toString());
+            if (event == null) {
+                logger.debug("DssEventQueue: get(): No events to process.");
+            } else {
+                logger.debug("DssEventQueue: get(): returning "+event.toString());
+            }
             return event;
         }
         
         public void add(DssEvent newDssEvent) {
             synchronized(queue) {
                 queue.add(newDssEvent);
+            }
+            if (newDssEvent == null) {
+                logger.debug("DssEventQueue: add(): No events to process.");
+            } else {
+                logger.debug("DssEventQueue: add(): adding event "+newDssEvent.toString());
             }
         }
     }
