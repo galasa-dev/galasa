@@ -20,7 +20,7 @@ import dev.galasa.framework.spi.IFramework;
 
 public class ResourceManagementRunWatch  {
 
-    private static final int RESOURCE_MANAGEMENT_RUN_WATCH_POLL_INTERVAL_SECONDS = 5;
+    private static final int RESOURCE_MANAGEMENT_RUN_WATCH_POLL_INTERVAL_SECONDS = 1;
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private DssEventWatcher watcher;
@@ -32,7 +32,7 @@ public class ResourceManagementRunWatch  {
     ) throws FrameworkException {
 
         logger.debug("ResourceManagementRunWatch: entered.");
-        BlockingQueue<DssEvent> eventQueue = new LinkedBlockingQueue<DssEvent>();
+        DssEventQueue eventQueue = new DssEventQueue();
         DssWatchEventProcessor processor = new DssWatchEventProcessor(eventQueue, resourceManagementProviders);
     
         scheduledExecutorService.scheduleWithFixedDelay(processor, 

@@ -23,11 +23,11 @@ class DssWatchEventProcessor implements Runnable {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    private final BlockingQueue<DssEvent> queue;
+    private final DssEventQueue queue;
     private final ResourceManagementProviders resourceManagementProviders;
 
     public DssWatchEventProcessor(
-        BlockingQueue<DssEvent> queue, 
+        DssEventQueue queue, 
         ResourceManagementProviders resourceManagementProviders    
     ) {
         this.queue = queue;
@@ -48,7 +48,7 @@ class DssWatchEventProcessor implements Runnable {
             while(!isDone) {
 
                 // queue.take() blocks momentarily.
-                DssEvent dssEvent = queue.take();
+                DssEvent dssEvent = queue.dequeue();
                 if (dssEvent == null) {
                     isDone = true;
                 } else {

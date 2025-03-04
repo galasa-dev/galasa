@@ -26,11 +26,11 @@ class DssEventWatcher implements IDynamicStatusStoreWatcher {
     // The key we get from the DSS is something like this:
     // run.U4657.status
     private final Pattern runTestPattern = Pattern.compile("^run[.](\\w+)[.]status$");
-    private final BlockingQueue<DssEvent> eventQueue ;
+    private final DssEventQueue eventQueue ;
     private UUID watchID;
     private final IDynamicStatusStoreService dss;
 
-    public DssEventWatcher(BlockingQueue<DssEvent> eventQueue, IDynamicStatusStoreService dss) {
+    public DssEventWatcher(DssEventQueue eventQueue, IDynamicStatusStoreService dss) {
         this.eventQueue = eventQueue;
         this.dss = dss;
     }
@@ -63,7 +63,7 @@ class DssEventWatcher implements IDynamicStatusStoreWatcher {
                 // on it's regular schedule.
                 String runName = matcher.group(1);
                 DssEvent dssEvent = new DssEvent(event, runName, oldValue, newValue);
-                eventQueue.add(dssEvent);
+                eventQueue.enqueue(dssEvent);
             }
         }
     }
