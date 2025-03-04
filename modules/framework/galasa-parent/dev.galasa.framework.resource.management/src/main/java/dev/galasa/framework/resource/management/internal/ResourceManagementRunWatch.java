@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.resource.management.internal;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +32,9 @@ public class ResourceManagementRunWatch  {
     ) throws FrameworkException {
 
         logger.debug("ResourceManagementRunWatch: entered.");
-        DssEventQueue eventQueue = new DssEventQueue();
+        // Create a thread-safe queue. Multiple threads can produce/consume onto this queue without blocking
+        // beyond a synchronize lock around the queue itself.
+        Queue<DssEvent> eventQueue = new LinkedBlockingQueue<DssEvent>();
         DssWatchEventProcessor processor = new DssWatchEventProcessor(eventQueue, resourceManagementProviders);
     
         scheduledExecutorService.scheduleWithFixedDelay(processor, 

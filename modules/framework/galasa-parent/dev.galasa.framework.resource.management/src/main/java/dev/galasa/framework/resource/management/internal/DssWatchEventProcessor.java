@@ -5,7 +5,7 @@
  */
 package dev.galasa.framework.resource.management.internal;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher.Event;
 
@@ -23,11 +23,11 @@ class DssWatchEventProcessor implements Runnable {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    private final DssEventQueue queue;
+    private final Queue<DssEvent> queue;
     private final ResourceManagementProviders resourceManagementProviders;
 
     public DssWatchEventProcessor(
-        DssEventQueue queue, 
+        Queue<DssEvent> queue, 
         ResourceManagementProviders resourceManagementProviders    
     ) {
         this.queue = queue;
@@ -48,7 +48,7 @@ class DssWatchEventProcessor implements Runnable {
             while(!isDone) {
 
                 // queue.take() blocks momentarily.
-                DssEvent dssEvent = queue.dequeue();
+                DssEvent dssEvent = queue.poll();
                 if (dssEvent == null) {
                     isDone = true;
                 } else {

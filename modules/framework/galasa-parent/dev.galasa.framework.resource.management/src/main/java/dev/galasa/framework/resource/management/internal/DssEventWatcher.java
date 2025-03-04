@@ -5,8 +5,8 @@
  */
 package dev.galasa.framework.resource.management.internal;
 
+import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,11 +26,11 @@ class DssEventWatcher implements IDynamicStatusStoreWatcher {
     // The key we get from the DSS is something like this:
     // run.U4657.status
     private final Pattern runTestPattern = Pattern.compile("^run[.](\\w+)[.]status$");
-    private final DssEventQueue eventQueue ;
+    private final Queue<DssEvent> eventQueue ;
     private UUID watchID;
     private final IDynamicStatusStoreService dss;
 
-    public DssEventWatcher(DssEventQueue eventQueue, IDynamicStatusStoreService dss) {
+    public DssEventWatcher(Queue<DssEvent> eventQueue, IDynamicStatusStoreService dss) {
         this.eventQueue = eventQueue;
         this.dss = dss;
     }
@@ -63,7 +63,7 @@ class DssEventWatcher implements IDynamicStatusStoreWatcher {
                 // on it's regular schedule.
                 String runName = matcher.group(1);
                 DssEvent dssEvent = new DssEvent(event, runName, oldValue, newValue);
-                eventQueue.enqueue(dssEvent);
+                eventQueue.add(dssEvent);
             }
         }
     }

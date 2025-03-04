@@ -7,6 +7,9 @@ package dev.galasa.framework.resource.management.internal;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.junit.Test;
 
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -18,7 +21,7 @@ public class TestDssEventWatcher {
 
     @Test
     public void testNullKeyGetsIgnored() {
-        DssEventQueue eventQueue = null;
+        Queue<DssEvent> eventQueue = null;
         IDynamicStatusStoreService dss = null;
         DssEventWatcher watcher = new DssEventWatcher(eventQueue,dss);
         watcher.propertyModified(null , null , null , null);  
@@ -26,7 +29,7 @@ public class TestDssEventWatcher {
 
     @Test
     public void testNullEventGetsIgnored() {
-        DssEventQueue eventQueue = null;
+        Queue<DssEvent> eventQueue = null;
         IDynamicStatusStoreService dss = null;
         DssEventWatcher watcher = new DssEventWatcher(eventQueue,dss);
         watcher.propertyModified( "something" , null , null , null);  
@@ -34,7 +37,7 @@ public class TestDssEventWatcher {
 
     @Test
     public void testIgnoresDssModifyIfThereIsNoRunId() {
-        DssEventQueue eventQueue = null;
+        Queue<DssEvent> eventQueue = null;
         IDynamicStatusStoreService dss = null;
         DssEventWatcher watcher = new DssEventWatcher(eventQueue,dss);
         watcher.propertyModified( "somethingWhichFailsTheRegexWithNoRunId" , Event.MODIFIED , "old" , "new");  
@@ -42,14 +45,14 @@ public class TestDssEventWatcher {
 
     @Test
     public void testDssModifyWithARunIdEnqueuesAnEvent() throws Exception {
-        DssEventQueue eventQueue = new DssEventQueue();
+        Queue<DssEvent> eventQueue = new LinkedBlockingDeque<DssEvent>();
         IDynamicStatusStoreService dss = null;
         DssEventWatcher watcher = new DssEventWatcher(eventQueue,dss);
         watcher.propertyModified( "run.U2345.status" , Event.MODIFIED , "old" , "new");
 
         assertThat(eventQueue.size()).isEqualTo(1);
 
-        DssEvent eventGotBack = eventQueue.dequeue();
+        DssEvent eventGotBack = eventQueue.poll();
         assertThat(eventGotBack.getRunName()).isEqualTo("U2345");
         assertThat(eventGotBack.getOldValue()).isEqualTo("old");
         assertThat(eventGotBack.getNewValue()).isEqualTo("new");
@@ -58,7 +61,7 @@ public class TestDssEventWatcher {
 
     @Test
     public void testDssModifyWithARunIdButNoStatusDoesNothing() throws Exception {
-        DssEventQueue eventQueue = new DssEventQueue();
+        Queue<DssEvent> eventQueue = new LinkedBlockingDeque<DssEvent>();
         IDynamicStatusStoreService dss = null;
         DssEventWatcher watcher = new DssEventWatcher(eventQueue,dss);
         watcher.propertyModified( "run.U2345xstatus" , Event.MODIFIED , "old" , "new");
