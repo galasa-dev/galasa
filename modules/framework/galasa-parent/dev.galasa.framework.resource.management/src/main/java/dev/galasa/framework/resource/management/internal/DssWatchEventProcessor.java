@@ -47,7 +47,6 @@ class DssWatchEventProcessor implements Runnable {
             logger.debug("starting a sweep of DSS events to process");
             while(!isDone) {
 
-                // queue.take() blocks momentarily.
                 DssEvent dssEvent = queue.poll();
                 if (dssEvent == null) {
                     isDone = true;

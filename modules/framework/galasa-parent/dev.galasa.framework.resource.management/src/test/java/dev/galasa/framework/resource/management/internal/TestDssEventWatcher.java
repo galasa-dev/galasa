@@ -8,7 +8,7 @@ package dev.galasa.framework.resource.management.internal;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Queue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.Test;
 
@@ -45,7 +45,7 @@ public class TestDssEventWatcher {
 
     @Test
     public void testDssModifyWithARunIdEnqueuesAnEvent() throws Exception {
-        Queue<DssEvent> eventQueue = new LinkedBlockingDeque<DssEvent>();
+        Queue<DssEvent> eventQueue = new LinkedBlockingQueue<DssEvent>();
         IDynamicStatusStoreService dss = null;
         DssEventWatcher watcher = new DssEventWatcher(eventQueue,dss);
         watcher.propertyModified( "run.U2345.status" , Event.MODIFIED , "old" , "new");
@@ -61,7 +61,7 @@ public class TestDssEventWatcher {
 
     @Test
     public void testDssModifyWithARunIdButNoStatusDoesNothing() throws Exception {
-        Queue<DssEvent> eventQueue = new LinkedBlockingDeque<DssEvent>();
+        Queue<DssEvent> eventQueue = new LinkedBlockingQueue<DssEvent>();
         IDynamicStatusStoreService dss = null;
         DssEventWatcher watcher = new DssEventWatcher(eventQueue,dss);
         watcher.propertyModified( "run.U2345xstatus" , Event.MODIFIED , "old" , "new");
