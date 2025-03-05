@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.junit.After;
 
 import dev.galasa.framework.mocks.MockCPSStore;
 import dev.galasa.framework.mocks.MockEnvironment;
@@ -22,6 +23,7 @@ import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1Container;
+import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1NodeSelectorRequirement;
 import io.kubernetes.client.openapi.models.V1NodeSelectorTerm;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
@@ -31,6 +33,7 @@ import io.kubernetes.client.openapi.models.V1PreferredSchedulingTerm;
 import io.kubernetes.client.openapi.models.V1Toleration;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
+import io.prometheus.client.CollectorRegistry;
 
 public class TestPodSchedulerTest {
 
@@ -213,6 +216,121 @@ public class TestPodSchedulerTest {
         // Then...
         String expectedEncryptionKeysMountPath = "/encryption";
         assertPodDetailsAreCorrect(pod, runName, podName, expectedEncryptionKeysMountPath, settings);
+    }
 
+    @Test
+    public void testCanCreatePodWithOverriddenDSSOK() throws K8sControllerException {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String DSS_ENV_VAR = "GALASA_DYNAMICSTATUS_STORE";
+        String customDssLocation = "etcd:http://myetcdstore-etcd:2379";
+
+        mockEnvironment.setenv(DSS_ENV_VAR, customDssLocation);
+
+        MockK8sController controller = new MockK8sController();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(new ArrayList<>());
+
+        V1ConfigMap mockConfigMap = createMockConfigMap();
+        MockSettings settings = new MockSettings(mockConfigMap, controller, null);
+        settings.init();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
+
+        // Then...
+        V1EnvVar dssEnvVarObject = new V1EnvVar();
+        dssEnvVarObject.setName(DSS_ENV_VAR);
+        dssEnvVarObject.setValue(customDssLocation);
+
+        List<V1EnvVar> envs = pod.getSpec().getContainers().get(0).getEnv();
+        assertThat(envs).contains(dssEnvVarObject);
+    }
+
+    @Test
+    public void testCanCreatePodWithOverriddenCPSOK() throws K8sControllerException {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String CPS_ENV_VAR = "GALASA_CONFIG_STORE";
+        String customCpsLocation = "etcd:http://myetcdstore-etcd:2379";
+
+        mockEnvironment.setenv(CPS_ENV_VAR, customCpsLocation);
+
+        MockK8sController controller = new MockK8sController();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(new ArrayList<>());
+
+        V1ConfigMap mockConfigMap = createMockConfigMap();
+        MockSettings settings = new MockSettings(mockConfigMap, controller, null);
+        settings.init();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
+
+        // Then...
+        V1EnvVar cpsEnvVarObject = new V1EnvVar();
+        cpsEnvVarObject.setName(CPS_ENV_VAR);
+        cpsEnvVarObject.setValue(customCpsLocation);
+
+        List<V1EnvVar> envs = pod.getSpec().getContainers().get(0).getEnv();
+        assertThat(envs).contains(cpsEnvVarObject);
+    }
+
+    @Test
+    public void testCanCreatePodWithOverriddenCREDSOK() throws K8sControllerException {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String CREDS_ENV_VAR = "GALASA_CREDENTIALS_STORE";
+        String customCredsLocation = "etcd:http://myetcdstore-etcd:2379";
+
+        mockEnvironment.setenv(CREDS_ENV_VAR, customCredsLocation);
+
+        MockK8sController controller = new MockK8sController();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(new ArrayList<>());
+
+        V1ConfigMap mockConfigMap = createMockConfigMap();
+        MockSettings settings = new MockSettings(mockConfigMap, controller, null);
+        settings.init();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
+
+        // Then...
+        V1EnvVar credsEnvVarObject = new V1EnvVar();
+        credsEnvVarObject.setName(CREDS_ENV_VAR);
+        credsEnvVarObject.setValue(customCredsLocation);
+
+        List<V1EnvVar> envs = pod.getSpec().getContainers().get(0).getEnv();
+        assertThat(envs).contains(credsEnvVarObject);
+    }
+
+    @After
+    public void clearCounters() {
+        CollectorRegistry.defaultRegistry.clear();
     }
 }

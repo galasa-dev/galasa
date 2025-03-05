@@ -58,6 +58,10 @@ public class TestPodScheduler implements Runnable {
     private static final String ENCRYPTION_KEYS_PATH_ENV = FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV;
     public static final String ENCRYPTION_KEYS_VOLUME_NAME = "encryption-keys";
 
+    private static final String CPS_ENV_VAR   = "GALASA_CONFIG_STORE";
+    private static final String DSS_ENV_VAR   = "GALASA_DYNAMICSTATUS_STORE";
+    private static final String CREDS_ENV_VAR = "GALASA_CREDENTIALS_STORE";
+
     private final Log                        logger           = LogFactory.getLog(getClass());
 
     private final Settings                   settings;
@@ -422,6 +426,18 @@ public class TestPodScheduler implements Runnable {
         envs.add(createValueEnv(RAS_TOKEN_ENV, env.getenv(RAS_TOKEN_ENV)));
         envs.add(createValueEnv(EVENT_TOKEN_ENV, env.getenv(EVENT_TOKEN_ENV)));
         envs.add(createValueEnv(ENCRYPTION_KEYS_PATH_ENV, env.getenv(ENCRYPTION_KEYS_PATH_ENV)));
+        String cpsEnvValue = env.getenv(CPS_ENV_VAR);
+        if (cpsEnvValue != null && !cpsEnvValue.isBlank()) {
+            envs.add(createValueEnv(CPS_ENV_VAR, cpsEnvValue));
+        }
+        String dssEnvValue = env.getenv(DSS_ENV_VAR);
+        if (dssEnvValue != null && !dssEnvValue.isBlank()) {
+            envs.add(createValueEnv(DSS_ENV_VAR, dssEnvValue));
+        }
+        String credsEnvValue = env.getenv(CREDS_ENV_VAR);
+        if (credsEnvValue != null && !credsEnvValue.isBlank()) {
+            envs.add(createValueEnv(CREDS_ENV_VAR, credsEnvValue));
+        }        
         //
         // envs.add(createSecretEnv("GALASA_SERVER_USER", "galasa-secret",
         // "galasa-server-username"));
