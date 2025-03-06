@@ -5,8 +5,8 @@
  */
 package dev.galasa.framework.resource.management.internal;
 
+import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,18 +22,15 @@ import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
  * This watcher must not block for long, as it needs to get execution back to etcd.
  */
 class DssEventWatcher implements IDynamicStatusStoreWatcher {
-    
-    // \Q is the start of a literal string
-    // \E is the end of a literal string
-    // So it matches something like this:
+
+    // The key we get from the DSS is something like this:
     // run.U4657.status
-    // Why are the '.' characters not escaped in this, as '.' has special meaning in a regex. ?
     private final Pattern runTestPattern = Pattern.compile("^run[.](\\w+)[.]status$");
-    private final BlockingQueue<DssEvent> eventQueue ;
+    private final Queue<DssEvent> eventQueue ;
     private UUID watchID;
     private final IDynamicStatusStoreService dss;
 
-    public DssEventWatcher(BlockingQueue<DssEvent> eventQueue, IDynamicStatusStoreService dss) {
+    public DssEventWatcher(Queue<DssEvent> eventQueue, IDynamicStatusStoreService dss) {
         this.eventQueue = eventQueue;
         this.dss = dss;
     }

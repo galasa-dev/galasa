@@ -5,8 +5,7 @@
  */
 package dev.galasa.framework.resource.management.internal;
 
-import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,26 +17,29 @@ import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IResourceManagementProvider;
 
 public class ResourceManagementRunWatch  {
+
+    private static final int RESOURCE_MANAGEMENT_RUN_WATCH_POLL_INTERVAL_SECONDS = 1;
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private DssEventWatcher watcher;
 
     protected ResourceManagementRunWatch(
         IFramework framework,
-        ArrayList<IResourceManagementProvider> resourceManagementProviders,
+        ResourceManagementProviders resourceManagementProviders,
         ScheduledExecutorService scheduledExecutorService
     ) throws FrameworkException {
 
         logger.debug("ResourceManagementRunWatch: entered.");
-        BlockingQueue<DssEvent> eventQueue = new LinkedBlockingQueue<DssEvent>();
+        // Create a thread-safe queue. Multiple threads can produce/consume onto this queue without blocking
+        // beyond a synchronize lock around the queue itself.
+        Queue<DssEvent> eventQueue = new LinkedBlockingQueue<DssEvent>();
         DssWatchEventProcessor processor = new DssWatchEventProcessor(eventQueue, resourceManagementProviders);
     
         scheduledExecutorService.scheduleWithFixedDelay(processor, 
 				framework.getRandom().nextInt(20),
-				10, 
+				RESOURCE_MANAGEMENT_RUN_WATCH_POLL_INTERVAL_SECONDS,
 				TimeUnit.SECONDS);
 
         IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
@@ -47,7 +49,6 @@ public class ResourceManagementRunWatch  {
         watcher.startWatching();
         logger.debug("ResourceManagementRunWatch: exiting.");
     }
-
 
     public void shutdown() {
         logger.debug("ResourceManagementRunWatch: shutdown() entered.");

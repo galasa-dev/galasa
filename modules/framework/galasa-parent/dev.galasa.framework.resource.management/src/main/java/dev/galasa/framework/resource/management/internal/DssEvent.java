@@ -28,13 +28,13 @@ public class DssEvent {
         this.newValue = newValue;
         this.oldValue = oldValue ;
 
-        logger.debug(this.toString());
+        logger.debug("Created: "+this.toString());
     }
 
 
     @Override
     public String toString() {
-        return "Dss event created: type:"+eventType+" runName:"+runName+" oldValue:"+oldValue+" newValue:"+newValue;
+        return "Dss event: type:"+eventType+" runName:"+runName+" oldValue:"+oldValue+" newValue:"+newValue;
     }
 
     public String getRunName() {
