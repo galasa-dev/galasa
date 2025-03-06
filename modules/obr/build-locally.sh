@@ -426,10 +426,11 @@ function build_generated_obr_generic_pom {
     h2 "Building the generated OBR generic pom.xml..."
     cd ${BASEDIR}/obr-generic
 
-    mvn \
+    mvn install \
     -Dgpg.passphrase=${GPG_PASSPHRASE} \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
-    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ install \
+    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+    dev.galasa:galasa-maven-plugin:$component_version:obrembedded \
     2>&1 >> ${log_file}
 
     rc=$?; if [[ "${rc}" != "0" ]]; then
