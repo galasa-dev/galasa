@@ -212,10 +212,6 @@ public class BaseTestRunner {
 
         IRun run = framework.getTestRun();
 
-        if (!run.isLocal()) { // *** Not interested in non-local runs
-            return;
-        }
-
         try {
             framework.getFrameworkRuns().delete(run.getName());
         } catch (FrameworkException e) {
