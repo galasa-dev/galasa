@@ -177,6 +177,17 @@ info "Log will be placed at ${log_file}"
 date > ${log_file}
 
 #------------------------------------------------------------------------------------
+function check_docker_installed {
+    which docker
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then
+        error "The docker CLI tool is not available on your path. Install docker and try again."
+        exit 1
+    fi
+    success "docker is installed. OK"
+}
+
+#------------------------------------------------------------------------------------
 function get_galasabld_binary_location {
     # What's the architecture-variable name of the build tool we want for this local build ?
     export ARCHITECTURE=$(uname -m) # arm64 or amd64
@@ -532,7 +543,7 @@ function build_boot_embedded_docker_image {
     JDK_IMAGE="ghcr.io/galasa-dev/openjdk:17"
 
     docker build -f "${BASEDIR}/dockerfiles/dockerfile.bootembedded" \
-    -t local-galasa-boot-embedded:latest \
+    -t galasa-boot-embedded:latest \
     --build-arg jdkImage="${JDK_IMAGE}" \
     ${BASEDIR}
 
@@ -570,6 +581,7 @@ if [[ "$detectsecrets" == "true" ]]; then
 fi
 
 if [[ "${is_docker_build_requested}" == "true" ]]; then
+    check_docker_installed
     build_boot_embedded_docker_image
 fi
 
