@@ -124,15 +124,4 @@ public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreS
         return dirs;
     }
 
-    @Override
-    public String calculateRasRunId() {
-        
-        if (this.rasServices.size() > 0) {
-            return this.rasServices.get(0).calculateRasRunId();
-        }
-        
-        return null;
-    }
-    
-
 }

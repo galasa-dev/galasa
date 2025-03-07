@@ -28,7 +28,6 @@ import dev.galasa.extensions.common.couchdb.pojos.ViewRow;
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
 import dev.galasa.extensions.common.mocks.BaseHttpInteraction;
 import dev.galasa.extensions.common.mocks.HttpInteraction;
-import dev.galasa.extensions.common.mocks.MockAsyncCloseableHttpClient;
 import dev.galasa.extensions.common.mocks.MockCloseableHttpClient;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.IRunResult;

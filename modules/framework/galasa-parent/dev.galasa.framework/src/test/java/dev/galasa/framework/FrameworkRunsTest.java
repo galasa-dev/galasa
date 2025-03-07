@@ -56,6 +56,7 @@ public class FrameworkRunsTest {
 
         FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
 
+        String runId = "testId1";
         String runType = "unknown";
         String requestor = "me";
         String bundleName = "mybundle";
@@ -94,7 +95,8 @@ public class FrameworkRunsTest {
             overrides,
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
-            language
+            language,
+            runId
         );
 
         // Then...
@@ -131,6 +133,7 @@ public class FrameworkRunsTest {
 
         FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
 
+        String runId = "testId1";
         String runType = "unknown";
         String requestor = "me";
         String bundleName = "mybundle";
@@ -169,7 +172,8 @@ public class FrameworkRunsTest {
             overrides,
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
-            language
+            language,
+            runId
         );
 
         // Then...
@@ -208,6 +212,7 @@ public class FrameworkRunsTest {
 
         FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
 
+        String runId = "testId1";
         String runType = "unknown";
         String requestor = "me";
         String bundleName = "mybundle";
@@ -247,7 +252,8 @@ public class FrameworkRunsTest {
                 overrides,
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
-                language
+                language,
+                runId
             );
         }, FrameworkException.class);
 
@@ -267,6 +273,7 @@ public class FrameworkRunsTest {
 
         String testName = null;
 
+        String runId = "testId1";
         String runType = "unknown";
         String requestor = "me";
         String bundleName = "mybundle";
@@ -299,7 +306,8 @@ public class FrameworkRunsTest {
                 overrides,
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
-                language
+                language,
+                runId
             );
         }, FrameworkException.class);
 
@@ -319,6 +327,7 @@ public class FrameworkRunsTest {
 
         String bundleName = null;
         
+        String runId = "testId1";
         String testName = "mytest";
         String runType = "unknown";
         String requestor = "me";
@@ -351,7 +360,8 @@ public class FrameworkRunsTest {
                 overrides,
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
-                language
+                language,
+                runId
             );
         }, FrameworkException.class);
 
@@ -371,6 +381,7 @@ public class FrameworkRunsTest {
 
         String language = null;
 
+        String runId = "testId1";
         String bundleName = "mybundle";
         String testName = "mytest";
         String runType = "unknown";
@@ -402,7 +413,8 @@ public class FrameworkRunsTest {
             overrides,
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
-            language
+            language,
+            runId
         );
 
         // Then...
@@ -421,7 +433,8 @@ public class FrameworkRunsTest {
         FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
 
         String runType = "local";
-        
+
+        String runId = "testId1";
         String language = "java";
         String bundleName = "mybundle";
         String testName = "mytest";
@@ -453,7 +466,8 @@ public class FrameworkRunsTest {
             overrides,
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
-            language
+            language,
+            runId
         );
 
         // Then...
@@ -473,6 +487,7 @@ public class FrameworkRunsTest {
 
         String language = "gherkin";
         
+        String runId = "testId1";
         String runType = "local";
         String bundleName = "mybundle";
         String testName = "mygherkintest";
@@ -504,7 +519,8 @@ public class FrameworkRunsTest {
             overrides,
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
-            language
+            language,
+            runId
         );
 
         // Then...
@@ -541,6 +557,7 @@ public class FrameworkRunsTest {
         SharedEnvironmentPhase sharedEnvironmentPhase = SharedEnvironmentPhase.BUILD;
         String sharedEnvironmentRunName = "SHARED-RUN1";
 
+        String runId = "testId1";
         String language = "java";
         String runType = "local";
         String bundleName = "mybundle";
@@ -570,7 +587,8 @@ public class FrameworkRunsTest {
             overrides,
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
-            language
+            language,
+            runId
         );
 
         // Then...
@@ -608,6 +626,7 @@ public class FrameworkRunsTest {
         SharedEnvironmentPhase sharedEnvironmentPhase = SharedEnvironmentPhase.BUILD;
         String sharedEnvironmentRunName = null;
 
+        String runId = "testId1";
         String language = "java";
         String runType = "local";
         String bundleName = "mybundle";
@@ -638,7 +657,8 @@ public class FrameworkRunsTest {
                 overrides,
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
-                language
+                language,
+                runId
             );
         }, FrameworkException.class);
 
@@ -663,6 +683,7 @@ public class FrameworkRunsTest {
 
         SharedEnvironmentPhase sharedEnvironmentPhase = SharedEnvironmentPhase.DISCARD;
 
+        String runId = "testId1";
         String language = "java";
         String runType = "local";
         String bundleName = "mybundle";
@@ -692,7 +713,8 @@ public class FrameworkRunsTest {
             overrides,
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
-            language
+            language,
+            runId
         );
 
         // Then...
@@ -722,6 +744,7 @@ public class FrameworkRunsTest {
 
         SharedEnvironmentPhase sharedEnvironmentPhase = SharedEnvironmentPhase.BUILD;
 
+        String runId = "testId1";
         String language = "java";
         String runType = "local";
         String bundleName = "mybundle";
@@ -752,7 +775,8 @@ public class FrameworkRunsTest {
                 overrides,
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
-                language
+                language,
+                runId
             );
         }, FrameworkException.class);
 

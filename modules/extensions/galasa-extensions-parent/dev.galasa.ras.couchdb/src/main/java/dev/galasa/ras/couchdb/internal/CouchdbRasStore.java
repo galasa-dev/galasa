@@ -120,6 +120,7 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
         if (this.run != null) {
             lastTestStructure = new TestStructure();
             lastTestStructure.setRunName(this.run.getName());
+            this.runDocumentId = run.getRasRunId();
             try {
                 updateTestStructure(lastTestStructure);
             } catch (ResultArchiveStoreException e) {
@@ -228,12 +229,12 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
         String jsonStructure = gson.toJson(testStructure);
 
         HttpEntityEnclosingRequestBase request;
-        if (runDocumentId == null) {
-            request = httpRequestFactory.getHttpPostRequest(this.storeUri + "/"+RUNS_DB);
-        } else {
-            request = httpRequestFactory.getHttpPutRequest(this.storeUri + "/"+RUNS_DB+"/" + runDocumentId);
+
+        request = httpRequestFactory.getHttpPutRequest(this.storeUri + "/"+RUNS_DB+"/" + runDocumentId);
+        if (runDocumentRevision != null) {
             request.setHeader("If-Match", runDocumentRevision);
         }
+
         request.setEntity(new StringEntity(jsonStructure, StandardCharsets.UTF_8));
 
         try{
@@ -242,7 +243,6 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
                 if (putPostResponse.id == null || putPostResponse.rev == null) {
                     throw new CouchdbException("Unable to store the test structure - Invalid JSON response");
                 }
-                this.runDocumentId = putPostResponse.id;
                 this.runDocumentRevision = putPostResponse.rev;
         } catch (CouchdbException e){
             throw new ResultArchiveStoreException(e);
@@ -353,15 +353,6 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
         ArrayList<IResultArchiveStoreDirectoryService> dirs = new ArrayList<>();
         dirs.add(new CouchdbDirectoryService(this, this.logFactory, this.httpRequestFactory));
         return dirs;
-    }
-
-    @Override
-    public String calculateRasRunId() {
-
-        if (this.runDocumentId == null) {
-            return null;
-        }
-        return "cdb-" + this.runDocumentId;
     }
 
    public HttpRequestFactory getRequestFactory() {

@@ -39,11 +39,6 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
         mockFS.setFileContents(mockFS.getPath("/my/stored/artifacts/root/framework/cps_record.properties"), "Dummy test content");
     }
 
-    @Override
-    public String calculateRasRunId() {
-        return this.runId;
-    }
-
     public List<TestStructure> getTestStructureHistory() {
         return this.testStructureHistory;
     }

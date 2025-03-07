@@ -124,6 +124,11 @@ public class MockRun implements IRun {
                throw new UnsupportedOperationException("Unimplemented method 'isSharedEnvironment'");
     }
 
+    @Override
+    public String getRasRunId() {
+        throw new UnsupportedOperationException("Unimplemented method 'getRasRunId'");
+    }
+
 
     
 }

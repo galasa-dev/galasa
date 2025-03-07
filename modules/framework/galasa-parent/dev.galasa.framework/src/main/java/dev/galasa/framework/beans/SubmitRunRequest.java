@@ -31,6 +31,7 @@ public class SubmitRunRequest {
     private String language = "java";
     private String bundleTest;
     private String gherkinTest;
+    private String rasRunId;
 
     public SubmitRunRequest(
         String runType,
@@ -46,7 +47,8 @@ public class SubmitRunRequest {
         Properties overrides,
         SharedEnvironmentPhase sharedEnvironmentPhase,
         String sharedEnvironmentRunName,
-        String language
+        String language,
+        String runId
     ) throws FrameworkException {
         setTestName(testName);
 
@@ -63,6 +65,7 @@ public class SubmitRunRequest {
         this.sharedEnvironmentPhase = sharedEnvironmentPhase;
         this.sharedEnvironmentRunName = sharedEnvironmentRunName;
         this.language = language;
+        this.rasRunId = runId;
     }
 
     public String getRunType() {
@@ -194,5 +197,13 @@ public class SubmitRunRequest {
 
     public void setGherkinTest(String gherkinTest) {
         this.gherkinTest = gherkinTest;
+    }
+
+    public String getRasRunId() {
+        return this.rasRunId;
+    }
+
+    public void setRasRunId(String rasRunId) {
+        this.rasRunId = rasRunId;
     }
 }

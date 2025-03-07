@@ -43,7 +43,7 @@ public class CouchdbTestFixtures {
     public static final String rasUriStr = "http://my.uri";
     public static final URI rasUri = URI.create(rasUriStr);
 
-    public static final String documentId1 = "xyz127";
+    public static final String documentId1 = "cdb-xyz127";
     public static final String documentRev1 = "123";
     public static final String runName1 = "L10";
     public static final String ATTACHMENT_CONTENT1 = "Hello World";
@@ -113,8 +113,11 @@ public class CouchdbTestFixtures {
         @Override
         public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
             super.validateRequest(host,request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("POST");
-            assertThat(request.getRequestLine().getUri()).isEqualTo(getRasUriStr()+"/galasa_run");
+
+            String rasUriStr = getRasUriStr();
+            String documentId = getDocumentId();
+            assertThat(request.getRequestLine().getMethod()).isEqualTo("PUT");
+            assertThat(request.getRequestLine().getUri()).isEqualTo(rasUriStr+"/galasa_run/"+documentId);
         }
 
         @Override
@@ -221,7 +224,7 @@ public class CouchdbTestFixtures {
 
         MockConfigurationPropertyStoreService mockCps = new MockConfigurationPropertyStoreService(props);
 
-        IRun mockIRun = new MockIRun(runName1);
+        IRun mockIRun = new MockIRun(runName1, documentId1);
 
         return createCouchdbRasStore(mockCps, mockIRun, logFactory, new MockCloseableHttpClient(allInteractions));
     }
