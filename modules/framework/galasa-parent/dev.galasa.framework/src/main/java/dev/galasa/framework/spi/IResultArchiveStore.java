@@ -78,7 +78,4 @@ public interface IResultArchiveStore {
 
     @NotNull
     List<IResultArchiveStoreDirectoryService> getDirectoryServices();
-    
-    String calculateRasRunId();
-
 }

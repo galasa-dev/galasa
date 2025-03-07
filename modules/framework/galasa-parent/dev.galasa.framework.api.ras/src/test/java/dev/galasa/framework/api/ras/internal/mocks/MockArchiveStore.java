@@ -61,9 +61,4 @@ public class MockArchiveStore implements IResultArchiveStore {
     public @NotNull List<IResultArchiveStoreDirectoryService> getDirectoryServices() {
         return this.directoryServices;
     }
-
-    @Override
-    public String calculateRasRunId() {
-        throw new UnsupportedOperationException("Unimplemented method 'calculateRasRunId'");
-    }
 }

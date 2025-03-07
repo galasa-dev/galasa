@@ -72,9 +72,6 @@ public class GherkinTestRunner extends BaseTestRunner {
 
         try {
 
-            String rasRunId = this.ras.calculateRasRunId();
-            storeRasRunIdInDss(dss, rasRunId);
-
             try {
                 String streamName = AbstractManager.nulled(run.getStream());
                 new MavenRepositoryListBuilder(this.mavenRepository, this.cps)

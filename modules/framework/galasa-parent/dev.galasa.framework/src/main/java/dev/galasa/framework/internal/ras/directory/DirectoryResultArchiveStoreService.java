@@ -222,17 +222,4 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         return dirs;
     }
 
-    @Override
-    public String calculateRasRunId() {
-        final String runName = this.framework.getTestRunName();
-        if (runName == null) {
-            return null;
-        }
-        
-        String id = DirectoryRASDirectoryService.ID_PREFIX + Base64.getEncoder().encodeToString(this.runDirectory.toString().getBytes(StandardCharsets.UTF_8));
-        
-        return id;
-    }
-
-
 }

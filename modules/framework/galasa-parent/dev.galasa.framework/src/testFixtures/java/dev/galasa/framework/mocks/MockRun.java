@@ -175,6 +175,10 @@ public class MockRun implements IRun {
     public String getResult() {
         throw new UnsupportedOperationException("Unimplemented method 'getResult'");
     }
+    @Override
+    public String getRasRunId() {
+        throw new UnsupportedOperationException("Unimplemented method 'getRasRunId'");
+    }
 
 
     
