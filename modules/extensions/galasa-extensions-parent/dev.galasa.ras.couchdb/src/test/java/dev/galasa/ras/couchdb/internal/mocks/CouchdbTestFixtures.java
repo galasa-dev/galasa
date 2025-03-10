@@ -43,7 +43,7 @@ public class CouchdbTestFixtures {
     public static final String rasUriStr = "http://my.uri";
     public static final URI rasUri = URI.create(rasUriStr);
 
-    public static final String documentId1 = "cdb-xyz127";
+    public static final String documentId1 = "xyz127";
     public static final String documentRev1 = "123";
     public static final String runName1 = "L10";
     public static final String ATTACHMENT_CONTENT1 = "Hello World";
