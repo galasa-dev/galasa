@@ -548,6 +548,9 @@ function build_boot_embedded_docker_image {
     --build-arg jdkImage="${JDK_IMAGE}" \
     ${BASEDIR}
 
+    rc=$?
+    check_exit_code ${rc} "Failed to build the OBR boot embedded Docker image."
+
     success "Boot embedded Docker image built OK"
 }
 
