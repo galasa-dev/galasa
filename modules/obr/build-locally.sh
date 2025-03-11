@@ -103,7 +103,6 @@ detectsecrets="true"
 while [ "$1" != "" ]; do
     case $1 in
         --docker )              is_docker_build_requested="true"
-                                shift
                                 ;;
         -h | --help )           usage
                                 exit
@@ -437,10 +436,11 @@ function build_generated_obr_generic_pom {
     h2 "Building the generated OBR generic pom.xml..."
     cd ${BASEDIR}/obr-generic
 
-    mvn \
+    mvn install \
     -Dgpg.passphrase=${GPG_PASSPHRASE} \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
-    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ install \
+    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+    dev.galasa:galasa-maven-plugin:$component_version:obrembedded \
     2>&1 >> ${log_file}
 
     rc=$?; if [[ "${rc}" != "0" ]]; then
@@ -546,6 +546,9 @@ function build_boot_embedded_docker_image {
     -t galasa-boot-embedded:latest \
     --build-arg jdkImage="${JDK_IMAGE}" \
     ${BASEDIR}
+
+    rc=$?
+    check_exit_code ${rc} "Failed to build the OBR boot embedded Docker image."
 
     success "Boot embedded Docker image built OK"
 }

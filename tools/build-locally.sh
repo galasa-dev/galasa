@@ -132,7 +132,6 @@ while [ "$1" != "" ]; do
                         ;;
 
         --docker )      build_docker_flag="--docker"
-                        shift
                         ;;
 
         * )             error "Unexpected argument $1"

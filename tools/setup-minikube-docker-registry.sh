@@ -11,6 +11,8 @@
 # Objectives: Sets up and populates a local Docker registry with Docker images used for
 # Galasa development.
 #
+# Note: This script has only been tested on macOS.
+#
 #-----------------------------------------------------------------------------------------
 
 # Where is this script executing from ?
@@ -55,11 +57,10 @@ note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" 
 # Functions
 #-----------------------------------------------------------------------------------------
 function usage {
-    info "Syntax: setup-local-docker-registry.sh [OPTIONS]"
+    info "Syntax: setup-minikube-docker-registry.sh [OPTIONS]"
     cat << EOF
 Options are:
 --build : Builds the Galasa Docker images as well as setting up a local Docker registry
---minikube : Set up a local Docker registry for use by minikube
 -h | --help : Display this help text
 EOF
 }
@@ -68,15 +69,9 @@ EOF
 # Process parameters
 #-----------------------------------------------------------------------------------------
 is_build_locally_requested=""
-is_configure_minikube_requested=""
-REGISTRY_NAME="local-galasa-registry"
 while [ "$1" != "" ]; do
     case $1 in
         --build )       is_build_locally_requested="true"
-                        shift
-                        ;;
-        --minikube )    is_configure_minikube_requested="true"
-                        shift
                         ;;
         -h | --help )   usage
                         exit
@@ -94,7 +89,6 @@ done
 function clean_up_before_set_up {
     h2 "Cleaning up any existing Docker containers..."
 
-    docker stop local-galasa-registry | xargs docker rm
     docker stop docker-to-minikube-socat | xargs docker rm
 
     success "Clean-up completed OK"
@@ -116,7 +110,7 @@ function loop_get_url_until_success {
 }
 
 #-----------------------------------------------------------------------------------------
-function check_exit_code () {
+function check_exit_code {
     # This function takes 2 parameters in the form:
     # $1 an integer value of the returned exit code
     # $2 an error message to display if $1 is not equal to 0
@@ -148,34 +142,31 @@ function check_minikube_installed {
 }
 
 #-----------------------------------------------------------------------------------------
-function start_local_docker_registry {
-    h2 "Starting local Docker registry..."
-
-    # Check if the docker registry is already started
-    container_count=$(docker ps -a | grep ${REGISTRY_NAME} | wc -l | xargs)
-    if [[ "${container_count}" == "1" ]]; then
-        info "local Docker registry container already exists."
-
-        docker start ${REGISTRY_NAME}
-        rc=$?
-        check_exit_code ${rc} "Failed to restart the existing Docker registry container on port 5000. Check that this port is not in use and try again."
-    else
-        info "Starting a new local Docker registry container..."
-        docker run -d -p 5000:5000 --name ${REGISTRY_NAME} registry:2
-        rc=$?
-        check_exit_code ${rc} "Failed to start a local Docker registry container on port 5000. Check that this port is not in use and try again."
-    fi
-    success "Started local Docker registry OK"
-}
-
-#-----------------------------------------------------------------------------------------
 function build_galasa_modules_and_images {
-    h2 "Building Galasa modules and all Docker images using build-locally.sh..."
+    h2 "Building Galasa modules and Docker images used for the Galasa service..."
+
+    info "Building Galasa modules for the galasa-boot-embedded Docker image..."
     ${BASEDIR}/build-locally.sh --module wrapping --docker
 
     rc=$?
-    check_exit_code ${rc} "Failed to build the Galasa modules and all Docker images"
-    success "Galasa build-locally.sh completed OK"
+    check_exit_code ${rc} "Failed to build the Galasa modules for the galasa-boot-embedded Docker image"
+
+    # This separate webui build step will not be needed if the webui project is moved into the monorepo...
+    build_galasa_webui_image
+
+    success "Galasa service Docker images built OK"
+}
+
+#-----------------------------------------------------------------------------------------
+function build_galasa_webui_image {
+    cd "${PROJECT_DIR}/.."
+    expected_webui_dir=$(pwd)/webui
+
+    info "Building the Galasa web UI and webui Docker image, assuming the 'webui' project is cloned to '${expected_webui_dir}'..."
+    ${expected_webui_dir}/build-locally.sh --clean --docker
+
+    rc=$?
+    check_exit_code ${rc} "Failed to build the Galasa web UI and webui Docker image. Check that the webui project is cloned to ${expected_webui_dir} and try again"
 }
 
 #-----------------------------------------------------------------------------------------
@@ -183,13 +174,14 @@ function push_galasa_images_to_local_registry {
     h2 "Pushing built images to local registry..."
 
     push_image_to_local_registry "galasa-boot-embedded:latest"
+    push_image_to_local_registry "webui:latest"
 
     success "Images pushed OK"
 }
 
 #-----------------------------------------------------------------------------------------
 function push_image_to_local_registry {
-    # This function expects the name of the image to be pushed
+    # This function expects the name of the image to push
     image_name=$1
     retagged_image_name="localhost:5000/${image_name}"
 
@@ -197,7 +189,7 @@ function push_image_to_local_registry {
     docker tag ${image_name} ${retagged_image_name}
 
     rc=$?
-    check_exit_code ${rc} "Failed to retag the ${image_name} to ${retagged_image_name}"
+    check_exit_code ${rc} "Failed to retag the ${image_name} to ${retagged_image_name}. Check that image ${image_name} has been built and try again."
     success "Image tagged OK"
 
     h2 "Pushing image to local Docker registry..."
@@ -249,14 +241,10 @@ function setup_local_registry_for_minikube {
 #-----------------------------------------------------------------------------------------
 
 check_docker_installed
-clean_up_before_set_up
+check_minikube_installed
 
-if [[ "${is_configure_minikube_requested}" == "true" ]]; then
-    check_minikube_installed
-    setup_local_registry_for_minikube
-else
-    start_local_docker_registry
-fi
+clean_up_before_set_up
+setup_local_registry_for_minikube
 
 if [[ "${is_build_locally_requested}" == "true" ]]; then
     build_galasa_modules_and_images
