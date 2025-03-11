@@ -1367,6 +1367,16 @@ paths:
           schema:
             type: string
           example: someGroupId
+        - name: submissionId
+          in: query
+          description: |
+            The submission Id allocated to this test run when the test run was submitted
+            It can be used to query all the runs and re-runs for a test.
+            Similar to the groupId, but much more restricted to return a set of runs which are all a result of 
+            the same request to run a test.
+          schema:
+            type: string
+          example: a6847035-7768-4416-91a6-fe05cf10da85
         
         # Temporary feature flag to enable cursor-based pagination
         - name: includeCursor
@@ -2541,6 +2551,9 @@ components:
           type: string
         group:
           type: string
+        submissionId:
+          type: string
+          description: A uuid created to identify this test run. Useful until this run has been allocated a test name, which is allocated once the test is launched.
         test:
           type: string
         bundleName:
@@ -2741,6 +2754,9 @@ components:
           type: string
         group:
           type: string
+        submissionId:
+          type: string
+          description: A uuid created to identify this test run. Useful until this run has been allocated a test name, which is allocated once the test is launched.
         requestor:
           type: string
         status:
