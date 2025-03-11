@@ -44,14 +44,14 @@ public class RunFinishedRuns implements Runnable {
 
     @Override
     public void run() {
-        int defaultFinishedDelete = 300; // ** 5 minutes
+        int defaultFinishedDeleteSeconds = 2; 
         try { // TODO do we need a different timeout for automation run reset?
             String overrideTime = AbstractManager.nulled(cps.getProperty("resource.management", "finished.timeout"));
             if (overrideTime != null) {
-                defaultFinishedDelete = Integer.parseInt(overrideTime);
+                defaultFinishedDeleteSeconds = Integer.parseInt(overrideTime);
             }
         } catch (Exception e) {
-            logger.error("Problem with resource.management.finished.timeout, using default " + defaultFinishedDelete,
+            logger.error("Problem with resource.management.finished.timeout, using default " + defaultFinishedDeleteSeconds,
                     e);
         }
 
@@ -67,7 +67,7 @@ public class RunFinishedRuns implements Runnable {
                 }
 
                 Instant finished = run.getFinished();
-                Instant expires = finished.plusSeconds(defaultFinishedDelete);
+                Instant expires = finished.plusSeconds(defaultFinishedDeleteSeconds);
                 Instant now = Instant.now();
                 if (expires.compareTo(now) <= 0) {
                     String sFinished = dtf.format(LocalDateTime.ofInstant(finished, ZoneId.systemDefault()));

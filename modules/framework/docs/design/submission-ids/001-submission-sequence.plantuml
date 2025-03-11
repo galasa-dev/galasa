@@ -1,0 +1,69 @@
+@startuml 001-submission-sequence
+title "Submission"
+
+participant CLI
+participant API
+participant DSS
+participant Engine
+participant Test
+participant CouchDB
+
+CLI -> API : Submit test
+API -> DSS : put(submission-id, groupid, state=queued)
+API --> CLI : Response(submission-id)
+
+Engine -> DSS : Poll-for-queued
+DSS --> Engine: Response(submission id, groupid , state=queued)
+
+Engine->Engine: create runName like U456
+
+Engine->Test : launch(runName, groupid, submission id, state=started)
+
+Test-> CouchDB : Create()
+CouchDB --> Test : doc id a.k.a run-id.
+Test -> DSS : update(+doc id/run-id)
+
+Test-> Test: runs test
+Test-> CouchDB : updates document as test state changes
+Test-> CouchDB : updates document as test state changes
+Test-> CouchDB : updates document as test state changes
+Test-> CouchDB: Finished
+
+Test->DSS : Delete(runId=U456)
+
+
+
+
+CLI -> API : Submit test
+API -> DSS : put(submission-id, groupid, state=queued)
+API --> CLI : Response(submission-id)
+
+Engine -> DSS : Poll-for-queued
+DSS --> Engine: Response(submission id, groupid , state=queued)
+
+Engine->Engine: create runName like U456
+
+Engine->Test : launch(runName, groupid, submission id, state=started)
+
+Test-> CouchDB : Create()
+CouchDB --> Test : doc id a.k.a run-id.
+Test -> DSS : update(+doc id/run-id)
+
+Test-> Test: runs test
+Test-> CouchDB : updates document as test state changes
+
+note right
+No resources
+end note
+
+Test->DSS : create(runName, groupId, submissionId, state=queued, no runId)
+
+
+Engine -> DSS : Poll-for-queued
+DSS --> Engine: Response(submission id, groupid , state=queued)
+
+Engine->Engine: create runName like U456
+
+Engine->Test : launch(runName, groupid, submission id, state=started)
+
+@enduml

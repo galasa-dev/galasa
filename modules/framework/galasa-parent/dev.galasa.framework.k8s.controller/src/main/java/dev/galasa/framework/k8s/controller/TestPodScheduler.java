@@ -29,6 +29,7 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SystemEnvironment;
 import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
+// import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Affinity;
@@ -365,12 +366,7 @@ public class TestPodScheduler implements Runnable {
 
         V1ResourceRequirements resources = new V1ResourceRequirements();
         container.setResources(resources);
-
-        // TODO reinstate
-        // System.out.println("requests=" +
-        // Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi");
-        // System.out.println("limit=" +
-        // Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi");
+  
         // resources.putRequestsItem("memory", new
         // Quantity(Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi"));
         // resources.putLimitsItem("memory", new
