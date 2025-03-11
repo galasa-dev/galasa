@@ -35,6 +35,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaSubmissionId;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.rbac.RBACException;
@@ -75,6 +76,7 @@ public class RunQueryRoute extends RunsRoute {
 	public static final String QUERY_PARAMETER_PAGE = "page";
 	public static final String QUERY_PARAMETER_SIZE = "size";
 	public static final String QUERY_PARAMETER_GROUP = "group";
+	public static final String QUERY_PARAMETER_SUBMISSION_ID = "submissionId";
 	public static final String QUERY_PARAMETER_INCLUDECURSOR = "includecursor";
 	public static final String QUERY_PARAMETER_CURSOR = "cursor";
 	public static final String QUERY_PARAMETER_RUNNAME = "runname";
@@ -83,8 +85,9 @@ public class RunQueryRoute extends RunsRoute {
 		QUERY_PARAMETER_SORT, QUERY_PARAMETER_RESULT, QUERY_PARAMETER_STATUS,
 		QUERY_PARAMETER_BUNDLE, QUERY_PARAMETER_REQUESTOR, QUERY_PARAMETER_FROM,
 		QUERY_PARAMETER_TO, QUERY_PARAMETER_TESTNAME, QUERY_PARAMETER_PAGE,
-		QUERY_PARAMETER_SIZE, QUERY_PARAMETER_GROUP, QUERY_PARAMETER_INCLUDECURSOR,
-		QUERY_PARAMETER_CURSOR, QUERY_PARAMETER_RUNNAME, QUERY_PARAMETER_RUNID
+		QUERY_PARAMETER_SIZE, QUERY_PARAMETER_GROUP, QUERY_PARAMETER_SUBMISSION_ID,
+		QUERY_PARAMETER_INCLUDECURSOR, QUERY_PARAMETER_CURSOR, QUERY_PARAMETER_RUNNAME,
+		QUERY_PARAMETER_RUNID
 	);
 
 
@@ -208,18 +211,63 @@ public class RunQueryRoute extends RunsRoute {
 		String testName = queryParams.getTestName();
 		String bundle = queryParams.getBundle();
 		List<String> result = queryParams.getResultsFromParameters(getResultNames());
-		List<TestRunLifecycleStatus> status = queryParams.getStatusesFromParameters();
+		List<TestRunLifecycleStatus> statuses = queryParams.getStatusesFromParameters();
 		String runName = queryParams.getRunName();
 		String group = queryParams.getGroup();
-
+		String submissionId = queryParams.getSubmissionId();
 		Instant to = queryParams.getToTime();
 
 		Instant defaultFromTime = Instant.now().minus(24,ChronoUnit.HOURS);
 		// from will error if no runname is specified as it is a mandatory field
 		Instant from = getQueriedFromTime(queryParams, defaultFromTime);
 
-		List<IRasSearchCriteria> criteria = getCriteria(requestor,testName,bundle,result,status,to, from, runName, group);
-		return criteria ;
+		List<IRasSearchCriteria> critList = new ArrayList<>();
+
+		if (from != null) {
+			RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(from);
+			critList.add(fromCriteria);
+		}
+
+		// Checking all parameters to apply to the search criteria
+		// The default for 'to' is null.
+		if (to != null) {
+			RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(to);
+			critList.add(toCriteria);
+		}
+		if (requestor != null && !requestor.isEmpty()) {
+			RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
+			critList.add(requestorCriteria);
+		}
+		if (testName != null && !testName.isEmpty()) {
+			RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
+			critList.add(testNameCriteria);
+		}
+		if (bundle != null && !bundle.isEmpty()) {
+			RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
+			critList.add(bundleCriteria);
+		}
+		if (result != null && !result.isEmpty()) {
+			RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result.toArray(new String[0]));
+			critList.add(resultCriteria);
+		}
+		if (statuses != null && !statuses.isEmpty()){
+			RasSearchCriteriaStatus statusCriteria = new RasSearchCriteriaStatus(statuses);
+			critList.add(statusCriteria);
+		}
+		if (runName != null && !runName.isEmpty()) {
+			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
+			critList.add(runNameCriteria);
+		}
+		if (group != null && !group.isEmpty()) {
+			RasSearchCriteriaGroup groupCriteria = new RasSearchCriteriaGroup(group);
+			critList.add(groupCriteria);
+		}
+		if (submissionId != null && !submissionId.isEmpty()) {
+			RasSearchCriteriaSubmissionId submissionIdCriteria = new RasSearchCriteriaSubmissionId(submissionId);
+			critList.add(submissionIdCriteria);
+		}
+
+		return critList;
 	}
 
 	private String buildResponseBody(List<RasRunResult> runs, int pageNum, int pageSize) throws InternalServletException {
@@ -262,62 +310,6 @@ public class RunQueryRoute extends RunsRoute {
         pageJson.add("runs", tree);
 
         return gson.toJson(pageJson);
-	}
-
-	private List<IRasSearchCriteria> getCriteria(
-		String requestor,
-		String testName,
-		String bundle,
-		List<String> result,
-		List<TestRunLifecycleStatus> passedInStatuses,
-		Instant to,
-		Instant from,
-		String runName,
-		String group
-	) throws InternalServletException {
-
-		List<IRasSearchCriteria> critList = new ArrayList<>();
-
-		if (from != null) {
-			RasSearchCriteriaQueuedFrom fromCriteria = new RasSearchCriteriaQueuedFrom(from);
-			critList.add(fromCriteria);
-		}
-
-		// Checking all parameters to apply to the search criteria
-		// The default for 'to' is null.
-		if (to != null) {
-			RasSearchCriteriaQueuedTo toCriteria = new RasSearchCriteriaQueuedTo(to);
-			critList.add(toCriteria);
-		}
-		if (requestor != null && !requestor.isEmpty()) {
-			RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(requestor);
-			critList.add(requestorCriteria);
-		}
-		if (testName != null && !testName.isEmpty()) {
-			RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
-			critList.add(testNameCriteria);
-		}
-		if (bundle != null && !bundle.isEmpty()) {
-			RasSearchCriteriaBundle bundleCriteria = new RasSearchCriteriaBundle(bundle);
-			critList.add(bundleCriteria);
-		}
-		if (result != null && !result.isEmpty()) {
-			RasSearchCriteriaResult resultCriteria = new RasSearchCriteriaResult(result.toArray(new String[0]));
-			critList.add(resultCriteria);
-		}
-		if (passedInStatuses != null && !passedInStatuses.isEmpty()){
-			RasSearchCriteriaStatus statusCriteria = new RasSearchCriteriaStatus(passedInStatuses);
-			critList.add(statusCriteria);
-		}
-		if (runName != null && !runName.isEmpty()) {
-			RasSearchCriteriaRunName runNameCriteria = new RasSearchCriteriaRunName(runName);
-			critList.add(runNameCriteria);
-		}
-		if (group != null && !group.isEmpty()) {
-			RasSearchCriteriaGroup groupCriteria = new RasSearchCriteriaGroup(group);
-			critList.add(groupCriteria);
-		}
-		return critList;
 	}
 
 	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageNum, int pageSize, int numPages) {

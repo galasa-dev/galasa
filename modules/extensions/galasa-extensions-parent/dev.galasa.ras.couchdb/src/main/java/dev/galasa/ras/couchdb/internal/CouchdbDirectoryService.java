@@ -49,6 +49,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaSubmissionId;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.ras.ResultArchiveStoreFileStore;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -491,9 +492,13 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
 
                 inArray(and, "bundle", sBundle.getBundles());
             } else if (searchCriteria instanceof RasSearchCriteriaGroup) {
-                RasSearchCriteriaGroup sBundle = (RasSearchCriteriaGroup) searchCriteria;
+                RasSearchCriteriaGroup sGroup = (RasSearchCriteriaGroup) searchCriteria;
 
-                inArray(and, "group", sBundle.getGroups());
+                inArray(and, "group", sGroup.getGroups());
+            } else if (searchCriteria instanceof RasSearchCriteriaSubmissionId) {
+                RasSearchCriteriaSubmissionId submissionIdCriteria = (RasSearchCriteriaSubmissionId) searchCriteria;
+
+                inArray(and, "submissionId", submissionIdCriteria.getSubmissionIds());
             } else if (searchCriteria instanceof RasSearchCriteriaResult) {
                 RasSearchCriteriaResult sResult = (RasSearchCriteriaResult) searchCriteria;
 

@@ -21,23 +21,27 @@ public class RasServletTest extends BaseServletTest {
 
 	protected MockFileSystem mockFileSystem;
 
-	protected List<IRunResult> generateTestData(String runId, String runName, String runLog) {
-		return generateTestData(runId, runName, runLog, "galasa");
-	}
-
-	protected List<IRunResult> generateTestData(String runId, String runName, String runLog, String requestor) {
+	protected List<IRunResult> generateTestData(String runId, TestStructure testStructure, String runLog) {
 		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
 
-		// Build the results the DB will return.
-		TestStructure testStructure = new TestStructure();
-		testStructure.setRunName(runName);
-		testStructure.setRequestor(requestor);
-		testStructure.setResult("Passed");
-
+		String runName = testStructure.getRunName();
 		Path artifactRoot = new MockPath("/" + runName, this.mockFileSystem);
 		IRunResult result = new MockRunResult( runId, testStructure, artifactRoot, runLog);
 		mockInputRunResults.add(result);
 
 		return mockInputRunResults;
+	}
+
+	protected List<IRunResult> generateTestData(String runId, String runName, String runLog) {
+		return generateTestData(runId, runName, runLog, "galasa");
+	}
+
+	protected List<IRunResult> generateTestData(String runId, String runName, String runLog, String requestor) {
+		TestStructure testStructure = new TestStructure();
+		testStructure.setRunName(runName);
+		testStructure.setRequestor(requestor);
+		testStructure.setResult("Passed");
+
+		return generateTestData(runId, testStructure, runLog);
 	}
 }

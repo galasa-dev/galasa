@@ -217,7 +217,8 @@ public class TestGroupRunsRoute extends RunsServletTest{
     public void testGetRunsWithValidGroupNameReturnsOk() throws Exception {
         // Given...
 		String groupName = "framework";
-        addRun("name1", "type1", "requestor1", "test1", "FINISHED","bundle1", "testClass1", groupName);
+        String submissionId = "submission1";
+        addRun("name1", "type1", "requestor1", "test1", "FINISHED","bundle1", "testClass1", groupName, submissionId);
         setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -229,7 +230,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doGet(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "true");
+        String expectedJson = generateExpectedJson(runs, true);
         assertThat(resp.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -238,8 +239,9 @@ public class TestGroupRunsRoute extends RunsServletTest{
     public void testGetRunsWithValidGroupNameReturnsMultiple() throws Exception {
         // Given...
 		String groupName = "framework";
-        addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName);
-        addRun("name2", "type2", "requestor2", "test2", "BUILDING","bundle2", "testClass2", groupName);
+        String submissionId = "submission1";
+        addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName, submissionId);
+        addRun("name2", "type2", "requestor2", "test2", "BUILDING","bundle2", "testClass2", groupName, submissionId);
         setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -251,7 +253,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doGet(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -260,16 +262,17 @@ public class TestGroupRunsRoute extends RunsServletTest{
     public void testGetRunsWithValidGroupNameMultipleWithFinishedRunReturnsCompleteFalse() throws Exception {
         // Given...
 		String groupName = "framework";
-        addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName);
-        addRun("name2", "type2", "requestor2", "test2", "BUILDING","bundle2", "testClass2", groupName);
-        addRun("name3", "type3", "requestor3", "test3", "FINISHED","bundle3", "testClass3", groupName);
-        addRun("name4", "type4", "requestor4", "test4", "UP","bundle4", "testClass4", groupName);
-        addRun("name5", "type6", "requestor5", "test5", "DISCARDED","bundle5", "testClass6", groupName);
-        addRun("name6", "type6", "requestor6", "test6", "BUILDING","bundle6", "testClass6", groupName);
-        addRun("name7", "type7", "requestor7", "test7", "BUILDING","bundle7", "testClass7", groupName);
-        addRun("name8", "type8", "requestor8", "test8", "BUILDING","bundle8", "testClass8", groupName);
-        addRun("name9", "type9", "requestor9", "test9", "BUILDING","bundle9", "testClass9", groupName);
-        addRun("name10", "type10", "requestor10", "test10", "BUILDING","bundle10", "testClass10", groupName);
+        String submissionId = "submission1";
+        addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName, submissionId);
+        addRun("name2", "type2", "requestor2", "test2", "BUILDING","bundle2", "testClass2", groupName, submissionId);
+        addRun("name3", "type3", "requestor3", "test3", "FINISHED","bundle3", "testClass3", groupName, submissionId);
+        addRun("name4", "type4", "requestor4", "test4", "UP","bundle4", "testClass4", groupName, submissionId);
+        addRun("name5", "type6", "requestor5", "test5", "DISCARDED","bundle5", "testClass6", groupName, submissionId);
+        addRun("name6", "type6", "requestor6", "test6", "BUILDING","bundle6", "testClass6", groupName, submissionId);
+        addRun("name7", "type7", "requestor7", "test7", "BUILDING","bundle7", "testClass7", groupName, submissionId);
+        addRun("name8", "type8", "requestor8", "test8", "BUILDING","bundle8", "testClass8", groupName, submissionId);
+        addRun("name9", "type9", "requestor9", "test9", "BUILDING","bundle9", "testClass9", groupName, submissionId);
+        addRun("name10", "type10", "requestor10", "test10", "BUILDING","bundle10", "testClass10", groupName, submissionId);
         setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -281,7 +284,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doGet(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -290,16 +293,17 @@ public class TestGroupRunsRoute extends RunsServletTest{
     public void testGetRunsWithUUIDGroupNameMultipleWithFinishedRunReturnsCompleteFalse() throws Exception {
         // Given...
 		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
-        addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName);
-        addRun("name2", "type2", "requestor2", "test2", "BUILDING","bundle2", "testClass2", groupName);
-        addRun("name3", "type3", "requestor3", "test3", "FINISHED","bundle3", "testClass3", groupName);
-        addRun("name4", "type4", "requestor4", "test4", "UP","bundle4", "testClass4", groupName);
-        addRun("name5", "type6", "requestor5", "test5", "DISCARDED","bundle5", "testClass6", groupName);
-        addRun("name6", "type6", "requestor6", "test6", "BUILDING","bundle6", "testClass6", groupName);
-        addRun("name7", "type7", "requestor7", "test7", "BUILDING","bundle7", "testClass7", groupName);
-        addRun("name8", "type8", "requestor8", "test8", "BUILDING","bundle8", "testClass8", groupName);
-        addRun("name9", "type9", "requestor9", "test9", "BUILDING","bundle9", "testClass9", groupName);
-        addRun("name10", "type10", "requestor10", "test10", "BUILDING","bundle10", "testClass10", groupName);
+        String submissionId = "submission1";
+        addRun("name1", "type1", "requestor1", "test1", "BUILDING","bundle1", "testClass1", groupName, submissionId);
+        addRun("name2", "type2", "requestor2", "test2", "BUILDING","bundle2", "testClass2", groupName, submissionId);
+        addRun("name3", "type3", "requestor3", "test3", "FINISHED","bundle3", "testClass3", groupName, submissionId);
+        addRun("name4", "type4", "requestor4", "test4", "UP","bundle4", "testClass4", groupName, submissionId);
+        addRun("name5", "type6", "requestor5", "test5", "DISCARDED","bundle5", "testClass6", groupName, submissionId);
+        addRun("name6", "type6", "requestor6", "test6", "BUILDING","bundle6", "testClass6", groupName, submissionId);
+        addRun("name7", "type7", "requestor7", "test7", "BUILDING","bundle7", "testClass7", groupName, submissionId);
+        addRun("name8", "type8", "requestor8", "test8", "BUILDING","bundle8", "testClass8", groupName, submissionId);
+        addRun("name9", "type9", "requestor9", "test9", "BUILDING","bundle9", "testClass9", groupName, submissionId);
+        addRun("name10", "type10", "requestor10", "test10", "BUILDING","bundle10", "testClass10", groupName, submissionId);
         setServlet("/"+groupName, groupName, this.runs);
 		MockRunsServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
@@ -311,7 +315,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doGet(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -475,6 +479,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     public void testPostRunsWithValidBodyGoodEnvPhaseReturnsOK() throws Exception {
         // Given...
 		String groupName = "valid";
+        String submissionId = "submission1";
         String payload = "{\"classNames\": [\"Class/name\"]," +
         "\"requestorType\": \"requestorType\"," +
         "\"requestor\": \"testRequestor\"," +
@@ -486,7 +491,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         "\"overrides\": {}," +
         "\"trace\": true }";
         addRun("runnamename", "requestorType", JWT_USERNAME, "name", "submitted",
-               "Class", "java", groupName);
+               "Class", "java", groupName, submissionId);
 
         setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -500,7 +505,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
 
         // Then...
         assertThat(resp.getStatus()).isEqualTo(201);
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -510,7 +515,8 @@ public class TestGroupRunsRoute extends RunsServletTest{
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class/name"};
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, null);
+        String submissionId = "submission1";
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, null, submissionId);
 
         setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -523,7 +529,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doPost(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -533,7 +539,8 @@ public class TestGroupRunsRoute extends RunsServletTest{
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class/name"};
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, groupName, null);
+        String submissionId = "submission1";
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, groupName, null, submissionId);
 
         setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -558,7 +565,8 @@ public class TestGroupRunsRoute extends RunsServletTest{
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, null);
+        String submissionId = "submission1";
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, null, submissionId);
 
         setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -571,7 +579,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doPost(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -581,7 +589,8 @@ public class TestGroupRunsRoute extends RunsServletTest{
         // Given...
 		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, null);
+        String submissionId = "submission1";
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, null, submissionId);
 
         setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -594,7 +603,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doPost(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -607,6 +616,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
     public void testPostRunsWithValidBodyGoodEnvPhaseAndJWTReturnsOKWithRequestorFromJWT() throws Exception {
         // Given...
 		String groupName = "valid";
+        String submissionId = "submission1";
         String payload = "{\"classNames\": [\"Class/name\"]," +
         "\"requestorType\": \"requestorType\"," +
         "\"requestor\": \"testRequestor\"," +
@@ -619,7 +629,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         "\"trace\": true }";
 
         addRun("runnamename", "requestorType", JWT_USERNAME, "name", "submitted",
-               "Class", "java", groupName);
+               "Class", "java", groupName, submissionId);
 
         setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -633,7 +643,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
 
         // Then...
         assertThat(resp.getStatus()).isEqualTo(201);
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -643,7 +653,8 @@ public class TestGroupRunsRoute extends RunsServletTest{
         // Given...
 		String groupName = "valid";
         String[] classes = new String[]{"Class/name"};
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor");
+        String submissionId = "submission1";
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor", submissionId);
 
         setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -656,7 +667,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doPost(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -665,8 +676,9 @@ public class TestGroupRunsRoute extends RunsServletTest{
     public void testPostRunsWithValidBodyAndMultipleClassesReturnsWithRequestorFromJWT() throws Exception {
         // Given...
 		String groupName = "valid";
+        String submissionId = "submission1";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor");
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor", submissionId);
 
         setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -679,7 +691,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doPost(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -689,7 +701,8 @@ public class TestGroupRunsRoute extends RunsServletTest{
         // Given...
 		String groupName = "8149dc91-dabc-461a-b9e8-6f11a4455f59";
         String[] classes = new String[]{"Class1/name", "Class2/name"};
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor");
+        String submissionId = "submission1";
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor", submissionId);
 
         setServlet("/"+groupName, groupName, payload, "POST");
 		MockRunsServlet servlet = getServlet();
@@ -702,7 +715,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doPost(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedJson(runs, "false");
+        String expectedJson = generateExpectedJson(runs, false);
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }

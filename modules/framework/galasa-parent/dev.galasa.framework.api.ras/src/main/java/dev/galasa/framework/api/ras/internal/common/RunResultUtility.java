@@ -65,9 +65,10 @@ public class RunResultUtility {
 	   Instant startTime = struc.getStartTime();
 	   Instant endTime = struc.getEndTime();
 	   String group = struc.getGroup();
+	   String submissionId = struc.getSubmissionId();
 	   List<RasTestMethod> rasMethods = convertMethods(methods);
 	   
-	   return new RasTestStructure(runName, bundle, testName, testShortName, requestor, status, result, queued, startTime, endTime, rasMethods,group);
+	   return new RasTestStructure(runName, bundle, testName, testShortName, requestor, status, result, queued, startTime, endTime, rasMethods, group, submissionId);
 	}
 	
 	private static List<RasTestMethod> convertMethods(List<TestMethod> methods){

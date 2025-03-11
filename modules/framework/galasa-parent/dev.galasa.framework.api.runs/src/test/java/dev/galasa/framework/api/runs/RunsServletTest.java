@@ -15,6 +15,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -86,52 +89,61 @@ public class RunsServletTest extends BaseServletTest {
 	}
 
 	protected HttpServletResponse getResponse(){
-	return this.resp;
+	    return this.resp;
 	}
 
-    protected void addRun(String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName){
-		this.runs.add(new MockIRun( runName, runType, requestor, test, runStatus, bundle, testClass, groupName));
+    protected void addRun(String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName, String submissionId){
+		this.runs.add(new MockIRun( runName, runType, requestor, test, runStatus, bundle, testClass, groupName, submissionId));
     }
 
-	protected String generateExpectedJson(List<IRun> runs, String complete) {
-        String expectedJson = "{\n  \"complete\": "+complete+",\n  \"runs\": [\n    ";
-		for (int r= 0; r< runs.size(); r++ ) {
-            String runString ="";
-			if (r > 0) {
-					runString += ",\n    ";
-			}
-			runString += "{\n      \"name\": \""+runs.get(r).getName()+"\",\n"+
-                "      \"heartbeat\": \"2023-10-12T12:16:49.832925Z\",\n"+
-                "      \"type\": \""+runs.get(r).getType()+"\",\n"+
-                "      \"group\": \""+runs.get(r).getGroup()+"\",\n"+
-                "      \"test\": \""+runs.get(r).getTestClassName()+"\",\n"+
-                "      \"bundleName\": \""+runs.get(r).getTestBundleName()+"\",\n"+
-                "      \"testName\": \""+runs.get(r).getTest()+"\",\n";
-            if (!runs.get(r).getStatus().equals("submitted")){
-                runString +="      \"status\": \""+runs.get(r).getStatus()+"\",\n";
+	protected String generateExpectedJson(List<IRun> runs, boolean complete) {
+
+        JsonObject expectedJsonObj = new JsonObject();
+
+        expectedJsonObj.addProperty("complete", complete);
+
+        JsonArray runsJsonArray = new JsonArray();
+
+        for (IRun run : runs) {
+            JsonObject runJson = new JsonObject();
+            runJson.addProperty("name", run.getName());
+            runJson.addProperty("heartbeat", "2023-10-12T12:16:49.832925Z");
+            runJson.addProperty("type", run.getType());
+            runJson.addProperty("group", run.getGroup());
+            runJson.addProperty("submissionId", run.getSubmissionId());
+            runJson.addProperty("test", run.getTestClassName());
+            runJson.addProperty("bundleName", run.getTestBundleName());
+            runJson.addProperty("testName", run.getTest());
+
+            if (!run.getStatus().equals("submitted")) {
+                runJson.addProperty("status", run.getStatus());
             }
-            runString +="      \"result\": \"Passed\",\n"+
-                "      \"queued\": \"2023-10-12T12:16:49.832925Z\",\n"+
-                "      \"finished\": \"2023-10-12T12:16:49.832925Z\",\n"+
-                "      \"waitUntil\": \"2023-10-12T12:16:49.832925Z\",\n"+
-                "      \"requestor\": \""+runs.get(r).getRequestor()+"\",\n"+
-                "      \"isLocal\": false,\n"+
-                "      \"isTraceEnabled\": false,\n"+
-                "      \"rasRunId\": \"cdb-"+runs.get(r).getName()+"\"\n    }";
-				
-				expectedJson += runString;
+
+            runJson.addProperty("result", "Passed");
+            runJson.addProperty("queued", "2023-10-12T12:16:49.832925Z");
+            runJson.addProperty("finished", "2023-10-12T12:16:49.832925Z");
+            runJson.addProperty("waitUntil", "2023-10-12T12:16:49.832925Z");
+            runJson.addProperty("requestor", run.getRequestor());
+            runJson.addProperty("isLocal", false);
+            runJson.addProperty("isTraceEnabled", false);
+            runJson.addProperty("rasRunId", "cdb-" + run.getName());
+
+            runsJsonArray.add(runJson);
         }
-        expectedJson += "\n  ]\n}";
+
+        expectedJsonObj.add("runs", runsJsonArray);
+
+        String expectedJson = gson.toJson(expectedJsonObj);
         return expectedJson;
     }
 
-    protected String generatePayload(String[] classNames, String requestorType, String requestor, String testStream, String groupName, String overrideExpectedRequestor){
+    protected String generatePayload(String[] classNames, String requestorType, String requestor, String testStream, String groupName, String overrideExpectedRequestor, String submissionId) {
         String classes ="";
         if (overrideExpectedRequestor !=null){
             requestor = overrideExpectedRequestor;
         }
         for (String className : classNames){
-            addRun( "runnamename", requestorType, requestor, "name", "submitted", className.split("/")[0], "java", groupName);
+            addRun( "runnamename", requestorType, requestor, "name", "submitted", className.split("/")[0], "java", groupName, submissionId);
             classes += "\""+className+"\",";
         }
         classes = classes.substring(0, classes.length()-1);

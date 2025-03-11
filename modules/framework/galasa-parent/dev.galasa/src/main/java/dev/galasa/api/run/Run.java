@@ -12,6 +12,7 @@ public class Run {
     private Instant heartbeat;
     private String  type;
     private String  group;
+    private String  submissionId;
     private String  test;
     private String  bundleName;
     private String  testName;
@@ -31,11 +32,14 @@ public class Run {
 
     public Run(String name, Instant heartbeat, String type, String group, String test, String bundleName,
             String testName, String status, String result, Instant queued, Instant finished, Instant waitUntil,
-            String requestor, String stream, String repo, String obr, boolean isLocal, boolean isTraceEnabled, String rasRunId) {
+            String requestor, String stream, String repo, String obr, boolean isLocal, boolean isTraceEnabled,
+            String rasRunId, String submissionId
+    ) {
         this.name = name;
         this.heartbeat = heartbeat;
         this.type = type;
         this.group = group;
+        this.submissionId = submissionId;
         this.test = test;
         this.bundleName = bundleName;
         this.testName = testName;
@@ -67,6 +71,10 @@ public class Run {
 
     public String getGroup() {
         return group;
+    }
+
+    public String getSubmissionId() {
+        return submissionId;
     }
 
     public String getTest() {

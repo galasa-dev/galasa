@@ -24,13 +24,24 @@ public class MockIRun implements IRun{
     private String bundle; 
     private String testClass;
     private String groupName;
+    private String submissionId;
     private String stream;
     private String repo;
     private String obr;
     private String result = "Passed";
 
     
-    public MockIRun(String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName){
+    public MockIRun(
+        String runName,
+        String runType,
+        String requestor,
+        String test,
+        String runStatus,
+        String bundle,
+        String testClass,
+        String groupName,
+        String submissionId
+    ) {
         this.runName = runName;
         this.runType = runType;
         this.requestor = requestor;
@@ -39,6 +50,7 @@ public class MockIRun implements IRun{
         this.bundle = bundle;
         this.testClass = testClass;
         this.groupName = groupName;
+        this.submissionId = submissionId;
     }
 
     @Override
@@ -129,7 +141,7 @@ public class MockIRun implements IRun{
     @Override
     public Run getSerializedRun() {
         return new Run(runName, heartbeat, runType, groupName, testClass, bundle, test, runStatus, result, queued,
-                finished, waitUntil, requestor, stream, repo, obr, false, false, "cdb-"+runName);
+                finished, waitUntil, requestor, stream, repo, obr, false, false, "cdb-"+runName, submissionId);
     }
 
     @Override
@@ -143,13 +155,13 @@ public class MockIRun implements IRun{
     }
 
     @Override
-    public String getGherkin() {
-        throw new UnsupportedOperationException("Unimplemented method 'getGherkin'");
+    public String getSubmissionId() {
+        return this.submissionId;
     }
 
     @Override
-    public String getSubmissionId() {
-        throw new UnsupportedOperationException("Unimplemented method 'getSubmissionId'");
+    public String getGherkin() {
+        throw new UnsupportedOperationException("Unimplemented method 'getGherkin'");
     }
     
 }

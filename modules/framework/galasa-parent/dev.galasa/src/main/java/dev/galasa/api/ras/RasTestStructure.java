@@ -19,13 +19,16 @@ public class RasTestStructure {
    private String status;
    private String result;
    private String group;
+   private String submissionId;
    private Instant queued;
    private Instant startTime;
    private Instant endTime;
    private List<RasTestMethod> methods;
    
    public RasTestStructure(String runName, String bundle, String testName, String testShortName, String requestor,
-         String status, String result, Instant queued, Instant startTime, Instant endTime, List<RasTestMethod> methods, String group) {
+         String status, String result, Instant queued, Instant startTime, Instant endTime, List<RasTestMethod> methods,
+         String group, String submissionId
+   ) {
       this.runName = runName;
       this.bundle = bundle;
       this.testName = testName;
@@ -38,6 +41,7 @@ public class RasTestStructure {
       this.endTime = endTime;
       this.methods = methods;
       this.group = group;
+      this.submissionId = submissionId;
    }
 
    public String getRunName() {
@@ -86,6 +90,14 @@ public class RasTestStructure {
 
    public void setGroup(String group) {
       this.group = group;
+   }
+
+   public String getSubmissionId() {
+      return this.submissionId;
+   }
+
+   public void setSubmissionId(String submissionId) {
+      this.submissionId = submissionId;
    }
 
    public String getStatus() {

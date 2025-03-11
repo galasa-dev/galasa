@@ -28,6 +28,7 @@ import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.rbac.Action;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 
 import static org.assertj.core.api.Assertions.*;
 import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
@@ -42,9 +43,9 @@ import javax.servlet.http.HttpServletResponse;
 
 public class TestRunDetailsRoute extends RasServletTest {
 
-    public String generateExpectedJson (String runId, String runName ){
+    public String generateExpectedJson (String runId, String runName, String submissionId) {
 
-		RasTestStructure testStructure = new RasTestStructure(runName, null, null, null, "galasa", null, "Passed", null, null, null, Collections.emptyList(), "none");
+		RasTestStructure testStructure = new RasTestStructure(runName, null, null, null, "galasa", null, "Passed", null, null, null, Collections.emptyList(), "none", submissionId);
 		RasRunResult rasRunResult = new RasRunResult(runId, Collections.emptyList(), testStructure);
 
 		testStructure.setRunName(runName);
@@ -264,8 +265,15 @@ public class TestRunDetailsRoute extends RasServletTest {
 		//Given..
 		String runId = "xx12345xx";
         String runName = "U123";
+		String submissionId = "submission1";
 
-		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		TestStructure testStructure = new TestStructure();
+		testStructure.setRunName(runName);
+		testStructure.setRequestor("galasa");
+		testStructure.setResult("Passed");
+		testStructure.setSubmissionId(submissionId);
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, testStructure, null);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId);
@@ -283,7 +291,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		// Then...
 		// Expecting this json:
 		// {
-		String expectedJson = generateExpectedJson(runId, runName);
+		String expectedJson = generateExpectedJson(runId, runName, submissionId);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
 		assertThat( resp.getContentType()).isEqualTo("application/json");
@@ -294,8 +302,15 @@ public class TestRunDetailsRoute extends RasServletTest {
 		//Given..
 		String runId = "xx12345xx";
         String runName = "U123";
-
-		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		String submissionId = "submission1";
+		
+		TestStructure testStructure = new TestStructure();
+		testStructure.setRunName(runName);
+		testStructure.setRequestor("galasa");
+		testStructure.setResult("Passed");
+		testStructure.setSubmissionId(submissionId);
+		
+		List<IRunResult> mockInputRunResults = generateTestData(runId, testStructure, null);
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		Map<String, String> headerMap = new HashMap<String,String>();
@@ -313,7 +328,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		String expectedJson = generateExpectedJson(runId, runName);
+		String expectedJson = generateExpectedJson(runId, runName, submissionId);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -348,11 +363,11 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
     @Test
-    public void testNoRunReturnsError() throws Exception {
+    public void testNoRunReturnsNotFoundError() throws Exception {
 		//Given..
 		String runId = "badRunId";
 
-		List<IRunResult> mockInputRunResults = generateTestData(null, null, null);
+		List<IRunResult> mockInputRunResults = new ArrayList<>();
 
 		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId);
@@ -368,10 +383,8 @@ public class TestRunDetailsRoute extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		// Expecting this json:
-		// {
-        assertThat(resp.getStatus()).isEqualTo(500);
-        checkErrorStructure(outStream.toString() , 5000 , "GAL5000E" );
+        assertThat(resp.getStatus()).isEqualTo(404);
+        checkErrorStructure(outStream.toString() , 5091, "GAL5091E" );
         assertThat( resp.getContentType()).isEqualTo("application/json");
 	}
 
@@ -391,7 +404,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
 		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
 		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
@@ -427,7 +440,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT",headerMap);
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
 		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
 		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
@@ -461,7 +474,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
 		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
 		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
@@ -502,7 +515,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
 		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
 		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
@@ -543,7 +556,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
 		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
 		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
@@ -579,7 +592,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
 			@Override
     		public boolean reset(String runname) throws DynamicStatusStoreException {
@@ -620,7 +633,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
 			@Override
 			public boolean delete(String runname) throws DynamicStatusStoreException {
@@ -661,7 +674,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
 			@Override
     		public boolean reset(String runname) throws DynamicStatusStoreException {
@@ -702,7 +715,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
 			@Override
 			public boolean delete(String runname) throws DynamicStatusStoreException {
@@ -743,7 +756,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
 		List<IRun> runs = new ArrayList<IRun>();
-		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1"));
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
 		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
 		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();

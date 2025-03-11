@@ -201,7 +201,7 @@ public class RunImpl implements IRun {
     @Override
     public Run getSerializedRun() {
         return new Run(name, heartbeat, type, group, test, bundleName, testName, status, result, queued,
-                finished, waitUntil, requestor, stream, repo, obr, local, trace, rasRunId);
+                finished, waitUntil, requestor, stream, repo, obr, local, trace, rasRunId, submissionId);
     }
 
     @Override
