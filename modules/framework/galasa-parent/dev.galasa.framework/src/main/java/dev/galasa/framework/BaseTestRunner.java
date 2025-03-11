@@ -188,7 +188,8 @@ public class BaseTestRunner {
         TestStructure testStructure = new TestStructure();
 
         String runName = run.getName();
-        String group = run.getGroup();         
+        String group = run.getGroup();
+        String submissionId = run.getSubmissionId();
         Instant queuedAt = run.getQueued();
         String requestor = AbstractManager.defaultString(run.getRequestor(), "unknown");         
 
@@ -197,6 +198,7 @@ public class BaseTestRunner {
         testStructure.setRunName(runName);
         testStructure.setRequestor(requestor);
         testStructure.setGroup(group);
+        testStructure.setSubmissionId(submissionId);
         return testStructure;
     }
 

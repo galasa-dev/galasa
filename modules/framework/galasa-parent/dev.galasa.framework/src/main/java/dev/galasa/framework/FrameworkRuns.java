@@ -179,13 +179,14 @@ public class FrameworkRuns implements IFrameworkRuns {
     public @NotNull IRun submitRun(String runType, String requestor, String bundleName,
             @NotNull String testName, String groupName, String mavenRepository, String obr, String stream,
             boolean local, boolean trace, Properties overrides, SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName,
-            String language) throws FrameworkException {
+            String language, String submissionId) throws FrameworkException {
         SubmitRunRequest runRequest = new SubmitRunRequest(
             runType,
             requestor,
             bundleName,
             testName,
             groupName,
+            submissionId,
             mavenRepository,
             obr,
             stream,
@@ -209,6 +210,7 @@ public class FrameworkRuns implements IFrameworkRuns {
         String obr = runRequest.getObr();
         String stream = runRequest.getStream();
         String groupName = runRequest.getGroupName();
+        String submissionId = runRequest.getSubmissionId();
         String requestor = runRequest.getRequestor();
         SharedEnvironmentPhase sharedEnvironmentPhase = runRequest.getSharedEnvironmentPhase();
         Properties overrides = runRequest.getOverrides();
@@ -242,6 +244,8 @@ public class FrameworkRuns implements IFrameworkRuns {
         } else {
             otherRunProperties.put(runPropertyPrefix + ".group", UUID.randomUUID().toString());
         }
+
+        otherRunProperties.put(runPropertyPrefix + ".submissionId", submissionId);
         otherRunProperties.put(runPropertyPrefix + ".requestor", requestor);
 
         if (sharedEnvironmentPhase != null) {

@@ -46,7 +46,7 @@ public class MockFrameworkRuns implements IFrameworkRuns {
     @Override
     public @NotNull IRun submitRun(String type, String requestor, String bundleName, String testName, String groupName,
             String mavenRepository, String obr, String stream, boolean local, boolean trace, Properties overrides,
-            SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language)
+            SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language, String submissionId)
             throws FrameworkException {
         throw new UnsupportedOperationException("Unimplemented method 'submitRun'");
     }

@@ -124,6 +124,8 @@ public class MockRun implements IRun {
                throw new UnsupportedOperationException("Unimplemented method 'isSharedEnvironment'");
     }
 
-
-    
+    @Override
+    public String getSubmissionId() {
+        throw new UnsupportedOperationException("Unimplemented method 'getSubmissionId'");
+    }
 }

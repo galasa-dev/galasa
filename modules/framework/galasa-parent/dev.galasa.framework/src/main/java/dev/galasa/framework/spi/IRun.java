@@ -33,6 +33,8 @@ public interface IRun {
 
     String getGroup();
 
+    String getSubmissionId();
+
     Instant getQueued();
 
     String getRepository();

@@ -146,5 +146,10 @@ public class MockIRun implements IRun{
     public String getGherkin() {
         throw new UnsupportedOperationException("Unimplemented method 'getGherkin'");
     }
+
+    @Override
+    public String getSubmissionId() {
+        throw new UnsupportedOperationException("Unimplemented method 'getSubmissionId'");
+    }
     
 }

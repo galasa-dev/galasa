@@ -7,6 +7,7 @@ package dev.galasa.framework;
 
 import java.time.Instant;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,6 +57,7 @@ public class ValidateEcosystem {
             logger.info("Bypassing engine test");
         } else {
             IFrameworkRuns frameworkRuns = framework.getFrameworkRuns();
+            String submissionId = UUID.randomUUID().toString();
             
             IRun testRun = frameworkRuns.submitRun(null, 
                     "validateeco", 
@@ -70,7 +72,8 @@ public class ValidateEcosystem {
                     null, 
                     null, 
                     null, 
-                    null);
+                    null,
+                    submissionId);
             
             logger.info("Test CoreManagerIVT submitted as run " + testRun.getName());
             

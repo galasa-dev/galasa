@@ -20,6 +20,7 @@ public class SubmitRunRequest {
     private String bundleName;
     private String testName;
     private String groupName;
+    private String submissionId;
     private String mavenRepository;
     private String obr;
     private String stream;
@@ -38,6 +39,7 @@ public class SubmitRunRequest {
         String bundleName,
         String testName,
         String groupName,
+        String submissionId,
         String mavenRepository,
         String obr,
         String stream,
@@ -54,6 +56,7 @@ public class SubmitRunRequest {
         this.requestor = requestor;
         this.bundleName = bundleName;
         this.groupName = groupName;
+        this.submissionId = submissionId;
         this.mavenRepository = mavenRepository;
         this.obr = obr;
         this.stream = stream;
@@ -194,5 +197,13 @@ public class SubmitRunRequest {
 
     public void setGherkinTest(String gherkinTest) {
         this.gherkinTest = gherkinTest;
+    }
+
+    public String getSubmissionId() {
+        return submissionId;
+    }
+
+    public void setSubmissionId(String submissionId) {
+        this.submissionId = submissionId;
     }
 }

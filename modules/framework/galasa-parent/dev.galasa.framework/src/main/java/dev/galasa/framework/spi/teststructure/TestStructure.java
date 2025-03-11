@@ -30,6 +30,7 @@ public class TestStructure {
     private String           status;
     private String           result;
     private String           group = "none";
+    private String           submissionId;
 
     private Instant          queued;
 
@@ -51,6 +52,7 @@ public class TestStructure {
             this.runName = source.runName;
             this.bundle = source.bundle;
             this.testName = source.testName;
+            this.submissionId = source.submissionId;
             this.testShortName = source.testShortName;
             this.requestor = source.requestor;
             this.status = source.status;
@@ -74,6 +76,14 @@ public class TestStructure {
                 this.artifactRecordIds.addAll(source.artifactRecordIds);
             }
         }
+    }
+
+    public String getSubmissionId() {
+        return submissionId;
+    }
+
+    public void setSubmissionId(String submissionId) {
+        this.submissionId = submissionId;
     }
 
     public String getBundle() {
