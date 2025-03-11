@@ -512,9 +512,9 @@ public class RunQueryRoute extends RunsRoute {
 		int querysize = params.getSize();
 		Instant from = defaultFromTimestamp;
 		if (querysize > 0) {
-			if (!params.isFromTimeOrRunNameOrGroupPresent()) {
+			if (!params.isAtLeastOneMandatoryParameterPresent()) {
 				//  RULE: Throw exception because a query exists but no from date has been supplied
-				// EXCEPT: When a runname or group is present in the query
+				// EXCEPT: When a runname, group, or submission ID is present in the query
 				ServletError error = new ServletError(GAL5010_FROM_DATE_IS_REQUIRED);
 				throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
 			}
