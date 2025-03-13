@@ -13,7 +13,7 @@ To use the Gradle OBR plugin in a Gradle test project:
         ...
         id 'java' 
         id 'maven-publish'
-        id 'dev.galasa.tests' version '0.40.0'
+        id 'dev.galasa.tests' version '0.41.0'
         ...
     }
     ```
@@ -26,8 +26,8 @@ To use the Gradle OBR plugin in a Gradle test project:
     ```groovy
     plugins {
         ...
-        id 'dev.galasa.obr' version '0.40.0'
-        id 'dev.galasa.testcatalog' version '0.40.0'
+        id 'dev.galasa.obr' version '0.41.0'
+        id 'dev.galasa.testcatalog' version '0.41.0'
         ...
     }
 

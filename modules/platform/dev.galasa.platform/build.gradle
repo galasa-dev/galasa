@@ -4,7 +4,7 @@ plugins {
     id 'signing'
 }
 
-version = "0.40.0"
+version = "0.41.0"
 
 javaPlatform {
     allowDependencies()
@@ -328,7 +328,7 @@ publishing {
                 name = 'Gradle Java Platform for Galasa bundles'
                 groupId = 'dev.galasa'
                 artifactId = 'dev.galasa.platform'
-                version = "0.40.0"
+                version = "0.41.0"
                 description = 'Provides versions to dependencies'
                 licenses {
                     license {

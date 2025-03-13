@@ -5,7 +5,7 @@
 
 	<groupId>dev.galasa</groupId>
 	<artifactId>dev.galasa.wrapping.parent</artifactId>
-	<version>0.40.0</version>
+	<version>0.41.0</version>
 	<packaging>pom</packaging>
 
 	<name>Galasa OSGi Wrapping</name>
@@ -63,7 +63,7 @@
 			<dependency>
 				<groupId>dev.galasa</groupId>
 				<artifactId>dev.galasa.platform</artifactId>
-				<version>0.40.0</version>
+				<version>0.41.0</version>
 				<type>pom</type>
           		<scope>import</scope>
 			</dependency>

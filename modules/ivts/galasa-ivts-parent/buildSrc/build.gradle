@@ -2,7 +2,7 @@ plugins {
     id 'groovy-gradle-plugin'
 }
 
-version = '0.40.0'
+version = '0.41.0'
 
 // Allow external plugins to be resolved in the dependencies section
 // and used without specifying versions

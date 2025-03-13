@@ -23,7 +23,7 @@ framework:
   bundles:
 
   - artifact: dev.galasa
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          true
     bom:          true
@@ -32,7 +32,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          true
     bom:          true
@@ -41,7 +41,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.auth.spi
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -50,7 +50,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.docker.controller
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -59,7 +59,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.k8s.controller
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -68,7 +68,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.log4j2.bridge
-    version: 0.40.0
+    version: 0.41.0
     obr:          false
     mvp:          false
     bom:          false
@@ -77,7 +77,7 @@ framework:
     codecoverage: false
 
   - artifact: dev.galasa.framework.maven.repository
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          true
     bom:          false
@@ -86,7 +86,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.maven.repository.spi
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          true
     bom:          false
@@ -95,7 +95,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.metrics
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -104,7 +104,7 @@ framework:
     codecoverage: true
 
   - artifact: dev.galasa.framework.resource.management
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -113,7 +113,7 @@ framework:
     codecoverage: true
 
   - artifact: galasa-boot
-    version: 0.40.0
+    version: 0.41.0
     obr:          false
     mvp:          true
     bom:          false
@@ -122,7 +122,7 @@ framework:
     codecoverage: true
 
   - artifact: galasa-testharness
-    version: 0.40.0
+    version: 0.41.0
     obr:          false
     mvp:          false
     bom:          false
@@ -135,7 +135,7 @@ api:
   bundles:
 
   - artifact: dev.galasa.framework.api
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -144,7 +144,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.authentication
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -153,7 +153,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.beans
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          true
@@ -162,7 +162,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.bootstrap
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -171,7 +171,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.common
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -180,7 +180,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.cps
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -189,7 +189,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.health
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -198,7 +198,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.launcher
-    version: 0.40.0
+    version: 0.41.0
     obr:          false
     mvp:          false
     bom:          false
@@ -207,7 +207,7 @@ api:
     codecoverage: false
 
   - artifact: dev.galasa.framework.api.openapi
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          true
@@ -216,7 +216,7 @@ api:
     codecoverage: false
 
   - artifact: dev.galasa.framework.api.openapi.servlet
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -225,7 +225,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.ras
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -234,7 +234,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.rbac
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -243,7 +243,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.resources
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -252,7 +252,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.runs
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -261,7 +261,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.secrets
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -270,7 +270,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.testcatalog
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false
@@ -279,7 +279,7 @@ api:
     codecoverage: true
 
   - artifact: dev.galasa.framework.api.users
-    version: 0.40.0
+    version: 0.41.0
     obr:          true
     mvp:          false
     bom:          false

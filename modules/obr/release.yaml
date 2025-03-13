@@ -12,7 +12,7 @@ metadata:
 
 
 release:
-  version: 0.40.0
+  version: 0.41.0
 
 # Dependencies with bom: true need their versions stated explicitly
 # As the galasa-bom is a component consumed by users, its too risky
@@ -102,14 +102,14 @@ external:
 
   - group: dev.galasa
     artifact: dev.galasa.wrapping.gson
-    version: 0.40.0
+    version: 0.41.0
     obr: true
     bom: true
     mvp: true
     isolated: true
 
   - artifact: dev.galasa.wrapping.httpclient-osgi
-    version: 0.40.0
+    version: 0.41.0
     obr: true
     bom: true
     mvp: true
