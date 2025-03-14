@@ -134,6 +134,9 @@ function check_tool_is_installed {
 #-----------------------------------------------------------------------------------------
 function check_docker_installed {
     check_tool_is_installed "docker"
+    docker version > /dev/null 2>&1
+    rc=$?
+    check_exit_code ${rc} "The docker daemon is not running. Start it and try again."
 }
 
 #-----------------------------------------------------------------------------------------
