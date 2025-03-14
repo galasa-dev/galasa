@@ -253,3 +253,4 @@ fi
 push_galasa_images_to_local_registry
 
 success "Local Docker registry has been successfully set up and populated with locally-built Galasa images!"
+info "If you wish to install a local Galasa service on minikube using the Helm chart, set the 'galasaRegistry' Helm value to 'localhost:5000' so minikube can pull the images from the local registry."
