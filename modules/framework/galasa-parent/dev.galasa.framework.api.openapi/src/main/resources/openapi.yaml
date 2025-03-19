@@ -1128,6 +1128,32 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
 ##################################################################################
+# Monitors API
+##################################################################################
+  /monitors:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getMonitors
+      summary: Get a list of Galasa Monitors available in the Galasa service
+      description: |
+        Returns a list of Galasa Monitors that have been created in this Galasa service.
+      tags:
+        - Monitors API
+      responses:
+        '200':
+          description: The Galasa Monitors available in this Galasa service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaMonitor'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+##################################################################################
 # OpenAPI API
 ##################################################################################
   /openapi:
@@ -2440,6 +2466,55 @@ components:
           description: The fully-qualified property name, including the 'namespace'.
         value:
           type: string
+    GalasaMonitor:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+          description: The API version associated with the GalasaMonitor resource type
+        kind:
+          type: string
+          enum: [GalasaMonitor]
+        metadata:
+          type: object
+          description: General metadata information about the GalasaMonitor resource
+          properties:
+            name:
+              type: string
+              description: The name of the GalasaMonitor
+            description:
+              type: string
+              description: A description associated with the GalasaMonitor
+        data:
+          type: object
+          description: The data property contains the configuration of the GalasaMonitor
+          properties:
+            isEnabled:
+              type: boolean
+              description: Indicates whether or not the GalasaMonitor is enabled
+            resourceCleanupData:
+              type: object
+              description: Configuration associated with the resource cleanup functions of the GalasaMonitor
+              properties:
+                stream:
+                  type: string
+                  description: |
+                    Optional. The test stream containing resource monitor bundles for the GalasaMonitor to pull in.
+                    By default, the resource management bundles in the dev.galasa.uber.obr bundle will be included.
+                filters:
+                  type: object
+                  description: The filters to apply before loading bundles for the GalasaMonitor to use
+                  properties:
+                    includes:
+                      type: array
+                      description: A comma-separated list of regex patterns representing the bundles that the GalasaMonitor should load
+                      items:
+                        type: string
+                    excludes:
+                      type: array
+                      description: A comma-separated list of regex patterns representing the bundles that the GalasaMonitor should not load
+                      items:
+                        type: string
     GalasaProperty:
       type: object
       properties:
