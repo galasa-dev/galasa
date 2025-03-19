@@ -7,6 +7,7 @@ description = 'Galasa Resource Management'
 
 dependencies {
     implementation project (':dev.galasa.framework')
+    implementation 'org.apache.felix:org.apache.felix.bundlerepository'
     implementation 'io.prometheus:simpleclient'
     implementation 'io.prometheus:simpleclient_httpserver'
     implementation 'io.prometheus:simpleclient_hotspot'

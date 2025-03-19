@@ -7,22 +7,39 @@ package dev.galasa.framework.resource.management.internal;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.felix.bundlerepository.Capability;
+import org.apache.felix.bundlerepository.Repository;
+import org.apache.felix.bundlerepository.RepositoryAdmin;
+import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.GalasaFactory;
+import dev.galasa.framework.IBundleManager;
+import dev.galasa.framework.internal.runner.BundleManager;
+import dev.galasa.framework.maven.repository.spi.IMavenRepository;
+import dev.galasa.framework.resource.management.MonitorConfiguration;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -44,7 +61,13 @@ public class ResourceManagement implements IResourceManagement {
 
     private BundleContext                                bundleContext;
 
-    private ResourceManagementProviders                  resourceManagementProviders ;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL)
+    protected RepositoryAdmin repositoryAdmin;
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL)
+    protected IMavenRepository mavenRepository;
+
+    private ResourceManagementProviders                  resourceManagementProviders;
     private ScheduledExecutorService                     scheduledExecutorService;
 
     // This flag is set by one thread, and read by another, so we always want the variable to be in memory rather than 
@@ -70,7 +93,7 @@ public class ResourceManagement implements IResourceManagement {
      * @param overrideProperties
      * @throws FrameworkException
      */
-    public void run(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException {
+    public void run(Properties bootstrapProperties, Properties overrideProperties, MonitorConfiguration monitorConfig) throws FrameworkException {
 
         // *** Add shutdown hook to allow for orderly shutdown
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());
@@ -87,6 +110,10 @@ public class ResourceManagement implements IResourceManagement {
 
             IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService("framework");
             IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
+
+            // Load the requested monitor bundles
+            IBundleManager bundleManager = new BundleManager();
+            loadMonitorBundles(bundleManager, monitorConfig, cps);
 
             // *** Now start the Resource Management framework
 
@@ -159,6 +186,113 @@ public class ResourceManagement implements IResourceManagement {
             // Let the ShutDownHook know that the main thread has shut things down via this shared-state boolean.
             shutdownComplete = true;
         }
+    }
+
+    // Package-level to allow unit testing
+    void loadMonitorBundles(IBundleManager bundleManager, MonitorConfiguration monitorConfig, IConfigurationPropertyStoreService cps) throws FrameworkException {
+        String stream = monitorConfig.getStream();
+        if (stream != null) {
+            loadRepositoriesFromStream(stream, cps);
+        }
+
+        // Start filtering the bundles in the repository admin
+        Set<Resource> bundlesToLoad = filterMonitorBundles(monitorConfig);
+        Set<String> finalBundleNamesToLoad = getResourceManagementProviderBundles(bundlesToLoad);
+
+        // Load the resulting bundles that have the IResourceManagementProvider service
+        for (String bundle : finalBundleNamesToLoad) {
+            if (!bundleManager.isBundleActive(bundleContext, bundle)) {
+                bundleManager.loadBundle(repositoryAdmin, bundleContext, bundle);
+            }
+        }
+    }
+
+    private void loadRepositoriesFromStream(String stream, IConfigurationPropertyStoreService cps) throws FrameworkException {
+        // Get the stream (TODO: replace with a streams service)
+        Map<String, String> streamProperties = cps.getPrefixedProperties("test.stream." + stream);
+
+        // Add the stream's OBR to the repository admin (TODO: replace with a streams service)
+        String commaSeparatedObrs = streamProperties.get("test.stream." + stream + ".obr");
+        for (String obr : commaSeparatedObrs.split(",")) {
+            try {
+                repositoryAdmin.addRepository(obr);
+            } catch (Exception e) {
+                throw new FrameworkException("Unable to load repository " + obr, e);
+            }
+        }
+
+        // Add the stream's maven repo to the maven repositories (TODO: replace with a streams service)
+        String mavenRepo = streamProperties.get("test.stream." + stream + ".repo");
+        try {
+            mavenRepository.addRemoteRepository(new URL(mavenRepo));
+        } catch (MalformedURLException e) {
+            throw new FrameworkException("Unable to add remote maven repository " + mavenRepo, e);
+        }
+    }
+
+    private Set<Resource> filterMonitorBundles(MonitorConfiguration monitorConfig) {
+        Set<Resource> bundlesToInclude = new HashSet<>();
+        for (Repository repository : repositoryAdmin.listRepositories()) {
+            Resource[] resources = repository.getResources();
+            if (resources != null) {
+                for (Resource resource : resources) {
+                    // Find all the bundles that match any regex patterns in the 'includes' list
+                    for (Pattern includePattern : monitorConfig.getIncludesRegexList()) {
+                        String bundleName = resource.getSymbolicName();
+                        Matcher includeMatcher = includePattern.matcher(bundleName);
+                        if (includeMatcher.matches()) {
+                            bundlesToInclude.add(resource);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // From the filtered bundles, exclude any that match any regex patterns in the 'excludes' list
+        Set<Resource> bundlesToExclude = new HashSet<>();
+        for (Resource bundle : bundlesToInclude) {
+            for (Pattern excludePattern : monitorConfig.getExcludesRegexList()) {
+                String bundleName = bundle.getSymbolicName();
+                Matcher excludeMatcher = excludePattern.matcher(bundleName);
+                if (excludeMatcher.matches()) {
+                    bundlesToExclude.add(bundle);
+                    break;
+                }
+            }
+        }
+
+        bundlesToInclude.removeAll(bundlesToExclude);
+        return bundlesToInclude;
+    }
+
+    private Set<String> getResourceManagementProviderBundles(Set<Resource> resources) {
+        Set<String> resourceMonitorBundles = new HashSet<>();
+
+        resourceSearch: for (Resource resource : resources) {
+            if (resource.getCapabilities() != null) {
+                for (Capability capability : resource.getCapabilities()) {
+                    if ("service".equals(capability.getName())) {
+                        Map<String, Object> properties = capability.getPropertiesAsMap();
+
+                        String services = (String) properties.get("objectClass");
+                        if (services == null) {
+                            services = (String) properties.get("objectClass:List<String>");
+                        }
+
+                        if (services != null) {
+                            for (String service : services.split(",")) {
+                                if ("dev.galasa.framework.spi.IResourceManagementProvider".equals(service)) {
+                                    resourceMonitorBundles.add(resource.getSymbolicName());
+                                    continue resourceSearch;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return resourceMonitorBundles;
     }
 
     private void stopHealthServer(ResourceManagementHealth healthServer) {

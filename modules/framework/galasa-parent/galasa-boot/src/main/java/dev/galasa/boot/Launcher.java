@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -30,6 +31,7 @@ import org.apache.commons.cli.ParseException;
 
 import dev.galasa.boot.BootLogger.Level;
 import dev.galasa.boot.felix.FelixFramework;
+import dev.galasa.framework.resource.management.MonitorConfiguration;
 
 /**
  * Galasa command line launcher.<br>
@@ -171,7 +173,8 @@ public class Launcher {
                 felixFramework.runTest(bootstrapProperties, overridesProperties);
             } else if (isResourceManagement) {
                 logger.debug("Resource Management");
-                felixFramework.runResourceManagement(bootstrapProperties, overridesProperties, bundles, metrics, health);
+                MonitorConfiguration monitorConfig = getResourceMonitorConfigFromEnvironment(env);
+                felixFramework.runResourceManagement(bootstrapProperties, overridesProperties, bundles, metrics, health, monitorConfig);
             } else if (isK8sController) {
                 logger.debug("Kubernetes Controller");
                 felixFramework.runK8sController(bootstrapProperties, overridesProperties, bundles, metrics, health);
@@ -652,5 +655,21 @@ public class Launcher {
             logger.info(String.format("Environment variable: %s used to locate auth store location",AUTH_ENV_VAR));
             bootstrap.setProperty("framework.auth.store",authStore);
         }
+    }
+
+    private MonitorConfiguration getResourceMonitorConfigFromEnvironment(Environment env) {
+        String STREAM_ENV_VAR = "GALASA_MONITOR_STREAM";
+        String INCLUDES_ENV_VAR = "GALASA_MONITOR_INCLUDES_REGEXES";
+        String EXCLUDES_ENV_VAR = "GALASA_MONITOR_EXCLUDES_REGEXES";
+
+        String stream = env.getenv(STREAM_ENV_VAR);
+        String commaSeparatedIncludes = env.getenv(INCLUDES_ENV_VAR);
+        String commaSeparatedExcludes = env.getenv(EXCLUDES_ENV_VAR);
+
+        List<String> includesList = Arrays.asList(commaSeparatedIncludes.split(","));
+        List<String> excludesList = Arrays.asList(commaSeparatedExcludes.split(","));
+
+        MonitorConfiguration monitorConfig = new MonitorConfiguration(stream, includesList, excludesList);
+        return monitorConfig;
     }
 }
