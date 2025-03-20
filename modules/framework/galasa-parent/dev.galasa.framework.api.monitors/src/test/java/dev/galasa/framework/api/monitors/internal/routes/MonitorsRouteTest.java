@@ -18,7 +18,6 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.beans.generated.GalasaMonitor;
 import dev.galasa.framework.api.beans.generated.GalasaMonitordata;
@@ -136,7 +135,7 @@ public class MonitorsRouteTest extends BaseServletTest {
     }
 
     @Test
-    public void testGetMonitorsReturnsAllMonitors() throws Exception {
+    public void testGetMonitorsReturnsAMonitor() throws Exception {
         // Given...
         MockFramework mockFramework = new MockFramework();
 
@@ -172,5 +171,81 @@ public class MonitorsRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(outStream.toString()).isEqualTo(expectedJsonString);
+    }
+
+    @Test
+    public void testGetMonitorsReturnsMultipleMonitors() throws Exception {
+        // Given...
+        MockFramework mockFramework = new MockFramework();
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient();
+
+        String monitorName1 = "system";
+        String stream1 = "myStream";
+        int replicas1 = 1;
+        List<String> includes1 = List.of("*");
+        List<String> excludes1 = new ArrayList<>();
+
+        String monitorName2 = "system";
+        String stream2 = "myStream";
+        int replicas2 = 0;
+        List<String> includes2 = List.of("include.this.bundle");
+        List<String> excludes2 = List.of("exclude.this.bundle", "and.this.one.too");
+
+        V1Deployment deployment1 = createMockDeployment(monitorName1, stream1, replicas1, includes1, excludes1);
+        V1Deployment deployment2 = createMockDeployment(monitorName2, stream2, replicas2, includes2, excludes2);
+        mockApiClient.addMockDeployment(deployment1);
+        mockApiClient.addMockDeployment(deployment2);
+
+        MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        JsonElement expectedMonitor1 = gson.toJsonTree(generateExpectedMonitor(monitorName1, stream1, true, includes1, excludes1));
+        JsonElement expectedMonitor2 = gson.toJsonTree(generateExpectedMonitor(monitorName2, stream2, false, includes2, excludes2));
+        JsonArray expectedJsonArray = new JsonArray();
+        expectedJsonArray.add(expectedMonitor1);
+        expectedJsonArray.add(expectedMonitor2);
+
+        String expectedJsonString = gson.toJson(expectedJsonArray);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(outStream.toString()).isEqualTo(expectedJsonString);
+    }
+
+    @Test
+    public void testGetMonitorsReturnsCorrectErrorOnFailedKubernetesRequest() throws Exception {
+        // Given...
+        MockFramework mockFramework = new MockFramework();
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient();
+        mockApiClient.setThrowErrorEnabled(true);
+
+        MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(500);
+        checkErrorStructure(
+            outStream.toString(),
+            5418,
+            "GAL5418E", "Error occurred when getting the Galasa monitor deployments from Kubernetes"
+        );
     }
 }

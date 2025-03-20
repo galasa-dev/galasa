@@ -8,6 +8,7 @@ description = 'Galasa Monitors API'
 dependencies {
     implementation project(':dev.galasa.framework')
     implementation project(':dev.galasa.framework.api.common')
+    implementation project(':dev.galasa.framework.api.beans')
 
     implementation 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java'
 

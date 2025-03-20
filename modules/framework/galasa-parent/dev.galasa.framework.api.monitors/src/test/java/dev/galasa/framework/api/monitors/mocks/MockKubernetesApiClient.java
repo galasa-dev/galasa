@@ -16,12 +16,25 @@ public class MockKubernetesApiClient implements IKubernetesApiClient {
 
     private List<V1Deployment> mockDeployments = new ArrayList<>();
 
+    private boolean isThrowErrorEnabled = false;
+
     public void addMockDeployment(V1Deployment deployment) {
         mockDeployments.add(deployment);
     }
 
     @Override
     public List<V1Deployment> getNamespacedDeployments(String namespace, String labelSelector) throws ApiException {
+        throwApiExceptionIfEnabled();
         return mockDeployments;
+    }
+
+    public void setThrowErrorEnabled(boolean isThrowErrorEnabled) {
+        this.isThrowErrorEnabled = isThrowErrorEnabled;
+    }
+
+    private void throwApiExceptionIfEnabled() throws ApiException {
+        if (isThrowErrorEnabled) {
+            throw new ApiException("simulating an error from kubernetes");
+        }
     }
 }
