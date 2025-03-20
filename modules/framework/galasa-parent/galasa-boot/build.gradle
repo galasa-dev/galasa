@@ -42,7 +42,6 @@ jar {
 
 dependencies {
     implementation project (':dev.galasa.framework.maven.repository')
-    implementation project (':dev.galasa.framework.resource.management')
     implementation 'org.apache.felix:org.apache.felix.scr'
 
     embedImplementation project (':dev.galasa.framework.maven.repository.spi')

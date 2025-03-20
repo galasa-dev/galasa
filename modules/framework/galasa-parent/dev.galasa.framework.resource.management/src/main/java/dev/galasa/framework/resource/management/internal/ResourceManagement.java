@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -34,10 +35,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import dev.galasa.framework.BundleManager;
 import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.GalasaFactory;
 import dev.galasa.framework.IBundleManager;
-import dev.galasa.framework.internal.runner.BundleManager;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.resource.management.MonitorConfiguration;
 import dev.galasa.framework.spi.AbstractManager;
@@ -93,7 +94,13 @@ public class ResourceManagement implements IResourceManagement {
      * @param overrideProperties
      * @throws FrameworkException
      */
-    public void run(Properties bootstrapProperties, Properties overrideProperties, MonitorConfiguration monitorConfig) throws FrameworkException {
+    public void run(
+        Properties bootstrapProperties,
+        Properties overrideProperties,
+        String stream,
+        List<String> bundleIncludes,
+        List<String> bundleExcludes
+    ) throws FrameworkException {
 
         // *** Add shutdown hook to allow for orderly shutdown
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());
@@ -113,6 +120,7 @@ public class ResourceManagement implements IResourceManagement {
 
             // Load the requested monitor bundles
             IBundleManager bundleManager = new BundleManager();
+            MonitorConfiguration monitorConfig = new MonitorConfiguration(stream, bundleIncludes, bundleExcludes);
             loadMonitorBundles(bundleManager, monitorConfig, cps);
 
             // *** Now start the Resource Management framework

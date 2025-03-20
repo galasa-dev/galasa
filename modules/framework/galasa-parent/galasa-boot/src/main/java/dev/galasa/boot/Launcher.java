@@ -31,7 +31,6 @@ import org.apache.commons.cli.ParseException;
 
 import dev.galasa.boot.BootLogger.Level;
 import dev.galasa.boot.felix.FelixFramework;
-import dev.galasa.framework.resource.management.MonitorConfiguration;
 
 /**
  * Galasa command line launcher.<br>
@@ -666,8 +665,15 @@ public class Launcher {
         String commaSeparatedIncludes = env.getenv(INCLUDES_ENV_VAR);
         String commaSeparatedExcludes = env.getenv(EXCLUDES_ENV_VAR);
 
-        List<String> includesList = Arrays.asList(commaSeparatedIncludes.split(","));
-        List<String> excludesList = Arrays.asList(commaSeparatedExcludes.split(","));
+        List<String> includesList = new ArrayList<>();
+        List<String> excludesList = new ArrayList<>();
+        if (commaSeparatedIncludes != null && !commaSeparatedIncludes.isBlank()) {
+            includesList = Arrays.asList(commaSeparatedIncludes.split(","));
+        }
+
+        if (commaSeparatedExcludes != null && !commaSeparatedExcludes.isBlank()) {
+            excludesList = Arrays.asList(commaSeparatedExcludes.split(","));
+        }
 
         MonitorConfiguration monitorConfig = new MonitorConfiguration(stream, includesList, excludesList);
         return monitorConfig;

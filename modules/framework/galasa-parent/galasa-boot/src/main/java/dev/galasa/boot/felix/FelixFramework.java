@@ -40,7 +40,7 @@ import org.osgi.framework.launch.Framework;
 
 import dev.galasa.boot.BootLogger;
 import dev.galasa.boot.LauncherException;
-import dev.galasa.framework.resource.management.MonitorConfiguration;
+import dev.galasa.boot.MonitorConfiguration;
 
 /**
  * Felix framework run test class
@@ -277,49 +277,10 @@ public class FelixFramework {
                     throw new LauncherException("Failed to load extra bundle " + bundle, e);
                 }
             }
-        } else {
-            // // *** Load all bundles that have IResourceManagementProvider service
-            // HashSet<String> bundlesToLoad = new HashSet<>();
-
-            // // TODO: This section loads all resource monitors included in the OBRs passed in to the boot jar.
-            // // By default, this is only the dev.galasa uber OBR, which is likely to be excluded for custom monitors.
-            // // Move this code into the place where the bundles for monitors are loaded - we don't want to always load
-            // // the monitors in the dev.galasa OBR.
-            // for (Repository repository : repositoryAdmin.listRepositories()) {
-            //     if (repository.getResources() != null) {
-            //         resourceSearch: for (Resource resource : repository.getResources()) {
-            //             if (resource.getCapabilities() != null) {
-            //                 for (Capability capability : resource.getCapabilities()) {
-            //                     if ("service".equals(capability.getName())) {
-            //                         Map<String, Object> properties = capability.getPropertiesAsMap();
-            //                         String services = (String) properties.get("objectClass");
-            //                         if (services == null) {
-            //                             services = (String) properties.get("objectClass:List<String>");
-            //                         }
-            //                         if (services != null) {
-            //                             String[] split = services.split(",");
-
-            //                             for (String service : split) {
-            //                                 if ("dev.galasa.framework.spi.IResourceManagementProvider"
-            //                                         .equals(service)) {
-            //                                     bundlesToLoad.add(resource.getSymbolicName());
-            //                                     continue resourceSearch;
-            //                                 }
-            //                             }
-            //                         }
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-
-            // for (String bundle : bundlesToLoad) {
-            //     if (!isBundleActive(bundle)) {
-            //         loadBundle(bundle);
-            //     }
-            // }
         }
+
+        // Load the resource management bundle
+        loadBundle("dev.galasa.framework.resource.management");
 
         // *** Set up ports if present
         if (metrics != null) {
@@ -348,9 +309,16 @@ public class FelixFramework {
         }
 
         // Get the dev.galasa.framework.resource.management.internal.ResourceManagement#run(...) method
-        Method runTestMethod;
+        Method runMethod;
         try {
-            runTestMethod = service.getClass().getMethod("run", Properties.class, Properties.class, MonitorConfiguration.class);
+            runMethod = service.getClass().getMethod(
+                "run",
+                Properties.class,
+                Properties.class,
+                String.class,
+                List.class,
+                List.class
+            );
         } catch (NoSuchMethodException | SecurityException e) {
             throw new LauncherException("Unable to get Framework resource management run method", e);
         }
@@ -358,7 +326,14 @@ public class FelixFramework {
         // Invoke the run method
         logger.debug("Invoking resource management run()");
         try {
-            runTestMethod.invoke(service, boostrapProperties, overridesProperties);
+            runMethod.invoke(
+                service,
+                boostrapProperties,
+                overridesProperties,
+                monitorConfig.getStream(),
+                monitorConfig.getIncludesRegexList(),
+                monitorConfig.getExcludesRegexList()
+            );
         } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
             throw new LauncherException(e.getCause());
         }
