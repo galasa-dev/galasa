@@ -6,13 +6,18 @@
 package dev.galasa.framework.resource.management.internal;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import dev.galasa.framework.resource.management.MonitorConfiguration;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -33,7 +38,8 @@ public class ResourceManagementProviders {
         IFramework framework , 
         IConfigurationPropertyStoreService cps, 
         BundleContext bundleContext,
-        IResourceManagement resourceManagement
+        IResourceManagement resourceManagement,
+        MonitorConfiguration monitorConfig
     ) throws FrameworkException {
 
         try {
@@ -43,28 +49,75 @@ public class ResourceManagementProviders {
                 logger.info("No additional Resource Manager providers have been found");
             } else {
 
-                for (final ServiceReference<?> rmpReference : rmpServiceReference) {
+                Set<IResourceManagementProvider> providersToInitialise = getResourceManagementProviders(bundleContext, rmpServiceReference);
+                providersToInitialise = filterResourceManagementProviders(monitorConfig, providersToInitialise);
 
-                    final IResourceManagementProvider rmpStoreRegistration = (IResourceManagementProvider) bundleContext
-                            .getService(rmpReference);
+                for (IResourceManagementProvider provider : providersToInitialise) {
                     try {
-                        if (rmpStoreRegistration.initialise(framework, resourceManagement)) {
+                        if (provider.initialise(framework, resourceManagement)) {
                             logger.info(
-                                    "Found Resource Management Provider " + rmpStoreRegistration.getClass().getName());
-                            resourceManagementProviders.add(rmpStoreRegistration);
+                                    "Found Resource Management Provider " + provider.getClass().getName());
+                            resourceManagementProviders.add(provider);
                         } else {
-                            logger.info("Resource Management Provider " + rmpStoreRegistration.getClass().getName()
+                            logger.info("Resource Management Provider " + provider.getClass().getName()
                                     + " opted out of this Resource Management run");
                         }
                     } catch (Exception e) {
                         logger.error("Failed initialisation of Resource Management Provider "
-                                + rmpStoreRegistration.getClass().getName() + " ignoring", e);
+                                + provider.getClass().getName() + " ignoring", e);
                     }
                 }
             }
         } catch (Exception e) {
             throw new FrameworkException("Problem during Resource Manager initialisation", e);
         }
+    }
+
+    private Set<IResourceManagementProvider> getResourceManagementProviders(
+        BundleContext bundleContext,
+        ServiceReference<?>[] serviceReferences
+    ) {
+        Set<IResourceManagementProvider> foundProviders = new HashSet<>();
+        for (final ServiceReference<?> serviceReference : serviceReferences) {
+            IResourceManagementProvider provider = (IResourceManagementProvider) bundleContext.getService(serviceReference);
+            foundProviders.add(provider);
+        }
+        return foundProviders;
+    }
+
+    private Set<IResourceManagementProvider> filterResourceManagementProviders(
+        MonitorConfiguration monitorConfig,
+        Set<IResourceManagementProvider> providers
+    ) {
+        Set<IResourceManagementProvider> providersToInclude = new HashSet<>();
+
+        // Find all the services that match any regex patterns in the 'includes' list
+        for (IResourceManagementProvider provider : providers) {
+            for (Pattern includePattern : monitorConfig.getIncludesRegexList()) {
+                String providerName = provider.getClass().getCanonicalName();
+                Matcher includeMatcher = includePattern.matcher(providerName);
+                if (includeMatcher.matches()) {
+                    providersToInclude.add(provider);
+                    break;
+                }
+            }
+        }
+        
+        // From the filtered bundles, exclude any that match any regex patterns in the 'excludes' list
+        Set<IResourceManagementProvider> providersToExclude = new HashSet<>();
+        for (IResourceManagementProvider provider : providersToInclude) {
+            for (Pattern excludePattern : monitorConfig.getExcludesRegexList()) {
+                String providerName = provider.getClass().getCanonicalName();
+                Matcher excludeMatcher = excludePattern.matcher(providerName);
+                if (excludeMatcher.matches()) {
+                    providersToExclude.add(provider);
+                    break;
+                }
+            }
+        }
+
+        providersToInclude.removeAll(providersToExclude);
+        return providersToInclude;
     }
 
     public void shutdown() {

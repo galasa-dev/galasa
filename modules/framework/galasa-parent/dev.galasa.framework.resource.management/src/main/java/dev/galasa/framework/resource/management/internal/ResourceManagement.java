@@ -20,8 +20,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -120,8 +118,7 @@ public class ResourceManagement implements IResourceManagement {
 
             // Load the requested monitor bundles
             IBundleManager bundleManager = new BundleManager();
-            MonitorConfiguration monitorConfig = new MonitorConfiguration(stream, bundleIncludes, bundleExcludes);
-            loadMonitorBundles(bundleManager, monitorConfig, cps);
+            loadMonitorBundles(bundleManager, stream, cps);
 
             // *** Now start the Resource Management framework
 
@@ -148,7 +145,8 @@ public class ResourceManagement implements IResourceManagement {
 
             this.healthServer = createHealthServer(healthPort);
 
-            this.resourceManagementProviders = new ResourceManagementProviders(framework, cps, bundleContext, this);
+            MonitorConfiguration monitorConfig = new MonitorConfiguration(stream, bundleIncludes, bundleExcludes);
+            this.resourceManagementProviders = new ResourceManagementProviders(framework, cps, bundleContext, this, monitorConfig);
 
             this.resourceManagementProviders.start();
             
@@ -197,18 +195,15 @@ public class ResourceManagement implements IResourceManagement {
     }
 
     // Package-level to allow unit testing
-    void loadMonitorBundles(IBundleManager bundleManager, MonitorConfiguration monitorConfig, IConfigurationPropertyStoreService cps) throws FrameworkException {
-        String stream = monitorConfig.getStream();
+    void loadMonitorBundles(IBundleManager bundleManager, String stream, IConfigurationPropertyStoreService cps) throws FrameworkException {
         if (stream != null) {
             loadRepositoriesFromStream(stream, cps);
         }
 
-        // Start filtering the bundles in the repository admin
-        Set<Resource> bundlesToLoad = filterMonitorBundles(monitorConfig);
-        Set<String> finalBundleNamesToLoad = getResourceManagementProviderBundles(bundlesToLoad);
+        Set<String> bundlesToLoad = getResourceManagementProviderBundles();
 
         // Load the resulting bundles that have the IResourceManagementProvider service
-        for (String bundle : finalBundleNamesToLoad) {
+        for (String bundle : bundlesToLoad) {
             if (!bundleManager.isBundleActive(bundleContext, bundle)) {
                 logger.info("ResourceManagement - loading bundle: " + bundle);
 
@@ -242,61 +237,27 @@ public class ResourceManagement implements IResourceManagement {
         }
     }
 
-    private Set<Resource> filterMonitorBundles(MonitorConfiguration monitorConfig) {
-        Set<Resource> bundlesToInclude = new HashSet<>();
+    private Set<String> getResourceManagementProviderBundles() {
+        Set<String> bundlesToLoad = new HashSet<>();
         for (Repository repository : repositoryAdmin.listRepositories()) {
-            Resource[] resources = repository.getResources();
-            if (resources != null) {
-                for (Resource resource : resources) {
-                    // Find all the bundles that match any regex patterns in the 'includes' list
-                    for (Pattern includePattern : monitorConfig.getIncludesRegexList()) {
-                        String bundleName = resource.getSymbolicName();
-                        Matcher includeMatcher = includePattern.matcher(bundleName);
-                        if (includeMatcher.matches()) {
-                            bundlesToInclude.add(resource);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        
-        // From the filtered bundles, exclude any that match any regex patterns in the 'excludes' list
-        Set<Resource> bundlesToExclude = new HashSet<>();
-        for (Resource bundle : bundlesToInclude) {
-            for (Pattern excludePattern : monitorConfig.getExcludesRegexList()) {
-                String bundleName = bundle.getSymbolicName();
-                Matcher excludeMatcher = excludePattern.matcher(bundleName);
-                if (excludeMatcher.matches()) {
-                    bundlesToExclude.add(bundle);
-                    break;
-                }
-            }
-        }
+            if (repository.getResources() != null) {
+                resourceSearch: for (Resource resource : repository.getResources()) {
+                    if (resource.getCapabilities() != null) {
+                        for (Capability capability : resource.getCapabilities()) {
+                            if ("service".equals(capability.getName())) {
+                                Map<String, Object> properties = capability.getPropertiesAsMap();
+                                String services = (String) properties.get("objectClass");
+                                if (services == null) {
+                                    services = (String) properties.get("objectClass:List<String>");
+                                }
 
-        bundlesToInclude.removeAll(bundlesToExclude);
-        return bundlesToInclude;
-    }
-
-    private Set<String> getResourceManagementProviderBundles(Set<Resource> resources) {
-        Set<String> resourceMonitorBundles = new HashSet<>();
-
-        resourceSearch: for (Resource resource : resources) {
-            if (resource.getCapabilities() != null) {
-                for (Capability capability : resource.getCapabilities()) {
-                    if ("service".equals(capability.getName())) {
-                        Map<String, Object> properties = capability.getPropertiesAsMap();
-
-                        String services = (String) properties.get("objectClass");
-                        if (services == null) {
-                            services = (String) properties.get("objectClass:List<String>");
-                        }
-
-                        if (services != null) {
-                            for (String service : services.split(",")) {
-                                if ("dev.galasa.framework.spi.IResourceManagementProvider".equals(service)) {
-                                    resourceMonitorBundles.add(resource.getSymbolicName());
-                                    continue resourceSearch;
+                                if (services != null) {
+                                    for (String service : services.split(",")) {
+                                        if ("dev.galasa.framework.spi.IResourceManagementProvider".equals(service)) {
+                                            bundlesToLoad.add(resource.getSymbolicName());
+                                            continue resourceSearch;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -304,7 +265,7 @@ public class ResourceManagement implements IResourceManagement {
                 }
             }
         }
-        return resourceMonitorBundles;
+        return bundlesToLoad;
     }
 
     private void stopHealthServer(ResourceManagementHealth healthServer) {
