@@ -210,7 +210,11 @@ public class ResourceManagement implements IResourceManagement {
         // Load the resulting bundles that have the IResourceManagementProvider service
         for (String bundle : finalBundleNamesToLoad) {
             if (!bundleManager.isBundleActive(bundleContext, bundle)) {
+                logger.info("ResourceManagement - loading bundle: " + bundle);
+
                 bundleManager.loadBundle(repositoryAdmin, bundleContext, bundle);
+
+                logger.info("ResourceManagement - bundle '" + bundle + "' loaded OK");
             }
         }
     }
