@@ -39,8 +39,6 @@ public class MonitorsRouteTest extends MonitorsServletTest {
         Pattern routePattern = new MonitorsRoute(null, null, null, null).getPathRegex();
 
         // Then...
-        // The servlet's whiteboard pattern will match /secrets, so the secrets route
-        // should only allow an optional / or an empty string (no suffix after "/secrets")
         assertThat(routePattern.matcher("/").matches()).isTrue();
         assertThat(routePattern.matcher("").matches()).isTrue();
 

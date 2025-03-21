@@ -7,6 +7,7 @@ package dev.galasa.framework.api.monitors.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.ServletErrorMessage;
 import dev.galasa.framework.api.monitors.internal.IKubernetesApiClient;
 import dev.galasa.framework.api.monitors.internal.MonitorTransform;
+import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequest;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import io.kubernetes.client.openapi.ApiException;
@@ -71,6 +73,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
         HttpServletRequest request = requestContext.getRequest();
 
         String monitorName = getMonitorNameFromPath(pathInfo);
+
         V1Deployment matchingDeployment = getDeploymentByName(monitorName);
 
         GalasaMonitor monitorBean = null;
@@ -85,6 +88,54 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
         logger.info("handleGetRequest() exiting");
 
         return getResponseBuilder().buildResponse(request, response, MimeType.APPLICATION_JSON.toString(), monitorJson, HttpServletResponse.SC_OK);
+    }
+
+    @Override
+    public HttpServletResponse handlePutRequest(
+        String pathInfo,
+        HttpRequestContext requestContext,
+        HttpServletResponse response
+    ) throws FrameworkException, IOException {
+
+        logger.info("handlePutRequest() entered");
+
+        HttpServletRequest request = requestContext.getRequest();
+
+        String monitorName = getMonitorNameFromPath(pathInfo);
+        UpdateGalasaMonitorRequest updateRequest = parseRequestBody(request, UpdateGalasaMonitorRequest.class);
+        V1Deployment matchingDeployment = getDeploymentByName(monitorName);
+
+        if (matchingDeployment == null) {
+            ServletError error = new ServletError(GAL5419_ERROR_MONITOR_NOT_FOUND_BY_NAME);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        } else {
+            updateDeployment(updateRequest, matchingDeployment);
+        }
+
+        logger.info("handlePutRequest() exiting");
+        return getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_NO_CONTENT);
+    }
+
+    private void updateDeployment(UpdateGalasaMonitorRequest updateRequest, V1Deployment matchingDeployment) throws InternalServletException {
+        logger.info("Deployment with the given name was found OK");
+        int replicas = 0;
+        if (updateRequest.getIsEnabled()) {
+            replicas = 1;
+        }
+
+        matchingDeployment.getSpec().setReplicas(replicas);
+        logger.info("Deployment replicas set to: " + replicas);
+
+        String deploymentName = matchingDeployment.getMetadata().getName();
+
+        try {
+            kubeApiClient.replaceDeployment(kubeNamespace, deploymentName, matchingDeployment);
+        } catch (ApiException e) {
+            ServletError error = new ServletError(GAL5424_FAILED_TO_UPDATE_MONITOR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+        }
+
+        logger.info("Deployment updated OK");
     }
 
     private V1Deployment getDeploymentByName(String monitorName) throws InternalServletException {

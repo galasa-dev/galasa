@@ -17,6 +17,8 @@ import org.junit.Test;
 
 import dev.galasa.framework.api.beans.generated.GalasaMonitor;
 import dev.galasa.framework.api.common.MimeType;
+import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequest;
+import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
@@ -26,6 +28,12 @@ import dev.galasa.framework.api.monitors.mocks.MockMonitorsServlet;
 import io.kubernetes.client.openapi.models.V1Deployment;
 
 public class MonitorsDetailsRouteTest extends MonitorsServletTest {
+
+    private String createUpdateRequestJson(boolean isEnabled) {
+        UpdateGalasaMonitorRequest updateRequest = new UpdateGalasaMonitorRequest();
+        updateRequest.setIsEnabled(isEnabled);
+        return gson.toJson(updateRequest);
+    }
 
     @Test
     public void testMonitorsDetailsRouteRegexMatchesExpectedPaths() throws Exception {
@@ -127,7 +135,75 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
     }
 
     @Test
-    public void testGetMonitorByNameWithFailingKubernetesRequestReturnsCorrectError() throws Exception {
+    public void testEnableMonitorUpdatesDeploymentReplicasOk() throws Exception {
+        // Given...
+        MockFramework mockFramework = new MockFramework();
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient();
+
+        String monitorName = "system";
+        String stream = "myStream";
+        int replicas = 0;
+        List<String> includes = List.of("*");
+        List<String> excludes = new ArrayList<>();
+
+        V1Deployment deployment = createMockDeployment(monitorName, stream, replicas, includes, excludes);
+        mockApiClient.addMockDeployment(deployment);
+
+        MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
+
+        boolean isEnabled = true;
+        String requestBodyJson = createUpdateRequestJson(isEnabled);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + monitorName, requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(deployment.getSpec().getReplicas()).isEqualTo(1);
+    }
+
+    @Test
+    public void testDisableMonitorUpdatesDeploymentReplicasOk() throws Exception {
+        // Given...
+        MockFramework mockFramework = new MockFramework();
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient();
+
+        String monitorName = "system";
+        String stream = "myStream";
+        int replicas = 1;
+        List<String> includes = List.of("*");
+        List<String> excludes = new ArrayList<>();
+
+        V1Deployment deployment = createMockDeployment(monitorName, stream, replicas, includes, excludes);
+        mockApiClient.addMockDeployment(deployment);
+
+        MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
+
+        boolean isEnabled = false;
+        String requestBodyJson = createUpdateRequestJson(isEnabled);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + monitorName, requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(deployment.getSpec().getReplicas()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetMonitorReturnsCorrectErrorOnFailedKubernetesRequest() throws Exception {
         // Given...
         MockFramework mockFramework = new MockFramework();
 
@@ -150,5 +226,71 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(500);
         assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
         checkErrorStructure(outStream.toString(), 5421, "GAL5421E", "Error occurred when getting the Galasa monitor deployments from Kubernetes");
+    }
+
+    @Test
+    public void testUpdateMonitorsStatusReturnsCorrectErrorOnFailedKubernetesRequest() throws Exception {
+        // Given...
+        MockFramework mockFramework = new MockFramework();
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient();
+        mockApiClient.setThrowErrorEnabled(true);
+
+        MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
+
+        boolean isEnabled = true;
+        String requestBodyJson = createUpdateRequestJson(isEnabled);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/myMonitor", requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(500);
+        checkErrorStructure(
+            outStream.toString(),
+            5418,
+            "GAL5418E", "Error occurred when getting the Galasa monitor deployments from Kubernetes"
+        );
+    }
+
+    @Test
+    public void testEnableNonExistantMonitorReturnsCorrectError() throws Exception {
+        // Given...
+        MockFramework mockFramework = new MockFramework();
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient();
+
+        String monitorName = "system";
+        String stream = "myStream";
+        int replicas = 0;
+        List<String> includes = List.of("*");
+        List<String> excludes = new ArrayList<>();
+
+        V1Deployment deployment = createMockDeployment(monitorName, stream, replicas, includes, excludes);
+        mockApiClient.addMockDeployment(deployment);
+
+        MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
+
+        boolean isEnabled = true;
+        String requestBodyJson = createUpdateRequestJson(isEnabled);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/non-existant-monitor", requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(404);
+        checkErrorStructure(outStream.toString(), 5419, "GAL5419E", "No such monitor exists");
     }
 }

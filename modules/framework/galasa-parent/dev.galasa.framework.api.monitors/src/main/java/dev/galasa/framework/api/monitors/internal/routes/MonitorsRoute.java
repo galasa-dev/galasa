@@ -69,7 +69,7 @@ public class MonitorsRoute extends ProtectedRoute {
         HttpServletRequest request = requestContext.getRequest();
         List<GalasaMonitor> monitors = new ArrayList<>();
         try {
-            List<V1Deployment> deploymentsList = kubeApiClient.getNamespacedDeployments(kubeNamespace, MONITOR_DEPLOYMENT_LABEL);
+            List<V1Deployment> deploymentsList = kubeApiClient.getDeployments(kubeNamespace, MONITOR_DEPLOYMENT_LABEL);
 
             for (V1Deployment deployment : deploymentsList) {
                 GalasaMonitor monitor = monitorTransform.createGalasaMonitorBeanFromDeployment(deployment);

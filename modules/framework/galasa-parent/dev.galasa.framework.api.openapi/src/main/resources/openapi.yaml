@@ -1183,6 +1183,31 @@ paths:
                 $ref: '#/components/schemas/GalasaMonitor'
         '400':
           $ref: "#/components/responses/BadRequest"
+    put:
+      operationId: setMonitorStatus
+      summary: Enables or disables the given Galasa monitor
+      description: |
+        Enables or disables the given Galasa monitor by scaling its associated Kubernetes deployment's replicas
+        to 1 when enabled, or 0 when disabled.
+      parameters:
+        - name: monitorName
+          in: path
+          description: The Galasa monitor that to be enabled or disabled.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: The setting to enable or disable the Galasa monitor
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalasaProperty'
+      tags:
+        - Monitors API
+      responses:
+        '204':
+          description: The Galasa Monitor was successfully enabled or disabled
         '401':
           $ref: "#/components/responses/Unauthorized"
         '403':
@@ -2797,6 +2822,12 @@ components:
           type: object
         trace:
           type: boolean
+    UpdateGalasaMonitorRequest:
+      type: object
+      properties:
+        isEnabled:
+          type: boolean
+          description: A boolean value that represents whether the Galasa monitor should be enabled or disabled.
     UpdateRunStatusRequest:
       type: object
       properties:

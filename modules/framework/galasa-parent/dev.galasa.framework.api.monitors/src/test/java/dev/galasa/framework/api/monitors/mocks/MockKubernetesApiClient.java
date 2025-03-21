@@ -23,7 +23,7 @@ public class MockKubernetesApiClient implements IKubernetesApiClient {
     }
 
     @Override
-    public List<V1Deployment> getNamespacedDeployments(String namespace, String labelSelector) throws ApiException {
+    public List<V1Deployment> getDeployments(String namespace, String labelSelector) throws ApiException {
         throwApiExceptionIfEnabled();
         return mockDeployments;
     }
@@ -50,5 +50,11 @@ public class MockKubernetesApiClient implements IKubernetesApiClient {
             }
         }
         return matchingDeployment;
+    }
+
+    @Override
+    public void replaceDeployment(String namespace, String deploymentName, V1Deployment newDeployment)
+            throws ApiException {
+        // Do nothing...
     }
 }
