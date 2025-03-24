@@ -1146,7 +1146,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GalasaMonitor'
+                type: array
+                items:
+                  $ref: '#/components/schemas/GalasaMonitor'
         '401':
           $ref: "#/components/responses/Unauthorized"
         '403':
@@ -2474,7 +2476,7 @@ components:
           description: The API version associated with the GalasaMonitor resource type
         kind:
           type: string
-          enum: [GalasaMonitor]
+          enum: [GalasaResourceCleanupMonitor]
         metadata:
           type: object
           description: General metadata information about the GalasaMonitor resource
