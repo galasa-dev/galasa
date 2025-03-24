@@ -5,8 +5,10 @@
  */
 package dev.galasa.framework.mocks;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -15,6 +17,12 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 
 public class MockIConfigurationPropertyStoreService implements IConfigurationPropertyStoreService {
+
+    private Map<String, String> properties;
+
+    public MockIConfigurationPropertyStoreService() {
+        this.properties = new HashMap<>();
+    }
 
     @Override
     public @Null String getProperty(@NotNull String prefix, @NotNull String suffix, String... infixes)
@@ -25,12 +33,20 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
     @Override
     public @NotNull Map<String, String> getPrefixedProperties(@NotNull String prefix)
             throws ConfigurationPropertyStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'getPrefixedProperties'");
+        Map<String, String> matchingProperties = new HashMap<>();
+
+        for (Entry<String, String> entry : this.properties.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith(prefix)) {
+                matchingProperties.put(key, entry.getValue());
+            }
+        }
+        return matchingProperties;
     }
 
     @Override
     public void setProperty(@NotNull String name, @NotNull String value) throws ConfigurationPropertyStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'setProperty'");
+        this.properties.put(name, value);
     }
 
     @Override

@@ -7,6 +7,7 @@ package dev.galasa.framework.resource.management.internal;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +20,12 @@ import org.junit.Test;
 import dev.galasa.framework.mocks.MockBundleManager;
 import dev.galasa.framework.mocks.MockCapability;
 import dev.galasa.framework.mocks.MockIConfigurationPropertyStoreService;
+import dev.galasa.framework.mocks.MockMavenRepository;
 import dev.galasa.framework.mocks.MockRepository;
 import dev.galasa.framework.mocks.MockRepositoryAdmin;
 import dev.galasa.framework.mocks.MockResolver;
 import dev.galasa.framework.mocks.MockResource;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IResourceManagementProvider;
 
 public class TestResourceManagement {
@@ -48,11 +51,11 @@ public class TestResourceManagement {
         // Given...
         ResourceManagement resourceManagement = new ResourceManagement();
         
-        String TEST_STREAM_REPO_URL = "http://myhost/myRepositoryForMyRun";
+        String REPO_URL = "http://myhost/myRepositoryForMyRun";
         String BUNDLE_NAME_1 = "my.custom.bundle";
         String BUNDLE_NAME_2 = "my.other.custom.bundle";
 
-        MockRepository mockRepo = new MockRepository(TEST_STREAM_REPO_URL);
+        MockRepository mockRepo = new MockRepository(REPO_URL);
         List<Repository> mockRepositories = List.of(mockRepo);
 
         MockResource mockResource1 = createMockBundleWithServiceCapability(BUNDLE_NAME_1);
@@ -79,5 +82,148 @@ public class TestResourceManagement {
         List<String> loadedBundles = mockBundleManager.getLoadedBundleSymbolicNames();
         assertThat(loadedBundles).hasSize(2);
         assertThat(loadedBundles).contains(BUNDLE_NAME_1, BUNDLE_NAME_2);
+    }
+
+    @Test
+    public void testLoadMonitorBundlesAddsRepositoryFromTestStream() throws Exception {
+        // Given...
+        ResourceManagement resourceManagement = new ResourceManagement();
+        
+        String REPO_URL = "http://myhost/myRepositoryForMyRun";
+        String STREAM_OBR_REPO_URL = "http://myhost/myOtherRepositoryForMyRun";
+        String STREAM_MAVEN_REPO_URL = "http://myhost/myOtherMavenRepositoryForMyRun";
+        String BUNDLE_NAME_1 = "my.custom.bundle";
+        String BUNDLE_NAME_2 = "my.other.custom.bundle";
+
+        MockRepository mockRepo = new MockRepository(REPO_URL);
+        List<Repository> mockRepositories = List.of(mockRepo);
+
+        MockResource mockResource1 = createMockBundleWithServiceCapability(BUNDLE_NAME_1);
+        MockResource mockResource2 = createMockBundleWithServiceCapability(BUNDLE_NAME_2);
+        mockRepo.addResource(mockResource1);
+        mockRepo.addResource(mockResource2);
+
+        boolean IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE = true;
+        Resolver mockResolver = new MockResolver(IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE);
+        MockRepositoryAdmin mockRepositoryAdmin = new MockRepositoryAdmin(mockRepositories, mockResolver);
+        MockMavenRepository mockMavenRepository = new MockMavenRepository();
+
+        resourceManagement.repositoryAdmin = mockRepositoryAdmin;
+        resourceManagement.mavenRepository = mockMavenRepository;
+
+        String stream = "myStream";
+
+        MockBundleManager mockBundleManager = new MockBundleManager();
+
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+
+        mockCps.setProperty("test.stream." + stream + ".obr", STREAM_OBR_REPO_URL);
+        mockCps.setProperty("test.stream." + stream + ".repo", STREAM_MAVEN_REPO_URL);
+
+        // When...
+        resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockCps);
+
+        // Then...
+        // Check that the maven repository associated with the stream has been added
+        List<URL> remoteRepos = mockMavenRepository.getRemoteRepositories();
+        assertThat(remoteRepos).hasSize(1);
+        assertThat(remoteRepos.get(0).toString()).isEqualTo(STREAM_MAVEN_REPO_URL);
+
+        // Check that the OBR associated with the stream has been added
+        Repository[] obrRepositories = mockRepositoryAdmin.listRepositories();
+        assertThat(obrRepositories).hasSize(2);
+        assertThat(obrRepositories[1].getURI()).isEqualTo(STREAM_OBR_REPO_URL);
+        
+        List<String> loadedBundles = mockBundleManager.getLoadedBundleSymbolicNames();
+        assertThat(loadedBundles).hasSize(2);
+        assertThat(loadedBundles).contains(BUNDLE_NAME_1, BUNDLE_NAME_2);
+    }
+
+    @Test
+    public void testLoadMonitorBundlesWithBadStreamOBRThrowsCorrectError() throws Exception {
+        // Given...
+        ResourceManagement resourceManagement = new ResourceManagement();
+        
+        String REPO_URL = "http://myhost/myRepositoryForMyRun";
+        String STREAM_MAVEN_REPO_URL = "http://myhost/myOtherMavenRepositoryForMyRun";
+        String BUNDLE_NAME_1 = "my.custom.bundle";
+        String BUNDLE_NAME_2 = "my.other.custom.bundle";
+
+        MockRepository mockRepo = new MockRepository(REPO_URL);
+        List<Repository> mockRepositories = List.of(mockRepo);
+
+        MockResource mockResource1 = createMockBundleWithServiceCapability(BUNDLE_NAME_1);
+        MockResource mockResource2 = createMockBundleWithServiceCapability(BUNDLE_NAME_2);
+        mockRepo.addResource(mockResource1);
+        mockRepo.addResource(mockResource2);
+
+        boolean IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE = true;
+        Resolver mockResolver = new MockResolver(IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE);
+        MockRepositoryAdmin mockRepositoryAdmin = new MockRepositoryAdmin(mockRepositories, mockResolver);
+        MockMavenRepository mockMavenRepository = new MockMavenRepository();
+
+        resourceManagement.repositoryAdmin = mockRepositoryAdmin;
+        resourceManagement.mavenRepository = mockMavenRepository;
+
+        String stream = "myStream";
+
+        MockBundleManager mockBundleManager = new MockBundleManager();
+
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+
+        mockCps.setProperty("test.stream." + stream + ".repo", STREAM_MAVEN_REPO_URL);
+
+        // When...
+        FrameworkException thrown = catchThrowableOfType(() -> {
+            resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockCps);
+        }, FrameworkException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown).hasMessageContaining("No OBR has been configured into the provided test stream");
+    }
+
+    @Test
+    public void testLoadMonitorBundlesWithBadStreamMavenRepoThrowsCorrectError() throws Exception {
+        // Given...
+        ResourceManagement resourceManagement = new ResourceManagement();
+        
+        String REPO_URL = "http://myhost/myRepositoryForMyRun";
+        String STREAM_OBR_REPO_URL = "http://myhost/myOtherRepositoryForMyRun";
+        String BUNDLE_NAME_1 = "my.custom.bundle";
+        String BUNDLE_NAME_2 = "my.other.custom.bundle";
+
+        MockRepository mockRepo = new MockRepository(REPO_URL);
+        List<Repository> mockRepositories = List.of(mockRepo);
+
+        MockResource mockResource1 = createMockBundleWithServiceCapability(BUNDLE_NAME_1);
+        MockResource mockResource2 = createMockBundleWithServiceCapability(BUNDLE_NAME_2);
+        mockRepo.addResource(mockResource1);
+        mockRepo.addResource(mockResource2);
+
+        boolean IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE = true;
+        Resolver mockResolver = new MockResolver(IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE);
+        MockRepositoryAdmin mockRepositoryAdmin = new MockRepositoryAdmin(mockRepositories, mockResolver);
+        MockMavenRepository mockMavenRepository = new MockMavenRepository();
+
+        resourceManagement.repositoryAdmin = mockRepositoryAdmin;
+        resourceManagement.mavenRepository = mockMavenRepository;
+
+        String stream = "myStream";
+
+        MockBundleManager mockBundleManager = new MockBundleManager();
+
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+
+        mockCps.setProperty("test.stream." + stream + ".obr", STREAM_OBR_REPO_URL);
+
+        // When...
+        FrameworkException thrown = catchThrowableOfType(() -> {
+            resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockCps);
+        }, FrameworkException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown).hasMessageContaining("No remote maven repository has been configured into the provided test stream");
     }
 }

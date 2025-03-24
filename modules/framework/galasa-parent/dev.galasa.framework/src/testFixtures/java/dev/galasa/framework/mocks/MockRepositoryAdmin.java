@@ -6,7 +6,6 @@
 package dev.galasa.framework.mocks;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,6 @@ import org.osgi.framework.InvalidSyntaxException;
 
 public class MockRepositoryAdmin implements RepositoryAdmin {
 
-    private List<URL> repositoryUrls = new ArrayList<>();
     private Resolver resolver ;
 
     private Map<String,Repository> repositoryURLMap = new HashMap<String,Repository>();
@@ -41,14 +39,17 @@ public class MockRepositoryAdmin implements RepositoryAdmin {
 
     @Override
     public Repository addRepository(String repository) throws Exception {
-        this.repositoryUrls.add(new URL(repository));
+        MockRepository mockRepository = new MockRepository(repository);
+        this.repositoryURLMap.put(repository, mockRepository);
         return repositoryURLMap.get(repository);
     }
 
     @Override
     public Repository addRepository(URL repositoryUrl) throws Exception {
-        this.repositoryUrls.add(repositoryUrl);
-        return repositoryURLMap.get(repositoryUrl.toString());
+        String repositoryUrlStr = repositoryUrl.toString();
+        MockRepository mockRepository = new MockRepository(repositoryUrlStr);
+        this.repositoryURLMap.put(repositoryUrlStr, mockRepository);
+        return repositoryURLMap.get(repositoryUrlStr);
     }
 
     @Override

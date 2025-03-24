@@ -215,11 +215,14 @@ public class ResourceManagement implements IResourceManagement {
     }
 
     private void loadRepositoriesFromStream(String stream, IConfigurationPropertyStoreService cps) throws FrameworkException {
-        // Get the stream (TODO: replace with a streams service)
         Map<String, String> streamProperties = cps.getPrefixedProperties("test.stream." + stream);
 
-        // Add the stream's OBR to the repository admin (TODO: replace with a streams service)
+        // Add the stream's OBR to the repository admin
         String commaSeparatedObrs = streamProperties.get("test.stream." + stream + ".obr");
+        if (commaSeparatedObrs == null || commaSeparatedObrs.isBlank()) {
+            throw new FrameworkException("No OBR has been configured into the provided test stream");
+        }
+
         for (String obr : commaSeparatedObrs.split(",")) {
             try {
                 repositoryAdmin.addRepository(obr);
@@ -228,8 +231,12 @@ public class ResourceManagement implements IResourceManagement {
             }
         }
 
-        // Add the stream's maven repo to the maven repositories (TODO: replace with a streams service)
+        // Add the stream's maven repo to the maven repositories
         String mavenRepo = streamProperties.get("test.stream." + stream + ".repo");
+        if (mavenRepo == null || mavenRepo.isBlank()) {
+            throw new FrameworkException("No remote maven repository has been configured into the provided test stream");
+        }
+
         try {
             mavenRepository.addRemoteRepository(new URL(mavenRepo));
         } catch (MalformedURLException e) {
