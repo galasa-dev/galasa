@@ -200,7 +200,7 @@ public class ResourceManagement implements IResourceManagement {
             loadRepositoriesFromStream(stream, cps);
         }
 
-        Set<String> bundlesToLoad = getResourceManagementProviderBundles();
+        Set<String> bundlesToLoad = getResourceMonitorBundles();
 
         // Load the resulting bundles that have the IResourceManagementProvider service
         for (String bundle : bundlesToLoad) {
@@ -237,35 +237,50 @@ public class ResourceManagement implements IResourceManagement {
         }
     }
 
-    private Set<String> getResourceManagementProviderBundles() {
-        Set<String> bundlesToLoad = new HashSet<>();
-        for (Repository repository : repositoryAdmin.listRepositories()) {
-            if (repository.getResources() != null) {
-                resourceSearch: for (Resource resource : repository.getResources()) {
-                    if (resource.getCapabilities() != null) {
-                        for (Capability capability : resource.getCapabilities()) {
-                            if ("service".equals(capability.getName())) {
-                                Map<String, Object> properties = capability.getPropertiesAsMap();
-                                String services = (String) properties.get("objectClass");
-                                if (services == null) {
-                                    services = (String) properties.get("objectClass:List<String>");
-                                }
+    private boolean isResourceMonitorCapability(Capability capability) {
+        boolean isResourceMonitor = false;
+        if ("service".equals(capability.getName())) {
+            Map<String, Object> properties = capability.getPropertiesAsMap();
+            String services = (String) properties.get("objectClass");
+            if (services == null) {
+                services = (String) properties.get("objectClass:List<String>");
+            }
 
-                                if (services != null) {
-                                    for (String service : services.split(",")) {
-                                        if ("dev.galasa.framework.spi.IResourceManagementProvider".equals(service)) {
-                                            bundlesToLoad.add(resource.getSymbolicName());
-                                            continue resourceSearch;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+            if (services != null) {
+                for (String service : services.split(",")) {
+                    if ("dev.galasa.framework.spi.IResourceManagementProvider".equals(service)) {
+                        isResourceMonitor = true;
+                        break;
                     }
                 }
             }
         }
+        return isResourceMonitor;
+    }
+
+    private Set<String> getResourceMonitorBundles() {
+        Set<String> bundlesToLoad = new HashSet<>();
+        for (Repository repository : repositoryAdmin.listRepositories()) {
+            if (repository.getResources() != null) {
+                bundlesToLoad.addAll(getResourceMonitorsFromRepository(repository));
+            }
+        }
         return bundlesToLoad;
+    }
+
+    private Set<String> getResourceMonitorsFromRepository(Repository repository) {
+        Set<String> resourceMonitorBundles = new HashSet<>();
+        for (Resource resource : repository.getResources()) {
+            if (resource.getCapabilities() != null) {
+                for (Capability capability : resource.getCapabilities()) {
+                    if (isResourceMonitorCapability(capability)) {
+                        resourceMonitorBundles.add(resource.getSymbolicName());
+                        break;
+                    }
+                }
+            }
+        }
+        return resourceMonitorBundles;
     }
 
     private void stopHealthServer(ResourceManagementHealth healthServer) {
