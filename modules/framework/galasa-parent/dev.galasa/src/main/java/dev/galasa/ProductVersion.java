@@ -73,7 +73,7 @@ public class ProductVersion implements Comparable<ProductVersion> {
 
     /**
      * Note. Using this method is less efficient than using the class constructor.
-     * @param version A version number. Negative numbers are treated as 0.
+     * @param release A version number. Negative numbers are treated as 0.
      * @return A ProductVersion which has the the specified release
      */
     public ProductVersion r(int release) {
@@ -88,7 +88,7 @@ public class ProductVersion implements Comparable<ProductVersion> {
 
     /**
      * Note. Using this method is less efficient than using the class constructor.
-     * @param version A version number. Negative numbers are treated as 0.
+     * @param modification A version number. Negative numbers are treated as 0.
      * @return A ProductVersion which has the the specified modification level
      */
     public ProductVersion m(int modification) {
