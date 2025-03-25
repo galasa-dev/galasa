@@ -59,8 +59,9 @@ function usage {
     cat << EOF
 Options are:
 -h | --help : Display this help text
---module The name of the module to start building from
---chain true/false/yes/no/y/n
+--module <name> : The name of the module to start building from. Defaults to the first module in the build chain.
+--chain true/false/yes/no/y/n : Enables/disables the chaining of builds. Defaults to true.
+--docker : Enables the building of Docker images. If --docker is not provided, Docker images will not be built.
 EOF
 }
 
@@ -115,6 +116,7 @@ function check_module_name_is_supported() {
 #-----------------------------------------------------------------------------------------
 module_input="platform"
 chain_input="true"
+build_docker_flag=""
 while [ "$1" != "" ]; do
     case $1 in
         -h | --help )   usage
@@ -127,6 +129,9 @@ while [ "$1" != "" ]; do
 
         --chain )       chain_input="$2"
                         shift
+                        ;;
+
+        --docker )      build_docker_flag="--docker"
                         ;;
 
         * )             error "Unexpected argument $1"
@@ -258,7 +263,7 @@ function build_module() {
     if [[ "$module" == "obr" ]]; then
         h2 "Building $module"
         cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
+        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false ${build_docker_flag}
         rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
         success "Built module $module OK"
         if [[ "$chain" == "true" ]]; then 

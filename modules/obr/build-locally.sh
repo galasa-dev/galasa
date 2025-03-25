@@ -62,6 +62,7 @@ function usage {
     info "Syntax: build-locally.sh [OPTIONS]"
     cat << EOF
 Options are:
+--docker : Optional. Builds the Docker image for the OBR boot embedded build
 -s | --detectsecrets true|false : Do we want to detect secrets in the entire repo codebase ? Default is 'true'. Valid values are 'true' or 'false'
 -h | --help : Display this help text
 
@@ -97,10 +98,12 @@ function check_exit_code () {
 #-----------------------------------------------------------------------------------------
 # Process parameters
 #-----------------------------------------------------------------------------------------
-exportbuild_type=""
+is_docker_build_requested=""
 detectsecrets="true"
 while [ "$1" != "" ]; do
     case $1 in
+        --docker )              is_docker_build_requested="true"
+                                ;;
         -h | --help )           usage
                                 exit
                                 ;;
@@ -171,6 +174,17 @@ fi
 log_file=${LOGS_DIR}/${project}.txt
 info "Log will be placed at ${log_file}"
 date > ${log_file}
+
+#------------------------------------------------------------------------------------
+function check_docker_installed {
+    which docker
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then
+        error "The docker CLI tool is not available on your path. Install docker and try again."
+        exit 1
+    fi
+    success "docker is installed. OK"
+}
 
 #------------------------------------------------------------------------------------
 function get_galasabld_binary_location {
@@ -338,6 +352,36 @@ function construct_uber_obr_pom_xml {
 }
 
 #------------------------------------------------------------------------------------
+function construct_obr_generic_pom_xml {
+    h2 "Generating a pom.xml from the OBR generic template, using all the versions of everything..."
+
+    cd ${WORKSPACE_DIR}/${project}/obr-generic
+
+    # Check local build version
+    export GALASA_BUILD_TOOL_PATH=${WORKSPACE_DIR}/buildutils/bin/${GALASA_BUILD_TOOL_NAME}
+    info "Using galasabld tool ${GALASA_BUILD_TOOL_PATH}"
+
+    cmd="${GALASA_BUILD_TOOL_PATH} template \
+    --releaseMetadata ${framework_manifest_path} \
+    --releaseMetadata ${extensions_manifest_path} \
+    --releaseMetadata ${managers_manifest_path} \
+    --releaseMetadata ${WORKSPACE_DIR}/obr/release.yaml \
+    --template pom.template \
+    --output pom.xml \
+    --obr \
+    "
+    echo "Command is $cmd" >> ${log_file}
+    $cmd 2>&1 >> ${log_file}
+
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then
+        error "Failed to convert release.yaml files into a pom.xml ${project}. log file is ${log_file}"
+        exit 1
+    fi
+    success "pom.xml built ok - log is at ${log_file}"
+}
+
+#------------------------------------------------------------------------------------
 function check_developer_attribution_present {
     h2 "Checking that pom has developer attribution."
     cat ${BASEDIR}/galasa-bom/pom.template | grep "<developers>" >> /dev/null
@@ -387,7 +431,24 @@ function build_generated_uber_obr_pom {
     success "OK"
 }
 
+#------------------------------------------------------------------------------------
+function build_generated_obr_generic_pom {
+    h2 "Building the generated OBR generic pom.xml..."
+    cd ${BASEDIR}/obr-generic
 
+    mvn install \
+    -Dgpg.passphrase=${GPG_PASSPHRASE} \
+    -Dgalasa.source.repo=${SOURCE_MAVEN} \
+    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+    dev.galasa:galasa-maven-plugin:$component_version:obrembedded \
+    2>&1 >> ${log_file}
+
+    rc=$?; if [[ "${rc}" != "0" ]]; then
+        error "Failed to push OBR generic build into maven repo ${project}. log file is ${log_file}"
+        exit 1
+    fi
+    success "OK"
+}
 
 #------------------------------------------------------------------------------------
 function generate_javadoc_pom_xml {
@@ -476,6 +537,22 @@ function check_secrets_unless_supressed() {
     fi
 }
 
+#------------------------------------------------------------------------------------
+function build_boot_embedded_docker_image {
+    h2 "Building Galasa boot embedded Docker image..."
+    JDK_IMAGE="ghcr.io/galasa-dev/openjdk:17"
+
+    docker build -f "${BASEDIR}/dockerfiles/dockerfile.bootembedded" \
+    -t galasa-boot-embedded:latest \
+    --build-arg jdkImage="${JDK_IMAGE}" \
+    ${BASEDIR}
+
+    rc=$?
+    check_exit_code ${rc} "Failed to build the OBR boot embedded Docker image."
+
+    success "Boot embedded Docker image built OK"
+}
+
 # #------------------------------------------------------------------------------------
 # h2 "Packaging the javadoc into a docker file"
 # #------------------------------------------------------------------------------------
@@ -491,9 +568,11 @@ get_galasabld_binary_location
 check_dependencies_present
 construct_uber_obr_pom_xml
 construct_bom_pom_xml
+construct_obr_generic_pom_xml
 check_developer_attribution_present
 build_generated_uber_obr_pom
 build_generated_bom_pom
+build_generated_obr_generic_pom
 
 h1 "Building the javadoc using the OBR..."
 generate_javadoc_pom_xml
@@ -502,6 +581,11 @@ build_javadoc_pom
 if [[ "$detectsecrets" == "true" ]]; then
     $REPO_ROOT/tools/detect-secrets.sh 
     check_exit_code $? "Failed to detect secrets"
+fi
+
+if [[ "${is_docker_build_requested}" == "true" ]]; then
+    check_docker_installed
+    build_boot_embedded_docker_image
 fi
 
 success "Project ${project} built - OK - log is at ${log_file}"

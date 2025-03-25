@@ -362,14 +362,14 @@ function build_framework_uml_diagrams {
 
 function make_sure_plantuml_tool_is_available {
     h2 "Making sure the plantuml tool is available"
-    mkdir -p temp || exit 1
+    mkdir -p "$BASEDIR/temp" || exit 1
     if [[ -e $BASEDIR/temp/plantuml.jar ]]; then
         info "Plantuml jar is already downloaded. No need to download it again"
     else 
         info "Downloading the plantuml tool..."
         url=https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-epl-1.2024.3.jar
         cd "$BASEDIR/temp" || exit 1
-        curl -O $url
+        curl -LO $url
         rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to download the plantuml tool jar." ; exit 1 ; fi
         mv plantuml-*.jar plantuml.jar
         cd - || exit 1
