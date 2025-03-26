@@ -1155,6 +1155,42 @@ paths:
           $ref: "#/components/responses/Forbidden"
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitors/{monitorName}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+      - name: monitorName
+        in: path
+        description: The name of the Galasa monitor resource to manipulate
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Gets a monitor with the given name
+      description: |
+        Returns a Galasa monitor with the given name.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: getMonitorByName
+      tags:
+      - Monitors API
+      responses:
+        '200':
+          description: The monitor with the provided name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaMonitor'
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 ##################################################################################
 # OpenAPI API
 ##################################################################################

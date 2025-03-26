@@ -36,4 +36,9 @@ public class KubernetesApiClient implements IKubernetesApiClient {
             .execute()
             .getItems();
     }
+
+    @Override
+    public V1Deployment getDeploymentByName(String name, String namespace) throws ApiException {
+        return kubeApiClient.readNamespacedDeployment(name, namespace).execute();
+    }
 }

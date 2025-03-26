@@ -13,4 +13,6 @@ import io.kubernetes.client.openapi.models.V1Deployment;
 public interface IKubernetesApiClient {
 
     List<V1Deployment> getNamespacedDeployments(String namespace, String labelSelector) throws ApiException;
+
+    V1Deployment getDeploymentByName(String name, String namespace) throws ApiException;
 }

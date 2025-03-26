@@ -7,8 +7,7 @@ package dev.galasa.framework.api.monitors.internal.routes;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Matcher;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +23,7 @@ import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.ServletErrorMessage;
 import dev.galasa.framework.api.monitors.internal.IKubernetesApiClient;
 import dev.galasa.framework.api.monitors.internal.MonitorTransform;
 import dev.galasa.framework.spi.FrameworkException;
@@ -31,12 +31,14 @@ import dev.galasa.framework.spi.rbac.RBACService;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1Deployment;
 
-public class MonitorsRoute extends ProtectedRoute {
+public class MonitorsDetailsRoute extends ProtectedRoute {
 
-    // Regex to match /monitors and /monitors/ only
-    private static final String PATH_PATTERN = "\\/?";
-
-    private static final String MONITOR_DEPLOYMENT_LABEL = "galasa-monitor";
+    // Regex to match /monitors/{monitorName} and /monitors/{monitorName}/
+    // where {monitorName} can consist of the following characters:
+    // - Alphanumeric characters (a-zA-Z0-9)
+    // - Underscores (_)
+    // - Dashes (-)
+    private static final String PATH_PATTERN = "\\/([a-zA-Z0-9_-]+)\\/?";
 
     private Log logger = LogFactory.getLog(getClass());
 
@@ -45,7 +47,7 @@ public class MonitorsRoute extends ProtectedRoute {
 
     private MonitorTransform monitorTransform = new MonitorTransform();
 
-    public MonitorsRoute(
+    public MonitorsDetailsRoute(
         ResponseBuilder responseBuilder,
         RBACService rbacService,
         IKubernetesApiClient kubeApiClient,
@@ -67,22 +69,45 @@ public class MonitorsRoute extends ProtectedRoute {
         logger.info("handleGetRequest() entered");
 
         HttpServletRequest request = requestContext.getRequest();
-        List<GalasaMonitor> monitors = new ArrayList<>();
-        try {
-            List<V1Deployment> deploymentsList = kubeApiClient.getNamespacedDeployments(kubeNamespace, MONITOR_DEPLOYMENT_LABEL);
 
-            for (V1Deployment deployment : deploymentsList) {
-                GalasaMonitor monitor = monitorTransform.createGalasaMonitorBeanFromDeployment(deployment);
-                monitors.add(monitor);
-            }
+        String monitorName = getMonitorNameFromPath(pathInfo);
+        V1Deployment matchingDeployment = getDeploymentByName(monitorName);
 
-        } catch (ApiException e) {
-            ServletError error = new ServletError(GAL5418_ERROR_GETTING_MONITOR_DEPLOYMENTS);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        GalasaMonitor monitorBean = null;
+        if (matchingDeployment == null) {
+            ServletError error = new ServletError(GAL5419_ERROR_MONITOR_NOT_FOUND_BY_NAME);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        } else {
+            monitorBean = monitorTransform.createGalasaMonitorBeanFromDeployment(matchingDeployment);
         }
 
+        String monitorJson = gson.toJson(monitorBean);
         logger.info("handleGetRequest() exiting");
-        return getResponseBuilder().buildResponse(request, response, MimeType.APPLICATION_JSON.toString(),
-            gson.toJson(monitors), HttpServletResponse.SC_OK);
+
+        return getResponseBuilder().buildResponse(request, response, MimeType.APPLICATION_JSON.toString(), monitorJson, HttpServletResponse.SC_OK);
+    }
+
+    private V1Deployment getDeploymentByName(String monitorName) throws InternalServletException {
+        V1Deployment matchingDeployment = null;
+        try {
+            matchingDeployment = kubeApiClient.getDeploymentByName(monitorName, kubeNamespace);
+        } catch (ApiException e) {
+            ServletError error = new ServletError(GAL5418_ERROR_GETTING_MONITOR_DEPLOYMENTS);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+        }
+        return matchingDeployment;
+    }
+
+    private String getMonitorNameFromPath(String pathInfo) throws InternalServletException {
+        Matcher matcher = this.getPathRegex().matcher(pathInfo);
+        matcher.matches();
+        String monitorName;
+        try {
+            monitorName =  matcher.group(1);
+        } catch (Exception ex) {
+            ServletError error = new ServletError(ServletErrorMessage.GAL5420_INVALID_MONITOR_NAME_PROVIDED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        return monitorName;
     }
 }

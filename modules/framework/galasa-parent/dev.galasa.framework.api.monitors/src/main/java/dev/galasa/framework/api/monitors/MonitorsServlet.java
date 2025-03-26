@@ -17,6 +17,7 @@ import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.monitors.internal.IKubernetesApiClient;
 import dev.galasa.framework.api.monitors.internal.KubernetesApiClient;
+import dev.galasa.framework.api.monitors.internal.routes.MonitorsDetailsRoute;
 import dev.galasa.framework.api.monitors.internal.routes.MonitorsRoute;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.rbac.RBACException;
@@ -59,6 +60,7 @@ public class MonitorsServlet extends BaseServlet {
         try {
             RBACService rbacService = framework.getRBACService();
             addRoute(new MonitorsRoute(getResponseBuilder(), rbacService, kubeApiClient, kubeNamespace));
+            addRoute(new MonitorsDetailsRoute(getResponseBuilder(), rbacService, kubeApiClient, kubeNamespace));
         } catch (RBACException e) {
             throw new ServletException("Failed to initialise the monitors servlet");
         }

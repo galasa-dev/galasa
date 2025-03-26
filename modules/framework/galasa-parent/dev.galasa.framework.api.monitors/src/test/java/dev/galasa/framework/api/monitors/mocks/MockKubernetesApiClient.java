@@ -37,4 +37,18 @@ public class MockKubernetesApiClient implements IKubernetesApiClient {
             throw new ApiException("simulating an error from kubernetes");
         }
     }
+
+    @Override
+    public V1Deployment getDeploymentByName(String name, String namespace) throws ApiException {
+        throwApiExceptionIfEnabled();
+
+        V1Deployment matchingDeployment = null;
+        for (V1Deployment deployment : mockDeployments) {
+            if (deployment.getMetadata().getName().equals(name)) {
+                matchingDeployment = deployment;
+                break;
+            }
+        }
+        return matchingDeployment;
+    }
 }
