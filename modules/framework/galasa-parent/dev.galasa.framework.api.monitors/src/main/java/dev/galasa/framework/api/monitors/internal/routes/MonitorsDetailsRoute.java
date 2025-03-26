@@ -106,7 +106,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
         V1Deployment matchingDeployment = getDeploymentByName(monitorName);
 
         if (matchingDeployment == null) {
-            ServletError error = new ServletError(GAL5419_ERROR_MONITOR_NOT_FOUND_BY_NAME);
+            ServletError error = new ServletError(GAL5422_ERROR_MONITOR_NOT_FOUND_BY_NAME);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         } else {
             updateDeployment(updateRequest, matchingDeployment);

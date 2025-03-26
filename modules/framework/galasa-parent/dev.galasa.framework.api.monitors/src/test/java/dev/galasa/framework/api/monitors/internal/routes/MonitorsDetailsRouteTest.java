@@ -254,8 +254,8 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(500);
         checkErrorStructure(
             outStream.toString(),
-            5418,
-            "GAL5418E", "Error occurred when getting the Galasa monitor deployments from Kubernetes"
+            5421,
+            "GAL5421E", "Error occurred when getting the Galasa monitor deployments from Kubernetes"
         );
     }
 
@@ -291,6 +291,6 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(404);
-        checkErrorStructure(outStream.toString(), 5419, "GAL5419E", "No such monitor exists");
+        checkErrorStructure(outStream.toString(), 5422, "GAL5422E", "No such monitor exists");
     }
 }
