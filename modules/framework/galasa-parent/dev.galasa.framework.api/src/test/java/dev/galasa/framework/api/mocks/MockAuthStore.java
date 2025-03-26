@@ -81,4 +81,10 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
     public IFrontEndClient createClient(String clientName) {
         throw new UnsupportedOperationException("Unimplemented method 'createClient'");
     }
+
+    @Override
+    public String jadesDummyMethod() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'jadesDummyMethod'");
+    }
 }

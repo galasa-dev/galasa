@@ -92,4 +92,6 @@ public interface IAuthStore {
     void deleteUser(IUser user) throws AuthStoreException;
 
     IFrontEndClient createClient(String clientName);
+
+    String jadesDummyMethod();
 }
