@@ -123,19 +123,24 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
             replicas = 1;
         }
 
-        matchingDeployment.getSpec().setReplicas(replicas);
-        logger.info("Deployment replicas set to: " + replicas);
-
-        String deploymentName = matchingDeployment.getMetadata().getName();
-
-        try {
-            kubeApiClient.replaceDeployment(kubeNamespace, deploymentName, matchingDeployment);
-        } catch (ApiException e) {
-            ServletError error = new ServletError(GAL5424_FAILED_TO_UPDATE_MONITOR);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+        if (matchingDeployment.getSpec().getReplicas() == replicas) {
+            logger.info("Requested deployment replica count is unchanged, there is nothing to update");
+        } else {
+            matchingDeployment.getSpec().setReplicas(replicas);
+            logger.info("Deployment replicas set to: " + replicas);
+    
+            String deploymentName = matchingDeployment.getMetadata().getName();
+    
+            try {
+                kubeApiClient.replaceDeployment(kubeNamespace, deploymentName, matchingDeployment);
+            } catch (ApiException e) {
+                ServletError error = new ServletError(GAL5424_FAILED_TO_UPDATE_MONITOR);
+                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+            }
+    
+            logger.info("Deployment updated OK");
         }
 
-        logger.info("Deployment updated OK");
     }
 
     private V1Deployment getDeploymentByName(String monitorName) throws InternalServletException {

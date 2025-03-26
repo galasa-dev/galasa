@@ -169,6 +169,40 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
     }
 
     @Test
+    public void testEnableAlreadyEnabledMonitorDoesNotErrorOut() throws Exception {
+        // Given...
+        MockFramework mockFramework = new MockFramework();
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient();
+
+        String monitorName = "system";
+        String stream = "myStream";
+        int replicas = 1;
+        List<String> includes = List.of("*");
+        List<String> excludes = new ArrayList<>();
+
+        V1Deployment deployment = createMockDeployment(monitorName, stream, replicas, includes, excludes);
+        mockApiClient.addMockDeployment(deployment);
+
+        MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
+
+        boolean isEnabled = true;
+        String requestBodyJson = createUpdateRequestJson(isEnabled);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + monitorName, requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(deployment.getSpec().getReplicas()).isEqualTo(1);
+    }
+
+    @Test
     public void testDisableMonitorUpdatesDeploymentReplicasOk() throws Exception {
         // Given...
         MockFramework mockFramework = new MockFramework();
