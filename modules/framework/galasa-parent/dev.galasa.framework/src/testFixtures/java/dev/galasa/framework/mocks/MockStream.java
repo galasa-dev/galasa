@@ -16,6 +16,10 @@ public class MockStream implements IStream {
     private String obrLocation;
     private boolean isEnabled = true;
 
+    public MockStream() {
+        // Do nothing...
+    }
+
     public MockStream(String name, String description, String mavenRepositoryUrl, String testCatalogUrl, String obrLocation, boolean isEnabled) {
         this.name = name;
         this.description = description;
@@ -54,5 +58,28 @@ public class MockStream implements IStream {
     public boolean getIsEnabled() {
         return isEnabled;
     }
-    
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setMavenRepositoryUrl(String mavenRepositoryUrl) {
+        this.mavenRepositoryUrl = mavenRepositoryUrl;
+    }
+
+    public void setTestCatalogUrl(String testCatalogUrl) {
+        this.testCatalogUrl = testCatalogUrl;
+    }
+
+    public void setObrLocation(String obrLocation) {
+        this.obrLocation = obrLocation;
+    }
+
+    public void setEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
+    }
 }

@@ -25,7 +25,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.streams.mocks.MockStreamsServlet;
 import dev.galasa.framework.mocks.FilledMockRBACService;
-import dev.galasa.framework.mocks.MockIStreamsService;
+import dev.galasa.framework.mocks.MockStreamsService;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockStream;
 import dev.galasa.framework.spi.streams.IStream;
@@ -39,9 +39,9 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         String streamName = "fakeStream";
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
-        MockIStreamsService mockIStreamsService = new MockIStreamsService(new ArrayList<>());
+        MockStreamsService mockStreamsService = new MockStreamsService(new ArrayList<>());
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
-        MockFramework mockFramework = new MockFramework(mockRBACService, mockIStreamsService);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
         MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService(
                 "framework");
 
@@ -80,9 +80,9 @@ public class StreamsByNameRouteTest extends BaseServletTest {
 
         mockStreams.add(mockstream);
 
-        MockIStreamsService mockIStreamsService = new MockIStreamsService(mockStreams);
+        MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
-        MockFramework mockFramework = new MockFramework(mockRBACService, mockIStreamsService);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
         MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService(
                 "framework");
 
@@ -121,9 +121,9 @@ public class StreamsByNameRouteTest extends BaseServletTest {
 
         mockStreams.add(mockstream);
 
-        MockIStreamsService mockIStreamsService = new MockIStreamsService(mockStreams);
+        MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
-        MockFramework mockFramework = new MockFramework(mockRBACService, mockIStreamsService);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
         MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService(
                 "framework");
 
@@ -179,9 +179,9 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         mockStreams.add(mockstream2);
         mockStreams.add(mockstream3);
 
-        MockIStreamsService mockIStreamsService = new MockIStreamsService(mockStreams);
+        MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
-        MockFramework mockFramework = new MockFramework(mockRBACService, mockIStreamsService);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
         MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService(
                 "framework");
 
@@ -227,12 +227,12 @@ public class StreamsByNameRouteTest extends BaseServletTest {
 
         mockStreams.add(mockstream);
 
-        MockIStreamsService mockIStreamsService = new MockIStreamsService(mockStreams);
+        MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
 
-        mockIStreamsService.setThrowException(true);
+        mockStreamsService.setThrowException(true);
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
-        MockFramework mockFramework = new MockFramework(mockRBACService, mockIStreamsService);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
         MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService(
                 "framework");
 

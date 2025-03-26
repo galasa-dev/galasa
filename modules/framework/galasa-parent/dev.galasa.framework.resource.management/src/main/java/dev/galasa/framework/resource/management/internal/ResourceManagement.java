@@ -47,6 +47,8 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResourceManagement;
+import dev.galasa.framework.spi.streams.IStream;
+import dev.galasa.framework.spi.streams.IStreamsService;
 import io.prometheus.client.Counter;
 import io.prometheus.client.exporter.HTTPServer;
 
@@ -114,11 +116,12 @@ public class ResourceManagement implements IResourceManagement {
             IFramework framework = frameworkInitialisation.getFramework();
 
             IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService("framework");
+            IStreamsService streamsService = framework.getStreamsService();
             IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
 
             // Load the requested monitor bundles
             IBundleManager bundleManager = new BundleManager();
-            loadMonitorBundles(bundleManager, stream, cps);
+            loadMonitorBundles(bundleManager, stream, streamsService);
 
             // *** Now start the Resource Management framework
 
@@ -195,9 +198,9 @@ public class ResourceManagement implements IResourceManagement {
     }
 
     // Package-level to allow unit testing
-    void loadMonitorBundles(IBundleManager bundleManager, String stream, IConfigurationPropertyStoreService cps) throws FrameworkException {
-        if (stream != null) {
-            loadRepositoriesFromStream(stream, cps);
+    void loadMonitorBundles(IBundleManager bundleManager, String stream, IStreamsService streamsService) throws FrameworkException {
+        if (stream != null && !stream.isBlank()) {
+            loadRepositoriesFromStream(stream.trim(), streamsService);
         }
 
         Set<String> bundlesToLoad = getResourceMonitorBundles();
@@ -214,11 +217,11 @@ public class ResourceManagement implements IResourceManagement {
         }
     }
 
-    private void loadRepositoriesFromStream(String stream, IConfigurationPropertyStoreService cps) throws FrameworkException {
-        Map<String, String> streamProperties = cps.getPrefixedProperties("test.stream." + stream);
+    private void loadRepositoriesFromStream(String streamName, IStreamsService streamsService) throws FrameworkException {
+        IStream stream = streamsService.getStreamByName(streamName);
 
         // Add the stream's OBR to the repository admin
-        String commaSeparatedObrs = streamProperties.get("test.stream." + stream + ".obr");
+        String commaSeparatedObrs = stream.getObrLocation();
         if (commaSeparatedObrs == null || commaSeparatedObrs.isBlank()) {
             throw new FrameworkException("No OBR has been configured into the provided test stream");
         }
@@ -232,7 +235,7 @@ public class ResourceManagement implements IResourceManagement {
         }
 
         // Add the stream's maven repo to the maven repositories
-        String mavenRepo = streamProperties.get("test.stream." + stream + ".repo");
+        String mavenRepo = stream.getMavenRepositoryUrl();
         if (mavenRepo == null || mavenRepo.isBlank()) {
             throw new FrameworkException("No remote maven repository has been configured into the provided test stream");
         }

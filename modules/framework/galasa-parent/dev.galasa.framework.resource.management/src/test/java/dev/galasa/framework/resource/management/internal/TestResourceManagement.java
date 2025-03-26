@@ -8,6 +8,7 @@ package dev.galasa.framework.resource.management.internal;
 import static org.assertj.core.api.Assertions.*;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +20,13 @@ import org.junit.Test;
 
 import dev.galasa.framework.mocks.MockBundleManager;
 import dev.galasa.framework.mocks.MockCapability;
-import dev.galasa.framework.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.mocks.MockMavenRepository;
 import dev.galasa.framework.mocks.MockRepository;
 import dev.galasa.framework.mocks.MockRepositoryAdmin;
 import dev.galasa.framework.mocks.MockResolver;
 import dev.galasa.framework.mocks.MockResource;
+import dev.galasa.framework.mocks.MockStream;
+import dev.galasa.framework.mocks.MockStreamsService;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IResourceManagementProvider;
 
@@ -73,10 +75,10 @@ public class TestResourceManagement {
 
         MockBundleManager mockBundleManager = new MockBundleManager();
 
-        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockStreamsService mockStreamsService = new MockStreamsService(new ArrayList<>());
 
         // When...
-        resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockCps);
+        resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockStreamsService);
 
         // Then...
         List<String> loadedBundles = mockBundleManager.getLoadedBundleSymbolicNames();
@@ -115,13 +117,15 @@ public class TestResourceManagement {
 
         MockBundleManager mockBundleManager = new MockBundleManager();
 
-        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockStream mockStream = new MockStream();
+        mockStream.setName(stream);
+        mockStream.setObrLocation(STREAM_OBR_REPO_URL);
+        mockStream.setMavenRepositoryUrl(STREAM_MAVEN_REPO_URL);
 
-        mockCps.setProperty("test.stream." + stream + ".obr", STREAM_OBR_REPO_URL);
-        mockCps.setProperty("test.stream." + stream + ".repo", STREAM_MAVEN_REPO_URL);
+        MockStreamsService mockStreamsService = new MockStreamsService(List.of(mockStream));
 
         // When...
-        resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockCps);
+        resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockStreamsService);
 
         // Then...
         // Check that the maven repository associated with the stream has been added
@@ -169,13 +173,15 @@ public class TestResourceManagement {
 
         MockBundleManager mockBundleManager = new MockBundleManager();
 
-        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockStream mockStream = new MockStream();
+        mockStream.setName(stream);
+        mockStream.setMavenRepositoryUrl(STREAM_MAVEN_REPO_URL);
 
-        mockCps.setProperty("test.stream." + stream + ".repo", STREAM_MAVEN_REPO_URL);
+        MockStreamsService mockStreamsService = new MockStreamsService(List.of(mockStream));
 
         // When...
         FrameworkException thrown = catchThrowableOfType(() -> {
-            resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockCps);
+            resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockStreamsService);
         }, FrameworkException.class);
 
         // Then...
@@ -213,13 +219,15 @@ public class TestResourceManagement {
 
         MockBundleManager mockBundleManager = new MockBundleManager();
 
-        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockStream mockStream = new MockStream();
+        mockStream.setName(stream);
+        mockStream.setObrLocation(STREAM_OBR_REPO_URL);
 
-        mockCps.setProperty("test.stream." + stream + ".obr", STREAM_OBR_REPO_URL);
+        MockStreamsService mockStreamsService = new MockStreamsService(List.of(mockStream));
 
         // When...
         FrameworkException thrown = catchThrowableOfType(() -> {
-            resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockCps);
+            resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockStreamsService);
         }, FrameworkException.class);
 
         // Then...

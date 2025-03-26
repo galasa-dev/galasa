@@ -12,12 +12,12 @@ import dev.galasa.framework.spi.streams.IStream;
 import dev.galasa.framework.spi.streams.IStreamsService;
 import dev.galasa.framework.spi.streams.StreamsException;
 
-public class MockIStreamsService implements IStreamsService {
+public class MockStreamsService implements IStreamsService {
 
     List<IStream> streams = new ArrayList<>();
     private boolean throwException = false;
 
-    public MockIStreamsService(List<IStream> streams) {
+    public MockStreamsService(List<IStream> streams) {
         this.streams = streams;
     }
 
