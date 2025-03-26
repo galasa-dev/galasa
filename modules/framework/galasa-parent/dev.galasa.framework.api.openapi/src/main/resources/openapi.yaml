@@ -1202,7 +1202,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GalasaProperty'
+              $ref: '#/components/schemas/UpdateGalasaMonitorRequest'
       tags:
         - Monitors API
       responses:
