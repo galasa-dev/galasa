@@ -10,7 +10,6 @@ import java.util.List;
 
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.util.Config;
@@ -22,11 +21,10 @@ public class KubernetesApiClient implements IKubernetesApiClient {
     public KubernetesApiClient() {
         try {
             ApiClient client = Config.defaultClient();
-            Configuration.setDefaultApiClient(client);
+            this.kubeApiClient = new AppsV1Api(client);
         } catch (IOException e) {
-            // Do nothing...
+            this.kubeApiClient = new AppsV1Api();
         }
-        this.kubeApiClient = new AppsV1Api();
     }
 
     @Override
