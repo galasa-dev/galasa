@@ -123,7 +123,7 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(404);
         assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
-        checkErrorStructure(outStream.toString(), 5419, "GAL5419E", "Unable to retrieve a monitor with the given name");
+        checkErrorStructure(outStream.toString(), 5422, "GAL5422E", "Unable to retrieve a monitor with the given name");
     }
 
     @Test
@@ -149,6 +149,6 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(500);
         assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
-        checkErrorStructure(outStream.toString(), 5418, "GAL5418E", "Error occurred when getting the Galasa monitor deployments from Kubernetes");
+        checkErrorStructure(outStream.toString(), 5421, "GAL5421E", "Error occurred when getting the Galasa monitor deployments from Kubernetes");
     }
 }

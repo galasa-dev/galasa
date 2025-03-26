@@ -77,7 +77,7 @@ public class MonitorsRoute extends ProtectedRoute {
             }
 
         } catch (ApiException e) {
-            ServletError error = new ServletError(GAL5418_ERROR_GETTING_MONITOR_DEPLOYMENTS);
+            ServletError error = new ServletError(GAL5421_ERROR_GETTING_MONITOR_DEPLOYMENTS);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 

@@ -159,8 +159,8 @@ public class MonitorsRouteTest extends MonitorsServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(500);
         checkErrorStructure(
             outStream.toString(),
-            5418,
-            "GAL5418E", "Error occurred when getting the Galasa monitor deployments from Kubernetes"
+            5421,
+            "GAL5421E", "Error occurred when getting the Galasa monitor deployments from Kubernetes"
         );
     }
 }

@@ -75,7 +75,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
 
         GalasaMonitor monitorBean = null;
         if (matchingDeployment == null) {
-            ServletError error = new ServletError(GAL5419_ERROR_MONITOR_NOT_FOUND_BY_NAME);
+            ServletError error = new ServletError(GAL5422_ERROR_MONITOR_NOT_FOUND_BY_NAME);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         } else {
             monitorBean = monitorTransform.createGalasaMonitorBeanFromDeployment(matchingDeployment);
@@ -92,7 +92,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
         try {
             matchingDeployment = kubeApiClient.getDeploymentByName(monitorName, kubeNamespace);
         } catch (ApiException e) {
-            ServletError error = new ServletError(GAL5418_ERROR_GETTING_MONITOR_DEPLOYMENTS);
+            ServletError error = new ServletError(GAL5421_ERROR_GETTING_MONITOR_DEPLOYMENTS);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
         }
         return matchingDeployment;
@@ -105,7 +105,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
         try {
             monitorName =  matcher.group(1);
         } catch (Exception ex) {
-            ServletError error = new ServletError(ServletErrorMessage.GAL5420_INVALID_MONITOR_NAME_PROVIDED);
+            ServletError error = new ServletError(ServletErrorMessage.GAL5423_INVALID_MONITOR_NAME_PROVIDED);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
         return monitorName;
