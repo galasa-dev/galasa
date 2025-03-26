@@ -17,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -172,7 +171,7 @@ public class Launcher {
                 felixFramework.runTest(bootstrapProperties, overridesProperties);
             } else if (isResourceManagement) {
                 logger.debug("Resource Management");
-                MonitorConfiguration monitorConfig = getResourceMonitorConfigFromEnvironment(env);
+                MonitorConfiguration monitorConfig = new MonitorConfiguration(env);
                 felixFramework.runResourceManagement(bootstrapProperties, overridesProperties, bundles, metrics, health, monitorConfig);
             } else if (isK8sController) {
                 logger.debug("Kubernetes Controller");
@@ -654,28 +653,5 @@ public class Launcher {
             logger.info(String.format("Environment variable: %s used to locate auth store location",AUTH_ENV_VAR));
             bootstrap.setProperty("framework.auth.store",authStore);
         }
-    }
-
-    private MonitorConfiguration getResourceMonitorConfigFromEnvironment(Environment env) {
-        String STREAM_ENV_VAR = "GALASA_MONITOR_STREAM";
-        String INCLUDES_ENV_VAR = "GALASA_MONITOR_INCLUDES_REGEXES";
-        String EXCLUDES_ENV_VAR = "GALASA_MONITOR_EXCLUDES_REGEXES";
-
-        String stream = env.getenv(STREAM_ENV_VAR);
-        String commaSeparatedIncludes = env.getenv(INCLUDES_ENV_VAR);
-        String commaSeparatedExcludes = env.getenv(EXCLUDES_ENV_VAR);
-
-        List<String> includesList = new ArrayList<>();
-        List<String> excludesList = new ArrayList<>();
-        if (commaSeparatedIncludes != null && !commaSeparatedIncludes.isBlank()) {
-            includesList = Arrays.asList(commaSeparatedIncludes.split(","));
-        }
-
-        if (commaSeparatedExcludes != null && !commaSeparatedExcludes.isBlank()) {
-            excludesList = Arrays.asList(commaSeparatedExcludes.split(","));
-        }
-
-        MonitorConfiguration monitorConfig = new MonitorConfiguration(stream, includesList, excludesList);
-        return monitorConfig;
     }
 }

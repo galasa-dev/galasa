@@ -5,29 +5,43 @@
  */
 package dev.galasa.boot;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MonitorConfiguration {
     
     private String stream;
-    private List<String> includesRegexList;
-    private List<String> excludesRegexList;
+    private List<String> includesGlobPatterns = new ArrayList<>();
+    private List<String> excludesGlobPatterns = new ArrayList<>();
 
-    public MonitorConfiguration(String stream, List<String> includesRegexList, List<String> excludesRegexList) {
-        this.stream = stream;
-        this.includesRegexList = includesRegexList;
-        this.excludesRegexList = excludesRegexList;
+    private static final String STREAM_ENV_VAR = "GALASA_MONITOR_STREAM";
+    private static final String INCLUDES_ENV_VAR = "GALASA_MONITOR_INCLUDES_GLOBS";
+    private static final String EXCLUDES_ENV_VAR = "GALASA_MONITOR_EXCLUDES_GLOBS";
+
+    public MonitorConfiguration(Environment env) {
+        this.stream = env.getenv(STREAM_ENV_VAR);
+        String commaSeparatedIncludes = env.getenv(INCLUDES_ENV_VAR);
+        String commaSeparatedExcludes = env.getenv(EXCLUDES_ENV_VAR);
+
+        if (commaSeparatedIncludes != null && !commaSeparatedIncludes.isBlank()) {
+            this.includesGlobPatterns = Arrays.asList(commaSeparatedIncludes.split(","));
+        }
+
+        if (commaSeparatedExcludes != null && !commaSeparatedExcludes.isBlank()) {
+            this.excludesGlobPatterns = Arrays.asList(commaSeparatedExcludes.split(","));
+        }
     }
 
     public String getStream() {
         return stream;
     }
 
-    public List<String> getIncludesRegexList() {
-        return includesRegexList;
+    public List<String> getIncludesGlobPatterns() {
+        return includesGlobPatterns;
     }
 
-    public List<String> getExcludesRegexList() {
-        return excludesRegexList;
+    public List<String> getExcludesGlobPatterns() {
+        return excludesGlobPatterns;
     }
 }

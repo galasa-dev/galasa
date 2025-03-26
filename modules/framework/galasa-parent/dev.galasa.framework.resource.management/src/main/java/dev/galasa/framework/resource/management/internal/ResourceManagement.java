@@ -280,16 +280,24 @@ public class ResourceManagement implements IResourceManagement {
     private Set<String> getResourceMonitorsFromRepository(Repository repository) {
         Set<String> resourceMonitorBundles = new HashSet<>();
         for (Resource resource : repository.getResources()) {
-            if (resource.getCapabilities() != null) {
-                for (Capability capability : resource.getCapabilities()) {
-                    if (isResourceMonitorCapability(capability)) {
-                        resourceMonitorBundles.add(resource.getSymbolicName());
-                        break;
-                    }
-                }
+            if (isResourceContainingAResourceMonitor(resource)) {
+                resourceMonitorBundles.add(resource.getSymbolicName());
             }
         }
         return resourceMonitorBundles;
+    }
+
+    private boolean isResourceContainingAResourceMonitor(Resource resource) {
+        boolean isResourceContainsResourceMonitor = false;
+        if (resource.getCapabilities() != null) {
+            for (Capability capability : resource.getCapabilities()) {
+                if (isResourceMonitorCapability(capability)) {
+                    isResourceContainsResourceMonitor = true;
+                    break;
+                }
+            }
+        }
+        return isResourceContainsResourceMonitor;
     }
 
     private void stopHealthServer(ResourceManagementHealth healthServer) {

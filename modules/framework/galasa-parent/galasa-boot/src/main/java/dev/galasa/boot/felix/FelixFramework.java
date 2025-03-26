@@ -331,8 +331,8 @@ public class FelixFramework {
                 boostrapProperties,
                 overridesProperties,
                 monitorConfig.getStream(),
-                monitorConfig.getIncludesRegexList(),
-                monitorConfig.getExcludesRegexList()
+                monitorConfig.getIncludesGlobPatterns(),
+                monitorConfig.getExcludesGlobPatterns()
             );
         } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
             throw new LauncherException(e.getCause());

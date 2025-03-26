@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +47,7 @@ public class ResourceManagementProviders {
             } else {
 
                 Set<IResourceManagementProvider> providersToInitialise = getResourceManagementProviders(bundleContext, rmpServiceReference);
-                providersToInitialise = filterResourceManagementProviders(monitorConfig, providersToInitialise);
+                providersToInitialise = filterResourceManagementProviders(monitorConfig.getFilter(), providersToInitialise);
 
                 for (IResourceManagementProvider provider : providersToInitialise) {
                     try {
@@ -85,37 +83,17 @@ public class ResourceManagementProviders {
     }
 
     private Set<IResourceManagementProvider> filterResourceManagementProviders(
-        MonitorConfiguration monitorConfig,
+        MonitorFilter filter,
         Set<IResourceManagementProvider> providers
     ) {
         Set<IResourceManagementProvider> providersToInclude = new HashSet<>();
 
-        // Find all the services that match any regex patterns in the 'includes' list
         for (IResourceManagementProvider provider : providers) {
-            for (Pattern includePattern : monitorConfig.getIncludesRegexList()) {
-                String providerName = provider.getClass().getCanonicalName();
-                Matcher includeMatcher = includePattern.matcher(providerName);
-                if (includeMatcher.matches()) {
-                    providersToInclude.add(provider);
-                    break;
-                }
-            }
-        }
-        
-        // From the filtered bundles, exclude any that match any regex patterns in the 'excludes' list
-        Set<IResourceManagementProvider> providersToExclude = new HashSet<>();
-        for (IResourceManagementProvider provider : providersToInclude) {
-            for (Pattern excludePattern : monitorConfig.getExcludesRegexList()) {
-                String providerName = provider.getClass().getCanonicalName();
-                Matcher excludeMatcher = excludePattern.matcher(providerName);
-                if (excludeMatcher.matches()) {
-                    providersToExclude.add(provider);
-                    break;
-                }
+            if (filter.isMonitorClassAllowed(provider.getClass().getCanonicalName())) {
+                providersToInclude.add(provider);
             }
         }
 
-        providersToInclude.removeAll(providersToExclude);
         return providersToInclude;
     }
 
