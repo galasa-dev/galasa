@@ -38,7 +38,6 @@ import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.GalasaFactory;
 import dev.galasa.framework.IBundleManager;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
-import dev.galasa.framework.resource.management.MonitorConfiguration;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;

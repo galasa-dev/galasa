@@ -3,11 +3,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.resource.management;
+package dev.galasa.framework.resource.management.internal;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import dev.galasa.framework.spi.FrameworkException;
 
 public class MonitorConfiguration {
     
@@ -15,7 +18,7 @@ public class MonitorConfiguration {
     private List<Pattern> includesRegexList;
     private List<Pattern> excludesRegexList;
 
-    public MonitorConfiguration(String stream, List<String> includesRegexList, List<String> excludesRegexList) {
+    public MonitorConfiguration(String stream, List<String> includesRegexList, List<String> excludesRegexList) throws FrameworkException {
         this.stream = stream;
         this.includesRegexList = convertListToPatternList(includesRegexList);
         this.excludesRegexList = convertListToPatternList(excludesRegexList);
@@ -33,7 +36,7 @@ public class MonitorConfiguration {
         return excludesRegexList;
     }
 
-    private List<Pattern> convertListToPatternList(List<String> regexList) {
+    private List<Pattern> convertListToPatternList(List<String> regexList) throws FrameworkException {
         List<Pattern> patternList = new ArrayList<>();
         for (String pattern : regexList) {
             String patternToAdd = pattern;
@@ -44,7 +47,11 @@ public class MonitorConfiguration {
                 patternToAdd = "." + pattern;
             }
 
-            patternList.add(Pattern.compile(patternToAdd));
+            try {
+                patternList.add(Pattern.compile(patternToAdd));
+            } catch (PatternSyntaxException e) {
+                throw new FrameworkException("Invalid regex pattern provided", e);
+            }
         }
         return patternList;
     }

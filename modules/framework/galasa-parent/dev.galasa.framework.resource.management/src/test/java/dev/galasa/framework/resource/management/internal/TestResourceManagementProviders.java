@@ -19,9 +19,9 @@ import dev.galasa.framework.mocks.MockBundleContext;
 import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.mocks.MockServiceReference;
-import dev.galasa.framework.resource.management.MonitorConfiguration;
 import dev.galasa.framework.resource.management.internal.mocks.MockResourceManagement;
 import dev.galasa.framework.resource.management.internal.mocks.MockResourceManagementProvider;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IResourceManagementProvider;
 
 public class TestResourceManagementProviders {
@@ -69,6 +69,52 @@ public class TestResourceManagementProviders {
         // Then...
         assertThat(registeredMonitor.isInitialised()).isTrue();
         assertThat(registeredMonitor.isStarted()).isFalse();
+    }
+
+    @Test
+    public void testInvalidMonitorIncludesReturnsCorrectError() throws Exception {
+        // Given...
+        Map<String, MockServiceReference<?>> mockServices = new HashMap<>();
+        Bundle bundle = null;
+
+        MockResourceManagementProvider registeredMonitor = new MockResourceManagementProvider();
+        addMockResourceMonitorToMockServiceRegistry(mockServices, bundle, registeredMonitor);
+
+        String stream = null;
+        List<String> includes = List.of("[NOT a %^ valid pattern!");
+        List<String> excludes = new ArrayList<>();
+        
+        // When...
+        FrameworkException thrown = catchThrowableOfType(() -> {
+            new MonitorConfiguration(stream, includes, excludes);
+        }, FrameworkException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("Invalid regex pattern provided");
+    }
+
+    @Test
+    public void testInvalidMonitorExcludesReturnsCorrectError() throws Exception {
+        // Given...
+        Map<String, MockServiceReference<?>> mockServices = new HashMap<>();
+        Bundle bundle = null;
+
+        MockResourceManagementProvider registeredMonitor = new MockResourceManagementProvider();
+        addMockResourceMonitorToMockServiceRegistry(mockServices, bundle, registeredMonitor);
+
+        String stream = null;
+        List<String> includes = new ArrayList<>();
+        List<String> excludes = List.of("[NOT a %^ valid pattern!");
+        
+        // When...
+        FrameworkException thrown = catchThrowableOfType(() -> {
+            new MonitorConfiguration(stream, includes, excludes);
+        }, FrameworkException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("Invalid regex pattern provided");
     }
 
     @Test
