@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.api.beans.generated.GalasaMonitor;
+import dev.galasa.framework.api.beans.generated.GalasaMonitordata;
 import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.MimeType;
@@ -27,7 +28,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.ServletErrorMessage;
 import dev.galasa.framework.api.monitors.internal.IKubernetesApiClient;
 import dev.galasa.framework.api.monitors.internal.MonitorTransform;
-import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequest;
+import dev.galasa.framework.api.monitors.internal.UpdateMonitorRequestValidator;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import io.kubernetes.client.openapi.ApiException;
@@ -48,6 +49,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
     private final String kubeNamespace;
 
     private MonitorTransform monitorTransform = new MonitorTransform();
+    private UpdateMonitorRequestValidator validator = new UpdateMonitorRequestValidator();
 
     public MonitorsDetailsRoute(
         ResponseBuilder responseBuilder,
@@ -102,24 +104,35 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
         HttpServletRequest request = requestContext.getRequest();
 
         String monitorName = getMonitorNameFromPath(pathInfo);
-        UpdateGalasaMonitorRequest updateRequest = parseRequestBody(request, UpdateGalasaMonitorRequest.class);
+        GalasaMonitor updateRequest = parseRequestBody(request, GalasaMonitor.class);
+        validator.validate(updateRequest);
+
         V1Deployment matchingDeployment = getDeploymentByName(monitorName);
 
+        V1Deployment updatedDeployment = null;
         if (matchingDeployment == null) {
             ServletError error = new ServletError(GAL5422_ERROR_MONITOR_NOT_FOUND_BY_NAME);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         } else {
-            updateDeployment(updateRequest, matchingDeployment);
+            logger.info("Deployment with the given name was found OK");
+            updatedDeployment = updateDeployment(updateRequest, matchingDeployment);
         }
 
+        // Convert the updated deployment into a monitor bean that we can return
+        GalasaMonitor monitorToReturn = monitorTransform.createGalasaMonitorBeanFromDeployment(updatedDeployment);
+        String monitorJson = gson.toJson(monitorToReturn);
+
         logger.info("handlePutRequest() exiting");
-        return getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_NO_CONTENT);
+
+        return getResponseBuilder().buildResponse(request, response, MimeType.APPLICATION_JSON.toString(), monitorJson, HttpServletResponse.SC_OK);
     }
 
-    private void updateDeployment(UpdateGalasaMonitorRequest updateRequest, V1Deployment matchingDeployment) throws InternalServletException {
-        logger.info("Deployment with the given name was found OK");
+    private V1Deployment updateDeployment(GalasaMonitor updateRequest, V1Deployment matchingDeployment) throws InternalServletException {
+        V1Deployment upToDateDeployment = matchingDeployment;
+
         int replicas = 0;
-        if (updateRequest.getIsEnabled()) {
+        GalasaMonitordata updateRequestData = updateRequest.getdata();
+        if (updateRequestData.getIsEnabled()) {
             replicas = 1;
         }
 
@@ -132,7 +145,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
             String deploymentName = matchingDeployment.getMetadata().getName();
     
             try {
-                kubeApiClient.replaceDeployment(kubeNamespace, deploymentName, matchingDeployment);
+                upToDateDeployment = kubeApiClient.replaceDeployment(kubeNamespace, deploymentName, matchingDeployment);
             } catch (ApiException e) {
                 ServletError error = new ServletError(GAL5424_FAILED_TO_UPDATE_MONITOR);
                 throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
@@ -140,7 +153,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
     
             logger.info("Deployment updated OK");
         }
-
+        return upToDateDeployment;
     }
 
     private V1Deployment getDeploymentByName(String monitorName) throws InternalServletException {

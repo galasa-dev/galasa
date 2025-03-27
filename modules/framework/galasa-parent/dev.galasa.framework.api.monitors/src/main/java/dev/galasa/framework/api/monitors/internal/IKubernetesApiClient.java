@@ -16,5 +16,5 @@ public interface IKubernetesApiClient {
 
     V1Deployment getDeploymentByName(String name, String namespace) throws ApiException;
 
-    void replaceDeployment(String namespace, String deploymentName, V1Deployment newDeployment) throws ApiException;
+    V1Deployment replaceDeployment(String namespace, String deploymentName, V1Deployment newDeployment) throws ApiException;
 }

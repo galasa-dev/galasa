@@ -53,8 +53,8 @@ public class MockKubernetesApiClient implements IKubernetesApiClient {
     }
 
     @Override
-    public void replaceDeployment(String namespace, String deploymentName, V1Deployment newDeployment)
+    public V1Deployment replaceDeployment(String namespace, String deploymentName, V1Deployment newDeployment)
             throws ApiException {
-        // Do nothing...
+        return newDeployment;
     }
 }

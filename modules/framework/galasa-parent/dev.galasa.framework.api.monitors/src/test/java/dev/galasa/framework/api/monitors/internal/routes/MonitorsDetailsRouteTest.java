@@ -16,8 +16,8 @@ import javax.servlet.ServletOutputStream;
 import org.junit.Test;
 
 import dev.galasa.framework.api.beans.generated.GalasaMonitor;
+import dev.galasa.framework.api.beans.generated.GalasaMonitordata;
 import dev.galasa.framework.api.common.MimeType;
-import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequest;
 import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -30,8 +30,12 @@ import io.kubernetes.client.openapi.models.V1Deployment;
 public class MonitorsDetailsRouteTest extends MonitorsServletTest {
 
     private String createUpdateRequestJson(boolean isEnabled) {
-        UpdateGalasaMonitorRequest updateRequest = new UpdateGalasaMonitorRequest();
-        updateRequest.setIsEnabled(isEnabled);
+        GalasaMonitor updateRequest = new GalasaMonitor();
+        GalasaMonitordata requestData = new GalasaMonitordata();
+
+        requestData.setIsEnabled(isEnabled);
+        updateRequest.setdata(requestData);
+
         return gson.toJson(updateRequest);
     }
 
@@ -158,14 +162,20 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + monitorName, requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
 
         // When...
         servlet.init();
         servlet.doPut(mockRequest, servletResponse);
 
         // Then...
-        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        GalasaMonitor expectedMonitor = generateExpectedMonitor(monitorName, stream, true, includes, excludes);
+        String expectedJsonString = gson.toJson(expectedMonitor);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
         assertThat(deployment.getSpec().getReplicas()).isEqualTo(1);
+        assertThat(outStream.toString()).isEqualTo(expectedJsonString);
     }
 
     @Test
@@ -192,14 +202,20 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + monitorName, requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
 
         // When...
         servlet.init();
         servlet.doPut(mockRequest, servletResponse);
 
         // Then...
-        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        GalasaMonitor expectedMonitor = generateExpectedMonitor(monitorName, stream, true, includes, excludes);
+        String expectedJsonString = gson.toJson(expectedMonitor);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
         assertThat(deployment.getSpec().getReplicas()).isEqualTo(1);
+        assertThat(outStream.toString()).isEqualTo(expectedJsonString);
     }
 
     @Test
@@ -226,14 +242,20 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + monitorName, requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
 
         // When...
         servlet.init();
         servlet.doPut(mockRequest, servletResponse);
 
         // Then...
-        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        GalasaMonitor expectedMonitor = generateExpectedMonitor(monitorName, stream, false, includes, excludes);
+        String expectedJsonString = gson.toJson(expectedMonitor);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
         assertThat(deployment.getSpec().getReplicas()).isEqualTo(0);
+        assertThat(outStream.toString()).isEqualTo(expectedJsonString);
     }
 
     @Test
@@ -286,6 +308,7 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(500);
+        assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
         checkErrorStructure(
             outStream.toString(),
             5421,
@@ -325,6 +348,43 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(404);
+        assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
         checkErrorStructure(outStream.toString(), 5422, "GAL5422E", "No such monitor exists");
+    }
+
+    @Test
+    public void testEnableMonitorWithNoDataReturnsCorrectError() throws Exception {
+        // Given...
+        MockFramework mockFramework = new MockFramework();
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient();
+
+        String monitorName = "system";
+        String stream = "myStream";
+        int replicas = 0;
+        List<String> includes = List.of("*");
+        List<String> excludes = new ArrayList<>();
+
+        V1Deployment deployment = createMockDeployment(monitorName, stream, replicas, includes, excludes);
+        mockApiClient.addMockDeployment(deployment);
+
+        MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
+
+        // Pass in an empty request body
+        String requestBodyJson = "{}";
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/non-existant-monitor", requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
+        checkErrorStructure(outStream.toString(), 5425, "GAL5425E", "Invalid request payload");
     }
 }

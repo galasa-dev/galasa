@@ -28,8 +28,8 @@ public class KubernetesApiClient implements IKubernetesApiClient {
     }
 
     @Override
-    public void replaceDeployment(String namespace, String deploymentName, V1Deployment newDeployment) throws ApiException {
-        kubeApiClient.replaceNamespacedDeployment(deploymentName, namespace, newDeployment)
+    public V1Deployment replaceDeployment(String namespace, String deploymentName, V1Deployment newDeployment) throws ApiException {
+        return kubeApiClient.replaceNamespacedDeployment(deploymentName, namespace, newDeployment)
             .execute();
     }
 
