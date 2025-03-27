@@ -94,6 +94,7 @@ public class TestResourceManagement {
         String REPO_URL = "http://myhost/myRepositoryForMyRun";
         String STREAM_OBR_REPO_URL = "http://myhost/myOtherRepositoryForMyRun";
         String STREAM_MAVEN_REPO_URL = "http://myhost/myOtherMavenRepositoryForMyRun";
+        String STREAM_TESTCATALOG_URL = "http://myhost/myOtherMavenRepositoryForMyRun/my/testcatalog.json";
         String BUNDLE_NAME_1 = "my.custom.bundle";
         String BUNDLE_NAME_2 = "my.other.custom.bundle";
 
@@ -119,8 +120,9 @@ public class TestResourceManagement {
 
         MockStream mockStream = new MockStream();
         mockStream.setName(stream);
-        mockStream.setObrLocation(STREAM_OBR_REPO_URL);
+        mockStream.setObrs(List.of(STREAM_OBR_REPO_URL));
         mockStream.setMavenRepositoryUrl(STREAM_MAVEN_REPO_URL);
+        mockStream.setTestCatalogUrl(STREAM_TESTCATALOG_URL);
 
         MockStreamsService mockStreamsService = new MockStreamsService(List.of(mockStream));
 
@@ -186,7 +188,7 @@ public class TestResourceManagement {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown).hasMessageContaining("No OBR has been configured into the provided test stream");
+        assertThat(thrown).hasMessageContaining("The provided test stream is not configured correctly.");
     }
 
     @Test
@@ -221,7 +223,7 @@ public class TestResourceManagement {
 
         MockStream mockStream = new MockStream();
         mockStream.setName(stream);
-        mockStream.setObrLocation(STREAM_OBR_REPO_URL);
+        mockStream.setObrs(List.of(STREAM_OBR_REPO_URL));
 
         MockStreamsService mockStreamsService = new MockStreamsService(List.of(mockStream));
 
@@ -232,6 +234,6 @@ public class TestResourceManagement {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown).hasMessageContaining("No remote maven repository has been configured into the provided test stream");
+        assertThat(thrown).hasMessageContaining("The provided test stream is not configured correctly.");
     }
 }

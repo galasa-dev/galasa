@@ -73,12 +73,14 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
         List<IStream> mockStreams = new ArrayList<>();
-        MockStream mockstream = new MockStream("fakeStream", "This is a dummy test stream",
-                "http://mymavenrepo.host/testmaterial",
-                "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr", true);
+        MockStream mockStream = new MockStream();
+        mockStream.setName("fakeStream");
+        mockStream.setDescription("This is a dummy test stream");
+        mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
 
-        mockStreams.add(mockstream);
+        mockStreams.add(mockStream);
 
         MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
@@ -114,12 +116,14 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
         List<IStream> mockStreams = new ArrayList<>();
-        MockStream mockstream = new MockStream("fakeStream", "This is a dummy test stream",
-                "http://mymavenrepo.host/testmaterial",
-                "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr", true);
+        MockStream mockStream = new MockStream();
+        mockStream.setName(streamName);
+        mockStream.setDescription("This is a dummy test stream");
+        mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
 
-        mockStreams.add(mockstream);
+        mockStreams.add(mockStream);
 
         MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
@@ -162,22 +166,30 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
         List<IStream> mockStreams = new ArrayList<>();
-        MockStream mockstream = new MockStream("fakeStream", "This is a dummy test stream",
-                "http://mymavenrepo.host/testmaterial",
-                "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr", true);
-        MockStream mockstream2 = new MockStream("fakeStream2", "This is a dummy test stream for stream 2",
-                "http://mymavenrepo.host/testmaterial",
-                "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr", true);
-        MockStream mockstream3 = new MockStream("fakeStream3", "This is a dummy test stream for stream 3",
-                "http://mymavenrepo.host/testmaterial",
-                "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr", true);
+        MockStream mockStream = new MockStream();
+        mockStream.setName("fakeStream");
+        mockStream.setDescription("This is a dummy test stream");
+        mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
 
-        mockStreams.add(mockstream);
-        mockStreams.add(mockstream2);
-        mockStreams.add(mockstream3);
+        MockStream mockStream2 = new MockStream();
+        mockStream2.setName("fakeStream2");
+        mockStream2.setDescription("This is a dummy test stream for stream 2");
+        mockStream2.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream2.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream2.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
+
+        MockStream mockStream3 = new MockStream();
+        mockStream3.setName("fakeStream3");
+        mockStream3.setDescription("This is a dummy test stream for stream 3");
+        mockStream3.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream3.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream3.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
+
+        mockStreams.add(mockStream);
+        mockStreams.add(mockStream2);
+        mockStreams.add(mockStream3);
 
         MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
@@ -220,13 +232,6 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
         List<IStream> mockStreams = new ArrayList<>();
-        MockStream mockstream = new MockStream("fakeStream", "This is a dummy test stream",
-                "http://mymavenrepo.host/testmaterial",
-                "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr", true);
-
-        mockStreams.add(mockstream);
-
         MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
 
         mockStreamsService.setThrowException(true);

@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.api.streams.internal.routes;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,19 +77,19 @@ public class StreamsTransform {
 
         StreamData data = new StreamData();
         List<StreamOBRData> streamObrData = new ArrayList<>();
-        String testCatalogUrl = stream.getTestCatalogUrl();
-        String obrLocation = stream.getObrLocation();
+        URL testCatalogUrl = stream.getTestCatalogUrl();
+        URL mavenRepositoryUrl = stream.getMavenRepositoryUrl();
+        List<String> obrs = stream.getObrs();
 
         StreamRepository streamRepository = new StreamRepository();
-        streamRepository.seturl(stream.getMavenRepositoryUrl());
+        streamRepository.seturl(mavenRepositoryUrl.toString());
 
         StreamTestCatalog testCatalog = new StreamTestCatalog();
-        testCatalog.seturl(testCatalogUrl);
+        testCatalog.seturl(testCatalogUrl.toString());
 
-        if (obrLocation != null) {
+        if (obrs != null) {
             // Strip off the "mvn:" prefix.
-            String[] obrUrls = obrLocation.split(",");
-            streamObrData = transformMultipleObrs(obrUrls);
+            streamObrData = transformMultipleObrs(obrs);
         }
 
         data.setobrs(streamObrData.toArray(new StreamOBRData[0]));
@@ -100,7 +101,7 @@ public class StreamsTransform {
 
     }
 
-    private List<StreamOBRData> transformMultipleObrs(String[] obrUrls) {
+    private List<StreamOBRData> transformMultipleObrs(List<String> obrUrls) {
 
         List<StreamOBRData> streamObrData = new ArrayList<>();
 

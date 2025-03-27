@@ -7,7 +7,6 @@ package dev.galasa.framework.resource.management.internal;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.time.Instant;
@@ -219,13 +218,14 @@ public class ResourceManagement implements IResourceManagement {
     private void loadRepositoriesFromStream(String streamName, IStreamsService streamsService) throws FrameworkException {
         IStream stream = streamsService.getStreamByName(streamName);
 
-        // Add the stream's OBR to the repository admin
-        String commaSeparatedObrs = stream.getObrLocation();
-        if (commaSeparatedObrs == null || commaSeparatedObrs.isBlank()) {
-            throw new FrameworkException("No OBR has been configured into the provided test stream");
+        if (!stream.isValid()) {
+            throw new FrameworkException("The provided test stream is not configured correctly. "+
+                "Check that the stream has an OBR, maven repository URL, and testcatalog URL set and try again.");
         }
 
-        for (String obr : commaSeparatedObrs.split(",")) {
+        // Add the stream's OBR to the repository admin
+        List<String> obrs = stream.getObrs();
+        for (String obr : obrs) {
             try {
                 repositoryAdmin.addRepository(obr);
             } catch (Exception e) {
@@ -234,16 +234,8 @@ public class ResourceManagement implements IResourceManagement {
         }
 
         // Add the stream's maven repo to the maven repositories
-        String mavenRepo = stream.getMavenRepositoryUrl();
-        if (mavenRepo == null || mavenRepo.isBlank()) {
-            throw new FrameworkException("No remote maven repository has been configured into the provided test stream");
-        }
-
-        try {
-            mavenRepository.addRemoteRepository(new URL(mavenRepo));
-        } catch (MalformedURLException e) {
-            throw new FrameworkException("Unable to add remote maven repository " + mavenRepo, e);
-        }
+        URL mavenRepo = stream.getMavenRepositoryUrl();
+        mavenRepository.addRemoteRepository(mavenRepo);
     }
 
     private boolean isResourceMonitorCapability(Capability capability) {

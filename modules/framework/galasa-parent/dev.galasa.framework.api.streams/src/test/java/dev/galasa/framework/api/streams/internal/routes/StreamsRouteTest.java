@@ -71,12 +71,14 @@ public class StreamsRouteTest extends BaseServletTest {
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
         List<IStream> mockStreams = new ArrayList<>();
-        MockStream mockstream = new MockStream("testStream", "This is a dummy test stream",
-                "http://mymavenrepo.host/testmaterial",
-                "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "fake-obr-location", true);
+        MockStream mockStream = new MockStream();
+        mockStream.setName("testStream");
+        mockStream.setDescription("This is a dummy test stream");
+        mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream.setObrs(List.of("fake-obr-location"));
 
-        mockStreams.add(mockstream);
+        mockStreams.add(mockStream);
 
         MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
@@ -112,18 +114,22 @@ public class StreamsRouteTest extends BaseServletTest {
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
         List<IStream> mockStreams = new ArrayList<>();
-        MockStream mockstream = new MockStream("testStream", "This is a dummy test stream",
-                "http://mymavenrepo.host/testmaterial",
-                "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "fake-obr-location", true);
+        MockStream mockStream = new MockStream();
+        mockStream.setName("testStream");
+        mockStream.setDescription("This is a dummy test stream");
+        mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream.setObrs(List.of("fake-obr-location"));
 
-        MockStream mockstream2 = new MockStream("testStream2", "This is a second dummy test stream",
-                "http://mymavenrepo.host/testmaterialdummy",
-                "http://mymavenrepo.host/testmaterialdummy/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "fake-obr-location", true);
+        MockStream mockStream2 = new MockStream();
+        mockStream2.setName("testStream2");
+        mockStream2.setDescription("This is a second dummy test stream");
+        mockStream2.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream2.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream2.setObrs(List.of("fake-obr-location"));
 
-        mockStreams.add(mockstream);
-        mockStreams.add(mockstream2);
+        mockStreams.add(mockStream);
+        mockStreams.add(mockStream2);
 
         MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
@@ -158,12 +164,14 @@ public class StreamsRouteTest extends BaseServletTest {
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
         List<IStream> mockStreams = new ArrayList<>();
-        MockStream mockstream = new MockStream("fakeStream", "This is a dummy test stream",
-                "http://mymavenrepo.host/testmaterial",
-                "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml",
-                "mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr", true);
+        MockStream mockStream = new MockStream();
+        mockStream.setName("fakeStream");
+        mockStream.setDescription("This is a dummy test stream");
+        mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream.setObrs(List.of("fake-obr-location"));
 
-        mockStreams.add(mockstream);
+        mockStreams.add(mockStream);
 
         MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
         mockStreamsService.setThrowException(true);

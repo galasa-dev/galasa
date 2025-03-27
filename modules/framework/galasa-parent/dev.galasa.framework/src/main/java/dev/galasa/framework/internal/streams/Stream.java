@@ -5,17 +5,25 @@
  */
 package dev.galasa.framework.internal.streams;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import dev.galasa.framework.spi.streams.IStream;
+import dev.galasa.framework.spi.streams.StreamsException;
 
 public class Stream implements IStream {
 
     private String name;
     private String description;
-    private String mavenRepositoryUrl;
-    private String testCatalogUrl;
-    private String obrLocation;
+    private URL mavenRepositoryUrl;
+    private URL testCatalogUrl;
+    private List<String> obrs;
     private boolean isEnabled = true;
 
+    @Override
     public String getName() {
         return this.name;
     }
@@ -24,6 +32,7 @@ public class Stream implements IStream {
         this.name = name;
     }
 
+    @Override
     public String getDescription() {
         return this.description;
     }
@@ -32,22 +41,33 @@ public class Stream implements IStream {
         this.description = description;
     }
 
-    public String getMavenRepositoryUrl(){
+    @Override
+    public URL getMavenRepositoryUrl(){
         return this.mavenRepositoryUrl;
     }
 
-    public void setMavenRepositoryUrl(String mavenRepositoryUrl) {
-        this.mavenRepositoryUrl = mavenRepositoryUrl;
+    public void setMavenRepositoryUrl(String mavenRepositoryUrl) throws StreamsException {
+        try {
+            this.mavenRepositoryUrl = new URL(mavenRepositoryUrl);
+        } catch (MalformedURLException e) {
+            throw new StreamsException("Invalid maven repository URL provided", e);
+        }
     }
 
-    public String getTestCatalogUrl() {
+    @Override
+    public URL getTestCatalogUrl() {
         return this.testCatalogUrl;
     }
 
-    public void setTestCatalogUrl(String testCatalogUrl) {
-        this.testCatalogUrl = testCatalogUrl;
+    public void setTestCatalogUrl(String testCatalogUrl) throws StreamsException {
+        try {
+            this.testCatalogUrl = new URL(testCatalogUrl);
+        } catch (MalformedURLException e) {
+            throw new StreamsException("Invalid testcatalog URL provided", e);
+        }
     }
 
+    @Override
     public boolean getIsEnabled() {
         return this.isEnabled;
     }
@@ -56,12 +76,27 @@ public class Stream implements IStream {
         this.isEnabled = isEnabled;
     }
 
-    public String getObrLocation() {
-        return this.obrLocation;
+    @Override
+    public List<String> getObrs() {
+        return this.obrs;
     }
 
-    public void setObrLocation(String obrLocation) {
-        this.obrLocation = obrLocation;
+    public void setObrs(String commaSeparatedObrs) {
+        List<String> obrs = new ArrayList<>();
+        if (commaSeparatedObrs != null && !commaSeparatedObrs.isBlank()) {
+            obrs = Arrays.asList(commaSeparatedObrs.split(","));
+        }
+        this.obrs = obrs;
+    }
+
+    @Override
+    public boolean isValid() {
+        boolean isValid = (
+            (this.obrs != null && !this.obrs.isEmpty())
+            && (this.mavenRepositoryUrl != null && this.testCatalogUrl != null)
+        );
+
+        return isValid;
     }
 
 }
