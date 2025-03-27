@@ -22,8 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ManagerException;
-import dev.galasa.TestStatus;
-import dev.galasa.TestStatusAnnotation;
 import dev.galasa.framework.spi.language.GalasaMethod;
 import dev.galasa.framework.spi.language.GalasaTest;
 
@@ -566,12 +564,6 @@ public abstract class AbstractManager implements IManager {
     @Override
     public boolean doYouSupportSharedEnvironments() {
         return false; //*** Managers by default will not support shared environments
-    }
-
-    public TestStatus generateTestStatus(Field field, List<Annotation> annotations) {
-        TestStatusAnnotation annotation = field.getAnnotation(TestStatusAnnotation.class);
-
-        TestStatus testStatus = new TestStatus();
     }
 
 }

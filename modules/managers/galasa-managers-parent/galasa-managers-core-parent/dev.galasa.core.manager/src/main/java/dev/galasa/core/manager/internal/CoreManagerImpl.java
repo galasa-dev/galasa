@@ -31,6 +31,8 @@ import dev.galasa.core.manager.ResourceString;
 import dev.galasa.core.manager.RunName;
 import dev.galasa.core.manager.StoredArtifactRoot;
 import dev.galasa.core.manager.TestProperty;
+import dev.galasa.core.manager.TestResultAnnotation;
+import dev.galasa.core.manager.ITestResultProvider;
 import dev.galasa.core.manager.internal.gherkin.CoreStatementOwner;
 import dev.galasa.framework.spi.AbstractGherkinManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -205,6 +207,21 @@ public class CoreManagerImpl extends AbstractGherkinManager implements ICoreMana
 	@GenerateAnnotatedField(annotation = RunName.class)
 	public String createRunName(Field field, List<Annotation> annotations) {
 		return getRunName();
+	}
+
+	/**
+	 * Generates a Test Result Provider a Test Case can query the Test Result from.
+	 *
+	 * @param field       The field in question
+	 * @param annotations All the Manager annotations associated with the field
+	 * @return The Object the field needs to be filled with
+	 */
+	@GenerateAnnotatedField(annotation = TestResultAnnotation.class)
+	public ITestResultProvider createTestStatus(Field field, List<Annotation> annotations) {
+		IFramework framework = getFramework();
+		TestResultProvider testResultProvider = new TestResultProvider(framework);
+		// TestResultProvider testResultProvider = new TestResultProvider(this);
+		return testResultProvider;
 	}
 
 	/*

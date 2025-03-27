@@ -290,6 +290,7 @@ public class BaseTestRunner {
     }
 
     protected void updateResult() throws TestRunException {
+        logger.info("THIS IS THE RESULT: " + this.testStructure.getResult());
         try {
             if (this.testStructure.getResult() == null) {
                 this.testStructure.setResult("UNKNOWN");
@@ -309,6 +310,7 @@ public class BaseTestRunner {
     }
 
     protected void updateStatus(TestRunLifecycleStatus status, String dssTimePropSuffix) throws TestRunException {
+        logger.info("THIS IS THE STATUS: " + status.toString());
         Instant time = Instant.now();
 
         this.testStructure.setStatus(status.toString());

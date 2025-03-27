@@ -3,15 +3,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa;
+package dev.galasa.core.manager;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import dev.galasa.framework.spi.ValidAnnotatedFields;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
-public @interface TestStatusAnnotation {
+@ValidAnnotatedFields({ ITestResultProvider.class })
+@CoreManagerField
+public @interface TestResultAnnotation {
 
 }
