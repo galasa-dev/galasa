@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.commons.lang3.StringUtils;
@@ -186,7 +187,7 @@ public class TestClassWrapper {
         for (GenericMethodWrapper beforeClassMethod : beforeClassMethods) {
             beforeClassMethod.invoke(managers, this.testClassObject, null);
             if (beforeClassMethod.fullStop()) {
-                setResult(Result.failed("BeforeClass method failed"));
+                setResult(Result.failed("BeforeClass method failed"), managers);
                 break;
             }
         }
@@ -212,13 +213,13 @@ public class TestClassWrapper {
                 for (TestMethodWrapper testMethod : this.testMethods) {
                     Result testMethodResult = testMethod.getResult();
                     if (testMethodResult != null && testMethodResult.isFailed()) {
-                        setResult(Result.failed("A Test failed"));
+                        setResult(Result.failed("A Test failed"), managers);
                         break;
                     }
                 }
 
                 if (getResult() == null) {
-                    setResult(Result.passed());
+                    setResult(Result.passed(),managers);
                 }
                 
                 dss.delete("run." + runName + ".method.name");
@@ -229,15 +230,14 @@ public class TestClassWrapper {
             }     
         }
 
-        logger.info("In TestClassWrapper before running AfterClass methods");
-        logger.info("Result is currently: " + getResult().getName());
+        setResult(getResult(), managers);
 
         // Run @AfterClass methods
         for (GenericMethodWrapper afterClassMethod : afterClassMethods) {
             afterClassMethod.invoke(managers, this.testClassObject, null);
             if (afterClassMethod.fullStop()) {
                 if (getResult() == null) {
-                    setResult( Result.failed("AfterClass method failed") );
+                    setResult( Result.failed("AfterClass method failed") , managers );
                 }
             }
         }
@@ -246,7 +246,7 @@ public class TestClassWrapper {
             Result newResult = managers.endOfTestClass(getResult(), null); // TODO pass the class level exception
             if (newResult != null) {
                 logger.info("Result of test run overridden to " + newResult.getName());
-                setResult(newResult);
+                setResult(newResult, managers);
             }
         } catch (FrameworkException e) {
             throw new TestRunException("Problem with end of test class", e);
@@ -362,16 +362,21 @@ public class TestClassWrapper {
         }
     }
 
-    protected void setResult(Result result) {
-        String from ;
-        if( this.result == null) {
-            from = "null";
-        } else {
-            from = this.result.getName();
+    protected void setResult(@Null Result newResult, @Null ITestRunManagers managers) {
+        if (newResult != null) {
+            String from;
+            if (this.resultData == null) {
+                from = "null";
+            } else {
+                from = this.resultData.getName();
+            }
+            logger.info("Result in test structure changed from " + from + " to " + newResult.getName());
+            
+            this.resultData = newResult;
+            if (managers != null ) {
+                managers.setResultSoFar(newResult);
+            }
         }
-        logger.info("Result in test structure changed from "+from+" to "+result);
-        
-        this.result = result;
     }
 
     protected Result getResult() {

@@ -16,6 +16,6 @@ import dev.galasa.framework.spi.ValidAnnotatedFields;
 @Target({ ElementType.FIELD })
 @ValidAnnotatedFields({ ITestResultProvider.class })
 @CoreManagerField
-public @interface TestResultAnnotation {
+public @interface TestResultProvider {
 
 }

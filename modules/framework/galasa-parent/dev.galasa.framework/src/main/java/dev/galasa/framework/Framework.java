@@ -378,7 +378,6 @@ public class Framework implements IFramework, IShuttableFramework {
      * @throws FrameworkException
      */
     public void setTestRunName(String runName) throws FrameworkException {
-        logger.info("In Framework setTestRunName() ");
         this.runName = runName;
 
         this.run = getFrameworkRuns().getRun(runName);
@@ -386,7 +385,6 @@ public class Framework implements IFramework, IShuttableFramework {
 
     @Override
     public IRun getTestRun() {
-        logger.info("In Framework getTestRun() " + this.run.getResult());
         return this.run;
     }
 

@@ -31,9 +31,11 @@ import dev.galasa.core.manager.ResourceString;
 import dev.galasa.core.manager.RunName;
 import dev.galasa.core.manager.StoredArtifactRoot;
 import dev.galasa.core.manager.TestProperty;
-import dev.galasa.core.manager.TestResultAnnotation;
+import dev.galasa.core.manager.TestResultProvider;
 import dev.galasa.core.manager.ITestResultProvider;
 import dev.galasa.core.manager.internal.gherkin.CoreStatementOwner;
+import dev.galasa.framework.IResult;
+import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.AbstractGherkinManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -63,6 +65,14 @@ public class CoreManagerImpl extends AbstractGherkinManager implements ICoreMana
 	
 	private ResourceStringGenerator            resourceStringGenerator = new ResourceStringGenerator(this);
 
+
+	/** 
+	 * A single instance of the test result provider. 
+	 * 
+	 * This is shared between any Galasa test class variables which are marked with the @TestResultProvider annotation.
+	 * It makes no sense having multiple implementations as they all provide the same result when asked.
+	 */
+	private TestResultProviderImpl testProviderSingleton = new TestResultProviderImpl();
 
 	/*
 	 * (non-Javadoc)
@@ -209,6 +219,7 @@ public class CoreManagerImpl extends AbstractGherkinManager implements ICoreMana
 		return getRunName();
 	}
 
+
 	/**
 	 * Generates a Test Result Provider a Test Case can query the Test Result from.
 	 *
@@ -216,12 +227,9 @@ public class CoreManagerImpl extends AbstractGherkinManager implements ICoreMana
 	 * @param annotations All the Manager annotations associated with the field
 	 * @return The Object the field needs to be filled with
 	 */
-	@GenerateAnnotatedField(annotation = TestResultAnnotation.class)
-	public ITestResultProvider createTestStatus(Field field, List<Annotation> annotations) {
-		IFramework framework = getFramework();
-		TestResultProvider testResultProvider = new TestResultProvider(framework);
-		// TestResultProvider testResultProvider = new TestResultProvider(this);
-		return testResultProvider;
+	@GenerateAnnotatedField(annotation = TestResultProvider.class)
+	public ITestResultProvider createTestResultProvider(Field field, List<Annotation> annotations) {
+		return testProviderSingleton;
 	}
 
 	/*
@@ -362,6 +370,13 @@ public class CoreManagerImpl extends AbstractGherkinManager implements ICoreMana
 
 	public IDynamicStatusStoreService getDss() {
 		return this.dss;
+	}
+
+	@Override
+	public void setResultSoFar(IResult newResult) {
+		// Let the test know what the result is by setting the result into the result provider 
+		// which it will have access to via a field annotated as a @TestResultProvider
+		testProviderSingleton.setResult(newResult);
 	}
 
 }
