@@ -9,17 +9,17 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import javax.servlet.http.HttpServletResponse;
 
-import dev.galasa.framework.api.beans.generated.GalasaMonitor;
-import dev.galasa.framework.api.beans.generated.GalasaMonitordata;
+import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequest;
+import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequestdata;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
 
-public class UpdateMonitorRequestValidator extends GalasaResourceValidator<GalasaMonitor> {
+public class UpdateMonitorRequestValidator extends GalasaResourceValidator<UpdateGalasaMonitorRequest> {
 
     @Override
-    public void validate(GalasaMonitor monitor) throws InternalServletException {
-        GalasaMonitordata requestData = monitor.getdata();
+    public void validate(UpdateGalasaMonitorRequest monitor) throws InternalServletException {
+        UpdateGalasaMonitorRequestdata requestData = monitor.getdata();
 
         if (requestData == null) {
             ServletError error = new ServletError(GAL5425_ERROR_MONITOR_UPDATE_MISSING_DATA);

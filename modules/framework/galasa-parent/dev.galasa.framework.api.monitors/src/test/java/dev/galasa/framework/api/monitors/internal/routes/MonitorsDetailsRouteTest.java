@@ -16,7 +16,8 @@ import javax.servlet.ServletOutputStream;
 import org.junit.Test;
 
 import dev.galasa.framework.api.beans.generated.GalasaMonitor;
-import dev.galasa.framework.api.beans.generated.GalasaMonitordata;
+import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequest;
+import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequestdata;
 import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -30,8 +31,8 @@ import io.kubernetes.client.openapi.models.V1Deployment;
 public class MonitorsDetailsRouteTest extends MonitorsServletTest {
 
     private String createUpdateRequestJson(boolean isEnabled) {
-        GalasaMonitor updateRequest = new GalasaMonitor();
-        GalasaMonitordata requestData = new GalasaMonitordata();
+        UpdateGalasaMonitorRequest updateRequest = new UpdateGalasaMonitorRequest();
+        UpdateGalasaMonitorRequestdata requestData = new UpdateGalasaMonitorRequestdata();
 
         requestData.setIsEnabled(isEnabled);
         updateRequest.setdata(requestData);

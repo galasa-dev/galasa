@@ -1202,7 +1202,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GalasaMonitor'
+              $ref: '#/components/schemas/UpdateGalasaMonitorRequest'
       tags:
         - Monitors API
       responses:
@@ -2824,6 +2824,15 @@ components:
           type: object
         trace:
           type: boolean
+    UpdateGalasaMonitorRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            isEnabled:
+              type: boolean
+              description: A boolean value that represents whether the Galasa monitor should be enabled or disabled.
     UpdateRunStatusRequest:
       type: object
       properties:

@@ -17,7 +17,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.api.beans.generated.GalasaMonitor;
-import dev.galasa.framework.api.beans.generated.GalasaMonitordata;
+import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequest;
+import dev.galasa.framework.api.beans.generated.UpdateGalasaMonitorRequestdata;
 import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.MimeType;
@@ -104,7 +105,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
         HttpServletRequest request = requestContext.getRequest();
 
         String monitorName = getMonitorNameFromPath(pathInfo);
-        GalasaMonitor updateRequest = parseRequestBody(request, GalasaMonitor.class);
+        UpdateGalasaMonitorRequest updateRequest = parseRequestBody(request, UpdateGalasaMonitorRequest.class);
         validator.validate(updateRequest);
 
         V1Deployment matchingDeployment = getDeploymentByName(monitorName);
@@ -127,11 +128,11 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
         return getResponseBuilder().buildResponse(request, response, MimeType.APPLICATION_JSON.toString(), monitorJson, HttpServletResponse.SC_OK);
     }
 
-    private V1Deployment updateDeployment(GalasaMonitor updateRequest, V1Deployment matchingDeployment) throws InternalServletException {
+    private V1Deployment updateDeployment(UpdateGalasaMonitorRequest updateRequest, V1Deployment matchingDeployment) throws InternalServletException {
         V1Deployment upToDateDeployment = matchingDeployment;
 
         int replicas = 0;
-        GalasaMonitordata updateRequestData = updateRequest.getdata();
+        UpdateGalasaMonitorRequestdata updateRequestData = updateRequest.getdata();
         if (updateRequestData.getIsEnabled()) {
             replicas = 1;
         }
