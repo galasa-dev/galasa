@@ -33,11 +33,14 @@ import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
 import dev.galasa.framework.internal.ras.FrameworkMultipleResultArchiveStore;
 import dev.galasa.framework.internal.rbac.RBACServiceImpl;
+import dev.galasa.framework.internal.streams.StreamsServiceImpl;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
+import dev.galasa.framework.spi.streams.IStreamsService;
+import dev.galasa.framework.spi.streams.StreamsException;
 
 // I know that the IFramework class isn't strictly necessary, but it does seem to make a
 // difference to whether the OSGi framework can load it or not.
@@ -65,6 +68,7 @@ public class Framework implements IFramework, IShuttableFramework {
     private IEventsService                     eventsService;
     private IAuthStore                         authStore;
     private RBACService                        rbacService;
+    private IStreamsService                    streamsService;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
@@ -572,6 +576,21 @@ public class Framework implements IFramework, IShuttableFramework {
             }
         }
         return this.rbacService;
+    }
+
+    @Override
+    public @NotNull IStreamsService getStreamsService() throws StreamsException {
+
+        if(this.streamsService == null){
+            try {
+                IConfigurationPropertyStoreService cpsService = getConfigurationPropertyService("framework");
+                this.streamsService = new StreamsServiceImpl(cpsService);
+            } catch (ConfigurationPropertyStoreException e) {
+                throw new StreamsException("Failed to initialise Streams service",e);
+            }
+        }
+
+        return this.streamsService;
     }
 
 }

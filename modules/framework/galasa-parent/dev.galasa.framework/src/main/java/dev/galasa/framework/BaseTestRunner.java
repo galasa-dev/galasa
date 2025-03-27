@@ -83,6 +83,7 @@ public class BaseTestRunner {
     }
 
     protected void shutdownFramework(IShuttableFramework framework) {
+        logger.debug("Cleaning up framework");
         try {
             framework.shutdown();
         } catch(Exception e) {
@@ -215,6 +216,7 @@ public class BaseTestRunner {
         IRun run = framework.getTestRun();
 
         try {
+            logger.debug("Deleting run from dss: "+testStructure.getStatus()+" result:"+testStructure.getResult());
             framework.getFrameworkRuns().delete(run.getName());
         } catch (FrameworkException e) {
             logger.error("Failed to delete run properties");

@@ -12,6 +12,7 @@ import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
+import dev.galasa.framework.spi.streams.IStreamsService;
 
 import java.net.URL;
 import java.util.*;
@@ -118,5 +119,10 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull RBACService getRBACService() throws RBACException {
         throw new UnsupportedOperationException("Unimplemented method 'getRBACService'");
+    }
+
+    @Override
+    public @NotNull IStreamsService getStreamsService() {
+        throw new UnsupportedOperationException("Unimplemented method 'getStreamsService'");
     }
 }

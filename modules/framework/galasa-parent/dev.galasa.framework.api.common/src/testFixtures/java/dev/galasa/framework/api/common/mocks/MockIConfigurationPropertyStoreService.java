@@ -73,8 +73,8 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
     @Override
     public @NotNull Map<String, String> getPrefixedProperties(@NotNull String prefix)
             throws ConfigurationPropertyStoreException {
-        
-        throw new UnsupportedOperationException("Unimplemented method 'getPrefixedProperties'");
+        checkThrowError();
+        return null;
     }
 
     @Override

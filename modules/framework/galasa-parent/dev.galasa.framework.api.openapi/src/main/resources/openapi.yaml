@@ -458,6 +458,81 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
 ##################################################################################
+# STREAMS API
+##################################################################################
+  /streams:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getStreams
+      summary: Returns the details of all the test streams. 
+      tags:
+      - Streams API
+      responses:
+        '200':
+          description: Array of Stream Data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Stream'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /streams/{streamName}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getStreamByName
+      summary: Gets a stream based on its name. 
+      tags:
+      - Streams API
+      parameters:
+        - name: streamName
+          in: path
+          description: Stream name of the stream to be retrieved.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The get operation worked. The stream found is returned.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Stream'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occurred when trying to execute request '/streams'. Check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing                
+        '404':
+          description: The get operation failed. The record was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5420
+                    error_message: "GAL5420E: Error getting stream"
+                  summary: An Error occurred when trying to get a stream using the given stream name.
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+##################################################################################
 # CPS API
 ##################################################################################
   #--------------------------------------
@@ -2867,8 +2942,59 @@ components:
           type: string
         type:
           type: string
-
-
+    Stream:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/StreamMetadata'
+        data:
+          $ref: '#/components/schemas/StreamData'
+    StreamMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        description:
+          type: string
+    StreamData:
+      type: object
+      properties:
+        isEnabled:
+          type: boolean
+        repository:
+          $ref: '#/components/schemas/StreamRepository'
+        obrs:
+          type: array
+          description: List of OBRs
+          items:
+            $ref: '#/components/schemas/StreamOBRData'
+        testCatalog:
+          $ref: '#/components/schemas/StreamTestCatalog'
+    StreamOBRData:
+      type: object
+      properties:
+        group-id:
+          type: string
+        artifact-id:
+          type: string
+        version:
+          type: string
+    StreamRepository:
+      type: object
+      properties:
+        url:
+          type: string
+    StreamTestCatalog:
+      type: object
+      properties:
+        url:
+          type: string
     # Structures used by the listing of the available artifacts endpoint.
     ArtifactIndex:
       type: array

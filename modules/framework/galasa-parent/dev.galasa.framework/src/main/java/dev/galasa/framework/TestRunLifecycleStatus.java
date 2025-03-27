@@ -23,7 +23,7 @@ public enum TestRunLifecycleStatus {
     UP("up"),
     STARTED("started"),
     PROVSTART("provstart"),
-    ENDING("ending")
+    ENDING("ending"),
     ;
 
     private String value ;  

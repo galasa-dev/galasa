@@ -31,6 +31,7 @@ import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
+import dev.galasa.framework.spi.streams.IStreamsService;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -169,5 +170,9 @@ public class MockShutableFramework implements IShuttableFramework {
         throw new UnsupportedOperationException("Unimplemented method 'getRBACService'");
     }
 
+    @Override
+    public @NotNull IStreamsService getStreamsService() {
+        throw new UnsupportedOperationException("Unimplemented method 'getStreamsService'");
+    }
     
 }

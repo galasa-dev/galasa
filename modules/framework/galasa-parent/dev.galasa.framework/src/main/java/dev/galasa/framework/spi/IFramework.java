@@ -17,6 +17,8 @@ import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
+import dev.galasa.framework.spi.streams.IStreamsService;
+import dev.galasa.framework.spi.streams.StreamsException;
 
 /**
  * <p>
@@ -170,6 +172,9 @@ public interface IFramework {
 
     @NotNull
     RBACService getRBACService() throws RBACException;
+
+    @NotNull
+    IStreamsService getStreamsService() throws StreamsException;
 
     /**
      * Retrieve the test run name. Will be null for non test runs

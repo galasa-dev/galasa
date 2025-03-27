@@ -269,6 +269,15 @@ api:
     isolated:     true
     codecoverage: true
 
+  - artifact: dev.galasa.framework.api.streams
+    version: 0.41.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
   - artifact: dev.galasa.framework.api.testcatalog
     version: 0.41.0
     obr:          true
