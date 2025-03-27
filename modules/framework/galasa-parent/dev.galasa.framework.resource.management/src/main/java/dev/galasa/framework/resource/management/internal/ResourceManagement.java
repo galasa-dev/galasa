@@ -45,6 +45,7 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResourceManagement;
+import dev.galasa.framework.spi.streams.IOBR;
 import dev.galasa.framework.spi.streams.IStream;
 import dev.galasa.framework.spi.streams.IStreamsService;
 import io.prometheus.client.Counter;
@@ -217,17 +218,13 @@ public class ResourceManagement implements IResourceManagement {
 
     private void loadRepositoriesFromStream(String streamName, IStreamsService streamsService) throws FrameworkException {
         IStream stream = streamsService.getStreamByName(streamName);
-
-        if (!stream.isValid()) {
-            throw new FrameworkException("The provided test stream is not configured correctly. "+
-                "Check that the stream has an OBR, maven repository URL, and testcatalog URL set and try again.");
-        }
+        stream.validate();
 
         // Add the stream's OBR to the repository admin
-        List<String> obrs = stream.getObrs();
-        for (String obr : obrs) {
+        List<IOBR> obrs = stream.getObrs();
+        for (IOBR obr : obrs) {
             try {
-                repositoryAdmin.addRepository(obr);
+                repositoryAdmin.addRepository(obr.toString());
             } catch (Exception e) {
                 throw new FrameworkException("Unable to load repository " + obr, e);
             }

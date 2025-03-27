@@ -40,7 +40,7 @@ import org.osgi.framework.launch.Framework;
 
 import dev.galasa.boot.BootLogger;
 import dev.galasa.boot.LauncherException;
-import dev.galasa.boot.MonitorConfiguration;
+import dev.galasa.boot.ResourceManagementConfiguration;
 
 /**
  * Felix framework run test class
@@ -263,7 +263,7 @@ public class FelixFramework {
      * @throws LauncherException
      */
     public void runResourceManagement(Properties boostrapProperties, Properties overridesProperties,
-            List<String> bundles, Integer metrics, Integer health, MonitorConfiguration monitorConfig) throws LauncherException {
+            List<String> bundles, Integer metrics, Integer health, ResourceManagementConfiguration resourceManagementConfig) throws LauncherException {
 
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework");
@@ -330,9 +330,9 @@ public class FelixFramework {
                 service,
                 boostrapProperties,
                 overridesProperties,
-                monitorConfig.getStream(),
-                monitorConfig.getIncludesGlobPatterns(),
-                monitorConfig.getExcludesGlobPatterns()
+                resourceManagementConfig.getStream(),
+                resourceManagementConfig.getIncludesGlobPatterns(),
+                resourceManagementConfig.getExcludesGlobPatterns()
             );
         } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
             throw new LauncherException(e.getCause());

@@ -9,7 +9,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import dev.galasa.framework.spi.streams.IOBR;
 import dev.galasa.framework.spi.streams.IStream;
+import dev.galasa.framework.spi.streams.StreamsException;
 
 public class MockStream implements IStream {
 
@@ -17,8 +19,9 @@ public class MockStream implements IStream {
     private String description;
     private URL mavenRepositoryUrl;
     private URL testCatalogUrl;
-    private List<String> obrs;
+    private List<IOBR> obrs;
     private boolean isEnabled = true;
+    private boolean isValid = true;
 
     @Override
     public String getName() {
@@ -41,12 +44,12 @@ public class MockStream implements IStream {
     }
 
     @Override
-    public List<String> getObrs() {
+    public List<IOBR> getObrs() {
         return this.obrs;
     }
 
     @Override
-    public boolean getIsEnabled() {
+    public boolean isEnabled() {
         return isEnabled;
     }
 
@@ -66,7 +69,7 @@ public class MockStream implements IStream {
         this.testCatalogUrl = new URL(testCatalogUrl);
     }
 
-    public void setObrs(List<String> obrs) {
+    public void setObrs(List<IOBR> obrs) {
         this.obrs = obrs;
     }
 
@@ -75,11 +78,13 @@ public class MockStream implements IStream {
     }
 
     @Override
-    public boolean isValid() {
-        boolean isValid = (
-            (this.obrs != null && !this.obrs.isEmpty())
-            && (this.testCatalogUrl != null && this.mavenRepositoryUrl != null)
-        );
-        return isValid;
+    public void validate() throws StreamsException {
+        if (!this.isValid) {
+            throw new StreamsException("simulating an invalid stream!");
+        }
+    }
+
+    public void setIsValid(boolean isValid) {
+        this.isValid = isValid;
     }
 }

@@ -12,18 +12,18 @@ import dev.galasa.framework.spi.FrameworkException;
 public class MonitorConfiguration {
     
     private String stream;
-    private MonitorFilter filter;
+    private ClassNameFilter filter;
 
     public MonitorConfiguration(String stream, List<String> includesGlobList, List<String> excludesGlobList) throws FrameworkException {
         this.stream = stream;
-        this.filter = new MonitorFilter(includesGlobList, excludesGlobList);
+        this.filter = new ClassNameFilter(includesGlobList, excludesGlobList);
     }
 
     public String getStream() {
         return stream;
     }
 
-    public MonitorFilter getFilter() {
+    public ClassNameFilter getFilter() {
         return this.filter;
     }
 }

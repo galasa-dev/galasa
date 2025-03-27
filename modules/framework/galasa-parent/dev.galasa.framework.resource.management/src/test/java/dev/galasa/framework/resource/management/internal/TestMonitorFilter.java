@@ -21,12 +21,12 @@ public class TestMonitorFilter {
         List<String> includes = List.of("dev.galasa.*");
         List<String> excludes = List.of();
 
-        MonitorFilter filter = new MonitorFilter(includes, excludes);
+        ClassNameFilter filter = new ClassNameFilter(includes, excludes);
 
         String className = "dev.galasa.MyClass";
 
         // When...
-        boolean isAllowed = filter.isMonitorClassAllowed(className);
+        boolean isAllowed = filter.isClassAcceptedByFilter(className);
 
         // Then...
         assertThat(isAllowed).isTrue();
@@ -38,12 +38,12 @@ public class TestMonitorFilter {
         List<String> includes = List.of("*");
         List<String> excludes = List.of("dev.galasa*");
 
-        MonitorFilter filter = new MonitorFilter(includes, excludes);
+        ClassNameFilter filter = new ClassNameFilter(includes, excludes);
 
         String className = "dev.galasa.MyClass";
 
         // When...
-        boolean isAllowed = filter.isMonitorClassAllowed(className);
+        boolean isAllowed = filter.isClassAcceptedByFilter(className);
 
         // Then...
         assertThat(isAllowed).isFalse();
@@ -55,12 +55,12 @@ public class TestMonitorFilter {
         List<String> includes = List.of("dev.galasa.MyClass");
         List<String> excludes = List.of();
 
-        MonitorFilter filter = new MonitorFilter(includes, excludes);
+        ClassNameFilter filter = new ClassNameFilter(includes, excludes);
 
         String className = "dev.galasa.MyClass";
 
         // When...
-        boolean isAllowed = filter.isMonitorClassAllowed(className);
+        boolean isAllowed = filter.isClassAcceptedByFilter(className);
 
         // Then...
         assertThat(isAllowed).isTrue();
@@ -72,12 +72,12 @@ public class TestMonitorFilter {
         List<String> includes = List.of("my.company*", "*myOtherClass", "*MyClass");
         List<String> excludes = List.of("my.company.exclude*", "my.other.excludes");
 
-        MonitorFilter filter = new MonitorFilter(includes, excludes);
+        ClassNameFilter filter = new ClassNameFilter(includes, excludes);
 
         String className = "dev.galasa.MyClass";
 
         // When...
-        boolean isAllowed = filter.isMonitorClassAllowed(className);
+        boolean isAllowed = filter.isClassAcceptedByFilter(className);
 
         // Then...
         assertThat(isAllowed).isTrue();
@@ -89,12 +89,12 @@ public class TestMonitorFilter {
         List<String> includes = List.of("my.company*", "*myOtherClass", "*MyClass");
         List<String> excludes = List.of("*exclude*", "my.other.excludes");
 
-        MonitorFilter filter = new MonitorFilter(includes, excludes);
+        ClassNameFilter filter = new ClassNameFilter(includes, excludes);
 
         String className = "my.company.exclude.this.class";
 
         // When...
-        boolean isAllowed = filter.isMonitorClassAllowed(className);
+        boolean isAllowed = filter.isClassAcceptedByFilter(className);
 
         // Then...
         assertThat(isAllowed).isFalse();
@@ -106,12 +106,12 @@ public class TestMonitorFilter {
         List<String> includes = List.of("company.?.include*", "*myOtherClass", "*MyClass");
         List<String> excludes = List.of("*exclude*", "my.other.excludes");
 
-        MonitorFilter filter = new MonitorFilter(includes, excludes);
+        ClassNameFilter filter = new ClassNameFilter(includes, excludes);
 
         String className = "company.a.include.me";
 
         // When...
-        boolean isAllowed = filter.isMonitorClassAllowed(className);
+        boolean isAllowed = filter.isClassAcceptedByFilter(className);
 
         // Then...
         assertThat(isAllowed).isTrue();
@@ -125,12 +125,12 @@ public class TestMonitorFilter {
 
         // When...
         FrameworkException thrown = catchThrowableOfType(() -> {
-            new MonitorFilter(includes, excludes);
+            new ClassNameFilter(includes, excludes);
         }, FrameworkException.class);
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("Failed to compile glob pattern");
+        assertThat(thrown.getMessage()).contains("Unsupported glob pattern character provided");
     }
 
     @Test
@@ -141,11 +141,11 @@ public class TestMonitorFilter {
 
         // When...
         FrameworkException thrown = catchThrowableOfType(() -> {
-            new MonitorFilter(includes, excludes);
+            new ClassNameFilter(includes, excludes);
         }, FrameworkException.class);
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("Failed to compile glob pattern");
+        assertThat(thrown.getMessage()).contains("Unsupported glob pattern character provided");
     }
 }

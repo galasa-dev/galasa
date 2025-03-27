@@ -91,7 +91,7 @@ public class TestResourceManagementProviders {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("Failed to compile glob pattern into a valid regex pattern");
+        assertThat(thrown.getMessage()).contains("Unsupported glob pattern character provided");
     }
 
     @Test
@@ -114,7 +114,7 @@ public class TestResourceManagementProviders {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("Failed to compile glob pattern into a valid regex pattern");
+        assertThat(thrown.getMessage()).contains("Unsupported glob pattern character provided");
     }
 
     @Test

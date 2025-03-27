@@ -18,10 +18,10 @@ public interface IStream {
 
     URL getTestCatalogUrl();
 
-    List<String> getObrs();
+    List<IOBR> getObrs();
 
-    boolean getIsEnabled();
+    boolean isEnabled();
 
-    boolean isValid();
+    void validate() throws StreamsException;
 
 }

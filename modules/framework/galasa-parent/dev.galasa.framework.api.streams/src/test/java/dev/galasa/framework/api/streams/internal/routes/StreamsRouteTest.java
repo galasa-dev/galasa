@@ -24,6 +24,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.streams.mocks.MockStreamsServlet;
 import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockOBR;
 import dev.galasa.framework.mocks.MockStreamsService;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockStream;
@@ -70,13 +71,18 @@ public class StreamsRouteTest extends BaseServletTest {
         // Given...
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
+        String OBR_GROUP_ID = "my.group";
+        String OBR_ARTIFACT_ID = "my.group.obr";
+        String OBR_VERSION = "0.0.1";
+        MockOBR mockObr = new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION);
+
         List<IStream> mockStreams = new ArrayList<>();
         MockStream mockStream = new MockStream();
         mockStream.setName("testStream");
         mockStream.setDescription("This is a dummy test stream");
         mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
-        mockStream.setObrs(List.of("fake-obr-location"));
+        mockStream.setObrs(List.of(mockObr));
 
         mockStreams.add(mockStream);
 
@@ -113,20 +119,25 @@ public class StreamsRouteTest extends BaseServletTest {
         // Given...
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
+        String OBR_GROUP_ID = "my.group";
+        String OBR_ARTIFACT_ID = "my.group.obr";
+        String OBR_VERSION = "0.0.1";
+        MockOBR mockObr = new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION);
+
         List<IStream> mockStreams = new ArrayList<>();
         MockStream mockStream = new MockStream();
         mockStream.setName("testStream");
         mockStream.setDescription("This is a dummy test stream");
         mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
-        mockStream.setObrs(List.of("fake-obr-location"));
+        mockStream.setObrs(List.of(mockObr));
 
         MockStream mockStream2 = new MockStream();
         mockStream2.setName("testStream2");
         mockStream2.setDescription("This is a second dummy test stream");
         mockStream2.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream2.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
-        mockStream2.setObrs(List.of("fake-obr-location"));
+        mockStream2.setObrs(List.of(mockObr));
 
         mockStreams.add(mockStream);
         mockStreams.add(mockStream2);
@@ -163,13 +174,18 @@ public class StreamsRouteTest extends BaseServletTest {
 
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
+        String OBR_GROUP_ID = "my.group";
+        String OBR_ARTIFACT_ID = "my.group.obr";
+        String OBR_VERSION = "0.0.1";
+        MockOBR mockObr = new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION);
+
         List<IStream> mockStreams = new ArrayList<>();
         MockStream mockStream = new MockStream();
         mockStream.setName("fakeStream");
         mockStream.setDescription("This is a dummy test stream");
         mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
-        mockStream.setObrs(List.of("fake-obr-location"));
+        mockStream.setObrs(List.of(mockObr));
 
         mockStreams.add(mockStream);
 

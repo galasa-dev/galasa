@@ -25,6 +25,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.streams.mocks.MockStreamsServlet;
 import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockOBR;
 import dev.galasa.framework.mocks.MockStreamsService;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockStream;
@@ -72,13 +73,18 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         String streamName = "streamThatIsNotPresent";
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
+        String OBR_GROUP_ID = "dev.galasa";
+        String OBR_ARTIFACT_ID = "dev.galasa.ivts.obr";
+        String OBR_VERSION = "0.41.0";
+        MockOBR mockObr = new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION);
+
         List<IStream> mockStreams = new ArrayList<>();
         MockStream mockStream = new MockStream();
         mockStream.setName("fakeStream");
         mockStream.setDescription("This is a dummy test stream");
         mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
-        mockStream.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
+        mockStream.setObrs(List.of(mockObr));
 
         mockStreams.add(mockStream);
 
@@ -115,13 +121,18 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         String streamName = "fakeStream";
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
+        String OBR_GROUP_ID = "dev.galasa";
+        String OBR_ARTIFACT_ID = "dev.galasa.ivts.obr";
+        String OBR_VERSION = "0.41.0";
+        MockOBR mockObr = new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION);
+
         List<IStream> mockStreams = new ArrayList<>();
         MockStream mockStream = new MockStream();
         mockStream.setName(streamName);
         mockStream.setDescription("This is a dummy test stream");
         mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
-        mockStream.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
+        mockStream.setObrs(List.of(mockObr));
 
         mockStreams.add(mockStream);
 
@@ -165,27 +176,32 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         String streamName = "fakeStream2";
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
 
+        String OBR_GROUP_ID = "dev.galasa";
+        String OBR_ARTIFACT_ID = "dev.galasa.ivts.obr";
+        String OBR_VERSION = "0.41.0";
+        MockOBR mockObr = new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION);
+
         List<IStream> mockStreams = new ArrayList<>();
         MockStream mockStream = new MockStream();
         mockStream.setName("fakeStream");
         mockStream.setDescription("This is a dummy test stream");
         mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
-        mockStream.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
+        mockStream.setObrs(List.of(mockObr));
 
         MockStream mockStream2 = new MockStream();
         mockStream2.setName("fakeStream2");
         mockStream2.setDescription("This is a dummy test stream for stream 2");
         mockStream2.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream2.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
-        mockStream2.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
+        mockStream2.setObrs(List.of(mockObr));
 
         MockStream mockStream3 = new MockStream();
         mockStream3.setName("fakeStream3");
         mockStream3.setDescription("This is a dummy test stream for stream 3");
         mockStream3.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream3.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
-        mockStream3.setObrs(List.of("mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr"));
+        mockStream3.setObrs(List.of(mockObr));
 
         mockStreams.add(mockStream);
         mockStreams.add(mockStream2);

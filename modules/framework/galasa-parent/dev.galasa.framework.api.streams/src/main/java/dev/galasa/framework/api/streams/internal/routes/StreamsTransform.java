@@ -19,12 +19,12 @@ import dev.galasa.framework.api.beans.generated.StreamRepository;
 import dev.galasa.framework.api.beans.generated.StreamTestCatalog;
 import dev.galasa.framework.api.beans.generated.StreamData;
 import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
+import dev.galasa.framework.spi.streams.IOBR;
 import dev.galasa.framework.spi.streams.IStream;
 
 public class StreamsTransform {
 
     public Log logger = LogFactory.getLog(StreamsTransform.class);
-    private static final String MAVEN_PREFIX = "mvn:";
 
     /**
      * Creates a list with a single Stream bean based on the provided properties.
@@ -76,10 +76,9 @@ public class StreamsTransform {
     private StreamData createStreamData(IStream stream) {
 
         StreamData data = new StreamData();
-        List<StreamOBRData> streamObrData = new ArrayList<>();
         URL testCatalogUrl = stream.getTestCatalogUrl();
         URL mavenRepositoryUrl = stream.getMavenRepositoryUrl();
-        List<String> obrs = stream.getObrs();
+        List<IOBR> obrs = stream.getObrs();
 
         StreamRepository streamRepository = new StreamRepository();
         streamRepository.seturl(mavenRepositoryUrl.toString());
@@ -87,10 +86,7 @@ public class StreamsTransform {
         StreamTestCatalog testCatalog = new StreamTestCatalog();
         testCatalog.seturl(testCatalogUrl.toString());
 
-        if (obrs != null) {
-            // Strip off the "mvn:" prefix.
-            streamObrData = transformMultipleObrs(obrs);
-        }
+        List<StreamOBRData> streamObrData = transformObrsIntoStreamObrBeanList(obrs);
 
         data.setobrs(streamObrData.toArray(new StreamOBRData[0]));
         data.setTestCatalog(testCatalog);
@@ -101,23 +97,16 @@ public class StreamsTransform {
 
     }
 
-    private List<StreamOBRData> transformMultipleObrs(List<String> obrUrls) {
+    private List<StreamOBRData> transformObrsIntoStreamObrBeanList(List<IOBR> obrs) {
 
         List<StreamOBRData> streamObrData = new ArrayList<>();
 
-        for (String obrLocation : obrUrls) {
-            String extractedUrl = obrLocation.substring(MAVEN_PREFIX.length(), obrLocation.length() - 1);
-            String[] splitTestCatalogUrl = extractedUrl.split("/");
-
-            // Example URL: mvn:dev.galasa/dev.galasa.inttests.obr/0.41.0/obr
-            // Splitting the URL on "/" so that we can extract groupId, artifactId, and
-            // version
+        for (IOBR obr : obrs) {
             StreamOBRData obrData = new StreamOBRData();
-            if (splitTestCatalogUrl.length == 4) {
-                obrData.setGroupId(splitTestCatalogUrl[0]);
-                obrData.setArtifactId(splitTestCatalogUrl[1]);
-                obrData.setversion(splitTestCatalogUrl[2]);
-            }
+            obrData.setGroupId(obr.getGroupId());
+            obrData.setArtifactId(obr.getArtifactId());
+            obrData.setversion(obr.getVersion());
+
             streamObrData.add(obrData);
         }
 

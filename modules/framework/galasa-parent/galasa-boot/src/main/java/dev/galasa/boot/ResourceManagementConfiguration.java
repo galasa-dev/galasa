@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MonitorConfiguration {
+public class ResourceManagementConfiguration {
     
     private String stream;
     private List<String> includesGlobPatterns = new ArrayList<>();
@@ -19,7 +19,7 @@ public class MonitorConfiguration {
     private static final String INCLUDES_ENV_VAR = "GALASA_MONITOR_INCLUDES_GLOB_PATTERNS";
     private static final String EXCLUDES_ENV_VAR = "GALASA_MONITOR_EXCLUDES_GLOB_PATTERNS";
 
-    public MonitorConfiguration(Environment env) {
+    public ResourceManagementConfiguration(Environment env) {
         this.stream = env.getenv(STREAM_ENV_VAR);
         String commaSeparatedIncludes = env.getenv(INCLUDES_ENV_VAR);
         String commaSeparatedExcludes = env.getenv(EXCLUDES_ENV_VAR);

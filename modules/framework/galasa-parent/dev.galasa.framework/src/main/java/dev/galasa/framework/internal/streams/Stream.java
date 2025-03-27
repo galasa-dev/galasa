@@ -8,9 +8,9 @@ package dev.galasa.framework.internal.streams;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import dev.galasa.framework.spi.streams.IOBR;
 import dev.galasa.framework.spi.streams.IStream;
 import dev.galasa.framework.spi.streams.StreamsException;
 
@@ -20,7 +20,7 @@ public class Stream implements IStream {
     private String description;
     private URL mavenRepositoryUrl;
     private URL testCatalogUrl;
-    private List<String> obrs;
+    private List<IOBR> obrs;
     private boolean isEnabled = true;
 
     @Override
@@ -28,8 +28,11 @@ public class Stream implements IStream {
         return this.name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String name) throws StreamsException {
+        if (name == null || name.isBlank()) {
+            throw new StreamsException("Stream name cannot be empty");
+        }
+        this.name = name.trim();
     }
 
     @Override
@@ -68,7 +71,7 @@ public class Stream implements IStream {
     }
 
     @Override
-    public boolean getIsEnabled() {
+    public boolean isEnabled() {
         return this.isEnabled;
     }
 
@@ -77,26 +80,34 @@ public class Stream implements IStream {
     }
 
     @Override
-    public List<String> getObrs() {
+    public List<IOBR> getObrs() {
         return this.obrs;
     }
 
-    public void setObrs(String commaSeparatedObrs) {
-        List<String> obrs = new ArrayList<>();
+    public void setObrsFromCommaSeparatedList(String commaSeparatedObrs) {
+        List<IOBR> formattedObrs = new ArrayList<>();
         if (commaSeparatedObrs != null && !commaSeparatedObrs.isBlank()) {
-            obrs = Arrays.asList(commaSeparatedObrs.split(","));
+            for (String obrStr : commaSeparatedObrs.split(",")) {
+                OBR obr = new OBR(obrStr);
+                formattedObrs.add(obr);
+            }
         }
-        this.obrs = obrs;
+        this.obrs = formattedObrs;
     }
 
     @Override
-    public boolean isValid() {
-        boolean isValid = (
-            (this.obrs != null && !this.obrs.isEmpty())
-            && (this.mavenRepositoryUrl != null && this.testCatalogUrl != null)
-        );
+    public void validate() throws StreamsException {
+        if (this.obrs == null || this.obrs.isEmpty()) {
+            throw new StreamsException("No OBRs has been configured into the test stream");
+        }
 
-        return isValid;
+        if (this.mavenRepositoryUrl == null) {
+            throw new StreamsException("No maven repository URL has been configured into the test stream");
+        }
+
+        if (this.testCatalogUrl == null) {
+            throw new StreamsException("No testcatalog URL has been configured into the test stream");
+        }
     }
 
 }

@@ -21,6 +21,7 @@ import org.junit.Test;
 import dev.galasa.framework.mocks.MockBundleManager;
 import dev.galasa.framework.mocks.MockCapability;
 import dev.galasa.framework.mocks.MockMavenRepository;
+import dev.galasa.framework.mocks.MockOBR;
 import dev.galasa.framework.mocks.MockRepository;
 import dev.galasa.framework.mocks.MockRepositoryAdmin;
 import dev.galasa.framework.mocks.MockResolver;
@@ -29,6 +30,7 @@ import dev.galasa.framework.mocks.MockStream;
 import dev.galasa.framework.mocks.MockStreamsService;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IResourceManagementProvider;
+import dev.galasa.framework.spi.streams.IOBR;
 
 public class TestResourceManagement {
 
@@ -92,7 +94,12 @@ public class TestResourceManagement {
         ResourceManagement resourceManagement = new ResourceManagement();
         
         String REPO_URL = "http://myhost/myRepositoryForMyRun";
-        String STREAM_OBR_REPO_URL = "http://myhost/myOtherRepositoryForMyRun";
+
+        String OBR_GROUP_ID = "my.group";
+        String OBR_ARTIFACT_ID = "my.group.obr";
+        String OBR_VERSION = "0.0.1";
+        String EXPECTED_OBR_URL = "mvn:" + OBR_GROUP_ID + "/" + OBR_ARTIFACT_ID + "/" + OBR_VERSION + "/obr";
+
         String STREAM_MAVEN_REPO_URL = "http://myhost/myOtherMavenRepositoryForMyRun";
         String STREAM_TESTCATALOG_URL = "http://myhost/myOtherMavenRepositoryForMyRun/my/testcatalog.json";
         String BUNDLE_NAME_1 = "my.custom.bundle";
@@ -118,9 +125,11 @@ public class TestResourceManagement {
 
         MockBundleManager mockBundleManager = new MockBundleManager();
 
+        List<IOBR> mockObrs = List.of(new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION));
+
         MockStream mockStream = new MockStream();
         mockStream.setName(stream);
-        mockStream.setObrs(List.of(STREAM_OBR_REPO_URL));
+        mockStream.setObrs(mockObrs);
         mockStream.setMavenRepositoryUrl(STREAM_MAVEN_REPO_URL);
         mockStream.setTestCatalogUrl(STREAM_TESTCATALOG_URL);
 
@@ -138,7 +147,7 @@ public class TestResourceManagement {
         // Check that the OBR associated with the stream has been added
         Repository[] obrRepositories = mockRepositoryAdmin.listRepositories();
         assertThat(obrRepositories).hasSize(2);
-        assertThat(obrRepositories[1].getURI()).isEqualTo(STREAM_OBR_REPO_URL);
+        assertThat(obrRepositories).extracting(Repository::getURI).contains(EXPECTED_OBR_URL);
         
         List<String> loadedBundles = mockBundleManager.getLoadedBundleSymbolicNames();
         assertThat(loadedBundles).hasSize(2);
@@ -146,12 +155,16 @@ public class TestResourceManagement {
     }
 
     @Test
-    public void testLoadMonitorBundlesWithBadStreamOBRThrowsCorrectError() throws Exception {
+    public void testLoadMonitorBundlesWithBadStreamThrowsCorrectError() throws Exception {
         // Given...
         ResourceManagement resourceManagement = new ResourceManagement();
         
         String REPO_URL = "http://myhost/myRepositoryForMyRun";
-        String STREAM_MAVEN_REPO_URL = "http://myhost/myOtherMavenRepositoryForMyRun";
+
+        String OBR_GROUP_ID = "my.group";
+        String OBR_ARTIFACT_ID = "my.group.obr";
+        String OBR_VERSION = "0.0.1";
+
         String BUNDLE_NAME_1 = "my.custom.bundle";
         String BUNDLE_NAME_2 = "my.other.custom.bundle";
 
@@ -175,9 +188,12 @@ public class TestResourceManagement {
 
         MockBundleManager mockBundleManager = new MockBundleManager();
 
+        List<IOBR> mockObrs = List.of(new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION));
+
         MockStream mockStream = new MockStream();
         mockStream.setName(stream);
-        mockStream.setMavenRepositoryUrl(STREAM_MAVEN_REPO_URL);
+        mockStream.setObrs(mockObrs);
+        mockStream.setIsValid(false);
 
         MockStreamsService mockStreamsService = new MockStreamsService(List.of(mockStream));
 
@@ -188,52 +204,6 @@ public class TestResourceManagement {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown).hasMessageContaining("The provided test stream is not configured correctly.");
-    }
-
-    @Test
-    public void testLoadMonitorBundlesWithBadStreamMavenRepoThrowsCorrectError() throws Exception {
-        // Given...
-        ResourceManagement resourceManagement = new ResourceManagement();
-        
-        String REPO_URL = "http://myhost/myRepositoryForMyRun";
-        String STREAM_OBR_REPO_URL = "http://myhost/myOtherRepositoryForMyRun";
-        String BUNDLE_NAME_1 = "my.custom.bundle";
-        String BUNDLE_NAME_2 = "my.other.custom.bundle";
-
-        MockRepository mockRepo = new MockRepository(REPO_URL);
-        List<Repository> mockRepositories = List.of(mockRepo);
-
-        MockResource mockResource1 = createMockBundleWithServiceCapability(BUNDLE_NAME_1);
-        MockResource mockResource2 = createMockBundleWithServiceCapability(BUNDLE_NAME_2);
-        mockRepo.addResource(mockResource1);
-        mockRepo.addResource(mockResource2);
-
-        boolean IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE = true;
-        Resolver mockResolver = new MockResolver(IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE);
-        MockRepositoryAdmin mockRepositoryAdmin = new MockRepositoryAdmin(mockRepositories, mockResolver);
-        MockMavenRepository mockMavenRepository = new MockMavenRepository();
-
-        resourceManagement.repositoryAdmin = mockRepositoryAdmin;
-        resourceManagement.mavenRepository = mockMavenRepository;
-
-        String stream = "myStream";
-
-        MockBundleManager mockBundleManager = new MockBundleManager();
-
-        MockStream mockStream = new MockStream();
-        mockStream.setName(stream);
-        mockStream.setObrs(List.of(STREAM_OBR_REPO_URL));
-
-        MockStreamsService mockStreamsService = new MockStreamsService(List.of(mockStream));
-
-        // When...
-        FrameworkException thrown = catchThrowableOfType(() -> {
-            resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockStreamsService);
-        }, FrameworkException.class);
-
-        // Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown).hasMessageContaining("The provided test stream is not configured correctly.");
+        assertThat(thrown).hasMessageContaining("simulating an invalid stream!");
     }
 }

@@ -73,7 +73,7 @@ public class StreamsServiceImpl implements IStreamsService {
                     streamBean.setDescription(value);
                     break;
                 case "obr":
-                    streamBean.setObrs(value);
+                    streamBean.setObrsFromCommaSeparatedList(value);
                     break;
                 case "location":
                     streamBean.setTestCatalogUrl(value);
