@@ -24,25 +24,24 @@ public class MonitorFilter {
     }
 
     public boolean isMonitorClassAllowed(String monitorClassName) {
-        boolean isAllowed = false;
-
-        for (Pattern includePattern : includes) {
-            Matcher includeMatcher = includePattern.matcher(monitorClassName);
-            if (includeMatcher.matches()) {
-                isAllowed = true;
-                break;
-            }
-        }
-
-        for (Pattern excludePattern : excludes) {
-            Matcher excludeMatcher = excludePattern.matcher(monitorClassName);
-            if (excludeMatcher.matches()) {
-                isAllowed = false;
-                break;
-            }
-        }
+        boolean isAllowed = (
+            isStringMatchingAnyPatternInList(monitorClassName, includes) && !isStringMatchingAnyPatternInList(monitorClassName, excludes)
+        );
 
         return isAllowed;
+    }
+
+    private boolean isStringMatchingAnyPatternInList(String strToCheck, List<Pattern> patterns) {
+        boolean isMatching = false;
+
+        for (Pattern pattern : patterns) {
+            Matcher patternMatcher = pattern.matcher(strToCheck);
+            if (patternMatcher.matches()) {
+                isMatching = true;
+                break;
+            }
+        }
+        return isMatching;
     }
 
     private List<Pattern> convertGlobListToPatternList(List<String> globList) throws FrameworkException {

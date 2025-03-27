@@ -89,7 +89,8 @@ public class ResourceManagementProviders {
         Set<IResourceManagementProvider> providersToInclude = new HashSet<>();
 
         for (IResourceManagementProvider provider : providers) {
-            if (filter.isMonitorClassAllowed(provider.getClass().getCanonicalName())) {
+            String monitorClassName = provider.getClass().getCanonicalName();
+            if (filter.isMonitorClassAllowed(monitorClassName)) {
                 providersToInclude.add(provider);
             }
         }

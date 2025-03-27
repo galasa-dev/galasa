@@ -16,8 +16,8 @@ public class MonitorConfiguration {
     private List<String> excludesGlobPatterns = new ArrayList<>();
 
     private static final String STREAM_ENV_VAR = "GALASA_MONITOR_STREAM";
-    private static final String INCLUDES_ENV_VAR = "GALASA_MONITOR_INCLUDES_GLOBS";
-    private static final String EXCLUDES_ENV_VAR = "GALASA_MONITOR_EXCLUDES_GLOBS";
+    private static final String INCLUDES_ENV_VAR = "GALASA_MONITOR_INCLUDES_GLOB_PATTERNS";
+    private static final String EXCLUDES_ENV_VAR = "GALASA_MONITOR_EXCLUDES_GLOB_PATTERNS";
 
     public MonitorConfiguration(Environment env) {
         this.stream = env.getenv(STREAM_ENV_VAR);
