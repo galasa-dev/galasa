@@ -2545,12 +2545,12 @@ components:
                   properties:
                     includes:
                       type: array
-                      description: A comma-separated list of regex patterns representing the bundles that the GalasaMonitor should load
+                      description: A comma-separated list of glob patterns representing the bundles that the GalasaMonitor should load
                       items:
                         type: string
                     excludes:
                       type: array
-                      description: A comma-separated list of regex patterns representing the bundles that the GalasaMonitor should not load
+                      description: A comma-separated list of glob patterns representing the bundles that the GalasaMonitor should not load
                       items:
                         type: string
     GalasaProperty:

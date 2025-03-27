@@ -21,6 +21,70 @@ import io.kubernetes.client.openapi.models.V1ObjectMeta;
 
 /**
  * Converts a Kubernetes deployment into an external GalasaMonitor bean.
+ * Kubernetes deployments for Galasa monitors are expected to look similar to the example below.
+ * 
+ * The fields of interest from a Kubernetes deployment are:
+ * 
+ * - The name of the deployment (the 'metadata.name' field)
+ * - The number of replicas that are set (the 'spec.replicas' field)
+ * - The values of the environment variables 'GALASA_CLEANUP_MONITOR_STREAM',
+ *   'GALASA_MONITOR_INCLUDES_GLOB_PATTERNS', and 'GALASA_MONITOR_EXCLUDES_GLOB_PATTERNS'
+ *   in the 'resource-monitor' container
+ * 
+ * apiVersion: apps/v1
+ * kind: Deployment
+ * metadata:
+ *   name: my-custom-resource-monitor
+ *   labels:
+ *     galasa-monitor: custom
+ *     app: my-custom-resource-monitor
+ * spec:
+ *   replicas: 0
+ *   strategy:
+ *     type: Recreate
+ *   selector:
+ *     matchLabels:
+ *       app: my-custom-resource-monitor
+ *   template:
+ *     metadata:
+ *       name: my-custom-resource-monitor
+ *       labels:
+ *         app: my-custom-resource-monitor
+ *     spec:
+ *       serviceAccountName: galasa
+ *       nodeSelector:
+ *         kubernetes.io/arch: amd64
+ *       initContainers:
+ *         - name: wait-for-api
+ *           ...
+ *       containers:
+ *       - name: resource-monitor
+ *         ...
+ *         env:
+ *         - name: NAMESPACE
+ *           valueFrom: ...
+ *         - name: GALASA_CONFIG_STORE
+ *           value: ...
+ *         - name: GALASA_DYNAMICSTATUS_STORE
+ *           value: ...
+ *         - name: GALASA_RESULTARCHIVE_STORE
+ *           value: ...
+ *         - name: GALASA_CREDENTIALS_STORE
+ *           value: ...
+ *         - name: GALASA_RAS_TOKEN
+ *           valueFrom: ...
+ *         - name: GALASA_CLEANUP_MONITOR_STREAM
+ *           value: "myStream"
+ *         - name: GALASA_MONITOR_INCLUDES_GLOB_PATTERNS
+ *           value: "my.company*,*MyResourceMonitorClass"
+ *         - name: GALASA_MONITOR_EXCLUDES_GLOB_PATTERNS
+ *           value: "my.company.exclude*,*MyResourceMonitorToExclude"
+ *         ports:
+ *         ...
+ *         livenessProbe:
+ *         ...
+ *         readinessProbe:
+ *         ...
  */
 public class MonitorTransform {
 
