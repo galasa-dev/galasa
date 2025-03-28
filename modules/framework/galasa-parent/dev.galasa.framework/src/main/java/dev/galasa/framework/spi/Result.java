@@ -10,7 +10,9 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-public class Result {
+import dev.galasa.framework.IResult;
+
+public class Result implements IResult {
 
     private static final String IGNORED     = "Ignored";
     private static final String PASSED      = "Passed";
@@ -144,10 +146,12 @@ public class Result {
         return this.reason;
     }
 
+    @Override
     public boolean isPassed() {
         return this.passed;
     }
 
+    @Override
     public boolean isFailed() {
         return this.failed;
     }
