@@ -220,6 +220,10 @@ public class ResourceManagement implements IResourceManagement {
         IStream stream = streamsService.getStreamByName(streamName);
         stream.validate();
 
+        // Add the stream's maven repo to the maven repositories
+        URL mavenRepo = stream.getMavenRepositoryUrl();
+        mavenRepository.addRemoteRepository(mavenRepo);
+
         // Add the stream's OBR to the repository admin
         List<IOBR> obrs = stream.getObrs();
         for (IOBR obr : obrs) {
@@ -229,10 +233,6 @@ public class ResourceManagement implements IResourceManagement {
                 throw new FrameworkException("Unable to load repository " + obr, e);
             }
         }
-
-        // Add the stream's maven repo to the maven repositories
-        URL mavenRepo = stream.getMavenRepositoryUrl();
-        mavenRepository.addRemoteRepository(mavenRepo);
     }
 
     private boolean isResourceMonitorCapability(Capability capability) {
