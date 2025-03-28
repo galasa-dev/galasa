@@ -8,6 +8,8 @@ package dev.galasa.framework.api.monitors.internal;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
@@ -43,6 +45,15 @@ public class KubernetesApiClient implements IKubernetesApiClient {
 
     @Override
     public V1Deployment getDeploymentByName(String name, String namespace) throws ApiException {
-        return kubeApiClient.readNamespacedDeployment(name, namespace).execute();
+        V1Deployment matchingDeployment = null;
+        try {
+            matchingDeployment = kubeApiClient.readNamespacedDeployment(name, namespace).execute();
+        } catch (ApiException ex) {
+            // If a deployment with the given name doesn't exist, return null
+            if (ex.getCode() != HttpServletResponse.SC_NOT_FOUND) {
+                throw ex;
+            }
+        }
+        return matchingDeployment;
     }
 }
