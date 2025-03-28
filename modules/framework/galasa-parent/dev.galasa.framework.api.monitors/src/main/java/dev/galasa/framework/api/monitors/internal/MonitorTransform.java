@@ -88,9 +88,9 @@ import io.kubernetes.client.openapi.models.V1ObjectMeta;
  */
 public class MonitorTransform {
 
-    public static final String CLEANUP_MONITOR_STREAM_ENV_VAR = "GALASA_CLEANUP_MONITOR_STREAM";
-    public static final String MONITOR_INCLUDES_REGEXES_ENV_VAR = "GALASA_MONITOR_INCLUDES_REGEXES";
-    public static final String MONITOR_EXCLUDES_REGEXES_ENV_VAR = "GALASA_MONITOR_EXCLUDES_REGEXES";
+    public static final String MONITOR_STREAM_ENV_VAR = "GALASA_MONITOR_STREAM";
+    public static final String MONITOR_INCLUDES_GLOB_PATTERNS_ENV_VAR = "GALASA_MONITOR_INCLUDES_GLOB_PATTERNS";
+    public static final String MONITOR_EXCLUDES_GLOB_PATTERNS_ENV_VAR = "GALASA_MONITOR_EXCLUDES_GLOB_PATTERNS";
 
     public GalasaMonitor createGalasaMonitorBeanFromDeployment(V1Deployment monitorDeployment) {
         GalasaMonitor monitor = new GalasaMonitor();
@@ -135,16 +135,16 @@ public class MonitorTransform {
 
         for (V1EnvVar envVar : monitorEnvVars) {
             switch (envVar.getName()) {
-                case CLEANUP_MONITOR_STREAM_ENV_VAR:
+                case MONITOR_STREAM_ENV_VAR:
                     cleanupData.setstream(envVar.getValue());
                     break;
-                case MONITOR_INCLUDES_REGEXES_ENV_VAR:
+                case MONITOR_INCLUDES_GLOB_PATTERNS_ENV_VAR:
                     String commaSeparatedIncludes = envVar.getValue();
                     if (commaSeparatedIncludes != null && !commaSeparatedIncludes.isBlank()) {
                         bundleFilters.setincludes(commaSeparatedIncludes.split(","));
                     }
                     break;
-                case MONITOR_EXCLUDES_REGEXES_ENV_VAR:
+                case MONITOR_EXCLUDES_GLOB_PATTERNS_ENV_VAR:
                     String commaSeparatedExcludes = envVar.getValue();
                     if (commaSeparatedExcludes != null && !commaSeparatedExcludes.isBlank()) {
                         bundleFilters.setexcludes(commaSeparatedExcludes.split(","));

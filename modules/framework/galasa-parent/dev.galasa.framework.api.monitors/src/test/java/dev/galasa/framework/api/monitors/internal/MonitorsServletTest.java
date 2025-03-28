@@ -86,9 +86,9 @@ public class MonitorsServletTest extends BaseServletTest {
         String commaSeparatedIncludes = String.join(",", includes);
         String commaSeparatedExcludes = String.join(",", excludes);
 
-        addMockEnvVar(MonitorTransform.CLEANUP_MONITOR_STREAM_ENV_VAR, stream, container);
-        addMockEnvVar(MonitorTransform.MONITOR_INCLUDES_REGEXES_ENV_VAR, commaSeparatedIncludes, container);
-        addMockEnvVar(MonitorTransform.MONITOR_EXCLUDES_REGEXES_ENV_VAR, commaSeparatedExcludes, container);
+        addMockEnvVar(MonitorTransform.MONITOR_STREAM_ENV_VAR, stream, container);
+        addMockEnvVar(MonitorTransform.MONITOR_INCLUDES_GLOB_PATTERNS_ENV_VAR, commaSeparatedIncludes, container);
+        addMockEnvVar(MonitorTransform.MONITOR_EXCLUDES_GLOB_PATTERNS_ENV_VAR, commaSeparatedExcludes, container);
 
         deployment.setMetadata(metadata);
         deployment.setSpec(spec);
