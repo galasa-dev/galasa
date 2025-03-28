@@ -15,6 +15,7 @@ import javax.servlet.ServletOutputStream;
 
 import org.junit.Test;
 
+import dev.galasa.framework.api.beans.generated.Stream;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
@@ -62,7 +63,8 @@ public class StreamsRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-        assertThat(getJsonArrayFromJson(output, "streams")).hasSize(0);
+        Stream[] streamsGotBack = gson.fromJson(output, Stream[].class);
+        assertThat(streamsGotBack).hasSize(0);
     }
 
     @Test
@@ -110,7 +112,8 @@ public class StreamsRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-        assertThat(getJsonArrayFromJson(output, "streams")).hasSize(1);
+        Stream[] streamsGotBack = gson.fromJson(output, Stream[].class);
+        assertThat(streamsGotBack).hasSize(1);
     }
 
     @Test
@@ -166,7 +169,8 @@ public class StreamsRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-        assertThat(getJsonArrayFromJson(output, "streams")).hasSize(2);
+        Stream[] streamsGotBack = gson.fromJson(output, Stream[].class);
+        assertThat(streamsGotBack).hasSize(2);
     }
 
     @Test
