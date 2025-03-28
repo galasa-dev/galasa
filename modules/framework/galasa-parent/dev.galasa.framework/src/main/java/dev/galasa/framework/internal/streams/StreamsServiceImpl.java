@@ -33,7 +33,7 @@ public class StreamsServiceImpl implements IStreamsService {
             streamsList = handleStreamProperties(TEST_STREAM_PREFIX);
 
         } catch (ConfigurationPropertyStoreException e) {
-            throw new StreamsException(e);
+            throw new StreamsException("Failed to get streams from the CPS", e);
         }
         return streamsList;
     }
@@ -54,7 +54,7 @@ public class StreamsServiceImpl implements IStreamsService {
             }
 
         } catch (ConfigurationPropertyStoreException e) {
-            throw new StreamsException(e);
+            throw new StreamsException("Failed to get a stream with the given name from the CPS", e);
         }
 
         return stream;

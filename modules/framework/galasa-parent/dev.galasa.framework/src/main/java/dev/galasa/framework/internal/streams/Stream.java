@@ -16,6 +16,8 @@ import dev.galasa.framework.spi.streams.StreamsException;
 
 public class Stream implements IStream {
 
+    private final StringValidator validator = new StringValidator();
+
     private String name;
     private String description;
     private URL mavenRepositoryUrl;
@@ -29,8 +31,9 @@ public class Stream implements IStream {
     }
 
     public void setName(String name) throws StreamsException {
-        if (name == null || name.isBlank()) {
-            throw new StreamsException("Stream name cannot be empty");
+        if (!validator.isAlphanumericWithDashesUnderscoresAndDots(name)) {
+            throw new StreamsException("Invalid stream name provided. "+
+                "Only alphanumeric (A-Z, a-z, 0-9), '.', '-', and '_' characters are permitted.");
         }
         this.name = name.trim();
     }
@@ -84,7 +87,7 @@ public class Stream implements IStream {
         return this.obrs;
     }
 
-    public void setObrsFromCommaSeparatedList(String commaSeparatedObrs) {
+    public void setObrsFromCommaSeparatedList(String commaSeparatedObrs) throws StreamsException {
         List<IOBR> formattedObrs = new ArrayList<>();
         if (commaSeparatedObrs != null && !commaSeparatedObrs.isBlank()) {
             for (String obrStr : commaSeparatedObrs.split(",")) {
