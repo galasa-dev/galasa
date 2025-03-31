@@ -9,6 +9,8 @@ dependencies {
     compileOnly project(':dev.galasa.framework.maven.repository.spi')
     implementation 'org.apache.maven:maven-repository-metadata'
     implementation 'org.codehaus.plexus:plexus-utils'
+
+    testImplementation(testFixtures(project(':dev.galasa.framework')))
 }
 
 // Note: These values are consumed by the parent build process
