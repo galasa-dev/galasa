@@ -30,9 +30,11 @@ public class Settings implements Runnable {
     private String            configMapName;
     private String            engineLabel                 = "none";
     private String            engineImage                 = "none";
-    private int               engineMemory                = 100;
-    private int               engineMemoryRequest         = 150;
-    private int               engineMemoryLimit           = 200;
+    private int               engineMemoryHeapSizeMi      = 150;
+    private int               engineMemoryRequestMi       = 150;
+    private int               engineMemoryLimitMi         = 200;
+    private int               engineCPURequestM           = 400;
+    private int               engineCPULimitM             = 1000;
     private String            nodeArch                    = "";
     private String            nodePreferredAffinity       = "";
     private String            nodeTolerations             = "";
@@ -149,9 +151,12 @@ public class Settings implements Runnable {
         this.maxEngines = updateProperty(configMapData, "max_engines", 1, this.maxEngines);
         this.engineLabel = updateProperty(configMapData, "engine_label", "k8s-standard-engine", this.engineLabel);
         this.engineImage = updateProperty(configMapData, "engine_image", "ghcr.io/galasa-dev/galasa-boot-embedded-amd64", this.engineImage);
-        this.engineMemory = updateProperty(configMapData, "engine_memory", 300, this.engineMemory);
-        this.engineMemoryRequest = updateProperty(configMapData, "engine_memory_request", engineMemory + 50, this.engineMemoryRequest);
-        this.engineMemoryLimit = updateProperty(configMapData, "engine_memory_limit", engineMemory + 100, this.engineMemoryLimit);
+
+        this.engineMemoryRequestMi = updateProperty(configMapData, "engine_memory_request", engineMemoryRequestMi, this.engineMemoryRequestMi);
+        this.engineMemoryLimitMi = updateProperty(configMapData, "engine_memory_limit", engineMemoryLimitMi, this.engineMemoryLimitMi);
+        this.engineCPURequestM = updateProperty(configMapData, "engine_cpu_request", engineCPURequestM, this.engineCPURequestM);
+        this.engineCPULimitM = updateProperty(configMapData, "engine_cpu_limit", engineCPULimitM, this.engineCPULimitM);
+
         this.nodeArch = updateProperty(configMapData, "node_arch", "", this.nodeArch);
         this.nodePreferredAffinity = updateProperty(configMapData, "galasa_node_preferred_affinity", "", this.nodePreferredAffinity);
         this.nodeTolerations = updateProperty(configMapData, "galasa_node_tolerations", "", this.nodeTolerations);
@@ -315,16 +320,24 @@ public class Settings implements Runnable {
         return this.engineImage;
     }
 
-    public int getEngineMemoryRequest() {
-        return this.engineMemoryRequest;
+    public int getEngineMemoryRequestMegabytes() {
+        return this.engineMemoryRequestMi;
     }
 
-    public int getEngineMemoryLimit() {
-        return this.engineMemoryLimit;
+    public int getEngineCPURequestM() {
+        return this.engineCPURequestM;
     }
 
-    public int getEngineMemory() {
-        return this.engineMemory;
+    public int getEngineMemoryLimitMegabytes() {
+        return this.engineMemoryLimitMi;
+    }
+
+    public int getEngineMemoryHeapSizeMegabytes() {
+        return this.engineMemoryHeapSizeMi;
+    }
+
+    public int getEngineCPULimitM() {
+        return this.engineCPULimitM;
     }
 
     public String getBootstrap() {
