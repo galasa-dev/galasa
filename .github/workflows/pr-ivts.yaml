@@ -51,8 +51,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.9
-          cache-disabled: true
-
+          gradle-home-cache-excludes: |
+            caches/modules-2/files-2.1/dev.galasa/**
+            
       # For any modules that were changed in this PR,
       # download their artifacts from this workflow run.
 

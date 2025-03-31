@@ -7,3 +7,4 @@ These are the OSGi way of packaging OSGi bundles together so that they can be lo
 ## Contributing
 
 To contribute to this module, take a look at the [Contributor's Guide](https://github.com/galasa-dev/galasa/blob/main/CONTRIBUTING.md).
+"this is for testing"
