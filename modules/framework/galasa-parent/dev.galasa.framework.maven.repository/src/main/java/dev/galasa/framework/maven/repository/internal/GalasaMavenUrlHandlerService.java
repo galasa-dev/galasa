@@ -208,7 +208,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         return null;
     }
 
-    private static URL retrieveSnapshot(URL repository, long lastupdated, Path localArtifact, Path localTimestamp,
+    private URL retrieveSnapshot(URL repository, long lastupdated, Path localArtifact, Path localTimestamp,
             String groupid, String artifactid, String version, String type) throws IOException {
 
         Path tempMetadata = getTempMetadata(repository, groupid, artifactid, version);
@@ -274,7 +274,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         return localArtifact.toUri().toURL();
     }
 
-    private static Path getTempMetadata(URL repository, String groupid, String artifactid, String version) throws IOException {
+    private Path getTempMetadata(URL repository, String groupid, String artifactid, String version) throws IOException {
       Path tempMetadata = Files.createTempFile("metadata", ".xml");
       try {
           URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version, "maven-metadata.xml");
@@ -309,15 +309,17 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         return null;
     }
 
-    private static boolean getArtifact(URL repository, Path localArtifact, String groupid, String artifactid,
+    private static final int FIVE_MINUTES_IN_MS_UNITS = 3000000;
+
+    private boolean getArtifact(URL repository, Path localArtifact, String groupid, String artifactid,
             String version) throws IOException {
         logger.debug("Checking " + repository);
 
         // *** Read the artifact
         URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version,
                 localArtifact.getFileName().toString());
-        int connectionTimeoutMilliSecs = 300000;
-        int readTimeoutMilliSecs = 300000;
+        int connectionTimeoutMilliSecs = FIVE_MINUTES_IN_MS_UNITS; 
+        int readTimeoutMilliSecs = FIVE_MINUTES_IN_MS_UNITS;
         logger.debug("Attempting to download " + urlRemoteFile+ 
                     " with connection timeout of "+Integer.toString(connectionTimeoutMilliSecs)+"ms "+
                     "and read timeout of "+Integer.toString(readTimeoutMilliSecs)+"ms "
@@ -329,7 +331,9 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         connection.setReadTimeout(readTimeoutMilliSecs);
 
         try {
+            logger.debug("Connecting now...");
             connection.connect();
+            logger.debug("Connected OK...");
             Files.copy(connection.getInputStream(), localArtifact, StandardCopyOption.REPLACE_EXISTING);
         } catch (FileNotFoundException e) {
             logger.trace("Release artifact "+ urlRemoteFile+" failed to download. File not found." );
@@ -345,25 +349,37 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         return true;
     }
 
-    private static URL buildArtifactUrl(URL repository, String groupid, String artifactid, String version,
+    public URL buildArtifactUrl(URL repository, String groupid, String artifactid, String version,
             String filename) throws IOException {
         String groupidDirectory = groupid.replaceAll("\\.", "/");
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(repository.toExternalForm());
-        stringBuilder.append("/");
+
+        appendSlashIfNotEndingInSlash(stringBuilder);
+
         stringBuilder.append(groupidDirectory);
-        stringBuilder.append("/");
+        appendSlashIfNotEndingInSlash(stringBuilder);
         stringBuilder.append(artifactid);
-        stringBuilder.append("/");
+        appendSlashIfNotEndingInSlash(stringBuilder);
         if (version != null) {
             stringBuilder.append(version);
-            stringBuilder.append("/");
         }
+        appendSlashIfNotEndingInSlash(stringBuilder);
         stringBuilder.append(filename);
 
         // *** Read the artifact
         return new URL(stringBuilder.toString());
+    }
+
+    /**
+     * Sometimes the obr location URL or other parts of the artifact location 
+     * may have a trailing slash already, in which case don't add another slash.
+     */
+    private void appendSlashIfNotEndingInSlash(StringBuilder stringBuilder) {
+        if( ! stringBuilder.toString().endsWith("/") ) {
+            stringBuilder.append("/");
+        }
     }
 
     private static String buildArtifactFilename(String artifactid, String version, String filename) {
