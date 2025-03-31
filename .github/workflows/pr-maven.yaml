@@ -93,7 +93,7 @@ jobs:
           path: |
             ~/.m2/repository
             !~/.m2/repository/dev/galasa/**
-          keys: cache-maven-${{ hashFiles('**/pom.xml') }} 
+          key: cache-maven-${{ hashFiles('**/pom.xml') }} 
           restore-keys: |
             cache-maven-
       

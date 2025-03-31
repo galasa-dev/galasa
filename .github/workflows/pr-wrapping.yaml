@@ -71,7 +71,7 @@ jobs:
           path: |
             ~/.m2/repository
             !~/.m2/repository/dev/galasa/**
-          keys: cache-wrapping-${{ hashFiles('**/pom.xml') }} 
+          key: cache-wrapping-${{ hashFiles('**/pom.xml') }} 
           restore-keys: |
             cache-wrapping-
 
