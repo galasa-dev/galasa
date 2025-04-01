@@ -28,10 +28,15 @@ public class TestImstmProperties {
 
     private static String NAMESPACE = "imstm";
     private static final String TAG = "tag";
+    private static final String TAG2 = "tag2";
     private static final String TAG_APPLID_LOWER = "tag_applid";
+    private static final String TAG2_APPLID_LOWER = "tag2_applid";
     private static final String TAG_APPLID = "TAG_APPLID";
+    private static final String TAG2_APPLID = "TAG2_APPLID";
     private static final String TAG_VERSION_TEXT = "1.2.3";
+    private static final String TAG2_VERSION_TEXT = "2.3.4";
     private static final ProductVersion TAG_VERSION = ProductVersion.v(1).r(2).m(3);
+    private static final ProductVersion TAG2_VERSION = ProductVersion.v(2).r(3).m(4);
     private static final String INVALID_VERSION_TEXT = "1.2.3.4";
     private static final String DEFAULT_TYPE = "DSE";
     private static final String TYPE_LOWER = "test_type";
@@ -77,6 +82,16 @@ public class TestImstmProperties {
     }
     
     @Test
+    public void testGetDseApplidDefined2() throws Exception {
+        Mockito.when(cps.getProperty("dse.tag." + TAG, "applid")).thenReturn(TAG_APPLID_LOWER);
+        Assert.assertEquals("Unexpected value returned from ImstmProperties.getDseApplid()", TAG_APPLID, properties.getDseApplid(TAG));
+
+        // A request for a different tag should NOT use the cached copy
+        Mockito.when(cps.getProperty("dse.tag." + TAG2, "applid")).thenReturn(TAG2_APPLID_LOWER);
+        Assert.assertEquals("Unexpected value returned from ImstmProperties.getDseApplid()", TAG2_APPLID, properties.getDseApplid(TAG2));
+    }
+    
+    @Test
     public void testGetDseApplidCpsException() throws Exception {
         Mockito.when(cps.getProperty("dse.tag." + TAG, "applid")).thenThrow(new ConfigurationPropertyStoreException());
         String expectedMessage = "Problem asking CPS for the DSE applid for tag " + TAG;
@@ -118,6 +133,16 @@ public class TestImstmProperties {
         Mockito.verify(cps).getProperty("dse.tag", "version", TAG);
         Assert.assertEquals("Unexpected value returned from ImstmProperties.getDseVersion()", TAG_VERSION, properties.getDseVersion(TAG));
         Mockito.verifyNoMoreInteractions(cps);
+    }
+    
+    @Test
+    public void testGetDseVersionDefined2() throws Exception {
+        Mockito.when(cps.getProperty("dse.tag", "version", TAG)).thenReturn(TAG_VERSION_TEXT);
+        Assert.assertEquals("Unexpected value returned from ImstmProperties.getDseVersion()", TAG_VERSION, properties.getDseVersion(TAG));
+
+        // A request for a second tag should NOT use a cached copy
+        Mockito.when(cps.getProperty("dse.tag", "version", TAG2)).thenReturn(TAG2_VERSION_TEXT);
+        Assert.assertEquals("Unexpected value returned from ImstmProperties.getDseVersion()", TAG2_VERSION, properties.getDseVersion(TAG2));
     }
     
     @Test
