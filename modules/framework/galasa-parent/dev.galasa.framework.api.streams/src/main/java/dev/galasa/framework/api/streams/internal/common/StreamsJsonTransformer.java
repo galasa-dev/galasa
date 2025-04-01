@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.api.streams.internal.common;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonArray;
@@ -22,19 +23,15 @@ public class StreamsJsonTransformer {
 
     public String getStreamsAsJsonString(List<IStream> listOfStreams, String baseServletUrl) {
 
-        JsonArray streamsArray = new JsonArray();
+        List<Stream> streams = new ArrayList<>();
         StreamsTransform streamsTransform = new StreamsTransform();
 
         for(IStream stream : listOfStreams) {
             Stream newStream = streamsTransform.createStreamBean(stream, baseServletUrl);
-            String streamJson = gson.toJson(newStream);
-            streamsArray.add(JsonParser.parseString(streamJson));
+            streams.add(newStream);
         }
 
-        JsonObject wrapper = new JsonObject();
-        wrapper.add("streams", streamsArray);
-
-        return gson.toJson(wrapper);
+        return gson.toJson(streams);
 
     }
 

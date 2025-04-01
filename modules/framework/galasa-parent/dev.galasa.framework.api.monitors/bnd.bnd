@@ -1,0 +1,5 @@
+-snapshot ${tstamp}
+Bundle-Name: Galasa API Monitors microservices
+Export-Package: !dev.galasa.framework.api.monitors.internal*;dev.galasa.framework.api.monitors*;
+Import-Package: dev.galasa.framework.api.common*,\
+                *

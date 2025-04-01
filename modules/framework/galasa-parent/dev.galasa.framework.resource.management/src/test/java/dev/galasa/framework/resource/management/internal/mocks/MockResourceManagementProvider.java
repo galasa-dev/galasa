@@ -12,15 +12,27 @@ import dev.galasa.framework.spi.ResourceManagerException;
 
 public class MockResourceManagementProvider implements IResourceManagementProvider {
 
+    private boolean isInitialised = false;
+    private boolean isStarted = false;
+
     @Override
     public boolean initialise(IFramework framework, IResourceManagement resourceManagement)
             throws ResourceManagerException {
-        throw new UnsupportedOperationException("Unimplemented method 'initialise'");
+        isInitialised = true;
+        return true;
     }
 
     @Override
     public void start() {
-        throw new UnsupportedOperationException("Unimplemented method 'start'");
+        isStarted = true;
+    }
+
+    public boolean isInitialised() {
+        return isInitialised;
+    }
+
+    public boolean isStarted() {
+        return isStarted;
     }
 
     @Override

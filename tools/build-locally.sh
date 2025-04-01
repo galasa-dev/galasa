@@ -62,6 +62,7 @@ Options are:
 --module <name> : The name of the module to start building from. Defaults to the first module in the build chain.
 --chain true/false/yes/no/y/n : Enables/disables the chaining of builds. Defaults to true.
 --docker : Enables the building of Docker images. If --docker is not provided, Docker images will not be built.
+--minikube : Primes a Docker registry for minikube to pull images from and pushes built Docker images to it.
 EOF
 }
 
@@ -117,6 +118,7 @@ function check_module_name_is_supported() {
 module_input="platform"
 chain_input="true"
 build_docker_flag=""
+is_setup_minikube_requested=""
 while [ "$1" != "" ]; do
     case $1 in
         -h | --help )   usage
@@ -132,6 +134,10 @@ while [ "$1" != "" ]; do
                         ;;
 
         --docker )      build_docker_flag="--docker"
+                        ;;
+
+        --minikube )    is_setup_minikube_requested="true"
+                        build_docker_flag="--docker"
                         ;;
 
         * )             error "Unexpected argument $1"
@@ -153,9 +159,18 @@ check_module_name_is_supported $module_input
 #-----------------------------------------------------------------------------------------  
 
 function clean_local_m2() {
-    h2 "Cleaning up mave .m2 results"
+    h2 "Cleaning up maven .m2 results"
     rm -fr ~/.m2/repository/dev/galasa/galasa*
     rm -fr ~/.m2/repository/dev/galasa/dev-galasa*
+}
+
+function run_minikube_setup() {
+    h1 "Running minikube docker registry setup script..."
+
+    ${BASEDIR}/setup-minikube-docker-registry.sh
+    rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to set up minikube docker registry. rc=$rc" ; exit 1 ; fi
+
+    success "Docker registry for minikube set up OK"
 }
 
 function build_module() {
@@ -284,5 +299,9 @@ function build_module() {
 
 clean_local_m2
 build_module $module_input $chain
+
+if [[ "${is_setup_minikube_requested}" == "true" ]]; then
+    run_minikube_setup
+fi
 
 ${BASEDIR}/detect-secrets.sh

@@ -5,18 +5,23 @@
  */
 package dev.galasa.framework.spi.streams;
 
+import java.net.URL;
+import java.util.List;
+
 public interface IStream {
 
     String getName();
 
     String getDescription();
 
-    String getMavenRepositoryUrl();
+    URL getMavenRepositoryUrl();
 
-    String getTestCatalogUrl();
+    URL getTestCatalogUrl();
 
-    String getObrLocation();
+    List<IOBR> getObrs();
 
-    boolean getIsEnabled();
+    boolean isEnabled();
+
+    void validate() throws StreamsException;
 
 }

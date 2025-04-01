@@ -1128,6 +1128,97 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
 ##################################################################################
+# Monitors API
+##################################################################################
+  /monitors:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getMonitors
+      summary: Get a list of Galasa Monitors available in the Galasa service
+      description: |
+        Returns a list of Galasa Monitors that have been created in this Galasa service.
+      tags:
+        - Monitors API
+      responses:
+        '200':
+          description: The Galasa Monitors available in this Galasa service
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GalasaMonitor'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /monitors/{monitorName}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+      - name: monitorName
+        in: path
+        description: The name of the Galasa monitor resource to manipulate
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Gets a monitor with the given name
+      description: |
+        Returns a Galasa monitor with the given name.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: getMonitorByName
+      tags:
+      - Monitors API
+      responses:
+        '200':
+          description: The monitor with the provided name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaMonitor'
+        '400':
+          $ref: "#/components/responses/BadRequest"
+    put:
+      operationId: setMonitorStatus
+      summary: Enables or disables the given Galasa monitor
+      description: |
+        Enables or disables the given Galasa monitor by scaling its associated Kubernetes deployment's replicas
+        to 1 when enabled, or 0 when disabled.
+      parameters:
+        - name: monitorName
+          in: path
+          description: The Galasa monitor that to be enabled or disabled.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: The setting to enable or disable the Galasa monitor
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGalasaMonitorRequest'
+      tags:
+        - Monitors API
+      responses:
+        '204':
+          description: The Galasa Monitor was successfully enabled or disabled
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+##################################################################################
 # OpenAPI API
 ##################################################################################
   /openapi:
@@ -2440,6 +2531,55 @@ components:
           description: The fully-qualified property name, including the 'namespace'.
         value:
           type: string
+    GalasaMonitor:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+          description: The API version associated with the GalasaMonitor resource type
+        kind:
+          type: string
+          enum: [GalasaResourceCleanupMonitor]
+        metadata:
+          type: object
+          description: General metadata information about the GalasaMonitor resource
+          properties:
+            name:
+              type: string
+              description: The name of the GalasaMonitor
+            description:
+              type: string
+              description: A description associated with the GalasaMonitor
+        data:
+          type: object
+          description: The data property contains the configuration of the GalasaMonitor
+          properties:
+            isEnabled:
+              type: boolean
+              description: Indicates whether or not the GalasaMonitor is enabled
+            resourceCleanupData:
+              type: object
+              description: Configuration associated with the resource cleanup functions of the GalasaMonitor
+              properties:
+                stream:
+                  type: string
+                  description: |
+                    Optional. The test stream containing resource monitor bundles for the GalasaMonitor to pull in.
+                    By default, the resource management bundles in the dev.galasa.uber.obr bundle will be included.
+                filters:
+                  type: object
+                  description: The filters to apply before loading bundles for the GalasaMonitor to use
+                  properties:
+                    includes:
+                      type: array
+                      description: A comma-separated list of glob patterns representing the bundles that the GalasaMonitor should load
+                      items:
+                        type: string
+                    excludes:
+                      type: array
+                      description: A comma-separated list of glob patterns representing the bundles that the GalasaMonitor should not load
+                      items:
+                        type: string
     GalasaProperty:
       type: object
       properties:
@@ -2684,6 +2824,15 @@ components:
           type: object
         trace:
           type: boolean
+    UpdateGalasaMonitorRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            isEnabled:
+              type: boolean
+              description: A boolean value that represents whether the Galasa monitor should be enabled or disabled.
     UpdateRunStatusRequest:
       type: object
       properties:

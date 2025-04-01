@@ -3,13 +3,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.internal.runner;
+package dev.galasa.framework;
 
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.osgi.framework.BundleContext;
 
-import dev.galasa.framework.BundleManagement;
-import dev.galasa.framework.IBundleManager;
 import dev.galasa.framework.spi.FrameworkException;
 
 public class BundleManager implements IBundleManager {

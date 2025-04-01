@@ -6,7 +6,6 @@
 package dev.galasa.framework.mocks;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,29 +20,36 @@ import org.osgi.framework.InvalidSyntaxException;
 
 public class MockRepositoryAdmin implements RepositoryAdmin {
 
-    private List<URL> repositoryUrls = new ArrayList<>();
     private Resolver resolver ;
 
-    private Map<String,Repository> repoisotoryURLMap = new HashMap<String,Repository>();
+    private Map<String,Repository> repositoryURLMap = new HashMap<String,Repository>();
 
     public MockRepositoryAdmin(List<Repository> repositories, Resolver resolver) {
         for( Repository repo : repositories) {
             String key = repo.getURI().toString();
-            repoisotoryURLMap.put(key,repo);
+            repositoryURLMap.put(key,repo);
         }
         this.resolver = resolver;
     }
 
     @Override
+    public Repository[] listRepositories() {
+        return repositoryURLMap.values().toArray(new Repository[0]);
+    }
+
+    @Override
     public Repository addRepository(String repository) throws Exception {
-        this.repositoryUrls.add(new URL(repository));
-        return repoisotoryURLMap.get(repository);
+        MockRepository mockRepository = new MockRepository(repository);
+        this.repositoryURLMap.put(repository, mockRepository);
+        return repositoryURLMap.get(repository);
     }
 
     @Override
     public Repository addRepository(URL repositoryUrl) throws Exception {
-        this.repositoryUrls.add(repositoryUrl);
-        return repoisotoryURLMap.get(repositoryUrl.toString());
+        String repositoryUrlStr = repositoryUrl.toString();
+        MockRepository mockRepository = new MockRepository(repositoryUrlStr);
+        this.repositoryURLMap.put(repositoryUrlStr, mockRepository);
+        return repositoryURLMap.get(repositoryUrlStr);
     }
 
     @Override
@@ -71,11 +77,6 @@ public class MockRepositoryAdmin implements RepositoryAdmin {
     @Override
     public boolean removeRepository(String repository) {
         throw new UnsupportedOperationException("Unimplemented method 'removeRepository'");
-    }
-
-    @Override
-    public Repository[] listRepositories() {
-        throw new UnsupportedOperationException("Unimplemented method 'listRepositories'");
     }
 
     @Override

@@ -171,7 +171,8 @@ public class Launcher {
                 felixFramework.runTest(bootstrapProperties, overridesProperties);
             } else if (isResourceManagement) {
                 logger.debug("Resource Management");
-                felixFramework.runResourceManagement(bootstrapProperties, overridesProperties, bundles, metrics, health);
+                ResourceManagementConfiguration resourceManagementConfig = new ResourceManagementConfiguration(env);
+                felixFramework.runResourceManagement(bootstrapProperties, overridesProperties, bundles, metrics, health, resourceManagementConfig);
             } else if (isK8sController) {
                 logger.debug("Kubernetes Controller");
                 felixFramework.runK8sController(bootstrapProperties, overridesProperties, bundles, metrics, health);

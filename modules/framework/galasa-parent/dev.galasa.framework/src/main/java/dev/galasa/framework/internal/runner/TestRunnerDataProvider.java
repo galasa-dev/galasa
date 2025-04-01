@@ -7,6 +7,7 @@ package dev.galasa.framework.internal.runner;
 
 import java.util.Properties;
 
+import dev.galasa.framework.BundleManager;
 import dev.galasa.framework.FileSystem;
 import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.GalasaFactory;

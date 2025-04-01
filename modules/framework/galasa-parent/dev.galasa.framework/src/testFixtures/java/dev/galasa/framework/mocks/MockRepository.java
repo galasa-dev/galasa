@@ -5,15 +5,20 @@
  */
 package dev.galasa.framework.mocks;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.Resource;
 
 public class MockRepository implements Repository {
 
-    private String uri ;
+    private String uri;
+    private List<Resource> resources;
 
     public MockRepository(String uri) {
         this.uri = uri;
+        this.resources = new ArrayList<>();
     }
 
     @Override
@@ -23,7 +28,11 @@ public class MockRepository implements Repository {
 
     @Override
     public Resource[] getResources() {
-        throw new UnsupportedOperationException("Unimplemented method 'getResources'");
+        return this.resources.toArray(new Resource[0]);
+    }
+
+    public void addResource(Resource resource) {
+        this.resources.add(resource);
     }
 
     @Override

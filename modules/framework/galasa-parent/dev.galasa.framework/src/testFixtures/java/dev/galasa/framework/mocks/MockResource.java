@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.mocks;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.felix.bundlerepository.Capability;
@@ -14,7 +15,9 @@ import org.osgi.framework.Version;
 
 public class MockResource implements Resource {
     
-     String uri;
+     private String uri;
+     private String symbolicName;
+     private List<Capability> capabilities;
 
      public MockResource(String uri) {
           this.uri = uri ;
@@ -23,6 +26,24 @@ public class MockResource implements Resource {
      @Override
      public String getURI() {
           return this.uri;
+     }
+
+     @Override
+     public String getSymbolicName() {
+          return this.symbolicName;
+     }
+
+     public void setSymbolicName(String symbolicName) {
+          this.symbolicName = symbolicName;
+     }
+
+     @Override
+     public Capability[] getCapabilities() {
+          return this.capabilities.toArray(new Capability[0]);
+     }
+
+     public void setCapabilities(List<Capability> capabilities) {
+          this.capabilities = capabilities;
      }
 
     // -------------- un-implemented methods follow --------------------------
@@ -36,11 +57,6 @@ public class MockResource implements Resource {
     @Override
     public String getId() {
          throw new UnsupportedOperationException("Unimplemented method 'getId'");
-    }
-
-    @Override
-    public String getSymbolicName() {
-         throw new UnsupportedOperationException("Unimplemented method 'getSymbolicName'");
     }
 
     @Override
@@ -61,11 +77,6 @@ public class MockResource implements Resource {
     @Override
     public String[] getCategories() {
          throw new UnsupportedOperationException("Unimplemented method 'getCategories'");
-    }
-
-    @Override
-    public Capability[] getCapabilities() {
-         throw new UnsupportedOperationException("Unimplemented method 'getCapabilities'");
     }
 
     @Override

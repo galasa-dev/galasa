@@ -34,4 +34,10 @@ public class EnvironmentVariables {
      * A comma-separated list of allowed origins that the API server is permitted to respond to.
      */
     public static final String GALASA_ALLOWED_ORIGINS = "GALASA_ALLOWED_ORIGINS";
+
+    /**
+     * The Kubernetes namespace that the Galasa service is running within so that the API server can query
+     * Kubernetes resources, like deployments for monitors, that are available in its namespace.
+     */
+    public static final String GALASA_KUBERNETES_NAMESPACE = "NAMESPACE";
 }

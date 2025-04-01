@@ -206,6 +206,15 @@ api:
     isolated:     false
     codecoverage: false
 
+  - artifact: dev.galasa.framework.api.monitors
+    version: 0.41.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
   - artifact: dev.galasa.framework.api.openapi
     version: 0.41.0
     obr:          true

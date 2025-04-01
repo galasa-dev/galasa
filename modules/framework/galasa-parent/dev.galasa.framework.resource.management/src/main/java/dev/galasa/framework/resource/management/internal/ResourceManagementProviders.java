@@ -6,7 +6,9 @@
 package dev.galasa.framework.resource.management.internal;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +35,8 @@ public class ResourceManagementProviders {
         IFramework framework , 
         IConfigurationPropertyStoreService cps, 
         BundleContext bundleContext,
-        IResourceManagement resourceManagement
+        IResourceManagement resourceManagement,
+        MonitorConfiguration monitorConfig
     ) throws FrameworkException {
 
         try {
@@ -43,28 +46,56 @@ public class ResourceManagementProviders {
                 logger.info("No additional Resource Manager providers have been found");
             } else {
 
-                for (final ServiceReference<?> rmpReference : rmpServiceReference) {
+                Set<IResourceManagementProvider> providersToInitialise = getResourceManagementProviders(bundleContext, rmpServiceReference);
+                providersToInitialise = filterResourceManagementProviders(monitorConfig.getFilter(), providersToInitialise);
 
-                    final IResourceManagementProvider rmpStoreRegistration = (IResourceManagementProvider) bundleContext
-                            .getService(rmpReference);
+                for (IResourceManagementProvider provider : providersToInitialise) {
                     try {
-                        if (rmpStoreRegistration.initialise(framework, resourceManagement)) {
+                        if (provider.initialise(framework, resourceManagement)) {
                             logger.info(
-                                    "Found Resource Management Provider " + rmpStoreRegistration.getClass().getName());
-                            resourceManagementProviders.add(rmpStoreRegistration);
+                                    "Found Resource Management Provider " + provider.getClass().getName());
+                            resourceManagementProviders.add(provider);
                         } else {
-                            logger.info("Resource Management Provider " + rmpStoreRegistration.getClass().getName()
+                            logger.info("Resource Management Provider " + provider.getClass().getName()
                                     + " opted out of this Resource Management run");
                         }
                     } catch (Exception e) {
                         logger.error("Failed initialisation of Resource Management Provider "
-                                + rmpStoreRegistration.getClass().getName() + " ignoring", e);
+                                + provider.getClass().getName() + " ignoring", e);
                     }
                 }
             }
         } catch (Exception e) {
             throw new FrameworkException("Problem during Resource Manager initialisation", e);
         }
+    }
+
+    private Set<IResourceManagementProvider> getResourceManagementProviders(
+        BundleContext bundleContext,
+        ServiceReference<?>[] serviceReferences
+    ) {
+        Set<IResourceManagementProvider> foundProviders = new HashSet<>();
+        for (final ServiceReference<?> serviceReference : serviceReferences) {
+            IResourceManagementProvider provider = (IResourceManagementProvider) bundleContext.getService(serviceReference);
+            foundProviders.add(provider);
+        }
+        return foundProviders;
+    }
+
+    private Set<IResourceManagementProvider> filterResourceManagementProviders(
+        ClassNameFilter filter,
+        Set<IResourceManagementProvider> providers
+    ) {
+        Set<IResourceManagementProvider> providersToInclude = new HashSet<>();
+
+        for (IResourceManagementProvider provider : providers) {
+            String monitorClassName = provider.getClass().getCanonicalName();
+            if (filter.isClassAcceptedByFilter(monitorClassName)) {
+                providersToInclude.add(provider);
+            }
+        }
+
+        return providersToInclude;
     }
 
     public void shutdown() {

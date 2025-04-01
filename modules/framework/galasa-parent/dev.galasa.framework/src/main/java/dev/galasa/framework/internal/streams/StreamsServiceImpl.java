@@ -33,7 +33,7 @@ public class StreamsServiceImpl implements IStreamsService {
             streamsList = handleStreamProperties(TEST_STREAM_PREFIX);
 
         } catch (ConfigurationPropertyStoreException e) {
-            throw new StreamsException(e);
+            throw new StreamsException("Failed to get streams from the CPS", e);
         }
         return streamsList;
     }
@@ -54,14 +54,14 @@ public class StreamsServiceImpl implements IStreamsService {
             }
 
         } catch (ConfigurationPropertyStoreException e) {
-            throw new StreamsException(e);
+            throw new StreamsException("Failed to get a stream with the given name from the CPS", e);
         }
 
         return stream;
 
     }
 
-    private Stream createStreamFromProperties(String streamName, Map<String, String> streamProperties) {
+    private Stream createStreamFromProperties(String streamName, Map<String, String> streamProperties) throws StreamsException {
         Stream streamBean = new Stream();
         streamBean.setName(streamName);
 
@@ -73,7 +73,7 @@ public class StreamsServiceImpl implements IStreamsService {
                     streamBean.setDescription(value);
                     break;
                 case "obr":
-                    streamBean.setObrLocation(value);
+                    streamBean.setObrsFromCommaSeparatedList(value);
                     break;
                 case "location":
                     streamBean.setTestCatalogUrl(value);
@@ -86,7 +86,7 @@ public class StreamsServiceImpl implements IStreamsService {
         return streamBean;
     }
 
-    private List<IStream> handleStreamProperties(String testStreamPrefix) throws ConfigurationPropertyStoreException {
+    private List<IStream> handleStreamProperties(String testStreamPrefix) throws ConfigurationPropertyStoreException, StreamsException {
         List<IStream> streamsList = new ArrayList<>();
 
         Map<String, String> testStreamProperties = cpsService.getPrefixedProperties(testStreamPrefix);
