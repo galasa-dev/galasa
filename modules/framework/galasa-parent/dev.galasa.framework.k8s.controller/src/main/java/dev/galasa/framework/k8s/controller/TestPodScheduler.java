@@ -352,6 +352,11 @@ public class TestPodScheduler implements Runnable {
 
         ArrayList<String> args = new ArrayList<>();
         container.setArgs(args);
+
+        if (settings.getEngineMemoryHeapSizeMegabytes() != 0 ) {
+            args.add("-Xmx:"+Integer.toString(settings.getEngineMemoryHeapSizeMegabytes())+"m");
+        }
+        
         args.add("-jar");
         args.add("boot.jar");
         args.add("--obr");
