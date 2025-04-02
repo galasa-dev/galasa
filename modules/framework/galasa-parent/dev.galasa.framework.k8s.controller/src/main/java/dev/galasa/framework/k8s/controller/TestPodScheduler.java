@@ -340,6 +340,7 @@ public class TestPodScheduler implements Runnable {
         return tolerationsList;
     }
 
+
     private V1Container createTestContainer(String runName, String engineName, boolean isTraceEnabled) {
         V1Container container = new V1Container();
         container.setName("engine");
@@ -350,24 +351,8 @@ public class TestPodScheduler implements Runnable {
         container.setCommand(commands);
         commands.add("java");
 
-        ArrayList<String> args = new ArrayList<>();
+        ArrayList<String> args = createCommandLineArgs(settings, runName, isTraceEnabled);
         container.setArgs(args);
-
-        if (settings.getEngineMemoryHeapSizeMegabytes() != 0 ) {
-            args.add("-Xmx:"+Integer.toString(settings.getEngineMemoryHeapSizeMegabytes())+"m");
-        }
-        
-        args.add("-jar");
-        args.add("boot.jar");
-        args.add("--obr");
-        args.add("file:galasa.obr");
-        args.add("--bootstrap");
-        args.add(settings.getBootstrap());
-        args.add("--run");
-        args.add(runName);
-        if (isTraceEnabled) {
-            args.add("--trace");
-        }
 
         V1ResourceRequirements resources = new V1ResourceRequirements();
         container.setResources(resources);
@@ -395,6 +380,30 @@ public class TestPodScheduler implements Runnable {
         container.setVolumeMounts(createTestContainerVolumeMounts());
         container.setEnv(createTestContainerEnvVariables());
         return container;
+    }
+
+    // This method is protected so we can easily unit test it.
+    protected ArrayList<String> createCommandLineArgs(Settings settings, String runName, boolean isTraceEnabled) {
+        
+        ArrayList<String> args = new ArrayList<>();
+        
+        // Set the max heap size for the test pod...
+        if (settings.getEngineMemoryHeapSizeMegabytes() != 0 ) {
+            args.add("-Xmx:"+Integer.toString(settings.getEngineMemoryHeapSizeMegabytes())+"m");
+        }
+
+        args.add("-jar");
+        args.add("boot.jar");
+        args.add("--obr");
+        args.add("file:galasa.obr");
+        args.add("--bootstrap");
+        args.add(settings.getBootstrap());
+        args.add("--run");
+        args.add(runName);
+        if (isTraceEnabled) {
+            args.add("--trace");
+        }
+        return args ;
     }
 
     private List<V1Volume> createTestPodVolumes() {

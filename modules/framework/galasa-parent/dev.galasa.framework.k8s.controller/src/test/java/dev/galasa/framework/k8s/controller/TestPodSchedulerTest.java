@@ -333,4 +333,41 @@ public class TestPodSchedulerTest {
     public void clearCounters() {
         CollectorRegistry.defaultRegistry.clear();
     }
+
+    public static final boolean TRACE_IS_ENABLED = true;
+
+    @Test
+    public void testMaxHeapSizeGetsSet() throws Exception {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        MockK8sController controller = new MockK8sController();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(new ArrayList<>());
+
+        V1ConfigMap mockConfigMap = createMockConfigMap();
+        MockSettings settings = new MockSettings(mockConfigMap, controller, null);
+        settings.init();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns);
+
+        // When...
+        ArrayList<String> args = podScheduler.createCommandLineArgs(settings, "myRunName", TRACE_IS_ENABLED);
+
+        // Then...
+        assertThat(args).containsOnly(
+        "-Xmx:150m",
+                "-jar",
+                "boot.jar", 
+                "--obr",
+                "file:galasa.obr",
+                "--bootstrap",
+                "http://my.server/bootstrap",
+                "--run",
+                "myRunName",
+                "--trace"
+        );
+
+    }
 }
