@@ -62,4 +62,3 @@ For more information on running tests locally or remotely with `galasactl`, see 
 ## How to contribute to this module
 
 Take a look at the [Contributor's Guide](https://github.com/galasa-dev/galasa/blob/main/CONTRIBUTING.md).
-"this is for testing"

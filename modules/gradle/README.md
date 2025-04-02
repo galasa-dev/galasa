@@ -153,4 +153,3 @@ See the notes at the top of the script for a list of environment variables which
 ## How to contribute to this module
 
 Take a look at the [Contributor's Guide](https://github.com/galasa-dev/galasa/blob/main/CONTRIBUTING.md).
-"this is for testing"
