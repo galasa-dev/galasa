@@ -52,9 +52,11 @@ public class ResourceManagementRunWatch  {
 
     public void shutdown() {
         logger.debug("ResourceManagementRunWatch: shutdown() entered.");
-        try {
-            this.watcher.stopWatching();
-        } catch (DynamicStatusStoreException e) {
+        if (this.watcher != null) {
+            try {
+                this.watcher.stopWatching();
+            } catch (DynamicStatusStoreException e) {
+            }
         }
         logger.debug("ResourceManagementRunWatch: shutdown() exiting.");
     }
