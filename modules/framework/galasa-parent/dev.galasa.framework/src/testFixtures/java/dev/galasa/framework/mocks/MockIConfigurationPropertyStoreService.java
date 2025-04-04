@@ -51,7 +51,7 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public void deleteProperty(@NotNull String name) throws ConfigurationPropertyStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'deleteProperty'");
+        this.properties.remove(name);
     }
 
     @Override

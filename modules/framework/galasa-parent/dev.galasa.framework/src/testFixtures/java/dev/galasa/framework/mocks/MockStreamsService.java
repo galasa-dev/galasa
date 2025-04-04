@@ -55,4 +55,17 @@ public class MockStreamsService implements IStreamsService {
 
     }
 
+    @Override
+    public void deleteStream(String streamName) throws StreamsException {
+        if(throwException) {
+            throwStreamsException();
+        }
+
+        for (IStream stream : streams) {
+            if (stream.getName().equals(streamName)) {
+                streams.remove(stream);
+            }
+        }
+    }
+
 }

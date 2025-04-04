@@ -20,9 +20,16 @@ public interface IStreamsService {
     /**
      * Returns a test stream stored in the Configuration Property Store (CPS) with a matching name.
      *
-     * @return a stream stored in the Configuration Property Store (CPS) with a matching na,e.
+     * @return a stream stored in the Configuration Property Store (CPS) with a matching name.
      * @throws StreamsException if there is an issue accessing the CPS.
      */
     IStream getStreamByName(String streamName) throws StreamsException;
+
+    /**
+     * Deletes a test stream stored in the Configuration Property Store (CPS) with a matching name.
+     *
+     * @throws StreamsException if there is an issue accessing the CPS.
+     */
+    void deleteStream(String streamName) throws StreamsException;
     
 }

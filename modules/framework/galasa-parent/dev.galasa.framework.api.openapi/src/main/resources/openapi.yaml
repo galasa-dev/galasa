@@ -531,6 +531,49 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         '500':
           $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteStreamByName
+      summary: Deletes a stream based on its name. 
+      tags:
+      - Streams API
+      parameters:
+        - name: streamName
+          in: path
+          description: Stream name of the stream to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The delete operation worked. The user is now deleted.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                missingparametererror:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occurred when trying to execute request '/streams'. Check your request parameters or report the problem to your Galasa Ecosystem owner."
+                  summary: One or more required query parameters are missing                
+        '404':
+          description: The delete operation failed. The record was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runiderror:
+                  value:
+                    error_code: 5420
+                    error_message: "GAL5420E: Error getting stream"
+                  summary: An Error occurred when trying to get a stream using the given stream name.
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
 ##################################################################################
 # CPS API

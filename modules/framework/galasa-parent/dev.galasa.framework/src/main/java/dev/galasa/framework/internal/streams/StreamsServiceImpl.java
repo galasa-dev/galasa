@@ -120,4 +120,23 @@ public class StreamsServiceImpl implements IStreamsService {
 
         return streamsList;
     }
+
+    @Override
+    public void deleteStream(String streamName) throws StreamsException {
+        
+        String testStreamPrefix = TEST_STREAM_PREFIX + streamName + ".";
+        try {
+            // Get all the properties with the streamName
+            Map<String, String> testStreamProperties = cpsService.getPrefixedProperties(testStreamPrefix);
+
+            for (Map.Entry<String,String> entry : testStreamProperties.entrySet()) {
+                // Delete all the properties
+                cpsService.deleteProperty(entry.getKey());
+            }
+
+        } catch (ConfigurationPropertyStoreException e) {
+            e.printStackTrace();
+        }
+        
+    }
 }

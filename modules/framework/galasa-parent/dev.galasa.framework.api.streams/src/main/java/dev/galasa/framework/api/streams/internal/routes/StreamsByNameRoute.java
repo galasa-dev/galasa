@@ -58,12 +58,7 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
 
         String streamName = getStreamName(pathInfo);
 
-        IStream stream = streamsService.getStreamByName(streamName);
-
-        if (stream == null) {
-            ServletError error = new ServletError(GAL5420_ERROR_STREAM_NOT_FOUND);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-        }
+        IStream stream = validateAndGetStream(streamName);
 
         Stream streamsBean = streamsTransform.createStreamBean(stream, baseServletUrl);
         String payloadContent = gson.toJson(streamsBean);
@@ -72,9 +67,38 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
                 HttpServletResponse.SC_OK);
     }
 
+    @Override
+    public HttpServletResponse handleDeleteRequest(
+        String pathInfo,
+        HttpRequestContext requestContext,
+        HttpServletResponse response
+    ) throws FrameworkException {
+
+        logger.info("handleDeleteRequest() entered");
+        HttpServletRequest request = requestContext.getRequest();
+
+        String streamName = getStreamName(pathInfo);
+
+        validateAndGetStream(streamName);
+        
+        streamsService.deleteStream(streamName);
+
+        logger.info("handleDeleteRequest() exiting");
+        return getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_NO_CONTENT);
+    }
+
     private String getStreamName(String urlPath) throws InternalServletException {
         StreamsUrlParameterExtractor parser = new StreamsUrlParameterExtractor(pathPattern);
         return parser.getStreamName(urlPath);
+    }
+
+    private IStream validateAndGetStream(String streamName) throws InternalServletException, FrameworkException {
+        IStream stream = streamsService.getStreamByName(streamName);
+        if (stream == null) {
+            ServletError error = new ServletError(GAL5420_ERROR_STREAM_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+        return stream;
     }
 
 }
