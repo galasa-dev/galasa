@@ -18,7 +18,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import dev.galasa.zos3270.IDatastreamListener;
 import dev.galasa.zos3270.IDatastreamListener.DatastreamDirection;
 import dev.galasa.zos3270.TerminalInterruptedException;
 import dev.galasa.zos3270.internal.datastream.AbstractCommandCode;
@@ -116,6 +115,8 @@ public class NetworkThread extends Thread {
 
     private ByteArrayOutputStream    commandSoFar;
 
+    private SSCPLUDataTransform sscpLuDataTransform;
+
     public NetworkThread(Terminal terminal, Screen screen, Network network, InputStream inputStream) {
         this(terminal, screen, network, inputStream, null);
     }
@@ -125,6 +126,7 @@ public class NetworkThread extends Thread {
         this.network = network;
         this.inputStream = inputStream;
         this.terminal = terminal;
+        this.sscpLuDataTransform = new SSCPLUDataTransform(screen);
 
         if (deviceTypes == null || deviceTypes.isEmpty()) {
             this.possibleDeviceTypes.add("IBM-DYNAMIC");
@@ -203,20 +205,32 @@ public class NetworkThread extends Thread {
                 return;
             }
 
+            // 3270 datastream headers consist of 5 bytes in the following format:
+            // -----------------------------------------------------------
+            //   DATA-TYPE | REQUEST-FLAG | RESPONSE-FLAG |  SEQ-NUMBER  
+            //    1 byte        1 byte         1 byte         2 bytes
+            // -----------------------------------------------------------
+            // This advances through the message buffer to skip the header bytes after DATA-TYPE.
+            buffer.get(new byte[4]);
+            
+            Inbound3270Message inbound3270Message = null;
             if (tn3270eHeader == DT_SSCP_LU_DATA) {
                 logger.trace("SSCP_LU_DATA received");
                 logger.trace("Received message header: " + reportCommandSoFar());
-                logger.trace("Received message buffer: " + Hex.encodeHexString(buffer));
-                return;
-            }
+                logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
 
-            if (tn3270eHeader != DT_3270_DATA) {
+                // Convert the SSCP-LU-DATA datastream into a 3270 message
+                // This makes the assumption that SSCP-LU-DATA datastreams are unformatted and do not
+                // contain any special command codes or orders that are in normal 3270 datastreams.
+                // The resulting 3270 message will only contain text and newline orders.
+                inbound3270Message = this.sscpLuDataTransform.processSSCPLUData(buffer);
+
+            } else if (tn3270eHeader == DT_3270_DATA) {
+                inbound3270Message = process3270Data(buffer);
+            } else {
                 throw new NetworkException("Was expecting a TN3270E datastream header of zeros - " + reportCommandSoFar());
             }
 
-            buffer.get(new byte[4]);
-
-            Inbound3270Message inbound3270Message = process3270Data(buffer);
             this.screen.processInboundMessage(inbound3270Message);
         }
     }
@@ -835,16 +849,8 @@ public class NetworkThread extends Thread {
 
     public Inbound3270Message process3270Data(ByteBuffer buffer) throws NetworkException {
 
-        if (logger.isTraceEnabled() || !this.screen.getDatastreamListeners().isEmpty()) {
-            String hex = new String(Hex.encodeHex(buffer.array()));
-            if (logger.isTraceEnabled()) {
-                logger.trace("inbound=" + hex);
-            }
-
-            for(IDatastreamListener listener : this.screen.getDatastreamListeners()) {
-                listener.datastreamUpdate(DatastreamDirection.INBOUND, hex);
-            }
-        }
+        String inboundHex = new String(Hex.encodeHex(buffer.array()));
+        screen.setDatastreamListenersDirection(inboundHex, DatastreamDirection.INBOUND);
 
         AbstractCommandCode commandCode = AbstractCommandCode.getCommandCode(buffer.get());
         if (commandCode instanceof CommandWriteStructured) {
