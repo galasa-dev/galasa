@@ -1,0 +1,43 @@
+{{/*
+	This template expects the following parameters:
+
+	type ParentGradleParameters struct {
+		Coordinates GradleCoordinates
+
+		IsOBRRequired    bool
+		ObrName          string
+		ChildModuleNames []string
+		IsDevelopment    bool
+	}
+ */}}
+
+
+// Tell gradle where it should look to find the plugins and dependencies it needs to build.
+pluginManagement {
+    repositories {
+        mavenLocal()
+
+        {{- if .IsDevelopment }}
+        // To use the bleeding edge version of galasa's obr plugin, use the development obr
+        maven {
+            url 'https://development.galasa.dev/main/maven-repo/obr'
+        }
+        {{- else }}
+        // To use the bleeding edge version of galasa's obr plugin, use the development obr
+        // maven {
+        //    url 'https://development.galasa.dev/main/maven-repo/obr'
+        // }
+        {{- end }}
+
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+// Tell gradle to build the sub-projects in child folders
+{{- range $componentName := .ChildModuleNames }}
+include '{{ $componentName }}'
+{{- end }}
+{{- if .IsOBRRequired }}
+include '{{ .ObrName }}'
+{{- end }}

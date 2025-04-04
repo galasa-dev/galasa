@@ -1,0 +1,45 @@
+bin/
+vendor/
+
+
+
+p*.yaml
+r*.yaml
+r*.json
+r*.xml
+junit.xml
+.vscode/
+tools/
+build/
+.idea/
+
+# The temporary file we use for build-FV tests locally.
+temp/
+run.sh
+
+# Mac metadata files on a desktop.
+**/.DS_Store
+.DS_Store
+
+# Ignore Gradle project-specific cache directory
+.gradle
+.dependencies
+
+# Ignore Gradle build output directory
+build
+
+# Don't check-in the boot jar which is embedded in local builds.
+pkg/embedded/templates/lib/
+**/*.jar
+
+pkg/embedded/templates/version/
+pkg/embedded/templates/version/build.properties
+
+# The galasaapi package is generated.
+pkg/galasaapi/
+
+*.directory
+.attach_pid807
+
+# Don't check-in certificates
+*.der
