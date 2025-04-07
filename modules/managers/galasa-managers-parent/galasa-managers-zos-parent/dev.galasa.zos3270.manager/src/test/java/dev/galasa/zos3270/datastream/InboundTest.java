@@ -7,6 +7,8 @@ package dev.galasa.zos3270.datastream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
@@ -50,5 +52,40 @@ public class InboundTest {
 
         // Then...
         assertThat(screen.printScreen()).contains("SQLTIMES", "[0]", "[1]", "[2]");
+    }
+
+    @Test
+    public void testSscpLuDataStreamRendersOK() throws Exception {
+
+        // Given...        
+        Charset codePage = Charset.forName("1047");
+        String mockScreenText = "\n"+
+            "*** WELCOME TO SIMBANK TERMINAL ID = ABC123 \n"+
+            "********* This is a welcome message. Hello world!\n"+
+            " ===> ";
+
+        String ebcdicScreen = Hex.encodeHexString(mockScreenText.getBytes(codePage));
+        String sscpLuDataHeader = "0700000000";
+        String iacEor = Hex.encodeHexString(new byte[]{ NetworkThread.IAC, NetworkThread.EOR });
+
+        String inboundDataStream = sscpLuDataHeader + ebcdicScreen + iacEor;
+        byte[] inboundAsBytes = Hex.decodeHex(inboundDataStream);
+
+        Network network = new Network("here", 1, "a");
+
+        TerminalSize terminalSize = new TerminalSize(80, 24);
+        Screen screen = new Screen(terminalSize, new TerminalSize(0, 0), network, codePage);
+
+        NetworkThread networkThread = new NetworkThread(null, screen, null, null);
+
+        InputStream inputStream = new ByteArrayInputStream(inboundAsBytes);
+        
+        // When...
+        networkThread.processMessage(inputStream);
+        String screenStr = screen.printScreen();
+        System.out.println(screenStr);
+
+        // Then...
+        assertThat(screenStr).contains("WELCOME TO SIMBANK", "\n");
     }
 }
