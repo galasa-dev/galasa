@@ -186,15 +186,19 @@ public class TestClassWrapper {
         // Run @BeforeClass methods
         for (GenericMethodWrapper beforeClassMethod : beforeClassMethods) {
             beforeClassMethod.invoke(managers, this.testClassObject, null);
+            // Set the result so far after every @BeforeClass method
+            Result beforeClassMethodResult = beforeClassMethod.getResult();
+            setResult(beforeClassMethodResult, managers);
             if (beforeClassMethod.fullStop()) {
                 setResult(Result.failed("BeforeClass method failed"), managers);
                 break;
             }
         }
 
-        if (getResult() == null) {
-            // Run test methods
-
+        // Proceed with the @Test methods only if the result is null (there were no @BeforeClass methods) OR
+        // the result is not a full stop (i.e. a failed or env failed result).
+        if (getResult() == null || !getResult().isFullStop()) {
+            // Run @Test methods
             try {
                 dss.put("run." + runName + ".method.total", Integer.toString(this.testMethods.size()));
 
@@ -204,40 +208,31 @@ public class TestClassWrapper {
                     dss.put("run." + runName + ".method.current", Integer.toString(actualMethod));
                     dss.put("run." + runName + ".method.name", testMethod.getName());
                     // Run @Test method
-                    testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure);
+                    testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure, this);
+                    // Setting the result so far after every @Test 
+                    // method happens inside the testMethod class.
                     if (testMethod.fullStop()) {
                         break;
                     }
                 }
-
-                for (TestMethodWrapper testMethod : this.testMethods) {
-                    Result testMethodResult = testMethod.getResult();
-                    if (testMethodResult != null && testMethodResult.isFailed()) {
-                        setResult(Result.failed("A Test failed"), managers);
-                        break;
-                    }
-                }
-
-                if (getResult() == null) {
-                    setResult(Result.passed(),managers);
-                }
-                
                 dss.delete("run." + runName + ".method.name");
                 dss.delete("run." + runName + ".method.total");
                 dss.delete("run." + runName + ".method.current");
             } catch (DynamicStatusStoreException e) {
                 throw new TestRunException("Failed to update the run status", e);
-            }     
+            }
         }
 
-        setResult(getResult(), managers);
 
         // Run @AfterClass methods
         for (GenericMethodWrapper afterClassMethod : afterClassMethods) {
             afterClassMethod.invoke(managers, this.testClassObject, null);
+            // Set the result so far after every @AfterClass method
+            Result afterClassMethodResult = afterClassMethod.getResult();
+            setResult(afterClassMethodResult, managers);
             if (afterClassMethod.fullStop()) {
                 if (getResult() == null) {
-                    setResult( Result.failed("AfterClass method failed") , managers );
+                    setResult(Result.failed("AfterClass method failed"), managers);
                 }
             }
         }
@@ -363,6 +358,14 @@ public class TestClassWrapper {
     }
 
     protected void setResult(@Null Result newResult, @Null ITestRunManagers managers) {
+        // If the result is already full stop (i.e. a failed or env failed result),
+        // do not update the result again after this. The test methods can proceed,
+        // if ContinueOnTestFailure is specified, but the result should stay as failed,
+        // or it could accidentally get changed back to passed.
+        if (getResult() != null && getResult().isFullStop()){
+            return;
+        }
+
         if (newResult != null) {
             String from;
             if (this.resultData == null) {
@@ -370,7 +373,7 @@ public class TestClassWrapper {
             } else {
                 from = this.resultData.getName();
             }
-            logger.info("Result in test structure changed from " + from + " to " + newResult.getName());
+            logger.info("Result in test class wrapper changed from " + from + " to " + newResult.getName());
             
             this.resultData = newResult;
             if (managers != null ) {
