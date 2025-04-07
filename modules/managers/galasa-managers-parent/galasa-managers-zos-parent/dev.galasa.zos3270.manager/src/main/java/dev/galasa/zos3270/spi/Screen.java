@@ -808,6 +808,7 @@ public class Screen {
             }
 
             // Replace newline characters with spaces until the end of the row
+            // to display the rest of the screen correctly
             if (currentBufferStr.equals("\n")) {
                 String screenLineBreak = " ".repeat(this.columns - currentColumn);
                 sb.append(screenLineBreak);

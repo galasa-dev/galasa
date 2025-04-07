@@ -5,12 +5,15 @@
  */
 package dev.galasa.zos3270.terminal;
 
+import static org.assertj.core.api.Assertions.*;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import org.junit.Assert;
@@ -23,6 +26,7 @@ import dev.galasa.zos3270.internal.comms.NetworkThread;
 import dev.galasa.zos3270.internal.datastream.AbstractOrder;
 import dev.galasa.zos3270.internal.datastream.BufferAddress;
 import dev.galasa.zos3270.internal.datastream.CommandEraseWrite;
+import dev.galasa.zos3270.internal.datastream.CommandWrite;
 import dev.galasa.zos3270.internal.datastream.CommandWriteStructured;
 import dev.galasa.zos3270.internal.datastream.OrderInsertCursor;
 import dev.galasa.zos3270.internal.datastream.OrderRepeatToAddress;
@@ -38,6 +42,94 @@ import dev.galasa.zos3270.spi.Screen;
 import dev.galasa.zos3270.util.Zos3270TestBase;
 
 public class ScreenTest extends Zos3270TestBase {
+
+    @Test
+    public void testPrintScreenRendersScreenCorrectly() throws Exception {
+        // Given...
+        String screenText = "Hello world!";
+        int columns = screenText.length();
+        int rows = 1;
+
+        Screen screen = CreateTestScreen(columns, rows, null);
+        ArrayList<AbstractOrder> orders = new ArrayList<>();
+
+        Charset codePage = Charset.forName("1047");
+        orders.add(new OrderText(screenText, codePage));
+
+        WriteControlCharacter writeControlCharacter = new WriteControlCharacter();
+        Inbound3270Message inboundMessage = new Inbound3270Message(new CommandWrite(), writeControlCharacter, orders);
+        
+        // When...
+        screen.processInboundMessage(inboundMessage);
+        String printedScreen = screen.printScreen();
+
+        // Then...
+        assertThat(printedScreen).isEqualTo(screenText + "\n");
+    }
+
+    @Test
+    public void testPrintScreenWithNewlinesRendersScreenCorrectly() throws Exception {
+        // Given...
+        int columns = 28;
+        int rows = 2;
+        Screen screen = CreateTestScreen(columns, rows, null);
+        ArrayList<AbstractOrder> orders = new ArrayList<>();
+
+        Charset codePage = Charset.forName("1047");
+        String firstRowText = "Hello world!";
+        String secondRowText = "This should be on a new line";
+        String screenText = firstRowText + "\n" + secondRowText;
+
+        orders.add(new OrderText(screenText, codePage));
+
+        WriteControlCharacter writeControlCharacter = new WriteControlCharacter();
+        Inbound3270Message inboundMessage = new Inbound3270Message(new CommandWrite(), writeControlCharacter, orders);
+        
+        // When...
+        screen.processInboundMessage(inboundMessage);
+        String printedScreen = screen.printScreen();
+
+        // Then...
+        String expectedSpacesOnFirstRow = " ".repeat(columns - firstRowText.length());
+        String expectedScreenText = firstRowText + expectedSpacesOnFirstRow + "\n" + secondRowText + "\n";
+        assertThat(printedScreen).isEqualTo(expectedScreenText);
+    }
+
+    @Test
+    public void testPrintScreenWithCursorRendersScreenCorrectly() throws Exception {
+        // Given...
+        int columns = 28;
+        int rows = 2;
+        Network network = new Network("host", 123, "terminalId");
+        Screen screen = CreateTestScreen(columns, rows, network);
+        ArrayList<AbstractOrder> orders = new ArrayList<>();
+
+        Charset codePage = Charset.forName("1047");
+        String firstRowText = "Hello world!";
+        String secondRowText = "This should be on a new line";
+        String screenText = firstRowText + "\n" + secondRowText;
+
+        orders.add(new OrderText(screenText, codePage));
+
+        boolean unlockKeyboard = true;
+        WriteControlCharacter writeControlCharacter = new WriteControlCharacter(false, false, false, false, false, false, unlockKeyboard, false);
+        Inbound3270Message inboundMessage = new Inbound3270Message(new CommandWrite(), writeControlCharacter, orders);
+        
+        // When...
+        screen.processInboundMessage(inboundMessage);
+        screen.cursorDown();
+        screen.cursorRight();
+        String printedScreen = screen.printScreenTextWithCursor();
+
+        // Then...
+        String expectedScreen =
+            "=|Hello world!                |\n"+
+            "=|This should be on a new line|\n"+
+            "^| ^\n"+
+            "!| Disconnected-Plain Size=2x28 Cursor=29,2x1 Keyboard Unlocked\n";
+
+        assertThat(printedScreen).isEqualTo(expectedScreen);
+    }
 
     @Test
     public void testScreenSize() throws TerminalInterruptedException {
