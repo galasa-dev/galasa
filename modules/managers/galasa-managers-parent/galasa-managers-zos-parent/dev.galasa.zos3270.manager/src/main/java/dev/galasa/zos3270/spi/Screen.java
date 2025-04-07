@@ -797,7 +797,6 @@ public class Screen {
 
     private String buildRawScreenStringFromBuffer() {
         StringBuilder sb = new StringBuilder();
-        int currentColumn = 0;
         for (int i = 0; i < this.buffer.length; i++) {
             IBufferHolder currentBufferHolder = this.buffer[i];
             String currentBufferStr = null;
@@ -807,16 +806,7 @@ public class Screen {
                 currentBufferStr = currentBufferHolder.getStringWithoutNulls();
             }
 
-            // Replace newline characters with spaces until the end of the row
-            // to display the rest of the screen correctly
-            if (currentBufferStr.equals("\n")) {
-                String screenLineBreak = " ".repeat(this.columns - currentColumn);
-                sb.append(screenLineBreak);
-                currentColumn = 0;
-            } else {
-                sb.append(currentBufferStr);
-                currentColumn++;
-            }
+            sb.append(currentBufferStr);
         }
 
         return sb.toString();

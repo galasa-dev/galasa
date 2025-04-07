@@ -28,6 +28,8 @@ public class SSCPLUDataTransform {
 
     private Screen screen;
 
+    private static final byte NEWLINE_BYTE = 0x15;
+
     public SSCPLUDataTransform(Screen screen) {
         this.screen = screen;
     }
@@ -46,7 +48,7 @@ public class SSCPLUDataTransform {
         if (!buffer.hasRemaining()) {
             messageToReturn = new Inbound3270Message(null, null, null);
         } else {
-            
+
             // SSCP-LU-DATA datastreams don't seem to have a write control character,
             // so make a basic one that keeps the keyboard unlocked...
             boolean unlockKeyboard = true;
@@ -61,7 +63,7 @@ public class SSCPLUDataTransform {
                 false
             );
 
-            // The display screen in an SSCP-LU session is unformatted, so just 
+            // The display screen in an SSCP-LU session is unformatted, so just
             // convert the datastream into a list of 3270 text orders
             List<AbstractOrder> orders = convertToTextOrders(buffer, codePage);
             messageToReturn = new Inbound3270Message(null, writeControlCharacter, orders);
@@ -72,14 +74,35 @@ public class SSCPLUDataTransform {
 
     private List<AbstractOrder> convertToTextOrders(ByteBuffer buffer, Charset codePage) throws DatastreamException {
         List<AbstractOrder> orders = new ArrayList<>();
+        int charsOnCurrentRowSoFar = 0;
         while (buffer.remaining() > 0) {
             byte currentByte = buffer.get();
 
             OrderText orderText = new OrderText(codePage);
             orders.add(orderText);
 
-            orderText.append(currentByte);
+            if (currentByte == NEWLINE_BYTE) {
+                // The rest of the current row of text needs to be filled with spaces
+                addEndOfRowSpacesToTextOrder(codePage, charsOnCurrentRowSoFar, orderText);
+                charsOnCurrentRowSoFar = 0;
+
+            } else {
+                orderText.append(currentByte);
+                charsOnCurrentRowSoFar++;
+            }
         }
         return orders;
+    }
+
+    private void addEndOfRowSpacesToTextOrder(Charset codePage, int charsOnCurrentRowSoFar, OrderText orderText) {
+        // Get a space character as a byte based on the given codepage encoding
+        byte spaceByte = codePage.encode(" ").array()[0];
+
+        // Fill the text order with blanks until the end of the current row
+        int spacesNeeded = screen.getNoOfColumns() - charsOnCurrentRowSoFar;
+        while (spacesNeeded != 0) {
+            orderText.append(spaceByte);
+            spacesNeeded--;
+        }
     }
 }

@@ -68,18 +68,16 @@ public class ScreenTest extends Zos3270TestBase {
     }
 
     @Test
-    public void testPrintScreenWithNewlinesRendersScreenCorrectly() throws Exception {
+    public void testPrintScreenWithMultipleRowsRendersScreenCorrectly() throws Exception {
         // Given...
-        int columns = 28;
-        int rows = 2;
+        String screenText = "1st2nd3rd";
+        int columns = 3;
+        int rows = 3;
+
         Screen screen = CreateTestScreen(columns, rows, null);
         ArrayList<AbstractOrder> orders = new ArrayList<>();
 
         Charset codePage = Charset.forName("1047");
-        String firstRowText = "Hello world!";
-        String secondRowText = "This should be on a new line";
-        String screenText = firstRowText + "\n" + secondRowText;
-
         orders.add(new OrderText(screenText, codePage));
 
         WriteControlCharacter writeControlCharacter = new WriteControlCharacter();
@@ -90,24 +88,25 @@ public class ScreenTest extends Zos3270TestBase {
         String printedScreen = screen.printScreen();
 
         // Then...
-        String expectedSpacesOnFirstRow = " ".repeat(columns - firstRowText.length());
-        String expectedScreenText = firstRowText + expectedSpacesOnFirstRow + "\n" + secondRowText + "\n";
-        assertThat(printedScreen).isEqualTo(expectedScreenText);
+        String expectedScreen =
+            "1st\n"+
+            "2nd\n"+
+            "3rd\n";
+        assertThat(printedScreen).isEqualTo(expectedScreen);
     }
 
     @Test
     public void testPrintScreenWithCursorRendersScreenCorrectly() throws Exception {
         // Given...
-        int columns = 28;
-        int rows = 2;
+        String screenText = "1st   2nd   3rd";
+        int columns = 6;
+        int rows = 3;
+
         Network network = new Network("host", 123, "terminalId");
         Screen screen = CreateTestScreen(columns, rows, network);
         ArrayList<AbstractOrder> orders = new ArrayList<>();
 
         Charset codePage = Charset.forName("1047");
-        String firstRowText = "Hello world!";
-        String secondRowText = "This should be on a new line";
-        String screenText = firstRowText + "\n" + secondRowText;
 
         orders.add(new OrderText(screenText, codePage));
 
@@ -123,10 +122,11 @@ public class ScreenTest extends Zos3270TestBase {
 
         // Then...
         String expectedScreen =
-            "=|Hello world!                |\n"+
-            "=|This should be on a new line|\n"+
+            "=|1st   |\n"+
+            "=|2nd   |\n"+
             "^| ^\n"+
-            "!| Disconnected-Plain Size=2x28 Cursor=29,2x1 Keyboard Unlocked\n";
+            "=|3rd   |\n"+
+            "!| Disconnected-Plain Size=3x6 Cursor=7,2x1 Keyboard Unlocked\n";
 
         assertThat(printedScreen).isEqualTo(expectedScreen);
     }
