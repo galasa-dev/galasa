@@ -46,7 +46,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'semeru'
-          # cache: 'maven'
 
       # For any modules that were changed in this PR,
       # download their artifacts from this workflow run.
@@ -87,6 +86,16 @@ jobs:
           path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
+      
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/dev/galasa/**
+          key: cache-maven-${{ hashFiles('**/pom.xml') }} 
+          restore-keys: |
+            cache-maven-
       
       - name: Building Maven source code
         working-directory: modules/maven

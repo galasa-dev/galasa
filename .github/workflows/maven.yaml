@@ -48,7 +48,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'semeru'
-          # cache: 'maven'
 
       # Copy secrets into files to use in workflow
       - name: Make secrets directory
@@ -97,6 +96,16 @@ jobs:
         with:
           name: gradle
           path: modules/artifacts
+      
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/dev/galasa/**
+          key: cache-maven-${{ hashFiles('**/pom.xml') }} 
+          restore-keys: |
+            cache-maven-
 
       - name: Build Maven source code
         working-directory: modules/maven

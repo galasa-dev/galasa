@@ -10,7 +10,6 @@ We're adding new Manager every month. Look at the [summary table of Managers](ht
 If you are interested in the development of Galasa, take a look at the documentation and feel free to post a question on the <a href="https://join.slack.com/t/galasa/shared_invite/zt-ele2ic8x-VepEO1o13t4Jtb3ZuM4RUA" target="_blank"> Galasa Slack channel</a>, or start sharing usage and development experiences with other Galasa users and the IBM team. You can also raise new ideas / features / bugs etc. as issues on [GitHub](https://github.com/galasa-dev/projectmanagement).  
 
 Take a look at the [contribution guidelines](https://github.com/galasa-dev/projectmanagement/blob/main/contributing.md) and the [Contributor's Guide](https://github.com/galasa-dev/galasa/blob/main/CONTRIBUTING.md).
- 
 
 ## Documentation
 More information can be found on the [Galasa Homepage](https://galasa.dev). Questions related to the usage of Galasa can be posted on the [Galasa Slack channel](https://galasa.slack.com).

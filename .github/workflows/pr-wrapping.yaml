@@ -46,7 +46,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'semeru'
-          # cache: 'maven'
 
       - name: Download platform from this workflow
         id: download-platform
@@ -65,6 +64,16 @@ jobs:
           path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/dev/galasa/**
+          key: cache-wrapping-${{ hashFiles('**/pom.xml') }} 
+          restore-keys: |
+            cache-wrapping-
 
       - name: Building Wrapping source code
         working-directory: modules/wrapping

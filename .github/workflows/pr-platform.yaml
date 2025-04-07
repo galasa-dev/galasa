@@ -42,13 +42,13 @@ jobs:
         with:
           java-version: '17'
           distribution: 'semeru'
-          # cache: 'gradle'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.9
-          cache-disabled: true
+          gradle-home-cache-excludes: |
+            caches/modules-2/files-2.1/dev.galasa/**
 
       - name: Build Platform
         working-directory: modules/platform

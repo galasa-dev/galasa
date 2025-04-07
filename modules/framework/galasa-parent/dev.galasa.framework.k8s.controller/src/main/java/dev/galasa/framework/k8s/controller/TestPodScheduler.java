@@ -29,6 +29,7 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SystemEnvironment;
 import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
+import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Affinity;
@@ -339,6 +340,7 @@ public class TestPodScheduler implements Runnable {
         return tolerationsList;
     }
 
+
     private V1Container createTestContainer(String runName, String engineName, boolean isTraceEnabled) {
         V1Container container = new V1Container();
         container.setName("engine");
@@ -349,8 +351,47 @@ public class TestPodScheduler implements Runnable {
         container.setCommand(commands);
         commands.add("java");
 
-        ArrayList<String> args = new ArrayList<>();
+        ArrayList<String> args = createCommandLineArgs(settings, runName, isTraceEnabled);
         container.setArgs(args);
+
+        V1ResourceRequirements resources = new V1ResourceRequirements();
+        container.setResources(resources);
+
+        logger.info("requests=" + Integer.toString(this.settings.getEngineMemoryRequestMegabytes()) + "Mi");
+        resources.putRequestsItem("memory", new Quantity( Integer.toString(this.settings.getEngineMemoryRequestMegabytes()) + "Mi"));
+
+        logger.info("limit=" + Integer.toString(this.settings.getEngineMemoryLimitMegabytes()) + "Mi");
+        resources.putLimitsItem("memory", new Quantity(Integer.toString(this.settings.getEngineMemoryLimitMegabytes()) + "Mi"));
+
+        if (this.settings.getEngineCPURequestM() <= 0) {
+            logger.info("No requested CPU requirements set");
+        } else {
+            logger.info("requests=" + Integer.toString(this.settings.getEngineCPURequestM()) + "m");
+            resources.putRequestsItem("cpu", new Quantity( Integer.toString(this.settings.getEngineCPURequestM()) + "m"));
+        }
+
+        if (this.settings.getEngineCPULimitM() <= 0 ) {
+            logger.info("No maximum CPU requirements set");
+        } else {
+            logger.info("limit=" + Integer.toString(this.settings.getEngineCPULimitM()) + "m");
+            resources.putLimitsItem("cpu", new Quantity( Integer.toString(this.settings.getEngineCPULimitM()) + "m"));
+        }
+
+        container.setVolumeMounts(createTestContainerVolumeMounts());
+        container.setEnv(createTestContainerEnvVariables());
+        return container;
+    }
+
+    // This method is protected so we can easily unit test it.
+    protected ArrayList<String> createCommandLineArgs(Settings settings, String runName, boolean isTraceEnabled) {
+        
+        ArrayList<String> args = new ArrayList<>();
+        
+        // Set the max heap size for the test pod...
+        if (settings.getEngineMemoryHeapSizeMegabytes() != 0 ) {
+            args.add("-Xmx:"+Integer.toString(settings.getEngineMemoryHeapSizeMegabytes())+"m");
+        }
+
         args.add("-jar");
         args.add("boot.jar");
         args.add("--obr");
@@ -362,23 +403,7 @@ public class TestPodScheduler implements Runnable {
         if (isTraceEnabled) {
             args.add("--trace");
         }
-
-        V1ResourceRequirements resources = new V1ResourceRequirements();
-        container.setResources(resources);
-
-        // TODO reinstate
-        // System.out.println("requests=" +
-        // Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi");
-        // System.out.println("limit=" +
-        // Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi");
-        // resources.putRequestsItem("memory", new
-        // Quantity(Integer.toString(this.settings.getEngineMemoryRequest()) + "Mi"));
-        // resources.putLimitsItem("memory", new
-        // Quantity(Integer.toString(this.settings.getEngineMemoryLimit()) + "Mi"));
-
-        container.setVolumeMounts(createTestContainerVolumeMounts());
-        container.setEnv(createTestContainerEnvVariables());
-        return container;
+        return args ;
     }
 
     private List<V1Volume> createTestPodVolumes() {
@@ -425,7 +450,7 @@ public class TestPodScheduler implements Runnable {
         // "galasa_maven_helper_repo"));
         //
         // envs.add(createValueEnv("GALASA_ENGINE_TYPE", engineLabel));
-        envs.add(createValueEnv("MAX_HEAP", Integer.toString(this.settings.getEngineMemory()) + "m"));
+        envs.add(createValueEnv("MAX_HEAP", Integer.toString(this.settings.getEngineMemoryHeapSizeMegabytes()) + "m"));
         envs.add(createValueEnv(RAS_TOKEN_ENV, env.getenv(RAS_TOKEN_ENV)));
         envs.add(createValueEnv(EVENT_TOKEN_ENV, env.getenv(EVENT_TOKEN_ENV)));
         envs.add(createValueEnv(ENCRYPTION_KEYS_PATH_ENV, env.getenv(ENCRYPTION_KEYS_PATH_ENV)));
