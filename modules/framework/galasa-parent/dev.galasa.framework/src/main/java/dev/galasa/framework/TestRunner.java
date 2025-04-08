@@ -227,7 +227,7 @@ public class TestRunner extends BaseTestRunner {
         // *** time for things like jenkins and other run requesters to obtain the
         // result and RAS id before
         // *** deleting, default is to keep the automation run properties for 5 minutes
-        if (!markedWaiting) {
+        if (this.run.isLocal() && !markedWaiting) {
             deleteRunProperties(this.framework);
         }
 
