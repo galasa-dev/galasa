@@ -278,7 +278,9 @@ public class Screen {
                     throw new DatastreamException("Unrecognised Buffer Holder - " + bh.getClass().getName());
                 }
             }
-            writeTrace(outboundBuffer);
+            String outboundHex = new String(Hex.encodeHex(outboundBuffer.toByteArray()));
+            setDatastreamListenersDirection(outboundHex, DatastreamDirection.OUTBOUND);
+
             this.network.sendDatastream(outboundBuffer.toByteArray());
         } catch(Exception e) {
             throw new DatastreamException("Error whilst processing READ BUFFER", e);
@@ -286,19 +288,17 @@ public class Screen {
 
     }
 
-    private void writeTrace(ByteArrayOutputStream outboundBuffer) {
-        if (logger.isTraceEnabled() || !this.datastreamListeners.isEmpty()) {
-            String hex = new String(Hex.encodeHex(outboundBuffer.toByteArray()));
-            if (logger.isTraceEnabled()) {
-                logger.trace("outbound=" + hex);
-            }
+    public void setDatastreamListenersDirection(String datastreamHex, DatastreamDirection direction) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(direction.toString() + "=" + datastreamHex);
+        }
 
-            for(IDatastreamListener listener : this.datastreamListeners) {
-                listener.datastreamUpdate(DatastreamDirection.OUTBOUND, hex);
-            }
+        for (IDatastreamListener listener : this.datastreamListeners) {
+            listener.datastreamUpdate(direction, datastreamHex);
         }
     }
 
+    
     private synchronized void processReadModified(boolean all) throws DatastreamException {
         try {
             ByteArrayOutputStream outboundBuffer = new ByteArrayOutputStream();
@@ -316,7 +316,10 @@ public class Screen {
 
                 readModifiedBuffer(outboundBuffer);
             }
-            writeTrace(outboundBuffer);
+
+            String outboundHex = new String(Hex.encodeHex(outboundBuffer.toByteArray()));
+            setDatastreamListenersDirection(outboundHex, DatastreamDirection.OUTBOUND);
+
             this.network.sendDatastream(outboundBuffer.toByteArray());
         } catch(Exception e) {
             throw new DatastreamException("Error whilst processing READ BUFFER", e);
@@ -792,18 +795,26 @@ public class Screen {
 
     }
 
-    public String printScreen() {
+    private String buildRawScreenStringFromBuffer() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < this.buffer.length; i++) {
-            if (this.buffer[i] == null) {
-                sb.append(" ");
+            IBufferHolder currentBufferHolder = this.buffer[i];
+            String currentBufferStr = null;
+            if (currentBufferHolder == null) {
+                currentBufferStr = " ";
             } else {
-                sb.append(this.buffer[i].getStringWithoutNulls());
+                currentBufferStr = currentBufferHolder.getStringWithoutNulls();
             }
+
+            sb.append(currentBufferStr);
         }
 
+        return sb.toString();
+    }
+
+    public String printScreen() {
         StringBuilder screenSB = new StringBuilder();
-        String screenString = sb.toString();
+        String screenString = buildRawScreenStringFromBuffer();
         for (int i = 0; i < this.screenSize; i += this.columns) {
             screenSB.append(screenString.substring(i, i + this.columns));
             screenSB.append('\n');
@@ -815,17 +826,8 @@ public class Screen {
         int cursorRow = screenCursor / columns;
         int cursorCol = screenCursor % columns;
 
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < this.buffer.length; i++) {
-            if (this.buffer[i] == null) {
-                sb.append(" ");
-            } else {
-                sb.append(this.buffer[i].getStringWithoutNulls());
-            }
-        }
-
         StringBuilder screenSB = new StringBuilder();
-        String screenString = sb.toString();
+        String screenString = buildRawScreenStringFromBuffer();
         int row = 0;
         for (int i = 0; i < this.screenSize; i += this.columns) {
             screenSB.append("=|");
@@ -1823,7 +1825,9 @@ public class Screen {
                 outboundBuffer.write(cursor.getCharRepresentation());
                 readModifiedBuffer(outboundBuffer);
             }
-            writeTrace(outboundBuffer);
+
+            String outboundHex = new String(Hex.encodeHex(outboundBuffer.toByteArray()));
+            setDatastreamListenersDirection(outboundHex, DatastreamDirection.OUTBOUND);
 
             for (IScreenUpdateListener listener : updateListeners) {
                 listener.screenUpdated(Direction.SENDING, aid);
