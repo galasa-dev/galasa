@@ -172,7 +172,7 @@ public class TestClassWrapper {
      * 
      * @throws TestRunException
      */
-    public void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
+    public void runMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
 
         logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of test class "
                 + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
@@ -184,58 +184,17 @@ public class TestClassWrapper {
         }
 
         // Run @BeforeClass methods
-        for (GenericMethodWrapper beforeClassMethod : beforeClassMethods) {
-            beforeClassMethod.invoke(managers, this.testClassObject, null);
-            // Set the result so far after every @BeforeClass method
-            Result beforeClassMethodResult = beforeClassMethod.getResult();
-            setResult(beforeClassMethodResult, managers);
-            if (beforeClassMethod.fullStop()) {
-                setResult(Result.failed("BeforeClass method failed"), managers);
-                break;
-            }
-        }
+        runGenericMethods(managers, beforeClassMethods);
 
         // Proceed with the @Test methods only if the result is null (there were no @BeforeClass methods) OR
         // the result is not a full stop (i.e. a failed or env failed result).
         if (getResult() == null || !getResult().isFullStop()) {
             // Run @Test methods
-            try {
-                dss.put("run." + runName + ".method.total", Integer.toString(this.testMethods.size()));
-
-                int actualMethod = 0;
-                for (TestMethodWrapper testMethod : this.testMethods) {
-                    actualMethod++;
-                    dss.put("run." + runName + ".method.current", Integer.toString(actualMethod));
-                    dss.put("run." + runName + ".method.name", testMethod.getName());
-                    // Run @Test method
-                    testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure, this);
-                    // Setting the result so far after every @Test 
-                    // method happens inside the testMethod class.
-                    if (testMethod.fullStop()) {
-                        break;
-                    }
-                }
-                dss.delete("run." + runName + ".method.name");
-                dss.delete("run." + runName + ".method.total");
-                dss.delete("run." + runName + ".method.current");
-            } catch (DynamicStatusStoreException e) {
-                throw new TestRunException("Failed to update the run status", e);
-            }
+            runTestMethods(managers, dss, runName);
         }
-
 
         // Run @AfterClass methods
-        for (GenericMethodWrapper afterClassMethod : afterClassMethods) {
-            afterClassMethod.invoke(managers, this.testClassObject, null);
-            // Set the result so far after every @AfterClass method
-            Result afterClassMethodResult = afterClassMethod.getResult();
-            setResult(afterClassMethodResult, managers);
-            if (afterClassMethod.fullStop()) {
-                if (getResult() == null) {
-                    setResult(Result.failed("AfterClass method failed"), managers);
-                }
-            }
-        }
+        runGenericMethods(managers, afterClassMethods);
 
         try {
             Result newResult = managers.endOfTestClass(getResult(), null); // TODO pass the class level exception
@@ -259,6 +218,60 @@ public class TestClassWrapper {
         logger.trace("Finishing Test Class structure:-" + report);
 
         return;
+    }
+
+    /**
+     * Run generic methods. These are methods annotated with @BeforeClass or @AfterClass.
+     * The result is set in this test class wrapper at the end of every generic method.
+     * @param managers
+     * @param genericMethods
+     * @throws TestRunException
+     */
+    private void runGenericMethods(@NotNull ITestRunManagers managers, ArrayList<GenericMethodWrapper> genericMethods) throws TestRunException {
+        for (GenericMethodWrapper genericMethod : genericMethods) {
+            genericMethod.invoke(managers, this.testClassObject, null);
+            // Set the result so far after every generic method
+            Result beforeClassMethodResult = genericMethod.getResult();
+            setResult(beforeClassMethodResult, managers);
+            if (genericMethod.fullStop()) {
+                setResult(Result.failed(genericMethod.getType().toString() + " method failed"), managers);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Run the test methods. These are methods annotated with @Test.
+     * The result is set in this test class wrapper from the
+     * test method wrapper after each @Test method.
+     * @param managers
+     * @param dss
+     * @param runName
+     * @throws TestRunException
+     */
+    private void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
+        try {
+            dss.put("run." + runName + ".method.total", Integer.toString(this.testMethods.size()));
+
+            int actualMethod = 0;
+            for (TestMethodWrapper testMethod : this.testMethods) {
+                actualMethod++;
+                dss.put("run." + runName + ".method.current", Integer.toString(actualMethod));
+                dss.put("run." + runName + ".method.name", testMethod.getName());
+                // Run @Test method
+                testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure, this);
+                // Setting the result so far after every @Test 
+                // method happens inside the testMethod class.
+                if (testMethod.fullStop()) {
+                    break;
+                }
+            }
+            dss.delete("run." + runName + ".method.name");
+            dss.delete("run." + runName + ".method.total");
+            dss.delete("run." + runName + ".method.current");
+        } catch (DynamicStatusStoreException e) {
+            throw new TestRunException("Failed to update the run status", e);
+        }
     }
 
     /**

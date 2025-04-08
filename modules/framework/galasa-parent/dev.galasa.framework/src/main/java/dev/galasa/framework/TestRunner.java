@@ -481,7 +481,7 @@ public class TestRunner extends BaseTestRunner {
                 updateStatus(TestRunLifecycleStatus.RUNNING, null);
                 try {
                     logger.info("Running the test class");
-                    testClassWrapper.runTestMethods(managers, dss, runName);
+                    testClassWrapper.runMethods(managers, dss, runName);
                 } finally {
                     updateStatus(TestRunLifecycleStatus.RUNDONE, null);
                 }
