@@ -10,5 +10,5 @@ description = 'Galasa Core Manager IVTs'
 // What are the dependencies of the test code ? 
 // When more managers and dependencies are added, this list will need to grow.
 dependencies {
-    implementation 'dev.galasa:dev.galasa.core.manager'
+    implementation 'dev.galasa:dev.galasa.core.manager:0.41.0'
 }
