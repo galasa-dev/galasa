@@ -175,7 +175,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: OUTPUT MANAGERS ARTIFACTS REPO AFTER
-        working-directory: modules/managers/repo
+        working-directory: modules/managers/repo/dev/galasa
         run: |
           ls -a
 

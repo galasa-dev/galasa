@@ -300,7 +300,7 @@ jobs:
           echo $(git log -1 --pretty=format:"%H" -- "modules/obr") > modules/obr/obr.githash
 
       - name: OUTPUT OBR ARTIFACTS REPO AFTER
-        working-directory: modules/obr/repo
+        working-directory: modules/obr/repo/dev/galasa
         run: |
           ls -a
 
