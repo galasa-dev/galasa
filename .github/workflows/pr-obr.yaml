@@ -299,6 +299,18 @@ jobs:
           echo $(git log -1 --pretty=format:"%H" -- "modules/managers") > modules/obr/managers.githash
           echo $(git log -1 --pretty=format:"%H" -- "modules/obr") > modules/obr/obr.githash
 
+      - name: OUTPUT OBR ARTIFACTS REPO BEFORE
+        working-directory: modules/obr/repo/dev/galasa
+        run: |
+          ls -a
+
+      - name: Copy OBR artifacts for upload
+        working-directory: modules/obr/repo/dev/galasa
+        run: |
+          mkdir -p ../tmp && mv dev.galasa.uber.obr galasa-bom ../tmp/
+          rm -rf ./*
+          mv ../tmp/dev.galasa.uber.obr ../tmp/galasa-bom ./
+
       - name: OUTPUT OBR ARTIFACTS REPO AFTER
         working-directory: modules/obr/repo/dev/galasa
         run: |
