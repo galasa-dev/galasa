@@ -133,8 +133,6 @@ public class RunPodCleanupTest {
 
         List<V1Pod> mockPods = new ArrayList<>(mockTerminatedPods);
 
-        // Simulate a situation where the runs have been deleted from the DSS but the pods still exist,
-        // so the pods should get deleted
         List<IRun> mockRuns = new ArrayList<>();
 
         MockKubernetesProtoClient mockProtoClient = new MockKubernetesProtoClient(mockPods);
