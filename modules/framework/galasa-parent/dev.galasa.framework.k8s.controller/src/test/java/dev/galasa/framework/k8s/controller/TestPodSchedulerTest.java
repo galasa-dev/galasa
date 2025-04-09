@@ -15,12 +15,12 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.After;
 
+import dev.galasa.framework.k8s.controller.mocks.MockSettings;
 import dev.galasa.framework.mocks.MockCPSStore;
 import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.mocks.MockIFrameworkRuns;
 import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1EnvVar;
@@ -36,21 +36,6 @@ import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.prometheus.client.CollectorRegistry;
 
 public class TestPodSchedulerTest {
-
-    class MockSettings extends Settings {
-
-        private V1ConfigMap mockConfigMap;
-
-        public MockSettings(V1ConfigMap configMap, K8sController controller, CoreV1Api api) throws K8sControllerException {
-            super(controller, api);
-            this.mockConfigMap = configMap;
-        }
-
-        @Override
-        V1ConfigMap retrieveConfigMap() {
-            return mockConfigMap;
-        }
-    }
 
     class MockK8sController extends K8sController {
         @Override

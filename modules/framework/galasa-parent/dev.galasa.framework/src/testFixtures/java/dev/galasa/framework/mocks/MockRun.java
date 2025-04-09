@@ -24,6 +24,7 @@ public class MockRun implements IRun {
     private Instant heartbeat;
     private String group;
     private String submissionId;
+    private String status;
 
     public MockRun(
         String testBundleName, 
@@ -140,6 +141,15 @@ public class MockRun implements IRun {
         return this.heartbeat ;
     }
 
+    @Override
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     // ------------- un-implemented methods follow ----------------
 
     @Override
@@ -151,12 +161,6 @@ public class MockRun implements IRun {
     public String getTest() {
         throw new UnsupportedOperationException("Unimplemented method 'getTest'");
     }
-
-    @Override
-    public String getStatus() {
-        throw new UnsupportedOperationException("Unimplemented method 'getStatus'");
-    }
-
 
     @Override
     public boolean isTrace() {

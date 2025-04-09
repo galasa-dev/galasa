@@ -23,7 +23,6 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.ProtoClient;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.util.Config;
 import io.prometheus.client.exporter.HTTPServer;
@@ -86,7 +85,7 @@ public class K8sController {
                 throw new FrameworkException("Unable to load Kubernetes API", e);
             }
             Configuration.setDefaultApiClient(client);
-            ProtoClient pc = new ProtoClient(client);
+            IKubernetesProtoClient protoClient = new KubernetesProtoClient(client);
             CoreV1Api api = new CoreV1Api();
 
             // *** Fetch the settings
@@ -141,7 +140,7 @@ public class K8sController {
                 logger.info("Health monitoring disabled");
             }
             // *** Start the run polling
-            runCleanup = new RunPodCleanup(settings, api, pc, framework.getFrameworkRuns());
+            runCleanup = new RunPodCleanup(settings, api, protoClient, framework.getFrameworkRuns());
             schedulePodCleanup();
             podScheduler = new TestPodScheduler(dss, cps, settings, api, framework.getFrameworkRuns());
             schedulePoll();

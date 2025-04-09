@@ -31,6 +31,23 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     }
 
     @Override
+    public IRun getRun(String runname) throws DynamicStatusStoreException {
+        IRun matchingRun = null;
+        for (IRun run : this.runs) {
+            if (runname.equals(run.getName())) {
+                matchingRun = run;
+                break;
+            }
+        }
+        return matchingRun;
+    }
+
+    @Override
+    public @NotNull List<IRun> getAllRuns() throws FrameworkException {
+        return this.runs;
+    }
+
+    @Override
     public @NotNull List<IRun> getActiveRuns() throws FrameworkException {
         throw new UnsupportedOperationException("Unimplemented method 'getActiveRuns'");
     }
@@ -38,11 +55,6 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     @Override
     public @NotNull List<IRun> getQueuedRuns() throws FrameworkException {
         throw new UnsupportedOperationException("Unimplemented method 'getQueuedRuns'");
-    }
-
-    @Override
-    public @NotNull List<IRun> getAllRuns() throws FrameworkException {
-        throw new UnsupportedOperationException("Unimplemented method 'getAllRuns'");
     }
 
     @Override
@@ -75,11 +87,6 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     @Override
     public boolean delete(String runname) throws DynamicStatusStoreException {
         return true;
-    }
-
-    @Override
-    public IRun getRun(String runname) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'getRun'");
     }
 
     @Override
