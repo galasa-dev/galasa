@@ -13,7 +13,7 @@ import dev.galasa.framework.IResult;
 public class TestResultProviderImpl implements ITestResultProvider {
 
     /** 
-     * A simple implementation of a result which is neither pass or failed. So we never return 
+     * A simple implementation of a result which is neither pass or failed. So we never return null.
      */
     private class ResultNotSetYetResult implements IResult {
 
