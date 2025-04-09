@@ -225,6 +225,11 @@ jobs:
       #     key: cache-obr-${{ hashFiles('**/pom.xml') }} 
       #     restore-keys: |
       #       cache-obr-
+
+      - name: OUTPUT OBR ARTIFACTS REPO AFTER
+        working-directory: modules/obr/repo
+        run: |
+          ls -a
         
       - name: Build Galasa BOM with maven
         working-directory: modules/obr
@@ -298,6 +303,11 @@ jobs:
           echo $(git log -1 --pretty=format:"%H" -- "modules/extensions") > modules/obr/extensions.githash
           echo $(git log -1 --pretty=format:"%H" -- "modules/managers") > modules/obr/managers.githash
           echo $(git log -1 --pretty=format:"%H" -- "modules/obr") > modules/obr/obr.githash
+
+      - name: OUTPUT OBR ARTIFACTS REPO AFTER
+        working-directory: modules/obr/repo
+        run: |
+          ls -a
 
       - name: Upload obr artifacts
         uses: actions/upload-artifact@v4

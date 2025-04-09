@@ -145,6 +145,11 @@ jobs:
           path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
+
+      - name: OUTPUT MANAGERS ARTIFACTS REPO BEFORE
+        working-directory: modules/managers/repo
+        run: |
+          ls -a
       
       - name: Build Managers source code
         working-directory: modules/managers
@@ -173,6 +178,11 @@ jobs:
           path: modules/managers/galasa-managers-parent/**/**/build/reports/**/*.html
           retention-days: 7
           if-no-files-found: ignore
+
+      - name: OUTPUT MANAGERS ARTIFACTS REPO AFTER
+        working-directory: modules/managers/repo
+        run: |
+          ls -a
 
       - name: Upload managers artifacts
         uses: actions/upload-artifact@v4
