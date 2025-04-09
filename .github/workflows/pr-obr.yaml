@@ -303,6 +303,17 @@ jobs:
         working-directory: modules/obr/repo/dev/galasa
         run: |
           ls -a
+      
+      - name: Build OBR image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/obr
+          file: modules/obr/dockerfiles/dockerfile.obr
+          load: true
+          tags: obr-maven-artefacts:test
+          build-args: |
+            dockerRepository=${{ env.REGISTRY }}
+            baseVersion=latest
 
       - name: Copy OBR artifacts for upload
         working-directory: modules/obr/repo/dev/galasa
@@ -321,17 +332,6 @@ jobs:
         with:
           name: obr
           path: modules/obr/repo
-      
-      - name: Build OBR image for testing
-        uses: docker/build-push-action@v5
-        with:
-          context: modules/obr
-          file: modules/obr/dockerfiles/dockerfile.obr
-          load: true
-          tags: obr-maven-artefacts:test
-          build-args: |
-            dockerRepository=${{ env.REGISTRY }}
-            baseVersion=latest
 
   build-obr-javadocs:
     name: Build OBR javadocs using galasabld image and maven
