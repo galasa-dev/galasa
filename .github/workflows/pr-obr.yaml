@@ -225,11 +225,6 @@ jobs:
       #     key: cache-obr-${{ hashFiles('**/pom.xml') }} 
       #     restore-keys: |
       #       cache-obr-
-
-      - name: OUTPUT OBR ARTIFACTS REPO AFTER
-        working-directory: modules/obr/repo
-        run: |
-          ls -a
         
       - name: Build Galasa BOM with maven
         working-directory: modules/obr

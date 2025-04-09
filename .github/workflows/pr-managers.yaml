@@ -145,11 +145,6 @@ jobs:
           path: modules/artifacts
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
-
-      - name: OUTPUT MANAGERS ARTIFACTS REPO BEFORE
-        working-directory: modules/managers/repo
-        run: |
-          ls -a
       
       - name: Build Managers source code
         working-directory: modules/managers
