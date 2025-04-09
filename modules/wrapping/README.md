@@ -34,4 +34,3 @@ To build locally, use the `./build-locally.sh --help` command to see what other 
 
 See the [documentation for the maven gpg plugin](https://maven.apache.org/plugins/maven-gpg-plugin/usage.html)
 for information on other ways of specifying the GPG key to the build process.
-
