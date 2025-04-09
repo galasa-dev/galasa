@@ -298,13 +298,10 @@ jobs:
           echo $(git log -1 --pretty=format:"%H" -- "modules/extensions") > modules/obr/extensions.githash
           echo $(git log -1 --pretty=format:"%H" -- "modules/managers") > modules/obr/managers.githash
           echo $(git log -1 --pretty=format:"%H" -- "modules/obr") > modules/obr/obr.githash
-
-      - name: Upload obr artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: obr
-          path: modules/obr/repo
       
+      # Here we build a Docker image that contains all dev.galasa artifacts
+      # to deploy to a download site. It contains all artifacts listed in 
+      # the Uber OBR.
       - name: Build OBR image for testing
         uses: docker/build-push-action@v5
         with:
@@ -315,6 +312,23 @@ jobs:
           build-args: |
             dockerRepository=${{ env.REGISTRY }}
             baseVersion=latest
+
+      # Here we remove the artifacts built by the other modules (everything
+      # other than dev.galasa.uber.obr and galasa-bom) as otherwise when
+      # a workflow downloads this zip, the other module's artifacts are 
+      # overwritten by the contents of this zip.
+      - name: Remove other module's artifacts before uploading to workflow
+        working-directory: modules/obr/repo/dev/galasa
+        run: |
+          mkdir -p ../tmp && mv dev.galasa.uber.obr galasa-bom ../tmp/
+          rm -rf ./*
+          mv ../tmp/dev.galasa.uber.obr ../tmp/galasa-bom ./
+
+      - name: Upload OBR artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: obr
+          path: modules/obr/repo
 
   build-obr-javadocs:
     name: Build OBR javadocs using galasabld image and maven
