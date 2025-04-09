@@ -87,15 +87,15 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
       
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/dev/galasa/**
-          key: cache-maven-${{ hashFiles('**/pom.xml') }} 
-          restore-keys: |
-            cache-maven-
+      # - name: Cache Maven dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.m2/repository
+      #       !~/.m2/repository/dev/galasa/**
+      #     key: cache-maven-${{ hashFiles('**/pom.xml') }} 
+      #     restore-keys: |
+      #       cache-maven-
       
       - name: Building Maven source code
         working-directory: modules/maven

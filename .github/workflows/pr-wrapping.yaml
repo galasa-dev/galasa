@@ -65,15 +65,15 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
 
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/dev/galasa/**
-          key: cache-wrapping-${{ hashFiles('**/pom.xml') }} 
-          restore-keys: |
-            cache-wrapping-
+      # - name: Cache Maven dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.m2/repository
+      #       !~/.m2/repository/dev/galasa/**
+      #     key: cache-wrapping-${{ hashFiles('**/pom.xml') }} 
+      #     restore-keys: |
+      #       cache-wrapping-
 
       - name: Building Wrapping source code
         working-directory: modules/wrapping

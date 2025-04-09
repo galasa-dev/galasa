@@ -212,15 +212,15 @@ jobs:
           java-version: '17'
           distribution: 'semeru'
       
-      - name: Fetch swagger-cli cache
-        id: swagger-cache
-        uses: actions/cache@v4.2.3
-        with:
-          path: swagger-codegen-cli.jar
-          key: swagger-codegen-${{ env.SWAGGER_VERSION }}-cli.jar
+      # - name: Fetch swagger-cli cache
+      #   id: swagger-cache
+      #   uses: actions/cache@v4.2.3
+      #   with:
+      #     path: swagger-codegen-cli.jar
+      #     key: swagger-codegen-${{ env.SWAGGER_VERSION }}-cli.jar
       
       - name: Install Swagger CLI
-        if: steps.swagger-cache.outputs != 'true'
+        # if: steps.swagger-cache.outputs != 'true'
         working-directory: modules/framework
         run: |
           wget https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/${{ env.SWAGGER_VERSION }}/swagger-codegen-cli-${{ env.SWAGGER_VERSION }}.jar -O swagger-codegen-cli.jar
