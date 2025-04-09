@@ -7,6 +7,9 @@ package dev.galasa.imstm.internal;
 
 import dev.galasa.imstm.ImstmManagerException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import dev.galasa.ManagerException;
 import dev.galasa.ProductVersion;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -19,11 +22,8 @@ public class ImstmProperties extends CpsProperties {
     private static final String NAMESPACE = "imstm";
     private final IConfigurationPropertyStoreService cps;
 
-    private boolean isSetDseApplid = false;
-    private boolean isSetDseVersion = false;
-
-    private String dseApplid;
-    private ProductVersion dseVersion;
+    private Map<String, String> dseApplids;
+    private Map<String, ProductVersion> dseVersions;
     private String provisionType;
     
     ImstmProperties(IFramework framework) throws ConfigurationPropertyStoreException {
@@ -51,19 +51,24 @@ public class ImstmProperties extends CpsProperties {
      *
      */
     public String getDseApplid(String tag) throws ImstmManagerException {
-        if (!isSetDseApplid) {
+        if (dseApplids == null) {
+            dseApplids = new HashMap<String, String>();
+        }
+
+        if (dseApplids.containsKey(tag)) {
+            return dseApplids.get(tag);
+        } else {
             try {
-                dseApplid = getStringNulled(cps, "dse.tag." + tag, "applid");
-                isSetDseApplid = true;
+                String dseApplid = getStringNulled(cps, "dse.tag." + tag, "applid");
                 if (dseApplid != null) {
                     dseApplid = dseApplid.toUpperCase().trim();
                 }
+                dseApplids.put(tag, dseApplid);
+                return dseApplid;
             } catch (ConfigurationPropertyStoreException e) {
                 throw new ImstmManagerException("Problem asking CPS for the DSE applid for tag " + tag, e); 
             }
         }
-
-        return dseApplid;
     }
 
     /**
@@ -86,27 +91,28 @@ public class ImstmProperties extends CpsProperties {
      *
      */
     public ProductVersion getDseVersion(String tag) throws ImstmManagerException {
-        if (!isSetDseVersion) {
+        if (dseVersions == null) {
+            dseVersions = new HashMap<String, ProductVersion>();
+        }
+
+        if (dseVersions.containsKey(tag)) {
+            return dseVersions.get(tag);
+        } else {
             String version = null;
             try {
                 version = getStringNulled(cps, "dse.tag", "version", tag);
-                isSetDseVersion = true;
-                if (version == null) {
-                    return null;
-                } else {
+                ProductVersion dseVersion = null;
+                if (version != null) {
                     dseVersion = ProductVersion.parse(version);
                 }
-            } catch (ImstmManagerException e) {
-                // Prevent ImstmManagerExceptions from being caught by the more generic ManagerException
-                throw e;
+                dseVersions.put(tag, dseVersion);
+                return dseVersion;
             } catch (ManagerException e) {
                 throw new ImstmManagerException("Failed to parse the IMS version '" + version + "' for tag '" + tag + "', should be a valid V.R.M version format, for example 15.5.0", e); 
             } catch (ConfigurationPropertyStoreException e) {
                 throw new ImstmManagerException("Problem accessing the CPS for the IMS version, for tag " + tag, e);
             }
         }
-
-        return dseVersion;
     }
 
     /**
