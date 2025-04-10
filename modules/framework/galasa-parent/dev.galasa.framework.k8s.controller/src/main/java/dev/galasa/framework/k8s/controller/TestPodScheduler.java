@@ -121,9 +121,7 @@ public class TestPodScheduler implements Runnable {
             while (true) {
                 // *** Check we are not at max engines
                 List<V1Pod> pods = getPods(this.api, this.settings);
-                
-                // Do not filter out active runs. Completed runs still consume memory. 
-                // We should limit active+inactive runs to the max threashold.
+                filterActiveRuns(pods);
 
                 logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
 
