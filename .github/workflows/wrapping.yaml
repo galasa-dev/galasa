@@ -91,15 +91,15 @@ jobs:
         run: |
           gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
 
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/dev/galasa/**
-          key: cache-wrapping-${{ hashFiles('**/pom.xml') }} 
-          restore-keys: |
-            cache-wrapping-
+      # - name: Cache Maven dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.m2/repository
+      #       !~/.m2/repository/dev/galasa/**
+      #     key: cache-wrapping-${{ hashFiles('**/pom.xml') }} 
+      #     restore-keys: |
+      #       cache-wrapping-
 
       - name: Build Wrapping source code
         working-directory: modules/wrapping

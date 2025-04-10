@@ -189,15 +189,15 @@ jobs:
         run: |
           cat modules/obr/dev.galasa.uber.obr/pom.xml
       
-      - name: Cache OBR dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/dev/galasa/**
-          key: cache-obr-${{ hashFiles('**/pom.xml') }} 
-          restore-keys: |
-              cache-obr-
+      # - name: Cache OBR dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.m2/repository
+      #       !~/.m2/repository/dev/galasa/**
+      #     key: cache-obr-${{ hashFiles('**/pom.xml') }} 
+      #     restore-keys: |
+      #         cache-obr-
         
       - name: Build Galasa OBR with maven
         working-directory: modules/obr
@@ -478,15 +478,15 @@ jobs:
           name: managers
           path: modules/artifacts
       
-      - name: Cache OBR-javadoc dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/dev/galasa/**
-          key: cache-obr-javadoc-${{ hashFiles('**/pom.xml') }} 
-          restore-keys: |
-              cache-obr-javadoc-
+      # - name: Cache OBR-javadoc dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.m2/repository
+      #       !~/.m2/repository/dev/galasa/**
+      #     key: cache-obr-javadoc-${{ hashFiles('**/pom.xml') }} 
+      #     restore-keys: |
+      #         cache-obr-javadoc-
 
       - name: Build javadoc site using maven
         working-directory: modules/obr/javadocs
@@ -722,15 +722,15 @@ jobs:
           name: obr
           path: modules/artifacts
       
-      - name: Cache OBR-generic dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/dev/galasa/**
-          key: cache-obr-generic-${{ hashFiles('**/pom.xml') }} 
-          restore-keys: |
-            cache-obr-generic-
+      # - name: Cache OBR-generic dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.m2/repository
+      #       !~/.m2/repository/dev/galasa/**
+      #     key: cache-obr-generic-${{ hashFiles('**/pom.xml') }} 
+      #     restore-keys: |
+      #       cache-obr-generic-
 
       - name: Build Galasa OBR generic pom.xml with maven
         working-directory: modules/obr/obr-generic

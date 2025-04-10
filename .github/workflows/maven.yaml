@@ -97,15 +97,15 @@ jobs:
           name: gradle
           path: modules/artifacts
       
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/dev/galasa/**
-          key: cache-maven-${{ hashFiles('**/pom.xml') }} 
-          restore-keys: |
-            cache-maven-
+      # - name: Cache Maven dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.m2/repository
+      #       !~/.m2/repository/dev/galasa/**
+      #     key: cache-maven-${{ hashFiles('**/pom.xml') }} 
+      #     restore-keys: |
+      #       cache-maven-
 
       - name: Build Maven source code
         working-directory: modules/maven
