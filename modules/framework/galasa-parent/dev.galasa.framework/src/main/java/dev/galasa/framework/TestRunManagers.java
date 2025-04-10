@@ -646,4 +646,15 @@ public class TestRunManagers implements ITestRunManagers {
         return this.activeManagers;
     }
 
+    @Override
+    public void setResultSoFar(IResult newResult) {
+        for (IManager manager : activeManagers) {
+            try {
+                manager.setResultSoFar(newResult);
+            } catch (Exception e) {
+                logger.warn("Problem in test class result for manager " + manager.getClass().getName(), e);
+            }
+        }
+    }
+
 }

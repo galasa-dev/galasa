@@ -8,11 +8,11 @@ plugins {
 // This section tells gradle where it should look for any dependencies
 repositories {
     mavenLocal()
-    mavenCentral()
     // To use the bleeding edge version of galasa's obr plugin, use the development obr
     maven {
        url = "$sourceMaven"
     }
+    mavenCentral()
 }
 
 dependencies {

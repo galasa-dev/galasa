@@ -46,10 +46,11 @@ public class TestMethodWrapper {
         return;
     }
 
-    public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, boolean continueOnTestFailure) throws TestRunException {
+    public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, boolean continueOnTestFailure, TestClassWrapper testClassWrapper) throws TestRunException {
         // run all the @Befores before the test method
         for (GenericMethodWrapper before : this.befores) {
             before.invoke(managers, testClassObject, testMethod);
+            testClassWrapper.setResult(before.getResult(), managers);
             if (before.getResult().isFullStop()) {
                 this.fullStop = true;
                 this.result = Result.failed("Before method failed");
@@ -59,6 +60,7 @@ public class TestMethodWrapper {
 
         if (this.result == null) {
             testMethod.invoke(managers, testClassObject, null);
+            testClassWrapper.setResult(testMethod.getResult(), managers);
             if (this.testMethod.fullStop()) {
                 if (continueOnTestFailure) {
                     logger.warn("Test method failed, however, continue on test failure was requested, so carrying on");
@@ -74,6 +76,7 @@ public class TestMethodWrapper {
         Result afterResult = null;
         for (GenericMethodWrapper after : this.afters) {
             after.invoke(managers, testClassObject, testMethod);
+            testClassWrapper.setResult(after.getResult(), managers);
             if (after.fullStop()) {
                 this.fullStop = true;
                 if (afterResult == null) {

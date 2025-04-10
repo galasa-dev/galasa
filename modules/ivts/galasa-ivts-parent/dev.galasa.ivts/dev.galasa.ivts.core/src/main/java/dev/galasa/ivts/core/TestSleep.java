@@ -9,10 +9,7 @@ import org.apache.commons.logging.Log;
 
 import dev.galasa.Summary;
 import dev.galasa.Test;
-import dev.galasa.core.manager.CoreManager;
-import dev.galasa.core.manager.ICoreManager;
 import dev.galasa.core.manager.Logger;
-import dev.galasa.core.manager.RunName;
 
 @Test
 @Summary("A basic test with a sleep so there is sufficient time to test the `galasactl runs reset` command")

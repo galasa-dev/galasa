@@ -10,6 +10,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.ManagerException;
+import dev.galasa.framework.IResult;
 import dev.galasa.framework.spi.language.GalasaMethod;
 import dev.galasa.framework.spi.language.GalasaTest;
 
@@ -342,5 +343,17 @@ public interface IManager {
      * other Managers in this method as they may have shutdown already.  Calls to the Framework, CPS, RAS etc will be safe.
      */
     void shutdown();
+
+    /**
+     * The result has changed, it could change again. It could be set the the same thing multiple times.
+     * This call is used to propogate the very latest overall test result state down to the managers, so they know the test state.
+     * This can be used by the @TestResultProvider annotation for example, to maintain a 'current test result' which tests themselves, 
+     * and @AfterClass methods can use.
+     * 
+     * @param newResult
+     * 
+     * @since 0.41.0
+     */
+    default void setResultSoFar(IResult newResult) {}
 
 }

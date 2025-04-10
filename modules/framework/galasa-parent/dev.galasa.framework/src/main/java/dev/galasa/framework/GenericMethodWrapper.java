@@ -159,4 +159,7 @@ public class GenericMethodWrapper {
         return this.excecutionMethod.getName();
     }
 
+    public Type getType() {
+        return this.type;
+    }
 }

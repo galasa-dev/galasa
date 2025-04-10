@@ -358,7 +358,7 @@ public class TestRunner extends BaseTestRunner {
 
         if (invalidManager) {
             logger.error("There are Managers that do not support Shared Environment builds");
-            testClassWrapper.setResult(Result.failed("Invalid Shared Environment build"));
+            testClassWrapper.setResult(Result.failed("Invalid Shared Environment build"), managers);
             testStructure.setResult(testClassWrapper.getResult().getName());
             isRunOK = false;
         }
@@ -379,7 +379,7 @@ public class TestRunner extends BaseTestRunner {
                 if (e instanceof FrameworkResourceUnavailableException) {
                     this.isResourcesAvailable = false;
                 }
-                testClassWrapper.setResult(Result.envfail(e));
+                testClassWrapper.setResult(Result.envfail(e), managers);
                 if (isResourcesAvailable) {
                     managers.testClassResult(testClassWrapper.getResult(), e);
                 }
@@ -411,7 +411,7 @@ public class TestRunner extends BaseTestRunner {
                         if (e instanceof FrameworkResourceUnavailableException) {
                             this.isResourcesAvailable = false;
                         }
-                        testClassWrapper.setResult(Result.envfail(e));
+                        testClassWrapper.setResult(Result.envfail(e), managers);
                         if (this.isResourcesAvailable) {
                             managers.testClassResult(testClassWrapper.getResult(), e);
                         }
@@ -449,7 +449,7 @@ public class TestRunner extends BaseTestRunner {
                         if (e instanceof FrameworkResourceUnavailableException) {
                             this.isResourcesAvailable = false;
                         }
-                        testClassWrapper.setResult(Result.envfail(e));
+                        testClassWrapper.setResult(Result.envfail(e), managers);
                         testStructure.setResult(testClassWrapper.getResult().getName());
                         return;
                     }
@@ -481,7 +481,7 @@ public class TestRunner extends BaseTestRunner {
                 updateStatus(TestRunLifecycleStatus.RUNNING, null);
                 try {
                     logger.info("Running the test class");
-                    testClassWrapper.runTestMethods(managers, dss, runName);
+                    testClassWrapper.runMethods(managers, dss, runName);
                 } finally {
                     updateStatus(TestRunLifecycleStatus.RUNDONE, null);
                 }
