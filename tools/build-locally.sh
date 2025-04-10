@@ -93,6 +93,7 @@ module_names=(\
     "managers" \
     "obr" \
     "ivts" \
+    "cli" \
 )
 
 function check_module_name_is_supported() {
@@ -293,8 +294,19 @@ function build_module() {
         ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
         rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
         success "Built module $module OK"
+        if [[ "$chain" == "true" ]]; then 
+            module="cli"
+        fi
     fi
 
+    # cli
+    if [[ "$module" == "cli" ]]; then
+        h2 "Building $module"
+        cd ${PROJECT_DIR}/modules/$module
+        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false ${build_docker_flag}
+        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
+        success "Built module $module OK"
+    fi
 }
 
 clean_local_m2

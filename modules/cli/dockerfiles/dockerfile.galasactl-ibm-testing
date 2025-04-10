@@ -1,0 +1,10 @@
+FROM ghcr.io/galasa-dev/openjdk17-ibm-gradle:main
+
+ARG branch
+
+RUN wget https://development.galasa.dev/${branch}/binary/cli/galasactl-linux-x86_64 -O /usr/local/bin/galasactl && \
+    chmod +x /usr/local/bin/galasactl
+
+RUN galasactl --version
+
+ENV PATH="/usr/local/bin:$PATH"
