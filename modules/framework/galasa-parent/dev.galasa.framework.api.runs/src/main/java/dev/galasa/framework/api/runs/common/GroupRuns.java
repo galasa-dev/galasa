@@ -47,7 +47,7 @@ public class GroupRuns extends ProtectedRoute {
             runs = this.framework.getFrameworkRuns().getAllGroupedRuns(groupName);
         } catch (FrameworkException fe) {
             ServletError error = new ServletError(GAL5019_UNABLE_TO_RETRIEVE_RUNS, groupName);  
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, fe);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, fe);
         }
         return runs;
     }

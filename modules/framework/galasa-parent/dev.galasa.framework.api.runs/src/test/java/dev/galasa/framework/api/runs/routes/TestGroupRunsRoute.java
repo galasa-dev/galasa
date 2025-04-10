@@ -161,7 +161,7 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doGet(req, resp);
 
         // Then...
-        assertThat(resp.getStatus()).isEqualTo(404);
+        assertThat(resp.getStatus()).isEqualTo(500);
 
 		checkErrorStructure(
 			outStream.toString(),
