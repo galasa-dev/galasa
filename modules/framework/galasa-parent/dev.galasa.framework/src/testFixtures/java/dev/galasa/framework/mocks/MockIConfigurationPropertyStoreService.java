@@ -27,7 +27,7 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
     @Override
     public @Null String getProperty(@NotNull String prefix, @NotNull String suffix, String... infixes)
             throws ConfigurationPropertyStoreException {
-        String propertyKey = prefix + "." + suffix;;
+        String propertyKey = prefix + "." + suffix;
         if (infixes.length > 0) {
             propertyKey = prefix + "." + String.join(".", infixes) + "." + suffix;
         }
