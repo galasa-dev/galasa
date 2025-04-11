@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.ContinueOnTestFailure;
 import dev.galasa.framework.GenericMethodWrapper.Type;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -85,7 +86,7 @@ public class TestClassWrapper {
         this.testStructure.setTestName(testClass.getName());
         this.testStructure.setTestShortName(testClass.getSimpleName());
 
-        this.continueOnTestFailure = this.testRunner.getContinueOnTestFailureFromCPS();
+        this.continueOnTestFailure = isContinueOnTestFailureSet();
     }
 
     /**
@@ -396,6 +397,18 @@ public class TestClassWrapper {
 
     protected Result getResult() {
         return this.resultData;
+    }
+
+    protected boolean isContinueOnTestFailureSet() {
+        boolean isContinueOnTestFailureSet = false;
+        ContinueOnTestFailure continueOnTestFailureAnnotation = testClass.getAnnotation(ContinueOnTestFailure.class);
+
+        if (continueOnTestFailureAnnotation != null) {
+            isContinueOnTestFailureSet = true;
+        } else {
+            isContinueOnTestFailureSet = this.testRunner.getContinueOnTestFailureFromCPS();
+        }
+        return isContinueOnTestFailureSet;
     }
 
 }

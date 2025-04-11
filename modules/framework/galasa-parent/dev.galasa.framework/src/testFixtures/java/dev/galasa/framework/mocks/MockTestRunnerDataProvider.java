@@ -31,6 +31,10 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     private IFileSystem fileSystem;
     private ITestRunnerEventsProducer eventsPublisher;
 
+    public MockTestRunnerDataProvider() {
+        // Do nothing...
+    }
+
     public MockTestRunnerDataProvider(
         IConfigurationPropertyStoreService cps,
         IDynamicStatusStoreService         dss,
@@ -103,5 +107,49 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     @Override
     public ITestRunnerEventsProducer getEventsProducer() {
         return this.eventsPublisher;
+    }
+
+    public void setCps(IConfigurationPropertyStoreService cps) {
+        this.cps = cps;
+    }
+
+    public void setDss(IDynamicStatusStoreService dss) {
+        this.dss = dss;
+    }
+
+    public void setRas(IResultArchiveStore ras) {
+        this.ras = ras;
+    }
+
+    public void setRun(IRun run) {
+        this.run = run;
+    }
+
+    public void setFramework(IShuttableFramework framework) {
+        this.framework = framework;
+    }
+
+    public void setOverrideProperties(Properties overrideProperties) {
+        this.overrideProperties = overrideProperties;
+    }
+
+    public void setAnnotationExtractor(IAnnotationExtractor annotationExtractor) {
+        this.annotationExtractor = annotationExtractor;
+    }
+
+    public void setBundleManager(IBundleManager bundleManager) {
+        this.bundleManager = bundleManager;
+    }
+
+    public void setTestRunManagers(ITestRunManagers testRunManagers) {
+        this.testRunManagers = testRunManagers;
+    }
+
+    public void setFileSystem(IFileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+
+    public void setEventsPublisher(ITestRunnerEventsProducer eventsPublisher) {
+        this.eventsPublisher = eventsPublisher;
     }
 }
