@@ -43,9 +43,9 @@ jobs:
       framework_changed: ${{ steps.get-changed-modules.outputs.FRAMEWORK_CHANGED }}
       extensions_changed: ${{ steps.get-changed-modules.outputs.EXTENSIONS_CHANGED }}
       managers_changed: ${{ steps.get-changed-modules.outputs.MANAGERS_CHANGED }}
-      ivts_changed: 'true'
       obr_changed: ${{ steps.get-changed-modules.outputs.OBR_CHANGED }}
-      cli_changed: ${{ steps.get-changed-modules.outputs.OBR_CHANGED }}
+      ivts_changed: ${{ steps.get-changed-modules.outputs.IVTS_CHANGED }}
+      cli_changed: ${{ steps.get-changed-modules.outputs.CLI_CHANGED }} # OBR_CHANGED - always rebuild CLI if OBR has changed?
 
     steps:
       - name: Checkout Code
@@ -173,7 +173,7 @@ jobs:
 
   pr-build-cli:
     name: Build the 'cli' module
-    needs: [get-changed-modules, find-artifacts, pr-build-obr, pr-build-framework]
+    needs: [get-changed-modules, find-artifacts, pr-build-obr]
     uses: ./.github/workflows/pr-cli.yaml
     secrets: inherit
     with:
@@ -184,7 +184,7 @@ jobs:
   # This job is set in the branch protection rules as required to merge a Pull Request.
   end-pull-request-build:
     name: Pull Request build was successful
-    needs: [pr-build-obr, pr-build-ivts, pr-build-ivts, detect-secrets]
+    needs: [pr-build-ivts, pr-build-cli, detect-secrets]
     runs-on: ubuntu-latest
 
     steps:

@@ -40,12 +40,73 @@ jobs:
     steps:
       - name: Checkout CLI
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            modules/cli
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.9
-          cache-disabled: true
+          gradle-home-cache-excludes: |
+            caches/modules-2/files-2.1/dev.galasa/**
+
+      # For any modules that were changed in this PR,
+      # download their artifacts from this workflow run.
+
+      - name: Download platform from this workflow
+        id: download-platform
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: modules/artifacts
+
+      - name: Download framework artifacts from this workflow
+        id: download-framework
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: framework
+          path: modules/artifacts
+
+      - name: Download obr artifacts from this workflow
+        id: download-obr
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: obr
+          path: modules/artifacts
+
+      # For any modules that weren't changed in this PR,
+      # download artifacts from the last successful workflow.
+
+      - name: Download platform from last successful workflow
+        if: ${{ steps.download-platform.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: modules/artifacts
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.artifact-id }}
+
+      - name: Download framework artifacts from last successful workflow
+        if: ${{ steps.download-framework.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+            name: framework
+            path: modules/artifacts
+            github-token: ${{ github.token }}
+            run-id: ${{ inputs.artifact-id }}
+
+      - name: Download obr artifacts from last successful workflow
+        if: ${{ steps.download-obr.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+            name: obr
+            path: modules/artifacts
+            github-token: ${{ github.token }}
+            run-id: ${{ inputs.artifact-id }}
 
       # Pull down dependencies with Gradle and put them in the right places.
       - name: Gather dependencies using Gradle
@@ -54,7 +115,7 @@ jobs:
           set -o pipefail
           gradle -b build.gradle installJarsIntoTemplates --info \
           --no-daemon --console plain \
-          -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
+          -PsourceMaven=${{ github.workspace }}/modules/artifacts \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
           -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build.log
 
@@ -62,15 +123,14 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-installJarsIntoTemplates-log
-          path: build.log
+          name: cli-gradle-installJarsIntoTemplates-log
+          path: modules/cli/build.log
           retention-days: 7 
 
       # Generate client code so galasactl can communicate with the API server.
       - name: Generate Go client code using openapi.yaml
-        working-directory: ./modules/cli
         run : |
-          docker run --rm --user $(id -u):$(id -g) -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main java -jar /opt/openapi/openapi-generator-cli.jar generate -i /var/workspace/build/dependencies/openapi.yaml -g go -o /var/workspace/pkg/galasaapi --additional-properties=packageName=galasaapi --global-property=apiTests=false
+          docker run --rm --user $(id -u):$(id -g) -v ${{ github.workspace }}/modules/cli:/var/workspace ghcr.io/galasa-dev/openapi:main java -jar /opt/openapi/openapi-generator-cli.jar generate -i /var/workspace/build/dependencies/openapi.yaml -g go -o /var/workspace/pkg/galasaapi --additional-properties=packageName=galasaapi --global-property=apiTests=false
 
       # The generated code needs adjustment for various reasons.
       - name: Fix generated code
@@ -84,11 +144,11 @@ jobs:
 
       - name: Clear go.mod
         run : |
-          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main rm /var/workspace/modules/cli/pkg/galasaapi/go.mod
+          docker run --rm -v ${{ github.workspace }}/modules/cli:/var/workspace ghcr.io/galasa-dev/openapi:main rm /var/workspace/pkg/galasaapi/go.mod
 
       - name: Clear go.sum
         run : |
-          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main rm /var/workspace/modules/cli/pkg/galasaapi/go.sum
+          docker run --rm -v ${{ github.workspace }}/modules/cli:/var/workspace ghcr.io/galasa-dev/openapi:main rm /var/workspace/pkg/galasaapi/go.sum
 
       # The go code needs to know which version of Galasa it is part of, so substitute an eye-catcher with the correct value.
       - name: Update version 
@@ -161,8 +221,8 @@ jobs:
       - name: Build Docker image with galasactl executable
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: dockerfiles/dockerfile.galasactl
+          context: modules/cli
+          file: modules/cli/dockerfiles/dockerfile.galasactl
           load: true
           tags: galasactl-x86_64:test
           build-args: |
@@ -171,8 +231,8 @@ jobs:
       - name: Build Docker image with galasactl executable and IBM certificates
         uses: docker/build-push-action@v5
         with:
-          context: dockerfiles/certs
-          file: dockerfiles/dockerfile.galasactl-ibm
+          context: modules/cli/dockerfiles/certs
+          file: modules/cli/dockerfiles/dockerfile.galasactl-ibm
           load: true
           tags: galasactl-ibm-x86_64:test
           build-args: |
@@ -182,8 +242,7 @@ jobs:
       - name: Build Docker image for development download site
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: dockerfiles/dockerfile.galasactl-executables
+          context: modules/cli
+          file: modules/cli/dockerfiles/dockerfile.galasactl-executables
           load: true
           tags: galasactl-executables:test
-        

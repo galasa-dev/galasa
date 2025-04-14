@@ -175,6 +175,14 @@ function get_changed_modules_and_set_in_environment() {
             echo "OBR_CHANGED=true" >> $GITHUB_OUTPUT
             continue
         fi
+        if [[ "$module" == "ivts" ]]; then
+            echo "IVTS_CHANGED=true" >> $GITHUB_OUTPUT
+            continue
+        fi
+        if [[ "$module" == "cli" ]]; then
+            echo "CLI_CHANGED=true" >> $GITHUB_OUTPUT
+            continue
+        fi
     done
 }
 
@@ -188,6 +196,8 @@ echo "FRAMEWORK_CHANGED=false" >> $GITHUB_OUTPUT
 echo "EXTENSIONS_CHANGED=false" >> $GITHUB_OUTPUT
 echo "MANAGERS_CHANGED=false" >> $GITHUB_OUTPUT
 echo "OBR_CHANGED=false" >> $GITHUB_OUTPUT
+echo "IVTS_CHANGED=false" >> $GITHUB_OUTPUT
+echo "CLI_CHANGED=false" >> $GITHUB_OUTPUT
 
 get_paths_changed_in_pr
 get_changed_modules_and_set_in_environment
