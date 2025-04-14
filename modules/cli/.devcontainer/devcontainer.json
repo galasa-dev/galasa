@@ -1,0 +1,32 @@
+{
+    "name": "Galasa CLI devcontainer",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/common-utils:2": {},
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "1.19.1"
+        },
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "11.0.18-sem",
+            "jdkDistro": "sem",
+            "installGradle"	: true,
+            "gradleVersion": "6.9.2",
+            "installMaven": true,
+            "mavenVersion": "3.8.6"
+        }
+    },
+    "forwardPorts": [9080,9443],
+    "privileged": true,
+    "remoteUser": "root",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/,type=bind",
+    "workspaceFolder": "/workspace",
+    "postStartCommand": "git config --global --add safe.directory /workspace",
+    "mounts": [
+		"source=${localEnv:HOME}/.galasa,target=/root/.galasa,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.m2,target=/root/.m2,type=bind,consistency=cached"
+	],
+    "postCreateCommand": "./.devcontainer/setup-env.sh"
+}

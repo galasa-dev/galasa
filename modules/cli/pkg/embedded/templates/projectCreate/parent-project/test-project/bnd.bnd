@@ -1,0 +1,3 @@
+Bundle-Version: 0.0.1-SNAPSHOT
+Bundle-Name: {{ .Coordinates.Name }}
+Import-Package: *

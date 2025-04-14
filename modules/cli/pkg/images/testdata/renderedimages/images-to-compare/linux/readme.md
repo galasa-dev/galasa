@@ -1,0 +1,1 @@
+This folder contains images generated on linux which we want to compare with images rendered by the image renderer.

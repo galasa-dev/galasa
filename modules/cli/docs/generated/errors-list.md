@@ -1,0 +1,238 @@
+## Errors
+The `galasactl` tool can generate the following errors:
+
+- GAL1001E: Unsupported bootstrap URL {}. Acceptable values start with 'http' or 'https'. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1002E: Bootstrap url does not end in '/bootstrap'. Bootstrap url is '{}'. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1003E: Bootstrap contents is badly formed. Bootstrap is at {}. Reason is: {}
+- GAL1004E: Failed to load the bootstrap from {}. Reason is {}. If the URL is not resolving, try adding the hostname to your /etc/hosts file. This might especially be needed if communicating over a VPN connection.
+- GAL1005E: Failed to write to 'throttle' file {}. Reason is {}
+- GAL1006E: The submit command does not support mixing of the test selection flags and a portfolio. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1007E: Failed to create report yaml file {}. Reason is {}
+- GAL1008E: Failed to check if group {} exists already. Reason is {}
+- GAL1009E: The submit command requires either test selection flags (eg: --stream, --class, --bundle, --package, --tag, --regex, --test, --gherkin) or --portfolio flag to be specified. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1010E: Invalid override '{}'
+- GAL1011E: Failed to encode the yaml file {}. Reason is {}
+- GAL1012E: Failed to prepare test report for writing to json file {}. Reason is {}
+- GAL1013E: Failed to write test report json file {}. Reason is {}
+- GAL1014E: Failed to prepare test report for writing to the junit results file {}. Reason is {}
+- GAL1015E: Failed to  write test report junit results file {}. Reason is {}
+- GAL1016E: There are no tests in the test porfolio {}
+- GAL1017E: Not all runs passed. {} failed.
+- GAL1018E: No tests were selected.
+- GAL1019E: Invalid override '{}'
+- GAL1020E: Failed to open log file '{}' for writing. Reason is {}
+- GAL1021E: Failed to open portfolio file '{}' for reading. Reason is {}
+- GAL1022E: Failed to read portfolio file '{}' because the content is in the wrong format. Reason is {}
+- GAL1023E: Failed to read portfolio file '{}' because the content are not using format '{}'.
+- GAL1024E: Failed to read portfolio file '{}' because the content are not a resource of type '{}'.
+- GAL1025E: Unable to locate test stream '{}' catalog location
+- GAL1026E: Failed to find location of tests in stream '{}'. Reason is {}
+- GAL1027E: Failed to copy test catalog from REST reply for property '{}', stream '{}'. Reason is {}
+- GAL1028E: Failed to unmarshal test catalog from REST reply for property '{}', stream '{}'. Reason is {}
+- GAL1029E: Stream '{}' is not found in the ecosystem. There are no streams set up. Ask your Galasa system administrator to add a new stream with the desired name.
+- GAL1030E: Stream '{}' is not found in the ecosystem. Valid streams are:{}. Try again using a valid stream, or ask your Galasa system administrator to add a new stream with the desired name.
+- GAL1031E: Invalid flags. --bundle, --package, --test, --tag, and --class flags can only be specified if --stream is provided. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1032E: Invalid select regex '{}'. Reason is {}
+- GAL1033E: Invalid select quoted regex '{}'. Reason is {}
+- GAL1034E: Class '{}' is not format 'bundle/class'
+- GAL1035E: Class '{}' is not format. Name is blank
+- GAL1036E: File '{}' exists. Use the --force flag to overwrite it.
+- GAL1037E: Invalid Java package name '{}' should not contain the '{}' character. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1038E: Invalid Java package name '{}' should not start with the '{}' character. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1039E: Invalid Java package name '{}' should not end with the '{}' character. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1040E: Invalid Java package name. Package name should not be blank. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1041E: Failed to create folders '{}'. Reason is '{}'. Check that you have permissions to write to that folder, and that there is enough disk space available and try again.
+- GAL1042E: Failed to open file '{}' for writing. Reason is '{}'. Check that you have permissions to write to that folder and file, and that there is enough disk space available and try again.
+- GAL1043E: Failed to open file '{}' for reading. Reason is '{}'. Check that you have permissions to read the file and try again.
+- GAL1044E: Invalid Java package name. Package name '{}' contains the reserved java keyword '{}'.
+- GAL1045E: Invalid feature name. Feature name '{}' cannot be used as a java package name. '{}'
+- GAL1046E: Failed to determine the home folder of this user. '{}'
+- GAL1047E: Cannot create the yaml report in file '{}' as that file already exists.
+- GAL1048E: Failed to read from 'throttle' file '{}'. Reason is '{}'
+- GAL1049E: Invalid value '{}' read from 'throttle' file '{}'. Reason is '{}'. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1050E: JAVA_HOME environment variable is not set. It must be for when --local flag is used.
+- GAL1051E: Failed to determine if folder '{}' exists. Reason is '{}'
+- GAL1052E: Folder '{}' is missing. JAVA_HOME environment variable should refer to a folder which contains a 'bin' folder.
+- GAL1053E: Failed to determine if '{}' exists. Reason is '{}'
+- GAL1054E: Program '{}' should exist. JAVA_HOME has been set incorrectly.
+- GAL1055E: Failed to read bootstrap file '{}'. Reason is '{}'
+- GAL1056E: The RAS folder path could not be detected in trace output for runId '{}'
+- GAL1057E: The run identifier could not be detected in trace output of the child process
+- GAL1058E: Failed to load bootstrap file '{}'. Reason is '{}'
+- GAL1059E: Failed to load overrides file '{}'. Reason is '{}'
+- GAL1060E: Badly formed OBR parameter '{}'. Expected it to be of the form mvn:<GROUP_ID>/<ARTIFACT_ID>/<VERSION>/obr with 4 parts separated by slash characters.
+- GAL1061E: Badly formed OBR parameter '{}'. Expected it to be of the form mvn:<GROUP_ID>/<ARTIFACT_ID>/<VERSION>/obr with 4 parts separated by slash characters.
+- GAL1062E: Badly formed OBR parameter '{}'. Expected it to be of the form mvn:<GROUP_ID>/<ARTIFACT_ID>/<VERSION>/obr with a 'mvn:' prefix.
+- GAL1063E: Badly formed OBR parameter '{}'. Expected it to be of the form mvn:<GROUP_ID>/<ARTIFACT_ID>/<VERSION>/obr with an '/obr' suffix.
+- GAL1064E: Badly formed Class parameter '{}'. Expected it to be of the form <OSGiBundleId>/<FullyQualifiedJavaClass> with no .class suffix. No slash found.
+- GAL1065E: Badly formed Class parameter '{}'. Expected it to be of the form <OSGiBundleId>/<FullyQualifiedJavaClass> with no .class suffix. Too many slashes found.
+- GAL1066E: Badly formed Class parameter '{}'. Expected it to be of the form <OSGiBundleId>/<FullyQualifiedJavaClass> with no .class suffix. Unwanted .class suffix detected.
+- GAL1067E: Unsupported value '{}' for parameter --format. Supported values are: {}. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1068E: Could not query run results. Reason: '{}'
+- GAL1069E: Could not open log file for writing. '{}' is a directory, the --log parameter should refer to a file path (existing or not), or '-' (the console)
+- GAL1070E: Invalid value '{}' detected for optional property '{}' in bootstrap properties. Valid values are 'listen' or 'attach'. Only used when --debug flag is set. Defaults to 'listen'. Can be overridden with the --debugMode flag.
+- GAL1071E: Invalid value '{}' detected for optional --debugMode argument. Valid values are 'listen' or 'attach'. Only used when --debug flag is set. Defaults to 'listen'. Default can be set with an optional property '{}' in bootstrap properties.
+- GAL1072E: Invalid value '{}' detected for optional property '{}' in bootstrap properties. Valid values must be a non-zero positive integer, for a port number. Only used when --debug flag is set. Defaults to '{}'. Can be overridden with the --debugPort flag.
+- GAL1073E: Could not get run artifacts. Reason: '{}'
+- GAL1074E: Could not download artifact '{}'. Reason: '{}'
+- GAL1075E: run name '{}' is invalid. Expected it to be in format starting with letters, and ending in a number with no non-alphanumeric characters.
+- GAL1076E: Badly formed from or to value '{}' specified in the age parameter. The value could not be converted into an integer value.
+- GAL1077E: Invalid value '{}' detected for age parameter. The 'from' value must be greater than the 'to' value.
+- GAL1078E: Badly formed '--age' parameter value '{}' specified. Age of the test runs should be specified in the format '{FROM}{TIME-UNIT}:{TO}{TIME-UNIT}' or '{FROM}{TIME-UNIT}', where 'FROM' is a positive, non-zero integer, 'TO' is a non-negative integer, and 'TIME-UNIT' can be {}. 'FROM' must be greater than 'TO'. 'TO' defaults to 0 if not specified. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1079E: The --age, --name, or --group parameter must be used to identify which test run(s) you want see. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1080E: Invalid 'from' value '{}' in the '--age' parameter. Age of the test runs should be specified in the format '{FROM}{TIME-UNIT}:{TO}{TIME-UNIT}' or '{FROM}{TIME-UNIT}', where 'FROM' is a positive, non-zero integer, 'TO' is a non-negative integer, and 'TIME-UNIT' can be {}. 'FROM' must be greater than 'TO'. 'TO' defaults to 0 if not specified. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1081E: Unable use a negative value '{}' in the '--age' parameter. Age of the test runs should be specified in the format '{FROM}{TIME-UNIT}:{TO}{TIME-UNIT}' or '{FROM}{TIME-UNIT}', where 'FROM' is a positive, non-zero integer, 'TO' is a non-negative integer, and 'TIME-UNIT' can be {}. 'FROM' must be greater than 'TO'. 'TO' defaults to 0 if not specified. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1082E: Invalid time unit specified '{}' in the '--age' parameter. Age of the test runs should be specified in the format '{FROM}{TIME-UNIT}:{TO}{TIME-UNIT}' or '{FROM}{TIME-UNIT}', where 'FROM' is a positive, non-zero integer, 'TO' is a non-negative integer, and 'TIME-UNIT' can be {}. 'FROM' must be greater than 'TO'. 'TO' defaults to 0 if not specified. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1083E: No artifacts to download for run: '{}'
+- GAL1084E: Communications failure while closing an HTTP response. '{}'
+- GAL1085E: Programming logic error. ReadTextFile operation on embedded file system failed. Reason is {}
+- GAL1086E: Communications problem between the command-line tool and the target Galasa Ecosystem. The tool could not retrieve the list of valid result names. Reason: '{}'
+- GAL1087E: Invalid '--result' parameter value: {}. The possible result values currently in the Ecosystem Result Archive Store (RAS) are: {}
+- GAL1088E: --active and --result must not be used at the same time, they are mutually exclusive. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1089E: Need to use --maven and/or --gradle parameter Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1090E: Could not get username of current requestor. Reason is '{}'
+- GAL1091E: '{}' is not a properly formed file URL Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1092E: Galasa Ecosystem error: A test was submitted for launch. The galasa runtime is not reporting test progress. The test is lost and may execute but test progress cannot be monitored from this tool. (bundle: {}, class: {}).
+- GAL1093E: Failed to submit test (bundle: {}, class: {}). Reason is: {}
+- GAL1094E: User error: Cannot run test {} on a local JVM because no OBR information is available. Supply an OBR using the --obr parameter, or (if using a portfolio) ensure the portfolio contains an OBR for this test. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1095E: namespace '{}' is invalid. Expected it to be in a format starting with letters, and ending in a number with no non-alphanumeric characters. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1096E: Could not query namespace results. Reason: '{}'
+- GAL1097E: Property --name cannot be set alongside --prefix, --suffix, or --infix. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1098E: Property '{}' could not be updated. Reason: '{}'
+- GAL1099E: Property '{}' could not be deleted. Reason: '{}'
+- GAL1100E: Property '{}' could not be created. Reason: '{}'
+- GAL1101E: namespace '{}' is invalid. '--namespace' is a mandatory flag for this command. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1102E: name '{}' is invalid. '--name' is a mandatory flag for this command. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1103E: Could not query CPS results. Reason: '{}'
+- GAL1104E: Unable to delete the bearer token file '{}'.
+- GAL1105E: Invalid group name provided. Group names must only contain characters in the following ranges: 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), '_' (underscore).
+- GAL1106E: Could not get security bearer token from API server. Reason: '{}'. Ensure you have allocated a personal access token and configured your client program by setting your GALASA_TOKEN as an environment variable or by storing it in your galasactl.properties file
+- GAL1107E: Could not get security bearer token from file '{}'. Reason: '{}'. Ensure you are authenticated by running 'galasactl auth login' and that your personal access token has not expired or been revoked
+- GAL1108E: Invalid bearer token. Ensure you are authenticated by running 'galasactl auth login' and that your personal access token has not expired or been revoked
+- GAL1109E: Unable to access the file. Reason: '{}'
+- GAL1110E: Could not retrieve the content of the file provided. Reason: '{}'
+- GAL1111E: Error parsing the file '{}'. The file is not in the expected yaml format. Reason: '{}'. Invalid yaml:'{}'
+- GAL1112E: Error converting the parsed yaml content into a json payload for the http request. Reason: '{}'
+- GAL1113E: Failure reported by the Galasa Ecosystem. The Ecosystem believes there is a problem with this client program or the user input. Errors returned: '{}'
+- GAL1114E: The resources operation failed due to a problem on the server. Collect a log with the --log option and contact your Galasa Ecosystem adminstrator.
+- GAL1115E: An unexpected response was received from the Galasa Ecosystem. Collect a log with the --log option and contact your Galasa Ecosystem adminstrator.
+- GAL1116E: Error reading the HTTP Response body. Reason: '{}'
+- GAL1117E: The delete operation failed. Unable to process the error information returned from the server.
+- GAL1118E: The resource operation failed. Unable to process the error information returned from the server. Reason: '{}'
+- GAL1119E: The server thinks you are unauthorized to perform this operation.
+- GAL1120E: Program logic error. Collect a log using the '--log' option and send to the Galasa development team.
+- GAL1121E: Unable to retrieve rest api version. Reason is: {}. Try downloading the latest version of galasa or rebuilding a clean version.
+- GAL1122E: Authentication property {} is not available, which is needed to connect to the Galasa Ecosystem. It either needs to be in a file '{}' or set as an environment variable.
+- GAL1123E: Failed to read 3270 terminal JSON because the content is in the wrong format. Reason: {}
+- GAL1124E: Internal Failure. Terminal image could not be encoded into PNG format. Reason: {}
+- GAL1125E: Authentication property {} is invalid. Ensure that it the value is made up of two parts that are separated by a '{}'.
+- GAL1132E: No active run found matching run name '{}'.
+- GAL1133E: Error resetting run '{}'. Reason: '{}'
+- GAL1134E: The runs reset operation failed. Unable to process the error information returned from the server.
+- GAL1135E: Error cancelling run '{}'. Reason: '{}'
+- GAL1136E: The runs cancel operation failed. Unable to process the error information returned from the server.
+- GAL1137E: The gherkin URL supplied is invalid. '{}' does not end with the expected '.feature' extension.
+- GAL1138E: Unsupported gherkin URL {}. Acceptable values start with 'file://'
+- GAL1139E: Unable to compile the regex pattern for Galasa Property field 'namespace'. Reason: '{}'
+- GAL1140E: The namespace, '{}', provided does not match formatting requirements. The namespace must start with a character in the 'a-z' range, followed by characters in the 'a'-'z' or '0'-'9' ranges only.
+- GAL1141E: Unable to compile the regex pattern for Galasa Property field '{}'. Reason: '{}'
+- GAL1142E: The {} field value, '{}', provided does not match formatting requirements. The {} field value must start with a character in the 'a-z' or 'A-Z' range, followed by any characters in the 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore) or '@' (at) ranges only.
+- GAL1143E: Could not query run results. Server returned a non-200 code ({})
+- GAL1144E: Could not use url '{}' to retrieve the contents of the test catalog from stream '{}'. Http error from the Galasa server is '{}'
+- GAL1145E: Failed to create folder for bearer tokens at '{}'
+
+- GAL1146E: Could not get list of tokens from API server. Reason: '{}'. Ensure you have allocated a personal access token and configured your client program by setting your GALASA_TOKEN as an environment variable or by storing it in your galasactl.properties file
+- GAL1147E: The cache of access tokens contains a java web token (jwt) which is invalid or can't be parsed. File is '{}'. This could indicate a corruption in the file. To resolve, manually delete the file and authenticate against the server again with the 'galasactl auth login' command. If the problem persists, contact your Galasa system administrator. Detailed cause of this problem: '{}'
+- GAL1148E: The cache of access tokens contains a java web token (jwt) in file '{}', from which an expiration time could not be extracted. This could indicate a problem with the authentication configuration on the Galasa server. Contect your Galasa system administrator. Detailed problem : '{}'
+
+- GAL1149E: Programming logic error: Cannot encrypt because the length of the key is too small.
+- GAL1150E: Programming logic error: Decryption of cached bearer token failed. Reason: {}
+- GAL1151E: Programming logic error: Decryption of cached bearer token failed. Cipher is not long enough. Cipher size: {}, AES block size: {}
+- GAL1152E: Programming logic error: Too much data passed to the encryption process. Please contact your Galasa systems administrator.
+- GAL1153E: Failed to revoke the token with ID '{}'. Reason: '{}'.
+- GAL1154E: The provided token ID, '{}', does not match formatting requirements. The token ID can contain any character in the 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), or '_' (underscore) ranges only.
+- GAL1155E: The loginId provided by the --login-id field cannot be an empty string.
+- GAL1156E: Could not get list of users from API server. Reason: '{}'. Ensure you have allocated a personal access token and configured your client program by setting your GALASA_TOKEN as an environment variable or by storing it in your galasactl.properties file
+- GAL1157E: An attempt to delete a run named '{}' failed. Cause is {}
+- GAL1158E: An attempt to delete a run named '{}' failed. Sending the delete request to the Galasa service failed. Cause is {}
+- GAL1159E: An attempt to delete a run named '{}' failed. Unexpected http status code {} received from the server.
+- GAL1160E: An attempt to delete a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1161E: An attempt to delete a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1162E: An attempt to delete a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1163E: The run named '{}' could not be deleted because it was not found by the Galasa service. Try listing runs using 'galasactl runs get' to identify the one you wish to delete
+- GAL1164E: An attempt to delete a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1165E: '{}' is not supported as a valid login ID. Login ID should not contain spaces.
+- GAL1166E: The loginId provided by the --login-id field cannot be an empty string.
+- GAL1167E: An attempt to delete a secret named '{}' failed. Unexpected http status code {} received from the server.
+- GAL1168E: An attempt to delete a secret named '{}' failed. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1169E: An attempt to delete a secret named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1170E: An attempt to delete a secret named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1171E: An attempt to delete a secret named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1172E: Invalid secret name provided. The name provided with the --name flag cannot be empty and must only contain characters in the following ranges: 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), '_' (underscore).
+- GAL1173E: An attempt to delete a secret named '{}' failed. Sending the delete request to the Galasa service failed. Cause is {}
+- GAL1174E: An attempt to get a secret named '{}' failed. Unexpected http status code {} received from the server.
+- GAL1175E: An attempt to get a secret named '{}' failed. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1176E: An attempt to get a secret named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1177E: An attempt to get a secret named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1178E: An attempt to get a secret named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1179E: An attempt to get a secret named '{}' failed. Sending the get request to the Galasa service failed. Cause is {}
+- GAL1180E: Failed to get secrets. Unexpected http status code {} received from the server.
+- GAL1181E: Failed to get secrets. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1182E: Failed to get secrets. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1183E: Failed to get secrets. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1184E: Failed to get secrets. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1185E: Failed to get secrets. Sending the get request to the Galasa service failed. Cause is {}
+- GAL1186E: Invalid secret type provided. Supported secret types are: {}. Check your provided command parameters and try again.
+- GAL1187E: Failed to set a secret named '{}'. Unexpected http status code {} received from the server.
+- GAL1188E: Failed to set a secret named '{}'. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1189E: Failed to set a secret named '{}'. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1190E: Failed to set a secret named '{}'. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1191E: Failed to set a secret named '{}'. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1192E: Failed to set a secret named '{}'. Sending the put request to the Galasa service failed. Cause is {}
+- GAL1193E: Invalid flag combination provided. --username cannot be provided with --base64-username, --password cannot be provided with --base64-password, and --token cannot be provided with --base64-token. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands.
+- GAL1194E: Invalid secret description provided. The description provided with the --description flag cannot be an empty string, and must only contain characters in the Latin-1 character set.
+- GAL1195E: Failed to delete user from database by user number.
+- GAL1196E: The user could not be deleted by login ID because it was not found by the Galasa service. Try listing users using 'galasactl users get' to identify the one you wish to delete
+- GAL1197E: An attempt to delete a user failed. Sending the delete request to the Galasa service failed. Cause is {}
+- GAL1198E: An attempt to delete a user '{}' failed. Unexpected http status code {} received from the server.
+- GAL1199E: An attempt to delete a user '{}' failed. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1200E: An attempt to delete a user '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1201E: An attempt to delete a user '{}' failed. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1202E: An attempt to delete a user '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1203E: Failed to get roles. Sending the get request to the Galasa service failed. Cause is {}
+- GAL1204E: Failed to get roles. Unexpected http status code {} received from the server.
+- GAL1205E: Failed to get roles. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1206E: Failed to get roles. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1207E: Failed to get roles. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1208E: Failed to get roles. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1209E: Invalid role name provided. The name provided with the --name flag cannot be empty and must only contain characters in the following ranges: 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), '_' (underscore).
+- GAL1210E: Role name {} is not known on the Galasa service.
+- GAL1211E: User with login id {} is not known on the Galasa service.
+- GAL1212E: Failed to update user record on the Galasa service.
+- GAL1213E: An attempt to update a user '{}' failed. Unexpected http status code {} received from the server.
+- GAL1214E: An attempt to update a user '{}' failed. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1215E: An attempt to update a user '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1216E: An attempt to update a user '{}' failed. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1217E: An attempt to update a user '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1218E: Failed to get monitors. Sending the get request to the Galasa service failed. Cause is {}
+- GAL1219E: Failed to get monitors. Unexpected http status code {} received from the server.
+- GAL1220E: Failed to get monitors. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1221E: Failed to get monitors. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1222E: Failed to get monitors. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1223E: Failed to get monitors. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1224E: Galasa Monitor named {} is not known on the Galasa service.
+- GAL1225E: Invalid monitor name provided. The name provided with the --name flag cannot be empty and must only contain characters in the following ranges: 'a'-'z', 'A'-'Z', '0'-'9', '-' (dash), '_' (underscore).
+- GAL1226E: Invalid '--is-enabled' value provided. Supported values are 'true' and 'false'. Check your command parameters and try again.
+- GAL1227E: Failed to update a monitor named '{}'. Sending the put request to the Galasa service failed. Cause is {}
+- GAL1228E: Failed to update a monitor named '{}'. Unexpected http status code {} received from the server.
+- GAL1229E: Failed to update a monitor named '{}'. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1230E: Failed to update a monitor named '{}'. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1231E: Failed to update a monitor named '{}'. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1232E: Failed to update a monitor named '{}'. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'
+- GAL2501I: Downloaded {} artifacts to folder '{}'
+
+- GAL2503I: The request to reset run '{}' has been accepted by the server.
+
+- GAL2504I: The request to cancel run '{}' has been accepted by the server.
+

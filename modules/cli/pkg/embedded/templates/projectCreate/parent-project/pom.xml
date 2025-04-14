@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+{{/*	
+	This template expects the following parameters:
+
+	type ParentPomParameters struct {
+		Coordinates MavenCoordinates
+
+		// Version of Galasa we are targetting
+		GalasaVersion string
+
+		IsOBRRequired    bool
+		ObrName          string
+		ChildModuleNames []string
+		IsDevelopment    bool 
+	}
+*/}}
+	<groupId>{{.Coordinates.GroupId}}</groupId>
+	<artifactId>{{.Coordinates.ArtifactId}}</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+  	<packaging>pom</packaging>
+
+  	<name>{{.Coordinates.Name}}</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>11</java.version>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+		<unpackBundle>true</unpackBundle>
+
+		<!-- 
+		Un-comment this line if you want to skip building a test catalog for your tests.
+		<galasa.skip.bundletestcatalog>true</galasa.skip.bundletestcatalog>
+		-->
+
+		<!--
+		Set the following value to true if you want to deploy the test catalog to an ecosystem
+		-->
+		<galasa.skip.deploytestcatalog>true</galasa.skip.deploytestcatalog> 
+
+		<!-- Setting some properties used to deploy the test catalog to the galasa ecosystem -->
+		<!-- Override this value when you invoke maven using mvn clean install deploy "-DGALASA_TOKEN=..." -->
+		<galasa.token>${GALASA_TOKEN}</galasa.token>
+		<galasa.bootstrap>${GALASA_BOOTSTRAP}</galasa.bootstrap>
+		<galasa.test.stream>${GALASA_STREAM}</galasa.test.stream>
+	</properties>
+  
+	<modules>
+{{- range $componentName := .ChildModuleNames }}
+		<module>{{$componentName}}</module>
+{{- end -}}
+{{if .IsOBRRequired}}
+		<module>{{.ObrName}}</module>
+{{- end}}
+	</modules>
+
+    <!-- 
+	The following is used if you are publishing built artifacts into github's maven repository.
+	Set it to something different if you are publishing to a different maven repository.
+
+	GITHUB_REPOSITORY is expected to hold a value of something like {github-org}/{repo-name}
+	-->
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/${GITHUB_REPOSITORY}</url>
+		</repository>
+  	</distributionManagement>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>dev.galasa</groupId>
+				<artifactId>galasa-bom</artifactId>
+				<version>{{.GalasaVersion}}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+		
+	<dependencies>
+		<dependency>
+			<groupId>dev.galasa</groupId>
+			<artifactId>dev.galasa</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>dev.galasa</groupId>
+			<artifactId>dev.galasa.core.manager</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>dev.galasa</groupId>
+			<artifactId>dev.galasa.artifact.manager</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+		</dependency>
+	</dependencies>
+		
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>5.1.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-plugin-plugin</artifactId>
+					<version>3.6.0</version>
+				</plugin>
+				<plugin>
+					<groupId>dev.galasa</groupId>
+					<artifactId>galasa-maven-plugin</artifactId>
+					<version>{{.GalasaVersion}}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>dev.galasa</groupId>
+				<artifactId>galasa-maven-plugin</artifactId>
+				<extensions>true</extensions>
+				<executions>
+					<!-- Build a test catalog -->
+					<execution>
+						<id>build-testcatalog</id>
+						<phase>package</phase>
+						<goals>
+							<goal>bundletestcat</goal>
+						</goals>
+					</execution>
+
+					<!-- Publish the test catalog to the ecosystem -->
+					<!-- This uses the galasa.token, galasa.bootstrap and galasa.test.stream properties set above.-->
+					<execution>
+						<id>publish-testcatalog</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploytestcat</goal>
+						</goals>
+					</execution>
+
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>maven.central</id>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</repository>
+{{if .IsDevelopment}}
+		<!-- To use the bleeding edge version of galasa, use the development obr -->
+		<repository>
+			<id>galasa.repo</id>
+			<url>https://development.galasa.dev/main/maven-repo/obr</url> 
+		</repository>
+{{- else }}
+		<!-- To use the bleeding edge version of galasa, use the development obr -->
+		<!--
+		<repository>
+			<id>galasa.repo</id>
+			<url>https://development.galasa.dev/main/maven-repo/obr</url> 
+		</repository>
+		-->
+{{- end }}
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven.central</id>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</pluginRepository>
+{{if .IsDevelopment}}
+		<!-- To use the bleeding edge version of galasa, use the development obr -->
+		<pluginRepository>
+			<id>galasa.repo</id>    
+			<url>https://development.galasa.dev/main/maven-repo/obr</url> 
+		</pluginRepository> 
+{{- else }}
+		<!-- To use the bleeding edge version of galasa, use the development obr -->
+		<!--
+		<pluginRepository>
+			<id>galasa.repo</id>    
+			<url>https://development.galasa.dev/main/maven-repo/obr</url> 
+		</pluginRepository>
+		-->
+{{- end }}
+	</pluginRepositories>
+
+</project>

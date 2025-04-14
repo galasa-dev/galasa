@@ -1,0 +1,10 @@
+ARG dockerRepository
+ARG tag
+FROM ${dockerRepository}/galasa-dev/galasactl-x86_64:${tag}
+
+USER root
+
+COPY ibmroot.pem  /etc/ssl/certs/ibmroot.pem
+COPY ibminter.pem /etc/ssl/certs/ibminter.pem
+RUN  cat /etc/ssl/certs/ibmroot.pem >> /etc/ssl/certs/ca-certificates.crt
+RUN  cat /etc/ssl/certs/ibminter.pem >> /etc/ssl/certs/ca-certificates.crt
