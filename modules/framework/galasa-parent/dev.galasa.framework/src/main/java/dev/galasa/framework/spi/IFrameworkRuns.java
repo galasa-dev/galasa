@@ -11,8 +11,6 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.framework.TestRunLifecycleStatus;
-
 public interface IFrameworkRuns {
     
     public enum SharedEnvironmentPhase {
@@ -49,6 +47,6 @@ public interface IFrameworkRuns {
 
     boolean cancelRun(String runName) throws DynamicStatusStoreException;
 
-    void setRunStatus(String runName, TestRunLifecycleStatus newStatus) throws DynamicStatusStoreException;
+    void markRunFinished(String runName, String result) throws DynamicStatusStoreException;
 
 }

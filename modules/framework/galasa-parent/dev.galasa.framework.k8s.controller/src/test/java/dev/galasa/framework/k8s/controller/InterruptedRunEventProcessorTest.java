@@ -61,6 +61,7 @@ public class InterruptedRunEventProcessorTest {
         // Then...
         assertThat(eventQueue).isEmpty();
         assertThat(mockRun.getStatus()).isEqualTo(TestRunLifecycleStatus.FINISHED.toString());
+        assertThat(mockRun.getResult()).isEqualTo(interruptReason);
     }
     
 }

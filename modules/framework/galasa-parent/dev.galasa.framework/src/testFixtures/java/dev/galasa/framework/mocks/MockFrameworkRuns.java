@@ -104,10 +104,11 @@ public class MockFrameworkRuns implements IFrameworkRuns{
     }
 
     @Override
-    public void setRunStatus(String runName, TestRunLifecycleStatus newStatus) throws DynamicStatusStoreException {
+    public void markRunFinished(String runName, String result) throws DynamicStatusStoreException {
         MockRun run = (MockRun) getRun(runName);
         if (run != null) {
-            run.setStatus(newStatus.toString());
+            run.setStatus(TestRunLifecycleStatus.FINISHED.toString());
+            run.setResult(result);
         }
     }
 }

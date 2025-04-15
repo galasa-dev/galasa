@@ -10,7 +10,6 @@ import java.util.Queue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IFrameworkRuns;
 
@@ -49,6 +48,7 @@ public class InterruptedRunEventProcessor implements Runnable {
 
     private void markRunFinishedInDss(RunInterruptEvent interruptEvent) throws DynamicStatusStoreException {
         String runName = interruptEvent.getRunName();
-        frameworkRuns.setRunStatus(runName, TestRunLifecycleStatus.FINISHED);
+        String interruptReason = interruptEvent.getInterruptReason();
+        frameworkRuns.markRunFinished(runName, interruptReason);
     }
 }
