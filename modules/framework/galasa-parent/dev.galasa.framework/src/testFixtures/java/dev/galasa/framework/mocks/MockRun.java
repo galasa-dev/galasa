@@ -26,6 +26,7 @@ public class MockRun implements IRun {
     private String submissionId;
     private String status;
     private String interruptReason;
+    private String result;
 
     public MockRun(
         String testBundleName, 
@@ -160,6 +161,15 @@ public class MockRun implements IRun {
         this.interruptReason = interruptReason;
     }
 
+    @Override
+    public String getResult() {
+        return this.result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
     // ------------- un-implemented methods follow ----------------
 
     @Override
@@ -190,10 +200,5 @@ public class MockRun implements IRun {
     @Override
     public Run getSerializedRun() {
         throw new UnsupportedOperationException("Unimplemented method 'getSerializedRun'");
-    }
-
-    @Override
-    public String getResult() {
-        throw new UnsupportedOperationException("Unimplemented method 'getResult'");
     }
 }

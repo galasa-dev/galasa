@@ -11,7 +11,6 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFrameworkRuns;
@@ -99,7 +98,7 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     }
 
     @Override
-    public void setRunStatus(String runName, TestRunLifecycleStatus newStatus) throws DynamicStatusStoreException {
+    public void markRunFinished(String runName, String result) throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'setRunStatus'");
     }
 }
