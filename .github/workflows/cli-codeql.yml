@@ -93,7 +93,7 @@ jobs:
         -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
         -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build.log
-        docker run --rm --user $(id -u):$(id -g) -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main \
+        docker run --rm --user $(id -u):$(id -g) -v ${{ github.workspace }}/modules/cli:/var/workspace ghcr.io/galasa-dev/openapi:main \
         java -jar /opt/openapi/openapi-generator-cli.jar generate \
         -i /var/workspace/build/dependencies/openapi.yaml \
         -g go \
@@ -102,9 +102,9 @@ jobs:
         --global-property=apiTests=false
         chmod +x ./fix-generated-code.sh
         ./fix-generated-code.sh
-        docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main \
+        docker run --rm -v ${{ github.workspace }}/modules/cli:/var/workspace ghcr.io/galasa-dev/openapi:main \
         rm /var/workspace/pkg/galasaapi/go.mod
-        docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main \
+        docker run --rm -v ${{ github.workspace }}/modules/cli:/var/workspace ghcr.io/galasa-dev/openapi:main \
         rm /var/workspace/pkg/galasaapi/go.sum
         version=$(cat VERSION) &&
         cat pkg/cmd/root.go | sed "s/unknowncliversion-unknowngithash/${version}/1" > temp.txt &&
