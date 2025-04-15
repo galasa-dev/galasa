@@ -1,0 +1,17 @@
+FROM ghcr.io/galasa-dev/ubuntu:20.04
+
+RUN apt-get update \
+    && apt-get install -y ca-certificates
+
+ARG platform
+
+RUN groupadd -r galasa && \
+    useradd -r -g galasa -d /galasa -s /bin/bash galasa && \
+    mkdir -p /galasa && \
+    chown galasa:galasa /galasa
+
+COPY bin/galasactl-${platform} /bin/galasactl
+RUN chmod +x /bin/galasactl
+
+WORKDIR /galasa
+USER galasa

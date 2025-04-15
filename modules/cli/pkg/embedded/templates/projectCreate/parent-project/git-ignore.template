@@ -1,0 +1,22 @@
+
+# Ignore Mac metadata files.
+**/.DS_Store
+
+{{- if .IsGradleUsed }}
+# Ignore anything built by gradle
+**/build/
+**/.gradle/
+**/target/
+{{- end }}
+
+{{- if .IsMavenUsed }}
+# Ignore anything built by maven
+**/target/
+{{- end }}
+
+# Ignore any built java artifacts
+**/*.class
+**/*.jar
+
+# Ignore any temporary folder locally
+temp/

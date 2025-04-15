@@ -1,0 +1,52 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <pluginGroups>
+        <pluginGroup>dev.galasa</pluginGroup>
+    </pluginGroups>
+     
+    <profiles>
+        <profile>
+            <id>galasa</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>maven.central</id>
+                    <url>https://repo.maven.apache.org/maven2/</url>
+                </repository>
+                {{- if .IsDevelopment }}
+                <!-- Using the bleeding edge version of galasa. Comment out if not needed. -->
+                {{- else }}
+                <!-- To use the bleeding edge version of galasa, use the development obr
+                {{- end }}
+                <repository>
+                    <id>galasa.repo</id>
+                    <url>https://development.galasa.dev/main/maven-repo/obr</url> 
+                </repository>
+                {{- if not .IsDevelopment }}
+                -->
+                {{- end }}
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>maven.central</id>
+                    <url>https://repo.maven.apache.org/maven2/</url>
+                </pluginRepository>
+                {{- if .IsDevelopment }}
+                <!-- Using the bleeding edge version of galasa. Comment out if not needed. -->
+                {{- else }}
+                <!-- To use the bleeding edge version of galasa, use the development obr
+                {{- end }}
+                <pluginRepository>
+                    <id>galasa.repo</id>    
+                    <url>https://development.galasa.dev/main/maven-repo/obr</url> 
+                </pluginRepository>
+                {{- if not .IsDevelopment }}
+                -->
+                {{- end }}
+             </pluginRepositories>
+         </profile>
+     </profiles>
+</settings>
