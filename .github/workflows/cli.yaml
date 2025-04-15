@@ -3,38 +3,27 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-name: CLI PR Build
+name: CLI Main Build
 
 on:
   workflow_call:
-    inputs:
-      changed:
-        description: 'True if this module has been changed and should be rebuilt'
-        required: true
-        type: string
-      artifact-id:
-        description: 'The Workflow Run ID of the last workflow containing artifacts to download'
-        required: true
-        type: string
 
 env:
   REGISTRY: ghcr.io
+  NAMESPACE: ${{ github.repository_owner }}
+  BRANCH: ${{ github.ref_name }}
 
 jobs:
-
-  log-unchanged:
-    name: Cli is unchanged
-    if: ${{ inputs.changed == 'false' }}
+  log-github-ref:
+    name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Log this module is unchanged
+      - name: Log GitHub ref of workflow
         run: |
-          echo "The cli module is unchanged"
+          echo "This workflow is running on GitHub ref ${{ env.BRANCH }}"
 
   build-cli:
     name: Build the Galasa CLI
-    if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -48,65 +37,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.9
-          gradle-home-cache-excludes: |
-            caches/modules-2/files-2.1/dev.galasa/**
+          cache-disabled: true
+        # gradle-home-cache-excludes: |
+        #   caches/modules-2/files-2.1/dev.galasa/**
 
-      # For any modules that were changed in this PR,
-      # download their artifacts from this workflow run.
-
-      - name: Download platform from this workflow
-        id: download-platform
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: platform
-          path: modules/artifacts
-
-      - name: Download framework artifacts from this workflow
-        id: download-framework
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: framework
-          path: modules/artifacts
-
-      - name: Download obr artifacts from this workflow
-        id: download-obr
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: obr
-          path: modules/artifacts
-
-      # For any modules that weren't changed in this PR,
-      # download artifacts from the last successful workflow.
-
-      - name: Download platform from last successful workflow
-        if: ${{ steps.download-platform.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: platform
-          path: modules/artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ inputs.artifact-id }}
-
-      - name: Download framework artifacts from last successful workflow
-        if: ${{ steps.download-framework.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-            name: framework
-            path: modules/artifacts
-            github-token: ${{ github.token }}
-            run-id: ${{ inputs.artifact-id }}
-
-      - name: Download obr artifacts from last successful workflow
-        if: ${{ steps.download-obr.outcome == 'failure' }}
-        uses: actions/download-artifact@v4
-        with:
-            name: obr
-            path: modules/artifacts
-            github-token: ${{ github.token }}
-            run-id: ${{ inputs.artifact-id }}
 
       # Pull down dependencies with Gradle and put them in the right places.
       - name: Gather dependencies using Gradle
@@ -115,7 +49,7 @@ jobs:
           set -o pipefail
           gradle -b build.gradle installJarsIntoTemplates --info \
           --no-daemon --console plain \
-          -PsourceMaven=${{ github.workspace }}/modules/artifacts \
+          -PsourceMaven=https://development.galasa.dev/${{ env.BRANCH }}/maven-repo/obr \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
           -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build.log
 
@@ -226,31 +160,115 @@ jobs:
           chmod +x test-galasactl-ecosystem.sh
           ./test-galasactl-ecosystem.sh --bootstrap https://galasa-ecosystem1.galasa.dev/api/bootstrap
 
-      - name: Build Docker image with galasactl executable
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        env:
+          WRITE_GITHUB_PACKAGES_USERNAME: ${{ vars.WRITE_GITHUB_PACKAGES_USERNAME }}
+          WRITE_GITHUB_PACKAGES_TOKEN: ${{ secrets.WRITE_GITHUB_PACKAGES_TOKEN }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.WRITE_GITHUB_PACKAGES_USERNAME }}
+          password: ${{ env.WRITE_GITHUB_PACKAGES_TOKEN }}
+  
+      - name: Extract metadata for galasactl image
+        id: metadata-galasactl
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasactl-x86_64
+  
+      - name: Build galasactl image
+        id: build-galasactl
         uses: docker/build-push-action@v5
         with:
           context: modules/cli
           file: modules/cli/dockerfiles/dockerfile.galasactl
-          load: true
-          tags: galasactl-x86_64:test
+          push: true
+          tags: ${{ steps.metadata-galasactl.outputs.tags }}
+          labels: ${{ steps.metadata-galasactl.outputs.labels }}
           build-args: |
             platform=linux-x86_64
 
-      - name: Build Docker image with galasactl executable and IBM certificates
+      - name: Extract metadata for galasactl-ibm image
+        id: metadata-galasactl-ibm
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasactl-ibm-x86_64
+  
+      - name: Build galasactl-ibm image
+        id: build-galasactl-ibm
         uses: docker/build-push-action@v5
         with:
           context: modules/cli/dockerfiles/certs
           file: modules/cli/dockerfiles/dockerfile.galasactl-ibm
-          load: true
-          tags: galasactl-ibm-x86_64:test
+          push: true
+          tags: ${{ steps.metadata-galasactl-ibm.outputs.tags }}
+          labels: ${{ steps.metadata-galasactl-ibm.outputs.labels }}
           build-args: |
             dockerRepository=${{ env.REGISTRY }}
-            tag=main
+            tag=${{ env.BRANCH }}
 
-      - name: Build Docker image for development download site
+      - name: Extract metadata for galasactl-executables image
+        id: metadata-galasactl-executables
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasactl-executables
+  
+      - name: Build galasactl-executables image
+        id: build-galasactl-executables
         uses: docker/build-push-action@v5
         with:
           context: modules/cli
           file: modules/cli/dockerfiles/dockerfile.galasactl-executables
-          load: true
-          tags: galasactl-executables:test
+          push: true
+          tags: ${{ steps.metadata-galasactl-executables.outputs.tags }}
+          labels: ${{ steps.metadata-galasactl-executables.outputs.labels }}
+
+      - name: Recycle application in ArgoCD
+        # Skip this step for forks
+        if: ${{ github.repository_owner == 'galasa-dev' }}
+        env: 
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm \
+          ghcr.io/galasa-dev/argocdcli:main app actions run ${{ env.BRANCH }}-cli restart \
+          --kind Deployment --resource-name cli-${{ env.BRANCH }} --server argocd.galasa.dev
+       
+      - name: Wait for application health in ArgoCD
+        # Skip this step for forks
+        if: ${{ github.repository_owner == 'galasa-dev' }}
+        env: 
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm \
+          ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.BRANCH }}-cli \
+          --resource apps:Deployment:cli-${{ env.BRANCH }} --health --server argocd.galasa.dev
+
+  trigger-next-workflow:
+    # Skip this job for forks
+    if: ${{ github.repository_owner == 'galasa-dev' }}
+    name: Trigger next workflow in the build chain
+    needs: [log-github-ref, build-cli]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Triggering isolated build
+        env:
+            GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/isolated --ref ${{ env.BRANCH }}
+
+  report-failure:
+    # Skip this job for forks
+    if: ${{ failure() && github.repository_owner == 'galasa-dev' }}
+    name: Report failure in workflow
+    runs-on: ubuntu-latest
+    needs: [log-github-ref, build-cli]
+
+    steps:
+      - name: Report failure in workflow to Slack
+        env: 
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run : |
+          docker run --rm ghcr.io/galasa-dev/galasabld-ibm:main slackpost workflows \
+          --repo "galasa" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" \
+          --ref "${{ env.BRANCH }}" --hook "${{ env.SLACK_WEBHOOK }}"
