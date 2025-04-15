@@ -9,6 +9,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.Test;
 
@@ -22,7 +24,7 @@ import dev.galasa.framework.spi.IRun;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 
-public class RunPodCleanupTest {
+public class RunPodInterruptTest {
 
     private V1Pod createMockTestPod(String runName) {
         V1Pod mockPod = new V1Pod();
@@ -35,8 +37,8 @@ public class RunPodCleanupTest {
         return mockPod;
     }
 
-    private MockRun createMockRun(String runName, String status) {
-        // We only care about the run's name and status
+    private MockRun createMockRun(String runName, String status, String interruptReason) {
+        // We only care about the run's name, status, and interrupt reason
         MockRun mockRun = new MockRun(
             "bundle",
             "testclass",
@@ -48,93 +50,116 @@ public class RunPodCleanupTest {
             false
         );
 
+        mockRun.setInterruptReason(interruptReason);
         mockRun.setStatus(status);
         return mockRun;
     }
 
     @Test
-    public void testPodsForFinishedRunsAreDeletedOk() throws Exception {
+    public void testPodForAnInterruptedRunIsDeletedOk() throws Exception {
         // Given...
         String runName1 = "run1";
         String runName2 = "run2";
         String runName3 = "run3";
 
-        // Create terminated pods
-        List<V1Pod> mockTerminatedPods = new ArrayList<>();
-        mockTerminatedPods.add(createMockTestPod(runName1));
-        mockTerminatedPods.add(createMockTestPod(runName2));
+        String interruptReason = "cancelled";
 
-        // Create a list of all pods to also simulate running pods
-        List<V1Pod> mockPods = new ArrayList<>(mockTerminatedPods);
-        V1Pod runningPod = createMockTestPod(runName3);
-        mockPods.add(runningPod);
+        List<V1Pod> mockPods = new ArrayList<>();
+        mockPods.add(createMockTestPod(runName1));
+        mockPods.add(createMockTestPod(runName2));
+
+        V1Pod cancelledPod = createMockTestPod(runName3);
+        mockPods.add(cancelledPod);
 
         // Create runs associated with the pods
         List<IRun> mockRuns = new ArrayList<>();
-        mockRuns.add(createMockRun(runName1, TestRunLifecycleStatus.FINISHED.toString()));
-        mockRuns.add(createMockRun(runName2, TestRunLifecycleStatus.FINISHED.toString()));
-        mockRuns.add(createMockRun(runName3, TestRunLifecycleStatus.RUNNING.toString()));
+        mockRuns.add(createMockRun(runName1, TestRunLifecycleStatus.FINISHED.toString(), null));
+        mockRuns.add(createMockRun(runName2, TestRunLifecycleStatus.FINISHED.toString(), null));
+        mockRuns.add(createMockRun(runName3, TestRunLifecycleStatus.RUNNING.toString(), interruptReason));
 
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
         MockSettings mockSettings = new MockSettings(null, null, null);
         KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
-        RunPodCleanup runPodCleanup = new RunPodCleanup(mockSettings, kubeEngineFacade, mockFrameworkRuns);
+        Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
+
+        RunPodInterrupt runPodInterrupt = new RunPodInterrupt(kubeEngineFacade, mockFrameworkRuns, eventQueue);
 
         // When...
-        runPodCleanup.deletePodsForCompletedRuns(mockTerminatedPods);
+        runPodInterrupt.run();
 
         // Then...
-        List<V1Pod> remainingPods = mockApiClient.getMockPods();
-        assertThat(remainingPods).hasSize(1);
-        assertThat(remainingPods.get(0)).usingRecursiveComparison().isEqualTo(runningPod);
+        assertThat(mockPods).hasSize(2);
+        assertThat(mockPods).doesNotContain(cancelledPod);
+
+        // One event should have been added
+        assertThat(eventQueue).hasSize(1);
+
+        RunInterruptEvent interruptEvent = eventQueue.peek();
+        assertThat(interruptEvent.getRunName()).isEqualTo(runName3);
+        assertThat(interruptEvent.getInterruptReason()).isEqualTo(interruptReason);
 
         // No runs should have been deleted, only their pods
         assertThat(mockFrameworkRuns.getAllRuns()).hasSize(3);
     }
 
     @Test
-    public void testPodsForTerminatedRunsAreDeletedOk() throws Exception {
+    public void testPodsForMultipleInterruptedRunsAreDeletedOk() throws Exception {
         // Given...
         String runName1 = "run1";
         String runName2 = "run2";
 
-        // Create terminated pods
-        List<V1Pod> mockTerminatedPods = new ArrayList<>();
-        mockTerminatedPods.add(createMockTestPod(runName1));
-        mockTerminatedPods.add(createMockTestPod(runName2));
+        String interruptReason = "cancelled";
 
-        List<V1Pod> mockPods = new ArrayList<>(mockTerminatedPods);
+        List<V1Pod> mockPods = new ArrayList<>();
+        V1Pod cancelledPod1 = createMockTestPod(runName1);
+        mockPods.add(cancelledPod1);
 
-        // Simulate a situation where the runs have been deleted from the DSS but the pods still exist,
-        // so the pods should get deleted
+        V1Pod cancelledPod2 = createMockTestPod(runName2);
+        mockPods.add(cancelledPod2);
+
+        // Create runs associated with the pods
         List<IRun> mockRuns = new ArrayList<>();
+        mockRuns.add(createMockRun(runName1, TestRunLifecycleStatus.STARTED.toString(), interruptReason));
+        mockRuns.add(createMockRun(runName2, TestRunLifecycleStatus.RUNNING.toString(), interruptReason));
 
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
         MockSettings mockSettings = new MockSettings(null, null, null);
         KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
-        RunPodCleanup runPodCleanup = new RunPodCleanup(mockSettings, kubeEngineFacade, mockFrameworkRuns);
+        Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
+
+        RunPodInterrupt runPodInterrupt = new RunPodInterrupt(kubeEngineFacade, mockFrameworkRuns, eventQueue);
 
         // When...
-        runPodCleanup.deletePodsForCompletedRuns(mockTerminatedPods);
+        runPodInterrupt.run();
 
         // Then...
-        assertThat(mockApiClient.getMockPods()).isEmpty();
+        assertThat(mockPods).isEmpty();
+
+        // Two events should have been added
+        assertThat(eventQueue).hasSize(2);
+
+        RunInterruptEvent interruptEvent1 = eventQueue.poll();
+        assertThat(interruptEvent1.getRunName()).isEqualTo(runName1);
+
+        RunInterruptEvent interruptEvent2 = eventQueue.poll();
+        assertThat(interruptEvent2.getRunName()).isEqualTo(runName2);
+
+        // No runs should have been deleted, only their pods
+        assertThat(mockFrameworkRuns.getAllRuns()).hasSize(2);
     }
 
     @Test
     public void testPodWithNoRunNameShouldNotBeDeleted() throws Exception {
         // Given...
-        // Simulate a situation where the current kubernetes namespace has a terminated pod, which may
+        // Simulate a situation where the current kubernetes namespace has a pod that may
         // not be a Galasa-related pod, so it doesn't have a "galasa-run" label with a run name.
-        List<V1Pod> mockTerminatedPods = new ArrayList<>();
+        List<V1Pod> mockPods = new ArrayList<>();
         V1Pod podWithNoRunName = createMockTestPod(null);
-        mockTerminatedPods.add(podWithNoRunName);
-
-        List<V1Pod> mockPods = new ArrayList<>(mockTerminatedPods);
+        mockPods.add(podWithNoRunName);
 
         List<IRun> mockRuns = new ArrayList<>();
 
@@ -143,10 +168,12 @@ public class RunPodCleanupTest {
 
         MockSettings mockSettings = new MockSettings(null, null, null);
         KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
-        RunPodCleanup runPodCleanup = new RunPodCleanup(mockSettings, kubeEngineFacade, mockFrameworkRuns);
+        Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
+
+        RunPodInterrupt runPodInterrupt = new RunPodInterrupt(kubeEngineFacade, mockFrameworkRuns, eventQueue);
 
         // When...
-        runPodCleanup.deletePodsForCompletedRuns(mockTerminatedPods);
+        runPodInterrupt.run();
 
         // Then...
         List<V1Pod> pods = mockApiClient.getMockPods();

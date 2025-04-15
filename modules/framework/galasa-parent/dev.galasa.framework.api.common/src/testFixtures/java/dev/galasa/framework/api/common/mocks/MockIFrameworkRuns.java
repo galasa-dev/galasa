@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFrameworkRuns;
@@ -90,5 +91,15 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
 
     public void setMockSubmissionId(String mockSubmissionId) {
         this.mockSubmissionId = mockSubmissionId;
+    }
+
+    @Override
+    public boolean cancelRun(String runName) throws DynamicStatusStoreException {
+        return true;
+    }
+
+    @Override
+    public void setRunStatus(String runName, TestRunLifecycleStatus newStatus) throws DynamicStatusStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'setRunStatus'");
     }
 }

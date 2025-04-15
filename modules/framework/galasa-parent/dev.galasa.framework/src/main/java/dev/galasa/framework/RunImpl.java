@@ -37,6 +37,7 @@ public class RunImpl implements IRun {
     private final boolean trace;
     private final boolean sharedEnvironment;
     private final String  rasRunId;
+    private final String  interruptReason;
 
     public RunImpl(String name, IDynamicStatusStoreService dss) throws DynamicStatusStoreException {
         this.name = name;
@@ -63,6 +64,7 @@ public class RunImpl implements IRun {
         group = runProperties.get(prefix + "group");
         submissionId = runProperties.get(prefix + "submissionId");
         rasRunId = runProperties.get(prefix + "rasrunid");
+        interruptReason = runProperties.get(prefix + "interruptReason");
         local = Boolean.parseBoolean(runProperties.get(prefix + "local"));
         trace = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
         sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + "shared.environment"));
@@ -223,4 +225,8 @@ public class RunImpl implements IRun {
         return this.rasRunId;
     }
 
+    @Override
+    public String getInterruptReason() {
+        return interruptReason;
+    }
 }

@@ -52,6 +52,7 @@ import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.prometheus.client.Counter;
 
 public class TestPodScheduler implements Runnable {
+    public static final String GALASA_RUN_POD_LABEL = "galasa-run";
 
     private static final String RAS_TOKEN_ENV = "GALASA_RAS_TOKEN";
     private static final String EVENT_TOKEN_ENV = "GALASA_EVENT_STREAMS_TOKEN";
@@ -242,7 +243,7 @@ public class TestPodScheduler implements Runnable {
         newPod.setMetadata(metadata);
         metadata.setName(engineName);
         metadata.putLabelsItem("galasa-engine-controller", this.settings.getEngineLabel());
-        metadata.putLabelsItem("galasa-run", runName);
+        metadata.putLabelsItem(GALASA_RUN_POD_LABEL, runName);
 
         V1PodSpec podSpec = new V1PodSpec();
         newPod.setSpec(podSpec);

@@ -19,7 +19,7 @@ import dev.galasa.framework.k8s.controller.mocks.MockSettings;
 import dev.galasa.framework.mocks.MockCPSStore;
 import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
-import dev.galasa.framework.mocks.MockIFrameworkRuns;
+import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1Container;
@@ -182,7 +182,7 @@ public class TestPodSchedulerTest {
 
         MockK8sController controller = new MockK8sController();
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(new ArrayList<>());
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
         V1ConfigMap mockConfigMap = createMockConfigMap();
         MockSettings settings = new MockSettings(mockConfigMap, controller, null);
@@ -215,7 +215,7 @@ public class TestPodSchedulerTest {
 
         MockK8sController controller = new MockK8sController();
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(new ArrayList<>());
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
         V1ConfigMap mockConfigMap = createMockConfigMap();
         MockSettings settings = new MockSettings(mockConfigMap, controller, null);
@@ -252,7 +252,7 @@ public class TestPodSchedulerTest {
 
         MockK8sController controller = new MockK8sController();
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(new ArrayList<>());
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
         V1ConfigMap mockConfigMap = createMockConfigMap();
         MockSettings settings = new MockSettings(mockConfigMap, controller, null);
@@ -289,7 +289,7 @@ public class TestPodSchedulerTest {
 
         MockK8sController controller = new MockK8sController();
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(new ArrayList<>());
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
         V1ConfigMap mockConfigMap = createMockConfigMap();
         MockSettings settings = new MockSettings(mockConfigMap, controller, null);
@@ -328,7 +328,7 @@ public class TestPodSchedulerTest {
 
         MockK8sController controller = new MockK8sController();
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(new ArrayList<>());
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
         V1ConfigMap mockConfigMap = createMockConfigMap();
         MockSettings settings = new MockSettings(mockConfigMap, controller, null);

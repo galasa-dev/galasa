@@ -63,7 +63,7 @@ public class TestTestRunner {
         );
 
 
-        MockIFrameworkRuns frameworkRuns = new MockIFrameworkRuns( "myRunsGroup", List.of(run));
+        MockFrameworkRuns frameworkRuns = new MockFrameworkRuns( "myRunsGroup", List.of(run));
 
         MockShutableFramework framework = new MockShutableFramework(ras,dss,TEST_RUN_NAME, run, frameworkRuns );
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
@@ -310,7 +310,7 @@ public class TestTestRunner {
         );
 
 
-        MockIFrameworkRuns frameworkRuns = new MockIFrameworkRuns( "myRunsGroup", List.of(run));
+        MockFrameworkRuns frameworkRuns = new MockFrameworkRuns( "myRunsGroup", List.of(run));
 
         MockShutableFramework framework = new MockShutableFramework(ras,dss,TEST_RUN_NAME, run, frameworkRuns );
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();

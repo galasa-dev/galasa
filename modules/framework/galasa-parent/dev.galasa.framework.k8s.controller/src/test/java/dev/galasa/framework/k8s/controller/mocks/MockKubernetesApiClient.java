@@ -9,15 +9,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.galasa.framework.k8s.controller.IKubernetesProtoClient;
+import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1Pod;
 
-public class MockKubernetesProtoClient implements IKubernetesProtoClient {
+public class MockKubernetesApiClient implements IKubernetesApiClient {
 
     private List<V1Pod> mockPods = new ArrayList<>();
 
-    public MockKubernetesProtoClient(List<V1Pod> mockPods) {
+    public MockKubernetesApiClient(List<V1Pod> mockPods) {
         this.mockPods = mockPods;
     }
 
@@ -35,6 +35,11 @@ public class MockKubernetesProtoClient implements IKubernetesProtoClient {
     }
 
     public List<V1Pod> getMockPods() {
+        return this.mockPods;
+    }
+
+    @Override
+    public List<V1Pod> getPods(String namespace, String labelSelector) throws ApiException {
         return this.mockPods;
     }
     

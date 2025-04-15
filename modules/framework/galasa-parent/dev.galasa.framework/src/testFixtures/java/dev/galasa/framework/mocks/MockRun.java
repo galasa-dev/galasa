@@ -25,6 +25,7 @@ public class MockRun implements IRun {
     private String group;
     private String submissionId;
     private String status;
+    private String interruptReason;
 
     public MockRun(
         String testBundleName, 
@@ -148,6 +149,15 @@ public class MockRun implements IRun {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @Override
+    public String getInterruptReason() {
+        return this.interruptReason;
+    }
+
+    public void setInterruptReason(String interruptReason) {
+        this.interruptReason = interruptReason;
     }
 
     // ------------- un-implemented methods follow ----------------

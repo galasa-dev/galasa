@@ -305,6 +305,28 @@ public class FrameworkRuns implements IFrameworkRuns {
     }
 
     @Override
+    public boolean cancelRun(String runName) throws DynamicStatusStoreException {
+        boolean isMarkedCancelled = false;
+        String prefix = getRunDssPrefix(runName);
+
+        // Mark the run as cancelled if it exists in the DSS
+        if (isRunInDss(runName)) {
+            this.dss.put(prefix + "interruptReason", "cancelled");
+            isMarkedCancelled = true;
+        }
+        return isMarkedCancelled;
+    }
+
+    @Override
+    public void setRunStatus(String runName, TestRunLifecycleStatus newStatus) throws DynamicStatusStoreException {
+        String runPrefix = getRunDssPrefix(runName);
+
+        if (isRunInDss(runName)) {
+            this.dss.put(runPrefix + "status", newStatus.toString());
+        }
+    }
+
+    @Override
     public IRun getRun(String runname) throws DynamicStatusStoreException {
         String prefix = RUN_PREFIX + runname + ".";
 
@@ -492,5 +514,15 @@ public class FrameworkRuns implements IFrameworkRuns {
 
             runRequest.setSharedEnvironmentRunName(sharedEnvironmentRunName.trim().toUpperCase());
         }
+    }
+
+    private boolean isRunInDss(String runName) throws DynamicStatusStoreException {
+        String prefix = getRunDssPrefix(runName);
+        Map<String, String> properties = this.dss.getPrefix(prefix);
+        return !properties.isEmpty();
+    }
+
+    private String getRunDssPrefix(String runName) throws DynamicStatusStoreException {
+        return RUN_PREFIX + runName + ".";
     }
 }
