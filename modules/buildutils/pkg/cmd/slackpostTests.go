@@ -25,12 +25,17 @@ var (
 		Run:   slackpostTestsExecute,
 	}
 	testReportPath string
+	testSuiteName  string
+	testSuiteDesc  string
 )
 
 func init() {
 	slackpostTestsCmd.PersistentFlags().StringVar(&testReportPath, "path", "", "Path to the galasactl report")
+	slackpostTestsCmd.PersistentFlags().StringVar(&testSuiteName, "name", "", "Name of the test suite we are reporting on")
+	slackpostTestsCmd.PersistentFlags().StringVar(&testSuiteDesc, "desc", "", "Description of the test suite we are reporting on")
 
 	slackpostTestsCmd.MarkPersistentFlagRequired("path")
+	slackpostTestsCmd.MarkPersistentFlagRequired("name")
 
 	slackpostCmd.AddCommand(slackpostTestsCmd)
 }
@@ -82,7 +87,7 @@ func slackpostTestsExecute(cmd *cobra.Command, args []string) {
 		total++
 	}
 
-	content := fmt.Sprintf("Galasa Full Regression Testing - Failure Report\nTotal: %v\nPassed: %v, Failed: %v, Failed With Defects: %v, Passed With Defects: %v, Other: %v\n", total, passed, failed, fwd, pwd, other)
+	content := fmt.Sprintf("Galasa Regression Testing - Failure Report\nTest Suite: %s\n%s\nTotal: %v\nPassed: %v, Failed: %v, Failed With Defects: %v, Passed With Defects: %v, Other: %v\n", testSuiteName, testSuiteDesc, total, passed, failed, fwd, pwd, other)
 	for _, f := range failingTests {
 		content += f
 	}
