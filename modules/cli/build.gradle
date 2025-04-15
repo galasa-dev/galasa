@@ -1,0 +1,73 @@
+//
+// Objectives:
+//
+// - The galasactl tool needs to embed the galasa-boot.jar so that the jar can be 
+//   unpacked on disk and used to launch testcases in a local jvm.
+//   So we need to get hold of this boot jar.
+//
+// - The galasactl tool needs to talk to the API server via an HTTP client layer, 
+//   which is generated from a yaml definition file.
+//   So we need to get hold of a generator tool so we can 
+//
+
+// Note: The following version is picked up by the build process and fed
+// into the code, so the code knows what versions of galasa it should be 
+// dealing with. Do not mess with the `def {variableName}` part of the following 
+// lines, only change the versions we rely upon.
+
+def galasaVersion = '0.41.0'
+
+repositories {
+    gradlePluginPortal()
+    mavenLocal()
+    maven {
+        url "https://development.galasa.dev/main/maven-repo/obr/"
+    }
+    mavenCentral()
+}
+apply plugin: 'java'
+dependencies {
+    // Use dev.galasa.platform to obtain the versions
+    implementation platform('dev.galasa:dev.galasa.platform:0.41.0')
+    // We need the galasa-boot jar so we can launch tests in a local JVM
+    implementation 'dev.galasa:galasa-boot'
+    // We need the openapi generator to turn a yaml file into go client stubs, 
+    // so we can call the api server REST services
+    // https://mvnrepository.com/artifact/org.openapitools/openapi-generator
+    implementation 'org.openapitools:openapi-generator-cli'
+
+    // Download the openapi.yaml specification for the REST APIs.
+    // The REST interface spec is always the same version as the Galasa version.
+    compileOnly group: "dev.galasa", name: "dev.galasa.framework.api.openapi", ext: "yaml"
+}
+
+
+
+task downloadRawDependencies(type: Copy) {
+    // Download the dependencies onto the local disk.
+    from configurations.compileClasspath
+    into 'build/dependencies'
+    dependsOn configurations.compileClasspath
+}
+
+task downloadDependencies(type: Copy) {
+    // Rename the complex openapi.yaml file into something easier to use elsewhere.
+    // So the path to the new file is build/dependencies/openapi.yaml
+    from "build/dependencies/dev.galasa.framework.api.openapi-${galasaVersion}.yaml"
+    into "build/dependencies"
+    rename { fileName -> "openapi.yaml" }
+    dependsOn downloadRawDependencies
+}
+
+//tasks.register('installJarsIntoTemplates', Copy) {
+task installJarsIntoTemplates(type: Copy) {
+    // We want to embed some files into the executable.
+    // Copy the files into the go templates folder.
+    from layout.buildDirectory.file("dependencies/galasa-boot-"+galasaVersion+".jar")
+    into layout.buildDirectory.dir("../pkg/embedded/templates/galasahome/lib")
+    dependsOn downloadDependencies
+}
+description = 'Galasa CLI'
+
+
+

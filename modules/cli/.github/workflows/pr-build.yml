@@ -1,0 +1,160 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: PR build
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-cli:
+    name: Build the Galasa CLI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout CLI
+        uses: actions/checkout@v4
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.9
+          cache-disabled: true
+
+      # Pull down dependencies with Gradle and put them in the right places.
+      - name: Gather dependencies using Gradle
+        run : |
+          set -o pipefail
+          gradle -b build.gradle installJarsIntoTemplates --info \
+          --no-daemon --console plain \
+          -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build.log
+
+      - name: Upload Gradle installJarsIntoTemplates log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-installJarsIntoTemplates-log
+          path: build.log
+          retention-days: 7 
+
+      # Generate client code so galasactl can communicate with the API server.
+      - name: Generate Go client code using openapi.yaml
+        run : |
+          docker run --rm --user $(id -u):$(id -g) -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main java -jar /opt/openapi/openapi-generator-cli.jar generate -i /var/workspace/build/dependencies/openapi.yaml -g go -o /var/workspace/pkg/galasaapi --additional-properties=packageName=galasaapi --global-property=apiTests=false
+
+      # The generated code needs adjustment for various reasons.
+      - name: Fix generated code
+        run : |
+          chmod +x ./fix-generated-code.sh
+          ./fix-generated-code.sh
+
+      # The go.mod and go.sum are out of date, as they do not include the generated code so they are deleted here. They get re-generated when we compile.
+      # Due to permissions, deleting the go.mod and go.sum must be done by the openapi image as the image generated those files.
+
+      - name: Clear go.mod
+        run : |
+          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main rm /var/workspace/pkg/galasaapi/go.mod
+
+      - name: Clear go.sum
+        run : |
+          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main rm /var/workspace/pkg/galasaapi/go.sum
+
+      # The go code needs to know which version of Galasa it is part of, so substitute an eye-catcher with the correct value.
+      - name: Update version 
+        run : |
+          version=$(cat VERSION) &&
+          cat pkg/cmd/root.go | sed "s/unknowncliversion-unknowngithash/${version}/1" > temp.txt &&
+          mv -f temp.txt pkg/cmd/root.go &&
+          cat pkg/cmd/root.go
+
+      # Invoke the make command to build the go code, run unit tests and gather code coverage stats.
+      - name: Build Go code with the Makefile
+        run : |
+          make all
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      - name: Chmod local test script
+        run: | 
+          chmod +x test-galasactl-local.sh
+
+      - name: Run local test script with Maven
+        run : |
+          ./test-galasactl-local.sh --buildTool maven
+
+      - name: Run local test script with Gradle
+        run : |
+          ./test-galasactl-local.sh --buildTool gradle
+
+      # Skip testing of Galasa service related commands if the
+      # GALASA_TOKEN_ECOSYSTEM1 secret is not set as the test
+      # script will not be able to authenticate to ecosystem1.
+      - name: Check if secret GALASA_TOKEN_ECOSYSTEM1 exists
+        continue-on-error: true
+        env:
+          GALASA_TOKEN_ECOSYSTEM1: ${{ secrets.GALASA_TOKEN_ECOSYSTEM1 }}
+        run: |
+          if [ -z "${GALASA_TOKEN_ECOSYSTEM1}" ] || [ "${GALASA_TOKEN_ECOSYSTEM1}" = "" ]; then
+            echo "GALASA_TOKEN_ECOSYSTEM1 is not set. Skipping tests where the CLI interacts with the Galasa service."
+            exit 1
+          else
+            echo "GALASA_TOKEN_ECOSYSTEM1 is set. Proceeding with tests where the CLI interacts with the Galasa service."
+          fi
+        id: check-galasa-token
+
+      - name: Set environment variables
+        if: ${{ steps.check-galasa-token.outcome == 'success' }}
+        env:
+          GALASA_HOME: /home/runner/galasa
+          GALASA_TOKEN: ${{ secrets.GALASA_TOKEN_ECOSYSTEM1 }}
+        run : |
+          echo "GALASA_HOME=${{ env.GALASA_HOME }}" >> $GITHUB_ENV
+          echo "GALASA_TOKEN=${{ env.GALASA_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Run ecosystem test script
+        if: ${{ steps.check-galasa-token.outcome == 'success' }}
+        run : |
+          chmod +x test-galasactl-ecosystem.sh
+          ./test-galasactl-ecosystem.sh --bootstrap https://galasa-ecosystem1.galasa.dev/api/bootstrap
+
+      - name: Build Docker image with galasactl executable
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dockerfiles/dockerfile.galasactl
+          load: true
+          tags: galasactl-x86_64:test
+          build-args: |
+            platform=linux-x86_64
+
+      - name: Build Docker image with galasactl executable and IBM certificates
+        uses: docker/build-push-action@v5
+        with:
+          context: dockerfiles/certs
+          file: dockerfiles/dockerfile.galasactl-ibm
+          load: true
+          tags: galasactl-ibm-x86_64:test
+          build-args: |
+            dockerRepository=${{ env.REGISTRY }}
+            tag=main
+
+      - name: Build Docker image for development download site
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dockerfiles/dockerfile.galasactl-executables
+          load: true
+          tags: galasactl-executables:test
+        

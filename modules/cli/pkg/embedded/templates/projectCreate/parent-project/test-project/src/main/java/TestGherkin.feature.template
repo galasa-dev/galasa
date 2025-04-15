@@ -1,0 +1,4 @@
+Feature: {{.Feature}}
+  Scenario: {{.Feature}}
+    
+    THEN Write to log "Output this statement to the log"

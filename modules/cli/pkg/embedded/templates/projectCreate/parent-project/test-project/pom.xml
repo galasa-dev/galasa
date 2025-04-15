@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+{{/*	
+	This template expects the following parameters:
+
+	type TestPomParameters struct {
+		Parent        MavenCoordinates
+		Coordinates   MavenCoordinates
+		ComponentName string
+	}
+*/}}   
+    <parent>
+        <groupId>{{.Parent.GroupId}}</groupId>
+        <artifactId>{{.Parent.ArtifactId}}</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>{{.Coordinates.ArtifactId}}</artifactId>
+    <name>{{.Coordinates.Name}}</name>
+
+    <packaging>bundle</packaging>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.galasa</groupId>
+            <artifactId>dev.galasa.core.manager</artifactId>
+        </dependency>
+
+        <dependency>
+		    <groupId>dev.galasa</groupId>
+		    <artifactId>dev.galasa.framework</artifactId>
+	    </dependency>
+        
+    </dependencies>
+  
+</project>

@@ -1,0 +1,272 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Main build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: ${{ github.repository_owner }}
+  BRANCH: ${{ github.ref_name }}
+
+jobs:
+  log-github-ref:
+    name: Log the GitHub ref this workflow is running on (Branch or tag that received dispatch)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log GitHub ref of workflow
+        run: |
+          echo "This workflow is running on GitHub ref ${{ env.BRANCH }}"
+
+  check-required-secrets-configured:
+    name: Check required secrets configured
+    uses: galasa-dev/galasa/.github/workflows/check-required-secrets-configured.yaml@main
+    with:
+      check_write_github_packages_username: 'true'
+      check_write_github_packages_token: 'true'
+    secrets:
+      WRITE_GITHUB_PACKAGES_TOKEN: ${{ secrets.WRITE_GITHUB_PACKAGES_TOKEN }}
+
+  build-cli:
+    name: Build the Galasa CLI
+    runs-on: ubuntu-latest
+    needs: check-required-secrets-configured
+
+    steps:
+      - name: Checkout CLI
+        uses: actions/checkout@v4
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.9
+          cache-disabled: true
+
+      # Pull down dependencies with Gradle and put them in the right places.
+      - name: Gather dependencies using Gradle
+        run : |
+          set -o pipefail
+          gradle -b build.gradle installJarsIntoTemplates --info \
+          --no-daemon --console plain \
+          -PsourceMaven=https://development.galasa.dev/${{ env.BRANCH }}/maven-repo/obr \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build.log
+
+      - name: Upload Gradle installJarsIntoTemplates log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-installJarsIntoTemplates-log
+          path: build.log
+          retention-days: 7 
+
+      # Generate client code so galasactl can communicate with the API server.
+      - name: Generate Go client code using openapi.yaml
+        run : |
+          docker run --rm --user $(id -u):$(id -g) -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main \
+          java -jar /opt/openapi/openapi-generator-cli.jar generate \
+          -i /var/workspace/build/dependencies/openapi.yaml \
+          -g go \
+          -o /var/workspace/pkg/galasaapi \
+          --additional-properties=packageName=galasaapi \
+          --global-property=apiTests=false
+
+      # The generated code needs adjustment for various reasons.
+      - name: Fix generated code
+        run : |
+          chmod +x ./fix-generated-code.sh
+          ./fix-generated-code.sh
+
+      # The go.mod and go.sum are out of date, as they do not include the generated code so they are deleted here. They get re-generated when we compile.
+      # Due to permissions, deleting the go.mod and go.sum must be done by the openapi image as the image generated those files.
+
+      - name: Clear go.mod
+        run : |
+          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main \
+          rm /var/workspace/pkg/galasaapi/go.mod
+
+      - name: Clear go.sum
+        run : |
+          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi:main \
+          rm /var/workspace/pkg/galasaapi/go.sum
+
+      # The go code needs to know which version of Galasa it is part of, so substitute an eye-catcher with the correct value.
+      - name: Update version 
+        run : |
+          version=$(cat VERSION) &&
+          cat pkg/cmd/root.go | sed "s/unknowncliversion-unknowngithash/${version}/1" > temp.txt &&
+          mv -f temp.txt pkg/cmd/root.go &&
+          cat pkg/cmd/root.go
+
+      # Invoke the make command to build the go code, run unit tests and gather code coverage stats.
+      - name: Build Go code with the Makefile
+        run : |
+          make all
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      - name: Chmod local test script
+        run: | 
+          chmod +x test-galasactl-local.sh
+
+      - name: Run local test script with Maven
+        run : |
+          ./test-galasactl-local.sh --buildTool maven
+
+      - name: Run local test script with Gradle
+        run : |
+          ./test-galasactl-local.sh --buildTool gradle
+
+      # Skip testing of Galasa service related commands if the
+      # GALASA_TOKEN_ECOSYSTEM1 secret is not set as the test
+      # script will not be able to authenticate to ecosystem1.
+      - name: Check if secret GALASA_TOKEN_ECOSYSTEM1 exists
+        continue-on-error: true
+        env:
+          GALASA_TOKEN_ECOSYSTEM1: ${{ secrets.GALASA_TOKEN_ECOSYSTEM1 }}
+        run: |
+          if [ -z "${GALASA_TOKEN_ECOSYSTEM1}" ] || [ "${GALASA_TOKEN_ECOSYSTEM1}" = "" ]; then
+            echo "GALASA_TOKEN_ECOSYSTEM1 is not set. Skipping tests where the CLI interacts with the Galasa service."
+            exit 1
+          else
+            echo "GALASA_TOKEN_ECOSYSTEM1 is set. Proceeding with tests where the CLI interacts with the Galasa service."
+          fi
+        id: check-galasa-token
+
+      - name: Set environment variables
+        if: ${{ steps.check-galasa-token.outcome == 'success' }}
+        env:
+          GALASA_HOME: /home/runner/galasa
+          GALASA_TOKEN: ${{ secrets.GALASA_TOKEN_ECOSYSTEM1 }}
+        run : |
+          echo "GALASA_HOME=${{ env.GALASA_HOME }}" >> $GITHUB_ENV
+          echo "GALASA_TOKEN=${{ env.GALASA_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Run ecosystem test script
+        if: ${{ steps.check-galasa-token.outcome == 'success' }}
+        run : |
+          chmod +x test-galasactl-ecosystem.sh
+          ./test-galasactl-ecosystem.sh --bootstrap https://galasa-ecosystem1.galasa.dev/api/bootstrap
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        env:
+          WRITE_GITHUB_PACKAGES_USERNAME: ${{ vars.WRITE_GITHUB_PACKAGES_USERNAME }}
+          WRITE_GITHUB_PACKAGES_TOKEN: ${{ secrets.WRITE_GITHUB_PACKAGES_TOKEN }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.WRITE_GITHUB_PACKAGES_USERNAME }}
+          password: ${{ env.WRITE_GITHUB_PACKAGES_TOKEN }}
+  
+      - name: Extract metadata for galasactl image
+        id: metadata-galasactl
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasactl-x86_64
+  
+      - name: Build galasactl image
+        id: build-galasactl
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dockerfiles/dockerfile.galasactl
+          push: true
+          tags: ${{ steps.metadata-galasactl.outputs.tags }}
+          labels: ${{ steps.metadata-galasactl.outputs.labels }}
+          build-args: |
+            platform=linux-x86_64
+
+      - name: Extract metadata for galasactl-ibm image
+        id: metadata-galasactl-ibm
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasactl-ibm-x86_64
+  
+      - name: Build galasactl-ibm image
+        id: build-galasactl-ibm
+        uses: docker/build-push-action@v5
+        with:
+          context: dockerfiles/certs
+          file: dockerfiles/dockerfile.galasactl-ibm
+          push: true
+          tags: ${{ steps.metadata-galasactl-ibm.outputs.tags }}
+          labels: ${{ steps.metadata-galasactl-ibm.outputs.labels }}
+          build-args: |
+            dockerRepository=ghcr.io
+            tag=${{ env.BRANCH }}
+
+      - name: Extract metadata for galasactl-executables image
+        id: metadata-galasactl-executables
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasactl-executables
+  
+      - name: Build galasactl-executables image
+        id: build-galasactl-executables
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: dockerfiles/dockerfile.galasactl-executables
+          push: true
+          tags: ${{ steps.metadata-galasactl-executables.outputs.tags }}
+          labels: ${{ steps.metadata-galasactl-executables.outputs.labels }}
+
+      - name: Recycle application in ArgoCD
+        # Skip this step for forks
+        if: ${{ github.repository_owner == 'galasa-dev' }}
+        env: 
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace \
+          ghcr.io/galasa-dev/argocdcli:main app actions run ${{ env.BRANCH }}-cli restart \
+          --kind Deployment --resource-name cli-${{ env.BRANCH }} --server argocd.galasa.dev
+       
+      - name: Wait for application health in ArgoCD
+        # Skip this step for forks
+        if: ${{ github.repository_owner == 'galasa-dev' }}
+        env: 
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm -v ${{ github.workspace }}:/var/workspace \
+          ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.BRANCH }}-cli \
+          --resource apps:Deployment:cli-${{ env.BRANCH }} --health --server argocd.galasa.dev
+
+  trigger-next-workflow:
+    # Skip this job for forks
+    if: ${{ github.repository_owner == 'galasa-dev' }}
+    name: Trigger next workflow in the build chain
+    needs: [log-github-ref, build-cli]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Triggering isolated build
+        env:
+            GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/isolated --ref ${{ env.BRANCH }}
+
+  report-failure:
+    # Skip this job for forks
+    if: ${{ failure() && github.repository_owner == 'galasa-dev' }}
+    name: Report failure in workflow
+    runs-on: ubuntu-latest
+    needs: [log-github-ref, build-cli]
+
+    steps:
+      - name: Report failure in workflow to Slack
+        env: 
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run : |
+          docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/galasabld-ibm:main slackpost workflows \
+          --repo "cli" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" \
+          --ref "${{ env.BRANCH }}" --hook "${{ env.SLACK_WEBHOOK }}"
