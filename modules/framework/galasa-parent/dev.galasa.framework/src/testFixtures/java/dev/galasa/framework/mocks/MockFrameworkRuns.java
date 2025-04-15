@@ -11,22 +11,26 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 
-public class MockIFrameworkRuns implements IFrameworkRuns{
+public class MockFrameworkRuns implements IFrameworkRuns{
     protected String groupName;
     List<IRun> runs ;
 
+    public MockFrameworkRuns() {
+        // Do nothing...
+    }
 
-    public MockIFrameworkRuns(@NotNull String groupName, List<IRun> runs) {
+    public MockFrameworkRuns(@NotNull String groupName, List<IRun> runs) {
         this.groupName = groupName;
         this.runs = runs;
     }
 
-    public MockIFrameworkRuns(List<IRun> runs) {
+    public MockFrameworkRuns(List<IRun> runs) {
         this.runs = runs;
     }
 
@@ -92,5 +96,18 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     @Override
     public boolean reset(String runname) throws DynamicStatusStoreException {
         return true;
+    }
+
+    @Override
+    public boolean cancelRun(String runName) throws DynamicStatusStoreException {
+        return true;
+    }
+
+    @Override
+    public void setRunStatus(String runName, TestRunLifecycleStatus newStatus) throws DynamicStatusStoreException {
+        MockRun run = (MockRun) getRun(runName);
+        if (run != null) {
+            run.setStatus(newStatus.toString());
+        }
     }
 }

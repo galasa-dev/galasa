@@ -29,6 +29,7 @@ public class MockIRun implements IRun{
     private String repo;
     private String obr;
     private String result = "Passed";
+    private String interruptReason;
 
     
     public MockIRun(
@@ -160,8 +161,12 @@ public class MockIRun implements IRun{
     }
 
     @Override
+    public String getInterruptReason() {
+        return this.interruptReason;
+    }
+
+    @Override
     public String getGherkin() {
         throw new UnsupportedOperationException("Unimplemented method 'getGherkin'");
     }
-    
 }

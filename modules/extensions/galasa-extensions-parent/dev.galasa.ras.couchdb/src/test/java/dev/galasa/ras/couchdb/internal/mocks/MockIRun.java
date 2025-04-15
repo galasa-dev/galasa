@@ -127,4 +127,9 @@ public class MockIRun implements IRun {
     public String getSubmissionId() {
         throw new UnsupportedOperationException("Unimplemented method 'getSubmissionId'");
     }
+
+    @Override
+    public String getInterruptReason() {
+        throw new UnsupportedOperationException("Unimplemented method 'getInterruptReason'");
+    }
 }
