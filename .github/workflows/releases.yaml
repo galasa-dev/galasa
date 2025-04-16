@@ -138,3 +138,9 @@ jobs:
     secrets: inherit
     with:
       galasa-version: "${{ needs.set-build-properties.outputs.galasa-version }}"
+
+  build-cli:
+    name: Build the 'cli' module
+    needs: [build-obr]
+    uses: ./.github/workflows/cli.yaml
+    secrets: inherit
