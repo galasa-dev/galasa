@@ -62,11 +62,15 @@ public class MockStream implements IStream {
     }
 
     public void setMavenRepositoryUrl(String mavenRepositoryUrl) throws MalformedURLException {
-        this.mavenRepositoryUrl = new URL(mavenRepositoryUrl);
+        if(mavenRepositoryUrl != null) {
+            this.mavenRepositoryUrl = new URL(mavenRepositoryUrl);
+        }
     }
 
     public void setTestCatalogUrl(String testCatalogUrl) throws MalformedURLException {
-        this.testCatalogUrl = new URL(testCatalogUrl);
+        if(testCatalogUrl != null) {
+            this.testCatalogUrl = new URL(testCatalogUrl);
+        }
     }
 
     public void setObrs(List<IOBR> obrs) {

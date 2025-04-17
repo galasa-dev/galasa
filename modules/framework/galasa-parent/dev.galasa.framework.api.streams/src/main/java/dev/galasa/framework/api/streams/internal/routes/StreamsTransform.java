@@ -81,10 +81,14 @@ public class StreamsTransform {
         List<IOBR> obrs = stream.getObrs();
 
         StreamRepository streamRepository = new StreamRepository();
-        streamRepository.seturl(mavenRepositoryUrl.toString());
+        if(mavenRepositoryUrl != null) {
+            streamRepository.seturl(mavenRepositoryUrl.toString());
+        }
 
         StreamTestCatalog testCatalog = new StreamTestCatalog();
-        testCatalog.seturl(testCatalogUrl.toString());
+        if(testCatalogUrl != null){
+            testCatalog.seturl(testCatalogUrl.toString());
+        }
 
         List<StreamOBRData> streamObrData = transformObrsIntoStreamObrBeanList(obrs);
 

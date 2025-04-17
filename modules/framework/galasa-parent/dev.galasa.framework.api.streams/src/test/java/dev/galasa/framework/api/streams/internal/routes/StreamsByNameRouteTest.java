@@ -116,7 +116,7 @@ public class StreamsByNameRouteTest extends BaseServletTest {
     }
 
     @Test
-    public void testGetStreamsByAMtachingNameReturnsSingleStreamOK() throws Exception {
+    public void testGetStreamsByAMatchingNameReturnsSingleStreamOK() throws Exception {
 
         // Given...
         String streamName = "fakeStream";
@@ -171,7 +171,7 @@ public class StreamsByNameRouteTest extends BaseServletTest {
     }
 
     @Test
-    public void testGetStreamsByAMtachingNameWithMultipleStreamsReturnsRequiredStreamOK() throws Exception {
+    public void testGetStreamsByAMatchingNameWithMultipleStreamsReturnsRequiredStreamOK() throws Exception {
 
         // Given...
         String streamName = "fakeStream2";
@@ -243,7 +243,172 @@ public class StreamsByNameRouteTest extends BaseServletTest {
     }
 
     @Test
-    public void testGetSTreamsByNameRouteThrowsInternalServletException() throws Exception {
+    public void testGetStreamsByAMatchingNameButMissingMavenUrlReturnsRequiredStreamOK() throws Exception {
+
+        // Given...
+        String streamName = "fakeStream";
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        String OBR_GROUP_ID = "dev.galasa";
+        String OBR_ARTIFACT_ID = "dev.galasa.ivts.obr";
+        String OBR_VERSION = "0.41.0";
+        MockOBR mockObr = new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION);
+
+        List<IStream> mockStreams = new ArrayList<>();
+        MockStream mockStream = new MockStream();
+        mockStream.setName("fakeStream");
+        mockStream.setDescription("This is a dummy test stream");
+        mockStream.setMavenRepositoryUrl(null);
+        mockStream.setTestCatalogUrl("http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml");
+        mockStream.setObrs(List.of(mockObr));
+
+        mockStreams.add(mockStream);
+
+        MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
+        MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService(
+                "framework");
+
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+
+        MockStreamsServlet mockServlet = new MockStreamsServlet(mockFramework, env,
+                mockIConfigurationPropertyStoreService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + streamName, headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doGet(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+        Stream streamGotBack = gson.fromJson(output, Stream.class);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        {
+            assertThat(streamGotBack.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
+            assertThat(streamGotBack.getmetadata().getdescription()).isEqualTo("This is a dummy test stream");
+            assertThat(streamGotBack.getmetadata().getname()).isEqualTo(streamName);
+            assertThat(streamGotBack.getdata().getrepository().geturl()).isNull();
+        }
+
+    }
+
+    @Test
+    public void testGetStreamsByAMatchingNameButMissingTestCatalogUrlReturnsRequiredStreamOK() throws Exception {
+
+        // Given...
+        String streamName = "fakeStream";
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        String OBR_GROUP_ID = "dev.galasa";
+        String OBR_ARTIFACT_ID = "dev.galasa.ivts.obr";
+        String OBR_VERSION = "0.41.0";
+        MockOBR mockObr = new MockOBR(OBR_GROUP_ID, OBR_ARTIFACT_ID, OBR_VERSION);
+
+        List<IStream> mockStreams = new ArrayList<>();
+        MockStream mockStream = new MockStream();
+        mockStream.setName("fakeStream");
+        mockStream.setDescription("This is a dummy test stream");
+        mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream.setTestCatalogUrl(null);
+        mockStream.setObrs(List.of(mockObr));
+
+        mockStreams.add(mockStream);
+
+        MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
+        MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService(
+                "framework");
+
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+
+        MockStreamsServlet mockServlet = new MockStreamsServlet(mockFramework, env,
+                mockIConfigurationPropertyStoreService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + streamName, headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doGet(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+        Stream streamGotBack = gson.fromJson(output, Stream.class);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        {
+            assertThat(streamGotBack.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
+            assertThat(streamGotBack.getmetadata().getdescription()).isEqualTo("This is a dummy test stream");
+            assertThat(streamGotBack.getmetadata().getname()).isEqualTo(streamName);
+            assertThat(streamGotBack.getdata().getTestCatalog().geturl()).isNull();
+        }
+
+    }
+
+    @Test
+    public void testGetStreamsByAMatchingNameButMissingObrsReturnsRequiredStreamOK() throws Exception {
+
+        // Given...
+        String streamName = "fakeStream";
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        List<IStream> mockStreams = new ArrayList<>();
+        MockStream mockStream = new MockStream();
+        mockStream.setName("fakeStream");
+        mockStream.setDescription("This is a dummy test stream");
+        mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
+        mockStream.setTestCatalogUrl(null);
+        mockStream.setObrs(new ArrayList<>());
+
+        mockStreams.add(mockStream);
+
+        MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
+        MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService(
+                "framework");
+
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+
+        MockStreamsServlet mockServlet = new MockStreamsServlet(mockFramework, env,
+                mockIConfigurationPropertyStoreService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + streamName, headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doGet(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+        Stream streamGotBack = gson.fromJson(output, Stream.class);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        {
+            assertThat(streamGotBack.getApiVersion()).isEqualTo("galasa-dev/v1alpha1");
+            assertThat(streamGotBack.getmetadata().getdescription()).isEqualTo("This is a dummy test stream");
+            assertThat(streamGotBack.getmetadata().getname()).isEqualTo(streamName);
+        }
+
+    }
+
+    @Test
+    public void testGetStreamsByNameRouteThrowsInternalServletException() throws Exception {
 
         String streamName = "fakeStream";
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
