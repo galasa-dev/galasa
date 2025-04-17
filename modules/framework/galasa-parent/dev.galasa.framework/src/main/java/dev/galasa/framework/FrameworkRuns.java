@@ -5,7 +5,10 @@
  */
 package dev.galasa.framework;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +39,8 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import dev.galasa.framework.spi.utils.ITimeService;
@@ -309,13 +314,23 @@ public class FrameworkRuns implements IFrameworkRuns {
     }
 
     @Override
-    public boolean cancelRun(String runName) throws DynamicStatusStoreException {
+    public boolean markRunCancelled(String runName) throws DynamicStatusStoreException {
         boolean isMarkedCancelled = false;
-        String prefix = getRunDssPrefix(runName);
 
         // Mark the run as cancelled if it exists in the DSS
-        if (isRunInDss(runName)) {
-            this.dss.put(prefix + "interruptReason", TestRunInterruptReason.CANCELLED.toString());
+        IRun run = getRun(runName);
+        if (run != null) {
+            String desiredResult = Result.CANCELLED;
+
+            List<RunRasAction> rasActions = new ArrayList<>();
+            RunRasAction rasActionToAdd = new RunRasAction(run.getRasRunId(), TestRunLifecycleStatus.FINISHED.toString(), desiredResult);
+            rasActions.add(rasActionToAdd);
+
+            String rasActionsJsonStr = gson.toJson(rasActions);
+            String encodedRasActions = Base64.getEncoder().encodeToString(rasActionsJsonStr.getBytes(StandardCharsets.UTF_8));
+
+            this.dss.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
+            this.dss.put(getSuffixedRunDssKey(runName, "interruptReason"), desiredResult);
             isMarkedCancelled = true;
         }
         return isMarkedCancelled;
@@ -323,25 +338,22 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     @Override
     public void markRunFinished(String runName, String result) throws DynamicStatusStoreException {
-        String runPrefix = getRunDssPrefix(runName);
-
         if (isRunInDss(runName)) {
-            this.dss.put(runPrefix + "status", TestRunLifecycleStatus.FINISHED.toString());
-            this.dss.put(runPrefix + "result", result);
-            this.dss.put(runPrefix + "finished", timeService.now().toString());
+            this.dss.put(getSuffixedRunDssKey(runName, "status"), TestRunLifecycleStatus.FINISHED.toString());
+            this.dss.put(getSuffixedRunDssKey(runName, "result"), result);
+            this.dss.put(getSuffixedRunDssKey(runName, "finished"), timeService.now().toString());
         }
     }
 
     @Override
     public IRun getRun(String runname) throws DynamicStatusStoreException {
-        String prefix = getRunDssPrefix(runname);
+        IRun run = null;
 
-        Map<String, String> properties = this.dss.getPrefix(prefix);
-        if (properties.isEmpty()) {
-            return null;
+        if (isRunInDss(runname)) {
+            run = new RunImpl(runname, this.dss);
         }
 
-        return new RunImpl(runname, this.dss);
+        return run;
     }
 
     /**
@@ -530,5 +542,9 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     private String getRunDssPrefix(String runName) throws DynamicStatusStoreException {
         return RUN_PREFIX + runName + ".";
+    }
+
+    private String getSuffixedRunDssKey(String runName, String suffix) throws DynamicStatusStoreException {
+        return getRunDssPrefix(runName) + suffix;
     }
 }

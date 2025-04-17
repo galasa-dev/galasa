@@ -12,6 +12,7 @@ import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.mocks.MockFileSystem;
+import dev.galasa.framework.mocks.MockResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
 
 public class MockRasServletEnvironment extends MockServletBaseEnvironment {

@@ -8,9 +8,9 @@ package dev.galasa.framework.api.ras.internal;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockPath;
+import dev.galasa.framework.mocks.MockRunResult;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

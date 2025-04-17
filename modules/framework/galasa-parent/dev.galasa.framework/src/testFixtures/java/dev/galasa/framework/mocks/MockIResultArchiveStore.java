@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.*;
 
 public class MockIResultArchiveStore implements IResultArchiveStore {
 
+    List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<>();
     List<TestStructure> testStructureHistory = new ArrayList<>();
     MockFileSystem mockFS ;
     StringBuffer runLog = new StringBuffer();
@@ -66,6 +67,15 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
         }
     }
 
+    @Override
+    public @NotNull List<IResultArchiveStoreDirectoryService> getDirectoryServices() {
+        return this.directoryServices;
+    }
+
+    public void addDirectoryService(IResultArchiveStoreDirectoryService directoryService) {
+        this.directoryServices.add(directoryService);
+    }
+
     // --------------- un-implemented methods follow --------------------
 
     @Override
@@ -81,8 +91,8 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
     }
 
     @Override
-    public @NotNull List<IResultArchiveStoreDirectoryService> getDirectoryServices() {
-               throw new UnsupportedOperationException("Unimplemented method 'getDirectoryServices'");
+    public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
+            throws ResultArchiveStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
     }
-
 }

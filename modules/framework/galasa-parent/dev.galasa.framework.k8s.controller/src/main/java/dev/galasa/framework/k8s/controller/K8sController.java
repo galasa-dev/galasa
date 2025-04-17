@@ -28,6 +28,7 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
+import dev.galasa.framework.spi.IResultArchiveStore;
 import io.kubernetes.client.ProtoClient;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.Configuration;
@@ -38,6 +39,7 @@ import io.prometheus.client.exporter.HTTPServer;
 @Component(service = { K8sController.class })
 public class K8sController {
 
+    private static final int ENGINE_CONTROLLER_NUMBER_OF_THREADS = 5;
     private static final int INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS = 1;
 
     private Log                      logger           = LogFactory.getLog(this.getClass());
@@ -109,7 +111,7 @@ public class K8sController {
             int healthPort = getHealthPort(cps);
 
             // *** Setup scheduler
-            scheduledExecutorService = new ScheduledThreadPoolExecutor(3);
+            scheduledExecutorService = new ScheduledThreadPoolExecutor(ENGINE_CONTROLLER_NUMBER_OF_THREADS);
 
             // *** Start the heartbeat
             scheduledExecutorService.scheduleWithFixedDelay(new Heartbeat(dss, settings), 0, 20, TimeUnit.SECONDS);
@@ -129,7 +131,9 @@ public class K8sController {
             // *** Start the run polling
             IKubernetesApiClient apiClient = new KubernetesApiClient(api, protoClient);
             KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(apiClient, settings);
-            startRunPollingThreads(framework.getFrameworkRuns(), cps, dss, api, kubeEngineFacade);
+            IFrameworkRuns frameworkRuns = framework.getFrameworkRuns();
+            IResultArchiveStore ras = framework.getResultArchiveStore();
+            startRunPollingThreads(frameworkRuns, cps, dss, ras, api, kubeEngineFacade);
             
             
             logger.info("Kubernetes controller has started");
@@ -167,6 +171,7 @@ public class K8sController {
         IFrameworkRuns frameworkRuns,
         IConfigurationPropertyStoreService cps,
         IDynamicStatusStoreService dss,
+        IResultArchiveStore ras,
         CoreV1Api api,
         KubernetesEngineFacade kubeEngineFacade
     ) throws FrameworkException {
@@ -181,7 +186,7 @@ public class K8sController {
         RunPodInterrupt runInterruptWatcher = new RunPodInterrupt(kubeEngineFacade, frameworkRuns, interruptEventQueue);
         scheduledExecutorService.scheduleWithFixedDelay(runInterruptWatcher, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
-        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns);
+        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, ras);
         scheduledExecutorService.scheduleWithFixedDelay(interruptEventProcessor, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 

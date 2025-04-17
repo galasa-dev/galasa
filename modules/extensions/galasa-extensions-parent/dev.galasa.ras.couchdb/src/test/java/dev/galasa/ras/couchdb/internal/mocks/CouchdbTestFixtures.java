@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -259,8 +260,10 @@ public class CouchdbTestFixtures {
 
         HttpRequestFactory requestFactory = new HttpRequestFactoryImpl("Basic", "myrastoken");
 
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
         URI rasURI = URI.create("couchdb:"+rasUriStr);
-        CouchdbRasStore couchdbRasStore = new CouchdbRasStore(mockFramework, rasURI, mockHttpClientFactory, mockValidator, logFactory, requestFactory);
+        CouchdbRasStore couchdbRasStore = new CouchdbRasStore(mockFramework, rasURI, mockHttpClientFactory, mockValidator, logFactory, requestFactory, mockTimeService);
 
         return couchdbRasStore;
     }

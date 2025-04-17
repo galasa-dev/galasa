@@ -45,7 +45,7 @@ public interface IFrameworkRuns {
 
     boolean reset(String runname) throws DynamicStatusStoreException;
 
-    boolean cancelRun(String runName) throws DynamicStatusStoreException;
+    boolean markRunCancelled(String runName) throws DynamicStatusStoreException;
 
     void markRunFinished(String runName, String result) throws DynamicStatusStoreException;
 

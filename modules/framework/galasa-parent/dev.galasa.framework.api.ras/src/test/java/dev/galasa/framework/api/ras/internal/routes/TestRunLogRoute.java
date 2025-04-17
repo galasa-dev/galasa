@@ -26,8 +26,8 @@ import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
 import dev.galasa.framework.api.common.ServletErrorMessage;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
-import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
 import dev.galasa.framework.mocks.MockPath;
+import dev.galasa.framework.mocks.MockRunResult;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 

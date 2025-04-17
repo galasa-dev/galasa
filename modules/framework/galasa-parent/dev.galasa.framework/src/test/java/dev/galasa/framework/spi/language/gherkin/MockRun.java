@@ -6,10 +6,11 @@
 package dev.galasa.framework.spi.language.gherkin;
 
 import java.time.Instant;
-
+import java.util.List;
 
 import dev.galasa.api.run.Run;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.RunRasAction;
 
 public class MockRun implements IRun {
 
@@ -132,5 +133,15 @@ public class MockRun implements IRun {
     @Override
     public String getInterruptReason() {
         throw new UnsupportedOperationException("Unimplemented method 'getInterruptReason'");
+    }
+
+    @Override
+    public String getRasRunId() {
+        throw new UnsupportedOperationException("Unimplemented method 'getRasRunId'");
+    }
+
+    @Override
+    public List<RunRasAction> getRasActions() {
+        throw new UnsupportedOperationException("Unimplemented method 'getRasActions'");
     }
 }

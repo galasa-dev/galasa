@@ -14,11 +14,12 @@ import dev.galasa.framework.IResult;
 
 public class Result implements IResult {
 
+    public static final String CANCELLED   = "Cancelled";
+
     private static final String IGNORED     = "Ignored";
     private static final String PASSED      = "Passed";
     private static final String FAILED      = "Failed";
     private static final String ENVFAIL     = "EnvFail";
-    private static final String CANCELLED   = "Cancelled";
 
     private String              name;
     private String              reason;

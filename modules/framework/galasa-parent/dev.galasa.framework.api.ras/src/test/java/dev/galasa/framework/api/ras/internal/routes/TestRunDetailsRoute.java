@@ -11,10 +11,10 @@ import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.mocks.MockArchiveStore;
 import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
-import dev.galasa.framework.api.ras.internal.mocks.MockResultArchiveStoreDirectoryService;
-import dev.galasa.framework.api.ras.internal.mocks.MockRunResult;
 import dev.galasa.framework.mocks.FilledMockRBACService;
 import dev.galasa.framework.mocks.MockRBACService;
+import dev.galasa.framework.mocks.MockResultArchiveStoreDirectoryService;
+import dev.galasa.framework.mocks.MockRunResult;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.api.ras.RasTestStructure;
 import dev.galasa.framework.api.common.HttpMethod;
@@ -636,7 +636,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
 			@Override
-			public boolean cancelRun(String runname) throws DynamicStatusStoreException {
+			public boolean markRunCancelled(String runname) throws DynamicStatusStoreException {
         		throw new DynamicStatusStoreException();
 			}
 		};
@@ -718,7 +718,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1"));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
 			@Override
-			public boolean cancelRun(String runname) throws DynamicStatusStoreException {
+			public boolean markRunCancelled(String runname) throws DynamicStatusStoreException {
         		return false;
 			}
 		};

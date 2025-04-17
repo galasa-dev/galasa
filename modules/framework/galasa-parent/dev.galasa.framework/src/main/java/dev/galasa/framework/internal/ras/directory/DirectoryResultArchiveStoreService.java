@@ -234,5 +234,11 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         return id;
     }
 
+    @Override
+    public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
+            throws ResultArchiveStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
+    }
+
 
 }

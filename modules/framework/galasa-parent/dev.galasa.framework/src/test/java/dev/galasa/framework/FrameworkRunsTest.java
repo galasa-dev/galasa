@@ -7,7 +7,11 @@ package dev.galasa.framework;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.Map.Entry;
 
@@ -22,6 +26,8 @@ import dev.galasa.framework.mocks.MockDSSStore;
 import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -783,5 +789,55 @@ public class FrameworkRunsTest {
         // Then...
         assertThat(thrown).isNotNull();
         assertThat(thrown.getMessage()).contains("Unable to submit shared environment run", sharedEnvironmentRunName, "is there a duplicate runname?");
+    }
+
+    @Test
+    public void testCancelRunSetsInterruptReasonAndDeferredRasActionOk() throws Exception {
+        // Given...
+        MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
+        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        String runName = "mytestrun1";
+        String rasRunId = "my-run-document-id";
+
+        // Put a run-related property into the DSS to show that the run with the given name exists in the DSS
+        mockDss.put("run." + runName + ".rasrunid", rasRunId);
+
+        // When...
+        boolean isRunMarkedCancelled = frameworkRuns.markRunCancelled(runName);
+
+        // Then...
+        assertThat(isRunMarkedCancelled).isTrue();
+        assertThat(mockDss.get("run." + runName + ".interruptReason")).isEqualTo(Result.CANCELLED);
+
+        // We expect the 'rasActions' property to be populated with a base64-encoded JSON structure
+        List<RunRasAction> expectedRasActions = new ArrayList<>();
+        RunRasAction rasAction = new RunRasAction(rasRunId, TestRunLifecycleStatus.FINISHED.toString(), Result.CANCELLED);
+        expectedRasActions.add(rasAction);
+        String expectedJsonStr = gson.toJson(expectedRasActions);
+        String expectedEncodedStr = Base64.getEncoder().encodeToString(expectedJsonStr.getBytes(StandardCharsets.UTF_8));
+
+        assertThat(mockDss.get("run." + runName + ".rasActions")).isEqualTo(expectedEncodedStr);
+    }
+
+    @Test
+    public void testCancelNonExistantRunReturnsFalse() throws Exception {
+        // Given...
+        MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
+        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        String runName = "mytestrun1";
+
+        // When...
+        boolean isRunMarkedCancelled = frameworkRuns.markRunCancelled(runName);
+
+        // Then...
+        assertThat(isRunMarkedCancelled).isFalse();
     }
 }

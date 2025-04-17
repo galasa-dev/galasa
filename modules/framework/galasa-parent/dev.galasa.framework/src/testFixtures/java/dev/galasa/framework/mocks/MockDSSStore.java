@@ -79,7 +79,7 @@ public class MockDSSStore implements IDynamicStatusStore, IDynamicStatusStoreSer
     public @NotNull Map<String, String> getPrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
         Map<String, String> results = new HashMap<String,String>();
         for (String key : valueMap.keySet()){
-            if (key.startsWith(keyPrefix+".")){
+            if (key.startsWith(keyPrefix)) {
                 results.put(key,valueMap.get(key));
             }
         }
