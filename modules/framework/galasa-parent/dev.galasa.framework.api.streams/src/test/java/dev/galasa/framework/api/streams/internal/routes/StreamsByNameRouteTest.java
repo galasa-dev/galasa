@@ -369,7 +369,7 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         mockStream.setDescription("This is a dummy test stream");
         mockStream.setMavenRepositoryUrl("http://mymavenrepo.host/testmaterial");
         mockStream.setTestCatalogUrl(null);
-        mockStream.setObrs(new ArrayList<>());
+        mockStream.setObrs(null);
 
         mockStreams.add(mockStream);
 

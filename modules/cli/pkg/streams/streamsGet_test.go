@@ -267,3 +267,68 @@ func TestCanGetAStreamByNameWhenStreamExistsGivesUnexpectedErrorSummaryFormat(t 
 	assert.NotNil(t, err, "GetStreams returned an error when none was expected")
 	assert.Contains(t, err.Error(), "GAL1238E")
 }
+
+func TestCanGetAStreamByNameWhenStreamExistsGivesUnexpectedErrorSummaryFormat2(t *testing.T) {
+	// Given...
+	outputFormat := "summary"
+
+	body := `
+{
+  "apiVersion": "galasa-dev/v1alpha1",
+  "kind": "GalasaStream",
+  "metadata": {
+    "name": "mystream",
+    "url": "http://localhost:8080/api/streams/myStream",
+    "description": "A stream which I use to..."
+  },
+  "data": {
+    "isEnabled": true,
+    "repository": {
+      "url": "http://mymavenrepo.host/testmaterial"
+    },
+    "obrs": [
+      {
+        "groupId": "com.ibm.zosadk.k8s",
+        "artifactId": "com.ibm.zosadk.k8s.obr",
+        "version": "0.1.0-SNAPSHOT"
+      }
+    ],
+    "testCatalog": {
+      "url": "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml"
+    }
+  }
+}
+`
+
+	// Create the expected HTTP interactions with the API server.
+	getStreamInteraction := utils.NewHttpInteraction("/streams/mystream", http.MethodGet)
+	getStreamInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte(body))
+	}
+
+	interactions := []utils.HttpInteraction{
+		getStreamInteraction,
+	}
+
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	console := utils.NewMockConsole()
+	apiServerUrl := server.Server.URL
+	apiClient := api.InitialiseAPI(apiServerUrl)
+	mockByteReader := utils.NewMockByteReader()
+
+	// When...
+	err := GetStreams(
+		"mystream",
+		outputFormat,
+		apiClient,
+		console,
+		mockByteReader)
+
+	// Then...
+	assert.NotNil(t, err, "GetStreams returned an error when none was expected")
+	assert.Contains(t, err.Error(), "GAL1239E")
+}

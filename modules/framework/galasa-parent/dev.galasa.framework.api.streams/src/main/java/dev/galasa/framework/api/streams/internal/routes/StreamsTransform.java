@@ -105,13 +105,15 @@ public class StreamsTransform {
 
         List<StreamOBRData> streamObrData = new ArrayList<>();
 
-        for (IOBR obr : obrs) {
-            StreamOBRData obrData = new StreamOBRData();
-            obrData.setGroupId(obr.getGroupId());
-            obrData.setArtifactId(obr.getArtifactId());
-            obrData.setversion(obr.getVersion());
-
-            streamObrData.add(obrData);
+        if(obrs != null) {
+            for (IOBR obr : obrs) {
+                StreamOBRData obrData = new StreamOBRData();
+                obrData.setGroupId(obr.getGroupId());
+                obrData.setArtifactId(obr.getArtifactId());
+                obrData.setversion(obr.getVersion());
+    
+                streamObrData.add(obrData);
+            }
         }
 
         return streamObrData;

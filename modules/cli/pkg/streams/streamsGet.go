@@ -125,7 +125,7 @@ func getStreamByName(
 	var streamIn *galasaapi.Stream
 	var resp *http.Response
 	var context context.Context = nil
-	var streamsToReturn []galasaapi.Stream
+	var streamsToReturn []galasaapi.Stream = make([]galasaapi.Stream, 0)
 
 	apiCall := apiClient.StreamsAPIApi.GetStreamByName(context, streamName).ClientApiVersion(restApiVersion)
 
@@ -150,12 +150,14 @@ func getStreamByName(
 				galasaErrors.GALASA_ERROR_GET_STREAMS_SERVER_REPORTED_ERROR,
 				galasaErrors.GALASA_ERROR_GET_STREAMS_EXPLANATION_NOT_JSON,
 			)
-			log.Println("getStreamsFromRestApi - Failed to retrieve list of test streams from API server")
+			log.Println("getStreamsFromRestApi - Failed to retrieve a test stream by name from API server")
 		}
 
+	} else if streamIn != nil {
+		// Only add the stream to the result if we have a valid stream and no error
+		streamsToReturn = []galasaapi.Stream{*streamIn}
 	}
 
-	streamsToReturn = []galasaapi.Stream{*streamIn}
 	return streamsToReturn, err
 
 }
@@ -167,7 +169,7 @@ func getAllStreams(
 ) ([]galasaapi.Stream, error) {
 
 	var err error
-	var streams []galasaapi.Stream
+	var streams []galasaapi.Stream = make([]galasaapi.Stream, 0)
 	var resp *http.Response
 	var context context.Context = nil
 
