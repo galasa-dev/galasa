@@ -5,18 +5,39 @@
  */
 package dev.galasa.framework.k8s.controller;
 
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import dev.galasa.framework.spi.RunRasAction;
 import io.kubernetes.client.openapi.models.V1Pod;
 
 public class RunInterruptEvent {
 
+    private final Log logger = LogFactory.getLog(getClass());
+
+    private final List<RunRasAction> rasActions;
     private final String runName;
     private final String interruptReason;
     private final V1Pod interruptedPod;
 
-    public RunInterruptEvent(String runName, String interruptReason, V1Pod interruptedPod) {
+    public RunInterruptEvent(List<RunRasAction> rasActions, String runName, String interruptReason, V1Pod interruptedPod) {
+        this.rasActions = rasActions;
         this.runName = runName;
         this.interruptReason = interruptReason;
         this.interruptedPod = interruptedPod;
+
+        logger.debug("Created: " + this.toString());
+    }
+
+    @Override
+    public String toString() {
+        return "Interrupt event: runName:"+runName+" interruptReason:"+interruptReason;
+    }
+
+    public List<RunRasAction> getRasActions() {
+        return this.rasActions;
     }
 
     public String getRunName() {

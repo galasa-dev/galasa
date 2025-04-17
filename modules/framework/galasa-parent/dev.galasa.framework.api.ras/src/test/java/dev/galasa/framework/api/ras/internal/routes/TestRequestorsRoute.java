@@ -19,6 +19,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.mocks.*;
+import dev.galasa.framework.mocks.MockRunResult;
 
 import static org.assertj.core.api.Assertions.*;
 

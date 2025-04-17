@@ -21,6 +21,7 @@ import dev.galasa.framework.k8s.controller.mocks.MockSettings;
 import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.RunRasAction;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 
@@ -37,7 +38,7 @@ public class RunPodInterruptTest {
         return mockPod;
     }
 
-    private MockRun createMockRun(String runName, String status, String interruptReason) {
+    private MockRun createMockRun(String runIdToMarkFinished, String runName, String status, String interruptReason) {
         // We only care about the run's name, status, and interrupt reason
         MockRun mockRun = new MockRun(
             "bundle",
@@ -52,6 +53,11 @@ public class RunPodInterruptTest {
 
         mockRun.setInterruptReason(interruptReason);
         mockRun.setStatus(status);
+
+        if (runIdToMarkFinished != null) {
+            RunRasAction rasAction = new RunRasAction(runIdToMarkFinished, status, interruptReason);
+            mockRun.setRasActions(List.of(rasAction));
+        }
         return mockRun;
     }
 
@@ -61,6 +67,7 @@ public class RunPodInterruptTest {
         String runName1 = "run1";
         String runName2 = "run2";
         String runName3 = "run3";
+        String runIdToMarkFinished = "run3-id";
 
         String interruptReason = "cancelled";
 
@@ -73,9 +80,9 @@ public class RunPodInterruptTest {
 
         // Create runs associated with the pods
         List<IRun> mockRuns = new ArrayList<>();
-        mockRuns.add(createMockRun(runName1, TestRunLifecycleStatus.FINISHED.toString(), null));
-        mockRuns.add(createMockRun(runName2, TestRunLifecycleStatus.FINISHED.toString(), null));
-        mockRuns.add(createMockRun(runName3, TestRunLifecycleStatus.RUNNING.toString(), interruptReason));
+        mockRuns.add(createMockRun(null, runName1, TestRunLifecycleStatus.FINISHED.toString(), null));
+        mockRuns.add(createMockRun(null, runName2, TestRunLifecycleStatus.FINISHED.toString(), null));
+        mockRuns.add(createMockRun(runIdToMarkFinished, runName3, TestRunLifecycleStatus.RUNNING.toString(), interruptReason));
 
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
@@ -100,6 +107,10 @@ public class RunPodInterruptTest {
         assertThat(interruptEvent.getRunName()).isEqualTo(runName3);
         assertThat(interruptEvent.getInterruptReason()).isEqualTo(interruptReason);
 
+        List<RunRasAction> rasActions = interruptEvent.getRasActions();
+        assertThat(rasActions).hasSize(1);
+        assertThat(rasActions.get(0).getRunId()).isEqualTo(runIdToMarkFinished);
+
         // No runs should have been deleted, only their pods
         assertThat(mockFrameworkRuns.getAllRuns()).hasSize(3);
     }
@@ -107,6 +118,9 @@ public class RunPodInterruptTest {
     @Test
     public void testPodsForMultipleInterruptedRunsAreDeletedOk() throws Exception {
         // Given...
+        String runIdToMarkFinished1 = "run1-id";
+        String runIdToMarkFinished2 = "run2-id";
+
         String runName1 = "run1";
         String runName2 = "run2";
 
@@ -121,8 +135,8 @@ public class RunPodInterruptTest {
 
         // Create runs associated with the pods
         List<IRun> mockRuns = new ArrayList<>();
-        mockRuns.add(createMockRun(runName1, TestRunLifecycleStatus.STARTED.toString(), interruptReason));
-        mockRuns.add(createMockRun(runName2, TestRunLifecycleStatus.RUNNING.toString(), interruptReason));
+        mockRuns.add(createMockRun(runIdToMarkFinished1, runName1, TestRunLifecycleStatus.STARTED.toString(), interruptReason));
+        mockRuns.add(createMockRun(runIdToMarkFinished2, runName2, TestRunLifecycleStatus.RUNNING.toString(), interruptReason));
 
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
@@ -145,8 +159,16 @@ public class RunPodInterruptTest {
         RunInterruptEvent interruptEvent1 = eventQueue.poll();
         assertThat(interruptEvent1.getRunName()).isEqualTo(runName1);
 
+        List<RunRasAction> rasActions = interruptEvent1.getRasActions();
+        assertThat(rasActions).hasSize(1);
+        assertThat(rasActions.get(0).getRunId()).isEqualTo(runIdToMarkFinished1);
+
         RunInterruptEvent interruptEvent2 = eventQueue.poll();
         assertThat(interruptEvent2.getRunName()).isEqualTo(runName2);
+
+        rasActions = interruptEvent2.getRasActions();
+        assertThat(rasActions).hasSize(1);
+        assertThat(rasActions.get(0).getRunId()).isEqualTo(runIdToMarkFinished2);
 
         // No runs should have been deleted, only their pods
         assertThat(mockFrameworkRuns.getAllRuns()).hasSize(2);

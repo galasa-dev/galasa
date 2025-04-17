@@ -133,6 +133,11 @@ public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreS
         
         return null;
     }
-    
 
+    @Override
+    public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure) throws ResultArchiveStoreException {
+        for (IResultArchiveStoreService rasService : this.rasServices) {
+            rasService.updateTestStructure(runId, testStructure);
+        }
+    }
 }

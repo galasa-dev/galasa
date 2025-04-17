@@ -5,15 +5,24 @@
  */
 package dev.galasa.framework;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 import dev.galasa.api.run.Run;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.RunRasAction;
+import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class RunImpl implements IRun {
+
+    private final GalasaGson gson = new GalasaGson();
 
     private final String  name;
     private final Instant heartbeat;
@@ -38,6 +47,7 @@ public class RunImpl implements IRun {
     private final boolean sharedEnvironment;
     private final String  rasRunId;
     private final String  interruptReason;
+    private List<RunRasAction> rasActions = new ArrayList<>();
 
     public RunImpl(String name, IDynamicStatusStoreService dss) throws DynamicStatusStoreException {
         this.name = name;
@@ -69,6 +79,11 @@ public class RunImpl implements IRun {
         trace = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
         sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + "shared.environment"));
         gherkin = runProperties.get(prefix + "gherkin");
+
+        String encodedRasActions = runProperties.get(prefix + "rasActions");
+        if (encodedRasActions != null) {
+            this.rasActions = getRasActionsFromEncodedString(encodedRasActions);
+        }
 
         String sQueued = runProperties.get(prefix + "queued");
         if (sQueued != null) {
@@ -108,6 +123,13 @@ public class RunImpl implements IRun {
             this.bundleName = null;
             this.testName = null;
         }
+    }
+
+    private List<RunRasAction> getRasActionsFromEncodedString(String encodedRasActions) {
+        byte[] rasActionsJsonBytes = Base64.getDecoder().decode(encodedRasActions);
+        String rasActionsJsonStr = new String(rasActionsJsonBytes, StandardCharsets.UTF_8);
+        RunRasAction[] rasActionsArr = gson.fromJson(rasActionsJsonStr, RunRasAction[].class);
+        return Arrays.asList(rasActionsArr);
     }
 
     @Override
@@ -227,6 +249,11 @@ public class RunImpl implements IRun {
 
     @Override
     public String getInterruptReason() {
-        return interruptReason;
+        return this.interruptReason;
+    }
+
+    @Override
+    public List<RunRasAction> getRasActions() {
+        return this.rasActions;
     }
 }

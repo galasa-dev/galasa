@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.k8s.controller;
 
+import java.util.List;
 import java.util.Queue;
 
 import org.apache.commons.logging.Log;
@@ -12,6 +13,12 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IFrameworkRuns;
+import dev.galasa.framework.spi.IResultArchiveStore;
+import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
+import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.RunRasAction;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class InterruptedRunEventProcessor implements Runnable {
 
@@ -19,10 +26,12 @@ public class InterruptedRunEventProcessor implements Runnable {
 
     private final Queue<RunInterruptEvent> queue;
     private IFrameworkRuns frameworkRuns;
+    private IResultArchiveStore rasStore;
 
-    public InterruptedRunEventProcessor(Queue<RunInterruptEvent> queue, IFrameworkRuns frameworkRuns) {
+    public InterruptedRunEventProcessor(Queue<RunInterruptEvent> queue, IFrameworkRuns frameworkRuns, IResultArchiveStore rasStore) {
         this.queue = queue;
         this.frameworkRuns = frameworkRuns;
+        this.rasStore = rasStore;
     }
 
     @Override
@@ -38,17 +47,61 @@ public class InterruptedRunEventProcessor implements Runnable {
                     isDone = true;
                 } else {
                     markRunFinishedInDss(interruptEvent);
+                    processRasActions(interruptEvent);
                 }
             }
             logger.debug("Finished scan of interrupt events to process");
         } catch (Exception ex) {
-            logger.warn("Exception caught and ignored in WatchEventProcessor: "+ex);
+            logger.warn("Exception caught and ignored in InterruptRunEventProcessor", ex);
         }
     }
 
     private void markRunFinishedInDss(RunInterruptEvent interruptEvent) throws DynamicStatusStoreException {
         String runName = interruptEvent.getRunName();
         String interruptReason = interruptEvent.getInterruptReason();
+
+        logger.info("Marking run '" + runName + "' as finished in the DSS");
         frameworkRuns.markRunFinished(runName, interruptReason);
+        logger.info("Marked run '" + runName + "' as finished in the DSS OK");
+    }
+
+    private void processRasActions(RunInterruptEvent interruptEvent) throws ResultArchiveStoreException {
+        List<RunRasAction> rasActions = interruptEvent.getRasActions();
+        String runName = interruptEvent.getRunName();
+
+        logger.info("Processing RAS actions for run '" + runName + "'");
+
+        for (RunRasAction rasAction : rasActions) {
+            String runId = rasAction.getRunId();
+            TestStructure testStructure = getRunTestStructure(runId);
+            if (testStructure != null) {
+
+                // Set the status and result for the run if it doesn't already have the desired status
+                String runStatus = testStructure.getStatus();
+                String desiredRunStatus = rasAction.getDesiredRunStatus();
+                if (!desiredRunStatus.equals(runStatus)) {
+                    testStructure.setStatus(desiredRunStatus);
+                    testStructure.setResult(rasAction.getDesiredRunResult());
+
+                    rasStore.updateTestStructure(runId, testStructure);
+                } else {
+                    logger.info("Run already has status '" + desiredRunStatus + "', will not update its RAS record");
+                }
+            }
+        }
+        logger.info("RAS actions for run '" + runName + "' processed OK");
+    }
+
+    private TestStructure getRunTestStructure(String runId) throws ResultArchiveStoreException {
+        TestStructure testStructure = null;
+        for (IResultArchiveStoreDirectoryService directoryService : rasStore.getDirectoryServices()) {
+            IRunResult run = directoryService.getRunById(runId);
+
+            if (run != null) {
+                testStructure = run.getTestStructure();
+                break;
+            }
+        }
+        return testStructure;
     }
 }

@@ -8,6 +8,7 @@ Import-Package: com.google.gson,\
                 com.sun.net.httpserver,\
                 dev.galasa.framework,\
                 dev.galasa.framework.spi,\
+                dev.galasa.framework.spi.teststructure,\
                 dev.galasa.framework.k8s.controller,\
                 io.kubernetes.client,\
                 io.kubernetes.client.custom,\

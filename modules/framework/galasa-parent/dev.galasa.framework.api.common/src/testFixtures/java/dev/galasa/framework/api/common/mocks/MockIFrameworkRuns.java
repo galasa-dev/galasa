@@ -93,7 +93,7 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     }
 
     @Override
-    public boolean cancelRun(String runName) throws DynamicStatusStoreException {
+    public boolean markRunCancelled(String runName) throws DynamicStatusStoreException {
         return true;
     }
 

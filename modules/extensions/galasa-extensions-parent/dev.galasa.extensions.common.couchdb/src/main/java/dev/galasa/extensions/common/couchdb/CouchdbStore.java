@@ -281,7 +281,12 @@ public abstract class CouchdbStore {
 
                 String errorMessage = ERROR_UNEXPECTED_COUCHDB_HTTP_RESPONSE.getMessage(httpRequest.getURI().toString(),
                         expectedStatusCodesStr, actualStatusCode);
-                throw new CouchdbException(errorMessage);
+
+                if (actualStatusCode == HttpStatus.SC_CONFLICT) {
+                    throw new CouchdbClashingUpdateException(errorMessage);
+                } else {
+                    throw new CouchdbException(errorMessage);
+                }
             }
 
             // If we're expecting a 404 not found response, return null
@@ -319,5 +324,18 @@ public abstract class CouchdbStore {
             }
         }
         return isExpectedStatusCode;
+    }
+
+    protected String getDocumentRevision(String databaseName, String documentId) throws CouchdbException {
+        IdRev idRevision = getDocumentFromDatabase(databaseName, documentId, IdRev.class, HttpStatus.SC_OK, HttpStatus.SC_NOT_FOUND);
+        if (idRevision == null) {
+            throw new CouchdbException("Unable to find a document with the given ID");
+        }
+
+        String revision = idRevision._rev;
+        if (revision == null) {
+            throw new CouchdbException("Unable to find document revision - Invalid JSON response");
+        }
+        return revision;
     }
 }

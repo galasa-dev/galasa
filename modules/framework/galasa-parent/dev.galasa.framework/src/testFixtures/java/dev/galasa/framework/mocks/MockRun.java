@@ -6,10 +6,12 @@
 package dev.galasa.framework.mocks;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import dev.galasa.api.run.Run;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.RunRasAction;
 
 public class MockRun implements IRun {
     private String testBundleName;
@@ -27,6 +29,8 @@ public class MockRun implements IRun {
     private String status;
     private String interruptReason;
     private String result;
+    private String runId;
+    private List<RunRasAction> rasActions;
 
     public MockRun(
         String testBundleName, 
@@ -168,6 +172,20 @@ public class MockRun implements IRun {
 
     public void setResult(String result) {
         this.result = result;
+    }
+
+    @Override
+    public String getRasRunId() {
+        return this.runId;
+    }
+
+    @Override
+    public List<RunRasAction> getRasActions() {
+        return this.rasActions;
+    }
+
+    public void setRasActions(List<RunRasAction> rasActions) {
+        this.rasActions = rasActions;
     }
 
     // ------------- un-implemented methods follow ----------------

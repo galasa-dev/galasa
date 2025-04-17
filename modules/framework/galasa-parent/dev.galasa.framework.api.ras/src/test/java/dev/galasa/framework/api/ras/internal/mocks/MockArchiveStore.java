@@ -66,4 +66,10 @@ public class MockArchiveStore implements IResultArchiveStore {
     public String calculateRasRunId() {
         throw new UnsupportedOperationException("Unimplemented method 'calculateRasRunId'");
     }
+
+    @Override
+    public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
+            throws ResultArchiveStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
+    }
 }

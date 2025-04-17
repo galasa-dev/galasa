@@ -174,7 +174,7 @@ public class RunDetailsRoute extends RunsRoute {
       }
 
       try {
-         isCancelled = framework.getFrameworkRuns().cancelRun(runName);
+         isCancelled = framework.getFrameworkRuns().markRunCancelled(runName);
       } catch (FrameworkException e) {
          ServletError error = new ServletError(GAL5048_UNABLE_TO_CANCEL_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);

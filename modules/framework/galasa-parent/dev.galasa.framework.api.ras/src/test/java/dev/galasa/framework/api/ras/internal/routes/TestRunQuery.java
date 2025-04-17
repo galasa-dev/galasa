@@ -21,6 +21,8 @@ import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.mocks.*;
 import dev.galasa.framework.mocks.MockPath;
+import dev.galasa.framework.mocks.MockResultArchiveStoreDirectoryService;
+import dev.galasa.framework.mocks.MockRunResult;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockFramework;

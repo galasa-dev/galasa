@@ -20,6 +20,7 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
 import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.mocks.MockFileSystem;
+import dev.galasa.framework.mocks.MockResultArchiveStoreDirectoryService;
 
 import java.util.*;
 

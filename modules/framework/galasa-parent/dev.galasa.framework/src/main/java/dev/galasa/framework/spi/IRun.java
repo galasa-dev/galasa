@@ -6,6 +6,7 @@
 package dev.galasa.framework.spi;
 
 import java.time.Instant;
+import java.util.List;
 
 import dev.galasa.api.run.Run;
 
@@ -56,4 +57,8 @@ public interface IRun {
     public String getGherkin();
 
     String getInterruptReason();
+
+    String getRasRunId();
+
+    List<RunRasAction> getRasActions();
 }

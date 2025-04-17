@@ -18,6 +18,7 @@ import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.RunRasAction;
 import io.kubernetes.client.openapi.models.V1Pod;
 
 public class RunPodInterrupt implements Runnable {
@@ -68,10 +69,11 @@ public class RunPodInterrupt implements Runnable {
                 if (run != null) {
                     TestRunLifecycleStatus runStatus = TestRunLifecycleStatus.getFromString(run.getStatus());
                     String runInterruptReason = run.getInterruptReason();
+                    List<RunRasAction> rasActions = run.getRasActions();
 
                     // Create an interrupted run event if the run hasn't finished and has an interrupt reason
                     if ((runStatus != TestRunLifecycleStatus.FINISHED) && (runInterruptReason != null)) {
-                        RunInterruptEvent interruptEvent = new RunInterruptEvent(runName, runInterruptReason, pod);
+                        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, runInterruptReason, pod);
                         interruptedRunEvents.add(interruptEvent);
                     }
                 }
