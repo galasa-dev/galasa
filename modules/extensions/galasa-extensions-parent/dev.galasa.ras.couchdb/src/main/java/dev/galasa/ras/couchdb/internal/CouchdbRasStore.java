@@ -64,6 +64,8 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
     public static final String RUN_NAMES_VIEW_NAME        = "runnames-view";
     public static final String RUN_GROUP_VIEW_NAME        = "group-view";
 
+    public static final String COUCHDB_RUN_ID_PREFIX = "cdb-";
+
     private final Log                          logger            ;
 
     private final IFramework                   framework;                                         // NOSONAR
@@ -220,9 +222,8 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
             throws ResultArchiveStoreException {
 
         String documentId = runId;
-        String cdbPrefix = "cdb-";
-        if (runId.startsWith(cdbPrefix)) {
-            documentId = runId.substring(cdbPrefix.length());
+        if (runId.startsWith(COUCHDB_RUN_ID_PREFIX)) {
+            documentId = runId.substring(COUCHDB_RUN_ID_PREFIX.length());
         }
 
         // Send a GET request to get the run document's revision

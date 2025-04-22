@@ -53,7 +53,6 @@ public class KubernetesEngineFacade {
         try {
             String podName = pod.getMetadata().getName();
             logger.info("Deleting pod " + podName);
-            // *** Have to use the ProtoClient as the deleteNamespacedPod does not work
             apiClient.deletePod(settings.getNamespace(), podName);
         } catch (ApiException e) {
             logger.error("Failed to delete engine pod :-\n" + e.getResponseBody(), e);
