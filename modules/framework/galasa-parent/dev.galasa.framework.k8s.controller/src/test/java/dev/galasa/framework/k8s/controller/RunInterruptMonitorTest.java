@@ -25,7 +25,7 @@ import dev.galasa.framework.spi.RunRasAction;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 
-public class RunPodInterruptTest {
+public class RunInterruptMonitorTest {
 
     private V1Pod createMockTestPod(String runName) {
         V1Pod mockPod = new V1Pod();
@@ -91,7 +91,7 @@ public class RunPodInterruptTest {
         KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        RunPodInterrupt runPodInterrupt = new RunPodInterrupt(kubeEngineFacade, mockFrameworkRuns, eventQueue);
+        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kubeEngineFacade, mockFrameworkRuns, eventQueue);
 
         // When...
         runPodInterrupt.run();
@@ -145,7 +145,7 @@ public class RunPodInterruptTest {
         KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        RunPodInterrupt runPodInterrupt = new RunPodInterrupt(kubeEngineFacade, mockFrameworkRuns, eventQueue);
+        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kubeEngineFacade, mockFrameworkRuns, eventQueue);
 
         // When...
         runPodInterrupt.run();
@@ -192,7 +192,7 @@ public class RunPodInterruptTest {
         KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        RunPodInterrupt runPodInterrupt = new RunPodInterrupt(kubeEngineFacade, mockFrameworkRuns, eventQueue);
+        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kubeEngineFacade, mockFrameworkRuns, eventQueue);
 
         // When...
         runPodInterrupt.run();

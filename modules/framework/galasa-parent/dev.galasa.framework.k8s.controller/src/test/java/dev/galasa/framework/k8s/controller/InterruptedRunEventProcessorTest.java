@@ -82,7 +82,7 @@ public class InterruptedRunEventProcessorTest {
         mockRas.addDirectoryService(mockDirectoryService);
 
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
-        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, null);
+        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason);
         eventQueue.add(interruptEvent);
 
         InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, mockRas);

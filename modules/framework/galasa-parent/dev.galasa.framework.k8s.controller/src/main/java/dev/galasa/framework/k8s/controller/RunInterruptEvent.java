@@ -11,7 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.RunRasAction;
-import io.kubernetes.client.openapi.models.V1Pod;
 
 /**
  * RunInterruptEvent represents an event where a run has been interrupted by setting its interrupt reason 
@@ -24,13 +23,11 @@ public class RunInterruptEvent {
     private final List<RunRasAction> rasActions;
     private final String runName;
     private final String interruptReason;
-    private final V1Pod interruptedPod;
 
-    public RunInterruptEvent(List<RunRasAction> rasActions, String runName, String interruptReason, V1Pod interruptedPod) {
+    public RunInterruptEvent(List<RunRasAction> rasActions, String runName, String interruptReason) {
         this.rasActions = rasActions;
         this.runName = runName;
         this.interruptReason = interruptReason;
-        this.interruptedPod = interruptedPod;
 
         logger.debug("Created: " + this.toString());
     }
@@ -50,9 +47,5 @@ public class RunInterruptEvent {
 
     public String getInterruptReason() {
         return this.interruptReason;
-    }
-
-    public V1Pod getInterruptedPod() {
-        return this.interruptedPod;
     }
 }

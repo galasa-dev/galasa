@@ -40,7 +40,7 @@ import io.prometheus.client.exporter.HTTPServer;
 public class K8sController {
 
     private static final int ENGINE_CONTROLLER_NUMBER_OF_THREADS = 5;
-    private static final int INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS = 1;
+    private static final int INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS = 5;
 
     private Log                      logger           = LogFactory.getLog(this.getClass());
 
@@ -183,7 +183,7 @@ public class K8sController {
         schedulePoll();
 
         Queue<RunInterruptEvent> interruptEventQueue = new LinkedBlockingQueue<RunInterruptEvent>();
-        RunPodInterrupt runInterruptWatcher = new RunPodInterrupt(kubeEngineFacade, frameworkRuns, interruptEventQueue);
+        RunInterruptMonitor runInterruptWatcher = new RunInterruptMonitor(kubeEngineFacade, frameworkRuns, interruptEventQueue);
         scheduledExecutorService.scheduleWithFixedDelay(runInterruptWatcher, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
         InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, ras);
