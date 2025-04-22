@@ -13,6 +13,10 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.framework.spi.RunRasAction;
 import io.kubernetes.client.openapi.models.V1Pod;
 
+/**
+ * RunInterruptEvent represents an event where a run has been interrupted by setting its interrupt reason 
+ * in its DSS record. These events are then processed by another thread.
+ */
 public class RunInterruptEvent {
 
     private final Log logger = LogFactory.getLog(getClass());

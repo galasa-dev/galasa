@@ -20,6 +20,14 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
+/**
+ * InterruptedRunEventProcessor runs as a thread in the engine controller pod and it maintains a
+ * queue of interrupt events.
+ * 
+ * When the interrupt event queue is not empty, it removes each event from the queue and processes them
+ * by marking interrupted runs as finished in the DSS and updating their RAS records as defined by the
+ * deferred RAS actions within the interrupt event.
+ */
 public class InterruptedRunEventProcessor implements Runnable {
 
     private Log logger = LogFactory.getLog(getClass());

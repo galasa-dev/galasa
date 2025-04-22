@@ -21,6 +21,13 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.RunRasAction;
 import io.kubernetes.client.openapi.models.V1Pod;
 
+/**
+ * RunPodInterrupt runs as a thread in the engine controller pod and it monitors the DSS
+ * for runs with an interrupt reason set.
+ * 
+ * When it detects a run with an interrupt reason, it stops the run's pod and adds a new
+ * interrupt event onto the given event queue for processing by the InterruptedRunEventProcessor.
+ */
 public class RunPodInterrupt implements Runnable {
 
     private final Log logger = LogFactory.getLog(getClass());
