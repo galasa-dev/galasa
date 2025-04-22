@@ -329,8 +329,11 @@ public class FrameworkRuns implements IFrameworkRuns {
             String rasActionsJsonStr = gson.toJson(rasActions);
             String encodedRasActions = Base64.getEncoder().encodeToString(rasActionsJsonStr.getBytes(StandardCharsets.UTF_8));
 
-            this.dss.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
-            this.dss.put(getSuffixedRunDssKey(runName, "interruptReason"), desiredResult);
+            Map<String, String> propertiesToSet = new HashMap<>();
+            propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
+            propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), desiredResult);
+
+            this.dss.put(propertiesToSet);
             isMarkedCancelled = true;
         }
         return isMarkedCancelled;
@@ -339,9 +342,12 @@ public class FrameworkRuns implements IFrameworkRuns {
     @Override
     public void markRunFinished(String runName, String result) throws DynamicStatusStoreException {
         if (isRunInDss(runName)) {
-            this.dss.put(getSuffixedRunDssKey(runName, "status"), TestRunLifecycleStatus.FINISHED.toString());
-            this.dss.put(getSuffixedRunDssKey(runName, "result"), result);
-            this.dss.put(getSuffixedRunDssKey(runName, "finished"), timeService.now().toString());
+            Map<String, String> propertiesToSet = new HashMap<>();
+            propertiesToSet.put(getSuffixedRunDssKey(runName, "status"), TestRunLifecycleStatus.FINISHED.toString());
+            propertiesToSet.put(getSuffixedRunDssKey(runName, "result"), result);
+            propertiesToSet.put(getSuffixedRunDssKey(runName, "finished"), timeService.now().toString());
+
+            this.dss.put(propertiesToSet);
         }
     }
 

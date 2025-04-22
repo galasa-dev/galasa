@@ -43,7 +43,7 @@ public class MockDSSStore implements IDynamicStatusStore, IDynamicStatusStoreSer
 
     @Override
     public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'put'");
+        valueMap.putAll(keyValues);
     }
 
     @Override
