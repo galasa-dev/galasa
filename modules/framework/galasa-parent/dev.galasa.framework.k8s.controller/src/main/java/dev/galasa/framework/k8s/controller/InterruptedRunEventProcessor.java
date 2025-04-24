@@ -42,6 +42,11 @@ public class InterruptedRunEventProcessor implements Runnable {
         this.rasStore = rasStore;
     }
 
+    /**
+     * Gets called periodically based on the engine controller's scheduling.
+     * 
+     * Each time this method is invoked, it processes all the events in the event queue and then exits.
+     */
     @Override
     public void run() {
         try {

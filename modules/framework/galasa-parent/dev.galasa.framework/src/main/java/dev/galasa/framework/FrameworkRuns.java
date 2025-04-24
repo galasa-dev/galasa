@@ -7,7 +7,6 @@ package dev.galasa.framework;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -317,24 +316,29 @@ public class FrameworkRuns implements IFrameworkRuns {
     public boolean markRunCancelled(String runName) throws DynamicStatusStoreException {
         boolean isMarkedCancelled = false;
 
-        // Mark the run as cancelled if it exists in the DSS
+        // Mark the run as cancelled if it exists in the DSS and isn't already cancelled
         IRun run = getRun(runName);
         if (run != null) {
-            String desiredResult = Result.CANCELLED;
-
-            List<RunRasAction> rasActions = new ArrayList<>();
-            RunRasAction rasActionToAdd = new RunRasAction(run.getRasRunId(), TestRunLifecycleStatus.FINISHED.toString(), desiredResult);
-            rasActions.add(rasActionToAdd);
-
-            String rasActionsJsonStr = gson.toJson(rasActions);
-            String encodedRasActions = Base64.getEncoder().encodeToString(rasActionsJsonStr.getBytes(StandardCharsets.UTF_8));
-
-            Map<String, String> propertiesToSet = new HashMap<>();
-            propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
-            propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), desiredResult);
-
-            this.dss.put(propertiesToSet);
-            isMarkedCancelled = true;
+            if (Result.CANCELLED.equals(run.getResult()) || Result.CANCELLED.equals(run.getInterruptReason())) {
+                // Don't update the DSS again if the run is already marked as cancelled
+                isMarkedCancelled = true;
+            } else {
+                String desiredResult = Result.CANCELLED;
+    
+                List<RunRasAction> rasActions = run.getRasActions();
+                RunRasAction rasActionToAdd = new RunRasAction(run.getRasRunId(), TestRunLifecycleStatus.FINISHED.toString(), desiredResult);
+                rasActions.add(rasActionToAdd);
+    
+                String rasActionsJsonStr = gson.toJson(rasActions);
+                String encodedRasActions = Base64.getEncoder().encodeToString(rasActionsJsonStr.getBytes(StandardCharsets.UTF_8));
+    
+                Map<String, String> propertiesToSet = new HashMap<>();
+                propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
+                propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), desiredResult);
+    
+                this.dss.put(propertiesToSet);
+                isMarkedCancelled = true;
+            }
         }
         return isMarkedCancelled;
     }

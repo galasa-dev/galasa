@@ -47,6 +47,7 @@ import dev.galasa.extensions.common.api.HttpRequestFactory;
 import dev.galasa.extensions.common.impl.LogFactoryImpl;
 import dev.galasa.ras.couchdb.internal.pojos.Artifacts;
 import dev.galasa.ras.couchdb.internal.pojos.LogLines;
+import dev.galasa.ras.couchdb.internal.pojos.TestStructureCouchdb;
 
 public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStoreService {
 
@@ -221,17 +222,16 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
     public synchronized void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
             throws ResultArchiveStoreException {
 
+        TestStructureCouchdb couchdbTestStructure = (TestStructureCouchdb) testStructure;
+
         String documentId = runId;
         if (runId.startsWith(COUCHDB_RUN_ID_PREFIX)) {
             documentId = runId.substring(COUCHDB_RUN_ID_PREFIX.length());
         }
 
-        // Send a GET request to get the run document's revision
-        String revision = null;
-        try {
-            revision = getDocumentRevision(RUNS_DB, documentId);
-        } catch (CouchdbException e) {
-            throw new ResultArchiveStoreException("Failed to get run document revision", e);
+        String revision = couchdbTestStructure._rev;
+        if (revision == null) {
+            throw new ResultArchiveStoreException("Failed to get run document revision");
         }
 
         String jsonStructure = gson.toJson(testStructure);

@@ -8,6 +8,7 @@ package dev.galasa.ras.couchdb.internal;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpHost;
@@ -17,29 +18,16 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
-import dev.galasa.extensions.common.couchdb.pojos.IdRev;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
 import dev.galasa.extensions.common.mocks.BaseHttpInteraction;
 import dev.galasa.extensions.common.mocks.HttpInteraction;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures;
 import dev.galasa.ras.couchdb.internal.mocks.MockLogFactory;
+import dev.galasa.ras.couchdb.internal.pojos.TestStructureCouchdb;
 
 public class CouchdbRasStoreTest {
-
-    class GetDocumentByIdFromCouchdbInteraction extends BaseHttpInteraction {
-
-        public GetDocumentByIdFromCouchdbInteraction(String expectedUri, int statusCode, IdRev idRev) {
-            super(expectedUri, statusCode);
-            setResponsePayload(idRev);
-        }
-
-        @Override
-        public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
-            super.validateRequest(host,request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
-        }
-    }
 
     class UpdateCouchdbDocumentInteraction extends BaseHttpInteraction {
 
@@ -73,8 +61,11 @@ public class CouchdbRasStoreTest {
 
     CouchdbTestFixtures fixtures = new CouchdbTestFixtures();    
 
-    private TestStructure createTestStructure(String runName, String status) {
-        TestStructure testStructure = new TestStructure();
+    private TestStructureCouchdb createTestStructure(String runName, String status, String docId, String revision) {
+        TestStructureCouchdb testStructure = new TestStructureCouchdb();
+
+        testStructure._id = docId;
+        testStructure._rev = revision;
 
         testStructure.setRunName(runName);
         testStructure.setStatus(status);
@@ -96,23 +87,19 @@ public class CouchdbRasStoreTest {
         // Given...
         String runId = "cdb-run1";
         String docId = "run1";
+        String revision = "my-revision";
         String runName = "BOB1";
         String status = "finished";
-        TestStructure newTestStructure = createTestStructure(runName, status);
-
-        IdRev mockIdRev = new IdRev();
-        mockIdRev._id = "id1";
-        mockIdRev._rev = "my-revision";
+        TestStructure newTestStructure = createTestStructure(runName, status, docId, revision);
 
         PutPostResponse mockPutResponse = new PutPostResponse();
         mockPutResponse.id = docId;
-        mockPutResponse.rev = mockIdRev._rev;
+        mockPutResponse.rev = revision;
         mockPutResponse.ok = true;
 
         String baseUri = "http://my.uri";
         MockLogFactory mockLogFactory = new MockLogFactory();
         List<HttpInteraction> interactions = List.of(
-            new GetDocumentByIdFromCouchdbInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_OK, mockIdRev),
             new UpdateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_CREATED, mockPutResponse, runName, status)
         );
 
@@ -130,23 +117,19 @@ public class CouchdbRasStoreTest {
         // Given...
         String runId = "cdb-run1";
         String docId = "run1";
+        String revision = "my-revision";
         String runName = "BOB1";
         String status = "finished";
-        TestStructure newTestStructure = createTestStructure(runName, status);
-
-        IdRev mockIdRev = new IdRev();
-        mockIdRev._id = "id1";
-        mockIdRev._rev = "my-revision";
+        TestStructure newTestStructure = createTestStructure(runName, status, docId, revision);
 
         PutPostResponse mockPutResponse = new PutPostResponse();
         mockPutResponse.id = docId;
-        mockPutResponse.rev = mockIdRev._rev;
+        mockPutResponse.rev = revision;
         mockPutResponse.ok = true;
 
         String baseUri = "http://my.uri";
         MockLogFactory mockLogFactory = new MockLogFactory();
         List<HttpInteraction> interactions = List.of(
-            new GetDocumentByIdFromCouchdbInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_OK, mockIdRev),
             new UpdateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_CONFLICT, null, runName, status),
             new UpdateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_CONFLICT, null, runName, status),
             new UpdateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_CREATED, mockPutResponse, runName, status)
@@ -161,4 +144,33 @@ public class CouchdbRasStoreTest {
         // None of the interaction assertions should have failed.
     }
 
+    @Test
+    public void testUpdateTestStructureWithMissingRevisionThrowsCorrectError() throws Exception {
+        // Given...
+        String runId = "cdb-run1";
+        String docId = "run1";
+        String revision = null;
+        String runName = "BOB1";
+        String status = "finished";
+        TestStructure newTestStructure = createTestStructure(runName, status, docId, revision);
+
+        PutPostResponse mockPutResponse = new PutPostResponse();
+        mockPutResponse.id = docId;
+        mockPutResponse.rev = revision;
+        mockPutResponse.ok = true;
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = new ArrayList<>();
+
+        CouchdbRasStore rasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+
+        // When...
+        ResultArchiveStoreException thrown = catchThrowableOfType(() -> {
+            rasStore.updateTestStructure(runId, newTestStructure);
+        }, ResultArchiveStoreException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown).hasMessage("Failed to get run document revision");
+    }
 }

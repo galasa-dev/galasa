@@ -7,6 +7,7 @@ package dev.galasa.framework.spi;
 
 public class RunRasAction {
     
+    // The run ID is the RAS document ID for the CouchDB RAS
     private String runId;
     private String desiredRunStatus;
     private String desiredRunResult;

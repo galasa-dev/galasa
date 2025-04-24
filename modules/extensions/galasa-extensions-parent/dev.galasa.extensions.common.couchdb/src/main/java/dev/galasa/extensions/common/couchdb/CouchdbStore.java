@@ -325,17 +325,4 @@ public abstract class CouchdbStore {
         }
         return isExpectedStatusCode;
     }
-
-    protected String getDocumentRevision(String databaseName, String documentId) throws CouchdbException {
-        IdRev idRevision = getDocumentFromDatabase(databaseName, documentId, IdRev.class, HttpStatus.SC_OK, HttpStatus.SC_NOT_FOUND);
-        if (idRevision == null) {
-            throw new CouchdbException("Unable to find a document with the given ID");
-        }
-
-        String revision = idRevision._rev;
-        if (revision == null) {
-            throw new CouchdbException("Unable to find document revision - Invalid JSON response");
-        }
-        return revision;
-    }
 }

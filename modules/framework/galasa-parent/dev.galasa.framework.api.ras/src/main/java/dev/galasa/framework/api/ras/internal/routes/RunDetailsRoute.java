@@ -167,20 +167,22 @@ public class RunDetailsRoute extends RunsRoute {
    }
 
    private void cancelRun(String runName, String result) throws InternalServletException {
-      boolean isCancelled = false;
+      boolean isMarkedCancelled = false;
       if (!result.equalsIgnoreCase("cancelled")){
          ServletError error = new ServletError(GAL5046_UNABLE_TO_CANCEL_RUN_INVALID_RESULT, runName, result);
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
 
       try {
-         isCancelled = framework.getFrameworkRuns().markRunCancelled(runName);
+         // If a run is marked as cancelled, the DSS record for the run will have been updated with an interrupt reason.
+         // When a run could not be found in the DSS, the run may have already finished and its DSS record was cleared.
+         isMarkedCancelled = framework.getFrameworkRuns().markRunCancelled(runName);
       } catch (FrameworkException e) {
          ServletError error = new ServletError(GAL5048_UNABLE_TO_CANCEL_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
       }
 
-      if (!isCancelled) {
+      if (!isMarkedCancelled) {
          ServletError error = new ServletError(GAL5050_UNABLE_TO_CANCEL_COMPLETED_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }

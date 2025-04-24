@@ -840,4 +840,73 @@ public class FrameworkRunsTest {
         // Then...
         assertThat(isRunMarkedCancelled).isFalse();
     }
+
+    @Test
+    public void testCancelRunOnAlreadyCancelledRunDoesNotUpdateDssAgain() throws Exception {
+        // Given...
+        MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
+        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        String runName = "mytestrun1";
+        String rasRunId = "my-run-document-id";
+
+        List<RunRasAction> existingRasActions = new ArrayList<>();
+        RunRasAction rasAction = new RunRasAction(rasRunId, TestRunLifecycleStatus.FINISHED.toString(), Result.CANCELLED);
+        existingRasActions.add(rasAction);
+
+        String rasActionJsonStr = gson.toJson(existingRasActions);
+        String encodedRasActionStr = Base64.getEncoder().encodeToString(rasActionJsonStr.getBytes(StandardCharsets.UTF_8));
+
+        // Mark the run as cancelled already
+        mockDss.put("run." + runName + ".rasrunid", rasRunId);
+        mockDss.put("run." + runName + ".status", TestRunLifecycleStatus.FINISHED.toString());
+        mockDss.put("run." + runName + ".result", Result.CANCELLED);
+        mockDss.put("run." + runName + ".rasActions", encodedRasActionStr);
+
+        // When...
+        boolean isRunMarkedCancelled = frameworkRuns.markRunCancelled(runName);
+
+        // Then...
+        assertThat(isRunMarkedCancelled).isTrue();
+
+        // We don't want the 'rasActions' property to have changed
+        assertThat(mockDss.get("run." + runName + ".rasActions")).isEqualTo(encodedRasActionStr);
+    }
+
+    @Test
+    public void testCancelRunOnAlreadyMarkedRunDoesNotUpdateDssAgain() throws Exception {
+        // Given...
+        MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
+        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        String runName = "mytestrun1";
+        String rasRunId = "my-run-document-id";
+
+        List<RunRasAction> existingRasActions = new ArrayList<>();
+        RunRasAction rasAction = new RunRasAction(rasRunId, TestRunLifecycleStatus.FINISHED.toString(), Result.CANCELLED);
+        existingRasActions.add(rasAction);
+
+        String rasActionJsonStr = gson.toJson(existingRasActions);
+        String encodedRasActionStr = Base64.getEncoder().encodeToString(rasActionJsonStr.getBytes(StandardCharsets.UTF_8));
+
+        // Mark the run as cancelled already
+        mockDss.put("run." + runName + ".rasrunid", rasRunId);
+        mockDss.put("run." + runName + ".interruptReason", Result.CANCELLED);
+        mockDss.put("run." + runName + ".rasActions", encodedRasActionStr);
+
+        // When...
+        boolean isRunMarkedCancelled = frameworkRuns.markRunCancelled(runName);
+
+        // Then...
+        assertThat(isRunMarkedCancelled).isTrue();
+
+        // We don't want the 'rasActions' property to have changed
+        assertThat(mockDss.get("run." + runName + ".rasActions")).isEqualTo(encodedRasActionStr);
+    }
 }
