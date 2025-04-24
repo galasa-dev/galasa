@@ -601,7 +601,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
 			@Override
-    		public boolean reset(String runname) throws DynamicStatusStoreException {
+    		public boolean markRunRequeued(String runname) throws DynamicStatusStoreException {
         		throw new DynamicStatusStoreException();
 			}
 		};
@@ -685,7 +685,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
 		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs) {
 			@Override
-    		public boolean reset(String runname) throws DynamicStatusStoreException {
+    		public boolean markRunRequeued(String runname) throws DynamicStatusStoreException {
         		return false;
 			}
 		};

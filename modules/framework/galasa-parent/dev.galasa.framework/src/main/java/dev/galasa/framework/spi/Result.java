@@ -14,6 +14,7 @@ import dev.galasa.framework.IResult;
 
 public class Result implements IResult {
 
+    public static final String REQUEUED    = "Requeued";
     public static final String CANCELLED   = "Cancelled";
 
     private static final String IGNORED     = "Ignored";
@@ -47,6 +48,7 @@ public class Result implements IResult {
         resultNames.add(FAILED);
         resultNames.add(ENVFAIL);
         resultNames.add(CANCELLED);
+        resultNames.add(REQUEUED);
         return resultNames;
     }
 

@@ -15,6 +15,7 @@ import java.util.*;
  * @since 0.30.0
  */
 public enum TestRunLifecycleStatus {
+    QUEUED("queued"),
     FINISHED("finished"),
     BUILDING("building"),
     GENERATING("generating"),

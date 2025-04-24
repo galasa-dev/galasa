@@ -16,6 +16,7 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -59,14 +60,33 @@ public class InterruptedRunEventProcessor implements Runnable {
                 if (interruptEvent == null) {
                     isDone = true;
                 } else {
-                    markRunFinishedInDss(interruptEvent);
                     processRasActions(interruptEvent);
+
+                    String interruptReason = interruptEvent.getInterruptReason();
+                    switch (interruptReason) {
+                        case Result.CANCELLED:
+                            markRunFinishedInDss(interruptEvent);
+                            break;
+                        case Result.REQUEUED:
+                            markRunRequeuedInDss(interruptEvent);
+                            break;
+                        default:
+                            logger.warn("Unknown interrupt reason set '" + interruptReason + "', ignoring");
+                    }
                 }
             }
             logger.debug("Finished scan of interrupt events to process");
         } catch (Exception ex) {
             logger.warn("Exception caught and ignored in InterruptRunEventProcessor", ex);
         }
+    }
+
+    private void markRunRequeuedInDss(RunInterruptEvent interruptEvent) throws DynamicStatusStoreException {
+        String runName = interruptEvent.getRunName();
+
+        logger.info("Requeuing run '" + runName + "' in the DSS");
+        frameworkRuns.reset(runName);
+        logger.info("Requeued run '" + runName + "' in the DSS OK");
     }
 
     private void markRunFinishedInDss(RunInterruptEvent interruptEvent) throws DynamicStatusStoreException {

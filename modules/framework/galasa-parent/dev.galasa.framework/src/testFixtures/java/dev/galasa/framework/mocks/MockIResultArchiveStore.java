@@ -41,6 +41,13 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
     }
 
     @Override
+    public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
+            throws ResultArchiveStoreException {
+        TestStructure historyRecord = new TestStructure(testStructure);
+        testStructureHistory.add(historyRecord);
+    }
+
+    @Override
     public String calculateRasRunId() {
         return this.runId;
     }
@@ -88,11 +95,5 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
     @Override
     public void shutdown() {
                throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
-    }
-
-    @Override
-    public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
-            throws ResultArchiveStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
     }
 }

@@ -49,4 +49,5 @@ public interface IFrameworkRuns {
 
     void markRunFinished(String runName, String result) throws DynamicStatusStoreException;
 
+    boolean markRunRequeued(String runName) throws DynamicStatusStoreException;
 }

@@ -153,14 +153,17 @@ public class RunDetailsRoute extends RunsRoute {
    }
 
    private void resetRun(String runName) throws InternalServletException {
-      boolean isReset = false;
+      boolean isMarkedRequeued = false;
       try {
-      isReset = framework.getFrameworkRuns().reset(runName);
+         // If a run is marked as requeued, the DSS record for the run will be given an interrupt reason.
+         // When a run could not be found in the DSS, the run may have already finished and its DSS record was cleared.
+         isMarkedRequeued = framework.getFrameworkRuns().markRunRequeued(runName);
       } catch (FrameworkException e){
          ServletError error = new ServletError(GAL5047_UNABLE_TO_RESET_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
       }
-      if (!isReset){
+
+      if (!isMarkedRequeued) {
          ServletError error = new ServletError(GAL5049_UNABLE_TO_RESET_COMPLETED_RUN, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }

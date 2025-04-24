@@ -94,7 +94,11 @@ public class MockFrameworkRuns implements IFrameworkRuns{
     }
 
     @Override
-    public boolean reset(String runname) throws DynamicStatusStoreException {
+    public boolean reset(String runName) throws DynamicStatusStoreException {
+        MockRun run = (MockRun) getRun(runName);
+        if (run != null) {
+            run.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+        }
         return true;
     }
 
@@ -110,5 +114,10 @@ public class MockFrameworkRuns implements IFrameworkRuns{
             run.setStatus(TestRunLifecycleStatus.FINISHED.toString());
             run.setResult(result);
         }
+    }
+
+    @Override
+    public boolean markRunRequeued(String runName) throws DynamicStatusStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'markRunRequeued'");
     }
 }

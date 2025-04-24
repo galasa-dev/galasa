@@ -98,6 +98,11 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     }
 
     @Override
+    public boolean markRunRequeued(String runName) throws DynamicStatusStoreException {
+        return true;
+    }
+
+    @Override
     public void markRunFinished(String runName, String result) throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'setRunStatus'");
     }

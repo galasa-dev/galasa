@@ -16,6 +16,6 @@ public class TestResultNames {
     @Test
     public void testGetDefaultResultNames(){
         List<String> resultNames = ResultNames.getDefaultResultNames();
-        assertArrayEquals(resultNames.toArray(), new String[]{"Ignored","Passed","Failed","EnvFail","Cancelled"});
+        assertArrayEquals(resultNames.toArray(), new String[]{"Ignored","Passed","Failed","EnvFail","Cancelled","Requeued"});
     } 
 }

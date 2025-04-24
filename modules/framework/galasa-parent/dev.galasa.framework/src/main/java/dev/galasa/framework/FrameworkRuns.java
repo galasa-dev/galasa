@@ -7,6 +7,7 @@ package dev.galasa.framework;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -303,21 +304,58 @@ public class FrameworkRuns implements IFrameworkRuns {
     }
 
     @Override
-    public boolean reset(String runname) throws DynamicStatusStoreException {
-        String prefix = getRunDssPrefix(runname);
+    public boolean reset(String runName) throws DynamicStatusStoreException {
+        boolean isReset = false;
 
-        Map<String, String> properties = this.dss.getPrefix(prefix);
-        if (properties.isEmpty()) {
-            return false;
+        IRun run = getRun(runName);
+        if (run != null && !run.isLocal()) {
+
+            // Remove the run's heartbeat and interrupt reason
+            Set<String> keysToDelete = new HashSet<>();
+            keysToDelete.add(getSuffixedRunDssKey(runName, "heartbeat"));
+            keysToDelete.add(getSuffixedRunDssKey(runName, "interruptReason"));
+            this.dss.delete(keysToDelete);
+
+            // Set the status of the run back to 'queued'
+            this.dss.put(getSuffixedRunDssKey(runName, "status"), TestRunLifecycleStatus.QUEUED.toString());
+            isReset = true;
         }
 
-        if ("true".equals(properties.get(prefix + "local"))) {
-            return false;
+        return isReset;
+    }
+
+    @Override
+    public boolean markRunRequeued(String runName) throws DynamicStatusStoreException {
+        boolean isMarkedRequeued = false;
+
+        IRun run = getRun(runName);
+        if (run != null && !run.isLocal()) {
+            // Only update the DSS record if the run doesn't already have an interrupt reason set to requeued
+            if (!Result.REQUEUED.equals(run.getInterruptReason())) {
+                interruptRun(run, Result.REQUEUED);
+            }
+            isMarkedRequeued = true;
         }
 
-        this.dss.delete(prefix + "heartbeat");
-        this.dss.put(prefix + "status", "queued");
-        return true;
+        return isMarkedRequeued;
+    }
+
+    private void interruptRun(IRun run, String interruptReason) throws DynamicStatusStoreException {
+        String runName = run.getName();
+
+        // Add a RAS action to the run's existing RAS actions so that the RAS records for any re-runs can be updated correctly
+        List<RunRasAction> rasActions = new ArrayList<>(run.getRasActions());
+        RunRasAction rasActionToAdd = new RunRasAction(run.getRasRunId(), TestRunLifecycleStatus.FINISHED.toString(), interruptReason);
+        rasActions.add(rasActionToAdd);
+
+        String rasActionsJsonStr = gson.toJson(rasActions);
+        String encodedRasActions = Base64.getEncoder().encodeToString(rasActionsJsonStr.getBytes(StandardCharsets.UTF_8));
+
+        Map<String, String> propertiesToSet = new HashMap<>();
+        propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
+        propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), interruptReason);
+
+        this.dss.put(propertiesToSet);
     }
 
     @Override
@@ -331,20 +369,7 @@ public class FrameworkRuns implements IFrameworkRuns {
                 // Don't update the DSS again if the run is already marked as cancelled
                 isMarkedCancelled = true;
             } else {
-                String desiredResult = Result.CANCELLED;
-    
-                List<RunRasAction> rasActions = run.getRasActions();
-                RunRasAction rasActionToAdd = new RunRasAction(run.getRasRunId(), TestRunLifecycleStatus.FINISHED.toString(), desiredResult);
-                rasActions.add(rasActionToAdd);
-    
-                String rasActionsJsonStr = gson.toJson(rasActions);
-                String encodedRasActions = Base64.getEncoder().encodeToString(rasActionsJsonStr.getBytes(StandardCharsets.UTF_8));
-    
-                Map<String, String> propertiesToSet = new HashMap<>();
-                propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
-                propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), desiredResult);
-    
-                this.dss.put(propertiesToSet);
+                interruptRun(run, Result.CANCELLED);
                 isMarkedCancelled = true;
             }
         }
