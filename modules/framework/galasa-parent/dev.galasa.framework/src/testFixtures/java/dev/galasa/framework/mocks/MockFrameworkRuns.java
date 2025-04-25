@@ -16,6 +16,7 @@ import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.RunRasAction;
 
 public class MockFrameworkRuns implements IFrameworkRuns{
     protected String groupName;
@@ -119,5 +120,10 @@ public class MockFrameworkRuns implements IFrameworkRuns{
     @Override
     public boolean markRunRequeued(String runName) throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'markRunRequeued'");
+    }
+
+    @Override
+    public void addRunRasAction(IRun run, RunRasAction rasActionToAdd) throws DynamicStatusStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'addRunRasAction'");
     }
 }

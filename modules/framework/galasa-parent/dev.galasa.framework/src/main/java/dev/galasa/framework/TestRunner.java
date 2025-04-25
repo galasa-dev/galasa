@@ -219,6 +219,11 @@ public class TestRunner extends BaseTestRunner {
         // And all the overrides the test was passed.
         saveAllOverridesPassedToArtifact(overrideProperties, this.fileSystem , this.ras);
 
+        // Process any RAS actions that were defined for this test run
+        if (!markedWaiting) {
+            processRasActions();
+        }
+
         // *** If this was a local run, then we will want to remove the run properties
         // from the DSS immediately
         // *** for automation, we will let the core manager clean up after a while

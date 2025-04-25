@@ -28,9 +28,12 @@ import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStore;
+import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -388,6 +391,50 @@ public class BaseTestRunner {
             logger.error("Failed to get the CPS property 'framework.continue.on.test.failure'", ex);
         }
         return continueOnTestFailure ;
+    }
+
+    protected void processRasActions() {
+        List<RunRasAction> rasActions = this.run.getRasActions();
+        String runName = this.run.getName();
+
+        logger.info("Processing RAS actions for run '" + runName + "'");
+
+        for (RunRasAction rasAction : rasActions) {
+            try {
+                String runId = rasAction.getRunId();
+                TestStructure testStructure = getRunTestStructure(runId);
+                if (testStructure != null) {
+    
+                    // Set the status and result for the run if it doesn't already have the desired status
+                    String runStatus = testStructure.getStatus();
+                    String desiredRunStatus = rasAction.getDesiredRunStatus();
+                    if (!desiredRunStatus.equals(runStatus)) {
+                        testStructure.setStatus(desiredRunStatus);
+                        testStructure.setResult(rasAction.getDesiredRunResult());
+    
+                        ras.updateTestStructure(runId, testStructure);
+                    } else {
+                        logger.info("Run already has status '" + desiredRunStatus + "', will not update its RAS record");
+                    }
+                }
+            } catch (ResultArchiveStoreException ex) {
+                logger.error("Failed to process RAS action", ex);
+            }
+        }
+        logger.info("RAS actions for run '" + runName + "' processed OK");
+    }
+
+    private TestStructure getRunTestStructure(String runId) throws ResultArchiveStoreException {
+        TestStructure testStructure = null;
+        for (IResultArchiveStoreDirectoryService directoryService : ras.getDirectoryServices()) {
+            IRunResult run = directoryService.getRunById(runId);
+
+            if (run != null) {
+                testStructure = run.getTestStructure();
+                break;
+            }
+        }
+        return testStructure;
     }
 }
 

@@ -92,12 +92,14 @@ public class MockDSSStore implements IDynamicStatusStore, IDynamicStatusStoreSer
     }
 
     @Override
-    public void delete(@NotNull String key) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    public void delete(@NotNull Set<String> keys) throws DynamicStatusStoreException {
+        for (String key : keys) {
+            this.valueMap.remove(key);
+        }
     }
 
     @Override
-    public void delete(@NotNull Set<String> keys) throws DynamicStatusStoreException {
+    public void delete(@NotNull String key) throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 

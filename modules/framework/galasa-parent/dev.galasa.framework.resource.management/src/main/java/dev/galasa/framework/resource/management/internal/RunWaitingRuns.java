@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -18,6 +19,8 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResourceManagement;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.RunRasAction;
 
 public class RunWaitingRuns implements Runnable {
 
@@ -58,6 +61,11 @@ public class RunWaitingRuns implements Runnable {
                         // *** Leave the queue time as is as we want the waiting runs to be actioned
                         // before 1st time queued runs
                         logger.info("Requeueing Waiting run " + runName);
+
+                        // Add a RAS action so that the record for the requeued run can be updated later
+                        RunRasAction rasActionToAdd = new RunRasAction(run.getRasRunId(), TestRunLifecycleStatus.FINISHED.toString(), Result.REQUEUED);
+                        frameworkRuns.addRunRasAction(run, rasActionToAdd);
+
                         this.dss.delete("run." + run.getName() + ".wait.until");
                     }
                 }

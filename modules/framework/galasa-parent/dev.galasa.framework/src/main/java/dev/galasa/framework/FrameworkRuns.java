@@ -340,6 +340,18 @@ public class FrameworkRuns implements IFrameworkRuns {
         return isMarkedRequeued;
     }
 
+    @Override
+    public void addRunRasAction(IRun run, RunRasAction rasActionToAdd) throws DynamicStatusStoreException {
+        String runName = run.getName();
+
+        List<RunRasAction> updatedRasActions = new ArrayList<>(run.getRasActions());
+        updatedRasActions.add(rasActionToAdd);
+
+        String encodedRasActions = encodeRasActionsToBase64(updatedRasActions);
+
+        this.dss.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
+    }
+
     private void interruptRun(IRun run, String interruptReason) throws DynamicStatusStoreException {
         String runName = run.getName();
 
@@ -348,14 +360,19 @@ public class FrameworkRuns implements IFrameworkRuns {
         RunRasAction rasActionToAdd = new RunRasAction(run.getRasRunId(), TestRunLifecycleStatus.FINISHED.toString(), interruptReason);
         rasActions.add(rasActionToAdd);
 
-        String rasActionsJsonStr = gson.toJson(rasActions);
-        String encodedRasActions = Base64.getEncoder().encodeToString(rasActionsJsonStr.getBytes(StandardCharsets.UTF_8));
+        String encodedRasActions = encodeRasActionsToBase64(rasActions);
 
         Map<String, String> propertiesToSet = new HashMap<>();
         propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
         propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), interruptReason);
 
         this.dss.put(propertiesToSet);
+    }
+
+    private String encodeRasActionsToBase64(List<RunRasAction> rasActions) {
+        String rasActionsJsonStr = gson.toJson(rasActions);
+        String encodedRasActions = Base64.getEncoder().encodeToString(rasActionsJsonStr.getBytes(StandardCharsets.UTF_8));
+        return encodedRasActions;
     }
 
     @Override

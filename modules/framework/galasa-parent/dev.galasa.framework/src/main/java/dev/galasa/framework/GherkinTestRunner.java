@@ -155,6 +155,11 @@ public class GherkinTestRunner extends BaseTestRunner {
             // And all the overrides the test was passed.
             saveAllOverridesPassedToArtifact(overrideProperties, this.fileSystem , this.ras);
 
+            // Process any RAS actions that were defined for this test run
+            if (!markedWaiting) {
+                processRasActions();
+            }
+
             // *** If this was a local run, then we will want to remove the run properties
             // from the DSS immediately
             // *** for automation, we will let the core manager clean up after a while
@@ -164,7 +169,7 @@ public class GherkinTestRunner extends BaseTestRunner {
             // *** time for things like jenkins and other run requesters to obtain the
             // result and RAS id before
             // *** deleting, default is to keep the automation run properties for 5 minutes
-            if (!markedWaiting) {
+            if (this.run.isLocal() && !markedWaiting) {
                 deleteRunProperties(framework);
             }
 

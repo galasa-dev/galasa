@@ -6,6 +6,7 @@
 package dev.galasa.framework.mocks;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,7 +33,7 @@ public class MockRun implements IRun {
     private String interruptReason;
     private String result;
     private String runId;
-    private List<RunRasAction> rasActions;
+    private List<RunRasAction> rasActions = new ArrayList<>();
     private Set<String> tags = new HashSet<String>();
 
     public MockRun(
