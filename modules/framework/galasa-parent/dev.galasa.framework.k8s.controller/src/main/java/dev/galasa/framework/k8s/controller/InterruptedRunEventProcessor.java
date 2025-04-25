@@ -65,6 +65,7 @@ public class InterruptedRunEventProcessor implements Runnable {
                     String interruptReason = interruptEvent.getInterruptReason();
                     switch (interruptReason) {
                         case Result.CANCELLED:
+                        case Result.HUNG:
                             markRunFinishedInDss(interruptEvent);
                             break;
                         case Result.REQUEUED:

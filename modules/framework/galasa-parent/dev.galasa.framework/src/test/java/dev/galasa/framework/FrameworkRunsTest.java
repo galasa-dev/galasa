@@ -834,7 +834,7 @@ public class FrameworkRunsTest {
         mockDss.put("run." + runName + ".rasrunid", rasRunId);
 
         // When...
-        boolean isRunMarkedCancelled = frameworkRuns.markRunCancelled(runName);
+        boolean isRunMarkedCancelled = frameworkRuns.markRunInterrupted(runName, Result.CANCELLED);
 
         // Then...
         assertThat(isRunMarkedCancelled).isTrue();
@@ -862,7 +862,7 @@ public class FrameworkRunsTest {
         String runName = "mytestrun1";
 
         // When...
-        boolean isRunMarkedCancelled = frameworkRuns.markRunCancelled(runName);
+        boolean isRunMarkedCancelled = frameworkRuns.markRunInterrupted(runName, Result.CANCELLED);
 
         // Then...
         assertThat(isRunMarkedCancelled).isFalse();
@@ -894,7 +894,7 @@ public class FrameworkRunsTest {
         mockDss.put("run." + runName + ".rasActions", encodedRasActionStr);
 
         // When...
-        boolean isRunMarkedCancelled = frameworkRuns.markRunCancelled(runName);
+        boolean isRunMarkedCancelled = frameworkRuns.markRunInterrupted(runName, Result.CANCELLED);
 
         // Then...
         assertThat(isRunMarkedCancelled).isTrue();
@@ -928,7 +928,7 @@ public class FrameworkRunsTest {
         mockDss.put("run." + runName + ".rasActions", encodedRasActionStr);
 
         // When...
-        boolean isRunMarkedCancelled = frameworkRuns.markRunCancelled(runName);
+        boolean isRunMarkedCancelled = frameworkRuns.markRunInterrupted(runName, Result.CANCELLED);
 
         // Then...
         assertThat(isRunMarkedCancelled).isTrue();
@@ -966,7 +966,7 @@ public class FrameworkRunsTest {
     }
 
     @Test
-    public void testMarkRunRequeuedSetsInterruptReasonAndRasActionOk() throws Exception {
+    public void testmarkRunInterruptedSetsInterruptReasonAndRasActionOk() throws Exception {
         // Given...
         MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
@@ -981,7 +981,7 @@ public class FrameworkRunsTest {
         mockDss.put("run." + runName + ".rasrunid", rasRunId);
 
         // When...
-        boolean isRunMarkedRequeued = frameworkRuns.markRunRequeued(runName);
+        boolean isRunMarkedRequeued = frameworkRuns.markRunInterrupted(runName, Result.REQUEUED);
 
         // Then...
         assertThat(isRunMarkedRequeued).isTrue();
@@ -1022,7 +1022,7 @@ public class FrameworkRunsTest {
         mockDss.put("run." + runName + ".rasActions", encodedRasActionStr);
 
         // When...
-        boolean isRunMarkedRequeued = frameworkRuns.markRunRequeued(runName);
+        boolean isRunMarkedRequeued = frameworkRuns.markRunInterrupted(runName, Result.REQUEUED);
 
         // Then...
         assertThat(isRunMarkedRequeued).isTrue();
@@ -1048,7 +1048,7 @@ public class FrameworkRunsTest {
         mockDss.put("run." + runName + ".rasrunid", rasRunId);
 
         // When...
-        boolean isRunMarkedRequeued = frameworkRuns.markRunRequeued(runName);
+        boolean isRunMarkedRequeued = frameworkRuns.markRunInterrupted(runName, Result.REQUEUED);
 
         // Then...
         assertThat(isRunMarkedRequeued).isFalse();
@@ -1067,7 +1067,7 @@ public class FrameworkRunsTest {
         String runName = "mytestrun1";
 
         // When...
-        boolean isRunMarkedRequeued = frameworkRuns.markRunRequeued(runName);
+        boolean isRunMarkedRequeued = frameworkRuns.markRunInterrupted(runName, Result.REQUEUED);
 
         // Then...
         assertThat(isRunMarkedRequeued).isFalse();

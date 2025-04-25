@@ -104,11 +104,6 @@ public class MockFrameworkRuns implements IFrameworkRuns{
     }
 
     @Override
-    public boolean markRunCancelled(String runName) throws DynamicStatusStoreException {
-        return true;
-    }
-
-    @Override
     public void markRunFinished(String runName, String result) throws DynamicStatusStoreException {
         MockRun run = (MockRun) getRun(runName);
         if (run != null) {
@@ -118,8 +113,8 @@ public class MockFrameworkRuns implements IFrameworkRuns{
     }
 
     @Override
-    public boolean markRunRequeued(String runName) throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'markRunRequeued'");
+    public boolean markRunInterrupted(String runName, String interruptReason) throws DynamicStatusStoreException {
+        return true;
     }
 
     @Override

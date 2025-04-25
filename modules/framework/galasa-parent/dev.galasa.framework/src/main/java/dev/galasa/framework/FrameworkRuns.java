@@ -39,7 +39,6 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
@@ -325,22 +324,6 @@ public class FrameworkRuns implements IFrameworkRuns {
     }
 
     @Override
-    public boolean markRunRequeued(String runName) throws DynamicStatusStoreException {
-        boolean isMarkedRequeued = false;
-
-        IRun run = getRun(runName);
-        if (run != null && !run.isLocal()) {
-            // Only update the DSS record if the run doesn't already have an interrupt reason set to requeued
-            if (!Result.REQUEUED.equals(run.getInterruptReason())) {
-                interruptRun(run, Result.REQUEUED);
-            }
-            isMarkedRequeued = true;
-        }
-
-        return isMarkedRequeued;
-    }
-
-    @Override
     public void addRunRasAction(IRun run, RunRasAction rasActionToAdd) throws DynamicStatusStoreException {
         String runName = run.getName();
 
@@ -376,21 +359,20 @@ public class FrameworkRuns implements IFrameworkRuns {
     }
 
     @Override
-    public boolean markRunCancelled(String runName) throws DynamicStatusStoreException {
-        boolean isMarkedCancelled = false;
+    public boolean markRunInterrupted(String runName, String interruptReason) throws DynamicStatusStoreException {
+        boolean isMarkedInterrupted = false;
 
-        // Mark the run as cancelled if it exists in the DSS and isn't already cancelled
         IRun run = getRun(runName);
-        if (run != null) {
-            if (Result.CANCELLED.equals(run.getResult()) || Result.CANCELLED.equals(run.getInterruptReason())) {
-                // Don't update the DSS again if the run is already marked as cancelled
-                isMarkedCancelled = true;
+        if (run != null && !run.isLocal()) {
+            if (interruptReason.equals(run.getInterruptReason()) || interruptReason.equals(run.getResult())) {
+                // Don't update the DSS again if the run is already interrupted
+                isMarkedInterrupted = true;
             } else {
-                interruptRun(run, Result.CANCELLED);
-                isMarkedCancelled = true;
+                interruptRun(run, interruptReason);
+                isMarkedInterrupted = true;
             }
         }
-        return isMarkedCancelled;
+        return isMarkedInterrupted;
     }
 
     @Override

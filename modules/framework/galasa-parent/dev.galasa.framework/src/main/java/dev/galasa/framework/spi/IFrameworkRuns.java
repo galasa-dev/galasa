@@ -45,11 +45,9 @@ public interface IFrameworkRuns {
 
     boolean reset(String runname) throws DynamicStatusStoreException;
 
-    boolean markRunCancelled(String runName) throws DynamicStatusStoreException;
+    boolean markRunInterrupted(String runName, String interruptReason) throws DynamicStatusStoreException;
 
     void markRunFinished(String runName, String result) throws DynamicStatusStoreException;
-
-    boolean markRunRequeued(String runName) throws DynamicStatusStoreException;
 
     void addRunRasAction(IRun run, RunRasAction rasActionToAdd) throws DynamicStatusStoreException;
 }

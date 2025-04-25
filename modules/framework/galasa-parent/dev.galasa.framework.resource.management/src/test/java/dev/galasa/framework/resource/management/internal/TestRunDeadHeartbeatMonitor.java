@@ -55,7 +55,7 @@ public class TestRunDeadHeartbeatMonitor {
     class MockFrameworkRunsExtended extends MockFrameworkRuns {
 
         public List<IRun> activeRuns ;
-        public List<String> runNamesReset = new ArrayList<String>();
+        public List<String> runNamesInterrupted = new ArrayList<String>();
 
         public MockFrameworkRunsExtended(List<IRun> activeRuns) {
             this.activeRuns = activeRuns;
@@ -67,8 +67,8 @@ public class TestRunDeadHeartbeatMonitor {
         }
 
         @Override
-        public boolean reset(String runname) throws DynamicStatusStoreException {
-            runNamesReset.add(runname);
+        public boolean markRunInterrupted(String runname, String interruptReason) throws DynamicStatusStoreException {
+            runNamesInterrupted.add(runname);
             return true;
         }
 
@@ -227,8 +227,8 @@ public class TestRunDeadHeartbeatMonitor {
         monitor.run();
 
         // Then...
-        assertThat(runs.runNamesReset.contains(testRunName)).isTrue();
-        assertThat(log.contains("Reseting run " + testRunName + ", last heartbeat was at ")).isTrue();
+        assertThat(runs.runNamesInterrupted.contains(testRunName)).isTrue();
+        assertThat(log.contains("Resetting run " + testRunName + ", last heartbeat was at ")).isTrue();
         assertThat(resourceManagement.isSuccessFul).isEqualTo(true);
     }
 
@@ -337,8 +337,8 @@ public class TestRunDeadHeartbeatMonitor {
         // The monitor should cache information about this run with a missing heartbeat...
         monitor.run();
 
-        // Double check that the test run should still be in the list.
-        assertThat(runsList).contains(run); 
+        // Double check that the test run should not be interrupted.
+        assertThat(runs.runNamesInterrupted).doesNotContain(testRunName); 
 
         // Now advance the clock somewhat so that the run with no heartbeat is out of date...
         // advanced clock by 10 minutes...
@@ -350,11 +350,11 @@ public class TestRunDeadHeartbeatMonitor {
 
         // Then...
 
-        // The run should have been removed now.
-        assertThat(runsList).doesNotContain(run); 
+        // The run should have been interrupted now.
+        assertThat(runs.runNamesInterrupted).contains(testRunName); 
 
-        // The fact that it was deleted should have been logged.
-        assertThat(log.contains("deleted")).isFalse();
+        // The fact that it was interrupted should have been logged.
+        assertThat(log.contains("Interrupting")).isTrue();
 
         // The monitor should have passed overall.
         assertThat(resourceManagement.isSuccessFul).isEqualTo(true);

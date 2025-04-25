@@ -24,6 +24,7 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResourceManagement;
 import dev.galasa.framework.spi.IResourceManagementProvider;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.utils.SystemTimeService;
 
@@ -166,10 +167,10 @@ public class RunDeadHeartbeatMonitor implements Runnable {
             if (run.isLocal()) {
                 /// TODO put time management into the framework
                 logger.warn("Deleting run " + runName + ", last heartbeat was at " + lastHeartbeat);
-                this.frameworkRuns.delete(runName);
+                this.frameworkRuns.markRunInterrupted(runName, Result.HUNG);
             } else {
-                logger.warn("Reseting run " + runName + ", last heartbeat was at " + lastHeartbeat);
-                this.frameworkRuns.reset(runName);
+                logger.warn("Resetting run " + runName + ", last heartbeat was at " + lastHeartbeat);
+                this.frameworkRuns.markRunInterrupted(runName, Result.REQUEUED);
             }
         } else {
             logger.trace("Run " + runName + " heartbeat is ok");
@@ -194,9 +195,9 @@ public class RunDeadHeartbeatMonitor implements Runnable {
             Instant expires = noHeartBeatRun.getFirstDetectedTime().plusSeconds(defaultDeadHeartbeatTimeSecs);
             if (expires.compareTo(now) <= 0) {
                 // The run has no heartbeat and has been around for a long while.
-                // So delete it.
-                logger.warn("Active run without heartbeat = " + runName + " still present. It's old. Deleting now.");
-                this.frameworkRuns.delete(runName);
+                // So interrupt it.
+                logger.warn("Active run without heartbeat = " + runName + " still present. It's old. Interrupting now.");
+                this.frameworkRuns.markRunInterrupted(runName, Result.HUNG);
                 // No longer need to have any knowledge of this run in the cache either.
                 runsWithNoHeartbeatCache.remove(runName);
             } else {

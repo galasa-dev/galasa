@@ -16,6 +16,7 @@ public class Result implements IResult {
 
     public static final String REQUEUED    = "Requeued";
     public static final String CANCELLED   = "Cancelled";
+    public static final String HUNG        = "Hung";
 
     private static final String IGNORED     = "Ignored";
     private static final String PASSED      = "Passed";
@@ -49,6 +50,7 @@ public class Result implements IResult {
         resultNames.add(ENVFAIL);
         resultNames.add(CANCELLED);
         resultNames.add(REQUEUED);
+        resultNames.add(HUNG);
         return resultNames;
     }
 

@@ -94,12 +94,7 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     }
 
     @Override
-    public boolean markRunCancelled(String runName) throws DynamicStatusStoreException {
-        return true;
-    }
-
-    @Override
-    public boolean markRunRequeued(String runName) throws DynamicStatusStoreException {
+    public boolean markRunInterrupted(String runName, String interruptReason) throws DynamicStatusStoreException {
         return true;
     }
 
