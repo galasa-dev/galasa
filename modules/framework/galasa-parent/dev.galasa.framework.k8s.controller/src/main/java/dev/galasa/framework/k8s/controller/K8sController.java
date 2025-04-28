@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.FrameworkInitialisation;
+import dev.galasa.framework.RunRasActionProcessor;
 import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
@@ -29,6 +30,7 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResultArchiveStore;
+import dev.galasa.framework.spi.IRunRasActionProcessor;
 import io.kubernetes.client.ProtoClient;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.Configuration;
@@ -186,7 +188,8 @@ public class K8sController {
         RunInterruptMonitor runInterruptWatcher = new RunInterruptMonitor(kubeEngineFacade, frameworkRuns, interruptEventQueue);
         scheduledExecutorService.scheduleWithFixedDelay(runInterruptWatcher, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
-        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, ras);
+        IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(ras);
+        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, rasActionProcessor);
         scheduledExecutorService.scheduleWithFixedDelay(interruptEventProcessor, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 

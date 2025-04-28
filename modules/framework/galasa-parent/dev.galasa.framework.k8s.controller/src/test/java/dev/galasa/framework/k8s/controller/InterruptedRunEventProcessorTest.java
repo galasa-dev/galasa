@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.Test;
 
+import dev.galasa.framework.RunRasActionProcessor;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockFrameworkRuns;
@@ -22,6 +23,7 @@ import dev.galasa.framework.mocks.MockResultArchiveStoreDirectoryService;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.mocks.MockRunResult;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.IRunRasActionProcessor;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.RunRasAction;
@@ -82,11 +84,13 @@ public class InterruptedRunEventProcessorTest {
         MockResultArchiveStoreDirectoryService mockDirectoryService = new MockResultArchiveStoreDirectoryService(runResults);
         mockRas.addDirectoryService(mockDirectoryService);
 
+        IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(mockRas);
+
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
         RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason);
         eventQueue.add(interruptEvent);
 
-        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, mockRas);
+        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor);
 
         // When...
         processor.run();
@@ -124,11 +128,13 @@ public class InterruptedRunEventProcessorTest {
         MockResultArchiveStoreDirectoryService mockDirectoryService = new MockResultArchiveStoreDirectoryService(runResults);
         mockRas.addDirectoryService(mockDirectoryService);
 
+        IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(mockRas);
+
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
         RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason);
         eventQueue.add(interruptEvent);
 
-        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, mockRas);
+        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor);
 
         // When...
         processor.run();

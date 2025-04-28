@@ -1032,29 +1032,6 @@ public class FrameworkRunsTest {
     }
 
     @Test
-    public void testRequeueRunOnLocalRunDoesNotUpdateDss() throws Exception {
-        // Given...
-        MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
-        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
-        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
-
-        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
-
-        String runName = "mytestrun1";
-        String rasRunId = "my-run-document-id";
-
-        // Mark the run as local
-        mockDss.put("run." + runName + ".local", "true");
-        mockDss.put("run." + runName + ".rasrunid", rasRunId);
-
-        // When...
-        boolean isRunMarkedRequeued = frameworkRuns.markRunInterrupted(runName, Result.REQUEUED);
-
-        // Then...
-        assertThat(isRunMarkedRequeued).isFalse();
-    }
-
-    @Test
     public void testRequeueRunOnNonExistantRunDoesNotUpdateDss() throws Exception {
         // Given...
         MockDSSStore mockDss = new MockDSSStore(new HashMap<>());

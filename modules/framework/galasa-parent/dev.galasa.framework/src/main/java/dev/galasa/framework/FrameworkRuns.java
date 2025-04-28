@@ -363,14 +363,12 @@ public class FrameworkRuns implements IFrameworkRuns {
         boolean isMarkedInterrupted = false;
 
         IRun run = getRun(runName);
-        if (run != null && !run.isLocal()) {
-            if (interruptReason.equals(run.getInterruptReason()) || interruptReason.equals(run.getResult())) {
-                // Don't update the DSS again if the run is already interrupted
-                isMarkedInterrupted = true;
-            } else {
+        if (run != null) {
+            if (!interruptReason.equals(run.getInterruptReason()) && !interruptReason.equals(run.getResult())) {
+                // Only update the DSS if the run hasn't been interrupted already
                 interruptRun(run, interruptReason);
-                isMarkedInterrupted = true;
             }
+            isMarkedInterrupted = true;
         }
         return isMarkedInterrupted;
     }

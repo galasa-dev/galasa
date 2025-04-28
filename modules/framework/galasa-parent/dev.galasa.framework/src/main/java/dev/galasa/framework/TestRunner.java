@@ -221,7 +221,7 @@ public class TestRunner extends BaseTestRunner {
 
         // Process any RAS actions that were defined for this test run
         if (!markedWaiting) {
-            processRasActions();
+            rasActionProcessor.processRasActions(this.run.getName(), this.run.getRasActions());
         }
 
         // *** If this was a local run, then we will want to remove the run properties

@@ -13,13 +13,9 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IFrameworkRuns;
-import dev.galasa.framework.spi.IResultArchiveStore;
-import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
-import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.IRunRasActionProcessor;
 import dev.galasa.framework.spi.Result;
-import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.RunRasAction;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 
 /**
  * InterruptedRunEventProcessor runs as a thread in the engine controller pod and it maintains a
@@ -35,12 +31,16 @@ public class InterruptedRunEventProcessor implements Runnable {
 
     private final Queue<RunInterruptEvent> queue;
     private IFrameworkRuns frameworkRuns;
-    private IResultArchiveStore rasStore;
+    private IRunRasActionProcessor rasActionProcessor;
 
-    public InterruptedRunEventProcessor(Queue<RunInterruptEvent> queue, IFrameworkRuns frameworkRuns, IResultArchiveStore rasStore) {
+    public InterruptedRunEventProcessor(
+        Queue<RunInterruptEvent> queue,
+        IFrameworkRuns frameworkRuns,
+        IRunRasActionProcessor rasActionProcessor
+    ) {
         this.queue = queue;
         this.frameworkRuns = frameworkRuns;
-        this.rasStore = rasStore;
+        this.rasActionProcessor = rasActionProcessor;
     }
 
     /**
@@ -60,16 +60,18 @@ public class InterruptedRunEventProcessor implements Runnable {
                 if (interruptEvent == null) {
                     isDone = true;
                 } else {
-                    processRasActions(interruptEvent);
-
+                    String runName = interruptEvent.getRunName();
+                    List<RunRasAction> rasActions = interruptEvent.getRasActions();
+                    rasActionProcessor.processRasActions(runName, rasActions);
+                    
                     String interruptReason = interruptEvent.getInterruptReason();
                     switch (interruptReason) {
                         case Result.CANCELLED:
                         case Result.HUNG:
-                            markRunFinishedInDss(interruptEvent);
+                            markRunFinishedInDss(runName, interruptReason);
                             break;
                         case Result.REQUEUED:
-                            markRunRequeuedInDss(interruptEvent);
+                            requeueRunInDss(runName);
                             break;
                         default:
                             logger.warn("Unknown interrupt reason set '" + interruptReason + "', ignoring");
@@ -82,60 +84,19 @@ public class InterruptedRunEventProcessor implements Runnable {
         }
     }
 
-    private void markRunRequeuedInDss(RunInterruptEvent interruptEvent) throws DynamicStatusStoreException {
-        String runName = interruptEvent.getRunName();
-
+    private void requeueRunInDss(String runName) throws DynamicStatusStoreException {
         logger.info("Requeuing run '" + runName + "' in the DSS");
+
         frameworkRuns.reset(runName);
+
         logger.info("Requeued run '" + runName + "' in the DSS OK");
     }
 
-    private void markRunFinishedInDss(RunInterruptEvent interruptEvent) throws DynamicStatusStoreException {
-        String runName = interruptEvent.getRunName();
-        String interruptReason = interruptEvent.getInterruptReason();
-
+    private void markRunFinishedInDss(String runName, String interruptReason) throws DynamicStatusStoreException {
         logger.info("Marking run '" + runName + "' as finished in the DSS");
+
         frameworkRuns.markRunFinished(runName, interruptReason);
+
         logger.info("Marked run '" + runName + "' as finished in the DSS OK");
-    }
-
-    private void processRasActions(RunInterruptEvent interruptEvent) throws ResultArchiveStoreException {
-        List<RunRasAction> rasActions = interruptEvent.getRasActions();
-        String runName = interruptEvent.getRunName();
-
-        logger.info("Processing RAS actions for run '" + runName + "'");
-
-        for (RunRasAction rasAction : rasActions) {
-            String runId = rasAction.getRunId();
-            TestStructure testStructure = getRunTestStructure(runId);
-            if (testStructure != null) {
-
-                // Set the status and result for the run if it doesn't already have the desired status
-                String runStatus = testStructure.getStatus();
-                String desiredRunStatus = rasAction.getDesiredRunStatus();
-                if (!desiredRunStatus.equals(runStatus)) {
-                    testStructure.setStatus(desiredRunStatus);
-                    testStructure.setResult(rasAction.getDesiredRunResult());
-
-                    rasStore.updateTestStructure(runId, testStructure);
-                } else {
-                    logger.info("Run already has status '" + desiredRunStatus + "', will not update its RAS record");
-                }
-            }
-        }
-        logger.info("RAS actions for run '" + runName + "' processed OK");
-    }
-
-    private TestStructure getRunTestStructure(String runId) throws ResultArchiveStoreException {
-        TestStructure testStructure = null;
-        for (IResultArchiveStoreDirectoryService directoryService : rasStore.getDirectoryServices()) {
-            IRunResult run = directoryService.getRunById(runId);
-
-            if (run != null) {
-                testStructure = run.getTestStructure();
-                break;
-            }
-        }
-        return testStructure;
     }
 }
