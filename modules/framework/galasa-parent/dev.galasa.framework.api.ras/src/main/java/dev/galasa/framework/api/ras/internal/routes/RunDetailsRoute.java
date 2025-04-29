@@ -157,7 +157,7 @@ public class RunDetailsRoute extends RunsRoute {
       boolean isMarkedRequeued = false;
       try {
          // If a run is marked as requeued, the DSS record for the run will be given an interrupt reason.
-         // When a run could not be found in the DSS, the run may have already finished and its DSS record was cleared.
+         // This call would return false if the run could not be found in the DSS.
          isMarkedRequeued = framework.getFrameworkRuns().markRunInterrupted(runName, Result.REQUEUED);
       } catch (FrameworkException e){
          ServletError error = new ServletError(GAL5047_UNABLE_TO_RESET_RUN, runName);
