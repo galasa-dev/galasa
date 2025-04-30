@@ -64,8 +64,10 @@ public class Network {
     }
 
     public boolean connectClient() throws NetworkException {
+        logger.trace("connectClient() entered");
         if (socket != null) {
             if (socket.isConnected()) {
+                logger.trace("connectClient() exiting, socket is already connected to the server");
                 return true;
             }
 
@@ -86,17 +88,21 @@ public class Network {
             this.keepAlive = new KeepAlive();
             this.keepAlive.start();
 
+            logger.trace("connectClient() exiting, client connected OK");
             return true;
         } catch (Exception e) {
             throw new NetworkException("Unable to connect to Telnet server", e);
         } finally {
             if (newSocket != null) {
                 try {
+                    logger.trace("Closing newSocket");
                     newSocket.close();
+                    logger.trace("newSocket closed OK");
                 } catch (IOException e) {
                     logger.error("Failed to close the socket", e);
                 }
             }
+            logger.trace("connectClient() exiting");
         }
     }
     
@@ -113,36 +119,57 @@ public class Network {
     }
 
     public Socket createSocket() throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        logger.trace("createSocket() entered");
         Socket newSocket = null;
         if (!ssl) {
+            logger.trace("Creating non-SSL socket");
             newSocket = new Socket(this.host, this.port);
         } else {
             String contextName = nameSelector.getSelectedSSLContextName();
+            logger.trace("Initializing SSL context: " + contextName);
+
             SSLContext sslContext = SSLContext.getInstance(contextName);
             sslContext.init(null, new TrustManager[] { new TrustAllCerts() }, new java.security.SecureRandom());
+
+            logger.trace("Initialized SSL context OK");
+
+            logger.trace("Creating socket with remote host: " + this.getHostPort());
             newSocket = sslContext.getSocketFactory().createSocket(this.host, this.port);
+            logger.trace("Created socket OK");
+            
+            logger.trace("Starting SSL handshake");
             ((SSLSocket) newSocket).startHandshake();
+            logger.trace("SSL handshake OK");
         }
         newSocket.setTcpNoDelay(true);
         newSocket.setKeepAlive(true);
 
+        logger.trace("createSocket() exiting");
         return newSocket;
     }
 
     public void close() {
+        logger.trace("close() entered");
         if (socket != null) {
             try {
+                logger.trace("Closing socket...");
                 socket.close();
+                logger.trace("Socket closed OK");
             } catch (IOException e) {
                 logger.error("Failed to close the socket", e);
             }
             socket = null;
             inputStream = null;
             outputStream = null;
+            
+            logger.trace("Interrupting keep-alive thread");
 
             this.keepAlive.shutdown = true;
             this.keepAlive.interrupt();
+
+            logger.trace("Keep-alive thread interrupted OK");
         }
+        logger.trace("close() exiting");
     }
 
     public InputStream getInputStream() {
@@ -151,23 +178,36 @@ public class Network {
 
 
     public Socket startTls() throws NetworkException {
+        logger.trace("startTls() entered");
         try {
             String contextName = nameSelector.getSelectedSSLContextName();
+            logger.trace("Initializing SSL context: " + contextName);
+
             SSLContext sslContext = SSLContext.getInstance(contextName);
             sslContext.init(null, new TrustManager[] { new TrustAllCerts() }, new java.security.SecureRandom());
+
+            logger.trace("Initialized SSL context OK");
+
+            logger.trace("Creating socket with remote host: " + this.getHostPort());
             Socket tlsSocket = sslContext.getSocketFactory().createSocket(socket, this.host, this.port, false);
+            logger.trace("Created socket OK");
+
+            logger.trace("Starting SSL handshake");
             ((SSLSocket) tlsSocket).startHandshake();
+            logger.trace("SSL handshake OK");
+
             tlsSocket.setTcpNoDelay(true);
             tlsSocket.setKeepAlive(true);
 
             this.socket = tlsSocket;
             this.inputStream = tlsSocket.getInputStream(); 
             this.outputStream = tlsSocket.getOutputStream();
+
+            logger.trace("startTls() exiting");
             return tlsSocket;
         } catch(Exception e) {
             throw new NetworkException("Problem negotiating TLS on plain socket", e);
         }
-
     }
 
     public void sendDatastream(byte[] outboundDatastream) throws NetworkException {
@@ -222,11 +262,14 @@ public class Network {
     }
 
     private void sendKeepAlive() {
+        logger.trace("sendKeepAlive() entered");
         if (this.outputStream == null) {
+            logger.trace("sendKeepAlive() exiting, output stream is null");
             return;
         }
 
         if (this.lastSend.plus(10, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+            logger.trace("sendKeepAlive() exiting, a keep-alive has been sent recently");
             return;
         }
 
@@ -239,10 +282,12 @@ public class Network {
                 outputStream.write(baos.toByteArray());
                 outputStream.flush();
                 this.lastSend = Instant.now();
+                logger.trace("Keep-alive sent OK");
             } catch(Exception e) {
                 logger.error("Failed to write DO TIMING MARK",e);
             }
         }
+        logger.trace("sendKeepAlive() exiting");
     }
 
     public String getHostPort() {
@@ -273,17 +318,20 @@ public class Network {
         private boolean shutdown = false;
 
         public KeepAlive() {
+            logger.trace("Starting keep-alive thread");
             setName("3270 keep alive");
         }
 
         @Override
         public void run() {
+            logger.trace("Started keep-alive thread");
             while(!shutdown) {
                 sendKeepAlive();
 
                 try {
                     Thread.sleep(5000);
                 } catch(Exception e) {
+                    logger.trace("Keep-alive encountered an exception, interrupting thread...", e);
                     Thread.currentThread().interrupt();
                 }
             }

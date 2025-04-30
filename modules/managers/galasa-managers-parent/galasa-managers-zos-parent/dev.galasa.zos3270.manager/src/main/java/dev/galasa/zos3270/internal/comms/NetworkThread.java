@@ -198,10 +198,14 @@ public class NetworkThread extends Thread {
             byte tn3270eHeader = buffer.get();
             if (tn3270eHeader == DT_BIND_IMAGE) {
                 logger.trace("BIND_IMAGE received");
+                logger.trace("Received message header: " + reportCommandSoFar());
+                logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
                 return;
             }
             if (tn3270eHeader == DT_UNBIND) {
                 logger.trace("UNBIND_IMAGE received");
+                logger.trace("Received message header: " + reportCommandSoFar());
+                logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
                 return;
             }
 

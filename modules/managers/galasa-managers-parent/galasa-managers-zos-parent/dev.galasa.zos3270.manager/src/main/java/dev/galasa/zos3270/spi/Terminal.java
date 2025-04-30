@@ -96,7 +96,13 @@ public class Terminal implements ITerminal {
 
     @Override
     public synchronized void connect() throws NetworkException {
+        logger.trace("connect() entered");
+
+        logger.trace("Connecting client to server");
         connected = network.connectClient();
+        logger.trace("Connected client to server: " + connected);
+        
+        logger.trace("Creating network thread");
         networkThread = new NetworkThread(this, screen, network, network.getInputStream(), this.deviceTypes);
         networkThread.start();
         
@@ -109,6 +115,7 @@ public class Terminal implements ITerminal {
                 throw new NetworkException("The TN3270 network thread failed to start correctly");
             }
             if (nThread.isStarted()) {
+                logger.trace("Network thread started OK");
                 started = true;
                 break;
             }
@@ -124,20 +131,26 @@ public class Terminal implements ITerminal {
         if (!started) {
             throw new NetworkException("TN3270 server did not start session in time");
         }
+        logger.trace("connect() exiting");
     }
 
     @Override
     public void disconnect() throws TerminalInterruptedException {
+        logger.trace("disconnect() entered");
         boolean oldAutoReconnect = autoReconnect;
         autoReconnect = false;
         
         connected = false;
         if (network != null) {
+            logger.trace("Closing network");
             network.close();
+            logger.trace("Network closed OK");
         }
         if (networkThread != null) {
             try {
+                logger.trace("Waiting for network thread to end...");
                 networkThread.join();
+                logger.trace("Network thread ended OK");
             } catch (InterruptedException e) {
                 logger.warn("Interrupted while waiting for network thread to end. Network thread might still be active.");
                 throw new TerminalInterruptedException("Join of the network thread was interrupted",e);
@@ -146,9 +159,12 @@ public class Terminal implements ITerminal {
         }
         
         autoReconnect = oldAutoReconnect;
+        logger.trace("Auto reconnect set to: " + autoReconnect);
+        logger.trace("disconnect() exiting");
     }
     
     public void networkClosed() {
+        logger.trace("networkClosed() entered");
         connected = false;
         if (network != null) {
             network.close();
@@ -156,12 +172,14 @@ public class Terminal implements ITerminal {
         networkThread = null;
         
         if (autoReconnect) {
+            logger.trace("Auto reconnecting...");
             try {
                 connect();
             } catch (NetworkException e) {
                 logger.error("Auto reconnect failed",e);
             }
         }
+        logger.trace("networkClosed() exiting");
     }
     
     @Override
