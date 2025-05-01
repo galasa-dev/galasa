@@ -43,7 +43,7 @@ galasactl runs submit local [flags]
       --reportjunit string                    junit xml file to record the final results in
       --reportyaml string                     yaml file to record the final results in
       --requesttype string                    the type of request, used to allocate a run name. Defaults to CLI. (default "CLI")
-      --tags strings                          tagging metadata to be associated with the submitted runs. This can be specified as a comma-separated list of tag strings, or by repeating the --tag parameter, or both.
+      --tags strings                          tagging metadata to be associated with the submitted runs. This can be specified as a comma-separated list of tag strings, or by repeating the --tags parameter, or both.
       --throttle int                          how many test runs can be submitted in parallel, 0 or less will disable throttling. 1 causes tests to be run sequentially. (default 3)
       --throttlefile string                   a file where the current throttle is stored. Periodically the throttle value is read from the file used. Someone with edit access to the file can change it which dynamically takes effect. Long-running large portfolios can be throttled back to nothing (paused) using this mechanism (if throttle is set to 0). And they can be resumed (un-paused) if the value is set back. This facility can allow the tests to not show a failure when the system under test is taken out of service for maintainence.Optional. If not specified, no throttle file is used.
       --trace                                 Trace to be enabled on the test runs

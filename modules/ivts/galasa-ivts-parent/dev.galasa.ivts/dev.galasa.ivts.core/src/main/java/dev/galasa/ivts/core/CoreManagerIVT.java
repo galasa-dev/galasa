@@ -8,6 +8,7 @@ package dev.galasa.ivts.core;
 import org.apache.commons.logging.Log;
 
 import dev.galasa.Summary;
+import dev.galasa.Tags;
 import dev.galasa.Test;
 import dev.galasa.core.manager.CoreManager;
 import dev.galasa.core.manager.ICoreManager;
@@ -16,6 +17,7 @@ import dev.galasa.core.manager.RunName;
 
 @Test
 @Summary("Ensure the basic functions are working in the Core Manager")
+@Tags({"core","ivt"})
 public class CoreManagerIVT {
     
     @Logger
