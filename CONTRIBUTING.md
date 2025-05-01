@@ -63,6 +63,7 @@ The table below outlines which secrets/variables are required for the build of t
 | managers | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE` |
 | obr | Maven | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE`, `WRITE_GITHUB_PACKAGES_USERNAME`, `WRITE_GITHUB_PACKAGES_TOKEN` |
 | ivts | Gradle | `GPG_KEY`, `GPG_KEYID`, `GPG_PASSPHRASE`, `WRITE_GITHUB_PACKAGES_USERNAME`, `WRITE_GITHUB_PACKAGES_TOKEN` |
+| cli | Go and Docker | `WRITE_GITHUB_PACKAGES_USERNAME`, `WRITE_GITHUB_PACKAGES_TOKEN` |
 
 #### How to set repository variables:
 
