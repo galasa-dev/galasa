@@ -42,8 +42,9 @@ while [ $count -lt "1" ];  do
     --progress 1 \
     --noexitcodeontestfailures \
     --group mcobbett-$count \
+    --tags singletest \
     --overridefile ${GALASA_HOME}/overrides.properties \
-    --log - --trace
+    --log - --trace 
 
     echo "Hello $count"
 done
