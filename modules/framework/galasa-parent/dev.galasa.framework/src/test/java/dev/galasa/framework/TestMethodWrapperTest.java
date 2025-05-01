@@ -130,6 +130,51 @@ public class TestMethodWrapperTest {
     }
 
     @Test
+    public void testMethodsAreInvokedWhenNotIgnored() throws Exception {
+        // Given...
+        Class<?> mockClass = MockTestClass.class;
+        Method beforeMethod = mockClass.getMethod("MockBeforeMethod");
+        Method testMethod = mockClass.getMethod("MockTestMethod");
+        Method afterMethod = mockClass.getMethod("MockAfterMethod");
+
+        ArrayList<GenericMethodWrapper> beforeMethods = new ArrayList<>();
+
+        GenericMethodWrapper beforeMethodWrapper = new GenericMethodWrapper(beforeMethod, mockClass, Type.Before);
+        beforeMethods.add(beforeMethodWrapper);
+        
+        ArrayList<GenericMethodWrapper> afterMethods = new ArrayList<>();
+        GenericMethodWrapper afterMethodWrapper = new GenericMethodWrapper(afterMethod, mockClass, Type.After);
+        afterMethods.add(afterMethodWrapper);
+
+        TestMethodWrapper testMethodWrapper = new TestMethodWrapper(testMethod, MockTestClass.class, beforeMethods, afterMethods);
+        TestClassWrapper testClassWrapper = creatTestClassWrapper();
+
+        boolean continueOnTestFailure = false;
+        boolean ignoreTestClass = false;
+        Result ignoredResult = null;
+        Result passedResult = Result.passed();
+
+        MockTestRunManagersExtended mockTestRunManagers = new MockTestRunManagersExtended(ignoreTestClass, ignoredResult);
+        mockTestRunManagers.setTestMethodResultToReturn(passedResult);
+
+        MockTestClass mockTestClass = new MockTestClass();
+
+        // When...
+        testMethodWrapper.getStructure();
+        testMethodWrapper.invoke(mockTestRunManagers, mockTestClass, continueOnTestFailure, testClassWrapper);
+
+        // Then...
+        String passedResultStr = passedResult.getName();
+        assertThat(beforeMethodWrapper.getResult().getName()).isEqualTo(passedResultStr);
+        assertThat(afterMethodWrapper.getResult().getName()).isEqualTo(passedResultStr);
+        assertThat(testMethodWrapper.getResult().getName()).isEqualTo(passedResultStr);
+
+        assertThat(mockTestClass.beforeMethodCallCount).isEqualTo(1);
+        assertThat(mockTestClass.testMethodCallCount).isEqualTo(1);
+        assertThat(mockTestClass.afterMethodCallCount).isEqualTo(1);
+    }
+
+    @Test
     public void testBeforeAndAfterMethodsAreAssociatedWithTestMethod() throws Exception {
         // Given...
         Class<?> mockClass = MockTestClass.class;
