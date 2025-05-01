@@ -24,6 +24,7 @@ import dev.galasa.framework.internal.runner.FelixRepoAdminOBRAdder;
 import dev.galasa.framework.internal.runner.MavenRepositoryListBuilder;
 import dev.galasa.framework.internal.runner.RunType;
 import dev.galasa.framework.internal.runner.RunTypeDetails;
+import dev.galasa.framework.internal.runner.TagHarvester;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
@@ -42,7 +43,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 @Component(service = { TestRunner.class })
 public class TestRunner extends BaseTestRunner {
 
-    private Log logger = LogFactory.getLog(TestRunner.class);
+    Log logger = LogFactory.getLog(TestRunner.class);
 
     // Field is protected so unit tests can inject a value here.
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
@@ -102,6 +103,8 @@ public class TestRunner extends BaseTestRunner {
                 throw new TestRunException(ex.getMessage(),ex);
             }
 
+            TagHarvester harvester = new TagHarvester(this.dss, this.ras, this.testStructure, gson);
+            harvester.harvestTagsFromTestClass(testClass, this.run.getName());
 
             RunTypeDetails runTypeDetails = new RunTypeDetails(dataProvider.getAnnotationExtractor(), testClass, testBundleName, testClassName , framework);
             this.runType = runTypeDetails.getDetectedRunType();
@@ -547,5 +550,4 @@ public class TestRunner extends BaseTestRunner {
             throw new TestRunException("Unable to load the test bundle " + testBundleName, e);
         }
     }
-
 }

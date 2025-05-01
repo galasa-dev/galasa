@@ -64,7 +64,7 @@ public class BaseTestRunner {
 
     protected Properties overrideProperties;
 
-    private static final GalasaGson gson = new GalasaGson();
+    protected static final GalasaGson gson = new GalasaGson();
 
     protected void init(ITestRunnerDataProvider dataProvider) throws TestRunException {
         this.run = dataProvider.getRun() ;
