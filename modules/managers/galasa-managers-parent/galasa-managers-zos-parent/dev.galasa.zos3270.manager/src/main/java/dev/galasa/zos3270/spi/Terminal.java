@@ -159,7 +159,7 @@ public class Terminal implements ITerminal {
         }
         
         autoReconnect = oldAutoReconnect;
-        logger.trace("Auto reconnect set to: " + autoReconnect);
+        logger.trace("Auto reconnect set to: " + String.valueOf(autoReconnect));
         logger.trace("disconnect() exiting");
     }
     

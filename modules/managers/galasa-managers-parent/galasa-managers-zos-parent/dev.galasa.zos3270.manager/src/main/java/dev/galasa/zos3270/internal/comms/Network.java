@@ -126,14 +126,14 @@ public class Network {
             newSocket = new Socket(this.host, this.port);
         } else {
             String contextName = nameSelector.getSelectedSSLContextName();
-            logger.trace("Initializing SSL context: " + contextName);
+            logger.trace("Initializing SSL context: " + String.valueOf(contextName));
 
             SSLContext sslContext = SSLContext.getInstance(contextName);
             sslContext.init(null, new TrustManager[] { new TrustAllCerts() }, new java.security.SecureRandom());
 
             logger.trace("Initialized SSL context OK");
 
-            logger.trace("Creating socket with remote host: " + this.getHostPort());
+            logger.trace("Creating socket with remote host: " + String.valueOf(this.getHostPort()));
             newSocket = sslContext.getSocketFactory().createSocket(this.host, this.port);
             logger.trace("Created socket OK");
             
@@ -181,14 +181,14 @@ public class Network {
         logger.trace("startTls() entered");
         try {
             String contextName = nameSelector.getSelectedSSLContextName();
-            logger.trace("Initializing SSL context: " + contextName);
+            logger.trace("Initializing SSL context: " + String.valueOf(contextName));
 
             SSLContext sslContext = SSLContext.getInstance(contextName);
             sslContext.init(null, new TrustManager[] { new TrustAllCerts() }, new java.security.SecureRandom());
 
             logger.trace("Initialized SSL context OK");
 
-            logger.trace("Creating socket with remote host: " + this.getHostPort());
+            logger.trace("Creating socket with remote host: " + String.valueOf(this.getHostPort()));
             Socket tlsSocket = sslContext.getSocketFactory().createSocket(socket, this.host, this.port, false);
             logger.trace("Created socket OK");
 
@@ -294,20 +294,40 @@ public class Network {
         return this.host + ":" + Integer.toString(this.port);
     }
 
-    private static class TrustAllCerts implements X509TrustManager {
+    private class TrustAllCerts implements X509TrustManager {
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) {
             // TODO Add functionality for the Certificate management
+            logger.trace("checkClientTrusted() entered");
+            logger.trace("authType is: " + String.valueOf(authType));
+
+            if (chain != null) {
+                logger.trace(Integer.toString(chain.length) + " certificates in chain received");
+            } else {
+                logger.trace("No certificates to check");
+            }
+            logger.trace("checkClientTrusted() exiting");
+
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType) {
             // TODO Add functionality for the Certificate management
+            logger.trace("checkServerTrusted() entered");
+            logger.trace("authType is: " + String.valueOf(authType));
+
+            if (chain != null) {
+                logger.trace(Integer.toString(chain.length) + " certificates in chain received");
+            } else {
+                logger.trace("No certificates to check");
+            }
+            logger.trace("checkServerTrusted() exiting");
         }
 
         @Override
         public X509Certificate[] getAcceptedIssuers() {
+            logger.trace("getAcceptedIssuers() entered, returning empty array");
             return new X509Certificate[0];
         }
 
