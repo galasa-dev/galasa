@@ -31,11 +31,16 @@ public class MockTestRunManagers implements ITestRunManagers {
     public int calledCountTestClassResult = 0 ;
     public int calledCountAnyReasonTestMethodShouldBeIgnored = 0 ;
 
-    private  Result resultToReturn ;
+    private Result resultToReturn;
+    private Result testMethodResultToReturn;
 
     public MockTestRunManagers( boolean ignoreTestClass , Result resultToReturn ) {
         this.ignoreTestClass = ignoreTestClass ;
         this.resultToReturn = resultToReturn;
+    }
+
+    public void setTestMethodResultToReturn(Result testMethodResultToReturn) {
+        this.testMethodResultToReturn = testMethodResultToReturn;
     }
 
     @Override
@@ -100,27 +105,26 @@ public class MockTestRunManagers implements ITestRunManagers {
         return this.resultToReturn;
     }
 
+    @Override
+    public void fillAnnotatedFields(Object testClassObject) throws FrameworkException {
+        // Do nothing...
+    }
+
+    @Override
+    public void startOfTestMethod(@NotNull GalasaMethod galasaMethod) throws FrameworkException {
+        // Do nothing...
+    }
+
+    @Override
+    public Result endOfTestMethod(@NotNull GalasaMethod galasaMethod, @NotNull Result currentResult,
+            Throwable currentException) throws FrameworkException {
+        return this.testMethodResultToReturn;
+    }
+
     // ----------------- un-implemented methods follow -------------------
 
     @Override
     public List<IManager> getActiveManagers() {
         throw new UnsupportedOperationException("Unimplemented method 'getActiveManagers'");
     }
-
-    @Override
-    public void fillAnnotatedFields(Object testClassObject) throws FrameworkException {
-        throw new UnsupportedOperationException("Unimplemented method 'fillAnnotatedFields'");
-    }
-
-    @Override
-    public void startOfTestMethod(@NotNull GalasaMethod galasaMethod) throws FrameworkException {
-        throw new UnsupportedOperationException("Unimplemented method 'startOfTestMethod'");
-    }
-
-    @Override
-    public Result endOfTestMethod(@NotNull GalasaMethod galasaMethod, @NotNull Result currentResult,
-            Throwable currentException) throws FrameworkException {
-        throw new UnsupportedOperationException("Unimplemented method 'endOfTestMethod'");
-    }
-    
 }

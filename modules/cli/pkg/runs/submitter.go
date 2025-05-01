@@ -368,7 +368,7 @@ func (submitter *Submitter) submitRun(
 	return readyRuns, err
 }
 
-func (submitter *Submitter) updateSubmittedRunIds(
+func (submitter *Submitter) updateLocalRunDataFromLauncher(
 	submittedRuns map[string]*TestRun,
 	launchedRuns *galasaapi.TestRuns,
 ) {
@@ -379,6 +379,10 @@ func (submitter *Submitter) updateSubmittedRunIds(
 		if ok {
 			if submittedRun.RunId == "" && currentRun.HasRasRunId() {
 				submittedRun.RunId = currentRun.GetRasRunId()
+
+				// The tags can also change as time passes. And we want to show the latest set of tags.
+				submittedRun.Tags = currentRun.GetTags()
+
 			}
 		}
 	}
@@ -398,7 +402,7 @@ func (submitter *Submitter) runsFetchCurrentStatus(
 	}
 
 	// Launched runs will now have run IDs, so record the run IDs for the submitted runs
-	submitter.updateSubmittedRunIds(submittedRuns, currentGroup)
+	submitter.updateLocalRunDataFromLauncher(submittedRuns, currentGroup)
 
 	// a copy to find lost runs
 	checkRuns := DeepClone(submittedRuns)
@@ -547,6 +551,8 @@ func (submitter *Submitter) markRunFinished(
 
 				runToMarkFinished.Tests = append(runToMarkFinished.Tests, test)
 			}
+
+			runToMarkFinished.Tags = rasRun.TestStructure.GetTags()
 		}
 	}
 

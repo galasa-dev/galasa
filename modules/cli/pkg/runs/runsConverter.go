@@ -167,6 +167,7 @@ func getTestRunData(run TestRun, isLost bool) runsformatter.FormattableTest {
 	newFormattableTest.Methods = nil
 	newFormattableTest.Lost = isLost
 	newFormattableTest.Group = run.Group
+	newFormattableTest.Tags = run.Tags
 
 	return newFormattableTest
 }
