@@ -14,20 +14,20 @@ public class TestMethod {
 
     private String           methodName;
     private String           type;
-
-    private List<TestMethod> befores;
-    private List<TestMethod> afters;
-
+    
     private String           status;
     private String           result;
+
+    private Instant          startTime;
+    private Instant          endTime;
 
     private String           exception;
 
     private int              runLogStart;
     private int              runLogEnd;
 
-    private Instant          startTime;
-    private Instant          endTime;
+    private List<TestMethod> befores;
+    private List<TestMethod> afters;
 
     @SuppressWarnings("unused")
     private TestMethod() {

@@ -18,6 +18,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.SupportedQueryParameterNames;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.TestRunLifecycleStatus;
+import dev.galasa.framework.api.ras.internal.common.RasDetailsQueryParams;
 import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
 import dev.galasa.framework.spi.FrameworkException;
@@ -81,9 +82,11 @@ public class RunQueryRoute extends RunsRoute {
 	public static final String QUERY_PARAMETER_CURSOR = "cursor";
 	public static final String QUERY_PARAMETER_RUNNAME = "runname";
 	public static final String QUERY_PARAMETER_RUNID = "runid";
+	public static final String QUERY_PARAMETER_DETAIL = "detail";
+
     public static final SupportedQueryParameterNames SUPPORTED_QUERY_PARAMETER_NAMES = new SupportedQueryParameterNames(
 		QUERY_PARAMETER_SORT, QUERY_PARAMETER_RESULT, QUERY_PARAMETER_STATUS,
-		QUERY_PARAMETER_BUNDLE, QUERY_PARAMETER_REQUESTOR, QUERY_PARAMETER_FROM,
+		QUERY_PARAMETER_BUNDLE, QUERY_PARAMETER_DETAIL, QUERY_PARAMETER_REQUESTOR, QUERY_PARAMETER_FROM,
 		QUERY_PARAMETER_TO, QUERY_PARAMETER_TESTNAME, QUERY_PARAMETER_PAGE,
 		QUERY_PARAMETER_SIZE, QUERY_PARAMETER_GROUP, QUERY_PARAMETER_SUBMISSION_ID,
 		QUERY_PARAMETER_INCLUDECURSOR, QUERY_PARAMETER_CURSOR, QUERY_PARAMETER_RUNNAME,
@@ -112,12 +115,20 @@ public class RunQueryRoute extends RunsRoute {
 		HttpServletRequest request = requestContext.getRequest();
 
 		RasQueryParameters queryParams = new RasQueryParameters(generalQueryParams);
+		boolean isMethodDetailsExcluded = true;
 
-		String outputString = retrieveResults(queryParams);
+		String detail = queryParams.getDetail();
+		if (detail != null && !detail.isEmpty()) {
+			RasDetailsQueryParams rasDetailsQueryParams = new RasDetailsQueryParams();
+			isMethodDetailsExcluded = rasDetailsQueryParams.isMethodDetailsExcluded(detail);
+		}
+
+
+		String outputString = retrieveResults(queryParams, isMethodDetailsExcluded);
 		return getResponseBuilder().buildResponse(request, res, "application/json", outputString, HttpServletResponse.SC_OK);
 	}
 
-	private String retrieveResults(RasQueryParameters queryParams) throws InternalServletException {
+	private String retrieveResults(RasQueryParameters queryParams, boolean isMethodDetailsExcluded) throws InternalServletException {
 
 		int pageNum = queryParams.getPageNumber();
 		int pageSize = queryParams.getPageSize();
@@ -137,9 +148,10 @@ public class RunQueryRoute extends RunsRoute {
 
         RasRunResultPage runsPage = null;
         String responseJson = null;
+		
         try {
-            if (runIds != null && runIds.size() > 0) {
-                runs = getRunsByIds(runIds);
+			if (runIds != null && runIds.size() > 0) {
+                runs = getRunsByIds(runIds, isMethodDetailsExcluded);
             } else {
                 List<IRasSearchCriteria> criteria = getCriteria(queryParams);
 
@@ -153,7 +165,7 @@ public class RunQueryRoute extends RunsRoute {
                         runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), criteria);
                     }
                 } else {
-                    runs = getRuns(criteria);
+                    runs = getRuns(criteria, isMethodDetailsExcluded);
                 }
             }
     
@@ -161,7 +173,7 @@ public class RunQueryRoute extends RunsRoute {
                 runs = sortResults(runs, queryParams, sortValue);
                 responseJson = buildResponseBody(runs, pageNum, pageSize);
             } else {
-                responseJson = buildResponseBody(runsPage, pageSize);
+                responseJson = buildResponseBody(runsPage, pageSize, isMethodDetailsExcluded);
             }
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
@@ -187,15 +199,17 @@ public class RunQueryRoute extends RunsRoute {
         return sortField;
     }
 
-    private List<RasRunResult> getRunsByIds(List<String> runIds) throws InternalServletException {
-        List<RasRunResult> runs = new ArrayList<>();
+    private List<RasRunResult> getRunsByIds(List<String> runIds, boolean isMethodDetailsExcluded) throws InternalServletException {
+        
+		// Convert each result to the required format
+		List<RasRunResult> runs = new ArrayList<>();
 
         for (String runId : runIds) {
             try {
                 IRunResult run = getRunByRunId(runId.trim());
 
                 if (run != null) {
-                    runs.add(RunResultUtility.toRunResult(run, true));
+                    runs.add(RunResultUtility.toRunResult(run, isMethodDetailsExcluded));
                 }
             } catch (ResultArchiveStoreException e) {
                 ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
@@ -297,12 +311,12 @@ public class RunQueryRoute extends RunsRoute {
         return gson.toJson(runsPage);
 	}
 
-	private String buildResponseBody(RasRunResultPage runsPage, int pageSize) throws ResultArchiveStoreException {
+	private String buildResponseBody(RasRunResultPage runsPage, int pageSize, boolean isMethodDetailsExcluded) throws ResultArchiveStoreException {
 
 		//Building the object to be returned by the API and splitting
         JsonObject pageJson = new JsonObject();        
 
-        List<RasRunResult> runs = convertRunsToRunResults(runsPage.getRuns());
+        List<RasRunResult> runs = convertRunsToRunResults(runsPage.getRuns(), isMethodDetailsExcluded);
         JsonElement tree = gson.toJsonTree(runs);
         pageJson.addProperty("pageSize", pageSize);
         pageJson.addProperty("amountOfRuns", runs.size());
@@ -326,19 +340,18 @@ public class RunQueryRoute extends RunsRoute {
 		return obj;
 	}
 
-	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList) throws ResultArchiveStoreException, InternalServletException {
+	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList, boolean isMethodDetailsExcluded) throws ResultArchiveStoreException, InternalServletException {
 
 		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
 
 		critList.toArray(criteria);
-
 		// Collect all the runs from all the RAS stores into a single list
 		List<IRunResult> runs = new ArrayList<>();
 		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore().getDirectoryServices()) {
 			runs.addAll(directoryService.getRuns(criteria));
 		}
 
-		List<RasRunResult> runResults = convertRunsToRunResults(runs);
+		List<RasRunResult> runResults = convertRunsToRunResults(runs, isMethodDetailsExcluded);
 
 		return runResults;
 	}
@@ -375,11 +388,12 @@ public class RunQueryRoute extends RunsRoute {
 		return runs;
 	}
 
-    private List<RasRunResult> convertRunsToRunResults(List<IRunResult> runs) throws ResultArchiveStoreException {
+    private List<RasRunResult> convertRunsToRunResults(List<IRunResult> runs, boolean isMethodDetailsExcluded) throws ResultArchiveStoreException {
+		
         // Convert each result to the required format
         List<RasRunResult> runResults = new ArrayList<>();
         for (IRunResult run : runs) {
-            runResults.add(RunResultUtility.toRunResult(run, true));
+            runResults.add(RunResultUtility.toRunResult(run, isMethodDetailsExcluded));
         }
         return runResults;
     }

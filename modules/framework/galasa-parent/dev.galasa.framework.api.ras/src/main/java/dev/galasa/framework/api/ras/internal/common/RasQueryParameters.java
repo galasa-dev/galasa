@@ -91,6 +91,10 @@ public class RasQueryParameters {
         return generalQueryParams.getSingleString("group", null);
     }
 
+    public String getDetail() throws InternalServletException {
+        return generalQueryParams.getSingleString("detail", null);
+    }
+
     public String getSubmissionId() throws InternalServletException {
         return generalQueryParams.getSingleString("submissionId", null);
     }

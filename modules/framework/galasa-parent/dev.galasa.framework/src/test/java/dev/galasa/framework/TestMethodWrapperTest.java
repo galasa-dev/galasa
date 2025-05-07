@@ -175,7 +175,7 @@ public class TestMethodWrapperTest {
     }
 
     @Test
-    public void testBeforeAndAfterMethodsAreAssociatedWithTestMethod() throws Exception {
+    public void testCheckForReasonToIgnoreTestMethodOnlyRunsOnce() throws Exception {
         // Given...
         Class<?> mockClass = MockTestClass.class;
         Method beforeMethod = mockClass.getMethod("MockBeforeMethod");
@@ -206,18 +206,10 @@ public class TestMethodWrapperTest {
 
         // Then...
         List<GalasaMethod> galasaMethods = mockTestRunManagers.getGalasaMethodsReceived();
-        assertThat(galasaMethods).hasSize(3);
+        assertThat(galasaMethods).hasSize(1);
 
-        // The before should have an execution method and a test method associated with it
-        assertThat(galasaMethods.get(0).getJavaExecutionMethod()).isEqualTo(beforeMethod);
-        assertThat(galasaMethods.get(0).getJavaTestMethod()).isEqualTo(testMethod);
-
-        // The test method should only have an execution method
-        assertThat(galasaMethods.get(1).getJavaExecutionMethod()).isEqualTo(testMethod);
-        assertThat(galasaMethods.get(1).getJavaTestMethod()).isNull();
-
-        // The before should have an execution method and a test method associated with it
-        assertThat(galasaMethods.get(2).getJavaExecutionMethod()).isEqualTo(afterMethod);
-        assertThat(galasaMethods.get(2).getJavaTestMethod()).isEqualTo(testMethod);
+        // Only the test method should have been passed in when checking whether to ignore it
+        assertThat(galasaMethods.get(0).getJavaExecutionMethod()).isEqualTo(testMethod);
+        assertThat(galasaMethods.get(0).getJavaTestMethod()).isNull();
     }
 }
