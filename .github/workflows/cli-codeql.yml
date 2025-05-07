@@ -22,13 +22,13 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Analyze Galasa
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ${{ 'ubuntu-latest' }}
     permissions:
       # required for all workflows
       security-events: write
@@ -40,22 +40,15 @@ jobs:
       actions: read
       contents: read
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        - language: go
-          build-mode: manual
-        - language: java-kotlin
-          build-mode: manual
-        # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
-        # Use `c-cpp` to analyze code written in C, C++ or both
-        # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
-        # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
-        # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
-        # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
-        # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
-        # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+      # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
+      # Use `c-cpp` to analyze code written in C, C++ or both
+      # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
+      # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
+      # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
+      # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
+      # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
+      # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -64,8 +57,8 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
+        languages: java-kotlin, go
+        build-mode: manual
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
@@ -81,7 +74,6 @@ jobs:
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
 
     - name: Building Platform (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/platform
       run: |
@@ -93,7 +85,6 @@ jobs:
         -PtargetMaven=/home/runner/.m2/repository 2>&1 | tee build.log
 
     - name: Building Buildutils (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/buildutils
       run: |
@@ -101,7 +92,6 @@ jobs:
         make all -C openapi2beans
 
     - name: Building Wrapping (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/wrapping
       run: |
@@ -117,7 +107,6 @@ jobs:
         --settings settings.xml 2>&1 | tee build.log
 
     - name: Building Gradle (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/gradle
       run: |
@@ -131,7 +120,6 @@ jobs:
         -PisMainOrRelease=false 2>&1 | tee build.log
 
     - name: Building Maven (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/maven
       run: |
@@ -147,7 +135,6 @@ jobs:
         --settings settings.xml 2>&1 | tee build.log
 
     - name: Building Framework (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/framework
       env:
@@ -167,7 +154,6 @@ jobs:
         -PisMainOrRelease=false 2>&1 | tee build.log
 
     - name: Building Extensions (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/extensions
       run: |
@@ -181,7 +167,6 @@ jobs:
         -PisMainOrRelease=false 2>&1 | tee build.log
 
     - name: Building Managers (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/managers
       run: |
@@ -196,7 +181,6 @@ jobs:
         -PisMainOrRelease=false 2>&1 | tee build.log
 
     - name: Building OBR (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/obr
       run: |
@@ -220,7 +204,6 @@ jobs:
         --settings settings.xml 2>&1 | tee galasa-obr-build.log
 
     - name: Building IVTs (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/ivts
       run: |
@@ -233,7 +216,6 @@ jobs:
         -PisMainOrRelease=false 2>&1 | tee build.log
 
     - name: Building CLI (manually)
-      if: matrix.build-mode == 'manual'
       shell: bash
       working-directory: ${{ github.workspace }}/modules/cli
       run: |
@@ -262,8 +244,14 @@ jobs:
         cat pkg/cmd/root.go
         make all
 
-    - name: Perform CodeQL Analysis
+    - name: Perform CodeQL Analysis Java
       uses: github/codeql-action/analyze@v3
       with:
-        category: "/language:${{ matrix.language }}/run:${{github.run_id}}"
+        category: "/language:java-kotlin/run:${{ github.run_id }}"
+        checkout_path: ${{ github.workspace }}
+
+    - name: Perform CodeQL Analysis Go
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:go/run:${{ github.run_id }}"
         checkout_path: ${{ github.workspace }}
