@@ -14,10 +14,8 @@ name: "CodeQL Advanced"
 on:
   push:
     branches: [ "main" ]
-    # paths: [ "modules/cli/**" ]
   pull_request:
     branches: [ "main" ]
-    # paths: [ "modules/cli/**" ]
 
   schedule:
     - cron: '41 13 * * 0'
@@ -61,10 +59,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      # with:
-      #   sparse-checkout: |
-      #     modules/platform
-      #     modules/cli
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -231,7 +225,7 @@ jobs:
       working-directory: ${{ github.workspace }}/modules/ivts
       run: |
         set -o pipefail
-        gradle build check publish --info \
+        gradle -b galasa-ivts-parent/build.gradle build check publish --info \
         --no-daemon --console plain \
         -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
