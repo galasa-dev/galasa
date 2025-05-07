@@ -47,6 +47,7 @@ jobs:
       matrix:
         include:
         - language: go
+          build-mode: manual
         - language: java-kotlin
           build-mode: manual
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
@@ -119,17 +120,35 @@ jobs:
         --batch-mode --errors --fail-at-end \
         --settings settings.xml 2>&1 | tee build.log
 
-    # - name: Building Gradle (manually)
-    #   if: matrix.build-mode == 'manual'
-    #   shell: bash
-    #   working-directory: ${{ github.workspace }}/modules/gradle
-    #   run: |
+    - name: Building Gradle (manually)
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/gradle
+      run: |
+        set -o pipefail
+        gradle check publish --info \
+        --no-daemon --console plain \
+        -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
+        -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+        -PtargetMaven=/home/runner/.m2/repository \
+        -PjacocoEnabled=false \
+        -PisMainOrRelease=false 2>&1 | tee build.log
 
-    # - name: Building Maven (manually)
-    #   if: matrix.build-mode == 'manual'
-    #   shell: bash
-    #   working-directory: ${{ github.workspace }}/modules/maven
-    #   run: |
+    - name: Building Maven (manually)
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/maven
+      run: |
+        set -o pipefail
+        mvn -f galasa-maven-plugin/pom.xml deploy -X \
+        -Dgalasa.source.repo=https://development.galasa.dev/main/maven-repo/obr \
+        -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+        -Dgalasa.release.repo=file:///home/runner/.m2/repository \
+        -Dgalasa.jacocoEnabled=false \
+        -Dgalasa.isRelease=false \
+        -Dgpg.skip=true \
+        --batch-mode --errors --fail-at-end \
+        --settings settings.xml 2>&1 | tee build.log
 
     # - name: Building Framework (manually)
     #   if: matrix.build-mode == 'manual'
@@ -195,4 +214,4 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{ matrix.language }}/run:${{github.run_id}}"
-        checkout_path: ${{ github.workspace }}/modules/cli
+        checkout_path: ${{ github.workspace }}
