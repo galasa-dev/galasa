@@ -60,7 +60,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: platform
-          path: $HOME/.m2/repository
+          path: /home/runner/.m2/repository
 
       # For any modules that weren't changed in this PR,
       # download artifacts from the last successful workflow.
@@ -69,7 +69,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: platform
-          path: $HOME/.m2/repository
+          path: /home/runner/.m2/repository
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
 
@@ -79,7 +79,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: $HOME/.m2/repository
+          path: /home/runner/.m2/repository
 
       # The gradle module wasn't changed, so download artifacts
       # from the last successful workflow.
@@ -88,7 +88,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gradle
-          path: $HOME/.m2/repository
+          path: /home/runner/.m2/repository
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
 
@@ -98,7 +98,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: $HOME/.m2/repository
+          path: /home/runner/.m2/repository
 
       # The mavenme module wasn't changed, so download artifacts
       # from the last successful workflow.
@@ -107,7 +107,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven
-          path: $HOME/.m2/repository
+          path: /home/runner/.m2/repository
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
 
@@ -117,7 +117,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: framework
-          path: $HOME/.m2/repository
+          path: /home/runner/.m2/repository
 
       # For any modules that weren't changed in this PR,
       # download artifacts from the last successful workflow.
@@ -126,7 +126,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
             name: framework
-            path: $HOME/.m2/repository
+            path: /home/runner/.m2/repository
             github-token: ${{ github.token }}
             run-id: ${{ inputs.artifact-id }}
 
@@ -136,7 +136,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: obr
-          path: $HOME/.m2/repository
+          path: /home/runner/.m2/repository
 
       # For any modules that weren't changed in this PR,
       # download artifacts from the last successful workflow.
@@ -145,7 +145,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
             name: obr
-            path: $HOME/.m2/repository
+            path: /home/runner/.m2/repository
             github-token: ${{ github.token }}
             run-id: ${{ inputs.artifact-id }}
 
@@ -156,7 +156,7 @@ jobs:
           set -o pipefail
           gradle -b build.gradle installJarsIntoTemplates --info \
           --no-daemon --console plain \
-          -PsourceMaven=$HOME/.m2/repository \
+          -PsourceMaven=/home/runner/.m2/repository \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
           -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build.log
 
