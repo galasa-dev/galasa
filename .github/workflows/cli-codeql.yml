@@ -14,10 +14,10 @@ name: "CodeQL Advanced"
 on:
   push:
     branches: [ "main" ]
-    paths: [ "modules/cli/**" ]
+    # paths: [ "modules/cli/**" ]
   pull_request:
     branches: [ "main" ]
-    paths: [ "modules/cli/**" ]
+    # paths: [ "modules/cli/**" ]
 
   schedule:
     - cron: '41 13 * * 0'
