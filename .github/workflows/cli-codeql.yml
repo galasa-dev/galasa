@@ -57,16 +57,11 @@ jobs:
         # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
         # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
     steps:
-    - name: Checkout Platform
+    - name: Checkout repository
       uses: actions/checkout@v4
       with:
         sparse-checkout:
           modules/platform
-
-    - name: Checkout CLI
-      uses: actions/checkout@v4
-      with:
-        sparse-checkout:
           modules/cli
 
     # Initializes the CodeQL tools for scanning.
