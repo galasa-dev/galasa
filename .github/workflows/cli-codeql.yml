@@ -98,11 +98,13 @@ jobs:
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
         -PtargetMaven=/home/runner/.m2/repository 2>&1 | tee build.log
 
-    # - name: Building Buildutils (manually)
-    #   if: matrix.build-mode == 'manual'
-    #   shell: bash
-    #   working-directory: ${{ github.workspace }}/modules/buildutils
-    #   run: |
+    - name: Building Buildutils (manually)
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/buildutils
+      run: |
+        make all
+        make all -C openapi2beans
 
     - name: Building Wrapping (manually)
       if: matrix.build-mode == 'manual'
@@ -150,35 +152,91 @@ jobs:
         --batch-mode --errors --fail-at-end \
         --settings settings.xml 2>&1 | tee build.log
 
-    # - name: Building Framework (manually)
-    #   if: matrix.build-mode == 'manual'
-    #   shell: bash
-    #   working-directory: ${{ github.workspace }}/modules/framework
-    #   run: |
+    - name: Building Framework (manually)
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/framework
+      env:
+        YAML_LOCATION: "modules/framework/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"
+        OUTPUT_LOCATION: "modules/framework/galasa-parent/dev.galasa.framework.api.beans/src/main/java"
+        PACKAGE: "dev.galasa.framework.api.beans.generated"
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/galasa-dev/openapi2beans:main generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
+        set -o pipefail
+        gradle -b galasa-parent/build.gradle check publish --info \
+        --no-daemon --console plain \
+        -Dorg.gradle.jvmargs=-Xmx5120M \
+        -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
+        -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+        -PtargetMaven=/home/runner/.m2/repository\
+        -PjacocoEnabled=false \
+        -PisMainOrRelease=false 2>&1 | tee build.log
 
-    # - name: Building Extensions (manually)
-    #   if: matrix.build-mode == 'manual'
-    #   shell: bash
-    #   working-directory: ${{ github.workspace }}/modules/extensions
-    #   run: |
+    - name: Building Extensions (manually)
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/extensions
+      run: |
+        set -o pipefail
+        gradle -b galasa-extensions-parent/build.gradle check publish --info \
+        --no-daemon --console plain \
+        -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
+        -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+        -PtargetMaven=/home/runner/.m2/repository \
+        -PjacocoEnabled=false \
+        -PisMainOrRelease=false 2>&1 | tee build.log
 
-    # - name: Building Managers (manually)
-    #   if: matrix.build-mode == 'manual'
-    #   shell: bash
-    #   working-directory: ${{ github.workspace }}/modules/managers
-    #   run: |
+    - name: Building Managers (manually)
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/managers
+      run: |
+        set -o pipefail
+        gradle -b galasa-managers-parent/build.gradle check publish --info \
+        --no-daemon --console plain \
+        -Dorg.gradle.jvmargs=-Xmx4096M \
+        -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
+        -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+        -PtargetMaven=/home/runner/.m2/repository \
+        -PjacocoEnabled=false \
+        -PisMainOrRelease=false 2>&1 | tee build.log
 
-    # - name: Building OBR (manually)
-    #   if: matrix.build-mode == 'manual'
-    #   shell: bash
-    #   working-directory: ${{ github.workspace }}/modules/obr
-    #   run: |
+    - name: Building OBR (manually)
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/obr
+      run: |
+        docker run --rm -v ${{ github.workspace }}/modules:/var/root/ ghcr.io/galasa-dev/galasabld-amd64:main template --releaseMetadata var/root/framework/release.yaml --releaseMetadata /var/root/extensions/release.yaml --releaseMetadata /var/root/managers/release.yaml --releaseMetadata /var/root/obr/release.yaml --template /var/root/obr/galasa-bom/pom.template --output /var/root/obr/galasa-bom/pom.xml --bom
+        set -o pipefail
+        mvn -f galasa-bom/pom.xml deploy -X \
+        -Dgalasa.source.repo=https://development.galasa.dev/main/maven-repo/obr \
+        -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+        -Dgalasa.release.repo=file:///home/runner/.m2/repository \
+        -Dgpg.skip=true \
+        --batch-mode --errors --fail-at-end \
+        --settings settings.xml 2>&1 | tee galasa-bom-build.log
+        docker run --rm -v ${{ github.workspace }}/modules:/var/root/ ghcr.io/galasa-dev/galasabld-amd64:main template --releaseMetadata var/root/framework/release.yaml --releaseMetadata /var/root/extensions/release.yaml --releaseMetadata /var/root/managers/release.yaml --releaseMetadata /var/root/obr/release.yaml --template /var/root/obr/dev.galasa.uber.obr/pom.template --output /var/root/obr/dev.galasa.uber.obr/pom.xml --obr
+        set -o pipefail
+        mvn -f dev.galasa.uber.obr/pom.xml deploy -X \
+        -Dgalasa.source.repo=https://development.galasa.dev/main/maven-repo/obr \
+        -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+        -Dgalasa.release.repo=file:///home/runner/.m2/repository \
+        -Dgpg.skip=true \
+        --batch-mode --errors --fail-at-end \
+        --settings settings.xml 2>&1 | tee galasa-obr-build.log
 
-    # - name: Building IVTs (manually)
-    #   if: matrix.build-mode == 'manual'
-    #   shell: bash
-    #   working-directory: ${{ github.workspace }}/modules/ivts
-    #   run: |
+    - name: Building IVTs (manually)
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/ivts
+      run: |
+        set -o pipefail
+        gradle build check publish --info \
+        --no-daemon --console plain \
+        -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
+        -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+        -PtargetMaven=/home/runner/.m2/repository \
+        -PisMainOrRelease=false 2>&1 | tee build.log
 
     - name: Building CLI (manually)
       if: matrix.build-mode == 'manual'
