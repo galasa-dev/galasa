@@ -73,6 +73,14 @@ jobs:
           name: framework
           path: /home/runner/.m2/repository
 
+      - name: Download managers artifacts from this workflow
+        id: download-managers
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: managers
+          path: /home/runner/.m2/repository
+
       - name: Download obr artifacts from this workflow
         id: download-obr
         continue-on-error: true

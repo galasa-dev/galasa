@@ -100,7 +100,7 @@ jobs:
           name: maven
           path: /home/runner/.m2/repository
 
-      # The mavenme module wasn't changed, so download artifacts
+      # The maven module wasn't changed, so download artifacts
       # from the last successful workflow.
       - name: Download maven from last successful workflow
         if: ${{ steps.download-maven.outcome == 'failure' }}
@@ -126,6 +126,25 @@ jobs:
         uses: actions/download-artifact@v4
         with:
             name: framework
+            path: /home/runner/.m2/repository
+            github-token: ${{ github.token }}
+            run-id: ${{ inputs.artifact-id }}
+
+      - name: Download managers artifacts from this workflow
+        id: download-managers
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: managers
+          path: /home/runner/.m2/repository
+
+      # The managers module wasn't changed, so download artifacts
+      # from the last successful workflow.
+      - name: Download managers artifacts from last successful workflow
+        if: ${{ steps.download-managers.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+            name: managers
             path: /home/runner/.m2/repository
             github-token: ${{ github.token }}
             run-id: ${{ inputs.artifact-id }}
