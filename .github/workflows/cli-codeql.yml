@@ -47,6 +47,7 @@ jobs:
       matrix:
         include:
         - language: go
+        - language: java-kotlin
           build-mode: manual
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
@@ -59,15 +60,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        sparse-checkout: |
-          modules/platform
-          modules/cli
-
-    - name: List repository contents
-      working-directory: ${{ github.workspace }}
-      run: |
-        ls
+      # with:
+      #   sparse-checkout: |
+      #     modules/platform
+      #     modules/cli
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -82,8 +78,13 @@ jobs:
         # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
 
-    # This is needed as the dev.galasa.platform is a dependency of the CLI.
-    # dev.galasa.platform will be needed in the GitHub runner local Maven repo.
+    # If the analyze step fails for one of the languages you are analyzing with
+    # "We were unable to automatically build your code", modify the matrix above
+    # to set the build mode to "manual" for that language. Then modify this step
+    # to build your code.
+    # ℹ️ Command-line programs to run using the OS shell.
+    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
+
     - name: Building Platform (manually)
       if: matrix.build-mode == 'manual'
       shell: bash
@@ -96,12 +97,70 @@ jobs:
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
         -PtargetMaven=/home/runner/.m2/repository 2>&1 | tee build.log
 
-    # If the analyze step fails for one of the languages you are analyzing with
-    # "We were unable to automatically build your code", modify the matrix above
-    # to set the build mode to "manual" for that language. Then modify this step
-    # to build your code.
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
+    # - name: Building Buildutils (manually)
+    #   if: matrix.build-mode == 'manual'
+    #   shell: bash
+    #   working-directory: ${{ github.workspace }}/modules/buildutils
+    #   run: |
+
+    - name: Building Wrapping (manually)
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/wrapping
+      run: |
+        set -o pipefail
+        mvn deploy \
+        -Dgalasa.source.repo=https://development.galasa.dev/main/maven-repo/obr \
+        -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+        -Dgalasa.release.repo=file:///home/runner/.m2/repository \
+        -Dgalasa.jacocoEnabled=false \
+        -Dgalasa.isRelease=false \
+        -Dgpg.skip=true \
+        --batch-mode --errors --fail-at-end \
+        --settings settings.xml 2>&1 | tee build.log
+
+    # - name: Building Gradle (manually)
+    #   if: matrix.build-mode == 'manual'
+    #   shell: bash
+    #   working-directory: ${{ github.workspace }}/modules/gradle
+    #   run: |
+
+    # - name: Building Maven (manually)
+    #   if: matrix.build-mode == 'manual'
+    #   shell: bash
+    #   working-directory: ${{ github.workspace }}/modules/maven
+    #   run: |
+
+    # - name: Building Framework (manually)
+    #   if: matrix.build-mode == 'manual'
+    #   shell: bash
+    #   working-directory: ${{ github.workspace }}/modules/framework
+    #   run: |
+
+    # - name: Building Extensions (manually)
+    #   if: matrix.build-mode == 'manual'
+    #   shell: bash
+    #   working-directory: ${{ github.workspace }}/modules/extensions
+    #   run: |
+
+    # - name: Building Managers (manually)
+    #   if: matrix.build-mode == 'manual'
+    #   shell: bash
+    #   working-directory: ${{ github.workspace }}/modules/managers
+    #   run: |
+
+    # - name: Building OBR (manually)
+    #   if: matrix.build-mode == 'manual'
+    #   shell: bash
+    #   working-directory: ${{ github.workspace }}/modules/obr
+    #   run: |
+
+    # - name: Building IVTs (manually)
+    #   if: matrix.build-mode == 'manual'
+    #   shell: bash
+    #   working-directory: ${{ github.workspace }}/modules/ivts
+    #   run: |
+
     - name: Building CLI (manually)
       if: matrix.build-mode == 'manual'
       shell: bash
@@ -112,7 +171,7 @@ jobs:
         --no-daemon --console plain \
         -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-        -PtargetMaven=/home/runner/.m2/ 2>&1 | tee build.log
+        -PtargetMaven=/home/runner/.m2/repository 2>&1 | tee build.log
         docker run --rm --user $(id -u):$(id -g) -v ${{ github.workspace }}/modules/cli:/var/workspace ghcr.io/galasa-dev/openapi:main \
         java -jar /opt/openapi/openapi-generator-cli.jar generate \
         -i /var/workspace/build/dependencies/openapi.yaml \
