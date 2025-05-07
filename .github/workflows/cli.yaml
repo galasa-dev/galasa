@@ -49,6 +49,14 @@ jobs:
           name: platform
           path: /home/runner/.m2/repository
 
+      - name: Download wrapping artifacts from this workflow
+        id: download-wrapping
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: wrapping
+          path: /home/runner/.m2/repository
+
       - name: Download gradle artifacts from this workflow
         id: download-gradle
         continue-on-error: true

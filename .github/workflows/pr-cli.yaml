@@ -73,6 +73,25 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
 
+      - name: Download wrapping artifacts from this workflow
+        id: download-wrapping
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: wrapping
+          path: /home/runner/.m2/repository
+
+      # The wrapping module wasn't changed, so download artifacts
+      # from the last successful workflow.
+      - name: Download wrapping from last successful workflow
+        if: ${{ steps.download-wrapping.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: wrapping
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.artifact-id }}
+
       - name: Download gradle artifacts from this workflow
         id: download-gradle
         continue-on-error: true
