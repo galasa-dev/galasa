@@ -64,6 +64,11 @@ jobs:
           modules/platform
           modules/cli
 
+    - name: List repository contents
+      working-directory: ${{ github.workspace }}
+      run: |
+        ls
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
