@@ -90,7 +90,7 @@ jobs:
       working-directory: ${{ github.workspace }}/modules/platform
       run: |
         set -o pipefail
-        gradle -b dev.galasa.platform/build.gradle build check publishToMavenLocal --info \
+        gradle -b dev.galasa.platform/build.gradle build check publish --info \
         --no-daemon --console plain \
         -PsourceMaven=https://repo.maven.apache.org/maven2/ \
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
