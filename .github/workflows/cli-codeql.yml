@@ -94,6 +94,7 @@ jobs:
         --no-daemon --console plain \
         -PsourceMaven=https://repo.maven.apache.org/maven2/ \
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+        -PtargetMaven=${{ github.workspace }}/repo
         -PisMainOrRelease=false 2>&1 | tee build.log
 
     # If the analyze step fails for one of the languages you are analyzing with
