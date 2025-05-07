@@ -47,7 +47,7 @@ To find out how to initialise your local environment, see [Initialising your loc
 As an example, to run the `CoreManagerIVT` locally, run the following command:
 ```
 galasactl runs submit local \
---obr mvn:dev.galasa/dev.galasa.ivts.obr/0.41.0/obr \
+--obr mvn:dev.galasa/dev.galasa.ivts.obr/0.42.0/obr \
 --class dev.galasa.ivts/dev.galasa.ivts.core.CoreManagerIVT \
 --log -
 ```

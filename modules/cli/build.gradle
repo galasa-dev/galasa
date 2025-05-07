@@ -15,7 +15,7 @@
 // dealing with. Do not mess with the `def {variableName}` part of the following 
 // lines, only change the versions we rely upon.
 
-def galasaVersion = '0.41.0'
+def galasaVersion = '0.42.0'
 
 repositories {
     gradlePluginPortal()
@@ -28,7 +28,7 @@ repositories {
 apply plugin: 'java'
 dependencies {
     // Use dev.galasa.platform to obtain the versions
-    implementation platform('dev.galasa:dev.galasa.platform:0.41.0')
+    implementation platform('dev.galasa:dev.galasa.platform:0.42.0')
     // We need the galasa-boot jar so we can launch tests in a local JVM
     implementation 'dev.galasa:galasa-boot'
     // We need the openapi generator to turn a yaml file into go client stubs, 

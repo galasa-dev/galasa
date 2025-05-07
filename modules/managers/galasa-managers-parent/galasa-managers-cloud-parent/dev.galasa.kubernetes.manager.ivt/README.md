@@ -18,5 +18,5 @@ To run the IVT locally:
 
 4. Run the IVT:
    ```
-   galasactl runs submit local --obr mvn:dev.galasa/dev.galasa.uber.obr/0.41.0/obr --class dev.galasa.kubernetes.manager.ivt/dev.galasa.kubernetes.manager.ivt.KubernetesManagerIVT --log -
+   galasactl runs submit local --obr mvn:dev.galasa/dev.galasa.uber.obr/0.42.0/obr --class dev.galasa.kubernetes.manager.ivt/dev.galasa.kubernetes.manager.ivt.KubernetesManagerIVT --log -
    ```
