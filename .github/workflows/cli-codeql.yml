@@ -94,8 +94,7 @@ jobs:
         --no-daemon --console plain \
         -PsourceMaven=https://repo.maven.apache.org/maven2/ \
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-        -PtargetMaven=${{ github.workspace }}/repo
-        -PisMainOrRelease=false 2>&1 | tee build.log
+        -PtargetMaven=/home/runner/.m2/ 2>&1 | tee build.log
 
     # If the analyze step fails for one of the languages you are analyzing with
     # "We were unable to automatically build your code", modify the matrix above
@@ -113,7 +112,7 @@ jobs:
         --no-daemon --console plain \
         -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-        -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build.log
+        -PtargetMaven=/home/runner/.m2/ 2>&1 | tee build.log
         docker run --rm --user $(id -u):$(id -g) -v ${{ github.workspace }}/modules/cli:/var/workspace ghcr.io/galasa-dev/openapi:main \
         java -jar /opt/openapi/openapi-generator-cli.jar generate \
         -i /var/workspace/build/dependencies/openapi.yaml \
