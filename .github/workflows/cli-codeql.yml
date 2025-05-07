@@ -87,7 +87,7 @@ jobs:
     - name: Building Platform (manually)
       if: matrix.build-mode == 'manual'
       shell: bash
-      working-directory: ./modules/platform
+      working-directory: ${{ github.workspace }}/modules/platform
       run: |
         set -o pipefail
         gradle -b dev.galasa.platform/build.gradle build check publishToMavenLocal --info \
@@ -105,7 +105,7 @@ jobs:
     - name: Building CLI (manually)
       if: matrix.build-mode == 'manual'
       shell: bash
-      working-directory: ./modules/cli
+      working-directory: ${{ github.workspace }}/modules/cli
       run: |
         set -o pipefail
         gradle -b build.gradle installJarsIntoTemplates --info \
