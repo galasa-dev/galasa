@@ -48,6 +48,7 @@ func GetRuns(
 	shouldGetActive bool,
 	outputFormatString string,
 	group string,
+	tags []string,
 	timeService spi.TimeService,
 	console spi.Console,
 	commsClient api.APICommsClient,
@@ -91,9 +92,19 @@ func GetRuns(
 			var runJson []galasaapi.Run
 			isNeedingMethodDetails := chosenFormatter.IsNeedingMethodDetails()
 
-			runsQuery := NewRunsQuery(runName, requestorParameter, resultParameter, group, fromAge, toAge, shouldGetActive, timeService.Now(), isNeedingMethodDetails)
+			runsQuery := NewRunsQuery(
+				runName,
+				requestorParameter,
+				resultParameter,
+				group,
+				fromAge,
+				toAge,
+				shouldGetActive,
+				isNeedingMethodDetails,
+				tags,
+				timeService.Now(),
+			)
 			runJson, err = GetRunsFromRestApi(runsQuery, commsClient)
-
 			if err == nil {
 				var outputText string
 

@@ -45,11 +45,23 @@ func RunsDelete(
 		toAgeHours := 0
 		group := ""
 		shouldGetActive := false
+		tags := make([]string, 0)
 		isNeedingMethodDetails := false
+
+		runsQuery := NewRunsQuery(
+			runName,
+			requestorParameter,
+			resultParameter,
+			group,
+			fromAgeHours,
+			toAgeHours,
+			shouldGetActive,
+			isNeedingMethodDetails,
+			tags,
+			timeService.Now(),
+		)
+
 		var runs []galasaapi.Run
-
-		runsQuery := NewRunsQuery(runName, requestorParameter, resultParameter, group, fromAgeHours, toAgeHours, shouldGetActive, timeService.Now(), isNeedingMethodDetails)
-
 		runs, err = GetRunsFromRestApi(runsQuery, commsClient)
 
 		if err == nil {

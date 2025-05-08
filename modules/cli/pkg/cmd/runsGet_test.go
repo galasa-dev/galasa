@@ -6,6 +6,7 @@
 package cmd
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/galasa-dev/cli/pkg/utils"
@@ -332,4 +333,75 @@ func TestRunsGetGroupRunNameMutuallyExclusive(t *testing.T) {
 
 	// Check what the user saw is reasonable.
 	checkOutput("", "Error: if any flags in the group [group name] are set none of the others can be; [group name] were all set", factory, t)
+}
+
+func TestRunsGetWithOneTagsFlagReturnsOk(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	commandCollection, cmd := setupTestCommandCollection(COMMAND_NAME_RUNS_GET, factory, t)
+
+	tag := "my-test-tag"
+
+	var args []string = []string{"runs", "get", "--age", "1d", "--tags", tag}
+
+	// When...
+	err := commandCollection.Execute(args)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// Check what the user saw was reasonable
+	checkOutput("", "", factory, t)
+
+	assert.Contains(t, cmd.Values().(*RunsGetCmdValues).tags, tag)
+}
+
+func TestRunsGetWithMultipleTagsFlagReturnsOk(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	commandCollection, cmd := setupTestCommandCollection(COMMAND_NAME_RUNS_GET, factory, t)
+
+	tag1 := "my-test-tag-1"
+	tag2 := "my-test-tag-2"
+
+	var args []string = []string{"runs", "get", "--age", "1d", "--tags", tag1, "--tags", tag2}
+
+	// When...
+	err := commandCollection.Execute(args)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// Check what the user saw was reasonable
+	checkOutput("", "", factory, t)
+
+	tags := cmd.Values().(*RunsGetCmdValues).tags
+	assert.Contains(t, tags, tag1)
+	assert.Contains(t, tags, tag2)
+}
+
+func TestRunsGetWithCommaSeparatedTagsFlagReturnsOk(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	commandCollection, cmd := setupTestCommandCollection(COMMAND_NAME_RUNS_GET, factory, t)
+
+	tag1 := "my-test-tag-1"
+	tag2 := "my-test-tag-2"
+	tags := []string{ tag1, tag2 }
+	commaSeparatedTags := strings.Join(tags, ",")
+
+	var args []string = []string{"runs", "get", "--age", "1d", "--tags", commaSeparatedTags}
+
+	// When...
+	err := commandCollection.Execute(args)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// Check what the user saw was reasonable
+	checkOutput("", "", factory, t)
+
+	actualTags := cmd.Values().(*RunsGetCmdValues).tags
+	assert.Contains(t, actualTags, tag1)
+	assert.Contains(t, actualTags, tag2)
 }

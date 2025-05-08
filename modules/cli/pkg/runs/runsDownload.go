@@ -51,8 +51,20 @@ func DownloadArtifacts(
 		toAgeHours := 0
 		shouldGetActive := false
 		isNeedingMethodDetails := false
+		tags := make([]string, 0)
 
-		runsQuery := NewRunsQuery(runName, requestorParameter, resultParameter, group, fromAgeHours, toAgeHours, shouldGetActive, timeService.Now(), isNeedingMethodDetails)
+		runsQuery := NewRunsQuery(
+			runName,
+			requestorParameter,
+			resultParameter,
+			group,
+			fromAgeHours,
+			toAgeHours,
+			shouldGetActive,
+			isNeedingMethodDetails,
+			tags,
+			timeService.Now(),
+		)
 
 		runs, err = GetRunsFromRestApi(runsQuery, commsClient)
 		if err == nil {

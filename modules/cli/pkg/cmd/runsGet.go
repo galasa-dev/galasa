@@ -28,6 +28,7 @@ type RunsGetCmdValues struct {
 	result             string
 	isActiveRuns       bool
 	group              string
+	tags               []string
 }
 
 type RunsGetCommand struct {
@@ -103,6 +104,8 @@ func (cmd *RunsGetCommand) createCobraCommand(
 		" Cannot be used in conjunction with --name or --active flag.")
 	runsGetCobraCmd.PersistentFlags().BoolVar(&cmd.values.isActiveRuns, "active", false, "parameter to retrieve runs that have not finished yet."+
 		" Cannot be used in conjunction with --name or --result flag.")
+	runsGetCobraCmd.PersistentFlags().StringSliceVar(&cmd.values.tags, "tags", make([]string, 0), "the tags associated with test runs to be retrieved."+
+		" Tags can be supplied in a comma-separated list (e.g. --tags tag1,tag2,tag3) or as separate '--tags' flags (e.g. --tags tag1 --tags tag2).")
 
 	runsGetCobraCmd.MarkFlagsMutuallyExclusive("name", "requestor")
 	runsGetCobraCmd.MarkFlagsMutuallyExclusive("name", "result")
@@ -161,6 +164,7 @@ func (cmd *RunsGetCommand) executeRunsGet(
 					cmd.values.isActiveRuns,
 					cmd.values.outputFormatString,
 					cmd.values.group,
+					cmd.values.tags,
 					timeService,
 					console,
 					commsClient,
