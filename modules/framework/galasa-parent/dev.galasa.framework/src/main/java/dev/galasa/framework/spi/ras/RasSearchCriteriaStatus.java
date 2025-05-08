@@ -15,6 +15,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RasSearchCriteriaStatus implements IRasSearchCriteria {
    
+   private static final String CRITERIA_NAME = "status";
    private final List<TestRunLifecycleStatus> statuses;
    
    public RasSearchCriteriaStatus(@NotNull List<TestRunLifecycleStatus> statuses) {
@@ -42,5 +43,15 @@ public class RasSearchCriteriaStatus implements IRasSearchCriteria {
          statusesStrings.add(status.toString());
       }
       return statusesStrings.toArray(new String[0]);
+   }
+
+   @Override
+   public String getCriteriaName() {
+      return CRITERIA_NAME;
+   }
+
+   @Override
+   public String[] getCriteriaContent() {
+      return getStatusesAsStrings();
    }
 }

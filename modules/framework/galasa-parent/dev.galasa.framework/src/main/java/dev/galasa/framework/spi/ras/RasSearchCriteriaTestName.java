@@ -10,7 +10,8 @@ import javax.validation.constraints.NotNull;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RasSearchCriteriaTestName implements IRasSearchCriteria {
-	
+
+	private static final String CRITERIA_NAME = "testName";
 	private final String[] testNames;
 	
 	public RasSearchCriteriaTestName(@NotNull String... testNameCriteria) {
@@ -39,4 +40,14 @@ public class RasSearchCriteriaTestName implements IRasSearchCriteria {
     public String[] getTestNames() {
         return this.testNames;
     }
+
+	@Override
+	public String getCriteriaName() {
+		return CRITERIA_NAME;
+	}
+
+	@Override
+	public String[] getCriteriaContent() {
+		return this.testNames;
+	}
 }

@@ -11,10 +11,11 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RasSearchCriteriaGroup implements IRasSearchCriteria {
 	
-	private final String[] group;
+	private static final String CRITERIA_NAME = "group";
+	private final String[] groups;
 
-	public RasSearchCriteriaGroup(@NotNull String... testNameCriteria) {
-		this.group = testNameCriteria;
+	public RasSearchCriteriaGroup(@NotNull String... groups) {
+		this.groups = groups;
 	}
 
 	@Override
@@ -24,8 +25,8 @@ public class RasSearchCriteriaGroup implements IRasSearchCriteria {
 			return Boolean.FALSE;	
 		}
 
-		if(group != null) {
-			for(String groupIn : group) {
+		if(groups != null) {
+			for(String groupIn : groups) {
 				if(groupIn.equals(structure.getGroup())) {
 					return Boolean.TRUE;
 				}
@@ -37,7 +38,17 @@ public class RasSearchCriteriaGroup implements IRasSearchCriteria {
 
 
     public String[] getGroups() {
-        return this.group;
+        return this.groups;
     }
+
+	@Override
+	public String getCriteriaName() {
+		return CRITERIA_NAME;
+	}
+
+	@Override
+	public String[] getCriteriaContent() {
+		return this.groups;
+	}
 }
 	

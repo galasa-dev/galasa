@@ -144,6 +144,10 @@ public class RasQueryParameters {
         return generalQueryParams.getMultipleString("runId", new ArrayList<String>());
     }
 
+    public List<String> getTags() {
+        return generalQueryParams.getMultipleString("tags", new ArrayList<String>());
+    }
+
     public boolean isAtLeastOneMandatoryParameterPresent() throws InternalServletException {
         return generalQueryParams.checkAtLeastOneQueryParameterPresent(
             RunQueryRoute.QUERY_PARAMETER_FROM,

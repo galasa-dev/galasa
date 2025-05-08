@@ -12,7 +12,8 @@ import javax.validation.constraints.NotNull;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RasSearchCriteriaQueuedTo implements IRasSearchCriteria {
-	
+
+	private static final String CRITERIA_NAME = "queued";
 	private final Instant to;
 	
 	public RasSearchCriteriaQueuedTo(@NotNull Instant toCriteria) {
@@ -44,4 +45,14 @@ public class RasSearchCriteriaQueuedTo implements IRasSearchCriteria {
     public Instant getTo() {
         return this.to;
     }
+
+	@Override
+	public String getCriteriaName() {
+		return CRITERIA_NAME;
+	}
+
+	@Override
+	public String[] getCriteriaContent() {
+		return new String[]{ this.to.toString() };
+	}
 }

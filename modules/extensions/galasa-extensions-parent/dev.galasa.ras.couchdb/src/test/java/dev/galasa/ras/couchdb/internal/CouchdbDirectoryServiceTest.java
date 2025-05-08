@@ -14,8 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpStatus;
@@ -32,7 +30,6 @@ import dev.galasa.extensions.common.mocks.MockCloseableHttpClient;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasRunResultPage;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaBundle;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
@@ -43,7 +40,6 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.ras.RasSortField;
-import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures;
 import dev.galasa.ras.couchdb.internal.mocks.MockLogFactory;
 import dev.galasa.ras.couchdb.internal.pojos.FoundRuns;
@@ -319,31 +315,6 @@ public class CouchdbDirectoryServiceTest extends BaseCouchdbOperationTest {
         assertThat(runs).hasSize(2);
         assertThat(runs.get(0).getTestStructure().getRunName()).isEqualTo(mockRun1.getRunName());
         assertThat(runs.get(1).getTestStructure().getRunName()).isEqualTo(mockRun2.getRunName());
-    }
-
-
-    @Test
-    public void testGetRunsWithInvalidCriteriaThrowsError() throws Exception {
-        // Given...
-        IRasSearchCriteria unknownCriteria = new IRasSearchCriteria() {
-            @Override
-            public boolean criteriaMatched(@NotNull TestStructure testStructure) {
-                return false;
-            }
-        };
-
-        List<HttpInteraction> interactions = new ArrayList<>();
-
-        MockLogFactory mockLogFactory = new MockLogFactory();
-        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
-        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
-
-        // When...
-        ResultArchiveStoreException thrown = catchThrowableOfType(() -> directoryService.getRuns(unknownCriteria), ResultArchiveStoreException.class);
-
-        // Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown.getMessage()).contains("Unrecognised search criteria");
     }
 
     @Test

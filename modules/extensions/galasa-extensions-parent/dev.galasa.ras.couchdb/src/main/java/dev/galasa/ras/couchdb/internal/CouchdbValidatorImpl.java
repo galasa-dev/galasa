@@ -97,6 +97,7 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
             checkIndex(httpClient, rasUri, 1, "galasa_run", "result", timeService);
             checkIndex(httpClient, rasUri, 1, "galasa_run", "group", timeService);
             checkIndex(httpClient, rasUri, 1, "galasa_run", "submissionId", timeService);
+            checkIndex(httpClient, rasUri, 1, "galasa_run", "tags", timeService);
 
             logger.debug("RAS CouchDB at " + rasUri.toString() + " validated");
         } catch (CouchdbException e) {

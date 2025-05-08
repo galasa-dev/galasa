@@ -1595,6 +1595,15 @@ paths:
           schema:
             type: string
           example: methods
+        - name: tags
+          in: query
+          description: |
+            One or more tags that may be associated with one or more existing test runs.
+            Multiple tags can be supplied as a comma-separated list, for example, 'tags=tag1,tag2,tag3'.
+            If multiple tags are supplied, test runs that have any of the supplied tags will be returned.
+          schema:
+            type: string
+          example: my-zos-tests
         
         # Temporary feature flag to enable cursor-based pagination
         - name: includeCursor

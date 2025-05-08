@@ -9,8 +9,9 @@ import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
-public class RasSearchCriteriaRequestor implements IRasSearchCriteria{
+public class RasSearchCriteriaRequestor implements IRasSearchCriteria {
 	
+	private static final String CRITERIA_NAME = "requestor";
 	private final String[] requestors;
 	
 	public RasSearchCriteriaRequestor(@NotNull String... requestorCriteria) {
@@ -38,4 +39,14 @@ public class RasSearchCriteriaRequestor implements IRasSearchCriteria{
     public String[] getRequestors() {
         return requestors;
     }
+
+	@Override
+	public String getCriteriaName() {
+		return CRITERIA_NAME;
+	}
+
+	@Override
+	public String[] getCriteriaContent() {
+		return this.requestors;
+	}
 }

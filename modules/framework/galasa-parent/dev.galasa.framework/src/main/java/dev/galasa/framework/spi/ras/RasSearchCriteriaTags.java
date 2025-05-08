@@ -5,26 +5,29 @@
  */
 package dev.galasa.framework.spi.ras;
 
+import java.util.Set;
+
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
-public class RasSearchCriteriaSubmissionId implements IRasSearchCriteria {
+public class RasSearchCriteriaTags implements IRasSearchCriteria {
 
-	private static final String CRITERIA_NAME = "submissionId";
-	private final String[] submissionIds;
+	private static final String CRITERIA_NAME = "tags";
+	private final String[] tags;
 
-	public RasSearchCriteriaSubmissionId(@NotNull String... submissionIdCriteria) {
-		this.submissionIds = submissionIdCriteria;
+	public RasSearchCriteriaTags(@NotNull String... tags) {
+		this.tags = tags;
 	}
 
 	@Override
 	public boolean criteriaMatched(@NotNull TestStructure structure) {
 
 		boolean isMatched = false;
-		if (structure != null && submissionIds != null) {
-			for (String submissionId : submissionIds) {
-				if (submissionId.equals(structure.getSubmissionId())) {
+		if (structure != null && tags != null) {
+			Set<String> structureTags = structure.getTags();
+			for (String tag : tags) {
+				if (structureTags.contains(tag)) {
 					isMatched = true;
 					break;
 				}
@@ -34,8 +37,8 @@ public class RasSearchCriteriaSubmissionId implements IRasSearchCriteria {
 		return isMatched;
 	}
 
-    public String[] getSubmissionIds() {
-        return this.submissionIds;
+    public String[] getTags() {
+        return this.tags;
     }
 
 	@Override
@@ -45,6 +48,6 @@ public class RasSearchCriteriaSubmissionId implements IRasSearchCriteria {
 
 	@Override
 	public String[] getCriteriaContent() {
-		return this.submissionIds;
+		return this.tags;
 	}
 }

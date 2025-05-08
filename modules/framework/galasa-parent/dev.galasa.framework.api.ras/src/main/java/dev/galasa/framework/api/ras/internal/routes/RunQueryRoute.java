@@ -37,6 +37,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaSubmissionId;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaTags;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.rbac.RBACException;
@@ -83,6 +84,7 @@ public class RunQueryRoute extends RunsRoute {
 	public static final String QUERY_PARAMETER_RUNNAME = "runname";
 	public static final String QUERY_PARAMETER_RUNID = "runid";
 	public static final String QUERY_PARAMETER_DETAIL = "detail";
+	public static final String QUERY_PARAMETER_TAGS = "tags";
 
     public static final SupportedQueryParameterNames SUPPORTED_QUERY_PARAMETER_NAMES = new SupportedQueryParameterNames(
 		QUERY_PARAMETER_SORT, QUERY_PARAMETER_RESULT, QUERY_PARAMETER_STATUS,
@@ -90,7 +92,7 @@ public class RunQueryRoute extends RunsRoute {
 		QUERY_PARAMETER_TO, QUERY_PARAMETER_TESTNAME, QUERY_PARAMETER_PAGE,
 		QUERY_PARAMETER_SIZE, QUERY_PARAMETER_GROUP, QUERY_PARAMETER_SUBMISSION_ID,
 		QUERY_PARAMETER_INCLUDECURSOR, QUERY_PARAMETER_CURSOR, QUERY_PARAMETER_RUNNAME,
-		QUERY_PARAMETER_RUNID
+		QUERY_PARAMETER_RUNID, QUERY_PARAMETER_TAGS
 	);
 
 
@@ -224,6 +226,7 @@ public class RunQueryRoute extends RunsRoute {
 		String group = queryParams.getGroup();
 		String submissionId = queryParams.getSubmissionId();
 		Instant to = queryParams.getToTime();
+		List<String> tags = queryParams.getTags();
 
 		Instant defaultFromTime = Instant.now().minus(24,ChronoUnit.HOURS);
 		// from will error if no runname is specified as it is a mandatory field
@@ -273,6 +276,10 @@ public class RunQueryRoute extends RunsRoute {
 		if (submissionId != null && !submissionId.isEmpty()) {
 			RasSearchCriteriaSubmissionId submissionIdCriteria = new RasSearchCriteriaSubmissionId(submissionId);
 			critList.add(submissionIdCriteria);
+		}
+		if (tags != null && !tags.isEmpty()) {
+			RasSearchCriteriaTags tagsCriteria = new RasSearchCriteriaTags(tags.toArray(new String[0]));
+			critList.add(tagsCriteria);
 		}
 
 		return critList;

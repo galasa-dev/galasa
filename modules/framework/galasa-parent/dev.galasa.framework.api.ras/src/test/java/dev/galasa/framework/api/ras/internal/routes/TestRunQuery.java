@@ -84,7 +84,7 @@ public class TestRunQuery extends RasServletTest {
 		return parameterMap;
 	}
 
-    private IRunResult createTestRun(String runId, Instant queuedTime, Instant startTime, Instant endTime, List<TestMethod> methods) {
+    private MockRunResult createTestRun(String runId, Instant queuedTime, Instant startTime, Instant endTime, List<TestMethod> methods) {
 		RandomStringUtils randomStringGenerator = RandomStringUtils.insecure();
         String runName = randomStringGenerator.nextAlphanumeric(5);
         String testShortName = randomStringGenerator.nextAlphanumeric(5);
@@ -2606,6 +2606,50 @@ public class TestRunQuery extends RasServletTest {
 	}
 
 	@Test
+	public void testQueryWithOneTagGetsRunOk() throws Exception {
+		// Given..
+		String tag = "my-amazing-tests";
+		String runId = "run123";
+		Instant queuedTime = Instant.EPOCH;
+		Instant startTime = Instant.EPOCH;
+		Instant endTime = Instant.EPOCH.plus(10, ChronoUnit.MINUTES);
+		List<TestMethod> methods = new ArrayList<>();
+
+		MockRunResult mockRunResult = createTestRun(runId, queuedTime, startTime, endTime, methods);
+		TestStructure runTestStructure = mockRunResult.getTestStructure();
+		runTestStructure.addTag(tag);
+		runTestStructure.setResult("Passed");
+
+		List<IRunResult> mockInputRunResults = List.of(mockRunResult);
+
+        // Build query parameters
+        int pageSize = 100;
+		Map<String, String[]> parameterMap = new HashMap<>();
+		addQueryIntParameter(parameterMap, "size", pageSize);
+		addQueryParameter(parameterMap, "from", queuedTime.toString());
+		addQueryParameter(parameterMap, "tags", tag);
+        addQueryParameter(parameterMap, "includeCursor", "true");
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
 	public void testQueryWithDetailParametersGetsRunsWithMethodsAndMatchingGroupIdOk() throws Exception {
 		// Given..
 
@@ -2645,6 +2689,60 @@ public class TestRunQuery extends RasServletTest {
 
 		// Then...
 		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize, methods);
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testQueryWithMultipleTagsGetsRunsOk() throws Exception {
+		// Given..
+		String tag1 = "my-amazing-tests";
+		String tag2 = "my-other-tests";
+
+		String runId1 = "run123";
+		String runId2 = "run456";
+		Instant queuedTime = Instant.EPOCH;
+		Instant startTime = Instant.EPOCH;
+		Instant endTime1 = Instant.EPOCH.plus(10, ChronoUnit.MINUTES);
+		Instant endTime2 = Instant.EPOCH.plus(20, ChronoUnit.MINUTES);
+		List<TestMethod> methods = new ArrayList<>();
+
+		MockRunResult mockRunResult1 = createTestRun(runId1, queuedTime, startTime, endTime1, methods);
+		TestStructure runTestStructure = mockRunResult1.getTestStructure();
+		runTestStructure.addTag(tag1);
+		runTestStructure.setResult("Passed");
+
+		MockRunResult mockRunResult2 = createTestRun(runId2, queuedTime, startTime, endTime2, methods);
+		TestStructure runTestStructure2 = mockRunResult2.getTestStructure();
+		runTestStructure2.addTag(tag1);
+		runTestStructure2.addTag(tag2);
+		runTestStructure2.setResult("Passed");
+
+		List<IRunResult> mockInputRunResults = List.of(mockRunResult1, mockRunResult2);
+
+        // Build query parameters
+        int pageSize = 100;
+		Map<String, String[]> parameterMap = new HashMap<>();
+		addQueryIntParameter(parameterMap, "size", pageSize);
+		addQueryParameter(parameterMap, "from", queuedTime.toString());
+		addQueryParameter(parameterMap, "tags", String.join(",", tag1, tag2));
+        addQueryParameter(parameterMap, "includeCursor", "true");
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -2698,7 +2796,6 @@ public class TestRunQuery extends RasServletTest {
 	@Test
 	public void testQueryWithDetailParametersGetsRunsWithUnrecognizedDetailParamTypeReturnsBadRequest() throws Exception {
 		// Given..
-
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
         IRunResult run = mockInputRunResults.get(0);
 

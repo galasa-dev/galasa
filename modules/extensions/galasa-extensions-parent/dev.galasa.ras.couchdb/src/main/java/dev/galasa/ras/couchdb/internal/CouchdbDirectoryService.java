@@ -39,17 +39,7 @@ import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasRunResultPage;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaBundle;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaGroup;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.ras.RasSortField;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaSubmissionId;
 import dev.galasa.framework.spi.ras.RasTestClass;
 import dev.galasa.framework.spi.ras.ResultArchiveStoreFileStore;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -75,6 +65,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
     private final GalasaGson gson;
 
     private static final int COUCHDB_RESULTS_LIMIT_PER_QUERY = 100;
+    private final CouchdbRasQueryBuilder rasQueryBuilder = new CouchdbRasQueryBuilder();
 
     public CouchdbDirectoryService(CouchdbRasStore store, LogFactory logFactory, HttpRequestFactory requestFactory) {
         this.store = store;
@@ -349,7 +340,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         HttpPost httpPost = requestFactory.getHttpPostRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/_find");
 
         Find find = new Find();
-        find.selector = buildGetRunsQuery(searchCriterias);
+        find.selector = rasQueryBuilder.buildGetRunsQuery(searchCriterias);
         find.execution_stats = true;
         find.limit = maxResults;
         find.bookmark = pageToken;
@@ -432,7 +423,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         HttpPost httpPost = requestFactory.getHttpPostRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/_find");
 
         Find find = new Find();
-        find.selector = buildGetRunsQuery(searchCriterias);
+        find.selector = rasQueryBuilder.buildGetRunsQuery(searchCriterias);
         find.execution_stats = true;
         find.limit = COUCHDB_RESULTS_LIMIT_PER_QUERY;
 
@@ -451,94 +442,6 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         }
 
         return runs;
-    }
-
-    private JsonObject buildGetRunsQuery(IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
-        JsonObject selector = new JsonObject();
-        JsonArray and = new JsonArray();
-        selector.add("$and", and);
-
-        for (IRasSearchCriteria searchCriteria : searchCriterias) {
-            if (searchCriteria instanceof RasSearchCriteriaRequestor) {
-                RasSearchCriteriaRequestor sRequestor = (RasSearchCriteriaRequestor) searchCriteria;
-
-                inArray(and, "requestor", sRequestor.getRequestors());
-            } else if (searchCriteria instanceof RasSearchCriteriaRunName) {
-                RasSearchCriteriaRunName sRunName = (RasSearchCriteriaRunName) searchCriteria;
-
-                inArray(and, "runName", sRunName.getRunNames());
-            } else if (searchCriteria instanceof RasSearchCriteriaQueuedFrom) {
-                RasSearchCriteriaQueuedFrom sFrom = (RasSearchCriteriaQueuedFrom) searchCriteria;
-
-                JsonObject criteria = new JsonObject();
-                JsonObject jFrom = new JsonObject();
-                jFrom.addProperty("$gte", sFrom.getFrom().toString());
-                criteria.add("queued", jFrom);
-                and.add(criteria);
-            } else if (searchCriteria instanceof RasSearchCriteriaQueuedTo) {
-                RasSearchCriteriaQueuedTo sTo = (RasSearchCriteriaQueuedTo) searchCriteria;
-
-                JsonObject criteria = new JsonObject();
-                JsonObject jTo = new JsonObject();
-                jTo.addProperty("$lt", sTo.getTo().toString());
-                criteria.add("queued", jTo);
-                and.add(criteria);
-            } else if (searchCriteria instanceof RasSearchCriteriaTestName) {
-                RasSearchCriteriaTestName sTestName = (RasSearchCriteriaTestName) searchCriteria;
-
-                inArray(and, "testName", sTestName.getTestNames());
-            } else if (searchCriteria instanceof RasSearchCriteriaBundle) {
-                RasSearchCriteriaBundle sBundle = (RasSearchCriteriaBundle) searchCriteria;
-
-                inArray(and, "bundle", sBundle.getBundles());
-            } else if (searchCriteria instanceof RasSearchCriteriaGroup) {
-                RasSearchCriteriaGroup sGroup = (RasSearchCriteriaGroup) searchCriteria;
-
-                inArray(and, "group", sGroup.getGroups());
-            } else if (searchCriteria instanceof RasSearchCriteriaSubmissionId) {
-                RasSearchCriteriaSubmissionId submissionIdCriteria = (RasSearchCriteriaSubmissionId) searchCriteria;
-
-                inArray(and, "submissionId", submissionIdCriteria.getSubmissionIds());
-            } else if (searchCriteria instanceof RasSearchCriteriaResult) {
-                RasSearchCriteriaResult sResult = (RasSearchCriteriaResult) searchCriteria;
-
-                inArray(and, "result", sResult.getResults());
-            } else if (searchCriteria instanceof RasSearchCriteriaStatus) {
-                RasSearchCriteriaStatus sStatus = (RasSearchCriteriaStatus) searchCriteria;
-                inArray(and, "status", sStatus.getStatusesAsStrings());
-            } else {
-                throw new ResultArchiveStoreException(
-                        "Unrecognised search criteria class " + searchCriteria.getClass().getName());
-            }
-        }
-        return selector;
-    }
-
-    private void inArray(JsonArray and, String field, String[] inArray) {
-        if (inArray == null || inArray.length < 1) {
-            return;
-        }
-
-        JsonArray jIns = new JsonArray();
-        for (String in : inArray) {
-            if (in == null || in.isEmpty()) {
-                continue;
-            }
-            jIns.add(in);
-        }
-        if (jIns.size() == 0) {
-            return;
-        }
-
-        JsonObject jIn = new JsonObject();
-        jIn.add("$in", jIns);
-
-        JsonObject criteria = new JsonObject();
-        criteria.add(field, jIn);
-
-        and.add(criteria);
-
-        return;
     }
 
     @Override

@@ -12,5 +12,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 public interface IRasSearchCriteria {
 	
 	boolean criteriaMatched(@NotNull TestStructure testStructure);
-	
+
+	String getCriteriaName();
+	String[] getCriteriaContent();
 }

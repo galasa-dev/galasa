@@ -11,6 +11,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RasSearchCriteriaBundle implements IRasSearchCriteria {
    
+   private static final String CRITERIA_NAME = "bundle";
    private final String[] bundles;
    
    public RasSearchCriteriaBundle(@NotNull String... bundles) {
@@ -38,6 +39,16 @@ public class RasSearchCriteriaBundle implements IRasSearchCriteria {
 
    public String[] getBundles() {
        return bundles;
+   }
+
+   @Override
+   public String getCriteriaName() {
+       return CRITERIA_NAME;
+   }
+
+   @Override
+   public String[] getCriteriaContent() {
+        return this.bundles;
    }
 
 }

@@ -12,6 +12,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RasSearchCriteriaQueuedFrom implements IRasSearchCriteria {
 	
+	private static final String CRITERIA_NAME = "queued";
 	private final Instant from;
 	
 	public RasSearchCriteriaQueuedFrom(@NotNull Instant fromCriteria) {
@@ -43,6 +44,16 @@ public class RasSearchCriteriaQueuedFrom implements IRasSearchCriteria {
     public Instant getFrom() {
         return this.from;
     }
+
+	@Override
+	public String getCriteriaName() {
+		return CRITERIA_NAME;
+	}
+
+	@Override
+	public String[] getCriteriaContent() {
+		return new String[]{ this.from.toString() };
+	}
 	
 }
 

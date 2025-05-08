@@ -11,6 +11,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class RasSearchCriteriaRunName implements IRasSearchCriteria {
 	
+	private static final String CRITERIA_NAME = "runName";
 	private final String[] runNames;
 
 	public RasSearchCriteriaRunName(@NotNull String... testNameCriteria) {
@@ -39,5 +40,15 @@ public class RasSearchCriteriaRunName implements IRasSearchCriteria {
     public String[] getRunNames() {
         return this.runNames;
     }
+
+	@Override
+	public String getCriteriaName() {
+		return CRITERIA_NAME;
+	}
+
+	@Override
+	public String[] getCriteriaContent() {
+		return this.runNames;
+	}
 }
 	
