@@ -226,7 +226,7 @@ public class RunQueryRoute extends RunsRoute {
 		String group = queryParams.getGroup();
 		String submissionId = queryParams.getSubmissionId();
 		Instant to = queryParams.getToTime();
-		List<String> tags = queryParams.getTags();
+		Set<String> tags = queryParams.getTags();
 
 		Instant defaultFromTime = Instant.now().minus(24,ChronoUnit.HOURS);
 		// from will error if no runname is specified as it is a mandatory field
