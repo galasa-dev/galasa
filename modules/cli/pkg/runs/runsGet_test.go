@@ -354,17 +354,8 @@ func TestRunsGetOfRunNameWhichExistsProducesExpectedDetails(t *testing.T) {
 			}`, RUN_U456)))
     }
 
-	getRunsDetailsInteraction := utils.NewHttpInteraction("/ras/runs/xxx876xxx", http.MethodGet)
-    getRunsDetailsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
-		writer.Header().Set("Content-Type", "application/json")
-		writer.WriteHeader(http.StatusOK)
-
-		writer.Write([]byte(RUN_U456))
-    }
-
     interactions := []utils.HttpInteraction{
         getRunsInteraction,
-		getRunsDetailsInteraction,
     }
 
     server := utils.NewMockHttpServer(t, interactions)
