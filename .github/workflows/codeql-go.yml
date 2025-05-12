@@ -217,6 +217,6 @@ jobs:
     - name: Perform CodeQL Analysis Go
       uses: github/codeql-action/analyze@v3
       with:
-        category: "/language:go/run:${{ github.run_id }}"
+        category: "/language:go"
         checkout_path: ${{ github.workspace }}
         output: results-go.sarif

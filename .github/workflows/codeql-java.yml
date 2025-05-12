@@ -77,6 +77,6 @@ jobs:
     - name: Perform CodeQL Analysis Java
       uses: github/codeql-action/analyze@v3
       with:
-        category: "/language:java-kotlin/run:${{ github.run_id }}"
+        category: "/language:java-kotlin"
         checkout_path: ${{ github.workspace }}
         output: results-java.sarif
