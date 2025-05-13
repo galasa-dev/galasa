@@ -54,6 +54,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    # CodeQL's script will try to create a dependency tree.
+    # The development maven repo needs to be provided as a 
+    # repo where dependencies can be found or it won't be 
+    # able to create a dependency tree.
+    - name: Manually replace sourceMaven value in gradle.properties files
+      run: |
+        sed -i 's|^sourceMaven=https://repo.maven.apache.org/maven2/|sourceMaven=https://development.galasa.dev/main/maven-repo/obr|' ${{ github.workspace }}/modules/platform/dev.galasa.platform/gradle.properties
+        sed -i 's|^sourceMaven=https://repo.maven.apache.org/maven2/|sourceMaven=https://development.galasa.dev/main/maven-repo/obr|' ${{ github.workspace }}/modules/framework/galasa-parent/gradle.properties
+        sed -i 's|^sourceMaven=https://repo.maven.apache.org/maven2/|sourceMaven=https://development.galasa.dev/main/maven-repo/obr|' ${{ github.workspace }}/modules/extensions/galasa-extensions-parent/gradle.properties
+
     # Even though CodeQL will be configured to not do a build,
     # it will fail to find the Platform unless it has been built,
     # and placed into the local Maven repo.
