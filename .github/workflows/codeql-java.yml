@@ -54,6 +54,19 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    # Even though CodeQL will be configured to not do a build,
+    # it will fail to find the Platform unless it has been built,
+    # and placed into the local Maven repo.
+    - name: Building Platform (manually)
+      shell: bash
+      working-directory: ${{ github.workspace }}/modules/platform
+      run: |
+        gradle -b dev.galasa.platform/build.gradle build check publish --info \
+        --no-daemon --console plain \
+        -PsourceMaven=https://repo.maven.apache.org/maven2/ \
+        -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+        -PtargetMaven=/home/runner/.m2/repository
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
