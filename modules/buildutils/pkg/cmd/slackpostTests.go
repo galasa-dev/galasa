@@ -87,7 +87,7 @@ func slackpostTestsExecute(cmd *cobra.Command, args []string) {
 		total++
 	}
 
-	content := fmt.Sprintf("Galasa Regression Testing - Failure Report\nTest Suite: %s\n%s\nTotal: %v\nPassed: %v, Failed: %v, Failed With Defects: %v, Passed With Defects: %v, Other: %v\n", testSuiteName, testSuiteDesc, total, passed, failed, fwd, pwd, other)
+	content := fmt.Sprintf("Galasa Regression Testing - Status Report\nTest Suite: %s (%s)\nTotal: %v\nPassed: %v, Failed: %v, Failed With Defects: %v, Passed With Defects: %v, Other: %v\n", testSuiteName, testSuiteDesc, total, passed, failed, fwd, pwd, other)
 	for _, f := range failingTests {
 		content += f
 	}
