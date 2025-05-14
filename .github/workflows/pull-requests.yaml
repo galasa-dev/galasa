@@ -330,7 +330,7 @@ jobs:
   codeql-java:
     name: CodeQL scans the Java code
     needs: [download-artifacts-for-codeql]
-    uses: ./.github/workflows/codeql-java-2.yaml
+    uses: ./.github/workflows/codeql-java.yaml
     secrets: inherit
     permissions:
       security-events: write
