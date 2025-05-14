@@ -333,8 +333,10 @@ jobs:
     uses: ./.github/workflows/codeql-java-2.yaml
     secrets: inherit
     permissions:
-      actions: read
       security-events: write
+      packages: read
+      actions: read
+      contents: read
 
   pr-build-cli:
     name: Build the 'cli' module
