@@ -353,7 +353,7 @@ jobs:
     name: CodeQL scans the Golang code
     if: ${{ needs.get-changed-modules.outputs.buildutils_changed || needs.get-changed-modules.outputs.cli_changed }}
     needs: [get-changed-modules, download-artifacts-for-codeql]
-    uses: ./.github/workflows/codeql-go.yaml
+    uses: ./.github/workflows/codeql-go.yml
     secrets: inherit
     permissions:
       security-events: write
