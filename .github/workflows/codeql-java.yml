@@ -63,6 +63,7 @@ jobs:
         sed -i 's|^sourceMaven=https://repo.maven.apache.org/maven2/|sourceMaven=https://development.galasa.dev/main/maven-repo/obr|' ${{ github.workspace }}/modules/platform/dev.galasa.platform/gradle.properties
         sed -i 's|^sourceMaven=https://repo.maven.apache.org/maven2/|sourceMaven=https://development.galasa.dev/main/maven-repo/obr|' ${{ github.workspace }}/modules/framework/galasa-parent/gradle.properties
         sed -i 's|^sourceMaven=https://repo.maven.apache.org/maven2/|sourceMaven=https://development.galasa.dev/main/maven-repo/obr|' ${{ github.workspace }}/modules/extensions/galasa-extensions-parent/gradle.properties
+        sed -i 's|^sourceMaven=https://repo.maven.apache.org/maven2/|sourceMaven=https://development.galasa.dev/main/maven-repo/obr|' ${{ github.workspace }}/modules/ivts/galasa-ivts-parent/buildSrc/gradle.properties
 
     # Even though CodeQL will be configured to not do a build,
     # it will fail to find the Platform unless it has been built,
