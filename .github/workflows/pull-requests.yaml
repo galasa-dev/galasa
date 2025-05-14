@@ -332,6 +332,9 @@ jobs:
     needs: [download-artifacts-for-codeql]
     uses: ./.github/workflows/codeql-java-2.yaml
     secrets: inherit
+    permissions:
+      actions: read
+      security-events: write
 
   pr-build-cli:
     name: Build the 'cli' module
