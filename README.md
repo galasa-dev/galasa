@@ -1,5 +1,5 @@
-# Galasa
-This is a home for all of the Galasa Java code.
+# Galasa 
+This is the main source code repository for the Galasa open source project.
 
 ## Code structure
 - [`modules`](./modules/) - The code
