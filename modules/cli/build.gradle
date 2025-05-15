@@ -10,6 +10,12 @@
 //   So we need to get hold of a generator tool so we can 
 //
 
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'distribution' // For creating the zip distribution
+}
+
 // Note: The following version is picked up by the build process and fed
 // into the code, so the code knows what versions of galasa it should be 
 // dealing with. Do not mess with the `def {variableName}` part of the following 
@@ -25,7 +31,9 @@ repositories {
     }
     mavenCentral()
 }
-apply plugin: 'java'
+
+def group = "dev.galasa"
+
 dependencies {
     // Use dev.galasa.platform to obtain the versions
     implementation platform('dev.galasa:dev.galasa.platform:0.42.0')
@@ -40,8 +48,6 @@ dependencies {
     // The REST interface spec is always the same version as the Galasa version.
     compileOnly group: "dev.galasa", name: "dev.galasa.framework.api.openapi", ext: "yaml"
 }
-
-
 
 task downloadRawDependencies(type: Copy) {
     // Download the dependencies onto the local disk.
@@ -69,5 +75,103 @@ task installJarsIntoTemplates(type: Copy) {
 }
 description = 'Galasa CLI'
 
+// Define the zip task
+task createCliDocumentationZip(type: Zip) {
+    archiveFileName = "dev.galasa.cli.docs.zip" // Name of the generated zip file
+    destinationDirectory = file("$buildDir") // Where to create the zip
+    from("$buildDir/cli-docs") {        // The folder to zip.  Relative path.
+        include '**/*'
+    }
+}
+
+// Configure publishing
+publishing {
+    
+    publications {
+        maven(MavenPublication) {
+            // Artifact is the zip file created by our task
+            artifact "$buildDir/dev.galasa.cli.docs.zip"
+
+            // Define the pom.xml (metadata)
+            pom {
+                name = 'galasactl tool syntax documentation'
+                description = 'The documentation for the galasactl tool is contained within the zip file.'
+                groupId = "dev.galasa"
+                artifactId = 'dev.galasa.cli.docs' // Artifact ID for the zip
+                version = galasaVersion
+            }
+        }
+    }
+    repositories {
+        maven {
+            url  = "$targetMaven"
+            
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv("GITHUB_ACTOR")
+                    password System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+}
 
 
+
+task generateCliSyntaxDocumentation(type: Exec) {
+
+    String osName = System.getProperty("os.name").toLowerCase()
+    String osArch = System.getProperty("os.arch").toLowerCase()
+
+    println "Operating System: $osName"
+    println "CPU Architecture: $osArch"
+
+    def targetOs = ""
+    def suffix = ""
+    if (osName.contains("win")) {
+        targetOs = "windows"
+        suffix = ".exe"
+    } else if (osName.contains("mac")) {
+        targetOs = "darwin"
+    } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
+        targetOs = "linux"
+    } else {
+        targetOs = "unknown"
+    }
+
+    def targetArch = ""
+    if (osArch.contains("amd64") || osArch.contains("x86_64")) {
+        targetArch = "x86_64"
+    } else if (osArch.contains("x86")) {
+        targetArch = "x86_64"
+    } else if (osArch.contains("arm64") || osArch.contains("aarch64")) {
+        targetArch = "arm64"
+    } else if (osArch.contains("arm")) {
+        targetArch = "arm"
+    } else {
+        targetArch = "unknown"
+    }
+    executable "bin/gendocs-galasactl-$targetOs-$targetArch$suffix" 
+    args = ["build/cli-docs"]
+}
+
+task createDocsTargetFolder() {
+    project.mkdir "build/cli-docs"
+}
+
+tasks.named('generateCliSyntaxDocumentation') {
+    dependsOn createDocsTargetFolder
+}
+
+tasks.named('createCliDocumentationZip') {
+    dependsOn generateCliSyntaxDocumentation
+}
+
+// Add a task dependency.  This makes sure the zip is created before publishing.
+tasks.named('publish') {
+    dependsOn createCliDocumentationZip
+}
+
+tasks.named('publishMavenPublicationToMavenRepository') {
+    dependsOn createCliDocumentationZip
+}
