@@ -12,11 +12,7 @@
 name: "CodeQL Advanced (Java)"
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-    paths: [ "modules/platform/**", "modules/wrapping/**", "modules/gradle/**", "modules/maven/**", "modules/framework/**", "modules/extensions/**", "modules/managers/**", "modules/obr/**", "modules/ivts/**" ]
+  workflow_call:
 
   schedule:
     - cron: '41 13 * * 0'
@@ -53,6 +49,21 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Download All 'dev.galasa' Artifacts
+      if: ${{ github.event_name == 'workflow_call' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: all-artifacts
+        path: /home/runner/.m2/repository/dev/galasa
+
+    # Download from the last Main Build Orchestrator
+    # - name: Download All 'dev.galasa' Artifacts
+    #   if: github.event_name == 'schedule'
+    #   uses: actions/download-artifact@v4
+    #   with:
+    #     name: all-artifacts
+    #     path: /home/runner/.m2/repository/dev/galasa
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
