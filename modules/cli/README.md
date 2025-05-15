@@ -20,7 +20,7 @@ Note: If you change this to a non-existent and/or non-initialised folder path, t
 you will have to create and re-initialise the folder using the `galasactl local init` command again. That command will respect the `GALASA_HOME` variable and will create the folder and initialise it were it not to exist.
 
 ### GALASA_TOKEN
-In order to authenticate with a Galasa ecosystem, you will need to create a personal access token from the Galasa web user interface.
+In order to authenticate with a Galasa service, you will need to create a personal access token from the Galasa web user interface.
 
 Once a personal access token has been created, you can either store the token in the galasactl.properties file within your Galasa home folder, or set the token as an environment variable named `GALASA_TOKEN`.
 
