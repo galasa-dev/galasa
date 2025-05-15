@@ -5,7 +5,7 @@
 #
 
 # Rather than keep tabs on all of the source folders, lets create the list of things we are dependent upon 
-# dynamically using a cool shell script.
+# dynamically using a cool shell script
 
 # A list of source files. This is completely expanded-out.
 # Evaluates to something like this: ./pkg/tokensformatter/tokensFormatter.go ./pkg/tokensformatter/summaryFormatter_test.go
