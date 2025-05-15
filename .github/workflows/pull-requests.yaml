@@ -171,6 +171,205 @@ jobs:
       changed: ${{ needs.get-changed-modules.outputs.ivts_changed }}
       artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
+  download-artifacts-for-codeql:
+    name: Download artifacts for Advanced CodeQL Java scan
+    runs-on: ubuntu-latest
+    needs: [get-changed-modules, find-artifacts, pr-build-ivts]
+
+    steps:
+      - name: Download Platform from this Workflow Run
+        continue-on-error: true
+        if: ${{ needs.get-changed-modules.outputs.platform_changed == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: /home/runner/.m2/repository
+
+      - name: Download Platform from last Main Workflow Run
+        if: ${{ needs.get-changed-modules.outputs.platform_changed  == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: platform
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Download Wrapping from this Workflow Run
+        continue-on-error: true
+        if: ${{ needs.get-changed-modules.outputs.wrapping_changed == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: wrapping
+          path: /home/runner/.m2/repository
+
+      - name: Download Wrapping from last Main Workflow Run
+        if: ${{ needs.get-changed-modules.outputs.wrapping_changed == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: wrapping
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Download Gradle from this Workflow Run
+        continue-on-error: true
+        if: ${{ needs.get-changed-modules.outputs.gradle_changed == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: gradle
+          path: /home/runner/.m2/repository
+
+      - name: Download Gradle from last Main Workflow Run
+        if: ${{ needs.get-changed-modules.outputs.gradle_changed == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: gradle
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Download Maven from this Workflow Run
+        continue-on-error: true
+        if: ${{ needs.get-changed-modules.outputs.maven_changed == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: maven
+          path: /home/runner/.m2/repository
+
+      - name: Download Maven from last Main Workflow Run
+        if: ${{ needs.get-changed-modules.outputs.maven_changed == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: maven
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Download Framework from this Workflow Run
+        continue-on-error: true
+        if: ${{ needs.get-changed-modules.outputs.framework_changed == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: framework
+          path: /home/runner/.m2/repository
+
+      - name: Download Framework from last Main Workflow Run
+        if: ${{ needs.get-changed-modules.outputs.framework_changed == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: framework
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Download Extensions from this Workflow Run
+        continue-on-error: true
+        if: ${{ needs.get-changed-modules.outputs.extensions_changed == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: extensions
+          path: /home/runner/.m2/repository
+
+      - name: Download Extensions from last Main Workflow Run
+        if: ${{ needs.get-changed-modules.outputs.extensions_changed == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: extensions
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Download Managers from this Workflow Run
+        continue-on-error: true
+        if: ${{ needs.get-changed-modules.outputs.managers_changed == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: managers
+          path: /home/runner/.m2/repository
+
+      - name: Download Managers from last Main Workflow Run
+        if: ${{ needs.get-changed-modules.outputs.managers_changed == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: managers
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Download OBR from this Workflow Run
+        continue-on-error: true
+        if: ${{ needs.get-changed-modules.outputs.obr_changed == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: obr
+          path: /home/runner/.m2/repository
+
+      - name: Download OBR from last Main Workflow Run
+        if: ${{ needs.get-changed-modules.outputs.obr_changed == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: obr
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Download IVTs from this Workflow Run
+        continue-on-error: true
+        if: ${{ needs.get-changed-modules.outputs.ivts_changed == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ivts
+          path: /home/runner/.m2/repository
+
+      - name: Download IVTs from last Main Workflow Run
+        if: ${{ needs.get-changed-modules.outputs.ivts_changed == 'false' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ivts
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Upload All Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-artifacts
+          path: /home/runner/.m2/repository/dev/galasa
+
+  codeql-java:
+    name: CodeQL scans the Java code
+    if: ${{ 
+      needs.get-changed-modules.outputs.platform_changed || 
+      needs.get-changed-modules.outputs.wrapping_changed ||
+      needs.get-changed-modules.outputs.gradle_changed ||
+      needs.get-changed-modules.outputs.maven_changed ||
+      needs.get-changed-modules.outputs.framework_changed ||
+      needs.get-changed-modules.outputs.extensions_changed ||
+      needs.get-changed-modules.outputs.managers_changed ||
+      needs.get-changed-modules.outputs.obr_changed ||
+      needs.get-changed-modules.outputs.ivts_changed
+      }}
+    needs: [get-changed-modules, download-artifacts-for-codeql]
+    uses: ./.github/workflows/codeql-java.yml
+    secrets: inherit
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
+  codeql-go:
+    name: CodeQL scans the Golang code
+    if: ${{ needs.get-changed-modules.outputs.buildutils_changed || needs.get-changed-modules.outputs.cli_changed }}
+    needs: [get-changed-modules, download-artifacts-for-codeql]
+    uses: ./.github/workflows/codeql-go.yml
+    secrets: inherit
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
   pr-build-cli:
     name: Build the 'cli' module
     needs: [get-changed-modules, find-artifacts, pr-build-obr]
@@ -191,3 +390,14 @@ jobs:
       - name: End of Pull Request build
         run: |
           echo "Pull Request build was successful"
+
+  # This job is set in the branch protection rules as required to merge a Pull Request.
+  end-codeql-scanning:
+    name: CodeQL scanning was successful
+    needs: [codeql-java, codeql-go]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: End of CodeQL scanning
+        run: |
+          echo "CodeQL scanning was successful"
