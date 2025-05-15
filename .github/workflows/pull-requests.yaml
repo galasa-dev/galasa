@@ -178,6 +178,7 @@ jobs:
 
     steps:
       - name: Download Platform from this Workflow Run
+        continue-on-error: true
         if: ${{ needs.get-changed-modules.outputs.platform_changed }}
         uses: actions/download-artifact@v4
         with:
@@ -194,6 +195,7 @@ jobs:
           run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
       - name: Download Wrapping from this Workflow Run
+        continue-on-error: true
         if: ${{ needs.get-changed-modules.outputs.wrapping_changed }}
         uses: actions/download-artifact@v4
         with:
@@ -210,6 +212,7 @@ jobs:
           run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
       - name: Download Gradle from this Workflow Run
+        continue-on-error: true
         if: ${{ needs.get-changed-modules.outputs.gradle_changed }}
         uses: actions/download-artifact@v4
         with:
@@ -226,6 +229,7 @@ jobs:
           run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
       - name: Download Maven from this Workflow Run
+        continue-on-error: true
         if: ${{ needs.get-changed-modules.outputs.maven_changed }}
         uses: actions/download-artifact@v4
         with:
@@ -242,6 +246,7 @@ jobs:
           run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
       - name: Download Framework from this Workflow Run
+        continue-on-error: true
         if: ${{ needs.get-changed-modules.outputs.framework_changed }}
         uses: actions/download-artifact@v4
         with:
@@ -258,6 +263,7 @@ jobs:
           run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
       - name: Download Extensions from this Workflow Run
+        continue-on-error: true
         if: ${{ needs.get-changed-modules.outputs.extensions_changed }}
         uses: actions/download-artifact@v4
         with:
@@ -274,6 +280,7 @@ jobs:
           run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
       - name: Download Managers from this Workflow Run
+        continue-on-error: true
         if: ${{ needs.get-changed-modules.outputs.managers_changed }}
         uses: actions/download-artifact@v4
         with:
@@ -290,6 +297,7 @@ jobs:
           run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
       - name: Download OBR from this Workflow Run
+        continue-on-error: true
         if: ${{ needs.get-changed-modules.outputs.obr_changed }}
         uses: actions/download-artifact@v4
         with:
@@ -306,6 +314,7 @@ jobs:
           run-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
       - name: Download IVTs from this Workflow Run
+        continue-on-error: true
         if: ${{ needs.get-changed-modules.outputs.ivts_changed }}
         uses: actions/download-artifact@v4
         with:
