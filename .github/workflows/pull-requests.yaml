@@ -179,14 +179,14 @@ jobs:
     steps:
       - name: Download Platform from this Workflow Run
         continue-on-error: true
-        if: ${{ needs.get-changed-modules.outputs.platform_changed }}
+        if: ${{ needs.get-changed-modules.outputs.platform_changed == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: platform
           path: /home/runner/.m2/repository
 
       - name: Download Platform from last Main Workflow Run
-        if: ${{ ! needs.get-changed-modules.outputs.platform_changed }}
+        if: ${{ needs.get-changed-modules.outputs.platform_changed  == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: platform
@@ -196,14 +196,14 @@ jobs:
 
       - name: Download Wrapping from this Workflow Run
         continue-on-error: true
-        if: ${{ needs.get-changed-modules.outputs.wrapping_changed }}
+        if: ${{ needs.get-changed-modules.outputs.wrapping_changed == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: wrapping
           path: /home/runner/.m2/repository
 
       - name: Download Wrapping from last Main Workflow Run
-        if: ${{ ! needs.get-changed-modules.outputs.wrapping_changed }}
+        if: ${{ needs.get-changed-modules.outputs.wrapping_changed == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: wrapping
@@ -213,14 +213,14 @@ jobs:
 
       - name: Download Gradle from this Workflow Run
         continue-on-error: true
-        if: ${{ needs.get-changed-modules.outputs.gradle_changed }}
+        if: ${{ needs.get-changed-modules.outputs.gradle_changed == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: gradle
           path: /home/runner/.m2/repository
 
       - name: Download Gradle from last Main Workflow Run
-        if: ${{ ! needs.get-changed-modules.outputs.gradle_changed }}
+        if: ${{ needs.get-changed-modules.outputs.gradle_changed == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: gradle
@@ -230,14 +230,14 @@ jobs:
 
       - name: Download Maven from this Workflow Run
         continue-on-error: true
-        if: ${{ needs.get-changed-modules.outputs.maven_changed }}
+        if: ${{ needs.get-changed-modules.outputs.maven_changed == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: maven
           path: /home/runner/.m2/repository
 
       - name: Download Maven from last Main Workflow Run
-        if: ${{ ! needs.get-changed-modules.outputs.maven_changed }}
+        if: ${{ needs.get-changed-modules.outputs.maven_changed == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: maven
@@ -247,14 +247,14 @@ jobs:
 
       - name: Download Framework from this Workflow Run
         continue-on-error: true
-        if: ${{ needs.get-changed-modules.outputs.framework_changed }}
+        if: ${{ needs.get-changed-modules.outputs.framework_changed == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: framework
           path: /home/runner/.m2/repository
 
       - name: Download Framework from last Main Workflow Run
-        if: ${{ ! needs.get-changed-modules.outputs.framework_changed }}
+        if: ${{ needs.get-changed-modules.outputs.framework_changed == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: framework
@@ -264,14 +264,14 @@ jobs:
 
       - name: Download Extensions from this Workflow Run
         continue-on-error: true
-        if: ${{ needs.get-changed-modules.outputs.extensions_changed }}
+        if: ${{ needs.get-changed-modules.outputs.extensions_changed == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: extensions
           path: /home/runner/.m2/repository
 
       - name: Download Extensions from last Main Workflow Run
-        if: ${{ ! needs.get-changed-modules.outputs.extensions_changed }}
+        if: ${{ needs.get-changed-modules.outputs.extensions_changed == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: extensions
@@ -281,14 +281,14 @@ jobs:
 
       - name: Download Managers from this Workflow Run
         continue-on-error: true
-        if: ${{ needs.get-changed-modules.outputs.managers_changed }}
+        if: ${{ needs.get-changed-modules.outputs.managers_changed == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: managers
           path: /home/runner/.m2/repository
 
       - name: Download Managers from last Main Workflow Run
-        if: ${{ ! needs.get-changed-modules.outputs.managers_changed }}
+        if: ${{ needs.get-changed-modules.outputs.managers_changed == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: managers
@@ -298,14 +298,14 @@ jobs:
 
       - name: Download OBR from this Workflow Run
         continue-on-error: true
-        if: ${{ needs.get-changed-modules.outputs.obr_changed }}
+        if: ${{ needs.get-changed-modules.outputs.obr_changed == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: obr
           path: /home/runner/.m2/repository
 
       - name: Download OBR from last Main Workflow Run
-        if: ${{ ! needs.get-changed-modules.outputs.obr_changed }}
+        if: ${{ needs.get-changed-modules.outputs.obr_changed == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: obr
@@ -315,14 +315,14 @@ jobs:
 
       - name: Download IVTs from this Workflow Run
         continue-on-error: true
-        if: ${{ needs.get-changed-modules.outputs.ivts_changed }}
+        if: ${{ needs.get-changed-modules.outputs.ivts_changed == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: ivts
           path: /home/runner/.m2/repository
 
       - name: Download IVTs from last Main Workflow Run
-        if: ${{ ! needs.get-changed-modules.outputs.ivts_changed }}
+        if: ${{ needs.get-changed-modules.outputs.ivts_changed == 'false' }}
         uses: actions/download-artifact@v4
         with:
           name: ivts
