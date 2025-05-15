@@ -268,7 +268,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cli-docs-gradle-build-log
-          path: modules/cli/build.log
+          path: modules/cli/build-docs.log
           retention-days: 7
 
       - name: Upload cli docs built artifacts
