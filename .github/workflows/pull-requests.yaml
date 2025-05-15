@@ -341,7 +341,7 @@ jobs:
       needs.get-changed-modules.outputs.ivts_changed
       }}
     needs: [get-changed-modules, download-artifacts-for-codeql]
-    uses: ./.github/workflows/codeql-java.yaml
+    uses: ./.github/workflows/codeql-java.yml
     secrets: inherit
     permissions:
       security-events: write
