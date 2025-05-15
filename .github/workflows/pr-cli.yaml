@@ -257,7 +257,7 @@ jobs:
         working-directory: ./modules/cli
         run : |
           set -o pipefail
-          gradle -b build.gradle publish --info \
+          gradle -b build.gradle publish --info --warning-mode all \
           --no-daemon --console plain \
           -PsourceMaven=/home/runner/.m2/repository \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \

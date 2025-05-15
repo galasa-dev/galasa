@@ -163,6 +163,17 @@ jobs:
         run : |
           make all
 
+      # Generate the CLI syntax markdown documentation into a zip, published to maven
+      - name: Package and publish the CLI syntax documentation
+        working-directory: ./modules/cli
+        run : |
+          set -o pipefail
+          gradle -b build.gradle publish --info --warning-mode all \
+          --no-daemon --console plain \
+          -PsourceMaven=/home/runner/.m2/repository \
+          -PcentralMaven=https://repo.maven.apache.org/maven2/ \
+          -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build-docs.log      
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
