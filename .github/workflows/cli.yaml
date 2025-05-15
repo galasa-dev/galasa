@@ -172,7 +172,7 @@ jobs:
           --no-daemon --console plain \
           -PsourceMaven=/home/runner/.m2/repository \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
-          -PtargetMaven=${{ github.workspace }}/repo 2>&1 | tee build-docs.log    
+          -PtargetMaven=${{ github.workspace }}/modules/cli/repo 2>&1 | tee build-docs.log    
 
       - name: Upload CLI docs build log
         if: failure()
@@ -187,7 +187,7 @@ jobs:
         with:
           name: cli
           path: modules/cli/repo
-          
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
