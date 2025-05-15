@@ -390,3 +390,14 @@ jobs:
       - name: End of Pull Request build
         run: |
           echo "Pull Request build was successful"
+
+  # This job is set in the branch protection rules as required to merge a Pull Request.
+  end-codeql-scanning:
+    name: CodeQL scanning was successful
+    needs: [codeql-java, codeql-go]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: End of CodeQL scanning
+        run: |
+          echo "CodeQL scanning was successful"
