@@ -57,13 +57,30 @@ jobs:
         name: all-artifacts
         path: /home/runner/.m2/repository/dev/galasa
 
-    # Download from the last Main Build Orchestrator
-    # - name: Download All 'dev.galasa' Artifacts
-    #   if: github.event_name == 'schedule'
-    #   uses: actions/download-artifact@v4
-    #   with:
-    #     name: all-artifacts
-    #     path: /home/runner/.m2/repository/dev/galasa
+    # If this is running on a schedule, we need to
+    # download from the last Main Build Orchestrator
+    - name: Find Artifacts
+      if: ${{ github.event_name == 'schedule' }}
+      id: find-artifacts
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        echo "workflow_for_artifact_download_id=$(gh run list \
+          --repo ${{ github.repository }} \
+          --workflow 'Main Build Orchestrator' \
+          --branch main \
+          --status success \
+          --limit 1 \
+          --json databaseId | jq '.[0].databaseId')" >> $GITHUB_OUTPUT
+
+    - name: Download All 'dev.galasa' Artifacts
+      if: ${{ github.event_name == 'schedule' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: all-artifacts
+        path: /home/runner/.m2/repository/dev/galasa
+        github-token: ${{ github.token }}
+        run-id: ${{ steps.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
