@@ -59,7 +59,7 @@ jobs:
 
     # If this is running on a schedule, we need to
     # download from the last Main Build Orchestrator
-    - name: Find Artifacts
+    - name: Find Artifacts from the last successful Main Build
       if: ${{ github.event_name == 'schedule' }}
       id: find-artifacts
       env:
