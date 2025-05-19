@@ -113,6 +113,26 @@ public abstract class RunsRoute extends ProtectedRoute {
         return run;
     }
 
+    /**
+     * 
+     * @param groupId The groupId of a group of runs.
+     * @return A list of runs matching the provided groupId
+     * @throws ResultArchiveStoreException
+     * @throws InternalServletException
+     */
+    protected @NotNull List<IRunResult> getRunsByGroupId(@NotNull String groupId) throws ResultArchiveStoreException, InternalServletException {
+
+        HashSet<IRunResult> runsSet = new HashSet<>();
+
+        for(IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
+            runsSet.addAll(directoryService.getRunsByGroupName(groupId)); 
+        }
+
+        List <IRunResult> groupRuns = new ArrayList<>(runsSet);
+        return groupRuns;
+
+    }
+
     protected List<String> getRequestors() throws ResultArchiveStoreException{
 		HashSet<String> requestorSet = new HashSet<>();
 		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {

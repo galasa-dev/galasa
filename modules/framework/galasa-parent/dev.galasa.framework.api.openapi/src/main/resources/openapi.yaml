@@ -2140,6 +2140,82 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         '403':
           $ref: "#/components/responses/Forbidden"
+    put:
+      summary: Update the status of a test run by group id
+      description: |
+        Updates the status of a test run in order to cancel it.
+
+        To cancel the run, put a value such that the status is "finished" and the result is "cancelled".
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: putRasRunStatusByGroupId
+      tags:
+      - Runs API
+      parameters:
+        - name: groupid
+          in: path
+          description: Group Id of the runs to be cancelled
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRunStatusRequest'
+      responses:
+        '200':
+          description: Runs already finished
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                runsAlreadyFinished:
+                  value:
+                    error_code: 5430
+                    error_message: "Info: When trying to cancel the run group 'group-one', no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store."
+                  summary: An information message indicating there are no active test runs under provided group id.
+        '202':
+          description: Run status updated
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                cancelRun:
+                  value: The request to cancel run with group id xxgroupxx has been received.
+                  summary: Cancel run action success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidRequestPayload:
+                  value:
+                    error_code: 5431
+                    error_message: "E: Error occurred. The field ''result'' in the request body is invalid. The ''result'' value ''badRequest'' supplied is not supported. Supported values are: ''cancelled''."
+                  summary: The provided request body is invalid
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                genericerror:
+                  value:
+                    error_code: 5000
+                    error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
+                  summary: An Error occurred when trying to access the endpoint
 ##################################################################################
 # Secrets API
 ##################################################################################

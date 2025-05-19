@@ -44,4 +44,14 @@ public class RasServletTest extends BaseServletTest {
 
 		return generateTestData(runId, testStructure, runLog);
 	}
+
+	protected List<IRunResult> generateTestData(String runId, String runName, String runLog, String requestor, String groupId) {
+		TestStructure testStructure = new TestStructure();
+		testStructure.setRunName(runName);
+		testStructure.setRequestor(requestor);
+		testStructure.setGroup(groupId);
+		testStructure.setResult("Passed");
+
+		return generateTestData(runId, testStructure, runLog);
+	}
 }

@@ -24,13 +24,13 @@ import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.RunStatusUpdate;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRunResult;
-import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
@@ -73,9 +73,10 @@ public class RunDetailsRoute extends RunsRoute {
       String runId = getRunIdFromPath(pathInfo);
       String runName = getRunNameFromRunId(runId);
 
+      RunStatusUpdate runStatusUpdate = new RunStatusUpdate(framework);
       RunActionJson runAction = getUpdatedRunActionFromRequestBody(request);
       
-      return getResponseBuilder().buildResponse(request, response, "text/plain", updateRunStatus(runName, runAction), HttpServletResponse.SC_ACCEPTED);
+      return getResponseBuilder().buildResponse(request, response, "text/plain", updateRunStatus(runName, runAction, runStatusUpdate), HttpServletResponse.SC_ACCEPTED);
    } 
 
 
@@ -100,7 +101,7 @@ public class RunDetailsRoute extends RunsRoute {
       return response;
    } 
 
-   private String updateRunStatus(String runName, RunActionJson runAction) throws InternalServletException, ResultArchiveStoreException {
+   private String updateRunStatus(String runName, RunActionJson runAction, RunStatusUpdate runStatusUpdate) throws InternalServletException, ResultArchiveStoreException {
       String responseBody = "";
       RunActionStatus status = RunActionStatus.getfromString(runAction.getStatus());
       String result = runAction.getResult();
@@ -109,11 +110,11 @@ public class RunDetailsRoute extends RunsRoute {
          ServletError error = new ServletError(GAL5045_INVALID_STATUS_UPDATE_REQUEST, runAction.getStatus());
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       } else if (status == RunActionStatus.QUEUED) {
-         resetRun(runName);
+         runStatusUpdate.resetRun(runName);
          logger.info("Run reset by external source.");
          responseBody = String.format("The request to reset run %s has been received.", runName);
       } else if (status == RunActionStatus.FINISHED) {
-         cancelRun(runName, result);
+         runStatusUpdate.cancelRun(runName, result);
          logger.info("Run cancelled by external source.");
          responseBody = String.format("The request to cancel run %s has been received.", runName);
       } 
@@ -144,52 +145,13 @@ public class RunDetailsRoute extends RunsRoute {
       String runName = run.getTestStructure().getRunName();
       return runName;
    }
-
+   
    private RunActionJson getUpdatedRunActionFromRequestBody(HttpServletRequest request) throws IOException {
       ServletInputStream body = request.getInputStream();
       String jsonString = new String(body.readAllBytes(), StandardCharsets.UTF_8);
       body.close();
       RunActionJson runAction = gson.fromJson(jsonString, RunActionJson.class);
       return runAction;
-   }
-
-   private void resetRun(String runName) throws InternalServletException {
-      boolean isMarkedRequeued = false;
-      try {
-         // If a run is marked as requeued, the DSS record for the run will be given an interrupt reason.
-         // This call would return false if the run could not be found in the DSS.
-         isMarkedRequeued = framework.getFrameworkRuns().markRunInterrupted(runName, Result.REQUEUED);
-      } catch (FrameworkException e){
-         ServletError error = new ServletError(GAL5047_UNABLE_TO_RESET_RUN, runName);
-         throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
-      }
-
-      if (!isMarkedRequeued) {
-         ServletError error = new ServletError(GAL5049_UNABLE_TO_RESET_COMPLETED_RUN, runName);
-         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-      }
-   }
-
-   private void cancelRun(String runName, String result) throws InternalServletException {
-      boolean isMarkedCancelled = false;
-      if (!result.equalsIgnoreCase("cancelled")){
-         ServletError error = new ServletError(GAL5046_UNABLE_TO_CANCEL_RUN_INVALID_RESULT, runName, result);
-         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-      }
-
-      try {
-         // If a run is marked as cancelled, the DSS record for the run will have been updated with an interrupt reason.
-         // When a run could not be found in the DSS, the run may have already finished and its DSS record was cleared.
-         isMarkedCancelled = framework.getFrameworkRuns().markRunInterrupted(runName, Result.CANCELLED);
-      } catch (FrameworkException e) {
-         ServletError error = new ServletError(GAL5048_UNABLE_TO_CANCEL_RUN, runName);
-         throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
-      }
-
-      if (!isMarkedCancelled) {
-         ServletError error = new ServletError(GAL5050_UNABLE_TO_CANCEL_COMPLETED_RUN, runName);
-         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-      }
    }
 
 }

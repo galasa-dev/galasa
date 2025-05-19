@@ -30,6 +30,8 @@ public enum ServletErrorMessage {
     GAL5048_UNABLE_TO_CANCEL_RUN                      (5048, "E: Error occurred when trying to cancel the run ''{0}''. Report the problem to your Galasa Ecosystem owner."),
     GAL5049_UNABLE_TO_RESET_COMPLETED_RUN             (5049, "E: Error occurred when trying to reset the run ''{0}''. The run has already completed."),
     GAL5050_UNABLE_TO_CANCEL_COMPLETED_RUN            (5050, "E: Error occurred when trying to cancel the run ''{0}''. The run has already completed."),
+    GAL5430_GROUP_RUNS_ALREADY_FINISHED               (5430, "I: When trying to cancel the run group ''{0}'', no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store."),
+    GAL5431_INVALID_CANCEL_UPDATE_REQUEST             (5431, "E: Error occurred. The field ''result'' in the request body is invalid. The ''result'' value ''{0}'' supplied is not supported. Supported values are: ''cancelled''."),
 
     // RunArtifactsList...
     GAL5007_ERROR_RETRIEVING_ARTIFACTS_LIST           (5007,"E: Error retrieving artifacts for run with identifier ''{0}''."),
@@ -192,7 +194,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5429;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5432;
 
 
     private String template ;
