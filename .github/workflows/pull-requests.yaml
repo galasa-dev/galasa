@@ -339,16 +339,16 @@ jobs:
   codeql-java:
     name: CodeQL scans the Java code
     if: ${{ 
-      needs.get-changed-modules.outputs.platform_changed || 
-      needs.get-changed-modules.outputs.wrapping_changed ||
-      needs.get-changed-modules.outputs.gradle_changed ||
-      needs.get-changed-modules.outputs.maven_changed ||
-      needs.get-changed-modules.outputs.framework_changed ||
-      needs.get-changed-modules.outputs.extensions_changed ||
-      needs.get-changed-modules.outputs.managers_changed ||
-      needs.get-changed-modules.outputs.obr_changed ||
-      needs.get-changed-modules.outputs.ivts_changed
-      }}
+        needs.get-changed-modules.outputs.platform_changed == 'true' || 
+        needs.get-changed-modules.outputs.wrapping_changed == 'true' ||
+        needs.get-changed-modules.outputs.gradle_changed == 'true' ||
+        needs.get-changed-modules.outputs.maven_changed == 'true' ||
+        needs.get-changed-modules.outputs.framework_changed == 'true' ||
+        needs.get-changed-modules.outputs.extensions_changed == 'true' ||
+        needs.get-changed-modules.outputs.managers_changed == 'true' ||
+        needs.get-changed-modules.outputs.obr_changed == 'true' ||
+        needs.get-changed-modules.outputs.ivts_changed == 'true' 
+        }}
     needs: [get-changed-modules, download-artifacts-for-codeql]
     uses: ./.github/workflows/codeql-java.yml
     secrets: inherit
@@ -360,7 +360,10 @@ jobs:
 
   codeql-go:
     name: CodeQL scans the Golang code
-    if: ${{ needs.get-changed-modules.outputs.buildutils_changed || needs.get-changed-modules.outputs.cli_changed }}
+    if: ${{ 
+        needs.get-changed-modules.outputs.buildutils_changed == 'true' || 
+        needs.get-changed-modules.outputs.cli_changed == 'true' 
+        }}
     needs: [get-changed-modules, download-artifacts-for-codeql]
     uses: ./.github/workflows/codeql-go.yml
     secrets: inherit
