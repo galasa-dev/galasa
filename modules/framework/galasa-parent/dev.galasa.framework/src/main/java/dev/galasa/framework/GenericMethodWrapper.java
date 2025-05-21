@@ -52,6 +52,11 @@ public class GenericMethodWrapper {
         this.type = type;
     }
 
+    private int getRunLogLine() {
+        int runLogLine = Thread.currentThread().getStackTrace()[1].getLineNumber();
+        return runLogLine;
+    }
+
     /**
      * Run the supplied method
      * 
@@ -61,6 +66,8 @@ public class GenericMethodWrapper {
      * @throws TestRunException The failure thrown by the test run
      */
     public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, GenericMethodWrapper testMethod) throws TestRunException {
+        int runLogStart = getRunLogLine();
+        
         try {
             // Associate the wrapped method with a test method if a test method has been passed in
             Method testExecutionMethod = null;
