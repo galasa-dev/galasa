@@ -18,18 +18,14 @@ jobs:
       - name: Checkout 'galasa' repo
         uses: actions/checkout@v4
 
-      - name: Configure git
+      - name: Configure git, Clone target repo, Commit and Push changes
         env:
           JADE_EMAIL: ${{ secrets.JADE_EMAIL }}
-        run: |
-          git config --global user.name "jadecarino"
-          git config --global user.email "${JADE_EMAIL}"
-
-      - name: Clone target repo, Commit and Push changes
-        env:
           PAT: ${{ secrets.JADE_TOKEN }}
         run: |
-          git clone https://jadecarino:${{ env.PAT }}@github.com/galasa-dev/playground.git
+          git config --global user.name "jadecarino"
+          git config --global user.email "${{ env.JADE_EMAIL }}"
+          git clone https://github.com/galasa-dev/playground.git
           cd playground
           echo "This is a test file." > test.txt
           git add .
