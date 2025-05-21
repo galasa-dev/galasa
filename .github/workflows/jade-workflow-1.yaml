@@ -23,17 +23,13 @@ jobs:
           git config --global user.name "galasa-team"
           git config --global user.email "galasa-team@gmail.com"
 
-      - name: Clone target repo (galasa-dev/playground)
+      - name: Clone target repo, Commit and Push changes
         env:
-          PAT: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+          PAT: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN_AUTH_IN_WORKFLOWS }}
         run: |
           git clone https://galasa-team:${PAT}@github.com/galasa-dev/playground.git
           cd playground
           echo "This is a test file." > test.txt
-
-      - name: Commit and push changes
-        run: |
-          cd playground
           git add .
           git commit -m "Update playground repo from workflow run in 'galasa'"
           git push origin main
