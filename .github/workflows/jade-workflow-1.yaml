@@ -29,7 +29,7 @@ jobs:
         env:
           PAT: ${{ secrets.JADE_TOKEN }}
         run: |
-          git clone https://jadecarino:${PAT}@github.com/galasa-dev/playground.git
+          git clone https://jadecarino:${{ env.PAT }}@github.com/galasa-dev/playground.git
           cd playground
           echo "This is a test file." > test.txt
           git add .
