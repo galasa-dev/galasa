@@ -29,7 +29,8 @@ jobs:
           git config user.email
           git clone https://jadecarino:${{ env.PAT }}@github.com/galasa-dev/playground.git
           cd playground
+          git checkout -B feature-1
           echo "This is a test file." > test.txt
           git add .
-          git commit -m "Update playground repo from workflow run in 'galasa'"
-          git push origin main
+          git commit -s -S -m "Update playground repo from workflow run in 'galasa'"
+          git push origin feature-1
