@@ -1,0 +1,39 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Jade Test Workflow
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  push-to-playground-repo:
+    name: Push to 'playground' repo
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Checkout 'galasa' repo
+        uses: actions/checkout@v4
+
+      - name: Configure git
+        run: |
+          git config --global user.name "galasa-team"
+          git config --global user.email "galasa-team@gmail.com"
+
+      - name: Clone target repo (galasa-dev/playground)
+        env:
+          PAT: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          git clone https://galasa-team:${PAT}@github.com/galasa-dev/playground.git
+          cd playground
+          echo "This is a test file." > test.txt
+
+      - name: Commit and push changes
+        run: |
+          cd playground
+          git add .
+          git commit -m "Update playground repo from workflow run in 'galasa'"
+          git push origin main
