@@ -217,11 +217,13 @@ public class NetworkThread extends Thread {
             // This advances through the message buffer to skip the header bytes after DATA-TYPE.
             buffer.get(new byte[4]);
             
+            boolean isSSCPLUDisplay = false;
             Inbound3270Message inbound3270Message = null;
             if (tn3270eHeader == DT_SSCP_LU_DATA) {
                 logger.trace("SSCP_LU_DATA received");
                 logger.trace("Received message header: " + reportCommandSoFar());
                 logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
+                isSSCPLUDisplay = true;
 
                 // Convert the SSCP-LU-DATA datastream into a 3270 message
                 // This makes the assumption that SSCP-LU-DATA datastreams are unformatted and do not
@@ -235,6 +237,7 @@ public class NetworkThread extends Thread {
                 throw new NetworkException("Was expecting a TN3270E datastream header of zeros - " + reportCommandSoFar());
             }
 
+            this.screen.setIsSSCPLUDisplay(isSSCPLUDisplay);
             this.screen.processInboundMessage(inbound3270Message);
         }
     }
