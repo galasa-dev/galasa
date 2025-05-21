@@ -22,13 +22,12 @@ jobs:
         env:
           JADE_EMAIL: ${{ secrets.JADE_EMAIL }}
           PAT: ${{ secrets.JADE_TOKEN }}
-          WRITE_GITHUB_PACKAGES_TOKEN: ${{ secrets.WRITE_GITHUB_PACKAGES_TOKEN }}
         run: |
           git config --global user.name "jadecarino"
-          git config --global user.email "${JADE_EMAIL}"
+          git config --global user.email "${{ env.JADE_EMAIL }}"
           git config user.name
           git config user.email
-          git clone https://jadecarino:${PAT}@github.com/galasa-dev/playground.git
+          git clone https://jadecarino:${{ env.PAT }}@github.com/galasa-dev/playground.git
           cd playground
           echo "This is a test file." > test.txt
           git add .
