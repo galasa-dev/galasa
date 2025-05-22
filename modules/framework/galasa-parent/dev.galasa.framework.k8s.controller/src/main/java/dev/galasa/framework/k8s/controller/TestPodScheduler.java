@@ -63,6 +63,7 @@ public class TestPodScheduler implements Runnable {
     private static final String CPS_ENV_VAR   = "GALASA_CONFIG_STORE";
     private static final String DSS_ENV_VAR   = "GALASA_DYNAMICSTATUS_STORE";
     private static final String CREDS_ENV_VAR = "GALASA_CREDENTIALS_STORE";
+    private static final String EXTRA_BUNDLES_ENV_VAR = "GALASA_EXTRA_BUNDLES";
 
     private final Log                        logger           = LogFactory.getLog(getClass());
 
@@ -395,8 +396,7 @@ public class TestPodScheduler implements Runnable {
         args.add("boot.jar");
         args.add("--obr");
         args.add("file:galasa.obr");
-        args.add("--bootstrap");
-        args.add(settings.getBootstrap());
+        args.add("--no-bootstrap");
         args.add("--run");
         args.add(runName);
         if (isTraceEnabled) {
@@ -453,18 +453,12 @@ public class TestPodScheduler implements Runnable {
         envs.add(createValueEnv(RAS_TOKEN_ENV, env.getenv(RAS_TOKEN_ENV)));
         envs.add(createValueEnv(EVENT_TOKEN_ENV, env.getenv(EVENT_TOKEN_ENV)));
         envs.add(createValueEnv(ENCRYPTION_KEYS_PATH_ENV, env.getenv(ENCRYPTION_KEYS_PATH_ENV)));
-        String cpsEnvValue = env.getenv(CPS_ENV_VAR);
-        if (cpsEnvValue != null && !cpsEnvValue.isBlank()) {
-            envs.add(createValueEnv(CPS_ENV_VAR, cpsEnvValue));
-        }
-        String dssEnvValue = env.getenv(DSS_ENV_VAR);
-        if (dssEnvValue != null && !dssEnvValue.isBlank()) {
-            envs.add(createValueEnv(DSS_ENV_VAR, dssEnvValue));
-        }
-        String credsEnvValue = env.getenv(CREDS_ENV_VAR);
-        if (credsEnvValue != null && !credsEnvValue.isBlank()) {
-            envs.add(createValueEnv(CREDS_ENV_VAR, credsEnvValue));
-        }        
+
+        addEnvVarToContainerIfPresent(CPS_ENV_VAR, envs);
+        addEnvVarToContainerIfPresent(DSS_ENV_VAR, envs);
+        addEnvVarToContainerIfPresent(CREDS_ENV_VAR, envs);
+        addEnvVarToContainerIfPresent(EXTRA_BUNDLES_ENV_VAR, envs);
+
         //
         // envs.add(createSecretEnv("GALASA_SERVER_USER", "galasa-secret",
         // "galasa-server-username"));
@@ -479,6 +473,13 @@ public class TestPodScheduler implements Runnable {
         // envs.add(createFieldEnv("GALASA_ENGINE_ID", "metadata.name"));
         // envs.add(createFieldEnv("GALASA_K8S_NODE", "spec.nodeName"));
         return envs;
+    }
+
+    private void addEnvVarToContainerIfPresent(String envVar, List<V1EnvVar> envVarsToAddTo) {
+        String envValue = env.getenv(envVar);
+        if (envValue != null && !envValue.isBlank()) {
+            envVarsToAddTo.add(createValueEnv(envVar, envValue));
+        }
     }
 
     public static @NotNull List<V1Pod> getPods(CoreV1Api api, Settings settings) throws K8sControllerException {

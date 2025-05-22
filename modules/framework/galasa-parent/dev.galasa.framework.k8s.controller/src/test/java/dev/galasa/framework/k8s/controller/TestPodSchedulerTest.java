@@ -149,7 +149,7 @@ public class TestPodSchedulerTest {
 
         V1Container testContainer = actualContainers.get(0);
         assertThat(testContainer.getCommand()).containsExactly("java");
-        assertThat(testContainer.getArgs()).contains("-jar", "boot.jar", "--run", settings.getBootstrap());
+        assertThat(testContainer.getArgs()).contains("-jar", "boot.jar", "--run");
 
         // Check that the encryption keys have been mounted to the correct location
         List<V1VolumeMount> testContainerVolumeMounts = testContainer.getVolumeMounts();
@@ -314,6 +314,43 @@ public class TestPodSchedulerTest {
         assertThat(envs).contains(credsEnvVarObject);
     }
 
+    @Test
+    public void testCanCreatePodWithExtraBundles() throws K8sControllerException {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String EXTRA_BUNDLES_ENV_VAR = "GALASA_EXTRA_BUNDLES";
+        String extraBundles = "my.first.bundle,my.other.bundle";
+
+        mockEnvironment.setenv(EXTRA_BUNDLES_ENV_VAR, extraBundles);
+
+        MockK8sController controller = new MockK8sController();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        V1ConfigMap mockConfigMap = createMockConfigMap();
+        MockSettings settings = new MockSettings(mockConfigMap, controller, null);
+        settings.init();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
+
+        // Then...
+        V1EnvVar extraBundlesEnvVar = new V1EnvVar();
+        extraBundlesEnvVar.setName(EXTRA_BUNDLES_ENV_VAR);
+        extraBundlesEnvVar.setValue(extraBundles);
+
+        List<V1EnvVar> envs = pod.getSpec().getContainers().get(0).getEnv();
+        assertThat(envs).contains(extraBundlesEnvVar);
+    }
+
     @After
     public void clearCounters() {
         CollectorRegistry.defaultRegistry.clear();
@@ -347,8 +384,7 @@ public class TestPodSchedulerTest {
                 "boot.jar", 
                 "--obr",
                 "file:galasa.obr",
-                "--bootstrap",
-                "http://my.server/bootstrap",
+                "--no-bootstrap",
                 "--run",
                 "myRunName",
                 "--trace"
