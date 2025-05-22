@@ -62,6 +62,9 @@ Options are:
 -h | --help : Display this help text
 --github-repo The GitHub repository the Pull Request was opened on
 --pr-number The number of the Pull Request
+--test : (no parameters) Used when the caller is testing the script.
+--test-input-file <file> : Specifies an input file to draw data from instead of github. Only used in test mode.
+--test-output-file <file> : Specifies an output file to write results to for checking. Only used in test mode.
 EOF
 }
 
@@ -70,6 +73,9 @@ EOF
 #-----------------------------------------------------------------------------------------
 github_repo=""
 pr_number=""
+is_test="false"
+test_input_file=""
+test_output_file=""
 while [ "$1" != "" ]; do
     case $1 in
         -h | --help )       usage
@@ -84,6 +90,17 @@ while [ "$1" != "" ]; do
                             shift
                             ;;
 
+        --test )            is_test="true"
+                            ;;
+
+        --test-input-file ) test_input_file="$2"
+                            shift
+                            ;;
+
+        --test-output-file ) test_output_file="$2"
+                            shift
+                            ;;
+
         * )                 error "Unexpected argument $1"
                             usage
                             exit 1
@@ -91,113 +108,142 @@ while [ "$1" != "" ]; do
     shift
 done
 
+
+#-----------------------------------------------------------------------------------------                   
+# Set up some controlling data structures with data.
+#-----------------------------------------------------------------------------------------                   
+declare -A someAssociativeMap
+rc=$?
+if [[ "$rc" != "0" ]]; then 
+    error "The version of bash you are using does not support associative arrays. This could mean your bash is down-level, or you are running on a mac."
+    exit 1
+fi
+
+# An associative array of modules, to the path prefix the file uses.
+declare -A moduleToPrefix
+moduleToPrefix["buildutils"]="modules/buildutils"
+moduleToPrefix["platform"]="modules/platform"
+moduleToPrefix["wrapping"]="modules/wrapping"
+moduleToPrefix["gradle"]="modules/gradle"
+moduleToPrefix["maven"]="modules/maven"
+moduleToPrefix["framework"]="modules/framework"
+moduleToPrefix["extensions"]="modules/extensions"
+moduleToPrefix["managers"]="modules/managers"
+moduleToPrefix["obr"]="modules/obr"
+moduleToPrefix["ivts"]="modules/ivts"
+moduleToPrefix["cli"]="modules/cli"
+moduleToPrefix["docs"]="docs/"
+moduleToPrefix["workflows"]=".github/"
+moduleToPrefix["restApi"]="modules/framework/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"
+
+# An associative array of modules to the comma-separated list of flags they should set to true if the module has changed.
+declare -A moduleToFlagList
+moduleToFlagList["buildutils"]="BUILDUTILS_CHANGED"
+moduleToFlagList["platform"]="PLATFORM_CHANGED,WRAPPING_CHANGED,GRADLE_CHANGED,MAVEN_CHANGED,FRAMEWORK_CHANGED,EXTENSIONS_CHANGED,MANAGERS_CHANGED,OBR_CHANGED"
+moduleToFlagList["wrapping"]="WRAPPING_CHANGED"
+moduleToFlagList["gradle"]="GRADLE_CHANGED"
+moduleToFlagList["maven"]="MAVEN_CHANGED"
+moduleToFlagList["framework"]="FRAMEWORK_CHANGED"
+moduleToFlagList["extensions"]="EXTENSIONS_CHANGED"
+moduleToFlagList["managers"]="MANAGERS_CHANGED"
+moduleToFlagList["obr"]="OBR_CHANGED"
+moduleToFlagList["ivts"]="IVTS_CHANGED"
+moduleToFlagList["cli"]="CLI_CHANGED,DOCS_CHANGED"
+moduleToFlagList["docs"]="DOCS_CHANGED"
+moduleToFlagList["workflows"]="DOCS_CHANGED"
+moduleToFlagList["restApi"]="FRAMEWORK_CHANGED,CLI_CHANGED,DOCS_CHANGED"
+
+# An associative array of flags we want to output a value for
+declare -A flagToValue
+flagToValue["BUILDUTILS_CHANGED"]="false"
+flagToValue["PLATFORM_CHANGED"]="false"
+flagToValue["WRAPPING_CHANGED"]="false"
+flagToValue["GRADLE_CHANGED"]="false"
+flagToValue["MAVEN_CHANGED"]="false"
+flagToValue["FRAMEWORK_CHANGED"]="false"
+flagToValue["EXTENSIONS_CHANGED"]="false"
+flagToValue["MANAGERS_CHANGED"]="false"
+flagToValue["OBR_CHANGED"]="false"
+flagToValue["IVTS_CHANGED"]="false"
+flagToValue["CLI_CHANGED"]="false"
+flagToValue["DOCS_CHANGED"]="false"
+
+changed_files_in_pr=()
+
+
 #-----------------------------------------------------------------------------------------                   
 # Functions
 #-----------------------------------------------------------------------------------------  
 
 function get_paths_changed_in_pr() {
-
     h1 "Getting the file paths changed in Pull Request number ${pr_number} for GitHub repo ${github_repo}" 
 
     # Extract changed module names from changed files from GitHub CLI output
     mapfile -t changed_files_in_pr < <(gh pr diff --repo ${github_repo} ${pr_number} --name-only)
 
-    h2 "Files changed:"
+    export changed_files_in_pr
+}
 
-    modules_changed_in_pr=()
+function module_changed() {
+    module=$1
+    info "Marking that module $module changed."
+    
+    flagList=${moduleToFlagList[$module]}
+    for flagName in ${flagList//,/ }; do
+        info "    Setting flag $flagName to be true"
+        flagToValue["$flagName"]="true"
+    done
+}
+
+function process_paths() {
+    h1 "Processing list of changed files"
+
     for changed_file in "${changed_files_in_pr[@]}"; do
-        echo "$changed_file"
-        module=$(echo "$changed_file" | cut -d'/' -f2)
-        modules_changed_in_pr+=("$module")
-    done
+        info "Processing $changed_file"
 
-    # Remove possible duplicates from array of changed modules
-    declare -A unique_module_map
+        for module in "${!moduleToPrefix[@]}"
+        do
+            
+            pathPrefix=${moduleToPrefix[$module]}
 
-    unique_modules_found_in_pr=()
-    for module in "${modules_changed_in_pr[@]}"; do
-    if [[ -z "${unique_module_map[$module]}" ]]; then
-        unique_modules_found_in_pr+=("$module")
-        unique_module_map[$module]=1
-    fi
-    done
-
-    h2 "Modules changed:"
-    echo "${unique_modules_found_in_pr[@]}"
-}
-
-function get_changed_modules_and_set_in_environment() {
-
-    h1 "Finding changed modules and setting environment variables that can be used in the GitHub Actions workflows..."
-
-    for module in "${unique_modules_found_in_pr[@]}"; do
-        if [[ "$module" == "platform" ]]; then
-            echo "PLATFORM_CHANGED=true" >> $GITHUB_OUTPUT
-            # Also rebuild modules that depend on the Platform...
-            echo "WRAPPING_CHANGED=true" >> $GITHUB_OUTPUT
-            echo "GRADLE_CHANGED=true" >> $GITHUB_OUTPUT
-            echo "MAVEN_CHANGED=true" >> $GITHUB_OUTPUT
-            echo "FRAMEWORK_CHANGED=true" >> $GITHUB_OUTPUT
-            echo "EXTENSIONS_CHANGED=true" >> $GITHUB_OUTPUT
-            echo "MANAGERS_CHANGED=true" >> $GITHUB_OUTPUT
-            echo "OBR_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "buildutils" ]]; then
-            echo "BUILDUTILS_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "wrapping" ]]; then
-            echo "WRAPPING_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "gradle" ]]; then
-            echo "GRADLE_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "maven" ]]; then
-            echo "MAVEN_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "framework" ]]; then
-            echo "FRAMEWORK_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "extensions" ]]; then
-            echo "EXTENSIONS_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "managers" ]]; then
-            echo "MANAGERS_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "obr" ]]; then
-            echo "OBR_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "ivts" ]]; then
-            echo "IVTS_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
-        if [[ "$module" == "cli" ]]; then
-            echo "CLI_CHANGED=true" >> $GITHUB_OUTPUT
-            continue
-        fi
+            # info "Checking against module $module 's path prefix of $pathPrefix"
+            if [[ "$changed_file" == $pathPrefix* ]]; then 
+                module_changed "$module"
+            fi
+        done
     done
 }
 
-# Set outputs to false as default value.
-echo "BUILDUTILS_CHANGED=false" >> $GITHUB_OUTPUT
-echo "PLATFORM_CHANGED=false" >> $GITHUB_OUTPUT
-echo "WRAPPING_CHANGED=false" >> $GITHUB_OUTPUT
-echo "GRADLE_CHANGED=false" >> $GITHUB_OUTPUT
-echo "MAVEN_CHANGED=false" >> $GITHUB_OUTPUT
-echo "FRAMEWORK_CHANGED=false" >> $GITHUB_OUTPUT
-echo "EXTENSIONS_CHANGED=false" >> $GITHUB_OUTPUT
-echo "MANAGERS_CHANGED=false" >> $GITHUB_OUTPUT
-echo "OBR_CHANGED=false" >> $GITHUB_OUTPUT
-echo "IVTS_CHANGED=false" >> $GITHUB_OUTPUT
-echo "CLI_CHANGED=false" >> $GITHUB_OUTPUT
+function output_flags() {
+    h1 "Writing out flag values to the workflow..."   
+    target=$1   
 
-get_paths_changed_in_pr
-get_changed_modules_and_set_in_environment
+    for flag in "${!flagToValue[@]}"
+    do
+        flagValue=${flagToValue["$flag"]}
+        info "Flag: $flag = $flagValue"
+        echo "$flag=$flagValue" >> $target
+    done
+}
+
+function get_paths_from_test_input_file() {
+    input_file=$1
+    h2 "Reading test input data from $input_file"
+    while read line; do 
+        echo "Test input line: $line"
+        changed_files_in_pr+=("$line")
+    done < $input_file
+}
+
+if [[ "$is_test" == "true" ]]; then 
+    # The caller is trying to test the script.
+    get_paths_from_test_input_file $test_input_file
+    output_target=$test_output_file
+
+else
+    output_target="$GITHUB_OUTPUT"
+    get_paths_changed_in_pr
+fi
+
+process_paths
+output_flags $output_target

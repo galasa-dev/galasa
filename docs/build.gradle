@@ -1,0 +1,112 @@
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'distribution' // For creating the zip distribution
+} 
+
+// Note: The following version is picked up by the build process and fed
+// into the code, so the code knows what versions of galasa it should be 
+// dealing with. Do not mess with the `def {variableName}` part of the following 
+// lines, only change the versions we rely upon.
+version="0.42.0"
+
+repositories {
+    gradlePluginPortal()
+    mavenLocal()
+    maven {
+        url = "$sourceMaven"
+    }
+    mavenCentral()
+}
+
+def group = "dev.galasa"
+
+// --------------------------------------------------------------------------------------------
+// Download the CLI syntax reference information, and combine it into the documentation source
+// so it can all be built together.
+// --------------------------------------------------------------------------------------------
+dependencies {
+    // We need the swagger generator to generate API documentation from the openapi.yaml file
+    // https://mvnrepository.com/artifact/io.swagger.codegen.v3/swagger-codegen-cli
+    compileOnly ('dev.galasa:dev.galasa.cli.docs:'+version+'@zip')
+}
+
+task downloadRawDependencies(type: Copy) {
+    // Download the dependencies onto the local disk.
+    from configurations.compileClasspath
+    into 'build/dependencies'
+    dependsOn configurations.compileClasspath
+}
+
+task importAndUnpackCliReferenceDocsZip(type: Copy) {
+
+    def zipPath = "build/dependencies/dev.galasa.cli.docs-${version}.zip"
+    def zipFile = file(zipPath)
+    def outputDir = file("content/docs/reference/cli-syntax")
+    from zipTree(zipFile)
+    into outputDir
+
+    dependsOn downloadRawDependencies
+}
+
+
+// --------------------------------------------------------------------------------------------
+// Turn the .md content into an HTML site
+// --------------------------------------------------------------------------------------------
+task mkdocs(type: Exec) {
+     commandLine 'mkdocs', 'build', '--clean', '--no-strict', '--theme', 'material', 
+                '--use-directory-urls', '--site-dir', 'build/site', '--verbose'
+}
+
+// --------------------------------------------------------------------------------------------
+// Publish the built documentation into a zip.
+// --------------------------------------------------------------------------------------------
+task packageIntoAZip(type: Zip) {
+    from 'build/site'
+    destinationDirectory = file('build/libs')
+    archiveFileName = "galasa-docs-"+version+".zip"
+}
+
+// Make up some dependencies, so things run in the correct order.
+task buildDocsZip(dependsOn: [clean,mkdocs,packageIntoAZip]) {
+    dependsOn importAndUnpackCliReferenceDocsZip
+    doLast{
+    }
+}
+
+// Configure publishing to maven local site.
+publishing {
+    
+    publications {
+        maven(MavenPublication) {
+            // Artifact is the zip file created by our task
+            artifact "$buildDir/libs/galasa-docs-"+version+".zip"
+
+            // Define the pom.xml (metadata)
+            pom {
+                name = 'Galasa Documentation'
+                description = 'The documentation for the galasactl open source project'
+                groupId = "dev.galasa"
+                artifactId = 'dev.galasa.docs' // Artifact ID for the zip
+                version = version
+            }
+        }
+    }
+    repositories {
+        maven {
+            url  = "$targetMaven"
+            
+            if ("$targetMaven".startsWith('http')) {
+                credentials {
+                    username System.getenv("GITHUB_ACTOR")
+                    password System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+}
+
+tasks.named('publishMavenPublicationToMavenRepository') {
+    dependsOn buildDocsZip
+}
