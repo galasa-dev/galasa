@@ -118,7 +118,6 @@ jobs:
         env: 
           GITHUB_PAT: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN_AUTH_IN_WORKFLOWS }}
         run: |- 
-          chmod +x galasa-dev/galasa-docs-preview.git
           cd galasa-docs-preview
           git config --global user.name galasa-team
           git config --global user.email galasa.team@gmail.com
