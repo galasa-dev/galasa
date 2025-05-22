@@ -173,4 +173,47 @@ public class TestRunRasActionProcessor {
         assertThat(testStructure2.getStatus()).isEqualTo(newStatus);
         assertThat(testStructure2.getResult()).isEqualTo(interruptReason2);
     }
+
+    @Test
+    public void testProcessRasActionsWithNullRunIdIgnoresRun() throws Exception {
+        // Given...
+        String runId1 = "this-is-a-run-id";
+        String runName = "RUN1";
+        String status1 = TestRunLifecycleStatus.RUNNING.toString();
+        String newStatus = TestRunLifecycleStatus.FINISHED.toString();
+        String interruptReason1 = Result.REQUEUED;
+
+        // Set a null run ID - this run should be ignored
+        String runId2 = null;
+        String status2 = TestRunLifecycleStatus.GENERATING.toString();
+        String interruptReason2 = Result.CANCELLED;
+
+        RunRasAction mockRasAction1 = new RunRasAction(runId1, newStatus, interruptReason1);
+        RunRasAction mockRasAction2 = new RunRasAction(runId2, newStatus, interruptReason2);
+        List<RunRasAction> rasActions = List.of(mockRasAction1, mockRasAction2);
+
+        MockFileSystem mockFileSystem = new MockFileSystem();
+        MockIResultArchiveStore mockRas = new MockIResultArchiveStore(runId1, mockFileSystem);
+
+        List<IRunResult> runResults = List.of(
+            createMockRunResult(runId1, status1),
+            createMockRunResult(runId2, status2)
+        );
+
+        MockResultArchiveStoreDirectoryService mockDirectoryService = new MockResultArchiveStoreDirectoryService(runResults);
+        mockRas.addDirectoryService(mockDirectoryService);
+
+        IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(mockRas);
+
+        // When...
+        rasActionProcessor.processRasActions(runName, rasActions);
+
+        // Then...
+        List<TestStructure> testStructureHistory = mockRas.getTestStructureHistory();
+        assertThat(testStructureHistory).hasSize(1);
+
+        TestStructure testStructure1 = testStructureHistory.get(0);
+        assertThat(testStructure1.getStatus()).isEqualTo(newStatus);
+        assertThat(testStructure1.getResult()).isEqualTo(interruptReason1);
+    }
 }

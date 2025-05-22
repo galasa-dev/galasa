@@ -338,15 +338,19 @@ public class FrameworkRuns implements IFrameworkRuns {
     private void interruptRun(IRun run, String interruptReason) throws DynamicStatusStoreException {
         String runName = run.getName();
 
-        // Add a RAS action to the run's existing RAS actions so that the RAS records for any re-runs can be updated correctly
-        List<RunRasAction> rasActions = new ArrayList<>(run.getRasActions());
-        RunRasAction rasActionToAdd = new RunRasAction(run.getRasRunId(), TestRunLifecycleStatus.FINISHED.toString(), interruptReason);
-        rasActions.add(rasActionToAdd);
-
-        String encodedRasActions = encodeRasActionsToBase64(rasActions);
-
         Map<String, String> propertiesToSet = new HashMap<>();
-        propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
+
+        String runId = run.getRasRunId();
+        if (runId != null) {
+            // Add a RAS action to the run's existing RAS actions so that the RAS records for any re-runs can be updated correctly
+            List<RunRasAction> rasActions = new ArrayList<>(run.getRasActions());
+            RunRasAction rasActionToAdd = new RunRasAction(runId, TestRunLifecycleStatus.FINISHED.toString(), interruptReason);
+            rasActions.add(rasActionToAdd);
+            String encodedRasActions = encodeRasActionsToBase64(rasActions);
+
+            propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
+        }
+
         propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), interruptReason);
 
         this.dss.put(propertiesToSet);

@@ -38,19 +38,21 @@ public class RunRasActionProcessor implements IRunRasActionProcessor {
         for (RunRasAction rasAction : rasActions) {
             try {
                 String runId = rasAction.getRunId();
-                TestStructure testStructure = getRunTestStructure(runId);
-                if (testStructure != null) {
-    
-                    // Set the status and result for the run if it doesn't already have the desired status
-                    String runStatus = testStructure.getStatus();
-                    String desiredRunStatus = rasAction.getDesiredRunStatus();
-                    if (!desiredRunStatus.equals(runStatus)) {
-                        testStructure.setStatus(desiredRunStatus);
-                        testStructure.setResult(rasAction.getDesiredRunResult());
-    
-                        rasStore.updateTestStructure(runId, testStructure);
-                    } else {
-                        logger.info("Run already has status '" + desiredRunStatus + "', will not update its RAS record");
+                if (runId != null) {
+                    TestStructure testStructure = getRunTestStructure(runId);
+                    if (testStructure != null) {
+        
+                        // Set the status and result for the run if it doesn't already have the desired status
+                        String runStatus = testStructure.getStatus();
+                        String desiredRunStatus = rasAction.getDesiredRunStatus();
+                        if (!desiredRunStatus.equals(runStatus)) {
+                            testStructure.setStatus(desiredRunStatus);
+                            testStructure.setResult(rasAction.getDesiredRunResult());
+        
+                            rasStore.updateTestStructure(runId, testStructure);
+                        } else {
+                            logger.info("Run already has status '" + desiredRunStatus + "', will not update its RAS record");
+                        }
                     }
                 }
             } catch (ResultArchiveStoreException ex) {
