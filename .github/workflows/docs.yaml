@@ -50,7 +50,6 @@ jobs:
           gradle-home-cache-excludes: |
             caches/modules-2/files-2.1/dev.galasa/**
 
-
       - name: Install python packages
         run: |
           pip install mkdocs-material 
@@ -96,39 +95,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Checkout galasa-docs-preview repository
-        uses: actions/checkout@v4  
-        with:
-          repository: galasa-dev/galasa-docs-preview
-          path: galasa-docs-preview
+      - name: Configure git user
+        run: |
+          git config --global user.name "galasa-team"
+          git config --global user.email "galasa.team@gmail.com"
+          git config user.email
+          git config user.name
+
+      - name: Clone galasa-docs-preview repository
+        env: 
+          GITHUB_PAT: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN_AUTH_IN_WORKFLOWS }}
+        run: |
+          git clone https://galasa-team:${{ env.GITHUB_PAT }}@github.com/galasa-dev/galasa-docs-preview.git
 
       - name: Clean out the docs which are currently in the main branch of the preview repo.
-        run: |-           
-          rm -fr galasa-docs-preview/docs
+        working-directory: galasa-docs-preview
+        run: |
+          rm -fr docs
 
       - name: Download the docs zip we built
-        id: download--built-docs
+        id: download-built-docs
         continue-on-error: false
         uses: actions/download-artifact@v4
         with:
           name: galasa-docs-site
           path: galasa-docs-preview/docs
 
-      - name: Push the changes to the preview git repo.
-        env: 
-          GITHUB_PAT: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN_AUTH_IN_WORKFLOWS }}
-        run: |- 
-          cd galasa-docs-preview
-          git config --global user.name galasa-team
-          git config --global user.email galasa.team@gmail.com
-          git config --global credential.username galasa-team
-          git config user.email
-          git config user.name
+      - name: Push the changes to the preview git repo
+        working-directory: galasa-docs-preview
+        run: |
           git add .
           git commit -m "Automated update from the galasa-dev/galasa repo." \
                      -m "Source branch ${{ env.BRANCH }} git head commit id: ${{ github.event.head_commit.id }}" \
                      -m "Change: ${{ github.event.head_commit.message }}"
-          git push https://galasa-team:${{ env.GITHUB_PAT }}@github.com/galasa-dev/galasa-docs-preview.git main
+          git push origin main
 
   report-failure:
     # Skip this job for forks
