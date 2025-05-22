@@ -104,6 +104,10 @@ public class Screen {
     private final int                               alternateColumns;
     private final int                               alternateRows;
 
+    // Determines whether the screen is displaying data for a session between a System Services Control Point (SSCP) and a Logical Unit (LU), forming an SSCP-LU session.
+    // 
+    // An SSCP manages network resources and coordinates the initiation and termination of sessions between applications, while an LU identifies a client session where
+    // end users and applications can exchange data. See the 3270 manager's README for more details about SSCP-LU sessions.
     private boolean                                 isSSCPLUDisplay = false;
 
     private int                                     initialCursorPosition = 0;
