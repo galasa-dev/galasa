@@ -851,6 +851,32 @@ public class FrameworkRunsTest {
     }
 
     @Test
+    public void testCancelRunWithoutRunIdSetsInterruptReasonOnly() throws Exception {
+        // Given...
+        MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
+        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        String runName = "mytestrun1";
+        String status = "allocated";
+
+        // Put a run-related property into the DSS to show that the run with the given name exists in the DSS
+        mockDss.put("run." + runName + ".status", status);
+
+        // When...
+        boolean isRunMarkedCancelled = frameworkRuns.markRunInterrupted(runName, Result.CANCELLED);
+
+        // Then...
+        assertThat(isRunMarkedCancelled).isTrue();
+        assertThat(mockDss.get("run." + runName + ".interruptReason")).isEqualTo(Result.CANCELLED);
+
+        // We expect the 'rasActions' property to be empty
+        assertThat(mockDss.get("run." + runName + ".rasActions")).isNull();
+    }
+
+    @Test
     public void testCancelNonExistantRunReturnsFalse() throws Exception {
         // Given...
         MockDSSStore mockDss = new MockDSSStore(new HashMap<>());

@@ -62,7 +62,9 @@ public class InterruptedRunEventProcessor implements Runnable {
                 } else {
                     String runName = interruptEvent.getRunName();
                     List<RunRasAction> rasActions = interruptEvent.getRasActions();
-                    rasActionProcessor.processRasActions(runName, rasActions);
+                    if (rasActions != null && !rasActions.isEmpty()) {
+                        rasActionProcessor.processRasActions(runName, rasActions);
+                    }
                     
                     String interruptReason = interruptEvent.getInterruptReason();
                     switch (interruptReason) {
