@@ -73,7 +73,7 @@ func GetRuns(
 	}
 
 	if err == nil && group != "" {
-		group, err = validateGroupname(group)
+		group, err = validateGroupName(group)
 	}
 
 	if err == nil && resultParameter != "" {

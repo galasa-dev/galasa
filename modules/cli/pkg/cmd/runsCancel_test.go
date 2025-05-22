@@ -55,7 +55,23 @@ func TestRunsCancelNoFlagsReturnsError(t *testing.T) {
 	assert.NotNil(t, err)
 
 	// Check what the user saw is reasonable.
-	checkOutput("", "Error: required flag(s) \"name\" not set", factory, t)
+	checkOutput("", "Error: at least one of the flags in the group [name group] is required", factory, t)
+}
+
+func TestRunsCancelMutuallyExclusiveFlagsReturnsError(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+
+	var args []string = []string{"runs", "cancel", "--name", "name", "--group", "group"}
+
+	// When...
+	err := Execute(factory, args)
+
+	// Then...
+	assert.NotNil(t, err)
+
+	// Check what the user saw is reasonable.
+	checkOutput("", "Error: if any flags in the group [group name] are set none of the others can be; [group name] were all set", factory, t)
 }
 
 func TestRunsCancelNameFlagReturnsOk(t *testing.T) {

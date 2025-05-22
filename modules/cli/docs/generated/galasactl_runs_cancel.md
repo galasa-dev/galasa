@@ -13,8 +13,9 @@ galasactl runs cancel [flags]
 ### Options
 
 ```
-  -h, --help          Displays the options for the 'runs cancel' command.
-      --name string   the name of the test run to cancel
+      --group string   A flag indicating the name of the test group to cancel. Cannot be used with --name
+  -h, --help           Displays the options for the 'runs cancel' command.
+      --name string    A flag indicating the name of the test run to cancel. Cannot be used with --group
 ```
 
 ### Options inherited from parent commands

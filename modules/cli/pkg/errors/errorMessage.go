@@ -315,6 +315,7 @@ var (
 	GALASA_ERROR_RESET_RUN_FAILED                        = NewMessageType("GAL1133E: Error resetting run '%v'. Reason: '%s'", 1133, STACK_TRACE_WANTED)
 	GALASA_ERROR_RESET_RUN_RESPONSE_PARSING              = NewMessageType("GAL1134E: The runs reset operation failed. Unable to process the error information returned from the server.", 1134, STACK_TRACE_WANTED)
 	GALASA_ERROR_CANCEL_RUN_FAILED                       = NewMessageType("GAL1135E: Error cancelling run '%v'. Reason: '%s'", 1135, STACK_TRACE_WANTED)
+	GALASA_ERROR_CANCEL_GROUPED_RUNS_FAILED              = NewMessageType("GAL1247E: Error cancelling runs with group name '%v'. Reason: '%s'", 1247, STACK_TRACE_WANTED)
 	GALASA_ERROR_CANCEL_RUN_RESPONSE_PARSING             = NewMessageType("GAL1136E: The runs cancel operation failed. Unable to process the error information returned from the server.", 1136, STACK_TRACE_WANTED)
 	GALASA_ERROR_GHERKIN_URL_BAD_EXTENSION               = NewMessageType("GAL1137E: The gherkin URL supplied is invalid. '%s' does not end with the expected '.feature' extension.", 1137, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_GHERKIN_URL_BAD_URL_PREFIX              = NewMessageType("GAL1138E: Unsupported gherkin URL %s. Acceptable values start with 'file://'", 1138, STACK_TRACE_NOT_WANTED)
@@ -464,4 +465,7 @@ var (
 	GALASA_INFO_FOLDER_DOWNLOADED_TO = NewMessageType("GAL2501I: Downloaded %d artifacts to folder '%s'\n", 2501, STACK_TRACE_NOT_WANTED)
 	GALASA_INFO_RUNS_RESET_SUCCESS   = NewMessageType("GAL2503I: The request to reset run '%s' has been accepted by the server.\n", 2503, STACK_TRACE_NOT_WANTED)
 	GALASA_INFO_RUNS_CANCEL_SUCCESS  = NewMessageType("GAL2504I: The request to cancel run '%s' has been accepted by the server.\n", 2504, STACK_TRACE_NOT_WANTED)
+
+	GALASA_INFO_GROUP_RUNS_CANCEL_SUCCESS   = NewMessageType("GAL2505I: The request to cancel runs with group name '%s' has been accepted by the server.\n", 2505, STACK_TRACE_NOT_WANTED)
+	GALASA_INFO_GROUP_RUNS_ALREADY_FINISHED = NewMessageType("GAL2506I: The request to cancel runs with group name '%s' has been handled successfully. However, no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store.\n", 2506, STACK_TRACE_NOT_WANTED)
 )
