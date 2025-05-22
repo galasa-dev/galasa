@@ -46,7 +46,7 @@ while [ $count -lt "1" ];  do
     --overridefile ${GALASA_HOME}/overrides.properties \
     --log - --trace 
 
-    echo "Hello $count"
+    # echo "Hello $count"
 done
 
 # galasactl runs submit \

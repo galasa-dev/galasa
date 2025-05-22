@@ -144,3 +144,9 @@ jobs:
     needs: [build-obr]
     uses: ./.github/workflows/cli.yaml
     secrets: inherit
+
+  build-docs:
+    name: Build the documentation
+    needs: [build-cli]
+    uses: ./.github/workflows/docs.yaml
+    secrets: inherit
