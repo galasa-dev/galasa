@@ -33,7 +33,6 @@ func getRunIdFromRunName(runName string,
 	isNeedingMethodDetails := false
 	tags := make([]string, 0)
 
-
 	runsQuery := NewRunsQuery(
 		runName,
 		requestorParameter,
@@ -95,4 +94,12 @@ func createUpdateRunStatusRequest(status string, result string) *galasaapi.Updat
 	updateRunStatusRequest.SetResult(result)
 
 	return updateRunStatusRequest
+}
+
+func createGroupUpdateStatusRequest() *galasaapi.UpdateGroupStatusRequest {
+	var updateGroupStatusRequest = galasaapi.NewUpdateGroupStatusRequest()
+
+	updateGroupStatusRequest.SetResult(CANCEL_RESULT)
+
+	return updateGroupStatusRequest
 }

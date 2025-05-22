@@ -2149,11 +2149,11 @@ paths:
 
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
-      operationId: putRasRunStatusByGroupId
+      operationId: putRunStatusByGroupId
       tags:
       - Runs API
       parameters:
-        - name: groupid
+        - name: groupId
           in: path
           description: Group Id of the runs to be cancelled
           required: true
@@ -2164,19 +2164,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateRunStatusRequest'
+              $ref: '#/components/schemas/UpdateGroupStatusRequest'
       responses:
         '200':
           description: Runs already finished
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIError'
+                type: string
               examples:
                 runsAlreadyFinished:
-                  value:
-                    error_code: 5430
-                    error_message: "Info: When trying to cancel the run group 'group-one', no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store."
+                  value: "Info: When trying to cancel the run group 'group-one', no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store." 
                   summary: An information message indicating there are no active test runs under provided group id.
         '202':
           description: Run status updated
@@ -3010,6 +3008,12 @@ components:
         result:
           type: string
           enum: [nil,"cancelled"]
+    UpdateGroupStatusRequest:
+      type: object
+      properties:
+        result:
+          type: string
+          enum: ["cancelled"]
     User:
       type: object
       properties:

@@ -752,9 +752,9 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doPut(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedString(groupName,200);
+        String expectedString = "Info: When trying to cancel the run group '8149dc91-dabc-461a-b9e8-6f11a4455f59', no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store.";
         assertThat(resp.getStatus()).isEqualTo(200);
-        assertThat(outStream.toString()).isEqualTo(expectedJson);
+        assertThat(outStream.toString()).isEqualTo(expectedString);
     }
 
     @Test
@@ -786,9 +786,9 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doPut(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedString(groupName, 202);
+        String expectedString = "The request to cancel run with group id '8149dc91-dabc-461a-b9e8-6f11a4455f59' has been received.";
         assertThat(resp.getStatus()).isEqualTo(202);
-        assertThat(outStream.toString()).isEqualTo(expectedJson);
+        assertThat(outStream.toString()).isEqualTo(expectedString);
     }
 
     @Test
@@ -820,9 +820,9 @@ public class TestGroupRunsRoute extends RunsServletTest{
         servlet.doPut(req, resp);
 
         // Then...
-        String expectedJson = generateExpectedString(groupName, 202);
+        String expectedString = "The request to cancel run with group id '8149dc91-dabc-461a-b9e8-6f11a4455f59' has been received.";
         assertThat(resp.getStatus()).isEqualTo(202);
-        assertThat(outStream.toString()).isEqualTo(expectedJson);
+        assertThat(outStream.toString()).isEqualTo(expectedString);
     }
 
     @Test

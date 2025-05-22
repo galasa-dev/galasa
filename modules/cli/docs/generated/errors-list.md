@@ -243,10 +243,15 @@ The `galasactl` tool can generate the following errors:
 - GAL1244E: Failed to delete stream {}. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
 - GAL1245E: Failed to delete stream {}. Unexpected http status code {} received from the server. Error details from the server are: '{}'
 - GAL1246E: Failed to delete stream {}. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1247E: Error cancelling runs with group name '{}'. Reason: '{}'
 - GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'
 - GAL2501I: Downloaded {} artifacts to folder '{}'
 
 - GAL2503I: The request to reset run '{}' has been accepted by the server.
 
 - GAL2504I: The request to cancel run '{}' has been accepted by the server.
+
+- GAL2505I: The request to cancel runs with group name '{}' has been accepted by the server.
+
+- GAL2506I: The request to cancel runs with group name '{}' has been handled successfully. However, no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store..
 

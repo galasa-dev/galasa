@@ -12,7 +12,7 @@ import (
 	"github.com/galasa-dev/cli/pkg/utils"
 )
 
-func validateGroupname(groupName string) (string, error) {
+func validateGroupName(groupName string) (string, error) {
 	var err error
 	trimmedName := strings.TrimSpace(groupName)
 

@@ -5,7 +5,6 @@
  */
 package dev.galasa.framework.api.runs;
 
-import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -102,19 +101,6 @@ public class RunsServletTest extends BaseServletTest {
 
     protected void addRun(String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName, String submissionId, Set<String> tags){
 		this.runs.add(new MockIRun( runName, runType, requestor, test, runStatus, bundle, testClass, groupName, submissionId, tags));
-    }
-
-    protected String generateExpectedString(String groupId, int statusCode) {
-
-        String responseMessage = null;
-
-        if(statusCode == 202) {
-            responseMessage = String.format("The request to cancel run with group id %s has been received.", groupId);
-        } else if (statusCode == 200){
-            responseMessage = String.format(GAL5430_GROUP_RUNS_ALREADY_FINISHED.toString(), groupId);
-        }
-        
-        return responseMessage;
     }
 
     protected String generateStatusUpdateJson(String result) {

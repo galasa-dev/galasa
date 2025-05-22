@@ -103,7 +103,7 @@ public class GroupRunsRoute extends GroupRuns{
         
         if (responseBody.isBlank()) {
             responseStatusCode = HttpServletResponse.SC_OK;
-            responseBody = String.format(GAL5430_GROUP_RUNS_ALREADY_FINISHED.toString(), strippedGroupName);
+            responseBody = String.format("Info: When trying to cancel the run group '%s', no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store.", strippedGroupName);
         }
 
         return getResponseBuilder().buildResponse(request, res, "text/plain", responseBody, responseStatusCode);
@@ -132,7 +132,7 @@ public class GroupRunsRoute extends GroupRuns{
 
             }
 
-            responseBody = String.format("The request to cancel run with group id %s has been received.", groupId);
+            responseBody = String.format("The request to cancel run with group id '%s' has been received.", groupId);
 
         }
 

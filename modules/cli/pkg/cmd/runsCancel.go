@@ -26,6 +26,7 @@ type RunsCancelCommand struct {
 
 type RunsCancelCmdValues struct {
 	runName string
+	group   string
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -84,9 +85,11 @@ func (cmd *RunsCancelCommand) createRunsCancelCobraCmd(factory spi.Factory,
 		},
 	}
 
-	runsCancelCmd.PersistentFlags().StringVar(&cmd.values.runName, "name", "", "the name of the test run to cancel")
+	runsCancelCmd.PersistentFlags().StringVar(&cmd.values.runName, "name", "", "A flag indicating the name of the test run to cancel. Cannot be used with --group")
+	runsCancelCmd.PersistentFlags().StringVar(&cmd.values.group, "group", "", "A flag indicating the name of the test group to cancel. Cannot be used with --name")
 
-	runsCancelCmd.MarkPersistentFlagRequired("name")
+	runsCancelCmd.MarkFlagsMutuallyExclusive("group", "name")
+	runsCancelCmd.MarkFlagsOneRequired("name", "group")
 
 	runsCommand.CobraCommand().AddCommand(runsCancelCmd)
 
@@ -106,12 +109,12 @@ func (cmd *RunsCancelCommand) executeCancel(
 	err = utils.CaptureLog(fileSystem, commsFlagSetValues.logFileName)
 	if err == nil {
 		commsFlagSetValues.isCapturingLogs = true
-	
+
 		log.Println("Galasa CLI - Cancel an active run by abandoning it.")
-	
+
 		// Get the ability to query environment variables.
 		env := factory.GetEnvironment()
-	
+
 		var galasaHome spi.GalasaHome
 		galasaHome, err = utils.NewGalasaHome(fileSystem, env, commsFlagSetValues.CmdParamGalasaHomePath)
 		if err == nil {
@@ -126,7 +129,7 @@ func (cmd *RunsCancelCommand) executeCancel(
 			)
 
 			if err == nil {
-	
+
 				var console = factory.GetStdOutConsole()
 				timeService := factory.GetTimeService()
 
@@ -136,11 +139,11 @@ func (cmd *RunsCancelCommand) executeCancel(
 					timeService,
 					console,
 					commsClient,
+					cmd.values.group,
 				)
 			}
 		}
 	}
-
 
 	log.Printf("executeRunsCancel returning %v\n", err)
 	return err
