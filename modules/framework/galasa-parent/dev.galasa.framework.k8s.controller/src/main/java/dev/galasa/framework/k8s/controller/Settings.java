@@ -25,7 +25,6 @@ public class Settings implements Runnable {
     private final K8sController controller;
 
     private String            namespace;
-    private String            bootstrap                   = "http://bootstrap";
     private String            podname;
     private String            configMapName;
     private String            engineLabel                 = "none";
@@ -158,7 +157,6 @@ public class Settings implements Runnable {
 
     protected void updateConfigMapProperties(Map<String,String> configMapData) throws K8sControllerException { 
 
-        this.bootstrap = updateProperty(configMapData, "bootstrap", "http://bootstrap", this.bootstrap);
         this.maxEngines = updateProperty(configMapData, "max_engines", 1, this.maxEngines);
         this.engineLabel = updateProperty(configMapData, "engine_label", "k8s-standard-engine", this.engineLabel);
         this.engineImage = updateProperty(configMapData, "engine_image", "ghcr.io/galasa-dev/galasa-boot-embedded-amd64", this.engineImage);
@@ -350,10 +348,6 @@ public class Settings implements Runnable {
 
     public int getEngineCPULimitM() {
         return this.engineCPULimitM;
-    }
-
-    public String getBootstrap() {
-        return this.bootstrap;
     }
 
     public long getPoll() {
