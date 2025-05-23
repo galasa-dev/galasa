@@ -50,6 +50,7 @@ import dev.galasa.boot.felix.FelixFramework;
 public class Launcher {
 
     private static final String     OBR_OPTION                = "obr";
+    private static final String     NO_BOOTSTRAP_OPTION       = "no-bootstrap";
     private static final String     BOOTSTRAP_OPTION          = "bootstrap";
     private static final String     OVERRIDES_OPTION          = "overrides";
     private static final String     RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
@@ -243,6 +244,7 @@ public class Launcher {
                 .numberOfArgs(2).desc("use value for given properties").build();
         options.addOption(propertyOption);
         options.addOption(null, OBR_OPTION, true, "Felix OBR Repository File name");
+        options.addOption(null, NO_BOOTSTRAP_OPTION, false, "Ignore the bootstrap-loading mechanism");
         options.addOption(null, BOOTSTRAP_OPTION, true, "Bootstrap properties file url");
         options.addOption(null, OVERRIDES_OPTION, true, "Overrides properties file url");
         options.addOption(null, RESOURCEMANAGEMENT_OPTION, false, "A Resource Management server");
@@ -289,8 +291,14 @@ public class Launcher {
             }
         }
 
-        checkForBootstrap(commandLine);
+        if (!commandLine.hasOption(NO_BOOTSTRAP_OPTION)) {
+            checkForBootstrap(commandLine);
+        } else {
+            bootstrapProperties = new Properties();
+        }
+
         setStoresFromEnvironmentVariables(env,bootstrapProperties);
+        setExtraBundlesFromEnvironment(env, bootstrapProperties);
         checkForOverrides(commandLine);
         checkForBundles(commandLine);
         checkForMetricsPort(commandLine);
@@ -652,6 +660,17 @@ public class Launcher {
             authStore = authStore.trim();
             logger.info(String.format("Environment variable: %s used to locate auth store location",AUTH_ENV_VAR));
             bootstrap.setProperty("framework.auth.store",authStore);
+        }
+    }
+
+    void setExtraBundlesFromEnvironment(Environment env, Properties bootstrap) {
+        String EXTRA_BUNDLES_ENV_VAR = "GALASA_EXTRA_BUNDLES";
+        String extraBundles = env.getenv(EXTRA_BUNDLES_ENV_VAR);
+
+        if((extraBundles != null) && (!extraBundles.trim().isEmpty())){
+            extraBundles = extraBundles.trim();
+            logger.info(String.format("Environment variable: %s used to set extra bundles", EXTRA_BUNDLES_ENV_VAR));
+            bootstrap.setProperty("framework.extra.bundles", extraBundles);
         }
     }
 }

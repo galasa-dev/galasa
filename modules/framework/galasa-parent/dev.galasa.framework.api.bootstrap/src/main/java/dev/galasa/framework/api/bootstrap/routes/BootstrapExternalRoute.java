@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class BootstrapExternalRoute extends PublicRoute {
 
-    protected static final String path = "\\/external";
+    protected static final String path = "";
 
     public BootstrapExternalRoute(ResponseBuilder responseBuilder) {
         super(responseBuilder, path);

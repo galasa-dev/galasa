@@ -26,7 +26,7 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
         setServlet();
         BootstrapServlet servlet = getServlet();
 
-        String pathInfo = "/external";
+        String pathInfo = "";
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpServletRequest req = new MockHttpServletRequest(pathInfo);
         ServletOutputStream outStream = response.getOutputStream();
@@ -47,7 +47,7 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
         setServlet();
         BootstrapServlet servlet = getServlet();
 
-        String pathInfo = "/external";
+        String pathInfo = "";
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpServletRequest req = new MockHttpServletRequest(pathInfo);
         ServletOutputStream outStream = response.getOutputStream();
@@ -67,7 +67,7 @@ public class TestBootstrapExternalRoute extends BootstrapServletTest {
     @Test
     public void testBootstrapInternalRequestReturnsProperties() throws Exception{
         // Given...
-        setServlet("/external");
+        setServlet("");
         MockBootstrapServlet servlet = getServlet();
 		HttpServletRequest req = getRequest();
 		HttpServletResponse resp = getResponse();

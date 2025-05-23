@@ -251,4 +251,33 @@ public class TestLauncher {
         String expectedOutput = "Supplied command line arguments: --bootstrap file://home/.galasa/bootstrap.properties --jwt im4d3am15tak3 --obr file://path/to/my/obr ";
         assertThat(output).isEqualTo(expectedOutput);
     }
+
+    @Test
+    public void testExtraBundlesCanBeLoadedFromEnvironmentVariable() {
+        Launcher launcher  = new Launcher();
+        MockEnvironment mockEnv = new MockEnvironment();
+        Properties bootstrap = new Properties();
+
+        String extraBundles = "my.first.bundle,my.other.bundle";
+        mockEnv.setenv("GALASA_EXTRA_BUNDLES", extraBundles);
+
+        launcher.setExtraBundlesFromEnvironment(mockEnv, bootstrap);
+
+        assertThat(bootstrap.getProperty("framework.extra.bundles")).isEqualTo(extraBundles);
+    }
+
+    @Test
+    public void testExtraBundlesLoadedFromEnvironmentVariableAreTrimmed() {
+        Launcher launcher  = new Launcher();
+        MockEnvironment mockEnv = new MockEnvironment();
+        Properties bootstrap = new Properties();
+
+        String extraBundles = "  my.first.bundle,my.other.bundle     ";
+        String trimmedExtraBundles = extraBundles.trim();
+        mockEnv.setenv("GALASA_EXTRA_BUNDLES", extraBundles);
+
+        launcher.setExtraBundlesFromEnvironment(mockEnv, bootstrap);
+
+        assertThat(bootstrap.getProperty("framework.extra.bundles")).isEqualTo(trimmedExtraBundles);
+    }
 }

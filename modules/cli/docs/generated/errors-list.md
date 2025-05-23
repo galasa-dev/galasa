@@ -253,5 +253,5 @@ The `galasactl` tool can generate the following errors:
 
 - GAL2505I: The request to cancel runs with group name '{}' has been accepted by the server.
 
-- GAL2506I: The request to cancel runs with group name '{}' has been handled successfully. However, no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store..
+- GAL2506I: The request to cancel runs with group name '{}' has been handled successfully. However, no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store.
 
