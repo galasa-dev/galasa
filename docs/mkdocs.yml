@@ -15,8 +15,7 @@ site_description: >-
 # TODO: update edit_uri after migration
 repo_name: galasa.dev
 repo_url: https://github.com/galasa-dev/galasa.dev
-# edit_uri: edit/main/docs/
-edit_uri: edit/mkdocs/content/
+edit_uri: edit/main/docs/content/
 
 # Copyright
 copyright: Copyright &copy; Open Mainframe Project
@@ -55,11 +54,12 @@ theme:
   - content.code.copy
   - content.action.edit
   - content.action.view
-  - navigation.expand
   - navigation.footer
   - navigation.indexes
   - navigation.instant
+  - navigation.sections
   - navigation.tabs
+  - navigation.tabs.sticky
   - navigation.top
   - navigation.tracking
   - toc.follow
@@ -88,10 +88,6 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.keys
-  - pymdownx.magiclink:
-      repo_url_shorthand: true
-      user: squidfunk
-      repo: mkdocs-material
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.superfences:
@@ -120,12 +116,15 @@ plugins:
         - Release
         - Video
       post_readtime: false
+  - blog:
+      blog_dir: releases
+      archive: false
+      categories: false
+      post_readtime: false
+
 
 # Additional configuration
 extra:
-  version:
-    provider: mike
-    alias: true
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/galasa-dev
@@ -143,8 +142,84 @@ nav:
     - about/history.md
   - Docs:
     - docs/index.md
+    - Getting started using the Galasa CLI:
+      - docs/cli-command-reference/index.md
+      - docs/cli-command-reference/cli-prereqs.md
+      - docs/cli-command-reference/zipped-prerequisites.md
+      - docs/cli-command-reference/installing-cli-tool.md
+      - docs/cli-command-reference/installing-offline.md
+      - docs/cli-command-reference/cli-command-reference-about.md  
+      - docs/cli-command-reference/initialising-home-folder.md 
+      - docs/cli-command-reference/setting-up-galasa-project.md
+      - docs/cli-command-reference/runs-submit-local.md
+      - docs/cli-command-reference/runs-local-debug.md
+      - docs/cli-command-reference/viewing-test-results-cli.md 
+    - Exploring Galasa SimBank:
+      - docs/running-simbank-tests/index.md
+      - docs/running-simbank-tests/simbank-cli.md
+      - docs/running-simbank-tests/simbank-cli-offline.md
+      - docs/running-simbank-tests/running-simbank-tests-cli.md
+      - docs/running-simbank-tests/running-simbank-tests-cli-offline.md 
+      - docs/running-simbank-tests/simbank-IVT.md
+      - docs/running-simbank-tests/basic-account-credit-test.md
+      - docs/running-simbank-tests/provisioned-account-credit-tests.md
+      - docs/running-simbank-tests/batch-accounts-open-test.md
+      - docs/running-simbank-tests/web-app-integration-test.md
+      - docs/running-simbank-tests/writing-a-simbank-test.md
+    - Writing your own independent Galasa tests:
+      - docs/writing-own-tests/writing-test-classes.md
+      - docs/writing-own-tests/running-test-modes.md
+      - docs/writing-own-tests/binding-tests.md
+      - docs/writing-own-tests/key-principles.md
+      - docs/writing-own-tests/test-result-provider.md
     - The Galasa Ecosystem:
       - docs/ecosystem/index.md
+      - docs/ecosystem/architecture.md
+      - docs/ecosystem/role-based-access.md
+      - docs/ecosystem/ecosystem-installing-k8s.md
+      - docs/ecosystem/ecosystem-authentication.md
+      - docs/ecosystem/resources-yaml.md
+      - docs/ecosystem/ecosystem-manage-creds.md
+      - docs/ecosystem/ecosystem-manage-cps.md
+      - docs/ecosystem/ecosystem-managing-encryption-keys.md
+    - Managing tests in a Galasa Ecosystem:
+      - docs/manage-ecosystem/test-streams
+      - docs/manage-ecosystem/ecosystem-cli-runs-prepare
+      - docs/manage-ecosystem/ecosystem-cli-runs-submit
+      - docs/manage-ecosystem/runs-reset-cancel
+      - docs/manage-ecosystem/cli-runs-get
+      - docs/manage-ecosystem/ecosystem-cli-runs-download
+      - docs/manage-ecosystem/cli-runs-delete
+    - Upgrading:
+      - docs/upgrading/index.md 
+    - Managers:
+      - docs/managers/index.md
+      - CICS TS Managers:
+        - docs/managers/cics-ts-managers/index.md
+        - docs/managers/cics-ts-managers/cics-ts-ceci-manager.md
+        - docs/managers/cics-ts-managers/cics-ts-manager.md
+      - IMS TM Managers:
+        - docs/managers/ims-tm-managers/index.md
+      - Cloud Managers:
+        - docs/managers/cloud-managers/index.md
+      - Communications Managers:
+        - docs/managers/communications-managers/index.md
+      - Core Managers:
+        - docs/managers/core-managers/index.md
+      - Logging Managers:
+        - docs/managers/logging-managers/index.md
+      - Ecosystem Managers:
+        - docs/managers/ecosystem-managers/index.md
+      - Test Tool Managers:
+        - docs/managers/test-tool-managers/index.md
+      - Unix Managers:
+        - docs/managers/unix-managers/index.md
+      - Workflow Managers:
+        - docs/managers/workflow-managers/index.md
+      - z/OS Managers:
+        - docs/managers/zos-managers/index.md
+    - FAQs:
+      - docs/faqs-galasa.md
   - Releases:
     - releases/index.md
     - releases/license.md
