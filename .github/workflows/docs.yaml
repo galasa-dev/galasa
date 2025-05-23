@@ -52,7 +52,7 @@ jobs:
 
       - name: Install python packages
         run: |
-          pip install mkdocs-material 
+          pip install --user -r docs/requirements.txt
 
       - name: Build and package the docs
         working-directory: ./docs
