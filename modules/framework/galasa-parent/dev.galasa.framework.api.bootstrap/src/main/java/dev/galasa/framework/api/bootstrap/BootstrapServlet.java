@@ -23,7 +23,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.api.bootstrap.routes.BootstrapExternalRoute;
-import dev.galasa.framework.api.bootstrap.routes.BootstrapInternalRoute;
 /*
  * Proxy Servlet for the /bootstrap endpoints
  */
@@ -36,8 +35,6 @@ public class BootstrapServlet extends BaseServlet {
 	protected IFramework framework;
 
 	private static final long serialVersionUID = 1L;
-
-    private BootstrapInternalRoute internalBootstrapRoute;
 
 	protected Log logger = LogFactory.getLog(this.getClass());
 
@@ -52,9 +49,6 @@ public class BootstrapServlet extends BaseServlet {
 
     @Activate
     public void activate(Map<String, Object> properties) {
-        internalBootstrapRoute = new BootstrapInternalRoute(getResponseBuilder());
-
-        addRoute(internalBootstrapRoute);
         onModified(properties);
 
         logger.info("Galasa Bootstrap API activated");
@@ -62,13 +56,11 @@ public class BootstrapServlet extends BaseServlet {
 
     @Modified
     public void onModified(Map<String, Object> properties) {
-        internalBootstrapRoute.onModified(properties);
         logger.info("Updated properties in Galasa Bootstrap API");
     }
 
     @Deactivate
     public void deactivate() {
-        internalBootstrapRoute.deactivate();
         logger.info("Deactivated Galasa Bootstrap API");
     }
 }
