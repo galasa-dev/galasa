@@ -50,4 +50,45 @@ public class SettingsTest {
 
         assertThat(heapSizeGotBack).isEqualTo(450);
     }
+
+    @Test
+    public void testCanReadDefaultKubeLaunchIntervalIfMissingFromConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        CoreV1Api api = new CoreV1Api();
+        Settings settings = new Settings(controller, api);
+        Map<String,String> configMap = new HashMap<String,String>();
+        settings.updateConfigMapProperties(configMap);
+
+        long intervalGotBack = settings.getKubeLaunchIntervalMillisecs();
+
+        assertThat(intervalGotBack).isEqualTo(1000);
+    }
+
+    @Test
+    public void testCanReadNonDefaultKubeLaunchIntervalIfPresentInConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        CoreV1Api api = new CoreV1Api();
+        Settings settings = new Settings(controller, api);
+        Map<String,String> configMap = new HashMap<String,String>();
+        configMap.put("kube_launch_interval_milliseconds", "50");
+        settings.updateConfigMapProperties(configMap);
+
+        long intervalGotBack = settings.getKubeLaunchIntervalMillisecs();
+
+        assertThat(intervalGotBack).isEqualTo(50);
+    }
+
+    @Test
+    public void testUsesDefaultKubeLaunchIntervalIfInvalidValueGivenInConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        CoreV1Api api = new CoreV1Api();
+        Settings settings = new Settings(controller, api);
+        Map<String,String> configMap = new HashMap<String,String>();
+        configMap.put("kube_launch_interval_milliseconds", "not a number!");
+        settings.updateConfigMapProperties(configMap);
+
+        long intervalGotBack = settings.getKubeLaunchIntervalMillisecs();
+
+        assertThat(intervalGotBack).isEqualTo(1000);
+    }
 }

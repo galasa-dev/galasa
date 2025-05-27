@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.k8s.controller;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +45,7 @@ public class Settings implements Runnable {
     private HashSet<String>   capableCapabilities         = new HashSet<>();
     private String            reportCapabilties           = null;
 
+    private long              kubeLaunchIntervalMillisecs = 1000L;
     private int               runPoll                     = 60;
     private int               maxEngines                  = 0;
 
@@ -81,6 +83,28 @@ public class Settings implements Runnable {
         String newValue = getPropertyFromData(configMapData, key, defaultValue);
         if (!newValue.equals(oldValue)) {
             logger.info("Setting " + key + " from '" + oldValue + "' to '" + newValue + "'");
+        }
+        return newValue;
+    }
+
+    private long updateProperty(Map<String, String> configMapData, String key, long defaultValue, long oldValue) {
+        long newValue = defaultValue;
+        String defaultValueAsStr = Long.toString(defaultValue);
+        String rawValueFromConfig = getPropertyFromData(configMapData, key, defaultValueAsStr);
+        String trimmedValueFromConfig = rawValueFromConfig.trim();
+
+        try {
+            newValue = Long.parseLong(trimmedValueFromConfig);
+            if (newValue != oldValue) {
+                logger.info("Setting " + key + " from '" + oldValue + "' to '" + newValue + "'");
+            }
+        } catch (NumberFormatException ex) {
+            String msg = MessageFormat.format(
+                "Info: Could not read launch interval value from the engine controller ConfigMap. Using default value of {0}. ConfigMap Value '{1}' is not a number.",
+                defaultValueAsStr,
+                trimmedValueFromConfig
+            );
+            logger.info(msg);
         }
         return newValue;
     }
@@ -160,6 +184,7 @@ public class Settings implements Runnable {
         this.maxEngines = updateProperty(configMapData, "max_engines", 1, this.maxEngines);
         this.engineLabel = updateProperty(configMapData, "engine_label", "k8s-standard-engine", this.engineLabel);
         this.engineImage = updateProperty(configMapData, "engine_image", "ghcr.io/galasa-dev/galasa-boot-embedded-amd64", this.engineImage);
+        this.kubeLaunchIntervalMillisecs = updateProperty(configMapData, "kube_launch_interval_milliseconds", kubeLaunchIntervalMillisecs, this.kubeLaunchIntervalMillisecs);
 
         this.engineMemoryRequestMi = updateProperty(configMapData, "engine_memory_request", engineMemoryRequestMi, this.engineMemoryRequestMi);
         this.engineMemoryLimitMi = updateProperty(configMapData, "engine_memory_limit", engineMemoryLimitMi, this.engineMemoryLimitMi);
@@ -356,5 +381,9 @@ public class Settings implements Runnable {
 
     public String getEncryptionKeysSecretName() {
         return encryptionKeysSecretName;
+    }
+
+    public long getKubeLaunchIntervalMillisecs() {
+        return this.kubeLaunchIntervalMillisecs;
     }
 }
