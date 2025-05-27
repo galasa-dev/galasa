@@ -38,6 +38,44 @@ Here are the system properties which the framework understands:
 - `GALASA_HOME` - holds the path which should be used in preference to the `${HOME}/.galasa` location. Optional. This setting overrides 
 the environment variable of the same name, which in turn overrides the default of `${HOME}/.galasa` if not specified. 
 
+## Galasa Boot
+
+Galasa Boot is a JAR file that can be used to launch Galasa in various modes. See below for the syntax and available options for invoking this JAR file.
+
+After building the framework module locally, the boot.jar will be located in `galasa/modules/framework/galasa-parent/galasa-boot/build/libs/galasa-boot-{galasa-version}.jar`
+
+### Syntax
+
+To run Galasa Boot, you must have Java 11 or above installed.
+
+```
+java -jar /path/to/galasa/galasa-boot-{version}.jar [OPTIONS]
+```
+See below for the available flags that can be passed in to the Galasa Boot JAR:
+
+| Option | Description |
+|--------|-------------|
+| --obr |  The OBR for Galasa to load in the format `mvn:/{group-id}/{artifact-id}/{version}/obr`. |
+| --bootstrap | A bootstrap properties URL. Should start with 'http://' or 'file://'. If omitted, no bootstrap properties will be loaded from an external source. |
+| --overrides | An overrides properties URL used when running a Galasa test. Should start with 'http://' or 'file://'. If omitted, no override properties will be loaded. |
+| --resourcemanagement | Starts the Galasa system resource monitor service. |
+| --k8scontroller | Starts the Galasa Kubernetes-based engine controller service. |
+| --api | Starts the Galasa REST API server. |
+| --metricserver | Starts the Galasa metrics service. |
+| --test | A test for Galasa to run. The format is {osgi-bundle-name}/{java-class-name}. Java class names are fully qualified. No .class suffix is needed. |
+| --run | The run name that should be associated with the test being run. |
+| --gherkin | A Gherkin test for Galasa to run. Should start with 'file://'. |
+| --bundle | Extra bundles to load. Can be provided multiple times to load multiple extra bundles. |
+| --metrics | The port the metrics server will open, 0 to disable. |
+| --health | The port the health server will open, 0 to disable. |
+| --localmaven | The local maven repository URL, defaults to ~/.m2/repository. |
+| --remotemaven | Remote maven repository URLs, defaults to Maven central. |
+| --trace | Enables TRACE logging. |
+| --file | File for data input/output. |
+| --dryrun | Perform a dry-run of the specified actions. Can be combined with --file. |
+| --setupeco | Setup the Galasa Ecosystem. |
+| --validateeco | Validate the Galasa Ecosystem. |
+
 ## Testing locally
 See [test-api-locally.md](./test-api-locally.md) for instructions on how to set up your environment to test the API locally.
 

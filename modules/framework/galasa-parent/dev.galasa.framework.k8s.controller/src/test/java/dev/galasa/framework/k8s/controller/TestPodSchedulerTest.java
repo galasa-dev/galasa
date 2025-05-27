@@ -384,7 +384,6 @@ public class TestPodSchedulerTest {
                 "boot.jar", 
                 "--obr",
                 "file:galasa.obr",
-                "--no-bootstrap",
                 "--run",
                 "myRunName",
                 "--trace"

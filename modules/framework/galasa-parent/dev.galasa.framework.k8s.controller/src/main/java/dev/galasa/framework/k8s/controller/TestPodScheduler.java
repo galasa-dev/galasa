@@ -396,7 +396,6 @@ public class TestPodScheduler implements Runnable {
         args.add("boot.jar");
         args.add("--obr");
         args.add("file:galasa.obr");
-        args.add("--no-bootstrap");
         args.add("--run");
         args.add(runName);
         if (isTraceEnabled) {

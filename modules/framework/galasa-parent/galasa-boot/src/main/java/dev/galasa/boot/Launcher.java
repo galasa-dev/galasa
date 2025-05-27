@@ -13,7 +13,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -50,7 +49,6 @@ import dev.galasa.boot.felix.FelixFramework;
 public class Launcher {
 
     private static final String     OBR_OPTION                = "obr";
-    private static final String     NO_BOOTSTRAP_OPTION       = "no-bootstrap";
     private static final String     BOOTSTRAP_OPTION          = "bootstrap";
     private static final String     OVERRIDES_OPTION          = "overrides";
     private static final String     RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
@@ -244,7 +242,6 @@ public class Launcher {
                 .numberOfArgs(2).desc("use value for given properties").build();
         options.addOption(propertyOption);
         options.addOption(null, OBR_OPTION, true, "Felix OBR Repository File name");
-        options.addOption(null, NO_BOOTSTRAP_OPTION, false, "Ignore the bootstrap-loading mechanism");
         options.addOption(null, BOOTSTRAP_OPTION, true, "Bootstrap properties file url");
         options.addOption(null, OVERRIDES_OPTION, true, "Overrides properties file url");
         options.addOption(null, RESOURCEMANAGEMENT_OPTION, false, "A Resource Management server");
@@ -291,12 +288,7 @@ public class Launcher {
             }
         }
 
-        if (!commandLine.hasOption(NO_BOOTSTRAP_OPTION)) {
-            checkForBootstrap(commandLine);
-        } else {
-            bootstrapProperties = new Properties();
-        }
-
+        checkForBootstrap(commandLine);
         setStoresFromEnvironmentVariables(env,bootstrapProperties);
         setExtraBundlesFromEnvironment(env, bootstrapProperties);
         checkForOverrides(commandLine);
@@ -468,36 +460,24 @@ public class Launcher {
                 logger.error("Invalid bootstrap URI provided", e);
                 commandLineError(null);
             }
-        } else {
-            Path path = Paths.get(this.galasaHome, "bootstrap.properties");
+
             try {
-                if (!path.toFile().exists()) {
-                    if (!path.getParent().toFile().exists()) {
-                        Files.createDirectories(path.getParent());
-                    }
-                    Files.createFile(path);
+                URLConnection bootstrapConnection = bootstrapUri.toURL().openConnection();
+                bootstrapConnection.setConnectTimeout(30000);
+                bootstrapConnection.setReadTimeout(30000);
+                try (InputStream is = bootstrapConnection.getInputStream()) {
+                    bootstrapProperties = new Properties();
+                    bootstrapProperties.load(is);
                 }
-                bootstrapUri = path.toUri();
             } catch (IOException e) {
-                logger.error("Unable to create empty default bootstrap file " + path.toUri().toString(), e);
+                logger.error("Unable to load bootstrap properties", e);
                 commandLineError(null);
             }
+        } else {
+            this.bootstrapProperties = new Properties();
         }
 
-        try {
-            URLConnection bootstrapConnection = bootstrapUri.toURL().openConnection();
-            bootstrapConnection.setConnectTimeout(30000);
-            bootstrapConnection.setReadTimeout(30000);
-            try (InputStream is = bootstrapConnection.getInputStream()) {
-                bootstrapProperties = new Properties();
-                bootstrapProperties.load(is);
-                bootstrapProperties.setProperty("framework.galasa.home",galasaHome);
-
-            }
-        } catch (IOException e) {
-            logger.error("Unable to load bootstrap properties", e);
-            commandLineError(null);
-        }
+        this.bootstrapProperties.setProperty("framework.galasa.home", this.galasaHome);
     }
 
     /**
