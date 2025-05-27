@@ -74,8 +74,6 @@ public class TestPodScheduler implements Runnable {
 
     private Counter                          submittedRuns;
     private Environment                      env              = new SystemEnvironment();
-    private CPSFacade cpsFacade ;
-
 
     public TestPodScheduler(IDynamicStatusStoreService dss, IConfigurationPropertyStoreService cps, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
         this(new SystemEnvironment(), dss, cps, settings, api, runs);
@@ -92,8 +90,6 @@ public class TestPodScheduler implements Runnable {
 
         this.submittedRuns = Counter.build().name("galasa_k8s_controller_submitted_runs")
                 .help("The number of runs submitted by the Kubernetes controller").register();
-
-        this.cpsFacade = new CPSFacade(cps);
     }
 
     @Override
@@ -162,7 +158,7 @@ public class TestPodScheduler implements Runnable {
                     // the nodes which are available.
                     //
                     // This may or may not be necessary if the scheduling policies in the cluster are changed. Not sure.
-                    long launchIntervalMilliseconds = cpsFacade.getKubeLaunchIntervalMilliseconds();
+                    long launchIntervalMilliseconds = settings.getKubeLaunchIntervalMillisecs();
                     Thread.sleep(launchIntervalMilliseconds); 
                 } else {
                     return;

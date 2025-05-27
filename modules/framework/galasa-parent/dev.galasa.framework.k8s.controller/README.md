@@ -4,12 +4,12 @@ The Kubernetes controller is responsible for looping (forever) looking for tests
 
 When it finds one, it launches a Kubernetes pod to run the test.
 
-## CPS propertites
+## Helm ConfigMap Settings
 
-### `framework.kube.launch.interval.milliseconds` 
+### `kube_launch_interval_milliseconds`
 The number of milliseconds which the test pod scheduler should delay between successive launches of test pods.
 
-The default is `CPSFacade.KUBE_LAUNCH_INTERVAL_MILLISECOND_DEFAULT_VALUE`
+See `Settings.kubeLaunchIntervalMillisecs` for the default value.
 
 Why do this ? 
 
@@ -23,10 +23,9 @@ the nodes which are available.
 
 This may or may not be necessary if the scheduling policies in the cluster are changed.
 
-This CPS property is dynamic, in that you don't need to re-start the test launcher pod for it to take effect.
-It gets read every time the value is needed, and is not cached.
+If this value needs to be changed, the test launcher pod needs to be restarted for changes to take effect.
 
-Any failure in the CPS will be logged and ignored, resulting in the default value being returned.
+Any failure in reading the ConfigMap will be logged and ignored, resulting in the default value being returned.
 
 
 
