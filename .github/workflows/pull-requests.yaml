@@ -382,11 +382,21 @@ jobs:
       changed: ${{ needs.get-changed-modules.outputs.cli_changed }}
       artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
+  pr-build-docs:
+    name: Build the 'docs' module
+    needs: [get-changed-modules, find-artifacts, pr-build-cli]
+    uses: ./.github/workflows/pr-docs.yaml
+    secrets: inherit
+
+    with:
+      docs-changed: ${{ needs.get-changed-modules.outputs.docs_changed }}
+      artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
   # This is required as all previous jobs are optional based on if a module has changed.
   # This job is set in the branch protection rules as required to merge a Pull Request.
   end-pull-request-build:
     name: Pull Request build was successful
-    needs: [pr-build-ivts, pr-build-cli, detect-secrets]
+    needs: [pr-build-ivts, pr-build-docs, detect-secrets]
     runs-on: ubuntu-latest
 
     steps:

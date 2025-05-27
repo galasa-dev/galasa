@@ -177,66 +177,70 @@ public class NetworkThread extends Thread {
             return;
         }
 
+        this.telnetSessionStarted = true;  // must be started if receiving 3270
+        ByteBuffer buffer = readTerminatedMessage(header, messageStream);
+
         if (basicTelnetDatastream) {
-            this.telnetSessionStarted = true;  // must be started if receiving 3270
-
-            ByteBuffer buffer = readTerminatedMessage(header, messageStream);
-
-
             Inbound3270Message inbound3270Message = process3270Data(buffer);
             this.screen.processInboundMessage(inbound3270Message);
-            return;
         } else {
-            this.telnetSessionStarted = true;  // must be started if receiving 3270
-
-            ByteBuffer buffer = readTerminatedMessage(header, messageStream);
-
-            if (buffer.remaining() < 5) {
-                throw new NetworkException("Missing 5 bytes of the TN3270E datastream header");
-            }
-
-            byte tn3270eHeader = buffer.get();
-            if (tn3270eHeader == DT_BIND_IMAGE) {
-                logger.trace("BIND_IMAGE received");
-                logger.trace("Received message header: " + reportCommandSoFar());
-                logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
-                return;
-            }
-            if (tn3270eHeader == DT_UNBIND) {
-                logger.trace("UNBIND_IMAGE received");
-                logger.trace("Received message header: " + reportCommandSoFar());
-                logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
-                return;
-            }
-
-            // 3270 datastream headers consist of 5 bytes in the following format:
-            // -----------------------------------------------------------
-            //   DATA-TYPE | REQUEST-FLAG | RESPONSE-FLAG |  SEQ-NUMBER  
-            //    1 byte        1 byte         1 byte         2 bytes
-            // -----------------------------------------------------------
-            // This advances through the message buffer to skip the header bytes after DATA-TYPE.
-            buffer.get(new byte[4]);
-            
-            Inbound3270Message inbound3270Message = null;
-            if (tn3270eHeader == DT_SSCP_LU_DATA) {
-                logger.trace("SSCP_LU_DATA received");
-                logger.trace("Received message header: " + reportCommandSoFar());
-                logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
-
-                // Convert the SSCP-LU-DATA datastream into a 3270 message
-                // This makes the assumption that SSCP-LU-DATA datastreams are unformatted and do not
-                // contain any special command codes or orders that are in normal 3270 datastreams.
-                // The resulting 3270 message will only contain text and newline orders.
-                inbound3270Message = this.sscpLuDataTransform.processSSCPLUData(buffer);
-
-            } else if (tn3270eHeader == DT_3270_DATA) {
-                inbound3270Message = process3270Data(buffer);
-            } else {
-                throw new NetworkException("Was expecting a TN3270E datastream header of zeros - " + reportCommandSoFar());
-            }
-
-            this.screen.processInboundMessage(inbound3270Message);
+            processTn3270eDatastream(buffer);
         }
+    }
+
+    private void processTn3270eDatastream(ByteBuffer buffer) throws IOException, NetworkException {
+        if (buffer.remaining() < 5) {
+            throw new NetworkException("Missing 5 bytes of the TN3270E datastream header");
+        }
+
+        byte tn3270eHeader = buffer.get();
+        handleTn3270eHeader(tn3270eHeader, buffer);
+    }
+
+    private void handleTn3270eHeader(byte tn3270eHeader, ByteBuffer buffer) throws NetworkException {
+        if (tn3270eHeader == DT_BIND_IMAGE) {
+            logger.trace("BIND_IMAGE received");
+            logger.trace("Received message header: " + reportCommandSoFar());
+            logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
+            return;
+        }
+        if (tn3270eHeader == DT_UNBIND) {
+            logger.trace("UNBIND_IMAGE received");
+            logger.trace("Received message header: " + reportCommandSoFar());
+            logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
+            return;
+        }
+
+        // 3270 datastream headers consist of 5 bytes in the following format:
+        // -----------------------------------------------------------
+        //   DATA-TYPE | REQUEST-FLAG | RESPONSE-FLAG |  SEQ-NUMBER  
+        //    1 byte        1 byte         1 byte         2 bytes
+        // -----------------------------------------------------------
+        // This advances through the message buffer to skip the header bytes after DATA-TYPE.
+        buffer.get(new byte[4]);
+
+        boolean isSSCPLUDisplay = false;
+        Inbound3270Message inbound3270Message = null;
+        if (tn3270eHeader == DT_SSCP_LU_DATA) {
+            logger.trace("SSCP_LU_DATA received");
+            logger.trace("Received message header: " + reportCommandSoFar());
+            logger.trace("Received message buffer: " + Hex.encodeHexString(buffer.array()));
+            isSSCPLUDisplay = true;
+
+            // Convert the SSCP-LU-DATA datastream into a 3270 message
+            // This makes the assumption that SSCP-LU-DATA datastreams are unformatted and do not
+            // contain any special command codes or orders that are in normal 3270 datastreams.
+            // The resulting 3270 message will only contain text and newline orders.
+            inbound3270Message = this.sscpLuDataTransform.processSSCPLUData(buffer);
+
+        } else if (tn3270eHeader == DT_3270_DATA) {
+            inbound3270Message = process3270Data(buffer);
+        } else {
+            throw new NetworkException("Was expecting a TN3270E datastream header of zeros - " + reportCommandSoFar());
+        }
+
+        this.screen.setIsSSCPLUDisplay(isSSCPLUDisplay);
+        this.screen.processInboundMessage(inbound3270Message);
     }
 
     private void doIac(InputStream messageStream) throws NetworkException, IOException {

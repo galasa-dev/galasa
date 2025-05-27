@@ -1,0 +1,14 @@
+/* 
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+
+.galasa-intro {
+    padding: 3em;
+}
+
+.galasa-intro .md-button {
+    margin-bottom: .5em;
+    margin-right: .5em;
+}

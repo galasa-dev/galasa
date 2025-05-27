@@ -104,6 +104,13 @@ public class Screen {
     private final int                               alternateColumns;
     private final int                               alternateRows;
 
+    // Determines whether the screen is displaying data for a session between a System Services Control Point (SSCP) and a Logical Unit (LU), forming an SSCP-LU session.
+    // 
+    // An SSCP manages network resources and coordinates the initiation and termination of sessions between applications, while an LU identifies a client session where
+    // end users and applications can exchange data. See the 3270 manager's README for more details about SSCP-LU sessions.
+    private boolean                                 isSSCPLUDisplay = false;
+
+    private int                                     initialCursorPosition = 0;
     private int                                     workingCursor   = 0;
     private int                                     screenCursor    = 0;
 
@@ -237,6 +244,9 @@ public class Screen {
 
             processOrders(orders, writeControlCharacter);
 
+            // Set the initial cursor position after processing the inbound data stream's orders
+            // in case the cursor has moved
+            this.initialCursorPosition = this.screenCursor;
         }
 
     }
@@ -565,6 +575,7 @@ public class Screen {
 
         this.screenCursor  = 0;
         this.workingCursor = 0;
+        this.initialCursorPosition = 0;
     }
 
     public synchronized void eraseAlternate() {
@@ -1806,6 +1817,28 @@ public class Screen {
         return position;
     }
 
+    private void buildSSCPLUOutboundBuffer(ByteArrayOutputStream outboundBuffer) {
+        // The input area for SSCP-LU sessions starts from the initial cursor position and continues through the
+        // following 255 screen positions or through to the last position on the screen (max 256 outbound bytes).
+        // If the screen was cleared, the initial cursor position will be at very first position on the screen.
+        int start = this.initialCursorPosition;
+        int end = start + 255;
+        if (end >= buffer.length) {
+            end = buffer.length - 1;
+        }
+
+        for (int currentPosition = start; currentPosition <= end; currentPosition++) {
+            IBufferHolder bufferHolder = buffer[currentPosition];
+            if (bufferHolder instanceof BufferChar) {
+                BufferChar bufferChar = (BufferChar) bufferHolder;
+                byte ebcdicCharAsByte = bufferChar.getFieldEbcdic(this.codePage);
+                if (ebcdicCharAsByte != 0) {
+                    outboundBuffer.write(ebcdicCharAsByte);
+                }
+            }
+        }
+    }
+
     public synchronized byte[] aid(AttentionIdentification aid) throws DatastreamException, TerminalInterruptedException {
         lockKeyboard();
 
@@ -1823,7 +1856,12 @@ public class Screen {
             } else {
                 BufferAddress cursor = new BufferAddress(this.screenCursor);
                 outboundBuffer.write(cursor.getCharRepresentation());
-                readModifiedBuffer(outboundBuffer);
+
+                if (this.isSSCPLUDisplay) {
+                    buildSSCPLUOutboundBuffer(outboundBuffer);
+                } else {
+                    readModifiedBuffer(outboundBuffer);
+                }
             }
 
             String outboundHex = new String(Hex.encodeHex(outboundBuffer.toByteArray()));
@@ -1981,4 +2019,11 @@ public class Screen {
         return codePage;
     }
 
+    public boolean isSSCPLUDisplay() {
+        return isSSCPLUDisplay;
+    }
+
+    public void setIsSSCPLUDisplay(boolean isSSCPLUDisplay) {
+        this.isSSCPLUDisplay = isSSCPLUDisplay;
+    }
 }

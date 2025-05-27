@@ -211,3 +211,9 @@ jobs:
     needs: [build-obr]
     uses: ./.github/workflows/cli.yaml
     secrets: inherit
+
+  build-docs:
+    name: Build the Galasa documentation 
+    needs: [build-cli]
+    uses: ./.github/workflows/docs.yaml
+    secrets: inherit

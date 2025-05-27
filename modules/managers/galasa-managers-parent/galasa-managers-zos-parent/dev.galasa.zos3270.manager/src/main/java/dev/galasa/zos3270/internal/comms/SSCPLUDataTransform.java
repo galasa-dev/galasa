@@ -14,6 +14,7 @@ import org.apache.commons.codec.binary.Hex;
 
 import dev.galasa.zos3270.IDatastreamListener.DatastreamDirection;
 import dev.galasa.zos3270.internal.datastream.AbstractOrder;
+import dev.galasa.zos3270.internal.datastream.OrderInsertCursor;
 import dev.galasa.zos3270.internal.datastream.OrderText;
 import dev.galasa.zos3270.internal.datastream.WriteControlCharacter;
 import dev.galasa.zos3270.spi.DatastreamException;
@@ -66,6 +67,11 @@ public class SSCPLUDataTransform {
             // The display screen in an SSCP-LU session is unformatted, so just
             // convert the datastream into a list of 3270 text orders
             List<AbstractOrder> orders = convertToTextOrders(buffer, codePage);
+
+            // Move the cursor to the position following the last character or the start of the next line if the last character was a newline
+            OrderInsertCursor insertCursorOrder = new OrderInsertCursor();
+            orders.add(insertCursorOrder);
+
             messageToReturn = new Inbound3270Message(null, writeControlCharacter, orders);
         }
 

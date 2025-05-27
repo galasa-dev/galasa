@@ -1,0 +1,156 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# Project information
+site_name: Galasa
+site_url: https://galasa.dev/
+site_description: >-
+  Galasa is an open source deep integration test framework for teams looking
+  to give more power to their testers
+
+# Repository
+# TODO: update edit_uri after migration
+repo_name: galasa.dev
+repo_url: https://github.com/galasa-dev/galasa.dev
+# edit_uri: edit/main/docs/
+edit_uri: edit/mkdocs/content/
+
+# Copyright
+copyright: Copyright &copy; Open Mainframe Project
+
+# Configuration
+docs_dir: content
+extra_css:
+  - assets/stylesheets/extra.css
+theme:
+  # Theme documentation https://squidfunk.github.io/mkdocs-material/
+  name: material
+  logo: assets/galasa-icon-white.svg
+  favicon: assets/galasa-icon-color.png
+  icon:
+    repo: fontawesome/brands/github
+  custom_dir: content/assets/overrides
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+  features:
+  - content.code.copy
+  - content.action.edit
+  - content.action.view
+  - navigation.expand
+  - navigation.footer
+  - navigation.indexes
+  - navigation.instant
+  - navigation.tabs
+  - navigation.top
+  - navigation.tracking
+  - toc.follow
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: squidfunk
+      repo: mkdocs-material
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Plugins
+plugins:
+  - offline:
+      enabled: !ENV [OFFLINE, false]
+  - search
+  - blog:
+      blog_dir: hub
+      categories_allowed:
+        - Blog
+        - Podcast
+        - Press release
+        - Redpaper
+        - Release
+        - Video
+      post_readtime: false
+
+# Additional configuration
+extra:
+  version:
+    provider: mike
+    alias: true
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/galasa-dev
+    - icon: fontawesome/brands/slack
+      link: https://openmainframeproject.slack.com/signup#/domain-signup
+
+# Page tree
+nav:
+  - index.md
+  - About:
+    - about/index.md
+    - about/different.md
+    - about/automation.md
+    - about/devops.md
+    - about/history.md
+  - Docs:
+    - docs/index.md
+    - The Galasa Ecosystem:
+      - docs/ecosystem/index.md
+  - Releases:
+    - releases/index.md
+    - releases/license.md
+  - Support:
+    - support/index.md
+  - Community:
+    - community/index.md
+  - Blogs:
+    - hub/index.md

@@ -57,7 +57,7 @@ public class InboundTest {
     @Test
     public void testSscpLuDataStreamRendersOK() throws Exception {
 
-        // Given...        
+        // Given...
         Charset codePage = Charset.forName("1047");
         String mockScreenText = "\n"+
             "*** WELCOME TO SIMBANK TERMINAL ID = ABC123 \n"+
@@ -82,10 +82,53 @@ public class InboundTest {
         
         // When...
         networkThread.processMessage(inputStream);
-        String screenStr = screen.printScreen();
+        String screenStr = screen.printScreenTextWithCursor();
         System.out.println(screenStr);
+
+        int cursorPosition = screen.getCursor();
+        System.out.println("Cursor is at position: " + cursorPosition);
 
         // Then...
         assertThat(screenStr).contains("WELCOME TO SIMBANK", "\n");
+        assertThat(cursorPosition).isEqualTo(246);
+    }
+
+    @Test
+    public void testSscpLuDataStreamEndingWithNewlinePutsCursorInCorrectPosition() throws Exception {
+
+        // Given...
+        Charset codePage = Charset.forName("1047");
+        String mockScreenText = "\n"+
+            "*** WELCOME TO SIMBANK TERMINAL ID = ABC123 \n"+
+            "********* This is a welcome message. Hello world!\n"+
+            " ===>\n";
+
+        String ebcdicScreen = Hex.encodeHexString(mockScreenText.getBytes(codePage));
+        String sscpLuDataHeader = "0700000000";
+        String iacEor = Hex.encodeHexString(new byte[]{ NetworkThread.IAC, NetworkThread.EOR });
+
+        String inboundDataStream = sscpLuDataHeader + ebcdicScreen + iacEor;
+        byte[] inboundAsBytes = Hex.decodeHex(inboundDataStream);
+
+        Network network = new Network("here", 1, "a");
+
+        TerminalSize terminalSize = new TerminalSize(80, 24);
+        Screen screen = new Screen(terminalSize, new TerminalSize(0, 0), network, codePage);
+
+        NetworkThread networkThread = new NetworkThread(null, screen, null, null);
+
+        InputStream inputStream = new ByteArrayInputStream(inboundAsBytes);
+        
+        // When...
+        networkThread.processMessage(inputStream);
+        String screenStr = screen.printScreenTextWithCursor();
+        System.out.println(screenStr);
+
+        int cursorPosition = screen.getCursor();
+        System.out.println("Cursor is at position: " + cursorPosition);
+
+        // Then...
+        assertThat(screenStr).contains("WELCOME TO SIMBANK", "\n");
+        assertThat(cursorPosition).isEqualTo(320);
     }
 }
