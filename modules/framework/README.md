@@ -73,8 +73,8 @@ See below for the available flags that can be passed in to the Galasa Boot JAR:
 | --trace | Enables TRACE logging. |
 | --file | File for data input/output. |
 | --dryrun | Perform a dry-run of the specified actions. Can be combined with --file. |
-| --setupeco | Setup the Galasa Ecosystem. |
-| --validateeco | Validate the Galasa Ecosystem. |
+| --setupeco | Sets up the Galasa Service. |
+| --validateeco | Checks that the Galasa Service is set up correctly by submitting a CoreManagerIVT test run to the service. |
 
 ## Testing locally
 See [test-api-locally.md](./test-api-locally.md) for instructions on how to set up your environment to test the API locally.
