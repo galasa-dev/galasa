@@ -3,7 +3,7 @@ title: Home
 icon: material/home
 hide:
   - navigation
-  - toc
+#   - toc
 ---
 
 <div class="galasa-intro" markdown>

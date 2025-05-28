@@ -16,6 +16,8 @@ repo_name: GitHub
 repo_url: https://github.com/galasa-dev/galasa
 edit_uri: edit/main/docs/content/
 
+use_directory_urls: true
+
 # Copyright
 copyright: Copyright &copy; Open Mainframe Project
 
