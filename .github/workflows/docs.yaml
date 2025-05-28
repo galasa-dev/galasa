@@ -109,10 +109,6 @@ jobs:
         run: |
           git clone https://galasa-team:${{ env.GITHUB_PAT }}@github.com/galasa-dev/galasa-docs-preview.git
 
-      # It turns out that when you deploy something to gh pages, you need to create this file
-      # in the root folder which GH pages serves up to contain the custom domain,
-      # so that github pages can route traffic to the correct place.
-      # Without this, it won't be able to route traffic correctly resulting in broken
       - name: Clean out the docs which are currently in the main branch of the preview repo.
         working-directory: galasa-docs-preview
         run: |
