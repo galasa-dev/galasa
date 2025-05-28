@@ -12,7 +12,7 @@ site_description: >-
   to give more power to their testers
 
 # Repository
-repo_name: galasa
+repo_name: GitHub
 repo_url: https://github.com/galasa-dev/galasa
 edit_uri: edit/main/docs/content/
 
@@ -27,7 +27,7 @@ theme:
   # Theme documentation https://squidfunk.github.io/mkdocs-material/
   name: material
   logo: assets/galasa-icon-white.svg
-  favicon: assets/galasa-icon-color.png
+  favicon: assets/galasa-icon-white.svg
   icon:
     repo: fontawesome/brands/github
   custom_dir: content/assets/overrides
