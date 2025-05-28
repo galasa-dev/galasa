@@ -110,11 +110,10 @@ cp -r ../../build/site/* docs
 # github can be aware of it.
 echo "vnext.galasa.dev" > docs/CNAME
 
-git config user.name $(GIT_NAME)
-git config user.email $(GIT_EMAIL)
-git config credential.username $(GIT_NAME)
-git config user.email
-git config user.name
+git config user.name ${GIT_NAME}
+git config user.email ${GIT_EMAIL}
+git config credential.username ${GIT_NAME}
+
 
 git add .
 git commit -m "$USER pushing changes from local system manually" --allow-empty
