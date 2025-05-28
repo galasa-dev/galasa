@@ -106,6 +106,10 @@ rm -fr docs
 mkdir -p docs
 cp -r ../../build/site/* docs
 
+# Deploying this to preview site, so we need the custom domain in a CNAME file so 
+# github can be aware of it.
+echo "vnext.galasa.dev" > docs/CNAME
+
 git config user.name $(GIT_NAME)
 git config user.email $(GIT_EMAIL)
 git config credential.username $(GIT_NAME)

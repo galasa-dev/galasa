@@ -12,9 +12,8 @@ site_description: >-
   to give more power to their testers
 
 # Repository
-# TODO: update edit_uri after migration
-repo_name: galasa.dev
-repo_url: https://github.com/galasa-dev/galasa.dev
+repo_name: galasa
+repo_url: https://github.com/galasa-dev/galasa
 edit_uri: edit/main/docs/content/
 
 # Copyright
