@@ -102,4 +102,5 @@ success "OK"
 
 h2 "Serving up a preview"
 cd $BASEDIR
-mkdocs serve --theme material --verbose  --open
+# mkdocs serve --theme material --verbose  --open
+mkdocs serve --verbose  --open
