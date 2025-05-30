@@ -29,6 +29,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
@@ -74,17 +75,12 @@ public class GroupRunsRoute extends GroupRuns{
     ) throws ServletException, IOException, FrameworkException {
 
         HttpServletRequest request = requestContext.getRequest();
-        String requestor;
+        String requestor = requestContext.getUsername();
+
+        validateActionPermitted(BuiltInAction.TEST_RUN_LAUNCH, requestor);
+
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
-        try {
-            requestor = requestContext.getUsername();
-        } catch(Exception e) {
-            // If no JWT is present the try block will through an exception.
-            // Currently this process should work without a jwt however when authentication
-            // is enforced this catch should throw an exception
-            requestor = null;
-        }
         ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName.substring(1), requestor);
         return getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(scheduleStatus), HttpServletResponse.SC_CREATED);
     }

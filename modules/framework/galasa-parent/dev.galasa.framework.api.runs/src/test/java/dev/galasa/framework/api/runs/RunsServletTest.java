@@ -38,8 +38,8 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class RunsServletTest extends BaseServletTest {
 
+    public static final Map<String, String> REQUIRED_HEADERS = new HashMap<>(Map.of("Authorization", "Bearer " + DUMMY_JWT));
 	static final GalasaGson gson = new GalasaGson();
-    private static final Map<String, String> REQUIRED_HEADERS = new HashMap<>(Map.of("Authorization", "Bearer " + DUMMY_JWT));
 
 	MockRunsServlet servlet;
 	HttpServletRequest req;

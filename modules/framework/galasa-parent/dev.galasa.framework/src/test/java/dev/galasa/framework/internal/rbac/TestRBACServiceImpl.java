@@ -40,7 +40,7 @@ public class TestRBACServiceImpl {
         assertThat(roleGot.getDescription()).contains("Administrator access");
 
         assertThat(roleGot.getActionIds())
-            .hasSize(8)
+            .hasSize(9)
             .contains("USER_EDIT_OTHER")
             .contains("SECRETS_GET_UNREDACTED_VALUES")
             .contains("GENERAL_API_ACCESS")
@@ -48,7 +48,8 @@ public class TestRBACServiceImpl {
             .contains("CPS_PROPERTIES_SET")
             .contains("SECRETS_SET")
             .contains("SECRETS_DELETE")
-            .contains("RUNS_DELETE_OTHER_USERS");
+            .contains("RUNS_DELETE_OTHER_USERS")
+            .contains("TEST_RUN_LAUNCH");
     }
 
     @Test
@@ -65,9 +66,10 @@ public class TestRBACServiceImpl {
         assertThat(roleGot.getName()).isEqualTo("tester");
 
         assertThat(roleGot.getActionIds())
-            .hasSize(2)
+            .hasSize(3)
             .contains("USER_EDIT_OTHER")
-            .contains("GENERAL_API_ACCESS");
+            .contains("GENERAL_API_ACCESS")
+            .contains("TEST_RUN_LAUNCH");
     }
 
     @Test
