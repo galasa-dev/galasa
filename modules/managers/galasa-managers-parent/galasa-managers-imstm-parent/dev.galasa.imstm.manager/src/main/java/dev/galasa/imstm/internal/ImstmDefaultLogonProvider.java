@@ -90,7 +90,9 @@ public class ImstmDefaultLogonProvider implements IImsSystemLogonProvider {
                 logger.debug("Logged into IMS TM as user: " + creds.getUsername());
             }
 
-            imsTerminal.clear().wfk();
+            // Full resest and clear is required just in case the userid has an active
+            // conversation.
+            imsTerminal.resetAndClear();
 
         } catch (Zos3270Exception | CredentialsException e) {
             throw new ImstmManagerException("Problem logging onto the IMS system", e);
