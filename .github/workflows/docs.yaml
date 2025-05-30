@@ -47,12 +47,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.9
+          cache-disabled: true
           gradle-home-cache-excludes: |
             caches/modules-2/files-2.1/dev.galasa/**
 
       - name: Install python packages
         run: |
-          pip install mkdocs-material 
+          pip install --user -r docs/requirements.txt
 
       - name: Build and package the docs
         working-directory: ./docs
@@ -121,13 +122,23 @@ jobs:
           name: galasa-docs-site
           path: galasa-docs-preview/docs
 
+      # It turns out that when you deploy something to gh pages, you need to create this file
+      # in the root folder which GH pages serves up to contain the custom domain,
+      # so that github pages can route traffic to the correct place.
+      # We serve pages from the /docs folder inside the repo, so it goes there.
+      # Without this, it won't be able to route traffic correctly resulting in broken, and 
+      # will appear to 'forget' where vnext.galasa.dev is hosted from.
+      - name: Add the CNAME file so github pages knows
+        working-directory: galasa-docs-preview/docs
+        run: |
+          echo "vnext.galasa.dev" > "CNAME"
+
       - name: Push the changes to the preview git repo
         working-directory: galasa-docs-preview
         run: |
           git add .
           git commit -m "Automated update from the galasa-dev/galasa repo." \
-                     -m "Source branch ${{ env.BRANCH }} git head commit id: ${{ github.event.head_commit.id }}" \
-                     -m "Change: ${{ github.event.head_commit.message }}"
+                     -m "Source branch ${{ env.BRANCH }} git head commit id: ${{ github.event.head_commit.id }}" 
           git push origin main
 
   report-failure:

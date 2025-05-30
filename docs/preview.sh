@@ -54,7 +54,7 @@ note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" 
 # Functions
 #-----------------------------------------------------------------------------------------                   
 function usage {
-    info "Syntax: build-locally.sh [OPTIONS]"
+    info "Syntax: preview.sh [OPTIONS]"
     cat << EOF
 Options are:
 --help
@@ -90,31 +90,17 @@ while [ "$1" != "" ]; do
     shift
 done
 
-cd ${BASEDIR}
-mkdir -p temp
+h2 "Checking that python is installed"
+which pip3
+check_exit_code $? "Failed to find the pip3 tool installed. Install pip3 and re-try."
+success "OK"
 
-export GALASA_PREVIEW_REPO_NAME="galasa-docs-preview"
+h2 "Installing required python libraries"
+pip3 install --user -r requirements.txt
+check_exit_code $? "Failed to install the python requirements"
+success "OK"
 
-cd temp
-rm -fr ${GALASA_PREVIEW_REPO_NAME}
-git clone git@github.com:${GITHUB_ORG}/${GALASA_PREVIEW_REPO_NAME}.git
-
-cd ${GALASA_PREVIEW_REPO_NAME}
-
-rm -fr docs
-
-mkdir -p docs
-cp -r ../../build/site/* docs
-
-git config user.name $(GIT_NAME)
-git config user.email $(GIT_EMAIL)
-git config credential.username $(GIT_NAME)
-git config user.email
-git config user.name
-
-git add .
-git commit -m "$USER pushing changes from local system manually" --allow-empty
-git push https://${GITHUB_ORG}:${GITHUB_TOKEN}@github.com/${GITHUB_ORG}/${GALASA_PREVIEW_REPO_NAME}.git main
-
-success "OK. Documentation has been published to https://${GITHUB_ORG}.github.io/${GALASA_PREVIEW_REPO_NAME}/"
-
+h2 "Serving up a preview"
+cd $BASEDIR
+# mkdocs serve --theme material --verbose  --open
+mkdocs serve --verbose  --open

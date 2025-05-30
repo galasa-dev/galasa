@@ -55,7 +55,7 @@ task importAndUnpackCliReferenceDocsZip(type: Copy) {
 // Turn the .md content into an HTML site
 // --------------------------------------------------------------------------------------------
 task mkdocs(type: Exec) {
-     commandLine 'mkdocs', 'build', '--clean', '--no-strict', '--theme', 'material', 
+     commandLine 'mkdocs', 'build', '--clean', '--no-strict', 
                 '--use-directory-urls', '--site-dir', 'build/site', '--verbose'
 }
 

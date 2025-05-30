@@ -3,7 +3,7 @@ title: Home
 icon: material/home
 hide:
   - navigation
-  - toc
+#   - toc
 ---
 
 <div class="galasa-intro" markdown>
@@ -14,7 +14,7 @@ Allowing you to test applications at scale regardless of platform — including 
 
 [Get started](./docs/index.md){ .md-button .md-button--primary }
 [Learn more](./about/index.md){ .md-button }
-[0.xx.0 highlights](./releases/index.md){ .md-button }
+[0.41.0 highlights](./releases/2025/05/06/v0.41.0/){ .md-button }
 
 </div>
 
