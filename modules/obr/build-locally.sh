@@ -18,7 +18,7 @@ BASEDIR=$(dirname "$0");pushd $BASEDIR 2>&1 >> /dev/null ;BASEDIR=$(pwd);popd 2>
 export ORIGINAL_DIR=$(pwd)
 # cd "${BASEDIR}"
 
-cd "${BASEDIR}/.."
+cd "${BASEDIR}/../.."
 WORKSPACE_DIR=$(pwd)
 
 cd "${BASEDIR}/../.."
@@ -143,7 +143,6 @@ if [[ -z ${SOURCE_MAVEN} ]]; then
     local_maven_repo_folder=$(pwd)
     cd - 
     export SOURCE_MAVEN="file://$local_maven_repo_folder"
-    # export SOURCE_MAVEN=https://development.galasa.dev/main/maven-repo/obr/
     info "SOURCE_MAVEN repo defaulting to ${SOURCE_MAVEN}."
     info "Set this environment variable if you want to over-ride this value."
 else
@@ -226,7 +225,7 @@ function get_galasabld_binary_location {
             GALASA_BUILD_TOOL_PATH=${GALASABLD_ON_PATH}
         else
             info "The galasa build tool 'galasabld' or '$GALASA_BUILD_TOOL_NAME' is not on the path."
-            export GALASA_BUILD_TOOL_PATH=${WORKSPACE_DIR}/buildutils/bin/${GALASA_BUILD_TOOL_NAME}
+            export GALASA_BUILD_TOOL_PATH=${WORKSPACE_DIR}/modules/buildutils/bin/${GALASA_BUILD_TOOL_NAME}
             if [[ ! -e ${GALASA_BUILD_TOOL_PATH} ]]; then
                 error "Cannot find the $GALASA_BUILD_TOOL_NAME tools on locally built workspace."
                 info "Try re-building the buildutils project"
@@ -268,15 +267,15 @@ function check_dependencies_present {
     export framework_manifest_path=${BASEDIR}/dependency-download/build/dependencies/dev.galasa.framework.manifest.yaml
     export managers_manifest_path=${BASEDIR}/dependency-download/build/dependencies/dev.galasa.managers.manifest.yaml
     export extensions_manifest_path=${BASEDIR}/dependency-download/build/dependencies/dev.galasa.extensions.manifest.yaml
-    # export framework_manifest_path=${WORKSPACE_DIR}/framework/release.yaml
-    # export managers_manifest_path=${WORKSPACE_DIR}/managers/release.yaml
+    # export framework_manifest_path=${WORKSPACE_DIR}/modules/framework/release.yaml
+    # export managers_manifest_path=${WORKSPACE_DIR}/modules/managers/release.yaml
 
     declare -a required_files=(
-    ${WORKSPACE_DIR}/${project}/dev.galasa.uber.obr/pom.template
+    ${WORKSPACE_DIR}/modules/${project}/dev.galasa.uber.obr/pom.template
     ${framework_manifest_path}
     ${extensions_manifest_path}
     ${managers_manifest_path}
-    ${WORKSPACE_DIR}/obr/release.yaml
+    ${WORKSPACE_DIR}/modules/obr/release.yaml
     )
     for required_file in "${required_files[@]}"
     do
@@ -298,14 +297,14 @@ function construct_bom_pom_xml {
 
 
     # Check local build version
-    export GALASA_BUILD_TOOL_PATH=${WORKSPACE_DIR}/buildutils/bin/${GALASA_BUILD_TOOL_NAME}
+    export GALASA_BUILD_TOOL_PATH=${WORKSPACE_DIR}/modules/buildutils/bin/${GALASA_BUILD_TOOL_NAME}
     info "Using galasabld tool ${GALASA_BUILD_TOOL_PATH}"
 
     cmd="${GALASA_BUILD_TOOL_PATH} template \
     --releaseMetadata ${framework_manifest_path} \
     --releaseMetadata ${extensions_manifest_path} \
     --releaseMetadata ${managers_manifest_path} \
-    --releaseMetadata ${WORKSPACE_DIR}/obr/release.yaml \
+    --releaseMetadata ${WORKSPACE_DIR}/modules/obr/release.yaml \
     --template pom.template \
     --output pom.xml \
     --bom \
@@ -325,17 +324,17 @@ function construct_bom_pom_xml {
 function construct_uber_obr_pom_xml {
     h2 "Generating a pom.xml from a template, using all the versions of everything..."
 
-    cd ${WORKSPACE_DIR}/${project}/dev.galasa.uber.obr
+    cd ${WORKSPACE_DIR}/modules/${project}/dev.galasa.uber.obr
 
     # Check local build version
-    export GALASA_BUILD_TOOL_PATH=${WORKSPACE_DIR}/buildutils/bin/${GALASA_BUILD_TOOL_NAME}
+    export GALASA_BUILD_TOOL_PATH=${WORKSPACE_DIR}/modules/buildutils/bin/${GALASA_BUILD_TOOL_NAME}
     info "Using galasabld tool ${GALASA_BUILD_TOOL_PATH}"
 
     cmd="${GALASA_BUILD_TOOL_PATH} template \
     --releaseMetadata ${framework_manifest_path} \
     --releaseMetadata ${extensions_manifest_path} \
     --releaseMetadata ${managers_manifest_path} \
-    --releaseMetadata ${WORKSPACE_DIR}/obr/release.yaml \
+    --releaseMetadata ${WORKSPACE_DIR}/modules/obr/release.yaml \
     --template pom.template \
     --output pom.xml \
     --obr \
@@ -355,17 +354,17 @@ function construct_uber_obr_pom_xml {
 function construct_obr_generic_pom_xml {
     h2 "Generating a pom.xml from the OBR generic template, using all the versions of everything..."
 
-    cd ${WORKSPACE_DIR}/${project}/obr-generic
+    cd ${WORKSPACE_DIR}/modules/${project}/obr-generic
 
     # Check local build version
-    export GALASA_BUILD_TOOL_PATH=${WORKSPACE_DIR}/buildutils/bin/${GALASA_BUILD_TOOL_NAME}
+    export GALASA_BUILD_TOOL_PATH=${WORKSPACE_DIR}/modules/buildutils/bin/${GALASA_BUILD_TOOL_NAME}
     info "Using galasabld tool ${GALASA_BUILD_TOOL_PATH}"
 
     cmd="${GALASA_BUILD_TOOL_PATH} template \
     --releaseMetadata ${framework_manifest_path} \
     --releaseMetadata ${extensions_manifest_path} \
     --releaseMetadata ${managers_manifest_path} \
-    --releaseMetadata ${WORKSPACE_DIR}/obr/release.yaml \
+    --releaseMetadata ${WORKSPACE_DIR}/modules/obr/release.yaml \
     --template pom.template \
     --output pom.xml \
     --obr \
@@ -397,14 +396,16 @@ function check_developer_attribution_present {
 
 #------------------------------------------------------------------------------------
 function build_generated_bom_pom {
-    h2 "Building the generated pom.xml to package-up things into an OBR we can publish..."
+    h2 "build_generated_bom_pom: Building the generated pom.xml to package-up things into an OBR we can publish..."
     cd ${BASEDIR}/galasa-bom
 
-    mvn \
+    cmd="mvn \
     -Dgpg.passphrase=${GPG_PASSPHRASE} \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
-    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ install \
-    2>&1 >> ${log_file}
+    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ install"
+    info "current directory is $(pwd)"
+    info "Command is $cmd"
+    $cmd 2>&1 >> ${log_file}
 
     rc=$? ; if [[ "${rc}" != "0" ]]; then
         error "Failed to push built obr into maven repo ${project}. log file is ${log_file}"
@@ -415,14 +416,16 @@ function build_generated_bom_pom {
 
 #------------------------------------------------------------------------------------
 function build_generated_uber_obr_pom {
-    h2 "Building the generated pom.xml to package-up things into an OBR we can publish..."
+    h2 "build_generated_uber_obr_pom: Building the generated pom.xml to package-up things into an OBR we can publish..."
     cd ${BASEDIR}/dev.galasa.uber.obr
 
-    mvn \
+    cmd="mvn \
     -Dgpg.passphrase=${GPG_PASSPHRASE} \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
-    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ install \
-    2>&1 >> ${log_file}
+    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ install"
+    info "current directory is $(pwd)"
+    info "Command is $cmd"
+    $cmd 2>&1 >> ${log_file}
 
     rc=$? ; if [[ "${rc}" != "0" ]]; then
         error "Failed to push built obr into maven repo ${project}. log file is ${log_file}"
@@ -436,12 +439,13 @@ function build_generated_obr_generic_pom {
     h2 "Building the generated OBR generic pom.xml..."
     cd ${BASEDIR}/obr-generic
 
-    mvn install \
+    cmd="mvn install \
     -Dgpg.passphrase=${GPG_PASSPHRASE} \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
     -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
-    dev.galasa:galasa-maven-plugin:$component_version:obrembedded \
-    2>&1 >> ${log_file}
+    dev.galasa:galasa-maven-plugin:$component_version:obrembedded"
+    info "Command is $cmd"
+    $cmd 2>&1 >> ${log_file}
 
     rc=$?; if [[ "${rc}" != "0" ]]; then
         error "Failed to push OBR generic build into maven repo ${project}. log file is ${log_file}"
@@ -457,16 +461,16 @@ function generate_javadoc_pom_xml {
     cd ${WORKSPACE_DIR}/obr/javadocs
 
     ${GALASA_BUILD_TOOL_PATH} template \
-    --releaseMetadata ${framework_manifest_path} \
-    --releaseMetadata ${extensions_manifest_path} \
-    --releaseMetadata ${managers_manifest_path} \
-    --releaseMetadata ${WORKSPACE_DIR}/obr/release.yaml \
+    --releaseMetadata "${framework_manifest_path}" \
+    --releaseMetadata "${extensions_manifest_path}" \
+    --releaseMetadata "${managers_manifest_path}" \
+    --releaseMetadata "${WORKSPACE_DIR}/modules/obr/release.yaml" \
     --template pom.template \
     --output pom.xml \
     --javadoc
 
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to create the pom.xml for javadoc" ;  exit 1 ; fi
-    success "OK - pom.xml file created at ${WORKSPACE_DIR}/obr/javadocs/pom.xml"
+    success "OK - pom.xml file created at ${WORKSPACE_DIR}/modules/obr/javadocs/pom.xml"
 }
 
 #------------------------------------------------------------------------------------
@@ -474,7 +478,7 @@ function build_javadoc_pom {
     h2 "Building the javadoc with maven"
     cd ${WORKSPACE_DIR}/obr/javadocs
     mvn clean install \
-    --settings ${WORKSPACE_DIR}/obr/settings.xml \
+    --settings ${WORKSPACE_DIR}/modules/obr/settings.xml \
     --batch-mode \
     --errors \
     --fail-at-end \
@@ -486,7 +490,7 @@ function build_javadoc_pom {
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "maven failed for javadoc build" ;  exit 1 ; fi
 
     success "OK - Build the galasa-uber-javadoc-*.zip file:"
-    ls ${WORKSPACE_DIR}/obr/javadocs/target/*.zip
+    ls ${WORKSPACE_DIR}/modules/obr/javadocs/target/*.zip
 }
 
 #------------------------------------------------------------------------------------
@@ -531,9 +535,7 @@ function check_secrets_unless_supressed() {
         info "Script invoked directly, running detect-secrets.sh script"
 
         # Run the detect-secrets.sh in root
-        cd "${WORKSPACE_DIR}/.."
-        TOOL_DIR=$(pwd)
-        $TOOL_DIR/tools/detect-secrets.sh
+        $WORKSPACE_DIR/tools/detect-secrets.sh
     fi
 }
 
@@ -556,7 +558,7 @@ function build_boot_embedded_docker_image {
 # #------------------------------------------------------------------------------------
 # h2 "Packaging the javadoc into a docker file"
 # #------------------------------------------------------------------------------------
-# cd ${WORKSPACE_DIR}/obr/javadocs
+# cd ${WORKSPACE_DIR}/modules/obr/javadocs
 # docker --file ${WORKSPACE_DIR}/automation/dockerfiles/javadocs/javadocs-image-dockerfile .
 
 # rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to create the docker image containing the javadoc" ;  exit 1 ; fi
