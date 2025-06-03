@@ -24,13 +24,15 @@ BASEDIR=$(dirname "$0");pushd $BASEDIR 2>&1 >> /dev/null ;BASEDIR=$(pwd);popd 2>
 export ORIGINAL_DIR=$(pwd)
 # cd "${BASEDIR}"
 
-cd "${BASEDIR}/.."
+cd "${BASEDIR}/../.."
 WORKSPACE_DIR=$(pwd)
 
 cd "${BASEDIR}/../.."
 REPO_ROOT=$(pwd)
 
-OPENAPI2BEANS="${BASEDIR}/galasa-parent/build/openapi2beans"
+OPENAPI2BEANS_FOLDER="${BASEDIR}/galasa-parent/build"
+OPENAPI2BEANS="${OPENAPI2BEANS_FOLDER}/openapi2beans"
+
 
 #-----------------------------------------------------------------------------------------
 #
@@ -77,7 +79,8 @@ Options are:
 Environment variables used:
 DEBUG - Optional. Valid values "1" (on) or "0" (off). Defaults to "0" (off).
 SOURCE_MAVEN - Optional. Where maven/gradle can look for pre-built development levels of things.
-    Defaults to https://development.galasa.dev/main/maven-repo/obr/
+    You could set it to https://development.galasa.dev/main/maven-repo/obr/
+    The default value is ~/.m2/repository
 
 EOF
 }
@@ -213,7 +216,7 @@ function cleaning_up_before_we_start {
         h2 "Cleaning..."
 
         warn "Temporary fix: Remove the dex proto file so we don't use debris from last time."
-        rm -fr ${WORKSPACE_DIR}/galasa-parent/dev.galasa.framework.auth.spi/src/main/proto/dex.proto
+        rm -fr ${BASE_DIR}/galasa-parent/dev.galasa.framework.auth.spi/src/main/proto/dex.proto
 
         gradle --no-daemon \
         ${CONSOLE_FLAG} \
@@ -288,13 +291,15 @@ function check_openapi2beans_is_installed {
 function download_openapi2beans {
     get_architecture
 
-    h2 "Downloading openapi2beans tool"
-    url=https://development.galasa.dev/main/binary/bld/openapi2beans-${os}-${architecture}
-    
-    curl --create-dirs -o ${OPENAPI2BEANS} ${url} 
-    rc=$? 
-    check_exit_code $rc "Failed to download the openapi2beans tool."
-
+    h2 "Obtaining openapi2beans tool"
+    info "copying openapi2beans tool from ${WORKSPACE_DIR}/modules/buildutils/openapi2beans/bin/openapi2beans-${os}-${architecture} to ${OPENAPI2BEANS}"
+    mkdir -p $OPENAPI2BEANS_FOLDER
+    cp ${WORKSPACE_DIR}/modules/buildutils/openapi2beans/bin/openapi2beans-${os}-${architecture} ${OPENAPI2BEANS}
+    # We used to download the tool from the intermediate web site here:
+    # url=https://development.galasa.dev/main/binary/bld/openapi2beans-${os}-${architecture}
+    # curl --create-dirs -o ${OPENAPI2BEANS} ${url} 
+    # rc=$? 
+    # check_exit_code $rc "Failed to download the openapi2beans tool."
 }
 
 #-------------------------------------------------------------
@@ -436,7 +441,9 @@ fi
 
 # Over-rode SOURCE_MAVEN if you want to build from a different maven repo...
 if [[ -z ${SOURCE_MAVEN} ]]; then
-    export SOURCE_MAVEN=https://development.galasa.dev/main/maven-repo/obr/
+    m2=${USER}/.m2/repository
+    export SOURCE_MAVEN=file://$m2
+    # export SOURCE_MAVEN=https://development.galasa.dev/main/maven-repo/obr/
     info "SOURCE_MAVEN repo defaulting to ${SOURCE_MAVEN}."
     info "Set this environment variable if you want to over-ride this value."
 else

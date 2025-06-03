@@ -87,6 +87,13 @@ public class ImsTerminalImpl extends Zos3270TerminalImpl implements IImsTerminal
         logger.trace("Attempting to reset the IMS TM screen");
 
         try {
+            // /EXIT will give us either DFS058I EXIT COMMAND COMPLETED or DFS180 NO ACTIVE 
+            // CONVERSATION IN PROCESS. We don't actually care which as, either way, there's 
+            // no active conversation after this command.
+            clear().wfk().type("/EXIT").enter().wfk();
+
+            // If we've reset successfully then pressing ENTER should give us DFS249 NO INPUT
+            // MESSAGE CREATED.
             clear().wfk().enter().wfk();
 
             if (!isTextInField("DFS249")) {

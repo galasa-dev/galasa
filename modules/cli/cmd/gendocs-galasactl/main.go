@@ -53,7 +53,26 @@ func renderErrorsToFile(targetFolder string, targetFileName string) {
 	renderErrorsToWriter(w)
 }
 
+func title(writer *bufio.Writer, titleText string) {
+	_, err := writer.WriteString("---\n")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = writer.WriteString(fmt.Sprintf("title: \"%s\"\n", titleText))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = writer.WriteString("---\n")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func renderErrorsToWriter(writer *bufio.Writer) {
+
+	title(writer, "Errors on the command line")
 
 	// Write out the title of the content
 	_, err := writer.WriteString("## Errors\n" + "The `galasactl` tool can generate the following errors:\n\n")

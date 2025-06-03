@@ -177,7 +177,7 @@ var (
 	// A map of all the messages. Indexed by ordinal number.
 	GALASA_ALL_MESSAGES = make(map[int]*MessageType)
 
-	SEE_COMMAND_REFERENCE = " Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference/cli-commands."
+	SEE_COMMAND_REFERENCE = " Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference"
 
 	GALASA_ERROR_UNSUPPORTED_BOOTSTRAP_URL                = NewMessageType("GAL1001E: Unsupported bootstrap URL %s. Acceptable values start with 'http' or 'https'."+SEE_COMMAND_REFERENCE, 1001, STACK_TRACE_WANTED)
 	GALASA_ERROR_BOOTSTRAP_URL_BAD_ENDING                 = NewMessageType("GAL1002E: Bootstrap url does not end in '/bootstrap'. Bootstrap url is '%s'."+SEE_COMMAND_REFERENCE, 1002, STACK_TRACE_WANTED)

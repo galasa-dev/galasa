@@ -63,6 +63,7 @@ theme:
   - navigation.tabs.sticky
   - navigation.top
   - navigation.tracking
+  - navigation.collapse
   - toc.follow
 
 # Extensions
@@ -75,7 +76,7 @@ markdown_extensions:
   - md_in_html
   - toc:
       permalink: true
-      toc_depth: 3
+      toc_depth: 1
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.betterem:
@@ -175,22 +176,22 @@ nav:
       - docs/writing-own-tests/test-result-provider.md
     - The Galasa Ecosystem:
       - docs/ecosystem/index.md
-      - docs/ecosystem/architecture.md
-      - docs/ecosystem/role-based-access.md
+      - docs/ecosystem/ecosystem-architecture.md
+      - docs/ecosystem/ecosystem-role-based-access.md
       - docs/ecosystem/ecosystem-installing-k8s.md
       - docs/ecosystem/ecosystem-authentication.md
-      - docs/ecosystem/resources-yaml.md
+      - docs/ecosystem/ecosystem-manage-resources.md
       - docs/ecosystem/ecosystem-manage-creds.md
       - docs/ecosystem/ecosystem-manage-cps.md
       - docs/ecosystem/ecosystem-managing-encryption-keys.md
     - Managing tests in a Galasa Ecosystem:
-      - docs/manage-ecosystem/test-streams
-      - docs/manage-ecosystem/ecosystem-cli-runs-prepare
-      - docs/manage-ecosystem/ecosystem-cli-runs-submit
-      - docs/manage-ecosystem/runs-reset-cancel
-      - docs/manage-ecosystem/cli-runs-get
-      - docs/manage-ecosystem/ecosystem-cli-runs-download
-      - docs/manage-ecosystem/cli-runs-delete
+      - docs/manage-ecosystem/test-streams.md
+      - docs/manage-ecosystem/runs-prepare.md
+      - docs/manage-ecosystem/runs-submit.md
+      - docs/manage-ecosystem/runs-reset-cancel.md
+      - docs/manage-ecosystem/runs-get.md
+      - docs/manage-ecosystem/runs-download.md
+      - docs/manage-ecosystem/runs-delete.md
     - Upgrading:
       - docs/upgrading/index.md 
     - Managers:
@@ -219,8 +220,82 @@ nav:
         - docs/managers/workflow-managers/index.md
       - z/OS Managers:
         - docs/managers/zos-managers/index.md
-    - FAQs:
-      - docs/faqs-galasa.md
+        - docs/managers/zos-managers/rse-api-manager.md
+        - docs/managers/zos-managers/z-os-batch-rse-api-manager.md
+        - docs/managers/zos-managers/z-os-batch-z-os-mf-manager.md
+        - docs/managers/zos-managers/z-os-file-manager.md
+        - docs/managers/zos-managers/z-os-file-rse-api-manager.md
+        - docs/managers/zos-managers/z-os-file-zos-mf-manager.md
+        - docs/managers/zos-managers/zos-batch-manager.md
+        - docs/managers/zos-managers/zos-batch-zos-mf-manager.md
+        - docs/managers/zos-managers/zos-console-manager.md
+        - docs/managers/zos-managers/zos-console-oeconsol-manager.md
+        - docs/managers/zos-managers/zos-console-zos-mf-manager.md
+        - docs/managers/zos-managers/zos-file-manager.md
+        - docs/managers/zos-managers/zos-file-zos-mf-manager.md
+        - docs/managers/zos-managers/zos-manager.md
+        - docs/managers/zos-managers/zos-managertestformat.md
+        - docs/managers/zos-managers/zos-mf-manager.md
+        - docs/managers/zos-managers/zos-program-manager.md
+        - docs/managers/zos-managers/zos-tso-command-ssh-manager.md
+        - docs/managers/zos-managers/zos-unix-command-ssh-manager.md
+        - docs/managers/zos-managers/zos3270terminal-manager.md
+    - Reference:
+      - docs/reference/index.md
+      # - docs/reference/galasa-cli-commands.md
+      - Galasactl command-line reference:
+        - docs/reference/cli-syntax/errors-list.md
+        - docs/reference/cli-syntax/galasactl.md
+        - docs/reference/cli-syntax/galasactl_auth.md
+        - docs/reference/cli-syntax/galasactl_auth_login.md
+        - docs/reference/cli-syntax/galasactl_auth_logout.md
+        - docs/reference/cli-syntax/galasactl_auth_tokens.md       
+        - docs/reference/cli-syntax/galasactl_auth_tokens_delete.md
+        - docs/reference/cli-syntax/galasactl_auth_tokens_get.md
+        - docs/reference/cli-syntax/galasactl_local.md
+        - docs/reference/cli-syntax/galasactl_local_init.md
+        - docs/reference/cli-syntax/galasactl_monitors.md
+        - docs/reference/cli-syntax/galasactl_monitors_get.md
+        - docs/reference/cli-syntax/galasactl_monitors_set.md
+        - docs/reference/cli-syntax/galasactl_project.md
+        - docs/reference/cli-syntax/galasactl_project_create.md
+        - docs/reference/cli-syntax/galasactl_properties.md
+        - docs/reference/cli-syntax/galasactl_properties_delete.md
+        - docs/reference/cli-syntax/galasactl_properties_get.md
+        - docs/reference/cli-syntax/galasactl_properties_namespaces.md
+        - docs/reference/cli-syntax/galasactl_properties_namespaces_get.md
+        - docs/reference/cli-syntax/galasactl_properties_set.md
+        - docs/reference/cli-syntax/galasactl_resources.md
+        - docs/reference/cli-syntax/galasactl_resources_apply.md
+        - docs/reference/cli-syntax/galasactl_resources_create.md
+        - docs/reference/cli-syntax/galasactl_resources_delete.md
+        - docs/reference/cli-syntax/galasactl_resources_update.md
+        - docs/reference/cli-syntax/galasactl_roles.md
+        - docs/reference/cli-syntax/galasactl_roles_get.md
+        - docs/reference/cli-syntax/galasactl_runs.md
+        - docs/reference/cli-syntax/galasactl_runs_cancel.md
+        - docs/reference/cli-syntax/galasactl_runs_delete.md
+        - docs/reference/cli-syntax/galasactl_runs_download.md
+        - docs/reference/cli-syntax/galasactl_runs_get.md
+        - docs/reference/cli-syntax/galasactl_runs_prepare.md
+        - docs/reference/cli-syntax/galasactl_runs_reset.md
+        - docs/reference/cli-syntax/galasactl_runs_submit.md
+        - docs/reference/cli-syntax/galasactl_runs_submit_local.md
+        - docs/reference/cli-syntax/galasactl_secrets.md
+        - docs/reference/cli-syntax/galasactl_secrets_delete.md
+        - docs/reference/cli-syntax/galasactl_secrets_get.md
+        - docs/reference/cli-syntax/galasactl_secrets_set.md
+        - docs/reference/cli-syntax/galasactl_streams.md
+        - docs/reference/cli-syntax/galasactl_streams_delete.md
+        - docs/reference/cli-syntax/galasactl_streams_get.md
+        - docs/reference/cli-syntax/galasactl_users.md
+        - docs/reference/cli-syntax/galasactl_users_delete.md
+        - docs/reference/cli-syntax/galasactl_users_get.md
+        - docs/reference/cli-syntax/galasactl_users_set.md
+      - docs/reference/galasa-javadoc.md
+      - docs/reference/galasa-rest-api-docs.md
+    # - FAQs:
+    #   - docs/faqs-galasa.md
   - Releases:
     - releases/index.md
     - releases/license.md

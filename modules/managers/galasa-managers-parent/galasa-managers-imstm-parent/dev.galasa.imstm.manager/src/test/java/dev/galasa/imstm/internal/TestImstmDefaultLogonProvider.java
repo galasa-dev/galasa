@@ -78,7 +78,7 @@ public class TestImstmDefaultLogonProvider {
         Mockito.when(terminal.isConnected()).thenReturn(true);
         Mockito.when(terminal.type(Mockito.anyString())).thenReturn(terminal);
         Mockito.when(terminal.enter()).thenReturn(terminal);
-        Mockito.when(terminal.clear()).thenReturn(terminal);
+        Mockito.when(terminal.resetAndClear()).thenReturn(terminal);
     }
 
     @Test
@@ -265,8 +265,7 @@ public class TestImstmDefaultLogonProvider {
         inOrder.verify(terminal).enter();
         inOrder.verify(terminal).wfk();
         inOrder.verify(terminal).waitForTextInField(new String[] { "DFS3650I" }, new String[] { "REJECTED"});
-        inOrder.verify(terminal).clear();
-        inOrder.verify(terminal).wfk();
+        inOrder.verify(terminal).resetAndClear();
 
     }
 }

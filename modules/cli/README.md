@@ -865,13 +865,13 @@ Browse the following web site and download whichever built binary files you wish
 The build process builds some docker images with the command-line tools installed.
 This could be useful when wishing to embed a usage of the command-line within a build process which can use a docker image.
 
-- Bleeding edge/Unstable : `docker pull harbor.galasa.dev/galasadev/galasa-cli-amd64:main`
+- Bleeding edge/Unstable : `docker pull ghcr.io/galasa-dev/galasactl-x86_64:main`
 
 ### How to use the docker image
 The docker image has the `galasactl` tool on the path of the docker image when it starts up.
 So, invoke the `galasactl` without installing on your local machine, using the docker image like this:
 ```
-docker run harbor.galasa.dev/galasadev/galasa-cli-amd64:main galasactl --version
+docker run ghcr.io/galasa-dev/galasactl-x86_64:main galasactl --version
 ```
 
 ## Running a test locally, but using shared configuration properties on a remote Galasa server

@@ -1,3 +1,6 @@
+---
+title: "Errors on the command line"
+---
 ## Errors
 The `galasactl` tool can generate the following errors:
 

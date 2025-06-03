@@ -138,8 +138,7 @@ jobs:
         run: |
           git add .
           git commit -m "Automated update from the galasa-dev/galasa repo." \
-                     -m "Source branch ${{ env.BRANCH }} git head commit id: ${{ github.event.head_commit.id }}" \
-                     -m "Change: ${{ github.event.head_commit.message }}"
+                     -m "Source branch ${{ env.BRANCH }} git head commit id: ${{ github.event.head_commit.id }}" 
           git push origin main
 
   report-failure:

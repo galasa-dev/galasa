@@ -2,19 +2,6 @@
 title: "Role Based Access"
 ---
 
-- [Role Based Access Control in Galasa](#role-based-access-control-in-galasa)
-  - [Why do we need Role Based Access Control ?](#why-do-we-need-role-based-access-control-)
-  - [Understanding the Galasa RBAC model](#understanding-the-galasa-rbac-model)
-  - [Available Actions](#available-actions)
-  - [Available Roles](#available-roles)
-  - [Constraints](#constraints)
-  - [Upgrading to a version of Galasa which supports RBAC](#upgrading-to-a-version-of-galasa-which-supports-rbac)
-  - [Setting up RBAC when you install Galasa into Kubernetes](#setting-up-rbac-when-you-install-galasa-into-kubernetes)
-    - [How to nominate a user as the Galasa service `owner`](#how-to-nominate-a-user-as-the-galasa-service-owner)
-    - [How to set the default user role](#how-to-set-the-default-user-role)
-  - [Using the `galasactl` command-line tool to view roles](#using-the-galasactl-command-line-tool-to-view-roles)
-  - [Using the `galasactl` command-line tool assigning a "role" to a user](#using-the-galasactl-command-line-tool-assigning-a-role-to-a-user)
-  - [Using the Galasa web user interface to view your own user role](#using-the-galasa-web-user-interface-to-view-your-own-user-role)
 
 # <a name="role-based-access-control-in-galasa"></a>Role Based Access Control in Galasa
 Role Based Access Control (RBAC) is a widely adopted mechanism of assigning roles to users of a system which grants such users permissions to perform some capability dictated by the role(s) they have been assigned. Here we discuss the Galasa implementation of RBAC.

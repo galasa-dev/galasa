@@ -242,6 +242,13 @@ public class TestImsTerminalImpl {
             // wfk() calls waitForKeyboard() under the covers so we need to verify both
             inOrder.verify(spyTerminal).wfk();
             inOrder.verify(spyTerminal).waitForKeyboard();
+            inOrder.verify(spyTerminal).type("/EXIT");
+            inOrder.verify(spyTerminal).enter();
+            inOrder.verify(spyTerminal).wfk();
+            inOrder.verify(spyTerminal).waitForKeyboard();
+            inOrder.verify(spyTerminal).clear();
+            inOrder.verify(spyTerminal).wfk();
+            inOrder.verify(spyTerminal).waitForKeyboard();
             inOrder.verify(spyTerminal).enter();
             inOrder.verify(spyTerminal).wfk();
             inOrder.verify(spyTerminal).waitForKeyboard();
