@@ -32,10 +32,10 @@ import dev.galasa.boot.felix.FelixFramework;
 
 /**
  * Galasa command line launcher.<br>
- * 
+ *
  * Required parameters:<br>
  * &nbsp;&nbsp;<code>--obr infra.obr --obr test.obr test.bundle/test.package.TestClass</code><br>
- * 
+ *
  * <ol>
  * <li>Start Felix OSGi framework</li>
  * <li>Loads required bundles</li>
@@ -111,7 +111,7 @@ public class Launcher {
 
     /**
      * Launcher main method
-     * 
+     *
      * @param args Arguments from the command line
      */
     public static void main(String[] args) {
@@ -127,7 +127,7 @@ public class Launcher {
 
     /**
      * Process supplied command line arguments and run the test
-     * 
+     *
      * @param args test run parameters
      * @throws InterruptedException
      * @throws Exception
@@ -229,7 +229,7 @@ public class Launcher {
 
     /**
      * Process the supplied command line augments
-     * 
+     *
      * @param args supplied arguments
      * @throws ParseException
      */
@@ -262,7 +262,7 @@ public class Launcher {
         options.addOption(null, DRY_RUN_OPTION, false, "Perform a dry-run of the specified actions. Can be combined with \"" + FILE_OPTION_LONG + "\"");
         options.addOption(null, SETUPECO_OPTION, false, "Setup the Galasa Ecosystem");
         options.addOption(null, VALIDATEECO_OPTION, false, "Validate the Galasa Ecosystem");
-        
+
 
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = null;
@@ -349,11 +349,11 @@ public class Launcher {
         if (isMetricsServer) {
             return;
         }
-        
+
         if (isApiServer) {
             return;
         }
-        
+
         if (setupEco) {
             return;
         }
@@ -447,7 +447,7 @@ public class Launcher {
      * Retrieve the bootstrap URI from the command line and load the properties
      * file. If the the option is not provided, getGalasaHome is called to provide a path
      * which will be created if it does not exist.
-     * 
+     *
      * @param commandLine - The command line instance
      */
     private void checkForBootstrap(CommandLine commandLine) {
@@ -484,7 +484,7 @@ public class Launcher {
      * Retrieve the overrides URI from the command line and load the overrides file.
      * If the the option is not provided,
      * If the the option is not provided, getGalasaHome is called to provide a path
-     * 
+     *
      * @param commandLine - The command line instance
      */
     private void checkForOverrides(CommandLine commandLine) {
@@ -542,10 +542,10 @@ public class Launcher {
             return;
         }
 
-        logger.error("Galasa requires Java 11, we found: " + version + " will exit");
-        throw new LauncherException("Galasa requires Java 11, we found: " + version + " will exit");
+        logger.error("Galasa requires Java 11 or 17, we found: " + version + " will exit");
+        throw new LauncherException("Galasa requires Java 11 or 17, we found: " + version + " will exit");
     }
-    
+
     /**
      * Obtain the location of the galasa home directory
      * @return a String representing the location of the users Galasa home directory
@@ -597,7 +597,7 @@ public class Launcher {
 
     /**
      * Read a set of environment variables that will override the values of the CPS, RAS, DSS and Creds store
-     * if these are set then they override the value in the bootstrap   
+     * if these are set then they override the value in the bootstrap
      */
     public void setStoresFromEnvironmentVariables(Environment env, Properties bootstrap) {
         String CPS_ENV_VAR = "GALASA_CONFIG_STORE";
