@@ -33,6 +33,27 @@ jobs:
         run: |
           echo "This workflow is running on GitHub ref ${{ env.BRANCH }}"
 
+  get-galasa-version:
+    name: Get Galasa Version
+    # Use the build.properties file in the galasa repo to source the galasa-version output variable.
+    # This variable can be referenced by other jobs in this flow using ${{ needs.get-galasa-version.outputs.galasa-version }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 'galasa' repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.NAMESPACE }}/galasa
+          path: ${{ github.workspace }}/galasa
+          sparse-checkout: |
+            build.properties
+      - name: Get Galasa Version from build.properties file
+        id: get-galasa-version
+        run: |
+          cat ${{ github.workspace }}/galasa/build.properties | grep "=" >> $GITHUB_OUTPUT
+    outputs:
+      galasa-version: ${{ steps.get-galasa-version.outputs.GALASA_VERSION }}
+
   build-ivts:
     name: Build IVTs
     runs-on: ubuntu-latest
@@ -43,6 +64,12 @@ jobs:
         with:
           sparse-checkout: |
             modules/ivts
+            build.properties
+
+      - name: Get Galasa Version from build.properties file
+        id: get-galasa-version
+        run: |
+          cat ${{ github.workspace }}/galasa/build.properties | grep "=" >> $GITHUB_OUTPUT
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -176,6 +203,53 @@ jobs:
         run: |
           docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app wait ${{ env.BRANCH }}-ivts --resource apps:Deployment:ivts-${{ env.BRANCH }} --health --server argocd.galasa.dev
 
+  build-compilation-test-images:
+    name: Build Docker Images for Isolated and MVP Compilation tests
+    runs-on: ubuntu-latest
+
+    needs: [get-galasa-version]
+
+    env:
+      GALASA_VERSION: ${{ needs.get-galasa-version.outputs.galasa-version }}
+
+    steps:
+      - name: Extract metadata for isolated compilation test image
+        id: metadata-isolated-compilation
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/compilation-isolated
+  
+      - name: Build and push isolated compilation test image
+        id: build-compilation-isolated
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/ivts
+          file: modules/ivts/dockerfiles/dockerfile.compilationtests
+          push: true
+          tags: ${{ steps.metadata-isolated-compilation.outputs.tags }}
+          labels: ${{ steps.metadata-isolated-compilation.outputs.labels }}
+          build-args: |
+            galasaBuildZipUrl=https://development.galasa.dev/main/maven-repo/isolated/dev/galasa/galasa-isolated/${{ env.GALASA_VERSION }}/galasa-isolated-${{ env.GALASA_VERSION }}.zip
+            buildGradleFileToCopy=modules/ivts/compilation-tests/isolated/build.gradle
+
+      - name: Extract metadata for MVP compilation test image
+        id: metadata-mvp-compilation
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/compilation-mvp
+  
+      - name: Build and push MVP compilation test image
+        id: build-compilation-mvp
+        uses: docker/build-push-action@v5
+        with:
+          context: modules/ivts
+          file: modules/ivts/dockerfiles/dockerfile.compilationtests
+          push: true
+          tags: ${{ steps.metadata-mvp-compilation.outputs.tags }}
+          labels: ${{ steps.metadata-mvp-compilation.outputs.labels }}
+          build-args: |
+            galasaBuildZipUrl=https://development.galasa.dev/main/maven-repo/mvp/dev/galasa/galasa-isolated-mvp/${{ env.GALASA_VERSION }}/galasa-isolated-mvp-${{ env.GALASA_VERSION }}.zip
+            buildGradleFileToCopy=modules/ivts/compilation-tests/mvp/build.gradle
 
   report-failure:
     # Skip this job for forks
