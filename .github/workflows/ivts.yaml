@@ -207,6 +207,22 @@ jobs:
       GALASA_VERSION: ${{ needs.get-galasa-version.outputs.galasa-version }}
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            modules/ivts
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        env:
+          WRITE_GITHUB_PACKAGES_USERNAME: ${{ vars.WRITE_GITHUB_PACKAGES_USERNAME }}
+          WRITE_GITHUB_PACKAGES_TOKEN: ${{ secrets.WRITE_GITHUB_PACKAGES_TOKEN }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.WRITE_GITHUB_PACKAGES_USERNAME }}
+          password: ${{ env.WRITE_GITHUB_PACKAGES_TOKEN }}
+
       - name: Extract metadata for isolated compilation test image
         id: metadata-isolated-compilation
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
@@ -224,7 +240,7 @@ jobs:
           labels: ${{ steps.metadata-isolated-compilation.outputs.labels }}
           build-args: |
             galasaBuildZipUrl=https://development.galasa.dev/main/maven-repo/isolated/dev/galasa/galasa-isolated/${{ env.GALASA_VERSION }}/galasa-isolated-${{ env.GALASA_VERSION }}.zip
-            buildGradleFileToCopy=modules/ivts/compilation-tests/isolated/build.gradle
+            buildGradleFileToCopy=compilation-tests/isolated/build.gradle
 
       - name: Extract metadata for MVP compilation test image
         id: metadata-mvp-compilation
@@ -243,7 +259,7 @@ jobs:
           labels: ${{ steps.metadata-mvp-compilation.outputs.labels }}
           build-args: |
             galasaBuildZipUrl=https://development.galasa.dev/main/maven-repo/mvp/dev/galasa/galasa-isolated-mvp/${{ env.GALASA_VERSION }}/galasa-isolated-mvp-${{ env.GALASA_VERSION }}.zip
-            buildGradleFileToCopy=modules/ivts/compilation-tests/mvp/build.gradle
+            buildGradleFileToCopy=compilation-tests/mvp/build.gradle
 
   report-failure:
     # Skip this job for forks
