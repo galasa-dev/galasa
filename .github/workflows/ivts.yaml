@@ -64,12 +64,6 @@ jobs:
         with:
           sparse-checkout: |
             modules/ivts
-            build.properties
-
-      - name: Get Galasa Version from build.properties file
-        id: get-galasa-version
-        run: |
-          cat ${{ github.workspace }}/galasa/build.properties | grep "=" >> $GITHUB_OUTPUT
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
