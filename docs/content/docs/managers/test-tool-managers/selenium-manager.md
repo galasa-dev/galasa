@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/selenium-manager"
 title: "Selenium Manager"
 ---
 

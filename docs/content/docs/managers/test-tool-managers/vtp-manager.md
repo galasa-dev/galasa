@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/vtp-manager"
 title: "VTP Manager"
 ---
 

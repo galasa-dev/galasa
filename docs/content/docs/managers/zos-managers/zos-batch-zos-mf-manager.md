@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-batch-zos-mf-manager"
 title: "zOS Batch zOS MF Manager"
 ---
 

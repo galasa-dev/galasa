@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/galasa-ecosystem-manager"
 title: "Galasa Ecosystem Manager"
 ---
 

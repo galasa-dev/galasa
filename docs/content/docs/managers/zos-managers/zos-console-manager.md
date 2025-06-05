@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-console-manager"
 title: "zOS Console Manager"
 ---
 

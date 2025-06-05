@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-file-manager"
 title: "zOS file Manager"
 ---
 

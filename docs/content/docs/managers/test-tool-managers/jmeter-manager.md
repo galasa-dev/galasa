@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/jmeter-manager"
 title: "JMeter Manager"
 ---
 

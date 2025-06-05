@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/http-client-manager"
 title: "HTTP Client Manager"
 ---
 

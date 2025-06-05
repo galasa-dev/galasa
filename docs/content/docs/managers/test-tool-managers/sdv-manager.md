@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/sdv-manager"
 title: "SDV Manager"
 ---
 

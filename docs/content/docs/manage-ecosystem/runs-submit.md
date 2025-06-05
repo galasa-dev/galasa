@@ -4,38 +4,40 @@ title: "Running tests in an Ecosystem"
 
 The `runs submit` command submits and monitors tests in the Galasa Ecosystem. Tests can be input either from a portfolio or directly from a test package.
 
-For information about creating a portfolio by using the Galasa CLI, see the documentation for the [runs prepare](/docs/manage-ecosystem/ecosystem-cli-runs-prepare) command.
+For information about creating a portfolio by using the Galasa CLI, see the documentation for the [runs prepare](./runs-prepare.md) command.
+
 
 ## Working with the `runs submit` command
 
 The following section provides a subset of examples of how you can use the `runs submit` command to complete various tasks, for example, getting help, submitting tests, and setting overrides. The examples build on the Galasa SimBank tests, which you can run non-locally if you have an ecosystem that is running SimPlatform.
 
+
 ### Submitting tests to an ecosystem from a portfolio
 
-The following example assumes that you have created a `my_portfolio.yaml` portfolio by using the [runs prepare](/docs/manage-ecosystem/ecosystem-cli-runs-prepare) command. The command submits tests from the `my_portfolio.yaml` portfolio, and specifies the following settings.
+The following example assumes that you have created a `my_portfolio.yaml` portfolio by using the [runs prepare](./runs-prepare.md) command. The command submits tests from the `my_portfolio.yaml` portfolio, and specifies the following settings.
 
 On Mac or Unix:
 
-```
+```shell
 galasactl runs submit \
-                        --bootstrap http://example.com:30960/bootstrap \
-                        --portfolio my_portfolio.yaml \
-                        --poll 5 \
-                        --progress 1 \
-                        --throttle 5 \
-                        --log -
+    --bootstrap http://example.com:30960/bootstrap \
+    --portfolio my_portfolio.yaml \
+    --poll 5 \
+    --progress 1 \
+    --throttle 5 \
+    --log -
 ```
 
 On Windows (Powershell):
 
-```
+```powershell
 galasactl runs submit `
-                        --bootstrap http://example.com:30960/bootstrap `
-                        --portfolio my_portfolio.yaml `
-                        --poll 5 `
-                        --progress 1 `
-                        --throttle 5 `
-                        --log -
+    --bootstrap http://example.com:30960/bootstrap `
+    --portfolio my_portfolio.yaml `
+    --poll 5 `
+    --progress 1 `
+    --throttle 5 `
+    --log -
 ```
 
 where:
@@ -55,24 +57,24 @@ The following command runs the `SimBankIVT` and `BasicAccountCreditTest` tests f
 
 On Mac or Unix:
 
-```
+```shell
 galasactl runs submit \
-                        --bootstrap http://example.com:30960/bootstrap \
-                        --class dev.galasa.simbank.tests/SimBankIVT \
-                        --class dev.galasa.simbank.tests/BasicAccountCreditTest \
-                        --stream BestSoFar \
-                        --log -
+    --bootstrap http://example.com:30960/bootstrap \
+    --class dev.galasa.simbank.tests/SimBankIVT \
+    --class dev.galasa.simbank.tests/BasicAccountCreditTest \
+    --stream BestSoFar \
+    --log -
 ```
 
 On Windows (Powershell):
 
-```
+```powershell
 galasactl runs submit `
-                        --bootstrap http://example.com:30960/bootstrap `
-                        --class dev.galasa.simbank.tests/SimBankIVT `
-                        --class dev.galasa.simbank.tests/BasicAccountCreditTest `
-                        --stream BestSoFar `
-                        --log -
+    --bootstrap http://example.com:30960/bootstrap `
+    --class dev.galasa.simbank.tests/SimBankIVT `
+    --class dev.galasa.simbank.tests/BasicAccountCreditTest `
+    --stream BestSoFar `
+    --log -
 ```
 
 
@@ -84,20 +86,20 @@ The following command runs all the tests in the `my_portfolio.yaml` portfolio ar
 
 On Mac or Unix:
 
-```
+```shell
 galasactl runs submit \
-                        --portfolio my_portfolio.yaml \
-                        --override zos.default.lpar=MYLPAR \
-                        --override zos.default.cluster=MYPLEX \
-                        --log -
+    --portfolio my_portfolio.yaml \
+    --override zos.default.lpar=MYLPAR \
+    --override zos.default.cluster=MYPLEX \
+    --log -
 ```
 
 On Windows (Powershell):
 
-```
+```powershell
 galasactl runs submit `
-                        --portfolio my_portfolio.yaml `
-                        --override zos.default.lpar=MYLPAR `
-                        --override zos.default.cluster=MYPLEX `
-                        --log -
+    --portfolio my_portfolio.yaml `
+    --override zos.default.lpar=MYLPAR `
+    --override zos.default.cluster=MYPLEX `
+    --log -
 ```

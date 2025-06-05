@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-console-oeconsol-manager"
 title: "zOS Console oeconsol Manager"
 ---
 

@@ -32,7 +32,7 @@ theme:
   favicon: assets/galasa-icon-white.svg
   icon:
     repo: fontawesome/brands/github
-  custom_dir: content/assets/overrides
+  custom_dir: overrides
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -76,7 +76,7 @@ markdown_extensions:
   - md_in_html
   - toc:
       permalink: true
-      toc_depth: 1
+      toc_depth: 3
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.betterem:
@@ -105,6 +105,7 @@ markdown_extensions:
 
 # Plugins
 plugins:
+  - meta
   - offline:
       enabled: !ENV [OFFLINE, false]
   - search
@@ -169,6 +170,7 @@ nav:
       - docs/running-simbank-tests/web-app-integration-test.md
       - docs/running-simbank-tests/writing-a-simbank-test.md
     - Writing your own independent Galasa tests:
+      - docs/writing-own-tests/index.md
       - docs/writing-own-tests/writing-test-classes.md
       - docs/writing-own-tests/running-test-modes.md
       - docs/writing-own-tests/binding-tests.md
@@ -185,6 +187,7 @@ nav:
       - docs/ecosystem/ecosystem-manage-cps.md
       - docs/ecosystem/ecosystem-managing-encryption-keys.md
     - Managing tests in a Galasa Ecosystem:
+      - docs/manage-ecosystem/index.md
       - docs/manage-ecosystem/test-streams.md
       - docs/manage-ecosystem/runs-prepare.md
       - docs/manage-ecosystem/runs-submit.md
@@ -202,22 +205,39 @@ nav:
         - docs/managers/cics-ts-managers/cics-ts-manager.md
       - IMS TM Managers:
         - docs/managers/ims-tm-managers/index.md
+        - docs/managers/ims-tm-managers/ims-tm-manager.md
       - Cloud Managers:
         - docs/managers/cloud-managers/index.md
+        - docs/managers/cloud-managers/docker-manager.md
+        - docs/managers/cloud-managers/kubernetes-manager.md
+        - docs/managers/cloud-managers/open-stack-manager.md
       - Communications Managers:
         - docs/managers/communications-managers/index.md
+        - docs/managers/communications-managers/http-client-manager.md
+        - docs/managers/communications-managers/ipnetwork-manager.md
+        - docs/managers/communications-managers/mq-manager.md
       - Core Managers:
         - docs/managers/core-managers/index.md
+        - docs/managers/core-managers/artifact-manager.md
+        - docs/managers/core-managers/core-manager.md
       - Logging Managers:
         - docs/managers/logging-managers/index.md
+        - docs/managers/logging-managers/elasticlog-manager.md
       - Ecosystem Managers:
         - docs/managers/ecosystem-managers/index.md
+        - docs/managers/ecosystem-managers/galasa-ecosystem-manager.md
       - Test Tool Managers:
         - docs/managers/test-tool-managers/index.md
+        - docs/managers/test-tool-managers/jmeter-manager.md
+        - docs/managers/test-tool-managers/sdv-manager.md
+        - docs/managers/test-tool-managers/selenium-manager.md
+        - docs/managers/test-tool-managers/vtp-manager.md
       - Unix Managers:
         - docs/managers/unix-managers/index.md
+        - docs/managers/unix-managers/linux-manager.md
       - Workflow Managers:
         - docs/managers/workflow-managers/index.md
+        - docs/managers/workflow-managers/github-manager.md
       - z/OS Managers:
         - docs/managers/zos-managers/index.md
         - docs/managers/zos-managers/rse-api-manager.md
@@ -240,10 +260,12 @@ nav:
         - docs/managers/zos-managers/zos-tso-command-ssh-manager.md
         - docs/managers/zos-managers/zos-unix-command-ssh-manager.md
         - docs/managers/zos-managers/zos3270terminal-manager.md
+    - FAQs:
+      - docs/faqs/index.md
     - Reference:
       - docs/reference/index.md
-      # - docs/reference/galasa-cli-commands.md
       - Galasactl command-line reference:
+        - docs/reference/cli-syntax/index.md
         - docs/reference/cli-syntax/errors-list.md
         - docs/reference/cli-syntax/galasactl.md
         - docs/reference/cli-syntax/galasactl_auth.md
@@ -294,8 +316,6 @@ nav:
         - docs/reference/cli-syntax/galasactl_users_set.md
       - docs/reference/galasa-javadoc.md
       - docs/reference/galasa-rest-api-docs.md
-    # - FAQs:
-    #   - docs/faqs-galasa.md
   - Releases:
     - releases/index.md
     - releases/license.md

@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-unix-command-ssh-manager"
 title: "zOS UNIX Command SSH Manager"
 ---
 

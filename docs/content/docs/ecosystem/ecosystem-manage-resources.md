@@ -2,11 +2,11 @@
 title: "Configuring an Ecosystem using resource files"
 ---
 
-You might want to create or update a number of different Galasa properties and associated values at the same time, for example to configure a different Galasa Ecosystem. A good way to do this is by using a YAML file containing Galasa resources and their associated values to set the configuration of your Ecosystem, as described in the [Creating and updating resources using a YAML resource file](#setting-resources) section.
+You might want to create or update a number of different Galasa properties and associated values at the same time, for example to configure a different Galasa Ecosystem. A good way to do this is by using a YAML file containing Galasa resources and their associated values to set the configuration of your Ecosystem, as described in the [Creating and updating resources using a YAML resource file](#creating-and-updating-resources-using-a-yaml-file) section.
 
 ## Configuration Properties as GalasaProperty resources
 
-The topic [Managing integrated test runs](../ecosystem/ecosystem-manage-cps) describes how to use the `galasactl properties get` command with the `--format yaml` flag specified to extract a YAML file which describes Galasa properties and property values. 
+The topic [Managing integrated test runs](./ecosystem-manage-cps.md) describes how to use the `galasactl properties get` command with the `--format yaml` flag specified to extract a YAML file which describes Galasa properties and property values. 
 
 If more than one property is returned, each property is separated in the file by three dashes, `---`, as shown in the following example: 
 
@@ -64,7 +64,7 @@ You can save the file with a `.yaml` or `.yml` file extension.
 
 ## Credentials as GalasaSecret resources
 
-The topic [Managing credentials in an Ecosystem](../ecosystem/ecosystem-manage-creds) describes how to use the `galasactl secrets get` command with the `--format yaml` flag specified to extract a YAML file which describes Galasa secrets.
+The topic [Managing credentials in an Ecosystem](./ecosystem-manage-creds.md) describes how to use the `galasactl secrets get` command with the `--format yaml` flag specified to extract a YAML file which describes Galasa secrets.
 
 If more than one secret is returned, each secret is separated in the file by three dashes, `---`, as shown in the following example: 
 
@@ -139,7 +139,7 @@ You can define multiple secrets in the same YAML file by separating them using t
 You can save the file with a `.yaml` or `.yml` file extension.
 
 
-## <a name="setting-resources"></a>Creating and updating resources using a YAML file
+## Creating and updating resources using a YAML file
 
 You can use the galasactl command line tool to submit a YAML file to create new Galasa resources, including properties and credentials, or to update existing ones. The YAML files can contain different types of Galasa resources, where each resource is separated by three dashes `---`. For example, a GalasaProperty resource and a GalasaSecret resource can both be created using the following format:
 
@@ -164,19 +164,19 @@ data:
 
 Use the following command to create Galasa resources by using a YAML file called `myFile.yaml`:
 
-```
+```shell
 galasactl resources create -f myFile.yaml
 ```
 
 Use the following command to update Galasa resources by using a YAML file called `myFile.yaml`:
 
-```
+```shell
 galasactl resources update -f myFile.yaml
 ```
 
 Use the following command to create a new Galasa resource if the resource does not exist or update an existing resource by using a YAML file called `myFile.yaml`:
 
-```
+```shell
 galasactl resources apply -f myFile.yaml
 ```
 
@@ -187,7 +187,7 @@ An error message is returned if the action is not able to complete successfully.
 
 When maintaining an Ecosystem, you might have a YAML file containing Galasa property resource definitions and want to delete a corresponding set of Galasa resources stored on the server in an Ecosystem. You can do this by using the following command: 
 
-```
+```shell
 galasactl resources delete -f {filename}
 ```
 
@@ -202,4 +202,4 @@ galasactl resources delete -f resources_to_delete.yaml
 ```
 
 
-For a complete list of supported parameters see the <a href="https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_resources.md" target="_blank"> galasactl resources</a> documentation in the Galasa CLI repository.
+For a complete list of supported parameters see the [galasactl resources](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_resources.md){target="_blank"} documentation in the Galasa CLI repository.

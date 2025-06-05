@@ -4,6 +4,7 @@ title: "Initialising your local environment"
 
 To start using Galasa tools, or running Galasa tests, you need to set up some basic file structures and files in your home directory. You can set up this structure easily by using the galasactl tool to initialise your local environment. Once your local environment is initialised, you can start running Galasa tests on your local JVM. 
 
+
 ## Setting the Galasa home folder (optional)
 
 Galasa has a home folder that is set to `~/.galasa` by default. The home folder is a writable folder that is used by default to store test results and artifacts which are created when tests are run using local JVMs.
@@ -32,8 +33,9 @@ If you change the `GALASA_HOME` variable to a non-existent or non-initialised fo
 
 You can initialise your local environment, and set up the files and file structure you need, by running the following command on a command line:
 
-`galasactl local init` 
-
+```shell
+galasactl local init
+```
 
 This one-time command is run once per Galasa home directory and helps you to quickly create the folder and files that you need. If you already have a Galasa home folder set up, the folder and files are not created. 
 
@@ -52,7 +54,7 @@ For more information about these files and what they are used for, see the [Abou
 
 Running the `galasactl local init` command also creates an `/.m2` directory, containing a `settings.xml` file. The `settings.xml` file enables you to set configurations for Maven to use during test runs. For example, you can set local and remote repository locations, credentials for private repositories, and Maven profile settings. 
 
-You can validate the set up by locating your user home directory and confirming that it contains a `.galasa` and a `.m2` folder. On Windows, the user home directory resembles: ```C:\Users\<username>```, on MacOS it will be ```/Users/<username>``` and on Linux ```/home/<username>```. Note that any file or folder beginning with a `.` is a hidden folder, so you might need to change the settings on your file browser user interface to show hidden files.
+You can validate the set up by locating your user home directory and confirming that it contains a `.galasa` and a `.m2` folder. On Windows, the user home directory resembles: `C:\Users\<username>`, on MacOS it will be `/Users/<username>` and on Linux `/home/<username>`. Note that any file or folder beginning with a `.` is a hidden folder, so you might need to change the settings on your file browser user interface to show hidden files.
 
 
 !!! note "Note - online installation only"
@@ -146,7 +148,7 @@ where:
 
 ## Next steps
 
-You can now start [creating a project using the CLI](../writing-own-tests/setting-up-galasa-project.md) to accommodate your Galasa tests in your local storage.
+You can now start [creating a project using the CLI](./setting-up-galasa-project.md) to accommodate your Galasa tests in your local storage.
 
 
 

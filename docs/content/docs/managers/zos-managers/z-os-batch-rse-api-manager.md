@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/z-os-batch-rse-api-manager"
 title: "z/OS Batch RSE API Manager"
 ---
 

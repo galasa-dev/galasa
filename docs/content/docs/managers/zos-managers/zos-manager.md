@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-manager"
 title: "z/OS Manager"
 ---
 

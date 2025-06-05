@@ -11,6 +11,26 @@ on:
 
 jobs:
 
+  set-build-properties:
+    # Use the version.properties file to source the galasa-version output variable.
+    # This variable can be referenced by other jobs in this flow using 
+    # ${{ needs.set-build-properties.outputs.galasa-version }}
+    runs-on: ubuntu-latest
+    outputs:
+      galasa-version: ${{ steps.set-build-properties.outputs.GALASA_VERSION }}
+    steps:
+      - id: checkout-code
+        uses: actions/checkout@v4 
+        with:
+          sparse-checkout: |
+            build.properties
+          sparse-checkout-cone-mode: false
+
+      - id: set-build-properties
+        run: |
+          cat build.properties | grep "=" >> $GITHUB_OUTPUT
+
+
   detect-secrets:
     name: Detect secrets
     runs-on: ubuntu-latest 
@@ -154,12 +174,13 @@ jobs:
 
   pr-build-obr:
     name: Build the 'obr' module
-    needs: [get-changed-modules, find-artifacts, pr-build-extensions, pr-build-managers]
+    needs: [set-build-properties, get-changed-modules, find-artifacts, pr-build-extensions, pr-build-managers]
     uses: ./.github/workflows/pr-obr.yaml
     secrets: inherit
     with:
       changed: ${{ needs.get-changed-modules.outputs.obr_changed }}
       artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+      galasa-version: "${{ needs.set-build-properties.outputs.galasa-version }}"
 
   # The IVTs are built after the OBR as they require the galasa-bom to get dependencies.
   pr-build-ivts:

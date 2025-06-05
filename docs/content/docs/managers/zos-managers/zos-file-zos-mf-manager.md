@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-file-zos-mf-manager"
 title: "zOS File zOS MF Manager"
 ---
 

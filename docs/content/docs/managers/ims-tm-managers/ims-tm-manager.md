@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/ims-tm-manager"
 title: "IMS TM Manager"
 ---
 

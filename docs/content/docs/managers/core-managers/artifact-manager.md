@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/artifact-manager"
 title: "Artifact Manager"
 ---
 

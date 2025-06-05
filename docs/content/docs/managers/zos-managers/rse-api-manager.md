@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/rse-api-manager"
 title: "RSE API Manager"
 ---
 

@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-console-zos-mf-manager"
 title: "zOS Console zOS MF Manager"
 ---
 

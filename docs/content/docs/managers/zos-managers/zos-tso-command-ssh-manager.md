@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-tso-command-ssh-manager"
 title: "zOS TSO Command SSH Manager"
 ---
 

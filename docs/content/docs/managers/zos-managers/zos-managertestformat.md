@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-managertestformat"
 title: "zOS Manager"
 ---
 

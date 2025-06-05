@@ -3,7 +3,7 @@ title: "Getting started using the Galasa CLI"
 ---
 
 
-There are two options available when downloading Galasa. You can download Galasa from the [Galasa CLI repository](https://github.com/galasa-dev/cli/releases){target="_blank"} in GitHub, or you can download the Galasa zipped distribution for sharing with your department. If you do not have access to Maven Central or Docker Hub from your company network, use the Galasa zipped distribution. Otherwise, download the binary file for the Galasa CLI from GitHub. Once you have downloaded and installed Galasa, you can import the configuration into an IDE of your choice.
+There are two options available when downloading Galasa. You can download Galasa from the [Galasa CLI repository](https://github.com/galasa-dev/galasa/releases){target="_blank"} in GitHub, or you can download the Galasa zipped distribution for sharing with your department. If you do not have access to Maven Central or Docker Hub from your company network, use the Galasa zipped distribution. Otherwise, download the binary file for the Galasa CLI from GitHub. Once you have downloaded and installed Galasa, you can import the configuration into an IDE of your choice.
 
 Prerequisites vary, depending on the option that is chosen. For the purposes of the Galasa documentation, the term `online` refers to the Galasa binary that is downloaded from the Galasa CLI repository in GitHub, and the term `offline` refers to Galasa zipped distribution. 
 

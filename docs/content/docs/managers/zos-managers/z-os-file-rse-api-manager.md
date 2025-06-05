@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/z-os-file-rse-api-manager"
 title: "z/OS File RSE API Manager"
 ---
 

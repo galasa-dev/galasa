@@ -24,7 +24,7 @@ The following diagram shows the relationship between the test code, test catalog
 
 The components of the `test.stream` property are set by using `galasactl properties set` command, as shown in the following example:
 
-```
+```shell
 galasactl properties set --namespace framework --name test.stream.mystream.description --value "My stream to use as an example"
 galasactl properties set --namespace framework --name test.stream.mystream.repo --value http://points-to-my-maven-repo.example.org
 galasactl properties set --namespace framework --name test.stream.mystream.location --value http://points-to-my-test-catalog.example.org
@@ -47,11 +47,11 @@ Total:2
 
 There are many ways to organise test streams:
 
-- <b>Single test stream</b>: A single test stream can contain all of your tests. This system is of most use when you are learning about Galasa and experimenting with the automation system. At some point, it is much more beneficial for you to move to a dual stream setup.
-- <b>Dual test streams</b>: Often, you will need to run a _production_ test stream and a _best so far_ test stream. The production stream is used by the CI/CD pipeline to test the application, while the best so far stream will include tests under development that you wish to observe under automation.
+- **Single test stream**: A single test stream can contain all of your tests. This system is of most use when you are learning about Galasa and experimenting with the automation system. At some point, it is much more beneficial for you to move to a dual stream setup.
 
+- **Dual test streams**: Often, you will need to run a _production_ test stream and a _best so far_ test stream. The production stream is used by the CI/CD pipeline to test the application, while the best so far stream will include tests under development that you wish to observe under automation.  
   The source code for tests in dual streams is usually from the same SCM (Source Code Management) area - in git terms, this would mean the same repository but in different branches. The best so far stream contains all of the production stream tests plus new or modified tests. When you are happy that a test has reached a good level of quality, you can promote it to the production stream and make it available to the CI/CD pipeline. Usually, you would organise things so that you have a Maven build per stream.
 
-- <b>Many streams</b>: You might organise your streams so that you have one per team, or dual test streams per team. If you have lots of tests per application area, having a stream per area is also possible.
+- **Many streams**: You might organise your streams so that you have one per team, or dual test streams per team. If you have lots of tests per application area, having a stream per area is also possible.
 
 Build time and frequency usually dictates how streams are structured. If you are building your test projects frequently, and those build times are long, you might wish to split the test projects into streams. Alternatively, you could stick with a single stream, but split the projects into separate builds that all kick off the build of the test stream OBR when complete.

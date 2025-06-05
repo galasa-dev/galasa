@@ -1,7 +1,8 @@
 ---
-title: "Running tests locally using the command line"
+title: "Running a test locally"
 ---
 
+# Running tests locally using the command line
 
 The `galasactl runs submit local` command submits tests to run within the local JVM, rather than dynamically deploying the tests to a remotely deployed Galasa Ecosystem. 
 
@@ -90,7 +91,7 @@ Use `Ctrl-C` to stop the Galasa CLI, ending all test activity. Note that this mi
 
 ## Troubleshooting
 
-If you have problems running the command, check that you have installed the correct version of Java installed and that you have set your JAVA_HOME environment variable, as described in the [CLI prerequisites](./cli-prereqs.md) and [CLI prerequisites offline](./zipped-prerequisites.md) documentation. Make sure you have added the Galasa CLI to your PATH and that you have [initialised your local environment](./initialising-home-folder) by running the `galasactl local init` command. Ensure that you have created and built the example project, as described in the [Creating a Galasa project](../writing-own-tests/setting-up-galasa-project) documentation. 
+If you have problems running the command, check that you have installed the correct version of Java installed and that you have set your JAVA_HOME environment variable, as described in the [CLI prerequisites](./cli-prereqs.md) and [CLI prerequisites offline](./zipped-prerequisites.md) documentation. Make sure you have added the Galasa CLI to your PATH and that you have [initialised your local environment](./initialising-home-folder.md) by running the `galasactl local init` command. Ensure that you have created and built the example project, as described in the [Creating a Galasa project](./setting-up-galasa-project.md) documentation. 
 
 
 ## Next steps

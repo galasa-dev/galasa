@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/github-manager"
 title: "GitHub Manager"
 ---
 

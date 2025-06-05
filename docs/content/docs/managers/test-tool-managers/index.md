@@ -1,11 +1,30 @@
 ---
-path: "/docs/manager-groups/test-tool-manager-group"
 title: "Test Tool Managers"
 ---
 
- Name                                                                                                                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| :-------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[JMeter Manager](/docs/managers/jmeter-manager)**<br>![beta](../../../assets/images/tags/beta.svg)                                 | Configures and runs JMeter testing via Docker containers.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **[SDV Manager](/docs/managers/sdv-manager)**<br> ![alpha](../../../assets/images/tags/alpha.svg)                      | Create an automated test in Galasa and use the SDV Manager to record the security used during your test.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **[Selenium Manager](/docs/managers/selenium-manager)**<br> ![beta](../../../assets/images/tags/beta.svg)                            | Allows tests to drive Web Browser testing using Selenium.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **[VTP Manager](/docs/managers/vtp-manager)**<br> ![release](../../../assets/images/tags/release.svg)                      | Create an automated test in Galasa and use the VTP Manager to record the interactions between the test and your CICS programs.  |
+[JMeter Manager](./jmeter-manager.md)
+
+:   ![beta](../../../assets/images/tags/beta.svg)
+
+    Configures and runs JMeter testing via Docker containers.
+
+
+[SDV Manager](./sdv-manager.md)
+
+:   ![alpha](../../../assets/images/tags/alpha.svg)
+
+    Create an automated test in Galasa and use the SDV Manager to record the security used during your test.
+
+
+[Selenium Manager](./selenium-manager.md)
+
+:   ![beta](../../../assets/images/tags/beta.svg)
+
+    Allows tests to drive Web Browser testing using Selenium.
+
+
+[VTP Manager](./vtp-manager.md)
+
+:   ![release](../../../assets/images/tags/release.svg)
+
+    Create an automated test in Galasa and use the VTP Manager to record the interactions between the test and your CICS programs.

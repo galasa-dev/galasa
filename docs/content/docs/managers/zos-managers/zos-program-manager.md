@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-program-manager"
 title: "zOS Program Manager"
 ---
 

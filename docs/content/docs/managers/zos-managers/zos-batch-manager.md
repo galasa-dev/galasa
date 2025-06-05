@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos-batch-manager"
 title: "zOS Batch Manager"
 ---
 

@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/core-manager"
 title: "Core Manager"
 ---
 

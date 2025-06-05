@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/ipnetwork-manager"
 title: "IP Network Manager"
 ---
 

@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/zos3270terminal-manager"
 title: "Zos3270Terminal Manager"
 ---
 

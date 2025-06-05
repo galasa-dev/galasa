@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/elasticlog-manager"
 title: "ElasticLog Manager"
 ---
 

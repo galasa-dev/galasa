@@ -1,5 +1,4 @@
 ---
-path: "/docs/managers/mq-manager"
 title: "MQ Manager"
 ---
 
