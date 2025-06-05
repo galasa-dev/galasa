@@ -24,7 +24,7 @@ public class TestCompilationIsolated {
     @Logger
     public Log logger;
 
-    @DockerContainer(image = "galasa-dev/compilation-isolated:latest")
+    @DockerContainer(image = "galasa-dev/compilation-isolated:main")
     public IDockerContainer compilationIsolatedContainer;
 
     /*

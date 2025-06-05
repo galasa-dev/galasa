@@ -24,7 +24,7 @@ public class TestCompilationMVP {
     @Logger
     public Log logger;
 
-    @DockerContainer(image = "galasa-dev/compilation-mvp:latest")
+    @DockerContainer(image = "galasa-dev/compilation-mvp:main")
     public IDockerContainer compilationMvpContainer;
 
     /*
