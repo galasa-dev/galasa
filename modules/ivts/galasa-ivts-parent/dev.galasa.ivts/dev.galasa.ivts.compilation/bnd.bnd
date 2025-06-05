@@ -1,0 +1,8 @@
+-snapshot: ${tstamp}
+Bundle-Name: dev.galasa.ivts.compilation
+Export-Package: dev.galasa.ivts.compilation*
+Import-Package: !javax.validation.constraints,\
+                dev.galasa,\
+                org.apache.commons.logging,\
+                org.assertj.core.api\
+                *
