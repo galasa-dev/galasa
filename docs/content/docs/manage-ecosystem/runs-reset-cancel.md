@@ -7,7 +7,7 @@ Sometimes tests can become stuck in a loop and fail to finish running, for examp
 Retrying a test sets the status of the test run in the DSS to `queued` status. Cancelling a test removes all entries in the DSS for that test run. For this reason it is preferable to retry a test rather than cancel a test. All information that is stored in the RAS about the test is kept and is not removed when either the `runs reset` or `runs cancel` command is run.
 
 
-You can view the full list of options that are available with the `runs reset` and `runs cancel` commands in the [Galasa cli repository](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs.md){target="_blank"}.
+To view the full list of options that are available, see the [galasactl runs reset](../reference/cli-syntax/galasactl_runs_reset.md) and [galasactl runs cancel](../reference/cli-syntax/galasactl_runs_cancel.md) command references.
 
 
 ## Working with the `runs reset` command

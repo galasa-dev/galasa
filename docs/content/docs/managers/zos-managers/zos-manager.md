@@ -2,37 +2,43 @@
 title: "z/OS Manager"
 ---
 
-This Manager is at Beta level. You can view the <a href="https://javadoc.galasa.dev/index.html?overview-summary.html">Javadoc documentation for the Manager here</a>.<br>
-
-[Overview](#overview)<br>
-[Configuring](#configuring)<br>
-[Provided annotation](#annotations)<br>
-[Code snippets and examples](#codesnippets)<br>
+This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/index.html?overview-summary.html){target="_blank"}.
 
 
-# <a name="overview"></a>Overview
-This Manager provides tests and Managers with access to and configuration information about z/OS images and Sysplexes. It offers services such as APF, DUMP, SMF and Log access. <br><br> Additionally, the z/OS Manager provides tests with interfaces to the following z/OS functions which are implemented by other Managers: <br><br> - <code>z/OS Batch</code> which enables tests and Managers to submit, monitor and retrieve the output of z/OS batch jobs. See <a href="/docs/running-simbank-tests/batch-accounts-open-test">BatchAccountsOpenTest</a> for a walkthrough of a test that employs this Manager.<br><br> - <code>z/OS Console</code> which allows tests and Managers to issue and retrieve the responses from z/OS console commands.
-<br><br> - <code>z/OS File</code> which provides tests and Managers with the ability to manage and transfer files to and from z/OS. Supported file types include Sequential, PDS, PDSE, KSDS, ESDS or RRDS and z/OS UNIX files.
-<br><br> - <code>z/OS TSO Command</code> which enables tests and Managers to issue and retrieve the responses from z/OS TSO commands. 
-<br><br> - <code>z/OS UNIX Command</code> which enables tests and Managers to issue and retrieve the responses from z/OS UNIX commands.<br><br> 
+## Overview
 
-<br><br> You can view the <a href="https://javadoc.galasa.dev/dev/galasa/zos/package-summary.html">Javadoc documentation for the Manager here</a>. <br><br>
+This Manager provides tests and Managers with access to and configuration information about z/OS images and Sysplexes. It offers services such as APF, DUMP, SMF and Log access.
 
-## <a name="dependencies"></a>Including the Manager in a test
+Additionally, the z/OS Manager provides tests with interfaces to the following z/OS functions which are implemented by other Managers:
+
+- `z/OS Batch` which enables tests and Managers to submit, monitor and retrieve the output of z/OS batch jobs. See [BatchAccountsOpenTest](../../running-simbank-tests/batch-accounts-open-test.md) for a walkthrough of a test that employs this Manager.
+
+- `z/OS Console` which allows tests and Managers to issue and retrieve the responses from z/OS console commands.
+
+- `z/OS File` which provides tests and Managers with the ability to manage and transfer files to and from z/OS. Supported file types include Sequential, PDS, PDSE, KSDS, ESDS or RRDS and z/OS UNIX files.
+
+- `z/OS TSO Command` which enables tests and Managers to issue and retrieve the responses from z/OS TSO commands. 
+
+- `z/OS UNIX Command` which enables tests and Managers to issue and retrieve the responses from z/OS UNIX commands.
+
+You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/zos/package-summary.html){target="_blank"}.
+
+
+## Including the Manager in a test
 
 The z/OS Manager is not instantiated directly. To use the z/OS Manager in a test, import one or more of the following annotations into the test, as shown in the following examples: 
 
-```
+```java
 @ZosImage
 public IZosImage imagePrimary;
 ```
 
-```    
+```java
 @ZosIpHost
 public IIpHost hostPrimary;
 ```
 
-```
+```java
 @ZosIpPort
 public IIpPort portPrimary;
 ```
@@ -41,18 +47,18 @@ You also need to add the Manager dependency into the _pom.xml_ file if you are u
 
 If you are using Maven, add the following dependencies into the _pom.xml_ in the _dependencies_ section:
 
-```
+```xml
 <dependency>
-<groupId>dev.galasa</groupId>
-<artifactId>dev.galasa.zos.manager</artifactId>
+    <groupId>dev.galasa</groupId>
+    <artifactId>dev.galasa.zos.manager</artifactId>
 </dependency>
 ```
 
-If you are using Gradle, add the following dependencies into ```build.gradle``` in the _dependencies_ closure:
+If you are using Gradle, add the following dependencies into `build.gradle` in the _dependencies_ closure:
 
-```
+```groovy
 dependencies {
-compileOnly 'dev.galasa:dev.galasa.zos.manager'
+    compileOnly 'dev.galasa:dev.galasa.zos.manager'
 }
 ```
 
@@ -60,8 +66,7 @@ compileOnly 'dev.galasa:dev.galasa.zos.manager'
 
 To connect your Galasa test to a developer supplied environment with a provisioned CICS region or IMS TM system as a minimum you need to configure the following properties, even if you do not reference a `@ZosImage` in your Galasa test. This is because CICS regions and IMS TM systems sit on a z/OS LPAR, and so to provision and connect to a CICS region or IMS TM system in a test, you also need access to the z/OS image that it sits within to make requests on the CICS region or IMS TM system. You might need to configure additional z/OS-related CPS properties, depending on your test.  
 
-
-```
+```properties
 zos.dse.tag.[tag].imageid=[IMAGEID]
     OR zos.tag.[tag].imageid=[IMAGEID] 
     OR zos.cluster.[CLUSTERID].images=[IMAGEID] (AND zos.dse.tag.[tag].clusterid=[CLUSTERID] if [CLUSTERID] is not DEFAULT)
@@ -69,27 +74,26 @@ zos.image.[IMAGEID].ipv4.hostname=[IP ADDRESS]
 zos.image.[IMAGEID].credentials=[CREDENTIALID]
 ```
 
-You also need to configure the following properties for the [CICS TS Manager](cics-ts-manager):
+You also need to configure the following properties for the [CICS TS Manager](../cics-ts-managers/cics-ts-manager.md):
 
-```
+```properties
 cicsts.provision.type=dse
 cicsts.dse.tag.[TAG].applid=[APPLID]
 ```
 
-or the following property for the [IMS TM Manager](ims-tm-manager):
+or the following property for the [IMS TM Manager](../ims-tm-managers/ims-tm-manager.md):
 
-```
+```properties
 imstm.dse.tag.[TAG].applid=[APPLID]
 ```
 
 
-# <a name="configuring"></a>Configuring 
+## Configuration Properties
 
 The following properties are used to configure the z/OS Manager.
 
 
-<details>
-<summary>Hostname of a z/OS system </summary>
+### Hostname of a z/OS system
 
 | Property: | Hostname of a z/OS system |
 | --------------------------------------- | :------------------------------------- |
@@ -98,12 +102,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | Yes, if connecting to a z/OS image |
 | Default value: | None |
 | Valid values: | A valid TCP/IP hostname   |
-| Examples: | <code>zos.image.SYSA.ipv4.hostname=dev.galasa.system1</code><br><code>zos.image.SIMBANK.ipv4.hostname=127.0.0.1</code><br> |
+| Examples: | `zos.image.SYSA.ipv4.hostname=dev.galasa.system1`<br>`zos.image.SIMBANK.ipv4.hostname=127.0.0.1`<br> |
 
-</details>
 
-<details>
-<summary>Credentials tag for logging onto a z/OS system </summary>
+### Credentials tag for logging onto a z/OS system
 
 | Property: | Credentials tag for logging onto a z/OS system   |
 | --------------------------------------- | :------------------------------------- |
@@ -112,13 +114,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | Yes, if connecting to a z/OS image |
 | Default value: | None|
 | Valid values: | Valid characters are A-Z, a - z, 0-9  |
-| Examples: | <code>zos.image.SYSA.credentials=KEY_TO_CREDS_STORE</code><br><code>zos.image.SIMBANK.credentials=SIMBANK</code><br> |
-
-</details>
+| Examples: | `zos.image.SYSA.credentials=KEY_TO_CREDS_STORE`<br>`zos.image.SIMBANK.credentials=SIMBANK`<br> |
 
 
-<details>
-<summary>Extra bundle required to implement the z/OS Batch Manager</summary>
+### Extra bundle required to implement the z/OS Batch Manager
 
 | Property: | Extra bundle required to implement the zOS Batch Manager |
 | --------------------------------------- | :------------------------------------- |
@@ -127,12 +126,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | dev.galasa.common.zosbatch.zosmf.manager |
 | Valid values: | A 1 - 8 length character name. A name containing more than 8 characters must be segmented by periods; 1 to 8 characters can be specified between periods. Valid characters are A-Z, a - z, 0-9, special characters.   |
-| Examples: | <code>zos.bundle.extra.batch.manager=dev.galasa.common.zosbatch.zosmf.manager</code><br> |
+| Examples: | `zos.bundle.extra.batch.manager=dev.galasa.common.zosbatch.zosmf.manager`<br> |
 
-</details>
- 
-<details>
-<summary>The z/OS Cluster ID</summary>
+
+### The z/OS Cluster ID
 
 | Property: | The zOS Cluster ID |
 | --------------------------------------- | :------------------------------------- |
@@ -141,12 +138,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Valid value is a character string with a maximum length of 32 |
-| Examples: | <code>zos.tag.PLX1.clusterid=PLEXA</code><br> |
+| Examples: | `zos.tag.PLX1.clusterid=PLEXA`<br> |
 
-</details>
- 
-<details>
-<summary>The images for a z/OS Cluster</summary>
+
+### The images for a z/OS Cluster
 
 | Property: | The images for a zOS Cluster |
 | --------------------------------------- | :------------------------------------- |
@@ -155,12 +150,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Valid value is a character string with a maximum length of 32 |
-| Examples: | <code>zos.cluster.PLEX1.images=SYSA,SYSB,SYSC</code><br> |
+| Examples: | `zos.cluster.PLEX1.images=SYSA,SYSB,SYSC`<br> |
 
-</details>
- 
-<details>
-<summary>Extra bundle required to implement the z/OS Console Manager</summary>
+
+### Extra bundle required to implement the z/OS Console Manager
 
 | Property: | Extra bundle required to implement the zOS Console Manager |
 | --------------------------------------- | :------------------------------------- |
@@ -169,12 +162,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | dev.galasa.common.zosconsole.zosmf.manager |
 | Valid values: | A 1 - 8 length character name. A name containing more than 8 characters must be segmented by periods; 1 to 8 characters can be specified between periods. Valid characters are A-Z, a - z, 0-9, special characters.  |
-| Examples: | <code>zos.bundle.extra.console.manager=dev.galasa.common.zosconsole.zosmf.manager</code><br> |
+| Examples: | `zos.bundle.extra.console.manager=dev.galasa.common.zosconsole.zosmf.manager`<br> |
 
-</details>
- 
-<details>
-<summary>Developer Supplied Environment z/OS Image Cluster ID</summary>
+
+### Developer Supplied Environment z/OS Image Cluster ID
 
 | Property: | Developer Supplied Environment zOS Image Cluster ID |
 | --------------------------------------- | :------------------------------------- |
@@ -183,12 +174,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | A 1 - 8 length character name |
-| Examples: | <code>zos.dse.tag.PLX1.clusterid=PLEXA</code><br> |
+| Examples: | `zos.dse.tag.PLX1.clusterid=PLEXA`<br> |
 
-</details>
- 
-<details>
-<summary>Developer Supplied Environment z/OS Image</summary>
+
+### Developer Supplied Environment z/OS Image
 
 | Property: | Developer Supplied Environment zOS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -197,12 +186,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | A valid image ID |
-| Examples: | <code>zos.dse.tag.MVS1.imageid=SYSA</code><br> |
+| Examples: | `zos.dse.tag.MVS1.imageid=SYSA`<br> |
 
-</details>
- 
-<details>
-<summary>Extra bundle required to implement the z/OS File Manager</summary>
+
+### Extra bundle required to implement the z/OS File Manager
 
 | Property: | Extra bundle required to implement the zOS File Manager |
 | --------------------------------------- | :------------------------------------- |
@@ -211,12 +198,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | dev.galasa.common.zosfile.zosmf.manager |
 | Valid values: |  A 1 - 8 length character name. A name containing more than 8 characters must be segmented by periods; 1 to 8 characters can be specified between periods. Valid characters are A-Z, a - z, 0-9, special characters.  |
-| Examples: | <code>zos.bundle.extra.file.manager=dev.galasa.common.zosfile.zosmf.manager</code><br> |
+| Examples: | `zos.bundle.extra.file.manager=dev.galasa.common.zosfile.zosmf.manager`<br> |
 
-</details>
- 
-<details>
-<summary>IP Host ID of the z/OS Image</summary>
+
+### IP Host ID of the z/OS Image
 
 | Property: | IP Host ID of the zOS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -225,12 +210,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | A valid IP Host ID |
-| Examples: | <code>zos.image.SYSA.iphostid=sysa.example.com</code><br> |
+| Examples: | `zos.image.SYSA.iphostid=sysa.example.com`<br> |
 
-</details>
- 
-<details>
-<summary>The z/OS Image</summary>
+
+### The z/OS Image
 
 | Property: | The zOS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -239,12 +222,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | A valid z/OS image ID |
-| Examples: | <code>zos.tag.MVS1.imageid=SYSA</code><br> |
+| Examples: | `zos.tag.MVS1.imageid=SYSA`<br> |
 
-</details>
- 
-<details>
-<summary>Maximum slots for z/OS Image</summary>
+
+### Maximum slots for z/OS Image
 
 | Property: | Maximum slots for zOS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -253,12 +234,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | 2 |
 | Valid values: | 1 to 255 |
-| Examples: | <code>zos.image.SYSA.max.slots=2</code><br> |
+| Examples: | `zos.image.SYSA.max.slots=2`<br> |
 
-</details>
 
-<details>
-<summary>Code page for z/OS Image</summary>
+### Code page for z/OS Image
 
 | Property: | Code page for zOS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -267,12 +246,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | 037 |
 | Valid values: | A valid java.nio.charset EBCDIC character encoding |
-| Examples: | <code>zos.image.SYSA.codepage=1047</code><br> |
+| Examples: | `zos.image.SYSA.codepage=1047`<br> |
 
-</details>
- 
-<details>
-<summary>The SYSNAME for z/OS Image</summary>
+
+### The SYSNAME for z/OS Image
 
 | Property: | The SYSNAME for zOS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -281,12 +258,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | The image ID of the image |
 | Valid values: | The name must be 1-8 characters long; the valid characters are A-Z, 0-9, $, @, and #. |
-| Examples: | <code>zos.image.SYSA.sysname=SYSA</code><br> |
+| Examples: | `zos.image.SYSA.sysname=SYSA`<br> |
 
-</details>
- 
-<details>
-<summary>The VTAM logon command template for the z/OS Image</summary>
+
+### The VTAM logon command template for the z/OS Image
 
 | Property: | The VTAM logon command template for the zOS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -295,12 +270,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | LOGON APPLID({0}) |
 | Valid values: | A valid java.text.MessageFormat pattern with precisely one FormatElement |
-| Examples: | <code>zos.image.vtam.logon=LOGON APPLID {0}</code><br> <code>zos.image.SYSA.vtam.logon={0} </code>|
+| Examples: | `zos.image.vtam.logon=LOGON APPLID {0}`<br>`zos.image.SYSA.vtam.logon={0}`|
 
-</details>
- 
-<details>
-<summary>The logon initial text for the z/OS Image</summary>
+
+### The logon initial text for the z/OS Image
 
 | Property: | The logon initial text for the z/OS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -309,12 +282,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Any text string |
-| Examples: | <code>zos.image.logon.initial.text=VAMP</code><br><code>zos.image.SYSA.logon.initial.text=SYSA MAIN MENU</code> |
+| Examples: | `zos.image.logon.initial.text=VAMP`<br>`zos.image.SYSA.logon.initial.text=SYSA MAIN MENU` |
 
-</details>
- 
-<details>
-<summary>The run data set HLQ for the z/OS Image</summary>
+
+### The run data set HLQ for the z/OS Image
 
 | Property: | The run data set HLQ for the zOS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -323,12 +294,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | runuser.GALASA |
 | Valid values: | A data set name can be one name segment, or a series of joined name segments. Segments are limited to eight characters, the first of which must be alphabetic (A to Z) or special (# @ $). The remaining seven characters are either alphabetic, numeric (0 - 9), special, a hyphen (-). Name segments are separated by a period (.). |
-| Examples: | <code>zos.run.SYSA.dataset.hlq=USERID.GALASA</code><br> |
+| Examples: | `zos.run.SYSA.dataset.hlq=USERID.GALASA`<br> |
 
-</details>
- 
-<details>
-<summary>The run data UNIX path prefix for the z/OS Image</summary>
+
+### The run data UNIX path prefix for the z/OS Image
 
 | Property: | The run data UNIX path prefix for the zOS Image |
 | --------------------------------------- | :------------------------------------- |
@@ -337,12 +306,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | /u/runuser/Galasa |
 | Valid values: | A valid path |
-| Examples: | <code>zos.run.SYSA.unix.path.prefix=/u/userid/Galasa</code><br> |
+| Examples: | `zos.run.SYSA.unix.path.prefix=/u/userid/Galasa`<br> |
 
-</details>
- 
-<details>
-<summary>Extra bundle required to implement the z/OS TSO Command Manager</summary>
+
+### Extra bundle required to implement the z/OS TSO Command Manager
 
 | Property: | Extra bundle required to implement the zOS TSO Command Manager |
 | --------------------------------------- | :------------------------------------- |
@@ -351,12 +318,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | dev.galasa.zostsocommand.ssh.manager |
 | Valid values: | A 1 - 8 length character name. A name containing more than 8 characters must be segmented by periods; 1 to 8 characters can be specified between periods. Valid characters are A-Z, a - z, 0-9, special characters.   |
-| Examples: | <code>zos.bundle.extra.tsocommand.manager=dev.galasa.zostsocommand.ssh.manager</code> |
+| Examples: | `zos.bundle.extra.tsocommand.manager=dev.galasa.zostsocommand.ssh.manager` |
 
-</details>
- 
-<details>
-<summary>Extra bundle required to implement the z/OS UNIX Command Manager</summary>
+
+### Extra bundle required to implement the z/OS UNIX Command Manager
 
 | Property: | Extra bundle required to implement the zOS UNIX Command Manager |
 | --------------------------------------- | :------------------------------------- |
@@ -365,12 +330,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | dev.galasa.zosunixcommand.ssh.manager |
 | Valid values: | A 1 - 8 length character name. A name containing more than 8 characters must be segmented by periods; 1 to 8 characters can be specified between periods. Valid characters are A-Z, a - z, 0-9, special characters.   |
-| Examples: | <code>zos.bundle.extra.unix.manager=dev.galasa.zosunixcommand.ssh.manager</code> |
+| Examples: | `zos.bundle.extra.unix.manager=dev.galasa.zosunixcommand.ssh.manager` |
 
-</details>
- 
-<details>
-<summary>z/OS Batch restrict processing to the server on the specified image</summary>
+
+### z/OS Batch restrict processing to the server on the specified image
 
 | Property: | zOS Batch restrict processing to the server on the specified image |
 | --------------------------------------- | :------------------------------------- |
@@ -379,12 +342,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | false |
 | Valid values: | true or false |
-| Examples: | <code>zosbatch.batchjob.SYSA.restrict.to.image=true</code><br> <code>zosbatch.batchjob.default.restrict.to.image=false</code> |
+| Examples: | `zosbatch.batchjob.SYSA.restrict.to.image=true`<br>`zosbatch.batchjob.default.restrict.to.image=false` |
 
-</details>
- 
-<details>
-<summary>z/OS Batch default input class</summary>
+
+### z/OS Batch default input class
 
 | Property: | zOS Batch default input class |
 | --------------------------------------- | :------------------------------------- |
@@ -393,12 +354,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | A |
 | Valid values: | a valid JES input class literal |
-| Examples: | <code>zosbatch.default.SYSA.input.class=S</code><br> <code>zosbatch.default.input.class=A</code> |
+| Examples: | `zosbatch.default.SYSA.input.class=S`<br>`zosbatch.default.input.class=A` |
 
-</details>
- 
-<details>
-<summary>z/OS Batch job execution wait timeout</summary>
+
+### z/OS Batch job execution wait timeout
 
 | Property: | zOS Batch job execution wait timeout |
 | --------------------------------------- | :------------------------------------- |
@@ -407,12 +366,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | 350 |
 | Valid values: | 0 to {@link Integer#MAX_VALUE} |
-| Examples: | <code>zosbatch.batchjob.SYSA.timeout=350</code><br> <code>zosbatch.batchjob.default.timeout=60</code> |
+| Examples: | `zosbatch.batchjob.SYSA.timeout=350`<br>`zosbatch.batchjob.default.timeout=60` |
 
-</details>
- 
-<details>
-<summary>z/OS Batch jobname prefix</summary>
+
+### z/OS Batch jobname prefix
 
 | Property: | zOS Batch jobname prefix |
 | --------------------------------------- | :------------------------------------- |
@@ -421,12 +378,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | GAL |
 | Valid values: | 1-7 characters |
-| Examples: | <code>zosbatch.jobname.SYSA.prefix=JOB</code><br> <code>zosbatch.jobname.default.prefix=XXX</code> |
+| Examples: | `zosbatch.jobname.SYSA.prefix=JOB`<br>`zosbatch.jobname.default.prefix=XXX` |
 
-</details>
- 
-<details>
-<summary>z/OS Batch default MSGCLASS</summary>
+
+### z/OS Batch default MSGCLASS
 
 | Property: | zOS Batch default MSGCLASS |
 | --------------------------------------- | :------------------------------------- |
@@ -435,12 +390,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | A |
 | Valid values: | a valid JES message class literal |
-| Examples: | <code>zosbatch.default.SYSA.message.class=S</code><br> <code>zosbatch.default.message.class=A</code> |
+| Examples: | `zosbatch.default.SYSA.message.class=S`<br>`zosbatch.default.message.class=A` |
 
-</details>
- 
-<details>
-<summary>z/OS Batch default message level</summary>
+
+### z/OS Batch default message level
 
 | Property: | zOS Batch default message level |
 | --------------------------------------- | :------------------------------------- |
@@ -449,12 +402,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | (1,1) |
 | Valid values: | a valid JES message level |
-| Examples: | <code>zosbatch.default.SYSA.message.level=(1,1)</code><br> <code>zosbatch.default.message.level=(2,0)</code> |
+| Examples: | `zosbatch.default.SYSA.message.level=(1,1)`<br>`zosbatch.default.message.level=(2,0)` |
 
-</details>
- 
-<details>
-<summary>z/OS Batch job truncate JCL</summary>
+
+### z/OS Batch job truncate JCL
 
 | Property: | zOS Batch job truncate JCL |
 | --------------------------------------- | :------------------------------------- |
@@ -463,12 +414,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | true |
 | Valid values: | true or false |
-| Examples: | <code>zosbatch.batchjob.SYSA.truncate.jcl.records=true</code><br> <code>zosbatch.batchjob.default.truncate.jcl.records=false</code> |
+| Examples: | `zosbatch.batchjob.SYSA.truncate.jcl.records=true`<br>`zosbatch.batchjob.default.truncate.jcl.records=false` |
 
-</details>
- 
-<details>
-<summary>z/OS Batch job use SYSAFF</summary>
+
+### z/OS Batch job use SYSAFF
 
 | Property: | zOS Batch job use SYSAFF |
 | --------------------------------------- | :------------------------------------- |
@@ -477,12 +426,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | true |
 | Valid values: | true or false |
-| Examples: | <code>zosbatch.batchjob.SYSA.use.sysaff=true</code><br> <code>zosbatch.batchjob.default.use.sysaff=false</code> |
+| Examples: | `zosbatch.batchjob.SYSA.use.sysaff=true`<br>`zosbatch.batchjob.default.use.sysaff=false` |
 
-</details>
- 
-<details>
-<summary>Restrict z/OS console processing to the zOSMF server on the specified image</summary>
+
+### Restrict z/OS console processing to the zOSMF server on the specified image
 
 | Property: | Restrict zOS console processing to the zOSMF server on the specified image |
 | --------------------------------------- | :------------------------------------- |
@@ -491,12 +438,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | false |
 | Valid values: | true or false |
-| Examples: | <code>zosconsole.console.restrict.to.image=true</code><br> <code>zosconsole.console.SYSA.restrict.to.image=true</code> |
+| Examples: | `zosconsole.console.restrict.to.image=true`<br>`zosconsole.console.SYSA.restrict.to.image=true` |
 
-</details>
- 
-<details>
-<summary>z/OS File the maximum number of items from a UNIX directory list</summary>
+
+### z/OS File the maximum number of items from a UNIX directory list
 
 | Property: | zOS File the maximum number of items from a UNIX directory list |
 | --------------------------------------- | :------------------------------------- |
@@ -505,12 +450,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | 1000 |
 | Valid values: | 0 to 65535 |
-| Examples: | <code>zosfile.unix.SYSA.directory.list.max.items=1000</code><br> |
+| Examples: | `zosfile.unix.SYSA.directory.list.max.items=1000`<br> |
 
-</details>
- 
-<details>
-<summary>z/OS File restrict processing to the server on the specified image</summary>
+
+### z/OS File restrict processing to the server on the specified image
 
 | Property: | zOS File restrict processing to the server on the specified image |
 | --------------------------------------- | :------------------------------------- |
@@ -519,12 +462,10 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | false |
 | Valid values: | true or false |
-| Examples: | <code>zosfile.file.restrict.to.image=true</code><br> <cods>zosfile.file.SYSA.restrict.to.image=true</code> |
+| Examples: | `zosfile.file.restrict.to.image=true`<br>`zosfile.file.SYSA.restrict.to.image=true` |
 
-</details>
- 
-<details>
-<summary>z/OS File UNIX permission bits to be used in creating the file or directory</summary>
+
+### z/OS File UNIX permission bits to be used in creating the file or directory
 
 | Property: | zOS File UNIX permission bits to be used in creating the file or directory |
 | --------------------------------------- | :------------------------------------- |
@@ -533,89 +474,77 @@ The following properties are used to configure the z/OS Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Valid values are r,w,x,s,- |
-| Examples: | <code>zosfile.unix.file.permission=rwxrwx---</code><br> <code>zosfile.SYSA.unix.file.permission=rwxrwxrrx</code> |
-
-</details>
+| Examples: | `zosfile.unix.file.permission=rwxrwx---`<br>`zosfile.SYSA.unix.file.permission=rwxrwxrrx` |
 
 
-# <a name="annotations"></a>Annotations provided by the Manager
+## Annotations provided by the Manager
 
 The following annotations are available with the z/OS Manager
-<details>
-<summary>z/OS Batch</summary>
+
+### z/OS Batch
 
 | Annotation: | z/OS Batch |
 | --------------------------------------- | :------------------------------------- |
 | Name: | @ZosBatch |
-| Description: | The <code>@ZosBatch</code> annotation requests the z/OS Manager to provide a z/OS Batch instance associated with a z/OS image.  The test can request multiple z/OS Batch instances, with the default being associated with the <b>primary</b> z/OS image.<br> At test end, the Manager stores the job output with the test results archive and removes jobs from the JES queue. |
-| Attribute: `imageTag` |  The <code>imageTag</code> is used to identify the z/OS image. |
-| Syntax: | @ZosImage(imageTag="A")<br> public IZosImage zosImageA;<br> @ZosBatch(imageTag="A")<br> public IZosBatch zosBatchA;<br></code> |
-| Notes: | The <code>IZosBatch</code> interface has a single method, {@link IZosBatch#submitJob(String, IZosBatchJobname)} to submit a JCL  as a <code>String</code> and returns a <code>IZosBatchJob</code> instance.<br><br> See <a href="https://javadoc.galasa.dev/dev/galasa/zosbatch/ZosBatch.html" target="_blank">ZosBatch</a>, <a href="https://javadoc.galasa.dev/dev/galasa/zosbatch/IZosBatch.html" target="_blank">IZosBatch</a> and <a href="https://javadoc.galasa.dev/dev/galasa/zosbatch/IZosBatchJob.html" target="_blank">IZosBatchJob</a> to find out more. |
+| Description: | The `@ZosBatch` annotation requests the z/OS Manager to provide a z/OS Batch instance associated with a z/OS image.  The test can request multiple z/OS Batch instances, with the default being associated with the **primary** z/OS image.<br> At test end, the Manager stores the job output with the test results archive and removes jobs from the JES queue. |
+| Attribute: `imageTag` |  The `imageTag` is used to identify the z/OS image. |
+| Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@ZosBatch(imageTag="A")<br>public IZosBatch zosBatchA;<br></pre> |
+| Notes: | The `IZosBatch` interface has a single method, {@link IZosBatch#submitJob(String, IZosBatchJobname)} to submit a JCL  as a `String` and returns a `IZosBatchJob` instance.<br><br> See [ZosBatch](https://javadoc.galasa.dev/dev/galasa/zosbatch/ZosBatch.html){target="_blank"}, [IZosBatch](https://javadoc.galasa.dev/dev/galasa/zosbatch/IZosBatch.html){target="_blank"} and [IZosBatchJob](https://javadoc.galasa.dev/dev/galasa/zosbatch/IZosBatchJob.html){target="_blank"} to find out more. |
 
-</details>
 
-<details>
-<summary>z/OS Console</summary>
+### z/OS Console
 
 | Annotation: | z/OS Console |
 | --------------------------------------- | :------------------------------------- |
 | Name: | @ZosConsole |
-| Description: | The <code>@ZosConsole</code> annotation requests the z/OS Manager to provide a z/OS Console instance associated with a z/OS image.  The test can request multiple z/OS Console instances, with the default being associated with the <b>primary</b> z/OS image.<br> |
+| Description: | The `@ZosConsole` annotation requests the z/OS Manager to provide a z/OS Console instance associated with a z/OS image.  The test can request multiple z/OS Console instances, with the default being associated with the **primary** z/OS image.<br> |
 | Attribute: `imageTag` |  The tag of the z/OS Image this variable is to be populated with |
-| Syntax: | @ZosImage(imageTag="A")<br> public IZosImage zosImageA;<br> @ZosConsole(imageTag="A")<br> public IZosConsole zosConsoleA;<br></code> |
-| Notes: | The <code>IZosConsole</code> interface has two methods, {@link IZosConsole#issueCommand(String)} and {@link IZosConsole#issueCommand(String, String)} to issue a command to the z/OS console and returns a <code>IZosConsoleCommand</code> instance.<br><br> See <a href="https://javadoc.galasa.dev/dev/galasa/zosconsole/ZosConsole.html" target="_blank">ZosConsole</a>, <a href="https://javadoc.galasa.dev/dev/galasa/zosconsole/IZosConsole.html" target="_blank">IZosConsole</a> and <a href="https://javadoc.galasa.dev/dev/galasa/zosconsole/IZosConsoleCommand.html" target="_blank">IZosConsoleCommand</a> to find out more. |
+| Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@ZosConsole(imageTag="A")<br> public IZosConsole zosConsoleA;<br></pre> |
+| Notes: | The `IZosConsole` interface has two methods, {@link IZosConsole#issueCommand(String)} and {@link IZosConsole#issueCommand(String, String)} to issue a command to the z/OS console and returns a `IZosConsoleCommand` instance.<br><br> See [ZosConsole](https://javadoc.galasa.dev/dev/galasa/zosconsole/ZosConsole.html){target="_blank"}, [IZosConsole](https://javadoc.galasa.dev/dev/galasa/zosconsole/IZosConsole.html){target="_blank"} and [IZosConsoleCommand](https://javadoc.galasa.dev/dev/galasa/zosconsole/IZosConsoleCommand.html){target="_blank"} to find out more. |
 
-</details>
 
-<details>
-<summary>z/OS File</summary>
+### z/OS File
 
 | Annotation: | z/OS File |
 | --------------------------------------- | :------------------------------------- |
 | Name: | @ZosFileHandler |
-| Description: | The <code>@ZosFileHandler</code> annotation requests the z/OS Manager to provide a handler instance to manage data sets and UNIX files on a z/OS image.  A single z/OS File Handler instance can manage multiple z/OS data sets and UNIX files on multiple z/OS images.<br> |
-| Syntax: | <code>@ZosFileHandler<br> public IZosFileHandler zosFileHandler;<br></code> |
-| Notes: | The <code>IZosFileHandler</code> interface has three methods supplying file name and z/OS image:<br> {@link IZosFileHandler#newDataset(String, dev.galasa.zos.IZosImage)}<br>  {@link IZosFileHandler#newVSAMDataset(String, dev.galasa.zos.IZosImage)}<br> {@link IZosFileHandler#newUNIXFile(String, dev.galasa.zos.IZosImage)}<br> returning an object representing the type of file requested. This can be an existing file or can be created via a method on the file object.<br><br> See <a href="https://javadoc.galasa.dev/dev/galasa/zosfile/ZosFileHandler.html" target="_blank">ZosFileHandler</a>, <a href="https://javadoc.galasa.dev/dev/galasa/zosfile/IZosFileHandler.html" target="_blank">IZosFileHandler</a>, <a href="https://javadoc.galasa.dev/dev/galasa/zosfile/IZosDataset.html" target="_blank">IZosDataset</a>, <a href="https://javadoc.galasa.dev/dev/galasa/zosfile/IZosVSAMDataset.html" target="_blank">IZosVSAMDataset</a> and <a href="https://javadoc.galasa.dev/dev/galasa/zosfile/IZosUNIXFile.html" target="_blank">IZosUNIXFile</a> to find out more. |
+| Description: | The `@ZosFileHandler` annotation requests the z/OS Manager to provide a handler instance to manage data sets and UNIX files on a z/OS image.  A single z/OS File Handler instance can manage multiple z/OS data sets and UNIX files on multiple z/OS images.<br> |
+| Syntax: | <pre lang="java">@ZosFileHandler<br>public IZosFileHandler zosFileHandler;<br></pre> |
+| Notes: | The `IZosFileHandler` interface has three methods supplying file name and z/OS image:<br> {@link IZosFileHandler#newDataset(String, dev.galasa.zos.IZosImage)}<br>  {@link IZosFileHandler#newVSAMDataset(String, dev.galasa.zos.IZosImage)}<br> {@link IZosFileHandler#newUNIXFile(String, dev.galasa.zos.IZosImage)}<br> returning an object representing the type of file requested. This can be an existing file or can be created via a method on the file object.<br><br> See [ZosFileHandler](https://javadoc.galasa.dev/dev/galasa/zosfile/ZosFileHandler.html){target="_blank"}, [IZosFileHandler](https://javadoc.galasa.dev/dev/galasa/zosfile/IZosFileHandler.html){target="_blank"}, [IZosDataset](https://javadoc.galasa.dev/dev/galasa/zosfile/IZosDataset.html){target="_blank"}, [IZosVSAMDataset](https://javadoc.galasa.dev/dev/galasa/zosfile/IZosVSAMDataset.html){target="_blank"} and [IZosUNIXFile](https://javadoc.galasa.dev/dev/galasa/zosfile/IZosUNIXFile.html){target="_blank"} to find out more. |
 
-</details>
 
-<details>
-<summary>z/OS TSO Command</summary>
+### z/OS TSO Command
 
 | Annotation: | z/OS TSO Command |
 | --------------------------------------- | :------------------------------------- |
 | Name: | @ZosTSOCommand |
-| Description: | The <code>@ZosTSOCommand</code> annotation requests the z/OS Manager to provide a z/OS TSO Command instance associated with a z/OS image.  The test can request multiple z/OS TSO Command instances, with the default being associated with the <b>primary</b> z/OS image.<br> |
+| Description: | The `@ZosTSOCommand` annotation requests the z/OS Manager to provide a z/OS TSO Command instance associated with a z/OS image.  The test can request multiple z/OS TSO Command instances, with the default being associated with the **primary** z/OS image.<br> |
 | Attribute: `imageTag` |  The tag of the z/OS Image this variable is to be populated with |
-| Syntax: | @ZosImage(imageTag="A")<br> public IZosImage zosImageA;<br> @ZosTSOCommand(imageTag="A")<br> public IZosTSOCpmmand zosTSOA;<br></code> |
-| Notes: | The <code>IZosTSOCommand</code> interface provides the methods {@link IZosTSOCommand#issueCommand(String)} and {@link IZosTSOCommand#issueCommand(String, long)} to issue a command to z/OS TSO Command and returns a <code>String</code>.<br><br> See <a href="https://javadoc.galasa.dev/dev/galasa/zostsocommand/IZosTSOCommand.html" target="_blank">IZosTSOCommand</a> to find out more. |
+| Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@ZosTSOCommand(imageTag="A")<br> public IZosTSOCpmmand zosTSOA;<br></pre> |
+| Notes: | The `IZosTSOCommand` interface provides the methods {@link IZosTSOCommand#issueCommand(String)} and {@link IZosTSOCommand#issueCommand(String, long)} to issue a command to z/OS TSO Command and returns a `String`.<br><br> See [IZosTSOCommand](https://javadoc.galasa.dev/dev/galasa/zostsocommand/IZosTSOCommand.html){target="_blank"} to find out more. |
 
-</details>
 
-<details>
-<summary>z/OS UNIX Command</summary>
+### z/OS UNIX Command
 
 | Annotation: | z/OS UNIX Command |
 | --------------------------------------- | :------------------------------------- |
 | Name: | @ZosUNIXCommand |
-| Description: | The <code>@ZosUNIXCommand</code> annotation requests the z/OS Manager to provide a z/OS UNIX instance associated with a z/OS image.  The test can request multiple z/OS UNIX Command instances, with the default being associated with the <b>primary</b> z/OS image.<br> |
+| Description: | The `@ZosUNIXCommand` annotation requests the z/OS Manager to provide a z/OS UNIX instance associated with a z/OS image.  The test can request multiple z/OS UNIX Command instances, with the default being associated with the **primary** z/OS image.<br> |
 | Attribute: `imageTag` |  The tag of the z/OS Image this variable is to be populated with |
-| Syntax: | @ZosImage(imageTag="A")<br> public IZosImage zosImageA;<br> @ZosUNIXCommand(imageTag="A")<br> public IZosUNIXCommand zosUNIXCommandA;<br></code> |
-| Notes: | The <code>IZosUNIXCommand</code> interface provides the methods {@link IZosUNIXCommand#issueCommand(String)} and {@link IZosUNIXCommand#issueCommand(String, long)} to issue a command to z/OS UNIX and returns a <a href="https://javadoc.galasa.dev/dev/galasa/zosunixcommand/String.html" target="_blank">String</a> response.<br><br> See <a href="https://javadoc.galasa.dev/dev/galasa/zosunixcommand/IZosUNIXCommand.html" target="_blank">IZosUNIXCommand</a> to find out more. |
-
-</details>
+| Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@ZosUNIXCommand(imageTag="A")<br> public IZosUNIXCommand zosUNIXCommandA;<br></pre> |
+| Notes: | The `IZosUNIXCommand` interface provides the methods {@link IZosUNIXCommand#issueCommand(String)} and {@link IZosUNIXCommand#issueCommand(String, long)} to issue a command to z/OS UNIX and returns a [String](https://javadoc.galasa.dev/dev/galasa/zosunixcommand/String.html){target="_blank"} response.<br><br> See [IZosUNIXCommand](https://javadoc.galasa.dev/dev/galasa/zosunixcommand/IZosUNIXCommand.html){target="_blank"} to find out more. |
 
 
-
-# <a name="codesnippets"></a>Code snippets and examples
+## Code snippets and examples
 
 Use the following code snippets to help you get started with the z/OS Manager.
- 
-<details><summary>Request a z/OS TSO Command instance</summary>
+
+
+### Request a z/OS TSO Command instance
 
 The following snippet shows the code that is required to request a z/OS TSO Command instance in a Galasa test:
 
-```
+```java
 @ZosImage(imageTag="A")
 public IZosImage zosImageA;
 
@@ -624,13 +553,13 @@ public IZosTSOCommand tsoCommand;
 ```
 
 The code creates a z/OS TSO Command instance associated with the z/OS Image allocated in the *zosImageA* field.
-</details>
 
-<details><summary>Issue a z/OS TSO Command and retrieve the immediate response</summary>
+
+### Issue a z/OS TSO Command and retrieve the immediate response
 
 Issue the z/OS TSO `TIME` Command and retrieve the response:
 
-```
+```java
 String tsoCommandString = "TIME";
 String tsoResponse = tsoCommand.issueCommand(tsoCommandString);
 ```
@@ -640,13 +569,13 @@ The String `tsoResponse`  contains the output of the TSO TIME command, e.g.
 ```
 IKJ56650I TIME-12:01:00 PM. CPU-00:00:00 SERVICE-290 SESSION-00:00:00 APRIL 1,2020
 ```
-</details>
- 
-<details><summary>Request a z/OS UNIX Command instance</summary>
+
+
+### Request a z/OS UNIX Command instance
 
 The following snippet shows the code that is required to request a z/OS UNIX Command instance in a Galasa test:
 
-```
+```java
 @ZosImage(imageTag="A")
 public IZosImage zosImageA;
 
@@ -655,13 +584,13 @@ public IZosUNIXCommand unixCommand;
 ```
 
 The code creates a z/OS UNIX Command instance associated with the z/OS Image allocated in the *zosImageA* field.
-</details>
 
-<details><summary>Issue a z/OS UNIX Command and retrieve response</summary>
+
+### Issue a z/OS UNIX Command and retrieve response
 
 Issue the z/OS UNIX `date` Command and retrieve the response:
 
-```
+```java
 String unixCommandString = "date";
 String unixResponse = unixCommand.issueCommand(unixCommandString);
 ```
@@ -671,13 +600,13 @@ The String `unixResponse`  contains the output of the UNIX TIME command, e.g.
 ```
 Wed Apr 1 12:01:00 BST 2020
 ```
-</details>
- 
-<details><summary>Request a z/OS Console instance</summary>
+
+
+### Request a z/OS Console instance
 
 The following snippet shows the code that is required to request a z/OS Console instance in a Galasa test:
 
-```
+```java
 @ZosImage(imageTag="A")
 public IZosImage zosImageA;
 
@@ -686,38 +615,37 @@ public IZosConsole zosConsole;
 ```
 
 The code creates a z/OS Console instance associated with the z/OS Image allocated in the *zosImageA* field.
-</details>
 
-<details><summary>Issue a z/OS Console command and retrieve the immediate response</summary>
+
+### Issue a z/OS Console command and retrieve the immediate response
 
 Issue a z/OS Console command and retrieve the immediate console command response:
 
-```
+```java
 String command = "D A,L";
 IZosConsoleCommand consoleCommand = zosConsole.issueCommand(command);
 String immediateResponse = consoleCommand.getResponse();
 
 ```
-</details>
 
 
-<details><summary>Issue a z/OS Console command and retrieve the delayed response</summary>
+### Issue a z/OS Console command and retrieve the delayed response
 
 Issue a z/OS Console command and retrieve the delayed console command response:
 
-```
+```java
 String command = "D A,L";
 IZosConsoleCommand consoleCommand = zosConsole.issueCommand(command);
 String delayedResponse = consoleCommand.requestResponse();
 
 ```
-</details>
- 
-<details><summary>Request a z/OS Batch instance</summary>
+
+
+### Request a z/OS Batch instance
 
 The following snippet shows the code that is required to request a z/OS Batch instance in a Galasa test:
 
-```
+```java
 @ZosImage(imageTag="A")
 public IZosImage zosImageA;
 
@@ -727,37 +655,35 @@ public IZosBatch zosBatch;
 
 
 The code creates a z/OS Batch instance associated with the allocated with the z/OS Image allocated in the *zosImageA* field.
-</details>
 
-<details><summary>Submit a z/OS Batch Job</summary>
+
+### Submit a z/OS Batch Job
 
 Submit a z/OS Batch Job using the supplied JCL and a Galasa allocated Job Name:
 
-```
+```java
 String jcl = "//STEP1    EXEC PGM=IEFBR14";
 IZosBatchJob batchJob = zosBatch.submitJob(jcl, null);
 ```
-</details>
 
-
-<details><summary>Submit a z/OS Batch Job with job card parameters</summary>
+### Submit a z/OS Batch Job with job card parameters
 
 Submit a z/OS Batch Job using the supplied JCL, a Galasa allocated Job Name and overidding the default input and message class:
 
-```
+```java
 String jcl = "//STEP1    EXEC PGM=IEFBR14";
 ZosBatchJobcard jobcard = new ZosBatchJobcard().
                           .setInputClass("B")
                           .setMsgClass("X");
 IZosBatchJob batchJob = zosBatch.submitJob(jcl, null, jobcard);
 ```
-</details>
 
-<details><summary>Wait for z/OS Batch Job to complete</summary>
+
+### Wait for z/OS Batch Job to complete
 
 Wait for z/OS Batch job to complete and check maximum return code:
 
-```
+```java
 if (batchJob.waitForJob() > 0) {
     logger.info("Batch job failed RETCODE=" + batchJob.getRetcode();
 }
@@ -774,51 +700,50 @@ or
 ```
 Batch job failed RETCODE=ABEND S0C4
 ```
-</details>
 
 
-<details><summary>Retrieve the job output</summary>
+### Retrieve the job output
 
 Use the following code to retrieve the output from a z/OS Batch Job:
 
-```
+```java
 IZosBatchJobOutput jobOutput = batchJob.retrieveOutput();
 List<IZosBatchJobOutputSpoolFile> spoolFiles = jobOutput.getSpoolFiles();
 for (IZosBatchJobOutputSpoolFile spoolFile : spoolFiles) {
     String ddName = spoolFile.getDdname();
     String output = spoolFile.getRecords();
-    ...
+    //...
 }
 
 ```
-</details>
 
-<details><summary>Obtain a list of active jobs</summary>
+
+### Obtain a list of active jobs
 
 Use the following code to obtain a list of active jobs called *MYJOB1* with an owner of *USERID*:
 
-```
+```java
 List<IZosBatchJob> jobs = zosBatch.getJobs("MYJOB1", "USERID");
 for (IZosBatchJob job : jobs) {
     if (job.getStatus().equals("ACTIVE")) {
-        ...
+        //...
     }
 }
 
 ```
-</details>
 
-<details><summary>Retrieve the content of a specific spool file from an active CICS region</summary>
+
+### Retrieve the content of a specific spool file from an active CICS region
 
 Use the following code to retrieve and process the output from the *MSGUSR* spool file:
 
-```
+```java
 List<IZosBatchJob> jobs = zosBatch.getJobs("CICSRGN", "CICSUSR");
 for (IZosBatchJob job : jobs) {
     if (job.getStatus().equals("ACTIVE")) {
         String msgusr = cicsJob.getSpoolFile("MSGUSR");
         if (msgusr.contains("DFHAC2236")) {
-            ...
+            //...
         }
         break;
     }
@@ -826,12 +751,11 @@ for (IZosBatchJob job : jobs) {
 
 ```
 
-
 The code retrieves a list of CICS regions named *CICSRGN* with and owner of *CICSUSR*. It then loops through until it finds the first active region. The content of the *MSGUSR* spool file is obtained and checked for the string *DFHAC2236*.
 
 In this example, we assume there will only one spool file with the ddname of *MSGUSR*. If this were not the case, the following code could be used:
 
-```
+```java
 List<IZosBatchJob> jobs = zosBatch.getJobs("CICSRGN", "CICSUSR");
 for (IZosBatchJob job : jobs) {
     List<IZosBatchJobOutputSpoolFile> spoolFiles = job.retrieveOutput().getSpoolFiles();
@@ -839,7 +763,7 @@ for (IZosBatchJob job : jobs) {
         if (spoolFile.getDdname().equals("SYSOUT") &&
             spoolFile.getStepname().equals("STEP2")) {
             String output = spoolFile.getRecords();
-            ...
+            //...
         }
     }
 }
@@ -847,60 +771,58 @@ for (IZosBatchJob job : jobs) {
 ```
 
 Here, the code retrieves the content of the *SYSOUT* spool file for job step *STEP2*.
-</details>
- 
-<details><summary>Request a z/OS File Handler instance</summary>
+
+
+### Request a z/OS File Handler instance
 
 The following snippet shows the code that is required to request a z/OS File Handler instance in a Galasa test:
 
-```
+```java
 @ZosFileHandler
 public IZosFileHandler zosFileHandler;
 ```
-</details>
 
-<details><summary>Read the content of an existing sequential data set</summary>
+
+### Read the content of an existing sequential data set
 
 Create a new *IZosDataset* object representing an existing sequential data set. If the data set exists, retrieve the content in text mode:
 
-```
+```java
 @ZosImage(imageTag="A")
 public IZosImage zosImage;
 
 @ZosFileHandler
 public IZosFileHandler zosFileHandler;
-...
+//...
 IZosDataset dataSet = zosFileHandler.newDataset("GALASA.EXISTING.DATASET.SEQ", zosImage);
 if (dataSet.exists()) {
     String content = dataSet.retrieveAsText();
-    ...
+    //...
 }
 ```
-</details>
 
 
-<details><summary>Read the content of an existing partitioned data set member</summary>
+### Read the content of an existing partitioned data set member
 
 Create a new *IZosDataset* object representing an existing partitioned data set (PDS). If the PDS exists, check if the member exists and retrieve it's content in text mode:
 
-```
+```java
 @ZosImage(imageTag="A")
 public IZosImage zosImage;
 
 @ZosFileHandler
 public IZosFileHandler zosFileHandler;
-...
+//...
 IZosDataset dataSet = zosFileHandler.newDataset("GALASA.EXISTING.DATASET.SEQ, zosImage);
     String memberName = "MEMBER1";
     if (dataSet.exists() && dataSet.memberExists(memberName)) {
         String content = dataSet.memberRetrieveAsText(memberName);
-        ...
+        //...
     }
 ```
-</details>
 
 
-<details><summary>Create a new sequential data set</summary>
+### Create a new sequential data set
 
 Create a new *IZosDataset* object representing a new sequential data set. If the data set does not exist, allocate the data set with attributes to the equivalent of the following JCL:
 
@@ -912,13 +834,13 @@ Create a new *IZosDataset* object representing a new sequential data set. If the
 Finally, content is written to the data set in text mode:
 
 
-```
+```java
 @ZosImage(imageTag="A")
 public IZosImage zosImage;
 
 @ZosFileHandler
 public IZosFileHandler zosFileHandler;
-...
+//...
 IZosDataset dataSet = zosFileHandler.newDataset("GALASA.NEW.DATASET.SEQ", zosImage);
     if (!dataSet.exists()) {
         dataSet.setDatasetOrganization(DatasetOrganization.SEQUENTIAL);
@@ -935,9 +857,9 @@ IZosDataset dataSet = zosFileHandler.newDataset("GALASA.NEW.DATASET.SEQ", zosIma
     records.add("RECORD 3");
     dataSet.storeText(String.join("\n", records));
 ```
-</details>
 
-<details><summary>Create a new partitioned data set member</summary>
+
+### Create a new partitioned data set member
 
 Create a new *IZosDataset* object representing a new partitioned data (PDS) set member. If the data set does not exist, allocate the PDS with attributes to the equivalent of the following JCL:
 
@@ -949,13 +871,13 @@ Create a new *IZosDataset* object representing a new partitioned data (PDS) set 
 Finally, content is written to a member in the PDS in text mode:
 
 
-```
+```java
 @ZosImage(imageTag="A")
 public IZosImage zosImage;
 
 @ZosFileHandler
 public IZosFileHandler zosFileHandler;
-...
+//...
 IZosDataset dataSet = zosFileHandler.newDataset("GALASA.NEW.DATASET.PDS", zosImage);
 if (!dataSet.exists()) {
     dataSet.setDatasetOrganization(DatasetOrganization.SEQUENTIAL);
@@ -975,36 +897,39 @@ List<String> records = new ArrayList<>();
     dataSet.memberStoreText(memberName, String.join("\n", records));
 }
 ```
+
 To create a PDS/E, i.e. the JCL equivalent of
 
 ```
 DSNTYPE=LIBRARY
 ```
+
 use
 
 ```
 dataSet.setDatasetType(DSType.LIBRARY);
 ```
-instead of setting the number of directory blocks.
-</details>
 
-<details><summary>Create a new VSAM KSDS</summary>
+instead of setting the number of directory blocks.
+
+
+### Create a new VSAM KSDS
 
 Create a new *IZosVSAMDataset* object representing a new VSAM KSDS data set. If the data set is allocated with a minimum set of attributes:
 
-```
+```java
 IZosVSAMDataset vsamDataSet = zosFileHandler.newVSAMDataset("ROBERTD.GALASA.TEST.DS.ANOTHER.KSDS", zosImage);
 vsamDataSet.setSpace(VSAMSpaceUnit.CYLINDERS, 1, 1);
 vsamDataSet.setRecordSize(50, 101);
 vsamDataSet.create();
 ```
-</details>
 
-<details><summary>Read the contents of a z/OS UNIX File</summary>
+
+### Read the contents of a z/OS UNIX File
 
 Create a new *IZosDataset* object representing a UNIX file. If the file exists, retrieve the content in text mode:
 
-```
+```java
 IZosUNIXFile unixFile = zosFileHandler.newUNIXFile("/tmp/Galasa/existingFile", zosImage);
 if (unixFile.exists()) {
     unixFile.setDataType(UNIXFileDataType.TEXT);
@@ -1012,13 +937,12 @@ if (unixFile.exists()) {
 }
 ```
 
-</details>
 
-<details><summary>Read the contents of a z/OS UNIX File</summary>
+### Read the contents of a z/OS UNIX File
 
 Create a new *IZosDataset* object representing a new UNIX file. If UNIX file does not exist, create it. Write to the file in binary mode:
 
-```
+```java
 IZosUNIXFile unixFile = zosFileHandler.newUNIXFile("/tmp/Galasa/newFile", zosImage);
 if (!unixFile.exists()) {
     unixFile.create();
@@ -1031,13 +955,12 @@ unixFile.setDataType(UNIXFileDataType.BINARY);
 unixFile.store(String.join("\n", properties));
 ```
 
-</details>
 
-<details><summary>List the contents of a z/OS UNIX Directory</summary>
+### List the contents of a z/OS UNIX Directory
 
 Create a new *IZosDataset* object representing a new UNIX directory. If UNIX directory exists, list its contents:
 
-```
+```java
 IZosUNIXFile unixDirectory = zosFileHandler.newUNIXFile("/tmp/Galasa/", zosImage);
 if (unixDirectory.exists())
 {
@@ -1057,6 +980,4 @@ file     : /tmp/Galasa/dira/file2
 file     : /tmp/Galasa/existingFile
 file     : /tmp/Galasa/newFile
 ```
-
-</details>
 

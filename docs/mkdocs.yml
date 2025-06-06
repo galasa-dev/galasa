@@ -58,7 +58,6 @@ theme:
   - navigation.footer
   - navigation.indexes
   - navigation.instant
-  - navigation.sections
   - navigation.tabs
   - navigation.tabs.sticky
   - navigation.top
@@ -111,6 +110,9 @@ plugins:
   - search
   - blog:
       blog_dir: hub
+      blog_toc: true
+      archive_toc: true
+      categories_toc: true
       categories_allowed:
         - Blog
         - Podcast
@@ -121,7 +123,9 @@ plugins:
       post_readtime: false
   - blog:
       blog_dir: releases
-      archive: false
+      blog_toc: true
+      archive: true
+      archive_toc: true
       categories: false
       post_readtime: false
 
@@ -241,10 +245,10 @@ nav:
       - z/OS Managers:
         - docs/managers/zos-managers/index.md
         - docs/managers/zos-managers/rse-api-manager.md
-        - docs/managers/zos-managers/z-os-batch-rse-api-manager.md
-        - docs/managers/zos-managers/z-os-batch-z-os-mf-manager.md
+        - docs/managers/zos-managers/zos-batch-rse-api-manager.md
+        - docs/managers/zos-managers/zos-batch-zos-mf-manager.md
         - docs/managers/zos-managers/z-os-file-manager.md
-        - docs/managers/zos-managers/z-os-file-rse-api-manager.md
+        - docs/managers/zos-managers/zos-file-rse-api-manager.md
         - docs/managers/zos-managers/z-os-file-zos-mf-manager.md
         - docs/managers/zos-managers/zos-batch-manager.md
         - docs/managers/zos-managers/zos-batch-zos-mf-manager.md

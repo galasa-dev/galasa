@@ -25,7 +25,7 @@ When you run a test locally, without using shared configuration, everything runs
 
 ![running in local mode:](running-local.svg)
 
-You can run a test in this mode by using the `runs submit local` [Galasa CLI](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs_submit_local.md){target="_blank"} command.
+You can run a test in this mode by using the [runs submit local](../reference/cli-syntax/galasactl_runs_submit_local.md) Galasa CLI command.
 
 
 ## Running a test in the Galasa Ecosystem
@@ -34,7 +34,7 @@ To submit your test to an Ecosystem for remote execution, the Galasa bootstrap i
 
 ![running remotely:](run-remote.svg)
 
-After configuring authentication, you can run a test in this mode by setting up your bootstrap file to refer to the Ecosystem that you want to use and running the `runs submit` [Galasa CLI](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs_submit.md){target="_blank"} command.
+After configuring authentication, you can run a test in this mode by setting up your bootstrap file to refer to the Ecosystem that you want to use and running the [runs submit](../reference/cli-syntax/galasactl_runs_submit.md) Galasa CLI command.
 
 
 ## Running a test locally but using shared configuration
@@ -58,7 +58,7 @@ where:
 
 - `framework.extra.bundles` tells the Galasa framework to load the `dev.galasa.cps.rest` extension. This extension tells the Galasa framework how to handle URLs that start with `galasacps` as the *scheme* part of the URL.
 
-After setting the `GALASA_TOKEN` to be a valid token for the Ecosystem from which the CPS property values will be drawn, log into the Ecosystem by running the `galasactl auth login` command. You can then run a test in hybrid mode by setting your bootstrap to refer to the Ecosystem in which the shared configuration is stored, and using the `galasactl runs submit local` [Galasa CLI](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs_submit_local.md) command. 
+After setting the `GALASA_TOKEN` to be a valid token for the Ecosystem from which the CPS property values will be drawn, log into the Ecosystem by running the `galasactl auth login` command. You can then run a test in hybrid mode by setting your bootstrap to refer to the Ecosystem in which the shared configuration is stored, and using the [galasactl runs submit local](../reference/cli-syntax/galasactl_runs_submit_local.md) Galasa CLI command. 
 
 
 ## When to run a test in the Galasa Ecosystem

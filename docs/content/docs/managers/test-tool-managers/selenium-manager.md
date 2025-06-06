@@ -2,79 +2,83 @@
 title: "Selenium Manager"
 ---
 
-This Manager is at Beta level. You can view the <a href="https://javadoc.galasa.dev/dev/galasa/selenium/package-summary.html" target="_blank" rel="noopener noreferrer">Javadoc documentation for the Manager here</a>.<br>
+This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/selenium/package-summary.html){target="_blank"}.
 
 
+## Overview
 
-[Overview](#overview)<br>
-[Code snippets and examples](#codesnippets)<br>
+This Manager enables the test to run Selenium WebDrivers in order to drive Web Browsers during the test. Browsers can have actions performed against them  to navigate WebPages and extract information about the current page.
 
+As an absolute minimum, the CPS property `selenium.instance.PRIMARY.gecko.path` must be provided as the Manager will default to using a GECKO WebDriver if no WebDriver is provided.
 
-# <a name="overview"></a>Overview
-This Manager enables the test to run Selenium WebDrivers in order to drive Web Browsers during the test. Browsers can have actions performed against them  to navigate WebPages and extract information about the current page. <br><br> As an absolute minimum, the CPS property <br> <code>selenium.instance.PRIMARY.gecko.path</code><br> must be provided as the Manager will default to using a GECKO WebDriver if no WebDriver is provided. <br><br> The CPS property <br> <code>selenium.instance.PRIMARY.web.driver</code><br> can be used to set a different WebDriver. This will also require the corresponding driver path to be set. <br> eg. <code>selenium.instance.PRIMARY.web.driver=CHROME</code><br> requires <code>selenium.instance.PRIMARY.chrome.path=...</code><br>
+The CPS property `selenium.instance.PRIMARY.web.driver` can be used to set a different WebDriver. This will also require the corresponding driver path to be set.
+
+eg. `selenium.instance.PRIMARY.web.driver=CHROME` requires `selenium.instance.PRIMARY.chrome.path=...`
+
 
 ## Limitations
-The Selenium Manager only supports GECKO, CHROME, EDGE and IE WebDrivers.<br><br> 
+
+The Selenium Manager only supports GECKO, CHROME, EDGE and IE WebDrivers.
 
 
-
-## <a name="codesnippets"></a>Code snippets
+## Code snippets
 
 Use the following code snippets to help you get started with the Selenium Manager.
  
-<details><summary>Create the Selenium Manager</summary>
+
+### Create the Selenium Manager
 
 The following snippet shows the minimum code that is required to request the Selenium Manager in a test:
 
-```
+```java
 @SeleniumManager
 public ISeleniumManager seleniumManager;
 ```
 
 The code creates an interface to the Selenium Manager which will allow the tester to provision web pages to test against.
-</details>
 
-<details><summary>Open a WebPage</summary>
 
-```
+### Open a Web Page
+
+```java
 IWebPage page = seleniumManager.allocateWebPage("https://galasa.dev/");
 ```
 
-The code opens a WebPage with a Selenium WebDriver controlling the browser. This object provides an interface for the tester to perform actions on the page to navigate around, check the page content and switch between windows.
+The code opens a Web Page with a Selenium WebDriver controlling the browser. This object provides an interface for the tester to perform actions on the page to navigate around, check the page content and switch between windows.
 
 At the end of the test, the Selenium Manager automatically closes the WebDriver which removes the WebPage.
 
 There is no limit in Galasa on how many Selenium WebPages can be used within a single test. The only limit is the ability of the Galasa Ecosystem they are running on to support the number of Selenium WebDrivers ensuring that they do not time out.
-</details>
 
-<details><summary>Navigating around a web page browser</summary>
 
-```
+### Navigating around a web page browser
+
+```java
 page.clearElementByCssSelector("input.js-search-input.search__input--adv");
 page.sendKeysToElementByClass("js-search-input.search__input--adv", "Galasa");
 page.clickElementById("search_button_homepage");
 ```
 
 The code showcases different actions which can be performed on a web page interface to interact with different WebElements on the Browser. These WebElements are selected using a range of different techniques which allows the tester flexibility in how they are selected.
-</details>
 
-<details><summary>Extracting web page information</summary>
 
-```
+### Extracting web page information
+
+```java
 WebElement element = page.findElementById("search_button_homepage");
 String pageTitle = page.getTitle();
 String pageSource = page.getPageSource();
 ```
 
 The code shows different ways of gaining information about the web page to be tested against. Extracting the title is a very simple way of checking if the WebDriver is on the correct page and making sure that a WebElement is found.
-</details>
+
 
 ## Configuration Properties
 
 The following are properties used to configure the Selenium Manager.
  
-<details>
-<summary>Selenium Available Drivers CPS Property</summary>
+
+### Selenium Available Drivers CPS Property
 
 | Property: | Selenium Available Drivers CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -83,12 +87,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | No |
 | Default value: | $default |
 | Valid values: | A valid String the describes any of the supported drivers: FIREFOX,CHROME,OPERA,EDGE |
-| Examples: | <code>selenium.available.drivers=CHROME,FIREFOX,OPERA,EDGE</code> |
+| Examples: | `selenium.available.drivers=CHROME,FIREFOX,OPERA,EDGE` |
 
-</details>
- 
-<details>
-<summary>Selenium Default Driver CPS Property</summary>
+
+### Selenium Default Driver CPS Property
 
 | Property: | Selenium Default Driver CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -97,12 +99,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | No |
 | Default value: | $default |
 | Valid values: | A valid String representation of a type. Available choices: local, docker, kubernetes, grid |
-| Examples: | <code>selenium.default.driver=FIREFOX</code> |
+| Examples: | `selenium.default.driver=FIREFOX` |
 
-</details>
- 
-<details>
-<summary>Selenium Driver Version for Containerised Node</summary>
+
+### Selenium Driver Version for Containerised Node
 
 | Property: | Selenium Driver Version for Containerised Node |
 | --------------------------------------- | :------------------------------------- |
@@ -111,12 +111,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | no |
 | Default value: | $default |
 | Valid values: | 4.0.0-beta-2-20210317 |
-| Examples: | <code>selenium.image.node.version=4.0.0-beta-2-20210317</code> |
+| Examples: | `selenium.image.node.version=4.0.0-beta-2-20210317` |
 
-</details>
- 
-<details>
-<summary>Selenium Driver Max Slots CPS Property</summary>
+
+### Selenium Driver Max Slots CPS Property
 
 | Property: | Selenium Driver Max Slots CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -125,12 +123,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | No |
 | Default value: | $default |
 | Valid values: | Int value for number of congruent drivers |
-| Examples: | <code>selenium.driver.max.slots=3</code> |
+| Examples: | `selenium.driver.max.slots=3` |
 
-</details>
- 
-<details>
-<summary>Selenium Gecko Preferences CPS Property</summary>
+
+### Selenium Gecko Preferences CPS Property
 
 | Property: | Selenium Gecko Preferences CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -139,12 +135,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | No |
 | Default value: | $default |
 | Valid values: | A comma seperated list of key value pairs for the preferences |
-| Examples: | <code>selenium.local.gecko.preferences=app.update.silent=false,dom.popup_maximum=0</code> |
+| Examples: | `selenium.local.gecko.preferences=app.update.silent=false,dom.popup_maximum=0` |
 
-</details>
- 
-<details>
-<summary>Selenium Gecko Profile CPS Property</summary>
+
+### Selenium Gecko Profile CPS Property
 
 | Property: | Selenium Gecko Profile CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -153,12 +147,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | No |
 | Default value: | $default |
 | Valid values: | A valid String name of a profile |
-| Examples: | <code>selenium.local.gecko.profile=default</code> |
+| Examples: | `selenium.local.gecko.profile=default` |
 
-</details>
- 
-<details>
-<summary>Selenium Grid Endpoint CPS Property</summary>
+
+### Selenium Grid Endpoint CPS Property
 
 | Property: | Selenium Grid Endpoint CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -167,12 +159,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | No |
 | Default value: | $default |
 | Valid values: | ip's and hostnames for a selenium grid |
-| Examples: | <code>selenium.grid.endpoint=127.0.0.1:4444</code> |
+| Examples: | `selenium.grid.endpoint=127.0.0.1:4444` |
 
-</details>
- 
-<details>
-<summary>Selenium Kubernetes Namespace</summary>
+
+### Selenium Kubernetes Namespace
 
 | Property: | Selenium Kubernetes Namespace |
 | --------------------------------------- | :------------------------------------- |
@@ -181,12 +171,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | Yes |
 | Default value: | $default |
 | Valid values: | A valid String representation an available namespace on your k8's cluster |
-| Examples: | <code>selenium.kubernetes.namespace=galasa</code> |
+| Examples: | `selenium.kubernetes.namespace=galasa` |
 
-</details>
- 
-<details>
-<summary>Selenium Node Selector CPS Property</summary>
+
+### Selenium Node Selector CPS Property
 
 | Property: | Selenium Node Selector CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -195,12 +183,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | No |
 | Default value: | $default |
 | Valid values: | Comma seperated list of any node selectors: beta.kubernetes.io/arch: amd64, platform: myplatform |
-| Examples: | <code>selenium.kubernetes.node.selector=beta.kubernetes.io/arch: amd64</code> |
+| Examples: | `selenium.kubernetes.node.selector=beta.kubernetes.io/arch: amd64` |
 
-</details>
- 
-<details>
-<summary>Selenium Driver Path CPS Property</summary>
+
+### Selenium Driver Path CPS Property
 
 | Property: | Selenium Driver Path CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -209,12 +195,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | Yes |
 | Default value: | $default |
 | Valid values: | A valid String representation of a path |
-| Examples: | <code>selenium.local.driver.CHROME.path=/usr/bin/chromedriver</code> |
+| Examples: | `selenium.local.driver.CHROME.path=/usr/bin/chromedriver` |
 
-</details>
- 
-<details>
-<summary>Selenium Screenshot Failure CPS Property</summary>
+
+### Selenium Screenshot Failure CPS Property
 
 | Property: | Selenium Screenshot Failure CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -223,12 +207,10 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | No |
 | Default value: | $default |
 | Valid values: | true or false |
-| Examples: | <code>selenium.screenshot.failure=true</code> |
+| Examples: | `selenium.screenshot.failure=true` |
 
-</details>
- 
-<details>
-<summary>Selenium Driver Type CPS Property</summary>
+
+### Selenium Driver Type CPS Property
 
 | Property: | Selenium Driver Type CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -237,6 +219,5 @@ The following are properties used to configure the Selenium Manager.
 | Required:  | No |
 | Default value: | $default |
 | Valid values: | A valid String representation of a type. Available choices: local, docker, kubernetes, grid |
-| Examples: | <code>selenium.driver.type=docker</code> |
+| Examples: | `selenium.driver.type=docker` |
 
-</details>

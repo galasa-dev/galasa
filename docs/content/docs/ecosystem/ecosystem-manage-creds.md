@@ -63,7 +63,8 @@ galasactl secrets set --name SYSTEM1 --token "my-token" --type Token
 
 Updated credentials are now available for a test to run in automation on a Galasa Ecosystem.
 
-For a complete list of supported parameters see the [galasactl secrets set](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_secrets_set.md){target="_blank"} documentation in the CLI repository.
+For a complete list of supported parameters, see the [galasactl secrets set](../reference/cli-syntax/galasactl_secrets_set.md) command reference.
+
 
 ## Getting secrets
 
@@ -82,7 +83,8 @@ For example, you can use the following command to retrieve all secrets in `yaml`
 galasactl secrets get --format yaml
 ```
 
-For a complete list of supported parameters see the [galasactl secrets get](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_secrets_get.md){target="_blank"} documentation in the CLI repository.
+For a complete list of supported parameters, see the [galasactl secrets get](../reference/cli-syntax/galasactl_secrets_get.md) command reference.
+
 
 ### Getting all secrets
 
@@ -150,4 +152,4 @@ galasactl secrets delete --name SIMBANK
 
 If the secret does not exist, an error will be displayed to indicate that the secret could not be found.
 
-For a complete list of supported parameters see the [galasactl secrets delete](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_secrets_delete.md){target="_blank"} documentation in the CLI repository.
+For a complete list of supported parameters, see the [galasactl secrets delete](../reference/cli-syntax/galasactl_secrets_delete.md) command reference.

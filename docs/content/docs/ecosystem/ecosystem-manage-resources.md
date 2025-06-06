@@ -202,4 +202,4 @@ galasactl resources delete -f resources_to_delete.yaml
 ```
 
 
-For a complete list of supported parameters see the [galasactl resources](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_resources.md){target="_blank"} documentation in the Galasa CLI repository.
+For a complete list of supported parameters, see the [galasactl resources](../reference/cli-syntax/galasactl_resources.md) command reference.

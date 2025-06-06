@@ -2,25 +2,22 @@
 title: "zOS TSO Command SSH Manager"
 ---
 
-This Manager is at Beta level. You can view the <a href="https://javadoc.galasa.dev/overview-summary.html" target="_blank" rel="noopener noreferrer">Javadoc documentation for the Manager here</a>.<br>
+This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/overview-summary.html){target="_blank"}.
 
 
-[Overview](#overview)<br>
-[Configuring](#configuring)<br>
+## Overview
+
+This Manager is the internal implementation of the zOS TSO Command Manager using SSH.
+
+See the [zOS Manager](./zos-manager.md) for details of the z/OS TSO annotations and code snippets.
 
 
-# <a name="overview"></a>Overview
-This Manager is the internal implementation of the zOS TSO Command Manager using SSH. <br><br> See the <a href="/docs/managers/zos-manager">zOS Manager</a> for details of the z/OS TSO annotations and  code snippets.<br><br> 
-
-
-
-
-## <a name="configuring"></a>Configuration Properties
+## Configuration Properties
 
 The following are properties used to configure the zOS TSO Command SSH Manager.
  
-<details>
-<summary>The tsocmd path</summary>
+
+### The tsocmd path
 
 | Property: | The tsocmd path |
 | --------------------------------------- | :------------------------------------- |
@@ -29,6 +26,4 @@ The following are properties used to configure the zOS TSO Command SSH Manager.
 | Required:  | No |
 | Default value: | tsocmd |
 | Valid values: | A valid PATH environment variable or a full path name |
-| Examples: | <code>zostsocommand.command.tsocmd.path=tsocmd</code><br> <code>zostsocommand.MFSYSA.tsocmd.command.path=/tools/tsocmd</code> |
-
-</details>
+| Examples: | `zostsocommand.command.tsocmd.path=tsocmd`<br>`zostsocommand.MFSYSA.tsocmd.command.path=/tools/tsocmd` |

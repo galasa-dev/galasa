@@ -4,7 +4,8 @@ title: "Deleting test run results"
 
 Over time, test run results build up and take up space in the Galasa Ecosystem. You can delete test runs which have completed in the past by using the `galasactl runs delete` command.
 
-You can view the full command syntax in the [Galasa cli repository](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs_delete.md){target="_blank"}.
+To view the full command syntax, see the [galasactl runs delete](../reference/cli-syntax/galasactl_runs_delete.md) command reference.
+
 
 ## Working with the `galasactl runs delete` command
 
@@ -24,4 +25,4 @@ galasactl runs get --age 6w:1w --bootstrap http://example.com:30960/bootstrap
 
 The `--format raw` option is useful if you are writing a script to delete multiple test runs.
 
-You can view the full command syntax for `galasactl runs get` in the [Galasa cli repository](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs_get.md){target="_blank"}.
+To view the full command syntax, see the [galasactl runs get](../reference/cli-syntax/galasactl_runs_get.md) command reference.

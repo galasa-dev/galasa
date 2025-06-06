@@ -18,8 +18,8 @@ To use the `galasactl runs submit local` command, the `JAVA_HOME` environment va
 
 The level of Java must match the supported level of the Galasa version that is being launched. Use the `galasactl --version` command to find the galasactl tool version. We currently support Java version 11 to version 17 JDK. _Note:_ We do not currently support Java 21 or later.
 
-You can view the full list of options that are available with the `galasactl runs submit local` command in the 
-[Galasa cli repository](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs_submit_local.md){target="_blank"}.
+To view the full list of options that are available, see the [galasactl runs submit local](../reference/cli-syntax/galasactl_runs_submit_local.md) command reference.
+
 
 ## Running a Java test with the `runs submit local` command
 

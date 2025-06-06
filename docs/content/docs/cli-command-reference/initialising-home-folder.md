@@ -104,7 +104,7 @@ You can validate the set up by locating your user home directory and confirming 
 </settings>
 ```
 
-If you have access to GitHub, you can view the full list of options (flags) that are available with the `galasactl local init` command in the [Galasa CLI repository](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_local_init.md){target="_blank"}.
+To view the full list of options (flags) that are available, see the [galasactl local init](../reference/cli-syntax/galasactl_local_init.md) command reference.
 
 ## About the properties files
 

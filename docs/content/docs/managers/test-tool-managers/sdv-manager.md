@@ -2,15 +2,10 @@
 title: "SDV Manager"
 ---
 
-
-This Manager is at Alpha level.<br>
-
-
-[Overview](#overview)<br>
-[Configuring](#configuring)<br>
+This Manager is at Alpha level.
 
 
-# <a name="overview"></a>Overview
+## Overview
   
 Create an automated integration test in Galasa and use the **Security Definition Validation (SDV)** Manager to obtain a report of the Security Definitions that would have been required if **Resource Security** and **Command Security** were turned on.
 
@@ -27,7 +22,7 @@ dev.galasa.sdv.tests/dev.galasa.sdv.tests.featureb.TestClassTwo.SDVCICSA.cics-se
 Users must be obtained for use within your test via the `@SdvUser` annotation. This annotation will allocate the test a user belonging to a role mapped to the provided `roleTag` (see **SDV Role CPS Property** below), for use on a provided CICS region via the provided `cicsTag`. All Security Definitions used by this user on the specified CICS region will be recorded. If the user interacts with a CICS region different from the stated one, those security accesses will not be recorded, a seperate `@SdvUser` would need to be declared to record those interactions. If a `cicsTag` is not provided, `PRIMARY` is assumed.  
 Users are allocated from a pool of users. As an example, the following obtains a user which will conduct interactions on CICS Region tag `A` that belongs to the role mapped to the `R1` **roleTag** in the CPS properties:
 
-```
+```java
 @SdvUser(cicsTag = "A", roleTag = "R1")
 public ISdvUser user1;
 ```
@@ -38,11 +33,12 @@ If there are no available users in the pool because they are all already allocat
 To ensure the Security Definitions are consistent for each run of a test, any resources that are created by the test should have a fixed name. As an example, if a datetime stamp is used in a resource naming strategy, this would be different each time the test is ran, therefore the Security YAML will be different each test run, which will be found if running any kind of before/after comparison.
 
 This manager can be used within a **Continuous Integration** pipeline to identify, and validate changes in Security Definitions as a result of a request to change application, or test code. Contributing towards a larger DevSecOps strategy.  
-<a href="https://www.ibm.com/docs/en/cics-ts/latest?topic=hiwztic-how-it-works-capturing-validating-security-definitions-during-development-process" target="_blank" >Visit the CICS TS documentation</a> for an introduction to the concept and for links to a demonstration of this in action in an example CI pipeline.
+[Visit the CICS TS documentation](https://www.ibm.com/docs/en/cics-ts/latest?topic=hiwztic-how-it-works-capturing-validating-security-definitions-during-development-process){target="_blank"} for an introduction to the concept and for links to a demonstration of this in action in an example CI pipeline.
+
 
 ## Prerequisites
 
-CICS feature, **Security Definition Capture (SDC)** must be active in each region under test for the SDV to function. SDC can be <a href="https://www.ibm.com/docs/en/cics-ts/latest?topic=region-configuring-security-definition-capture-sdc" target="_blank" rel="noopener noreferrer"> manually configured </a>before using the SDV manager or it can be automatically configured by the SDV manager before the test is ran using the relevant CPS properties in the [Configuring](#configuring) section.
+CICS feature, **Security Definition Capture (SDC)** must be active in each region under test for the SDV to function. SDC can be [manually configured](https://www.ibm.com/docs/en/cics-ts/latest?topic=region-configuring-security-definition-capture-sdc){target="_blank"} before using the SDV manager or it can be automatically configured by the SDV manager before the test is ran using the relevant CPS properties in the [Configuring](#configuration-properties) section.
   
 To use the SDV Manager, the test class must contain at least one `@SdvUser` annotation. If one is not provided, the SDV Manager is not invoked and the Galasa test will run as normal without Security recording.
   
@@ -53,15 +49,14 @@ All pool users must be added to the Galasa credentials store, assigned with a un
 All CICS regions under test must be provisioned to a started state before the SDV manager runs, and region must be running when test ends in-order to run job to gather Security reports. Exceptions will be encountered if either of these scenarios do not exist.
 
 All CICS regions under test must have SIT parameter `SEC=YES`.
-  
-## <a name="configuring"></a>Configuring
 
-### CPS properties
+
+## Configuration Properties
   
 The following properties are used to configure the SDV Manager.
   
-<details>
-<summary>SDV Region HLQ CPS Property</summary>
+
+### SDV Region HLQ CPS Property
 
 | Property: | SDV Region HLQ CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -70,12 +65,10 @@ The following properties are used to configure the SDV Manager.
 | Required:  | Yes |
 | Default value: | None |
 | Valid values: | CICS.INSTALL |
-| Examples: | <code>sdv.cicsTag.A.hlq=CICS.INSTALL<br> </code> |
+| Examples: | `sdv.cicsTag.A.hlq=CICS.INSTALL` |
 
-</details>
- 
-<details>
-<summary>SDV Pool Users CPS Property</summary>
+
+### SDV Pool Users CPS Property
 
 | Property: | SDV Pool Users CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -84,12 +77,10 @@ The following properties are used to configure the SDV Manager.
 | Required:  | Yes |
 | Default value: | None |
 | Valid values: | USER1,USER2 |
-| Examples: | <code>sdv.zosImage.IMAGEA.role.TELLER.credTags=USER1,USER2</code> |
+| Examples: | `sdv.zosImage.IMAGEA.role.TELLER.credTags=USER1,USER2` |
 
-</details>
 
-<details>
-<summary>SDV Port CPS Property</summary>
+### SDV Port CPS Property
 
 | Property: | SDV Port CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -98,12 +89,10 @@ The following properties are used to configure the SDV Manager.
 | Required:  | Yes |
 | Default value: | None |
 | Valid values: | 32000 |
-| Examples: | <code>sdv.cicsTag.A.port=32000</code> |
+| Examples: | `sdv.cicsTag.A.port=32000` |
 
-</details>
 
-<details>
-<summary>SDV Role CPS Property</summary>
+### SDV Role CPS Property
 
 | Property: | SDV Role CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -112,12 +101,10 @@ The following properties are used to configure the SDV Manager.
 | Required:  | Yes |
 | Default value: | None |
 | Valid values: | TELLER |
-| Examples: | <code>sdv.roleTag.A.role=TELLER</code> |
+| Examples: | `sdv.roleTag.A.role=TELLER` |
 
-</details>
 
-<details>
-<summary>SDV SDC Activation CPS Property</summary>
+### SDV SDC Activation CPS Property
 
 | Property: | SDV SDC Activation CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -126,12 +113,10 @@ The following properties are used to configure the SDV Manager.
 | Required:  | No |
 | Default value: | false |
 | Valid values: | true, false |
-| Examples: | <code>sdv.cicsTag.A.SdcActivation=true</code> |
+| Examples: | `sdv.cicsTag.A.SdcActivation=true` |
 
-</details>
 
-<details>
-<summary>SDV SRR Logstream Removal CPS Property</summary>
+### SDV SRR Logstream Removal CPS Property
 
 | Property: | SDV SRR Logstream Removal CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -140,8 +125,5 @@ The following properties are used to configure the SDV Manager.
 | Required:  | No |
 | Default value: | false |
 | Valid values: | true, false |
-| Examples: | <code>sdv.cicsTag.A.SrrLogstreamRemoval=true</code> |
-
-</details>
-
+| Examples: | `sdv.cicsTag.A.SrrLogstreamRemoval=true` |
 

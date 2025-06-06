@@ -155,11 +155,9 @@ galasactl properties get `
 --format yaml
 ```
 
-
 The `--prefix`, `--suffix` and `-–infix` flags can be used together or separately to retrieve all properties that match the provided criteria.
 
-
-For a complete list of supported parameters see the [galasactl properties get](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_properties_get.md){target="_blank"} documentation in the cli repository.
+For a complete list of supported parameters, see the [galasactl properties get](../reference/cli-syntax/galasactl_properties_get.md) command reference.
 
 
 ### Returned properties
@@ -226,7 +224,8 @@ where:
 
 A success message is displayed when the property is updated or created.
 
-For a complete list of supported parameters see the [galasactl properties set](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_properties_set.md){target="_blank"} documentation in the cli repository.
+For a complete list of supported parameters, see the [galasactl properties set](../reference/cli-syntax/galasactl_properties_set.md) command reference.
+
 
 ### Examples of setting properties in a namespace
 
@@ -274,7 +273,7 @@ where:
 
 A success message is displayed when the property is deleted.
 
-For a complete list of supported parameters see the [galasactl properties delete](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_properties_delete.md){target="_blank"} documentation in the cli repository.
+For a complete list of supported parameters, see the [galasactl properties delete](../reference/cli-syntax/galasactl_properties_delete.md) command reference.
 
 
 

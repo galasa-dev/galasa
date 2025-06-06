@@ -4,7 +4,8 @@ title: "Viewing test run results"
 
 You can specify a number of options on the `galasactl runs get` command to query test run results on particular details, and to display the output of those queries in different formats. 
 
-You can view the full command syntax in the [Galasa cli repository](https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs_get.md){target="_blank"}.
+To view the full command syntax, see the [galasactl runs get](../reference/cli-syntax/galasactl_runs_get.md) command reference.
+
 
 ###  Options for querying and viewing test run results
 
