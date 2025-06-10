@@ -44,7 +44,7 @@ pyparsing==3.2.3
 python-dateutil==2.9.0.post0
 PyYAML==6.0.2
 pyyaml_env_tag==1.1
-requests==2.32.3
+requests==2.32.4
 requests-toolbelt==1.0.0
 setuptools==75.6.0
 six==1.17.0
