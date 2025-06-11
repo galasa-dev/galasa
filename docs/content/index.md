@@ -14,7 +14,7 @@ Allowing you to test applications at scale regardless of platform — including 
 
 [Get started](./docs/index.md){ .md-button .md-button--primary }
 [Learn more](./about/index.md){ .md-button }
-[0.41.0 highlights](./releases/posts/20250506-v0.41.0.md){ .md-button }
+[0.42.0 highlights](./releases/posts/v0.42.0.md){ .md-button }
 
 </div>
 
