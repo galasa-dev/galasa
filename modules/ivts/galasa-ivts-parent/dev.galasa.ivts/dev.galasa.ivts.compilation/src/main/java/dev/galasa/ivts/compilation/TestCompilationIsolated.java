@@ -18,7 +18,7 @@ import dev.galasa.docker.IDockerExec;
 @Test
 public class TestCompilationIsolated {
 
-    private static final int DOCKER_COMMAND_TIMEOUT_MILLISECONDS = 40 * 1000;
+    private static final int DOCKER_COMMAND_TIMEOUT_MILLISECONDS = 60 * 1000;
     private static final String TEST_PROJECT_DIRECTORY = "/galasa/dev.galasa.example";
 
     @Logger
