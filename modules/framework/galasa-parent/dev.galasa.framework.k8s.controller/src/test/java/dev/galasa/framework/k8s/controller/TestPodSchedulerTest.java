@@ -51,7 +51,8 @@ public class TestPodSchedulerTest {
         configMap.setMetadata(metadata);
 
         Map<String, String> data = new HashMap<>();
-        data.put("bootstrap", "http://my.server/bootstrap");
+        data.put("galasa_service_name", "my-galasa-service");
+        data.put("kubectl_image", "registry/kubectl:12345-version");
         data.put("max_engines", "10");
         data.put("engine_label", "my-test-engine");
         data.put("node_arch", "arch");
@@ -69,12 +70,14 @@ public class TestPodSchedulerTest {
         String expectedRunName,
         String expectedPodName,
         String expectedEncryptionKeysMountPath,
+        String expectedServiceAccountName,
         Settings settings
     ) {
         checkPodMetadata(pod, expectedRunName, expectedPodName, settings);
+        checkPodInitContainers(pod, settings);
         checkPodContainer(pod, expectedEncryptionKeysMountPath, settings);
         checkPodVolumes(pod, settings);
-        checkPodSpec(pod, settings);
+        checkPodSpec(pod, settings, expectedServiceAccountName);
     }
 
     private void checkPodMetadata(V1Pod pod, String expectedRunName, String expectedPodName, Settings settings) {
@@ -111,11 +114,12 @@ public class TestPodSchedulerTest {
         return preferred;
     }
 
-    private void checkPodSpec(V1Pod pod, Settings settings) {
+    private void checkPodSpec(V1Pod pod, Settings settings, String expectedServiceAccountName) {
 
         // Check the pod's spec is as expected
         V1PodSpec podSpec = pod.getSpec();
         assertThat(podSpec).isNotNull();
+        assertThat(podSpec.getServiceAccountName()).isEqualTo(expectedServiceAccountName);
 
         // Check the podspec's node affinity is as expected
         V1PreferredSchedulingTerm preferredSchedulingTerm = createSchedulingTerm(settings.getNodePreferredAffinity());
@@ -139,6 +143,44 @@ public class TestPodSchedulerTest {
 
             assertThat(podSpec.getTolerations()).contains(testToleration);
         }
+    }
+
+    private void checkWaitForPodInitContainer(V1Container actualInitContainer, Settings settings, String expectedPodSelector) {
+        // Check the init container's image and pull policy are as expected
+        assertThat(actualInitContainer.getImage()).isEqualTo(settings.getKubectlImage());
+        assertThat(actualInitContainer.getImagePullPolicy()).isEqualTo("IfNotPresent");
+        
+        // Check the init container's command and arguments are correct kubectl commands
+        assertThat(actualInitContainer.getCommand()).hasSize(1);
+        assertThat(actualInitContainer.getCommand().get(0)).isEqualTo("kubectl");
+
+        List<String> actualArgs = actualInitContainer.getArgs();
+        assertThat(actualArgs).hasSize(5);
+        assertThat(actualArgs.get(0)).isEqualTo("wait");
+        assertThat(actualArgs.get(1)).isEqualTo("pods");
+        assertThat(actualArgs.get(2)).isEqualTo("--selector=" + expectedPodSelector);
+        assertThat(actualArgs.get(3)).isEqualTo("--for=condition=Ready");
+        assertThat(actualArgs.get(4)).isEqualTo("--timeout=" + TestPodScheduler.TEST_POD_INIT_CONTAINER_TIMEOUT_DURATION);
+    }
+
+    private void checkPodInitContainers(V1Pod pod, Settings settings) {
+        V1PodSpec actualPodSpec = pod.getSpec();
+        List<V1Container> actualInitContainers = actualPodSpec.getInitContainers();
+        
+        // We expect two init containers: one to wait for the RAS and another to wait for etcd
+        assertThat(actualInitContainers).hasSize(2);
+
+        String expectedRasPodSelector = "app=" + settings.getGalasaServiceName() + "-ras";
+        String expectedEtcdPodSelector = "app=" + settings.getGalasaServiceName() + "-etcd";
+
+        V1Container waitForRasContainer = actualInitContainers.get(0);
+        V1Container waitForEtcdContainer = actualInitContainers.get(1);
+
+        assertThat(waitForRasContainer.getName()).isEqualTo("wait-for-ras");
+        assertThat(waitForEtcdContainer.getName()).isEqualTo("wait-for-etcd");
+
+        checkWaitForPodInitContainer(waitForRasContainer, settings, expectedRasPodSelector);
+        checkWaitForPodInitContainer(waitForEtcdContainer, settings, expectedEtcdPodSelector);
     }
 
     private void checkPodContainer(V1Pod pod, String expectedEncryptionKeysMountPath, Settings settings) {
@@ -178,7 +220,10 @@ public class TestPodSchedulerTest {
         MockEnvironment mockEnvironment = new MockEnvironment();
 
         String encryptionKeysMountPath = "/encryption/encryption-keys.yaml";
+        String mockServiceAccountName = "my-service-account";
+
         mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, encryptionKeysMountPath);
+        mockEnvironment.setenv(TestPodScheduler.TEST_POD_SERVICE_ACCOUNT_NAME_ENV_VAR, mockServiceAccountName);
 
         MockK8sController controller = new MockK8sController();
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
@@ -196,11 +241,11 @@ public class TestPodSchedulerTest {
         boolean isTraceEnabled = false;
 
         // When...
-        V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
 
         // Then...
         String expectedEncryptionKeysMountPath = "/encryption";
-        assertPodDetailsAreCorrect(pod, runName, podName, expectedEncryptionKeysMountPath, settings);
+        assertPodDetailsAreCorrect(pod, runName, podName, expectedEncryptionKeysMountPath, mockServiceAccountName, settings);
     }
 
     @Test
@@ -229,7 +274,7 @@ public class TestPodSchedulerTest {
         boolean isTraceEnabled = false;
 
         // When...
-        V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
 
         // Then...
         V1EnvVar dssEnvVarObject = new V1EnvVar();
@@ -266,7 +311,7 @@ public class TestPodSchedulerTest {
         boolean isTraceEnabled = false;
 
         // When...
-        V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
 
         // Then...
         V1EnvVar cpsEnvVarObject = new V1EnvVar();
@@ -303,7 +348,7 @@ public class TestPodSchedulerTest {
         boolean isTraceEnabled = false;
 
         // When...
-        V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
 
         // Then...
         V1EnvVar credsEnvVarObject = new V1EnvVar();
@@ -340,7 +385,7 @@ public class TestPodSchedulerTest {
         boolean isTraceEnabled = false;
 
         // When...
-        V1Pod pod = runPoll.createTestPod(runName, podName, isTraceEnabled);
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
 
         // Then...
         V1EnvVar extraBundlesEnvVar = new V1EnvVar();

@@ -25,11 +25,13 @@ public class Settings implements Runnable {
 
     private final K8sController controller;
 
+    private String            galasaServiceName;
     private String            namespace;
     private String            podname;
     private String            configMapName;
     private String            engineLabel                 = "none";
     private String            engineImage                 = "none";
+    private String            kubectlImage                = "none";
     private int               engineMemoryHeapSizeMi      = 150;
     private int               engineMemoryRequestMi       = 150;
     private int               engineMemoryLimitMi         = 200;
@@ -181,9 +183,11 @@ public class Settings implements Runnable {
 
     protected void updateConfigMapProperties(Map<String,String> configMapData) throws K8sControllerException { 
 
+        this.galasaServiceName = updateProperty(configMapData, "galasa_service_name", "", this.galasaServiceName);
         this.maxEngines = updateProperty(configMapData, "max_engines", 1, this.maxEngines);
         this.engineLabel = updateProperty(configMapData, "engine_label", "k8s-standard-engine", this.engineLabel);
         this.engineImage = updateProperty(configMapData, "engine_image", "ghcr.io/galasa-dev/galasa-boot-embedded-amd64", this.engineImage);
+        this.kubectlImage = updateProperty(configMapData, "kubectl_image", kubectlImage, this.kubectlImage);
         this.kubeLaunchIntervalMillisecs = updateProperty(configMapData, "kube_launch_interval_milliseconds", kubeLaunchIntervalMillisecs, this.kubeLaunchIntervalMillisecs);
 
         this.engineMemoryRequestMi = updateProperty(configMapData, "engine_memory_request", engineMemoryRequestMi, this.engineMemoryRequestMi);
@@ -385,5 +389,13 @@ public class Settings implements Runnable {
 
     public long getKubeLaunchIntervalMillisecs() {
         return this.kubeLaunchIntervalMillisecs;
+    }
+
+    public String getKubectlImage() {
+        return this.kubectlImage;
+    }
+
+    public String getGalasaServiceName() {
+        return this.galasaServiceName;
     }
 }

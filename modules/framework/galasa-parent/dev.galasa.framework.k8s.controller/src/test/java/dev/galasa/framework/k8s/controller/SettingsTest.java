@@ -91,4 +91,36 @@ public class SettingsTest {
 
         assertThat(intervalGotBack).isEqualTo(1000);
     }
+
+    @Test
+    public void testCanReadKubectlImageFromConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        CoreV1Api api = new CoreV1Api();
+        Settings settings = new Settings(controller, api);
+        Map<String,String> configMap = new HashMap<String,String>();
+
+        String mockKubectlImage = "registry/kubectl:12345";
+        configMap.put("kubectl_image", mockKubectlImage);
+        settings.updateConfigMapProperties(configMap);
+
+        String kubectlImageGotBack = settings.getKubectlImage();
+
+        assertThat(kubectlImageGotBack).isEqualTo(mockKubectlImage);
+    }
+
+    @Test
+    public void testCanReadGalasaServiceNameFromConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        CoreV1Api api = new CoreV1Api();
+        Settings settings = new Settings(controller, api);
+        Map<String,String> configMap = new HashMap<String,String>();
+
+        String mockServiceName = "my-galasa-service";
+        configMap.put("galasa_service_name", mockServiceName);
+        settings.updateConfigMapProperties(configMap);
+
+        String serviceNameGotBack = settings.getGalasaServiceName();
+
+        assertThat(serviceNameGotBack).isEqualTo(mockServiceName);
+    }
 }
