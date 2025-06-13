@@ -52,6 +52,10 @@ import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.prometheus.client.Counter;
 
 public class TestPodScheduler implements Runnable {
+
+    public static final String TEST_POD_SERVICE_ACCOUNT_NAME_ENV_VAR = "GALASA_TEST_POD_SERVICE_ACCOUNT_NAME";
+    public static String TEST_POD_INIT_CONTAINER_TIMEOUT_DURATION = "120s";
+
     public static final String GALASA_RUN_POD_LABEL = "galasa-run";
 
     private static final String RAS_TOKEN_ENV = "GALASA_RAS_TOKEN";
@@ -192,7 +196,7 @@ public class TestPodScheduler implements Runnable {
                 return;
             }
 
-            V1Pod newPod = createTestPod(runName, engineName, run.isTrace());
+            V1Pod newPod = createTestPodDefinition(runName, engineName, run.isTrace());
 
             boolean successful = false;
             int retry = 0;
@@ -231,7 +235,7 @@ public class TestPodScheduler implements Runnable {
         }
     }
 
-    V1Pod createTestPod(String runName, String engineName, boolean isTraceEnabled) {
+    V1Pod createTestPodDefinition(String runName, String engineName, boolean isTraceEnabled) {
         V1Pod newPod = new V1Pod();
         newPod.setApiVersion("v1");
         newPod.setKind("Pod");
@@ -246,6 +250,17 @@ public class TestPodScheduler implements Runnable {
         newPod.setSpec(podSpec);
         podSpec.setOverhead(null);
         podSpec.setRestartPolicy("Never");
+
+        // Only add the init containers to wait for the RAS and etcd pods if a service
+        // account name to be assigned to the pod definition could be found
+        String testPodServiceAccountName = env.getenv(TEST_POD_SERVICE_ACCOUNT_NAME_ENV_VAR);
+        if (testPodServiceAccountName != null && !testPodServiceAccountName.isBlank()) {
+            podSpec.setServiceAccountName(testPodServiceAccountName);
+            podSpec.setInitContainers(createTestPodInitContainers());
+        } else {
+            logger.warn("No service account could be assigned to the pod definition for run " + runName +
+                ". The test pod will not wait for the Galasa service's RAS or etcd pods before launching.");
+        }
 
         String nodeArch = this.settings.getNodeArch();
         if (!nodeArch.isEmpty()) {
@@ -292,6 +307,42 @@ public class TestPodScheduler implements Runnable {
         podSpec.setVolumes(createTestPodVolumes());
         podSpec.addContainersItem(createTestContainer(runName, engineName, isTraceEnabled));
         return newPod;
+    }
+
+    private V1Container createWaitForPodContainerDefinition(String containerName, String podSelector) {
+        V1Container waitForPodContainer = new V1Container();
+        waitForPodContainer.setName(containerName);
+
+        waitForPodContainer.setImage(this.settings.getKubectlImage());
+        waitForPodContainer.setImagePullPolicy("IfNotPresent");
+
+        waitForPodContainer.addCommandItem("kubectl");
+
+        List<String> args = new ArrayList<>();
+        args.add("wait");
+        args.add("pods");
+        args.add("--selector=" + podSelector);
+        args.add("--for=condition=Ready");
+        args.add("--timeout=" + TEST_POD_INIT_CONTAINER_TIMEOUT_DURATION);
+
+        waitForPodContainer.setArgs(args);
+        return waitForPodContainer;
+    }
+
+    private List<V1Container> createTestPodInitContainers() {
+        String rasPodSelector = "app=" + this.settings.getGalasaServiceInstallName() + "-ras";
+        String etcdPodSelector = "app=" + this.settings.getGalasaServiceInstallName() + "-etcd";
+
+        List<V1Container> initContainers = new ArrayList<>();
+
+        // Create init containers to wait for the RAS and etcd pods to be ready
+        V1Container waitForRasContainer = createWaitForPodContainerDefinition("wait-for-ras", rasPodSelector);
+        V1Container waitForEtcdContainer = createWaitForPodContainerDefinition("wait-for-etcd", etcdPodSelector);
+
+        initContainers.add(waitForRasContainer);
+        initContainers.add(waitForEtcdContainer);
+
+        return initContainers;
     }
 
 
