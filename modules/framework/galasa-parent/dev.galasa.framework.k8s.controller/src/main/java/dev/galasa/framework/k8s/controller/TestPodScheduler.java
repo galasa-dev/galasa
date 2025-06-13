@@ -330,8 +330,8 @@ public class TestPodScheduler implements Runnable {
     }
 
     private List<V1Container> createTestPodInitContainers() {
-        String rasPodSelector = "app=" + this.settings.getGalasaServiceName() + "-ras";
-        String etcdPodSelector = "app=" + this.settings.getGalasaServiceName() + "-etcd";
+        String rasPodSelector = "app=" + this.settings.getGalasaServiceInstallName() + "-ras";
+        String etcdPodSelector = "app=" + this.settings.getGalasaServiceInstallName() + "-etcd";
 
         List<V1Container> initContainers = new ArrayList<>();
 

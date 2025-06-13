@@ -25,7 +25,7 @@ public class Settings implements Runnable {
 
     private final K8sController controller;
 
-    private String            galasaServiceName;
+    private String            galasaServiceInstallName;
     private String            namespace;
     private String            podname;
     private String            configMapName;
@@ -183,7 +183,7 @@ public class Settings implements Runnable {
 
     protected void updateConfigMapProperties(Map<String,String> configMapData) throws K8sControllerException { 
 
-        this.galasaServiceName = updateProperty(configMapData, "galasa_service_name", "", this.galasaServiceName);
+        this.galasaServiceInstallName = updateProperty(configMapData, "galasa_install_name", "", this.galasaServiceInstallName);
         this.maxEngines = updateProperty(configMapData, "max_engines", 1, this.maxEngines);
         this.engineLabel = updateProperty(configMapData, "engine_label", "k8s-standard-engine", this.engineLabel);
         this.engineImage = updateProperty(configMapData, "engine_image", "ghcr.io/galasa-dev/galasa-boot-embedded-amd64", this.engineImage);
@@ -395,7 +395,7 @@ public class Settings implements Runnable {
         return this.kubectlImage;
     }
 
-    public String getGalasaServiceName() {
-        return this.galasaServiceName;
+    public String getGalasaServiceInstallName() {
+        return this.galasaServiceInstallName;
     }
 }

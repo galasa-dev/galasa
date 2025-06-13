@@ -177,8 +177,8 @@ public class TestPodSchedulerTest {
         // We expect two init containers: one to wait for the RAS and another to wait for etcd
         assertThat(actualInitContainers).hasSize(2);
 
-        String expectedRasPodSelector = "app=" + settings.getGalasaServiceName() + "-ras";
-        String expectedEtcdPodSelector = "app=" + settings.getGalasaServiceName() + "-etcd";
+        String expectedRasPodSelector = "app=" + settings.getGalasaServiceInstallName() + "-ras";
+        String expectedEtcdPodSelector = "app=" + settings.getGalasaServiceInstallName() + "-etcd";
 
         V1Container waitForRasContainer = actualInitContainers.get(0);
         V1Container waitForEtcdContainer = actualInitContainers.get(1);

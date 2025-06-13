@@ -116,10 +116,10 @@ public class SettingsTest {
         Map<String,String> configMap = new HashMap<String,String>();
 
         String mockServiceName = "my-galasa-service";
-        configMap.put("galasa_service_name", mockServiceName);
+        configMap.put("galasa_install_name", mockServiceName);
         settings.updateConfigMapProperties(configMap);
 
-        String serviceNameGotBack = settings.getGalasaServiceName();
+        String serviceNameGotBack = settings.getGalasaServiceInstallName();
 
         assertThat(serviceNameGotBack).isEqualTo(mockServiceName);
     }
