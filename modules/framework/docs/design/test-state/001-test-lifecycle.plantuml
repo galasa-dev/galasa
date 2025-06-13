@@ -1,0 +1,42 @@
+@startuml 001-test-lifecycle
+title "Test Lifecycle"
+
+[*] --> Submitted : queued : ""
+
+Submitted --> queued : by storeRun() in FrameworkRuns
+
+queued --> allocated : "The engine has picked up this test run and is trying to launch a pod."
+allocated: The RAS document may or may not exist
+
+allocated --> finished : "Test runner failed early on. Bundle load failure"
+
+allocated --> started : Test Runner
+started : Heartbeat has started
+started : The RAS document definitely exists
+
+started --> finished : A manager voted to ignore this test
+
+started --> generating : Test Runner
+generating: The test runner is provisioning
+
+generating --> building : Test Runner
+building: Provisioned, heartbeat is pumping
+
+building --> provstart: Test Runner 
+provstart: Managers have provisioned whatever they NodeBorderColor
+
+provstart --> running : Test Runner
+running: test runner is working through calling the test methods
+
+running --> rundone : Test runner 
+rundone: test methods have finished running, or something went wrong when they were being called.
+
+rundone --> ending : Test runner
+
+ending --> waiting : Managers can't get all the resources they want
+
+ending --> finished : Test runner 
+
+waiting --> queued : Resource management RunWaitingRuns notices that wait time has expired
+
+@enduml
