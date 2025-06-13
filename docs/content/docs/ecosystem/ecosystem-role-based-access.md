@@ -85,7 +85,7 @@ The system also has some constraints on how these resources can be set up and us
 
 ## Upgrading to a version of Galasa which supports RBAC
 
-When upgrading your Galasa service to a version 0.42.0 or later, any existing users will be assigned the role of `admin` without any extra action being required.
+When upgrading your Galasa service to a version 0.43.0 or later, any existing users will be assigned the role of `admin` without any extra action being required.
 
 Under such circumstances you may wish to assign the role of `tester` to anyone who now should not have administration rights.
 
