@@ -74,7 +74,11 @@ public class TestPodSchedulerTest {
         Settings settings
     ) {
         checkPodMetadata(pod, expectedRunName, expectedPodName, settings);
-        checkPodInitContainers(pod, settings);
+
+        if (expectedServiceAccountName != null) {
+            checkPodInitContainers(pod, settings);
+        }
+
         checkPodContainer(pod, expectedEncryptionKeysMountPath, settings);
         checkPodVolumes(pod, settings);
         checkPodSpec(pod, settings, expectedServiceAccountName);
@@ -119,7 +123,10 @@ public class TestPodSchedulerTest {
         // Check the pod's spec is as expected
         V1PodSpec podSpec = pod.getSpec();
         assertThat(podSpec).isNotNull();
-        assertThat(podSpec.getServiceAccountName()).isEqualTo(expectedServiceAccountName);
+
+        if (expectedServiceAccountName != null) {
+            assertThat(podSpec.getServiceAccountName()).isEqualTo(expectedServiceAccountName);
+        }
 
         // Check the podspec's node affinity is as expected
         V1PreferredSchedulingTerm preferredSchedulingTerm = createSchedulingTerm(settings.getNodePreferredAffinity());
@@ -246,6 +253,37 @@ public class TestPodSchedulerTest {
         // Then...
         String expectedEncryptionKeysMountPath = "/encryption";
         assertPodDetailsAreCorrect(pod, runName, podName, expectedEncryptionKeysMountPath, mockServiceAccountName, settings);
+    }
+
+    @Test
+    public void testCanCreateTestPodWithoutServiceAccountNameSetOk() throws Exception {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String encryptionKeysMountPath = "/encryption/encryption-keys.yaml";
+        mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, encryptionKeysMountPath);
+
+        MockK8sController controller = new MockK8sController();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        V1ConfigMap mockConfigMap = createMockConfigMap();
+        MockSettings settings = new MockSettings(mockConfigMap, controller, null);
+        settings.init();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
+
+        // Then...
+        String expectedEncryptionKeysMountPath = "/encryption";
+        assertPodDetailsAreCorrect(pod, runName, podName, expectedEncryptionKeysMountPath, null, settings);
     }
 
     @Test

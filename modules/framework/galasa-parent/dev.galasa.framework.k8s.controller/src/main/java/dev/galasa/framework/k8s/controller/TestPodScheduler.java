@@ -251,9 +251,15 @@ public class TestPodScheduler implements Runnable {
         podSpec.setOverhead(null);
         podSpec.setRestartPolicy("Never");
 
+        // Only add the init containers to wait for the RAS and etcd pods if a service
+        // account name to be assigned to the pod definition could be found
         String testPodServiceAccountName = env.getenv(TEST_POD_SERVICE_ACCOUNT_NAME_ENV_VAR);
         if (testPodServiceAccountName != null && !testPodServiceAccountName.isBlank()) {
             podSpec.setServiceAccountName(testPodServiceAccountName);
+            podSpec.setInitContainers(createTestPodInitContainers());
+        } else {
+            logger.warn("No service account could be assigned to the pod definition for run " + runName +
+                ". The test pod will not wait for the Galasa service's RAS or etcd pods before launching.");
         }
 
         String nodeArch = this.settings.getNodeArch();
@@ -300,7 +306,6 @@ public class TestPodScheduler implements Runnable {
 
         podSpec.setVolumes(createTestPodVolumes());
         podSpec.addContainersItem(createTestContainer(runName, engineName, isTraceEnabled));
-        podSpec.setInitContainers(createTestPodInitContainers());
         return newPod;
     }
 
