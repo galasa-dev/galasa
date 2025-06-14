@@ -117,12 +117,22 @@ The following properties are used to configure the Zos3270Terminal Manager:
 
 | Property: | 3270DeviceTypes CPS Property |
 | --------------------------------------- | :------------------------------------- |
-| Name: | zos3270.image.xxxxxx.device.types |
+| Name: | zos3270.image.IMAGEID.device.types |
 | Description: | Allows for custom terminal device types |
 | Required:  | No |
 | Default value: | IBM-DYNAMIC, IBM-3278-2 |
 | Valid values: | Valid 3270 device types in a comma separated list |
-| Examples: | `zos3270.image.custom.device.types=IBM-DYNAMIC,IBM-3278-2` |
+| Examples: | `zos3270.image.IMAGE_A.device.types=IBM-DYNAMIC,IBM-3278-2` |
+
+
+### Add a custom 3270 device name
+
+| Property: | 3270DeviceName CPS Property |
+| --------------------------------------- | :------------------------------------- |
+| Name: | zos3270.image.IMAGEID.device.name |
+| Description: | Allows for a custom 3270 device name to be requested when connecting to a server |
+| Required:  | No |
+| Examples: | `zos3270.image.IMAGE_A.device.name=IYCQTC57` |
 
 
 ### Select 3270 terminal outputs

@@ -47,6 +47,7 @@ public class Terminal implements ITerminal {
     private boolean       autoReconnect   = false;
     
     private List<String>  deviceTypes;
+    private String        requestedDeviceName;
 
     /**
      * @deprecated use the {@link #Terminal(String id, String host, int port, boolean ssl, TerminalSize primarySize, TerminalSize alternateSize, ITextScannerManagerSpi textScan, Charset codePage)}
@@ -92,6 +93,14 @@ public class Terminal implements ITerminal {
     
     public void setDeviceTypes(List<String> deviceTypes) {
         this.deviceTypes = deviceTypes;
+    }
+
+    public void setRequestedDeviceName(String deviceName) {
+        this.requestedDeviceName = deviceName;
+    }
+
+    public String getRequestedDeviceName() {
+        return this.requestedDeviceName;
     }
 
     @Override

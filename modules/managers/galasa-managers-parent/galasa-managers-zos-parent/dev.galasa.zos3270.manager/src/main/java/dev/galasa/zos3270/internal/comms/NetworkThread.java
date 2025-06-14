@@ -113,6 +113,8 @@ public class NetworkThread extends Thread {
     private final ArrayList<String>  possibleDeviceTypes = new ArrayList<>();
     private String                   selectedDeviceType;
 
+    private String requestedDeviceName;
+
     private ByteArrayOutputStream    commandSoFar;
 
     private SSCPLUDataTransform sscpLuDataTransform;
@@ -127,6 +129,10 @@ public class NetworkThread extends Thread {
         this.inputStream = inputStream;
         this.terminal = terminal;
         this.sscpLuDataTransform = new SSCPLUDataTransform(screen);
+
+        if (terminal != null) {
+            this.requestedDeviceName = terminal.getRequestedDeviceName();
+        }
 
         if (deviceTypes == null || deviceTypes.isEmpty()) {
             this.possibleDeviceTypes.add("IBM-DYNAMIC");
@@ -410,6 +416,14 @@ public class NetworkThread extends Thread {
 
         byte[] deviceType = this.selectedDeviceType.getBytes(ascii7);
 
+        // Build up a telnet device type request command, which takes the form:
+        // IAC SB TN3270E DEVICE-TYPE REQUEST <device-type>
+        //        [ [CONNECT <resource-name>] | [ASSOCIATE <device-name>] ] IAC SE
+        //
+        // This command is used in response to the server's SEND DEVICE-TYPE command, so that a 3270 client
+        // can ask to use a specific device type and device name to the server.
+        //
+        // See https://www.rfc-editor.org/rfc/rfc2355 for more details.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         baos.write(IAC);
         baos.write(SB);
@@ -417,6 +431,15 @@ public class NetworkThread extends Thread {
         baos.write(DEVICE_TYPE);
         baos.write(REQUEST);
         baos.write(deviceType);
+
+        // If a specific device name has been requested, add the CONNECT <device-name> option to the command
+        if (this.requestedDeviceName != null && !this.requestedDeviceName.isBlank()) {
+            logger.trace("Requesting TN3270E device name " + this.requestedDeviceName);
+            byte[] deviceNameBytes = this.requestedDeviceName.getBytes(ascii7);
+            baos.write(CONNECT);
+            baos.write(deviceNameBytes);
+        }
+
         baos.write(IAC);
         baos.write(SE);
 
