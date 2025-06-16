@@ -22,13 +22,11 @@ public class MockNetwork extends Network {
 
     @Override
     public void sendIac(byte[] outboundIac) throws NetworkException {
-        synchronized(outputStream) {
-            try {
-                outputStream.write(outboundIac);
-                outputStream.flush();
-            } catch (IOException e) {
-                throw new NetworkException("Unable to write outbound iac", e);
-            }
+        try {
+            outputStream.write(outboundIac);
+            outputStream.flush();
+        } catch (IOException e) {
+            throw new NetworkException("Unable to write outbound iac", e);
         }
     }
 }
