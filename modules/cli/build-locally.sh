@@ -671,7 +671,7 @@ generate_galasactl_documentation
 
 galasa_home_init
 
-export RUN_TESTS=0
+export RUN_TESTS=1
 if [[ "$RUN_TESTS" == "0" ]]; then 
     error "Temprarily removed tests as they depend upon the https://development.galasa.dev/main/maven-repo/obr being hosted. More work is required to remove this dependency shortly."
 else
