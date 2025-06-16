@@ -7,7 +7,7 @@
 	<groupId>dev.galasa</groupId>
 	<artifactId>galasa-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>0.42.0</version>
+	<version>0.43.0</version>
 
 	<name>Galasa Maven Plugin</name>
 	<description>Maven plugin for build Galasa artifacts such as the OBR, Test Catalog</description>
@@ -62,7 +62,7 @@
 			<dependency>
 				<groupId>dev.galasa</groupId>
 				<artifactId>dev.galasa.platform</artifactId>
-				<version>0.42.0</version>
+				<version>0.43.0</version>
 				<type>pom</type>
           		<scope>import</scope>
 			</dependency>
@@ -182,6 +182,16 @@
 					<artifactId>maven-site-plugin</artifactId>
 					<version>3.21.0</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.3.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.11.2</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -253,6 +263,32 @@
 						</replacement>
 					</replacements>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+					<id>attach-sources</id>
+					<goals>
+						<goal>jar</goal>
+					</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+					<id>attach-javadocs</id>
+					<goals>
+						<goal>jar</goal>
+					</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>

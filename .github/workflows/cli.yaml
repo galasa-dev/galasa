@@ -312,7 +312,8 @@ jobs:
         run: |
           docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm \
           ghcr.io/galasa-dev/argocdcli:main app actions run ${{ env.BRANCH }}-cli restart \
-          --kind Deployment --resource-name cli-${{ env.BRANCH }} --server argocd.galasa.dev
+          --kind Deployment --resource-name cli-${{ env.BRANCH }} --server argocd.galasa.dev \
+          --grpc-web
        
       - name: Wait for application health in ArgoCD
         # Skip this step for forks
@@ -322,7 +323,8 @@ jobs:
         run: |
           docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm \
           ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.BRANCH }}-cli \
-          --resource apps:Deployment:cli-${{ env.BRANCH }} --health --server argocd.galasa.dev
+          --resource apps:Deployment:cli-${{ env.BRANCH }} --health --server argocd.galasa.dev \
+          --grpc-web
 
   trigger-next-workflow:
     # Skip this job for forks

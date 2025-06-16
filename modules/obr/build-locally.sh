@@ -407,10 +407,11 @@ function build_generated_bom_pom {
     h2 "build_generated_bom_pom: Building the generated pom.xml to package-up things into an OBR we can publish..."
     cd "${BASEDIR}/galasa-bom" || (error "Failed to change folder" ; exit 1)
 
-    cmd="mvn \
+    cmd="mvn install \
     -Dgpg.passphrase=${GPG_PASSPHRASE} \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
-    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ install"
+    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+    --settings ${WORKSPACE_DIR}/modules/obr/settings.xml"
     info "current directory is $(pwd)"
     info "Command is $cmd"
     $cmd >> "${log_file}" 2>&1 
@@ -427,10 +428,11 @@ function build_generated_uber_obr_pom {
     h2 "build_generated_uber_obr_pom: Building the generated pom.xml to package-up things into an OBR we can publish..."
     cd "${BASEDIR}/dev.galasa.uber.obr" || (error "Failed to change folder" ; exit 1)
 
-    cmd="mvn \
+    cmd="mvn install \
     -Dgpg.passphrase=${GPG_PASSPHRASE} \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
-    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ install"
+    -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+    --settings ${WORKSPACE_DIR}/modules/obr/settings.xml"
     info "current directory is $(pwd)"
     info "Command is $cmd"
     $cmd >> "${log_file}" 2>&1 
@@ -451,7 +453,8 @@ function build_generated_obr_generic_pom {
     -Dgpg.passphrase=${GPG_PASSPHRASE} \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
     -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
-    dev.galasa:galasa-maven-plugin:$component_version:obrembedded"
+    dev.galasa:galasa-maven-plugin:$component_version:obrembedded \
+    --settings ${WORKSPACE_DIR}/modules/obr/settings.xml"
     info "Command is $cmd"
     $cmd >> "${log_file}" 2>&1 
 
