@@ -5,6 +5,7 @@
  */
 package dev.galasa.zos3270.internal.properties;
 
+import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -26,11 +27,12 @@ import dev.galasa.zos3270.Zos3270ManagerException;
 public class TerminalDeviceName extends CpsProperties {
 
     private static final int MAX_DEVICE_NAME_LENGTH = 8;
+    private static final CharsetEncoder US_ASCII_ENCODER = StandardCharsets.US_ASCII.newEncoder();
 
     private static boolean isDeviceNameValid(String deviceName) {
         boolean isValid = false;
         if (deviceName != null && !deviceName.isBlank()) {
-            isValid = deviceName.length() <= MAX_DEVICE_NAME_LENGTH && StandardCharsets.US_ASCII.newEncoder().canEncode(deviceName);
+            isValid = deviceName.length() <= MAX_DEVICE_NAME_LENGTH && US_ASCII_ENCODER.canEncode(deviceName);
         }
         return isValid;
     }
