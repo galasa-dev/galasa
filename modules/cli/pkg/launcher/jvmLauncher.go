@@ -786,11 +786,51 @@ func appendArgsBootstrapJvmLaunchOptions(args []string, bootstrapProperties prop
 		// strip off the leading and trailing whitespace.
 		jvmLaunchOptions = strings.Trim(jvmLaunchOptions, " \t\n\r")
 
-		// Split based on commas
-		launchOptionParts := strings.Split(jvmLaunchOptions, api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_SEPARATOR)
+		// Split into separate characters
+		launchOptionChars := strings.Split(jvmLaunchOptions, "")
 
-		// Add each piece to the list of args returned.
-		args = append(args, launchOptionParts...)
+		// Process each character in turn
+		var argBuilder strings.Builder
+		for i, inQuotes := 0, false; i < len(launchOptionChars); i++ {
+			if !inQuotes && (launchOptionChars[i] == api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_SEPARATOR) {
+				// If we've reached an unquoted space, that marks the end of the argument so
+				// we add what we've built so far to the list of args returned
+				args = append(args, argBuilder.String())
+				argBuilder.Reset()
+			} else {
+				if launchOptionChars[i] == api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_QUOTE {
+					inQuotes = !inQuotes
+					// ...and we discard the quote
+				} else {
+					// The check for it not being the last character is to protect against
+					// the error scenario where a user has ended their launch options with an
+					// escape character
+					if i < len(launchOptionChars) - 1 {
+						// If it's an escape character (\), we write out the next character without 
+						// processing it any further, even if it's a space or a quote. The escape
+						// character is discarded.
+						if launchOptionChars[i] == api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_ESCAPE {
+							i++
+						}
+
+						argBuilder.WriteString(launchOptionChars[i])
+					} else {
+						// Edge case: The last character in the launch options could be an escape
+						// character (possibly an escaped space but we've trimmed the space off).
+						// By ignoring it, we either protect the user from a silly mistake or we respect the 
+						// original trim.
+						if launchOptionChars[i] != api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_ESCAPE {
+							argBuilder.WriteString(launchOptionChars[i])
+						}
+					}
+				}
+			}
+		}
+
+		// Add the last argument to the list
+		if argBuilder.Len() != 0 {
+			args = append(args, argBuilder.String())
+		}
 	}
 
 	return args
