@@ -22,7 +22,6 @@ import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.RunRasAction;
-import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 
@@ -33,6 +32,7 @@ public class RunInterruptMonitorTest {
 
         V1ObjectMeta podMetadata = new V1ObjectMeta();
         podMetadata.putLabelsItem(TestPodScheduler.GALASA_RUN_POD_LABEL, runName);
+        podMetadata.putLabelsItem(KubernetesEngineFacade.ENGINE_CONTROLLER_LABEL_KEY, "none");
         podMetadata.setName(runName);
 
         mockPod.setMetadata(podMetadata);
@@ -88,10 +88,10 @@ public class RunInterruptMonitorTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace");
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        MockSettings settings = new MockSettings(null, null, kube, "myPodName" , "myConfigMapName");
+        MockSettings settings = new MockSettings(null, kube, "myPodName" , "myConfigMapName");
         RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
 
         // When...
@@ -143,10 +143,10 @@ public class RunInterruptMonitorTest {
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
 
-        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace");
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        MockSettings settings = new MockSettings(null, null, kube, "myPodName" , "myConfigMapName");
+        MockSettings settings = new MockSettings(null, kube, "myPodName" , "myConfigMapName");
         RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
 
         // When...
@@ -190,10 +190,10 @@ public class RunInterruptMonitorTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace");
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        MockSettings settings = new MockSettings(null, null, kube, "myPodName" , "myConfigMapName");
+        MockSettings settings = new MockSettings(null, kube, "myPodName" , "myConfigMapName");
         RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
 
         // When...

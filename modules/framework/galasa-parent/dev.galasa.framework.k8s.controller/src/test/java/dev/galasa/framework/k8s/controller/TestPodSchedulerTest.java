@@ -9,92 +9,34 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.kubernetes.client.custom.V1Patch;
-import io.kubernetes.client.openapi.ApiCallback;
-import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.ApiResponse;
-import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.Pair;
-import io.kubernetes.client.openapi.models.AuthenticationV1TokenRequest;
-import io.kubernetes.client.openapi.models.CoreV1Event;
-import io.kubernetes.client.openapi.models.CoreV1EventList;
-import io.kubernetes.client.openapi.models.V1APIResourceList;
-import io.kubernetes.client.openapi.models.V1Binding;
-import io.kubernetes.client.openapi.models.V1ComponentStatus;
-import io.kubernetes.client.openapi.models.V1ComponentStatusList;
-import io.kubernetes.client.openapi.models.V1ConfigMap;
-import io.kubernetes.client.openapi.models.V1ConfigMapList;
-import io.kubernetes.client.openapi.models.V1DeleteOptions;
-import io.kubernetes.client.openapi.models.V1Endpoints;
-import io.kubernetes.client.openapi.models.V1EndpointsList;
-import io.kubernetes.client.openapi.models.V1Eviction;
-import io.kubernetes.client.openapi.models.V1LimitRange;
-import io.kubernetes.client.openapi.models.V1LimitRangeList;
-import io.kubernetes.client.openapi.models.V1Namespace;
-import io.kubernetes.client.openapi.models.V1NamespaceList;
-import io.kubernetes.client.openapi.models.V1Node;
-import io.kubernetes.client.openapi.models.V1NodeList;
-import io.kubernetes.client.openapi.models.V1PersistentVolume;
-import io.kubernetes.client.openapi.models.V1PersistentVolumeClaim;
-import io.kubernetes.client.openapi.models.V1PersistentVolumeClaimList;
-import io.kubernetes.client.openapi.models.V1PersistentVolumeList;
 import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodList;
-import io.kubernetes.client.openapi.models.V1PodTemplate;
-import io.kubernetes.client.openapi.models.V1PodTemplateList;
-import io.kubernetes.client.openapi.models.V1ReplicationController;
-import io.kubernetes.client.openapi.models.V1ReplicationControllerList;
-import io.kubernetes.client.openapi.models.V1ResourceQuota;
-import io.kubernetes.client.openapi.models.V1ResourceQuotaList;
-import io.kubernetes.client.openapi.models.V1Scale;
-import io.kubernetes.client.openapi.models.V1Secret;
-import io.kubernetes.client.openapi.models.V1SecretList;
-import io.kubernetes.client.openapi.models.V1Service;
-import io.kubernetes.client.openapi.models.V1ServiceAccount;
-import io.kubernetes.client.openapi.models.V1ServiceAccountList;
-import io.kubernetes.client.openapi.models.V1ServiceList;
-import io.kubernetes.client.openapi.models.V1Status;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Request;
-import okhttp3.Response;
-import okio.Timeout;
 
 import org.junit.Test;
 import org.junit.After;
 
+import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.k8s.controller.mocks.MockISettings;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesApiClient;
-import dev.galasa.framework.k8s.controller.mocks.MockSettings;
 import dev.galasa.framework.mocks.MockCPSStore;
 import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.mocks.MockFrameworkRuns;
-import dev.galasa.framework.spi.Environment;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
-import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.apis.CoreV1Api.APIcreateNamespacedPodRequest;
 import io.kubernetes.client.openapi.models.V1Container;
+import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1NodeSelectorRequirement;
 import io.kubernetes.client.openapi.models.V1NodeSelectorTerm;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1PodSpec;
+import io.kubernetes.client.openapi.models.V1PodStatus;
 import io.kubernetes.client.openapi.models.V1PreferredSchedulingTerm;
 import io.kubernetes.client.openapi.models.V1Toleration;
 import io.kubernetes.client.openapi.models.V1Volume;
@@ -103,25 +45,21 @@ import io.prometheus.client.CollectorRegistry;
 
 public class TestPodSchedulerTest {
 
+    private V1Pod createPodWithReadiness(String appLabel, boolean isReady) {
+        V1Pod pod = new V1Pod();
+        V1ObjectMeta podMetadata = new V1ObjectMeta();
+        podMetadata.putLabelsItem("app", appLabel);
 
-    private V1ConfigMap createMockConfigMap() {
-        V1ConfigMap configMap = new V1ConfigMap();
+        V1ContainerStatus readyContainerStatus = new V1ContainerStatus().ready(isReady);
+        List<V1ContainerStatus> containerStatuses = new ArrayList<>();
+        containerStatuses.add(readyContainerStatus);
 
-        V1ObjectMeta metadata = new V1ObjectMeta().resourceVersion("mockVersion");
-        configMap.setMetadata(metadata);
+        V1PodStatus podStatus = new V1PodStatus();
+        podStatus.setContainerStatuses(containerStatuses);
 
-        Map<String, String> data = new HashMap<>();
-        data.put("bootstrap", "http://my.server/bootstrap");
-        data.put("max_engines", "10");
-        data.put("engine_label", "my-test-engine");
-        data.put("node_arch", "arch");
-        data.put("run_poll", "5");
-        data.put("encryption_keys_secret_name", "service-encryption-keys-secret");
-        data.put("galasa_node_preferred_affinity", "galasa-engines=schedule");
-        data.put("galasa_node_tolerations", "galasa-engines=Exists:NoSchedule,galasa-engines2=Exists:NoSchedule");
-        configMap.setData(data);
-
-        return configMap;
+        pod.setMetadata(podMetadata);
+        pod.setStatus(podStatus);
+        return pod;
     }
 
     private void assertPodDetailsAreCorrect(
@@ -245,7 +183,6 @@ public class TestPodSchedulerTest {
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
-        V1ConfigMap mockConfigMap = createMockConfigMap();
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
@@ -276,7 +213,6 @@ public class TestPodSchedulerTest {
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
-        V1ConfigMap mockConfigMap = createMockConfigMap();
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
@@ -311,7 +247,6 @@ public class TestPodSchedulerTest {
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
-        V1ConfigMap mockConfigMap = createMockConfigMap();
         MockISettings settings = new MockISettings();
 
         MockCPSStore mockCPS = new MockCPSStore(null);
@@ -347,7 +282,6 @@ public class TestPodSchedulerTest {
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
-        V1ConfigMap mockConfigMap = createMockConfigMap();
         MockISettings settings = new MockISettings();
 
         MockCPSStore mockCPS = new MockCPSStore(null);
@@ -383,12 +317,6 @@ public class TestPodSchedulerTest {
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
-
-        List<V1Pod> mockPods = new ArrayList<V1Pod>();
-        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace");
-
-        V1ConfigMap mockConfigMap = createMockConfigMap();
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
@@ -425,11 +353,6 @@ public class TestPodSchedulerTest {
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
-        List<V1Pod> mockPods = new ArrayList<V1Pod>();
-        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace");
-
-        V1ConfigMap mockConfigMap = createMockConfigMap();
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
@@ -481,22 +404,21 @@ public class TestPodSchedulerTest {
 
         List<V1Pod> mockPods = new ArrayList<V1Pod>();
         MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace");
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
 
-        V1ConfigMap mockConfigMap = createMockConfigMap();
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
     
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
         
-        // // When...
+        // When...
         podScheduler.startPod(run);
 
         // Then...
         assertThat(api.podsLaunched).hasSize(1);
         assertThat(mockDss.get("run."+testRunName+".status")).isEqualTo("allocated");
     }
-
 
     @Test
     public void testThatPodGetsScheduledEvenIfPodWithSameNameExistsAlready() throws Exception {
@@ -513,21 +435,20 @@ public class TestPodSchedulerTest {
 
         // Simulating a pod which is already running...
         V1Pod alreadyRunningPod = new V1Pod();
-        String engineName = testRunName ;
 
         List<V1Pod> mockPods = new ArrayList<V1Pod>();
         mockPods.add(alreadyRunningPod);
         MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
         api.failToLaunchPodCount = 1; // Fail the first pod create with already exists!
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace");
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
 
-        V1ConfigMap mockConfigMap = createMockConfigMap();
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
         
-        // // When...
+        // When...
         podScheduler.startPod(run);
 
         // Then...
@@ -539,8 +460,6 @@ public class TestPodSchedulerTest {
         assertThat(api.podsLaunched.get(0).getMetadata().getName()).isEqualTo("myEngineLabel-u12345-1");
         assertThat(mockDss.get("run."+testRunName+".status")).isEqualTo("allocated");
     }
-    
-    
 
     @Test
     public void testThatPodCannotScheduleBecauseTooManyExistingPodsBeforeLaunchLimitReached() throws Exception {
@@ -557,22 +476,21 @@ public class TestPodSchedulerTest {
 
         // Simulating a pod which is already running...
         V1Pod alreadyRunningPod = new V1Pod();
-        String engineName = testRunName ;
 
         List<V1Pod> mockPods = new ArrayList<V1Pod>();
         mockPods.add(alreadyRunningPod);
         MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
         api.failToLaunchPodCount = 50; // Always fail the pod create with already exists error!
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace");
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
 
-        V1ConfigMap mockConfigMap = createMockConfigMap();
         MockISettings settings = new MockISettings();
         settings.maxTestPodRetriesLimit = 5;
         MockCPSStore mockCPS = new MockCPSStore(null);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
         
-        // // When...
+        // When...
         podScheduler.startPod(run);
 
         // Then...
@@ -584,5 +502,82 @@ public class TestPodSchedulerTest {
         assertThat(api.podsFailedToLaunch.get(1).getMetadata().getName()).isEqualTo("myEngineLabel-u12345-1");
         assertThat(mockDss.get("run."+testRunName+".status")).isEqualTo("finished");
         assertThat(mockDss.get("run."+testRunName+".result")).isEqualTo("EnvFail");
+    }
+
+    @Test
+    public void testThatPodDoesNotGetsScheduledWhenRasAndEtcdAreNotReady() throws Exception {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isPodReady = false;
+        V1Pod etcdPod = createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
+        V1Pod rasPod = createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
+
+        mockPods.add(etcdPod);
+        mockPods.add(rasPod);
+
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+    
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        
+        // When...
+        podScheduler.run();
+
+        // Then...
+        assertThat(api.podsLaunched).isEmpty();
+    }
+
+    @Test
+    public void testThatPodGetsScheduledWhenRasAndEtcdAreReady() throws Exception {
+        // Given...
+        String testRunName = "U12345";
+        MockRun run = createMockRun(testRunName);
+        String queuedStatus = TestRunLifecycleStatus.QUEUED.toString();
+        run.setStatus(queuedStatus);
+
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run."+testRunName+".status",queuedStatus);
+
+        List<IRun> runs = new ArrayList<>();
+        runs.add(run);
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(runs);
+
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isPodReady = true;
+        V1Pod etcdPod = createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
+        V1Pod rasPod = createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
+
+        mockPods.add(etcdPod);
+        mockPods.add(rasPod);
+
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+    
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        
+        // When...
+        podScheduler.run();
+
+        // Then...
+        assertThat(api.podsLaunched).hasSize(1);
+        assertThat(mockDss.get("run."+testRunName+".status")).isEqualTo("allocated");
     }
 }

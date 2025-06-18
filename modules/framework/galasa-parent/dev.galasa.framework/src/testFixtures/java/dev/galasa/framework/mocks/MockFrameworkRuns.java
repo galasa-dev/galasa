@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.mocks;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -59,7 +60,14 @@ public class MockFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public @NotNull List<IRun> getQueuedRuns() throws FrameworkException {
-        throw new UnsupportedOperationException("Unimplemented method 'getQueuedRuns'");
+        List<IRun> queuedRuns = new ArrayList<>();
+        for (IRun run : this.runs) {
+            String runStatus = run.getStatus();
+            if (runStatus != null && runStatus.equals(TestRunLifecycleStatus.QUEUED.toString())) {
+                queuedRuns.add(run);
+            }
+        }
+        return queuedRuns;
     }
 
     @Override

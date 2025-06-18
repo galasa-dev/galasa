@@ -51,7 +51,21 @@ public class MockKubernetesApiClient implements IKubernetesApiClient {
 
     @Override
     public List<V1Pod> getPods(String namespace, String labelSelector) throws ApiException {
-        return this.mockPods;
+        List<V1Pod> matchingPods = new ArrayList<>();
+
+        // Label selectors are in the form <key>=<value>
+        String[] labelSelectorParts = labelSelector.split("=");
+        String labelSelectorKey = labelSelectorParts[0];
+        String labelSelectorValue = labelSelectorParts[1];
+
+        for (V1Pod pod : mockPods) {
+            Map<String, String> podLabels = pod.getMetadata().getLabels();
+            String podLabelValue = podLabels.get(labelSelectorKey);
+            if (podLabelValue != null && podLabelValue.equals(labelSelectorValue)) {
+                matchingPods.add(pod);
+            }
+        }
+        return matchingPods;
     }
 
     @Override
