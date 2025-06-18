@@ -15,7 +15,6 @@ import org.junit.Test;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesApiClient;
-import dev.galasa.framework.k8s.controller.mocks.MockSettings;
 import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.spi.IRun;
@@ -78,7 +77,7 @@ public class RunPodCleanupTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNameSpace");
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
 
         Settings settings = new Settings(null,kubeEngineFacade , "myPodName" , "myConfigMapName");
         RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);
@@ -115,7 +114,7 @@ public class RunPodCleanupTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNameSpace");
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
 
         Settings settings = new Settings(null,kubeEngineFacade , "myPodName" , "myConfigMapName");
         RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);
@@ -143,7 +142,7 @@ public class RunPodCleanupTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNameSpace");
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
 
         Settings settings = new Settings(null,kubeEngineFacade , "myPodName" , "myConfigMapName");
         RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);

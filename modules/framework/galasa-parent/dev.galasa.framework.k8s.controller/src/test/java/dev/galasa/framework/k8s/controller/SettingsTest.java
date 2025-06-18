@@ -13,7 +13,6 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
 
 
 public class SettingsTest {

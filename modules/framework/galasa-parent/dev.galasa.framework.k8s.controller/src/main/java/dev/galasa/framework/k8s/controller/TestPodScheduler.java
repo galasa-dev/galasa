@@ -101,73 +101,76 @@ public class TestPodScheduler implements Runnable {
 
     @Override
     public void run() {
-        logger.info("Looking for new runs");
-
-        try {
-            // *** No we are not, get all the queued runs
-            List<IRun> queuedRuns = this.runs.getQueuedRuns();
-            // TODO filter by capability
-
-            // *** Remove all the local runs
-            Iterator<IRun> queuedRunsIterator = queuedRuns.iterator();
-            while (queuedRunsIterator.hasNext()) {
-                IRun run = queuedRunsIterator.next();
-                if (run.isLocal()) {
-                    queuedRunsIterator.remove();
+        if (!kubeEngineFacade.isEtcdAndRasReady()) {
+            logger.warn("etcd or RAS pods are not ready, waiting for them to be ready before scheduling new runs");
+        } else {
+            logger.info("Looking for new runs");
+    
+            try {
+                // *** No we are not, get all the queued runs
+                List<IRun> queuedRuns = this.runs.getQueuedRuns();
+                // TODO filter by capability
+    
+                // *** Remove all the local runs
+                Iterator<IRun> queuedRunsIterator = queuedRuns.iterator();
+                while (queuedRunsIterator.hasNext()) {
+                    IRun run = queuedRunsIterator.next();
+                    if (run.isLocal()) {
+                        queuedRunsIterator.remove();
+                    }
                 }
-            }
-
-            while (!queuedRuns.isEmpty()) {
-                // *** Check we are not at max engines
-                List<V1Pod> pods = this.kubeEngineFacade.getTestPods(settings.getEngineLabel());
-                kubeEngineFacade.getActivePods(pods);
-
-                logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
-
-                int currentActive = pods.size();
-                if (currentActive >= settings.getMaxEngines()) {
-                    logger.info(
-                            "Not looking for runs, currently at maximim engines (" + settings.getMaxEngines() + ")");
-                    break;
+    
+                while (!queuedRuns.isEmpty()) {
+                    // *** Check we are not at max engines
+                    List<V1Pod> pods = this.kubeEngineFacade.getTestPods(settings.getEngineLabel());
+                    kubeEngineFacade.getActivePods(pods);
+    
+                    logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
+    
+                    int currentActive = pods.size();
+                    if (currentActive >= settings.getMaxEngines()) {
+                        logger.info(
+                                "Not looking for runs, currently at maximim engines (" + settings.getMaxEngines() + ")");
+                        break;
+                    }
+    
+                    // List<IRun> activeRuns = this.runs.getActiveRuns();
+    
+                    // TODO Create the group algorithim same as the galasa scheduler
+    
+                    // *** Build pool lists
+                    // HashMap<String, Pool> queuePools = getPools(queuedRuns);
+                    // HashMap<String, Pool> activePools = getPools(activeRuns);
+    
+                    // *** cheat for the moment
+                    Collections.sort(queuedRuns, queuedComparator);
+    
+                    IRun selectedRun = queuedRuns.remove(0);
+    
+                    startPod(selectedRun);
+    
+                    if (!queuedRuns.isEmpty()) {
+                        // Slight delay to allow Kubernetes to catch up....
+                        //
+                        // Why do this ? 
+                        //
+                        // If we don't do this, then all the tests get scheduled on the same node, and the 
+                        // node will run out of memory.
+                        //
+                        // We assume that's because the usage statistics on a pod are not synchronized totally at
+                        // real-time, but have a lag in which they catch up. Hopefully this delay is greater
+                        // than the lag and when we actually schedule the next pod it gets evenly distributed over
+                        // the nodes which are available.
+                        //
+                        // This may or may not be necessary if the scheduling policies in the cluster are changed. Not sure.
+                        long launchIntervalMilliseconds = settings.getKubeLaunchIntervalMillisecs();
+                        timeService.sleepMillis(launchIntervalMilliseconds); 
+                    } 
                 }
-
-                // List<IRun> activeRuns = this.runs.getActiveRuns();
-
-                // TODO Create the group algorithim same as the galasa scheduler
-
-                // *** Build pool lists
-                // HashMap<String, Pool> queuePools = getPools(queuedRuns);
-                // HashMap<String, Pool> activePools = getPools(activeRuns);
-
-                // *** cheat for the moment
-                Collections.sort(queuedRuns, queuedComparator);
-
-                IRun selectedRun = queuedRuns.remove(0);
-
-                startPod(selectedRun);
-
-                if (!queuedRuns.isEmpty()) {
-                    // Slight delay to allow Kubernetes to catch up....
-                    //
-                    // Why do this ? 
-                    //
-                    // If we don't do this, then all the tests get scheduled on the same node, and the 
-                    // node will run out of memory.
-                    //
-                    // We assume that's because the usage statistics on a pod are not synchronized totally at
-                    // real-time, but have a lag in which they catch up. Hopefully this delay is greater
-                    // than the lag and when we actually schedule the next pod it gets evenly distributed over
-                    // the nodes which are available.
-                    //
-                    // This may or may not be necessary if the scheduling policies in the cluster are changed. Not sure.
-                    long launchIntervalMilliseconds = settings.getKubeLaunchIntervalMillisecs();
-                    timeService.sleepMillis(launchIntervalMilliseconds); 
-                } 
+            } catch (Exception e) {
+                logger.error("Unable to poll for new runs", e);
             }
-        } catch (Exception e) {
-            logger.error("Unable to poll for new runs", e);
         }
-
     }
 
 
