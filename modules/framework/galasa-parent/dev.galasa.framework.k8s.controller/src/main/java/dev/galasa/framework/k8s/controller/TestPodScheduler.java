@@ -14,14 +14,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -31,7 +29,6 @@ import dev.galasa.framework.spi.SystemEnvironment;
 import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Affinity;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1EnvVar;
@@ -40,9 +37,7 @@ import io.kubernetes.client.openapi.models.V1NodeSelectorRequirement;
 import io.kubernetes.client.openapi.models.V1NodeSelectorTerm;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.openapi.models.V1PodSpec;
-import io.kubernetes.client.openapi.models.V1PodStatus;
 import io.kubernetes.client.openapi.models.V1PreferredSchedulingTerm;
 import io.kubernetes.client.openapi.models.V1ResourceRequirements;
 import io.kubernetes.client.openapi.models.V1SecretVolumeSource;
@@ -50,6 +45,7 @@ import io.kubernetes.client.openapi.models.V1Toleration;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.prometheus.client.Counter;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 public class TestPodScheduler implements Runnable {
     public static final String GALASA_RUN_POD_LABEL = "galasa-run";
@@ -67,25 +63,35 @@ public class TestPodScheduler implements Runnable {
 
     private final Log                        logger           = LogFactory.getLog(getClass());
 
-    private final Settings                   settings;
-    private final CoreV1Api                  api;
+    private final ISettings                   settings;
+
     private final IDynamicStatusStoreService dss;
     private final IFrameworkRuns             runs;
     private final QueuedComparator           queuedComparator = new QueuedComparator();
 
     private Counter                          submittedRuns;
     private Environment                      env              = new SystemEnvironment();
+    private KubernetesEngineFacade kubeEngineFacade ;
 
-    public TestPodScheduler(IDynamicStatusStoreService dss, IConfigurationPropertyStoreService cps, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
-        this(new SystemEnvironment(), dss, cps, settings, api, runs);
-    }
+    // A time service, meaning unit tests can pass in a service which doesn't actually wait, making unit tests run faster.
+    private ITimeService timeService ;
 
-    public TestPodScheduler(Environment env, IDynamicStatusStoreService dss, IConfigurationPropertyStoreService cps, Settings settings, CoreV1Api api, IFrameworkRuns runs) {
+    public TestPodScheduler( 
+        Environment env, 
+        IDynamicStatusStoreService dss, 
+        IConfigurationPropertyStoreService cps, 
+        ISettings settings, 
+        KubernetesEngineFacade kubeEngineFacade,
+        IFrameworkRuns runs, 
+        ITimeService timeService
+    ) {
+
         this.env = env;
         this.settings = settings;
-        this.api = api;
+        this.kubeEngineFacade = kubeEngineFacade;
         this.runs = runs;
         this.dss = dss;
+        this.timeService = timeService;
 
         // *** Create metrics
 
@@ -111,15 +117,10 @@ public class TestPodScheduler implements Runnable {
                 }
             }
 
-            if (queuedRuns.isEmpty()) {
-                logger.info("There are no queued runs");
-                return;
-            }
-
-            while (true) {
+            while (!queuedRuns.isEmpty()) {
                 // *** Check we are not at max engines
-                List<V1Pod> pods = getPods(this.api, this.settings);
-                filterActiveRuns(pods);
+                List<V1Pod> pods = this.kubeEngineFacade.getTestPods(settings.getEngineLabel());
+                kubeEngineFacade.getActivePods(pods);
 
                 logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
 
@@ -127,7 +128,7 @@ public class TestPodScheduler implements Runnable {
                 if (currentActive >= settings.getMaxEngines()) {
                     logger.info(
                             "Not looking for runs, currently at maximim engines (" + settings.getMaxEngines() + ")");
-                    return;
+                    break;
                 }
 
                 // List<IRun> activeRuns = this.runs.getActiveRuns();
@@ -160,28 +161,30 @@ public class TestPodScheduler implements Runnable {
                     //
                     // This may or may not be necessary if the scheduling policies in the cluster are changed. Not sure.
                     long launchIntervalMilliseconds = settings.getKubeLaunchIntervalMillisecs();
-                    Thread.sleep(launchIntervalMilliseconds); 
-                } else {
-                    return;
-                }
+                    timeService.sleepMillis(launchIntervalMilliseconds); 
+                } 
             }
         } catch (Exception e) {
             logger.error("Unable to poll for new runs", e);
         }
 
-        return;
     }
 
-    private void startPod(IRun run) {
+
+    protected void startPod(IRun run) {
         String runName = run.getName();
         String engineName = this.settings.getEngineLabel() + "-" + runName.toLowerCase();
-        String namespace = this.settings.getNamespace();
+
+        // The maximum number of attempts we are allowed to retry starting a particular pod.
+        // Each time the pod is re-started, it has a retry number attached as a suffix to its' name. 
+        // It should never be allowed to create a pod with this suffix, preferring to give up scheduling this test run.
+        final int maxLaunchAttempts = this.settings.getMaxTestPodRetryLimit();
 
         logger.info("Received run " + runName);
 
         try {
             // *** First attempt to allocate the run to this controller
-            Instant now = Instant.now();
+            Instant now = timeService.now();
             Instant expire = now.plus(15, ChronoUnit.MINUTES);
             HashMap<String, String> props = new HashMap<>();
             props.put("run." + runName + ".controller", settings.getPodName());
@@ -192,26 +195,39 @@ public class TestPodScheduler implements Runnable {
                 return;
             }
 
-            V1Pod newPod = createTestPod(runName, engineName, run.isTrace());
+            V1Pod newPodDefinition = createTestPodDefinition(runName, engineName, run.isTrace());
 
-            boolean successful = false;
-            int retry = 0;
-            while (!successful) {
+            boolean isDone = false;
+            int podSuffix = 0;
+            int launchAttemptCount = 0 ;
+            while (!isDone) {
+                launchAttemptCount+=1;
+                if( launchAttemptCount > maxLaunchAttempts ) {
+                    // Mark the test run as finished due to environment failure.
+                    this.dss.put("run." + run.getName() + ".result", "EnvFail" );
+                    this.dss.put("run." + run.getName() + ".status", "finished");
+                    Instant finishedTimeStamp = timeService.now();
+                    this.dss.put("run." + run.getName() + ".finished" , finishedTimeStamp.toString());
+
+                    String msg = "Engine Pod " + newPodDefinition.getMetadata().getName() + " could not be started. Giving up. Retry count "+Integer.toString(launchAttemptCount)+"exceeded!";
+                    logger.error(msg);
+                    throw new Exception(msg);
+                }
+
                 try {
-                    // System.out.println(newPod.toString());
-                    api.createNamespacedPod(namespace, newPod).pretty("true").execute();
+                    kubeEngineFacade.createNamespacedPod(newPodDefinition);
 
-                    logger.info("Engine Pod " + newPod.getMetadata().getName() + " started");
-                    successful = true;
+                    logger.info("Engine Pod " + newPodDefinition.getMetadata().getName() + " started");
+                    isDone = true;
                     submittedRuns.inc();
                     break;
                 } catch (ApiException e) {
                     String response = e.getResponseBody();
                     if (response != null) {
                         if (response.contains("AlreadyExists")) {
-                            retry++;
-                            String newEngineName = engineName + "-" + retry;
-                            newPod.getMetadata().setName(newEngineName);
+                            podSuffix++;
+                            String newEngineName = engineName + "-" + podSuffix;
+                            newPodDefinition.getMetadata().setName(newEngineName);
                             logger.info("Engine Pod " + engineName + " already exists, trying with " + newEngineName);
                             continue;
                         } else {
@@ -224,14 +240,14 @@ public class TestPodScheduler implements Runnable {
                     logger.error("Failed to create engine pod", e);
                 }
                 logger.info("Waiting 2 seconds before trying to create pod again");
-                Thread.sleep(2000);
+                timeService.sleepMillis(2000);
             }
         } catch (Exception e) {
-            logger.error("Failed to start new engine", e);
+            logger.error("Failed to start new test pod", e);
         }
     }
 
-    V1Pod createTestPod(String runName, String engineName, boolean isTraceEnabled) {
+    V1Pod createTestPodDefinition(String runName, String engineName, boolean isTraceEnabled) {
         V1Pod newPod = new V1Pod();
         newPod.setApiVersion("v1");
         newPod.setKind("Pod");
@@ -290,7 +306,7 @@ public class TestPodScheduler implements Runnable {
         }
 
         podSpec.setVolumes(createTestPodVolumes());
-        podSpec.addContainersItem(createTestContainer(runName, engineName, isTraceEnabled));
+        podSpec.addContainersItem(createTestContainerDefinition(runName, engineName, isTraceEnabled));
         return newPod;
     }
 
@@ -337,7 +353,7 @@ public class TestPodScheduler implements Runnable {
     }
 
 
-    private V1Container createTestContainer(String runName, String engineName, boolean isTraceEnabled) {
+    private V1Container createTestContainerDefinition(String runName, String engineName, boolean isTraceEnabled) {
         V1Container container = new V1Container();
         container.setName("engine");
         container.setImage(this.settings.getEngineImage());
@@ -379,7 +395,7 @@ public class TestPodScheduler implements Runnable {
     }
 
     // This method is protected so we can easily unit test it.
-    protected ArrayList<String> createCommandLineArgs(Settings settings, String runName, boolean isTraceEnabled) {
+    protected ArrayList<String> createCommandLineArgs(ISettings settings, String runName, boolean isTraceEnabled) {
         
         ArrayList<String> args = new ArrayList<>();
         
@@ -477,60 +493,7 @@ public class TestPodScheduler implements Runnable {
         }
     }
 
-    public static @NotNull List<V1Pod> getPods(CoreV1Api api, Settings settings) throws K8sControllerException {
-        LinkedList<V1Pod> pods = new LinkedList<>();
-
-        try {
-            V1PodList list = api.listNamespacedPod(settings.getNamespace())
-                .labelSelector("galasa-engine-controller=" + settings.getEngineLabel())
-                .execute();
-
-            for (V1Pod pod : list.getItems()) {
-                pods.add(pod);
-            }
-        } catch (Exception e) {
-            throw new K8sControllerException("Failed retrieving pods", e);
-        }
-
-        return pods;
-    }
-
-    public static void filterActiveRuns(@NotNull List<V1Pod> pods) {
-        Iterator<V1Pod> iPod = pods.iterator();
-        while (iPod.hasNext()) {
-            V1Pod pod = iPod.next();
-            V1PodStatus status = pod.getStatus();
-
-            if (status != null) {
-                String phase = status.getPhase();
-                if ("failed".equalsIgnoreCase(phase)) {
-                    iPod.remove();
-                } else if ("succeeded".equalsIgnoreCase(phase)) {
-                    iPod.remove();
-                }
-            }
-        }
-    }
-
-    public static void filterTerminated(@NotNull List<V1Pod> pods) {
-        Iterator<V1Pod> iPod = pods.iterator();
-        while (iPod.hasNext()) {
-            V1Pod pod = iPod.next();
-            V1PodStatus status = pod.getStatus();
-
-            if (status != null) {
-                String phase = status.getPhase();
-                if ("failed".equalsIgnoreCase(phase)) {
-                    continue;
-                } else if ("succeeded".equalsIgnoreCase(phase)) {
-                    continue;
-                }
-            }
-            iPod.remove();
-        }
-    }
-
-    private static class QueuedComparator implements Comparator<IRun> {
+    private class QueuedComparator implements Comparator<IRun> {
 
         @Override
         public int compare(IRun o1, IRun o2) {

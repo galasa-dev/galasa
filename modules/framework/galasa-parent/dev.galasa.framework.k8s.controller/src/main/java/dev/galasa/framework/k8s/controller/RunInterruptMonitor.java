@@ -35,11 +35,13 @@ public class RunInterruptMonitor implements Runnable {
     private final IFrameworkRuns runs;
     private final KubernetesEngineFacade kubeApi;
     private final Queue<RunInterruptEvent> eventQueue;
+    private final Settings settings ;
 
-    public RunInterruptMonitor(KubernetesEngineFacade kubeApi, IFrameworkRuns runs, Queue<RunInterruptEvent> eventQueue) {
+    public RunInterruptMonitor(KubernetesEngineFacade kubeApi, IFrameworkRuns runs, Queue<RunInterruptEvent> eventQueue, Settings settings) {
         this.runs = runs;
         this.kubeApi = kubeApi;
         this.eventQueue = eventQueue;
+        this.settings = settings ;
     }
 
     @Override
@@ -64,7 +66,7 @@ public class RunInterruptMonitor implements Runnable {
     }
 
     private void deletePodsForInterruptedRuns(List<String> interruptedRunNames) throws K8sControllerException {
-        List<V1Pod> podsToDelete = getPodsForInterruptedRuns(kubeApi.getPods(), interruptedRunNames);
+        List<V1Pod> podsToDelete = getPodsForInterruptedRuns(kubeApi.getTestPods(settings.getEngineLabel()), interruptedRunNames);
         for (V1Pod pod : podsToDelete) {
             String podName = pod.getMetadata().getName();
             logger.info("Deleting pod " + podName + " as the run has been interrupted");

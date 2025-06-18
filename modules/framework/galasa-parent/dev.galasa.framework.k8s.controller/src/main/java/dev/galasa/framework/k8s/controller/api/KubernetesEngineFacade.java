@@ -14,9 +14,12 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.protobuf.Api;
+
 import dev.galasa.framework.k8s.controller.K8sControllerException;
 import dev.galasa.framework.k8s.controller.Settings;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodStatus;
 
@@ -27,18 +30,19 @@ public class KubernetesEngineFacade {
     private final Log logger = LogFactory.getLog(getClass());
 
     private IKubernetesApiClient apiClient;
-    private Settings settings;
 
-    public KubernetesEngineFacade(IKubernetesApiClient apiClient, Settings settings) {
+    private String namespace;
+
+    public KubernetesEngineFacade(IKubernetesApiClient apiClient, String namespace) {
         this.apiClient = apiClient;
-        this.settings = settings;
+        this.namespace = namespace;
     }
 
-    public @NotNull List<V1Pod> getPods() throws K8sControllerException {
+    public @NotNull List<V1Pod> getTestPods( String engineLabel ) throws K8sControllerException {
         LinkedList<V1Pod> pods = new LinkedList<>();
 
         try {
-            List<V1Pod> podList = apiClient.getPods(settings.getNamespace(), ENGINE_CONTROLLER_LABEL_PREFIX + settings.getEngineLabel());
+            List<V1Pod> podList = apiClient.getPods(namespace, ENGINE_CONTROLLER_LABEL_PREFIX + engineLabel );
             for (V1Pod pod : podList) {
                 pods.add(pod);
             }
@@ -53,7 +57,7 @@ public class KubernetesEngineFacade {
         try {
             String podName = pod.getMetadata().getName();
             logger.info("Deleting pod " + podName);
-            apiClient.deletePod(settings.getNamespace(), podName);
+            apiClient.deletePod(namespace, podName);
         } catch (ApiException e) {
             logger.error("Failed to delete engine pod :-\n" + e.getResponseBody(), e);
         } catch (Exception e) {
@@ -96,5 +100,20 @@ public class KubernetesEngineFacade {
             }
         }
         return isActive;
+    }
+
+    public V1Pod createNamespacedPod(V1Pod newPodDefinition) throws ApiException {
+        V1Pod pod = apiClient.createNamespacedPod(namespace, newPodDefinition);
+        return pod;
+    }
+
+    public V1ConfigMap getConfigMap(String configMapName) throws K8sControllerException {
+        V1ConfigMap map ;
+        try {
+            map = apiClient.readNamespacedConfigMap(configMapName, namespace);
+        } catch( ApiException e) {
+            throw new K8sControllerException("Failed to read configmap '" + configMapName + "' in namespace '" + namespace + "'", e);
+        }        
+        return map;
     }
 }

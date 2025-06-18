@@ -22,6 +22,7 @@ import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.RunRasAction;
+import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 
@@ -87,11 +88,11 @@ public class RunInterruptMonitorTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace");
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kubeEngineFacade, mockFrameworkRuns, eventQueue);
+        MockSettings settings = new MockSettings(null, null, kube, "myPodName" , "myConfigMapName");
+        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
 
         // When...
         runPodInterrupt.run();
@@ -141,11 +142,12 @@ public class RunInterruptMonitorTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
+
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace");
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kubeEngineFacade, mockFrameworkRuns, eventQueue);
+        MockSettings settings = new MockSettings(null, null, kube, "myPodName" , "myConfigMapName");
+        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
 
         // When...
         runPodInterrupt.run();
@@ -188,11 +190,11 @@ public class RunInterruptMonitorTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace");
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kubeEngineFacade, mockFrameworkRuns, eventQueue);
+        MockSettings settings = new MockSettings(null, null, kube, "myPodName" , "myConfigMapName");
+        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
 
         // When...
         runPodInterrupt.run();

@@ -145,7 +145,7 @@ public class TestRunner extends BaseTestRunner {
                 managers = initialiseManagers(testClass,dataProvider);
 
                 if( isAnyReasonToIgnoreTests(managers) ) {
-                    logger.debug("Test class should be ignored.");
+                    logger.debug("Test class should be ignored. It has been marked as finished already.");
                     return ; 
                 }
 
@@ -319,6 +319,7 @@ public class TestRunner extends BaseTestRunner {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
                 logger.debug("managers.anyReasonTestClassShouldBeIgnored() is true. Shutting down.");
                 stopHeartbeat();
+                this.testStructure.setResult(Result.ignore("One or more managers insist this test is ignored.").getName());
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 isIgnore = true; // TODO handle ignored classes
             }

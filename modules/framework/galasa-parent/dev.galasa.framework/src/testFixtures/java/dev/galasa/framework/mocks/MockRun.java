@@ -198,6 +198,11 @@ public class MockRun implements IRun {
         return this.tags;
     }
 
+    @Override
+    public boolean isTrace() {
+        return true;
+    }
+
     // ------------- un-implemented methods follow ----------------
 
     @Override
@@ -210,10 +215,7 @@ public class MockRun implements IRun {
         throw new UnsupportedOperationException("Unimplemented method 'getTest'");
     }
 
-    @Override
-    public boolean isTrace() {
-        throw new UnsupportedOperationException("Unimplemented method 'isTrace'");
-    }
+
 
     @Override
     public Instant getFinished() {

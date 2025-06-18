@@ -24,10 +24,12 @@ public class RunPodCleanup implements Runnable {
 
     private final IFrameworkRuns runs;
     private final KubernetesEngineFacade kubeApi;
+    private final Settings settings;
 
     public RunPodCleanup(Settings settings, KubernetesEngineFacade kubeApi, IFrameworkRuns runs) {
         this.runs = runs;
         this.kubeApi = kubeApi;
+        this.settings = settings ;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class RunPodCleanup implements Runnable {
         logger.info("Starting run pod cleanup scan");
 
         try {
-            List<V1Pod> pods = kubeApi.getPods();
+            List<V1Pod> pods = kubeApi.getTestPods(settings.getEngineLabel());
             pods = kubeApi.getTerminatedPods(pods);
 
             deletePodsForCompletedRuns(pods);

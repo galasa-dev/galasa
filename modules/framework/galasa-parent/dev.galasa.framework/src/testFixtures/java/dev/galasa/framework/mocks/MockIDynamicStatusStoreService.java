@@ -81,18 +81,23 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
         put(key, value);
     }
 
+    @Override
+    public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue,
+            @NotNull Map<String, String> others) throws DynamicStatusStoreException {
+        String currentValue = get(key);
+        boolean isOk = false;
+        if (oldValue.equals(currentValue)) {
+            put(key,newValue);
+            isOk = true ;
+        }
+        return isOk ;
+    }
+
     // ------------------- un-implemented methods follow --------------------
 
     @Override
     public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {
                throw new UnsupportedOperationException("Unimplemented method 'put'");
-    }
-
-
-    @Override
-    public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue,
-            @NotNull Map<String, String> others) throws DynamicStatusStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'putSwap'");
     }
 
     @Override

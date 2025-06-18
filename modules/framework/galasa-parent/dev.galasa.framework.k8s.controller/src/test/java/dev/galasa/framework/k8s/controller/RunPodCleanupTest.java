@@ -78,9 +78,10 @@ public class RunPodCleanupTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
-        RunPodCleanup runPodCleanup = new RunPodCleanup(mockSettings, kubeEngineFacade, mockFrameworkRuns);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNameSpace");
+
+        Settings settings = new Settings(null,kubeEngineFacade , "myPodName" , "myConfigMapName");
+        RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);
 
         // When...
         runPodCleanup.deletePodsForCompletedRuns(mockTerminatedPods);
@@ -114,9 +115,10 @@ public class RunPodCleanupTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
-        RunPodCleanup runPodCleanup = new RunPodCleanup(mockSettings, kubeEngineFacade, mockFrameworkRuns);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNameSpace");
+
+        Settings settings = new Settings(null,kubeEngineFacade , "myPodName" , "myConfigMapName");
+        RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);
 
         // When...
         runPodCleanup.deletePodsForCompletedRuns(mockTerminatedPods);
@@ -141,9 +143,10 @@ public class RunPodCleanupTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
-        RunPodCleanup runPodCleanup = new RunPodCleanup(mockSettings, kubeEngineFacade, mockFrameworkRuns);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNameSpace");
+
+        Settings settings = new Settings(null,kubeEngineFacade , "myPodName" , "myConfigMapName");
+        RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);
 
         // When...
         runPodCleanup.deletePodsForCompletedRuns(mockTerminatedPods);

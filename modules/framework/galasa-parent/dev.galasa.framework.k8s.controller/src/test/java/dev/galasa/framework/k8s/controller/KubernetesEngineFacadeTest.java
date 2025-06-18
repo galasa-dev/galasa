@@ -45,11 +45,10 @@ public class KubernetesEngineFacadeTest {
         mockPods.add(createMockTestPod("RUN2", "running"));
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, mockSettings);
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace");
 
         // When...
-        List<V1Pod> pods = facade.getPods();
+        List<V1Pod> pods = facade.getTestPods("engine");
 
         // Then...
         assertThat(pods).hasSize(2);
@@ -65,8 +64,7 @@ public class KubernetesEngineFacadeTest {
         mockPods.add(createMockTestPod("RUN2", "failed"));
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, mockSettings);
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace");
 
         // When...
         List<V1Pod> pods = facade.getActivePods(mockPods);
@@ -86,8 +84,7 @@ public class KubernetesEngineFacadeTest {
         mockPods.add(finishedPod);
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, mockSettings);
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace");
 
         // When...
         List<V1Pod> pods = facade.getTerminatedPods(mockPods);
@@ -107,14 +104,13 @@ public class KubernetesEngineFacadeTest {
         mockPods.add(podToDelete);
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, mockSettings);
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace");
 
         // When...
         facade.deletePod(podToDelete);
 
         // Then...
-        List<V1Pod> remainingPods = facade.getPods();
+        List<V1Pod> remainingPods = facade.getTestPods("myEngineLabel");
         assertThat(remainingPods).hasSize(1);
         assertThat(remainingPods).doesNotContain(podToDelete);
     }
