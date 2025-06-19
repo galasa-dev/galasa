@@ -14,61 +14,27 @@ import org.junit.Test;
 
 import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
+import dev.galasa.framework.k8s.controller.mocks.MockISettings;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesApiClient;
-import io.kubernetes.client.openapi.models.V1ContainerStatus;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import dev.galasa.framework.k8s.controller.mocks.MockKubernetesPodTestUtils;
 import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodStatus;
 
 public class KubernetesEngineFacadeTest {
 
-    private static final String ENGINE_LABEL = "engine";
-
-    private V1Pod createPodWithReadiness(String appLabel, boolean isReady) {
-        V1Pod pod = new V1Pod();
-        V1ObjectMeta podMetadata = new V1ObjectMeta();
-        podMetadata.putLabelsItem("app", appLabel);
-
-        V1ContainerStatus readyContainerStatus = new V1ContainerStatus().ready(isReady);
-        List<V1ContainerStatus> containerStatuses = new ArrayList<>();
-        containerStatuses.add(readyContainerStatus);
-
-        V1PodStatus podStatus = new V1PodStatus();
-        podStatus.setContainerStatuses(containerStatuses);
-
-        pod.setMetadata(podMetadata);
-        pod.setStatus(podStatus);
-        return pod;
-    }
-
-    private V1Pod createMockTestPod(String runName, String phase) {
-        V1Pod mockPod = new V1Pod();
-
-        V1ObjectMeta podMetadata = new V1ObjectMeta();
-        podMetadata.putLabelsItem(TestPodScheduler.GALASA_RUN_POD_LABEL, runName);
-        podMetadata.putLabelsItem(KubernetesEngineFacade.ENGINE_CONTROLLER_LABEL_KEY, ENGINE_LABEL);
-        podMetadata.setName(runName);
-
-        V1PodStatus podStatus = new V1PodStatus();
-        podStatus.setPhase(phase);
-        mockPod.setStatus(podStatus);
-
-        mockPod.setMetadata(podMetadata);
-        return mockPod;
-    }
+    private MockKubernetesPodTestUtils mockKubeTestUtils = new MockKubernetesPodTestUtils();
 
     @Test
     public void testGetPodsReturnsPodsOk() throws Exception {
         // Given...
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(createMockTestPod("RUN1", "running"));
-        mockPods.add(createMockTestPod("RUN2", "running"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN1", "running"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN2", "running"));
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
 
         // When...
-        List<V1Pod> pods = facade.getTestPods(ENGINE_LABEL);
+        List<V1Pod> pods = facade.getTestPods(MockISettings.ENGINE_LABEL);
 
         // Then...
         assertThat(pods).hasSize(2);
@@ -79,9 +45,9 @@ public class KubernetesEngineFacadeTest {
     public void testGetActivePodsReturnsPodsOk() throws Exception {
         // Given...
         List<V1Pod> mockPods = new ArrayList<>();
-        V1Pod runningPod = createMockTestPod("RUN1", "running");
+        V1Pod runningPod = mockKubeTestUtils.createMockTestPod("RUN1", "running");
         mockPods.add(runningPod);
-        mockPods.add(createMockTestPod("RUN2", "failed"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN2", "failed"));
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
@@ -98,9 +64,9 @@ public class KubernetesEngineFacadeTest {
     public void testGetTerminatedPodsReturnsPodsOk() throws Exception {
         // Given...
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(createMockTestPod("RUN1", "running"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN1", "running"));
 
-        V1Pod finishedPod = createMockTestPod("RUN2", "failed");
+        V1Pod finishedPod = mockKubeTestUtils.createMockTestPod("RUN2", "failed");
         mockPods.add(finishedPod);
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
@@ -118,9 +84,9 @@ public class KubernetesEngineFacadeTest {
     public void testDeletePodRemovesPodOk() throws Exception {
         // Given...
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(createMockTestPod("RUN1", "running"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN1", "running"));
 
-        V1Pod podToDelete = createMockTestPod("RUN2", "failed");
+        V1Pod podToDelete = mockKubeTestUtils.createMockTestPod("RUN2", "failed");
         mockPods.add(podToDelete);
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
@@ -130,7 +96,7 @@ public class KubernetesEngineFacadeTest {
         facade.deletePod(podToDelete);
 
         // Then...
-        List<V1Pod> remainingPods = facade.getTestPods(ENGINE_LABEL);
+        List<V1Pod> remainingPods = facade.getTestPods(MockISettings.ENGINE_LABEL);
         assertThat(remainingPods).hasSize(1);
         assertThat(remainingPods).doesNotContain(podToDelete);
     }
@@ -142,8 +108,8 @@ public class KubernetesEngineFacadeTest {
 
         boolean isPodReady = true;
         String galasaServiceInstallName = "myGalasaService";
-        V1Pod etcdPod = createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
-        V1Pod rasPod = createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
+        V1Pod etcdPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
+        V1Pod rasPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
 
         mockPods.add(etcdPod);
         mockPods.add(rasPod);
@@ -164,8 +130,8 @@ public class KubernetesEngineFacadeTest {
         List<V1Pod> mockPods = new ArrayList<>();
 
         String galasaServiceInstallName = "myGalasaService";
-        V1Pod etcdPod = createPodWithReadiness(galasaServiceInstallName + "-etcd", false);
-        V1Pod rasPod = createPodWithReadiness(galasaServiceInstallName + "-ras", true);
+        V1Pod etcdPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-etcd", false);
+        V1Pod rasPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-ras", true);
 
         mockPods.add(etcdPod);
         mockPods.add(rasPod);
@@ -186,8 +152,8 @@ public class KubernetesEngineFacadeTest {
         List<V1Pod> mockPods = new ArrayList<>();
 
         String galasaServiceInstallName = "myGalasaService";
-        V1Pod etcdPod = createPodWithReadiness(galasaServiceInstallName + "-etcd", true);
-        V1Pod rasPod = createPodWithReadiness(galasaServiceInstallName + "-ras", false);
+        V1Pod etcdPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-etcd", true);
+        V1Pod rasPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-ras", false);
 
         mockPods.add(etcdPod);
         mockPods.add(rasPod);
@@ -209,8 +175,8 @@ public class KubernetesEngineFacadeTest {
 
         boolean isPodReady = false;
         String galasaServiceInstallName = "myGalasaService";
-        V1Pod etcdPod = createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
-        V1Pod rasPod = createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
+        V1Pod etcdPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
+        V1Pod rasPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
 
         mockPods.add(etcdPod);
         mockPods.add(rasPod);
@@ -233,7 +199,7 @@ public class KubernetesEngineFacadeTest {
         // Simulate a situation where the RAS pod has been scaled down to 0 and is not running...
         boolean isPodReady = true;
         String galasaServiceInstallName = "myGalasaService";
-        V1Pod etcdPod = createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
+        V1Pod etcdPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
 
         mockPods.add(etcdPod);
 
@@ -255,7 +221,7 @@ public class KubernetesEngineFacadeTest {
         // Simulate a situation where the etcd pod has been scaled down to 0 and is not running...
         boolean isPodReady = true;
         String galasaServiceInstallName = "myGalasaService";
-        V1Pod rasPod = createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
+        V1Pod rasPod = mockKubeTestUtils.createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
 
         mockPods.add(rasPod);
 

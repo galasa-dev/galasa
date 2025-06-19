@@ -16,28 +16,18 @@ import org.junit.Test;
 
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
+import dev.galasa.framework.k8s.controller.mocks.MockISettings;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesApiClient;
-import dev.galasa.framework.k8s.controller.mocks.MockSettings;
+import dev.galasa.framework.k8s.controller.mocks.MockKubernetesPodTestUtils;
 import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.RunRasAction;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 
 public class RunInterruptMonitorTest {
 
-    private V1Pod createMockTestPod(String runName) {
-        V1Pod mockPod = new V1Pod();
-
-        V1ObjectMeta podMetadata = new V1ObjectMeta();
-        podMetadata.putLabelsItem(TestPodScheduler.GALASA_RUN_POD_LABEL, runName);
-        podMetadata.putLabelsItem(KubernetesEngineFacade.ENGINE_CONTROLLER_LABEL_KEY, "none");
-        podMetadata.setName(runName);
-
-        mockPod.setMetadata(podMetadata);
-        return mockPod;
-    }
+    private MockKubernetesPodTestUtils mockKubeTestUtils = new MockKubernetesPodTestUtils();
 
     private MockRun createMockRun(String runIdToMarkFinished, String runName, String status, String interruptReason) {
         // We only care about the run's name, status, and interrupt reason
@@ -73,10 +63,14 @@ public class RunInterruptMonitorTest {
         String interruptReason = "cancelled";
 
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(createMockTestPod(runName1));
-        mockPods.add(createMockTestPod(runName2));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2));
 
-        V1Pod cancelledPod = createMockTestPod(runName3);
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isReady = true;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
+
+        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3);
         mockPods.add(cancelledPod);
 
         // Create runs associated with the pods
@@ -88,17 +82,17 @@ public class RunInterruptMonitorTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        MockSettings settings = new MockSettings(null, kube, "myPodName" , "myConfigMapName");
+        MockISettings settings = new MockISettings();
         RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
 
         // When...
         runPodInterrupt.run();
 
         // Then...
-        assertThat(mockPods).hasSize(2);
+        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(2);
         assertThat(mockPods).doesNotContain(cancelledPod);
 
         // One event should have been added
@@ -128,10 +122,14 @@ public class RunInterruptMonitorTest {
         String interruptReason = "cancelled";
 
         List<V1Pod> mockPods = new ArrayList<>();
-        V1Pod cancelledPod1 = createMockTestPod(runName1);
+        V1Pod cancelledPod1 = mockKubeTestUtils.createMockTestPod(runName1);
         mockPods.add(cancelledPod1);
 
-        V1Pod cancelledPod2 = createMockTestPod(runName2);
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isReady = true;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
+
+        V1Pod cancelledPod2 = mockKubeTestUtils.createMockTestPod(runName2);
         mockPods.add(cancelledPod2);
 
         // Create runs associated with the pods
@@ -142,18 +140,17 @@ public class RunInterruptMonitorTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-
-        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        MockSettings settings = new MockSettings(null, kube, "myPodName" , "myConfigMapName");
+        MockISettings settings = new MockISettings();
         RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
 
         // When...
         runPodInterrupt.run();
 
         // Then...
-        assertThat(mockPods).isEmpty();
+        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).isEmpty();
 
         // Two events should have been added
         assertThat(eventQueue).hasSize(2);
@@ -182,18 +179,22 @@ public class RunInterruptMonitorTest {
         // Simulate a situation where the current kubernetes namespace has a pod that may
         // not be a Galasa-related pod, so it doesn't have a "galasa-run" label with a run name.
         List<V1Pod> mockPods = new ArrayList<>();
-        V1Pod podWithNoRunName = createMockTestPod(null);
+        V1Pod podWithNoRunName = mockKubeTestUtils.createMockTestPod(null);
         mockPods.add(podWithNoRunName);
+
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isReady = true;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
 
         List<IRun> mockRuns = new ArrayList<>();
 
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
-        MockSettings settings = new MockSettings(null, kube, "myPodName" , "myConfigMapName");
+        MockISettings settings = new MockISettings();
         RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
 
         // When...
@@ -201,7 +202,59 @@ public class RunInterruptMonitorTest {
 
         // Then...
         List<V1Pod> pods = mockApiClient.getMockPods();
-        assertThat(pods).hasSize(1);
+        assertThat(pods).hasSize(3);
         assertThat(pods.get(0)).usingRecursiveComparison().isEqualTo(podWithNoRunName);
+    }
+
+    @Test
+    public void testInterruptedRunIsNotDeletedIfEtcdAndRasAreDown() throws Exception {
+        // Given...
+        String runName1 = "run1";
+        String runName2 = "run2";
+        String runName3 = "run3";
+        String runIdToMarkFinished = "run3-id";
+
+        String interruptReason = "cancelled";
+
+        List<V1Pod> mockPods = new ArrayList<>();
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2));
+
+        String galasaServiceInstallName = "myGalasaService";
+
+        // Simulate a situation where the etcd and RAS pods are not ready
+        boolean isReady = false;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
+
+        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3);
+        mockPods.add(cancelledPod);
+
+        // Create runs associated with the pods
+        List<IRun> mockRuns = new ArrayList<>();
+        mockRuns.add(createMockRun(null, runName1, TestRunLifecycleStatus.FINISHED.toString(), null));
+        mockRuns.add(createMockRun(null, runName2, TestRunLifecycleStatus.FINISHED.toString(), null));
+        mockRuns.add(createMockRun(runIdToMarkFinished, runName3, TestRunLifecycleStatus.RUNNING.toString(), interruptReason));
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
+
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+        Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
+
+        MockISettings settings = new MockISettings();
+        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings);
+
+        // Make sure that all 3 test pods exist before processing
+        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(3);
+
+        // When...
+        runPodInterrupt.run();
+
+        // Then...
+        // Make sure that all 3 test pods still exist after processing
+        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(3);
+
+        // No events should have been added yet
+        assertThat(eventQueue).isEmpty();
     }
 }

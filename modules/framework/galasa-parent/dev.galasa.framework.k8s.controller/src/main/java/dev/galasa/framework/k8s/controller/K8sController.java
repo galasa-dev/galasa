@@ -230,7 +230,7 @@ public class K8sController {
         scheduledExecutorService.scheduleWithFixedDelay(runInterruptWatcher, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
         IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(ras);
-        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, rasActionProcessor);
+        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, rasActionProcessor, kubeEngineFacade);
         scheduledExecutorService.scheduleWithFixedDelay(interruptEventProcessor, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
