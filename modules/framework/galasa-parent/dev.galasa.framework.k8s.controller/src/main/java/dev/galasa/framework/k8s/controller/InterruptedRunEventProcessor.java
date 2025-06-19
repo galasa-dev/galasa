@@ -11,6 +11,7 @@ import java.util.Queue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRunRasActionProcessor;
@@ -32,15 +33,18 @@ public class InterruptedRunEventProcessor implements Runnable {
     private final Queue<RunInterruptEvent> queue;
     private IFrameworkRuns frameworkRuns;
     private IRunRasActionProcessor rasActionProcessor;
+    private KubernetesEngineFacade kubeFacade;
 
     public InterruptedRunEventProcessor(
         Queue<RunInterruptEvent> queue,
         IFrameworkRuns frameworkRuns,
-        IRunRasActionProcessor rasActionProcessor
+        IRunRasActionProcessor rasActionProcessor,
+        KubernetesEngineFacade kubeFacade
     ) {
         this.queue = queue;
         this.frameworkRuns = frameworkRuns;
         this.rasActionProcessor = rasActionProcessor;
+        this.kubeFacade = kubeFacade;
     }
 
     /**
@@ -50,12 +54,20 @@ public class InterruptedRunEventProcessor implements Runnable {
      */
     @Override
     public void run() {
+        if (!kubeFacade.isEtcdAndRasReady()) {
+            logger.warn("etcd or RAS pods are not ready, waiting for them to be ready before processing interrupt events");
+        } else {
+            processInterruptEvents();
+        }
+    }
+
+    private void processInterruptEvents() {
         try {
             boolean isDone = false;
-
+   
             logger.debug("Starting scan of interrupt events to process");
             while (!isDone) {
-
+   
                 RunInterruptEvent interruptEvent = queue.poll();
                 if (interruptEvent == null) {
                     isDone = true;
