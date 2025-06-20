@@ -54,7 +54,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 
     private DirectoryRASFileSystemProvider provider;
 
-    private String                         message;
+    private String                         runLogContent;
 
     public DirectoryResultArchiveStoreService(IFramework framework, URI rasUri) throws ResultArchiveStoreException {
         this.framework = framework;
@@ -186,7 +186,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
      */
     private void updateRunLogSoFar() throws ResultArchiveStoreException {
         try {
-            this.message = Files.readString(this.runLog);
+            this.runLogContent = Files.readString(this.runLog);
         } catch (final Exception e) {
             throw new ResultArchiveStoreException("Unable to read the run log", e);
         }
@@ -260,7 +260,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 
     @Override
     public String retrieveLog() {
-        return this.message;
+        return this.runLogContent;
     }
 
 

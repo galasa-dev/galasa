@@ -62,7 +62,7 @@ public class GenericMethodWrapper {
      */
     public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, GenericMethodWrapper testMethod, TestClassWrapper testClassWrapper) throws TestRunException {
 
-        int runLogStart = testClassWrapper.getRunLogLines();
+        int runLogStart = testClassWrapper.getRunLogLineCount();
         
         try {
             // Associate the wrapped method with a test method if a test method has been passed in
@@ -135,7 +135,7 @@ public class GenericMethodWrapper {
             throw new TestRunException("There was a problem with the framework, please check stacktrace", e);
         }
 
-        int runLogEnd = testClassWrapper.getRunLogLines();
+        int runLogEnd = testClassWrapper.getRunLogLineCount();
 
         // Compare the run log start and run log end to see if this method produced any output.
         // If it did then set the runLogStart and runLogEnd in the test structure.
