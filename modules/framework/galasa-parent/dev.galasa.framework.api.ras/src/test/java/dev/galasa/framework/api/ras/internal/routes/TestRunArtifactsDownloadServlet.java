@@ -276,7 +276,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		//   "error_code" : 5008,
 		//   "error_message" : "GAL5008E: Error locating artifact '/bad/artifact/path' for run with identifier 'U123'."
 		// }
-		assertThat(resp.getStatus()).isEqualTo(500);
+		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString(), 5008, "GAL5008E", artifactPath, runName);
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");

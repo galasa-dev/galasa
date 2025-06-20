@@ -112,7 +112,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
                 res = downloadStoredArtifact(res, run, artifactPath.substring(artifactsPrefix.length() - 1));
             } else {
                 ServletError error = new ServletError(GAL5008_ERROR_LOCATING_ARTIFACT, artifactPath, runName);
-                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (ResultArchiveStoreException | IOException ex) {
             ServletError error = new ServletError(GAL5009_ERROR_RETRIEVING_ARTIFACT, artifactPath, runName);
