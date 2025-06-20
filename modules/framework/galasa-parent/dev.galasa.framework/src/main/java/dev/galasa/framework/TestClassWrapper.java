@@ -27,6 +27,8 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
+import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestMethod;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -229,7 +231,7 @@ public class TestClassWrapper {
      */
     private void runGenericMethods(@NotNull ITestRunManagers managers, ArrayList<GenericMethodWrapper> genericMethods) throws TestRunException {
         for (GenericMethodWrapper genericMethod : genericMethods) {
-            genericMethod.invoke(managers, this.testClassObject, null);
+            genericMethod.invoke(managers, this.testClassObject, null, this);
             // Set the result so far after every generic method
             Result beforeClassMethodResult = genericMethod.getResult();
             setResult(beforeClassMethodResult, managers);
@@ -409,6 +411,25 @@ public class TestClassWrapper {
             isContinueOnTestFailureSet = this.testRunner.getContinueOnTestFailureFromCPS();
         }
         return isContinueOnTestFailureSet;
+    }
+    
+    protected IFramework getFramework() {
+        return this.testRunner.getFramework();
+    }
+
+    protected int getRunLogLines() {
+        int runLogLines;
+
+        IResultArchiveStore ras = getFramework().getResultArchiveStore();
+
+        String logSoFar = ras.retrieveLog();
+        if (logSoFar.isEmpty()) {
+            runLogLines = 0;
+        } else {
+            String[] lines = logSoFar.split("\n");
+            runLogLines = lines.length;
+        }
+        return runLogLines;
     }
 
 }

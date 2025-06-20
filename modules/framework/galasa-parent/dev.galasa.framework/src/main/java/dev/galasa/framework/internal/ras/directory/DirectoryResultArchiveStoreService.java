@@ -50,9 +50,11 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     private Path                           testStructureFile;
     private Path                           runLog;
 
-    private final GalasaGson                     gson     = new GalasaGson();
+    private final GalasaGson               gson     = new GalasaGson();
 
     private DirectoryRASFileSystemProvider provider;
+
+    private String                         message;
 
     public DirectoryResultArchiveStoreService(IFramework framework, URI rasUri) throws ResultArchiveStoreException {
         this.framework = framework;
@@ -155,6 +157,9 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         } catch (final Exception e) {
             throw new ResultArchiveStoreException("Unable to write message to run log", e);
         }
+
+        updateRunLogSoFar();
+
     }
 
     /*
@@ -171,6 +176,19 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
             } catch(final Exception e){
                 throw new ResultArchiveStoreException("Unable to write messages to run log", e);
             }
+        }
+    }
+
+    /**
+     * Update the run log so far into a global variable of this class.
+     * Then it can be retrieved through the Framework from the RAS so
+     * methods in a test class can calculate their start and end line.
+     */
+    private void updateRunLogSoFar() throws ResultArchiveStoreException {
+        try {
+            this.message = Files.readString(this.runLog);
+        } catch (final Exception e) {
+            throw new ResultArchiveStoreException("Unable to read the run log", e);
         }
     }
 
@@ -238,6 +256,11 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
             throws ResultArchiveStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
+    }
+
+    @Override
+    public String retrieveLog() {
+        return this.message;
     }
 
 
