@@ -46,6 +46,7 @@ import dev.galasa.zos3270.common.screens.TerminalSize;
 import dev.galasa.zos3270.internal.properties.ApplyConfidentialTextFiltering;
 import dev.galasa.zos3270.internal.properties.LiveTerminalUrl;
 import dev.galasa.zos3270.internal.properties.LogConsoleTerminals;
+import dev.galasa.zos3270.internal.properties.TerminalDeviceName;
 import dev.galasa.zos3270.internal.properties.TerminalDeviceTypes;
 
 public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListener {
@@ -130,6 +131,7 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
         }
 
         setDeviceTypes(TerminalDeviceTypes.get(image));
+        setRequestedDeviceName(TerminalDeviceName.get(image));
 
         logConsoleTerminals = LogConsoleTerminals.get();
     }
@@ -176,6 +178,7 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
         }
 
         setDeviceTypes(TerminalDeviceTypes.get(image));
+        setRequestedDeviceName(TerminalDeviceName.get(image));
 
         logConsoleTerminals = LogConsoleTerminals.get();
     }
