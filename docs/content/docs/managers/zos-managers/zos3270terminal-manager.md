@@ -130,7 +130,7 @@ The following properties are used to configure the Zos3270Terminal Manager:
 | Property: | 3270DeviceName CPS Property |
 | --------------------------------------- | :------------------------------------- |
 | Name: | zos3270.image.IMAGEID.device.name |
-| Description: | Allows for a custom 3270 device name to be requested when connecting to a server. Device names are case-insensitive 7-bit ASCII strings that must not exceed 8 characters. |
+| Description: | Allows for a custom 3270 device name to be requested when connecting to a server. Device names are case-insensitive 7-bit US ASCII strings that must not exceed 8 characters. |
 | Required:  | No |
 | Examples: | `zos3270.image.IMAGE_A.device.name=IYCQTC57` |
 

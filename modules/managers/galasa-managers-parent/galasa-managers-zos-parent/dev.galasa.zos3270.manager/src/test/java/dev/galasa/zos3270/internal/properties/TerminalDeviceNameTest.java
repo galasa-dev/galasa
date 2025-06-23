@@ -106,7 +106,7 @@ public class TerminalDeviceNameTest {
         // Given...
         String imageId = "MYZOSIMAGE";
 
-        // 7-bit ASCII code points range from 0 to 127, so any character outside
+        // 7-bit US ASCII code points range from 0 to 127, so any character outside
         // this range is invalid.
         int invalidCodePoint = 128;
         char invalidChar = (char) invalidCodePoint;
@@ -139,7 +139,7 @@ public class TerminalDeviceNameTest {
         // Given...
         String imageId = "MYZOSIMAGE";
 
-        // 7-bit ASCII code points range from 0 to 127, so any character outside
+        // 7-bit US ASCII code points range from 0 to 127, so any character outside
         // this range is invalid.
         int codePoint = 127;
         char validChar = (char) codePoint;

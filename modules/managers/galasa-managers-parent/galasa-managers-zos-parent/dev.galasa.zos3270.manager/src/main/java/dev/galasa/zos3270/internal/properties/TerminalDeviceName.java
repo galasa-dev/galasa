@@ -21,7 +21,7 @@ import dev.galasa.zos3270.Zos3270ManagerException;
  *
  * If no device name is given, a null value will be returned.
  * 
- * As per https://www.rfc-editor.org/rfc/rfc2355, device names are case-insensitive 7-bit ASCII strings
+ * As per https://www.rfc-editor.org/rfc/rfc2355, device names are case-insensitive 7-bit US ASCII strings
  * that must not exceed 8 bytes.
  */
 public class TerminalDeviceName extends CpsProperties {
@@ -41,7 +41,7 @@ public class TerminalDeviceName extends CpsProperties {
         try {
             String deviceName = getStringNulled(Zos3270PropertiesSingleton.cps(), "image", "device.name", image.getImageID());
             if (!isDeviceNameValid(deviceName)) {
-                throw new Zos3270ManagerException("Empty or invalid device name provided. Device name must not exceed 8 characters and must only include 7-bit ASCII characters.");
+                throw new Zos3270ManagerException("Empty or invalid device name provided. Device name must not exceed 8 characters and must only include 7-bit US ASCII characters.");
             }
             return deviceName;
         } catch (ConfigurationPropertyStoreException e) {
