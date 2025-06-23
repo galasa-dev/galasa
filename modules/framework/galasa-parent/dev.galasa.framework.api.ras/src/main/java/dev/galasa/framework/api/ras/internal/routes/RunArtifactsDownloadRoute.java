@@ -85,6 +85,8 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
         matcher.matches();
         String runId = matcher.group(1);
         String artifactPath = matcher.group(2);
+
+        artifactPath = stripLeadingSlashesFromArtifactPath(artifactPath);
         return downloadArtifact(runId, artifactPath, response);
     }
 
@@ -112,7 +114,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
                 res = downloadStoredArtifact(res, run, artifactPath.substring(artifactsPrefix.length() - 1));
             } else {
                 ServletError error = new ServletError(GAL5008_ERROR_LOCATING_ARTIFACT, artifactPath, runName);
-                throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (ResultArchiveStoreException | IOException ex) {
             ServletError error = new ServletError(GAL5009_ERROR_RETRIEVING_ARTIFACT, artifactPath, runName);
@@ -162,5 +164,15 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
         outStream.write(content);
         outStream.close();
         return res;
+    }
+
+    private String stripLeadingSlashesFromArtifactPath(String path) {
+        int index = 0;
+        for (index = 0; index < path.length(); index++) {
+            if (path.charAt(index) != '/') {
+                break;
+            }
+        }
+        return path.substring(index);
     }
 }

@@ -60,7 +60,10 @@ public class GenericMethodWrapper {
      * @param testMethod the test method if the execution method is @Before or @After 
      * @throws TestRunException The failure thrown by the test run
      */
-    public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, GenericMethodWrapper testMethod) throws TestRunException {
+    public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, GenericMethodWrapper testMethod, TestClassWrapper testClassWrapper) throws TestRunException {
+
+        int runLogStart = testClassWrapper.getRunLogLineCount();
+        
         try {
             // Associate the wrapped method with a test method if a test method has been passed in
             Method testExecutionMethod = null;
@@ -131,6 +134,19 @@ public class GenericMethodWrapper {
         } catch (FrameworkException e) {
             throw new TestRunException("There was a problem with the framework, please check stacktrace", e);
         }
+
+        int runLogEnd = testClassWrapper.getRunLogLineCount();
+
+        // Compare the run log start and run log end to see if this method produced any output.
+        // If it did then set the runLogStart and runLogEnd in the test structure.
+        // If it didn't, runLogStart and runLogEnd will stay as default of 0.
+        if (runLogStart != runLogEnd) {
+            // The runLogStart value will be what is in the run log
+            // so far, so + 1 of that is where this method starts.
+            setRunLogStart(runLogStart + 1);
+            setRunLogEnd(runLogEnd);
+        }
+
         return;
     }
 
@@ -148,6 +164,14 @@ public class GenericMethodWrapper {
         if (this.testStructureMethod != null) {
             this.testStructureMethod.setResult(result.getName());
         }
+    }
+
+    public void setRunLogStart(int runLogStart) {
+        this.testStructureMethod.setRunLogStart(runLogStart);
+    }
+
+    public void setRunLogEnd(int runLogEnd) {
+        this.testStructureMethod.setRunLogEnd(runLogEnd);
     }
 
     public TestMethod getStructure() {

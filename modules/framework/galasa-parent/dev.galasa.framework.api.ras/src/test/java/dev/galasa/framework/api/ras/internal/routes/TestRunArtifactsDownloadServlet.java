@@ -276,7 +276,7 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		//   "error_code" : 5008,
 		//   "error_message" : "GAL5008E: Error locating artifact '/bad/artifact/path' for run with identifier 'U123'."
 		// }
-		assertThat(resp.getStatus()).isEqualTo(500);
+		assertThat(resp.getStatus()).isEqualTo(404);
 		checkErrorStructure(outStream.toString(), 5008, "GAL5008E", artifactPath, runName);
 
 		assertThat( resp.getContentType()).isEqualTo("application/json");
@@ -597,5 +597,98 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
         assertThat(outStream.toString()).isEmpty();
 		assertThat(resp.getContentType()).isEqualTo("text/plain");
 		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
+	}
+
+    @Test
+    public void testGoodRunIdAndArtifactWithTooManyLeadingSlashesFindsArtifact() throws Exception {
+		//Given..
+		String runId = "12345";
+		String runName = "testA";
+        MockPath artifactPath = new MockPath("/term002.gz", mockFileSystem);
+		String artifactPathStr = "////artifacts" + artifactPath.toString();
+		String fileContent = "dummy content";
+        List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		mockFileSystem.createFile(artifactPath);
+		mockFileSystem.setFileContents(artifactPath, fileContent);
+
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files" + artifactPathStr);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// Expecting:
+		assertThat(resp.getStatus()).isEqualTo(200);
+        assertThat(outStream.toString()).isEqualTo(fileContent);
+		assertThat(resp.getContentType()).isEqualTo("application/x-gzip");
+		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
+	}
+
+    @Test
+    public void testGoodRunIdAndRunLogWithLeadingSlashReturnsOKAndFile() throws Exception {
+		//Given..
+		String runId = "12345";
+		String runName = "testA";
+        String artifactPath = "/run.log";
+        String runlog = "very detailed run log";
+        List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runlog);
+
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/" + artifactPath);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// Expecting:
+		assertThat(resp.getStatus()).isEqualTo(200);
+        assertThat(outStream.toString()).isEqualTo(runlog);
+		assertThat(resp.getContentType()).isEqualTo("text/plain");
+		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
+	}
+
+    @Test
+    public void testGoodRunIdAndSlashPathReturnsNotFound() throws Exception {
+		//Given..
+		String runId = "12345";
+		String runName = "testA";
+        String artifactPath = "/";
+        String runlog = "You have a terminal image to access.";
+        List<IRunResult> mockInputRunResults = generateTestData(runId, runName, runlog);
+
+		Map<String, String[]> parameterMap = new HashMap<String,String[]>();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs/" + runId + "/files/" + artifactPath);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults, mockRequest, mockFileSystem);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		// Then...
+		// Expecting:
+		assertThat(resp.getStatus()).isEqualTo(404);
+		checkErrorStructure(outStream.toString(), 5008, "GAL5008E", "", runName);
+
+		assertThat( resp.getContentType()).isEqualTo("application/json");
 	}
 }

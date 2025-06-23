@@ -65,7 +65,7 @@ public class TestMethodWrapper {
             } else {
                 // run all the @Befores before the test method
                 for (GenericMethodWrapper before : this.befores) {
-                    before.invoke(managers, testClassObject, testMethod);
+                    before.invoke(managers, testClassObject, testMethod, testClassWrapper);
                     testClassWrapper.setResult(before.getResult(), managers);
                     if (before.getResult().isFullStop()) {
                         this.fullStop = true;
@@ -75,7 +75,7 @@ public class TestMethodWrapper {
                 }
 
                 if (this.result == null) {
-                    testMethod.invoke(managers, testClassObject, null);
+                    testMethod.invoke(managers, testClassObject, null, testClassWrapper);
                     testClassWrapper.setResult(testMethod.getResult(), managers);
                     if (this.testMethod.fullStop()) {
                         if (continueOnTestFailure) {
@@ -91,7 +91,7 @@ public class TestMethodWrapper {
                 // run all the @Afters after the test method
                 Result afterResult = null;
                 for (GenericMethodWrapper after : this.afters) {
-                    after.invoke(managers, testClassObject, testMethod);
+                    after.invoke(managers, testClassObject, testMethod, testClassWrapper);
                     testClassWrapper.setResult(after.getResult(), managers);
                     if (after.fullStop()) {
                         this.fullStop = true;
@@ -120,7 +120,20 @@ public class TestMethodWrapper {
     public String getName() {
         return this.testMethod.getName();
     }
-    
+
+    /**
+     * This returns the test structure for this @Test method.
+     * @return the existing TestMethod structure for a @Test method.
+     */
+    public TestMethod getTestStructureMethod() {
+        return testMethod.getTestStructureMethod();
+    }
+
+    /**
+     * This creates a new test structure for this @Test method, priming
+     * it with the @Before and @After methods that belong to it.
+     * @return a new TestMethod structure for a @Test method.
+     */
     public TestMethod getStructure() {
         TestMethod methodStructure = testMethod.getStructure();
         ArrayList<TestMethod> structureBefores = new ArrayList<>();

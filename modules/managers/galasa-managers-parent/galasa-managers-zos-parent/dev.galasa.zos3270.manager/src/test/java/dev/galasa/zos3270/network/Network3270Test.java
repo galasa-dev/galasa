@@ -5,11 +5,15 @@
  */
 package dev.galasa.zos3270.network;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,11 +22,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import dev.galasa.zos3270.TerminalInterruptedException;
+import dev.galasa.zos3270.common.screens.TerminalSize;
 import dev.galasa.zos3270.internal.comms.Network;
 import dev.galasa.zos3270.internal.comms.NetworkThread;
 import dev.galasa.zos3270.internal.datastream.AbstractCommandCode;
 import dev.galasa.zos3270.internal.datastream.OrderInsertCursor;
+import dev.galasa.zos3270.mocks.MockNetwork;
 import dev.galasa.zos3270.spi.NetworkException;
+import dev.galasa.zos3270.spi.Screen;
+import dev.galasa.zos3270.spi.Terminal;
 import dev.galasa.zos3270.util.Zos3270TestBase;
 
 public class Network3270Test extends Zos3270TestBase {
@@ -32,8 +40,9 @@ public class Network3270Test extends Zos3270TestBase {
 
     @Before
     public void init(){
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
+
     @Test
     public void testProcessMessage() throws NetworkException, IOException, TerminalInterruptedException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -154,4 +163,99 @@ public class Network3270Test extends Zos3270TestBase {
         }
     }
 
+    @Test
+    public void testTerminalDeviceTypeWithoutNameRequestBuildsCorrectByteStream() throws Exception {
+        // Given...
+        ByteArrayOutputStream inboundStream = new ByteArrayOutputStream();
+        inboundStream.write(NetworkThread.IAC);
+        inboundStream.write(NetworkThread.SB);
+        inboundStream.write(NetworkThread.TN3270E);
+        inboundStream.write(NetworkThread.SEND);
+        inboundStream.write(NetworkThread.DEVICE_TYPE);
+        inboundStream.write(NetworkThread.IAC);
+        inboundStream.write(NetworkThread.SE);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(inboundStream.toByteArray());
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Network network = new MockNetwork(outputStream);
+
+        List<String> mockDeviceTypes = new ArrayList<>();
+        String mockDeviceType = "my-3270-device-type";
+        byte[] mockDeviceTypeAsBytes = mockDeviceType.getBytes("us-ascii");
+        mockDeviceTypes.add(mockDeviceType);
+
+        NetworkThread networkThread = new NetworkThread(null, CreateTestScreen(), network, inputStream, mockDeviceTypes);
+
+        // When...
+        networkThread.processMessage(inputStream);
+
+        // Then...
+        // We expect to have sent a telnet command of IAC SB TN3270E DEVICE-TYPE REQUEST <device-type> IAC SE
+        ByteArrayOutputStream expectedBytes = new ByteArrayOutputStream();
+        expectedBytes.write(NetworkThread.IAC);
+        expectedBytes.write(NetworkThread.SB);
+        expectedBytes.write(NetworkThread.TN3270E);
+        expectedBytes.write(NetworkThread.DEVICE_TYPE);
+        expectedBytes.write(NetworkThread.REQUEST);
+        expectedBytes.write(mockDeviceTypeAsBytes);
+        expectedBytes.write(NetworkThread.IAC);
+        expectedBytes.write(NetworkThread.SE);
+
+        assertThat(outputStream.toByteArray()).isEqualTo(expectedBytes.toByteArray());
+    }
+
+    @Test
+    public void testTerminalDeviceTypeWithNameRequestBuildsCorrectByteStream() throws Exception {
+        // Given...
+        ByteArrayOutputStream inboundStream = new ByteArrayOutputStream();
+        inboundStream.write(NetworkThread.IAC);
+        inboundStream.write(NetworkThread.SB);
+        inboundStream.write(NetworkThread.TN3270E);
+        inboundStream.write(NetworkThread.SEND);
+        inboundStream.write(NetworkThread.DEVICE_TYPE);
+        inboundStream.write(NetworkThread.IAC);
+        inboundStream.write(NetworkThread.SE);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(inboundStream.toByteArray());
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Network network = new MockNetwork(outputStream);
+
+        Charset ascii7 = Charset.forName("us-ascii");
+        List<String> mockDeviceTypes = new ArrayList<>();
+        String mockDeviceType = "my-3270-device-type";
+        byte[] mockDeviceTypeAsBytes = mockDeviceType.getBytes(ascii7);
+        mockDeviceTypes.add(mockDeviceType);
+
+        String mockDeviceName = "THIS_IS_A_DEVICE_NAME";
+        byte[] mockDeviceNameAsBytes = mockDeviceName.getBytes(ascii7);
+
+        Screen mockScreen = CreateTestScreen();
+        TerminalSize primarySize = new TerminalSize(mockScreen.getPrimaryColumns(), mockScreen.getPrimaryRows());
+        TerminalSize alternateSize = new TerminalSize(mockScreen.getAlternateColumns(), mockScreen.getAlternateRows());
+        Terminal terminal = new Terminal("terminal1", "host", 0, false, primarySize, alternateSize, null, ebcdic);
+        terminal.setRequestedDeviceName(mockDeviceName);
+
+        NetworkThread networkThread = new NetworkThread(terminal, mockScreen, network, inputStream, mockDeviceTypes);
+
+        // When...
+        networkThread.processMessage(inputStream);
+
+        // Then...
+        // We expect to have sent a telnet command of IAC SB TN3270E DEVICE-TYPE REQUEST <device-type> CONNECT <device-name> IAC SE
+        ByteArrayOutputStream expectedBytes = new ByteArrayOutputStream();
+        expectedBytes.write(NetworkThread.IAC);
+        expectedBytes.write(NetworkThread.SB);
+        expectedBytes.write(NetworkThread.TN3270E);
+        expectedBytes.write(NetworkThread.DEVICE_TYPE);
+        expectedBytes.write(NetworkThread.REQUEST);
+        expectedBytes.write(mockDeviceTypeAsBytes);
+        expectedBytes.write(NetworkThread.CONNECT);
+        expectedBytes.write(mockDeviceNameAsBytes);
+        expectedBytes.write(NetworkThread.IAC);
+        expectedBytes.write(NetworkThread.SE);
+
+        assertThat(outputStream.toByteArray()).isEqualTo(expectedBytes.toByteArray());
+    }
 }
