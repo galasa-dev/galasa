@@ -90,9 +90,11 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
     private String                             artifactDocumentRev;
 
     private TestStructure                      lastTestStructure;
-    private ITimeService timeService ;
+    private ITimeService                       timeService ;
 
-    private LogFactory logFactory;
+    private LogFactory                         logFactory;
+
+    private String                             runLogContent;
 
     public CouchdbRasStore(IFramework framework, URI rasUri) throws CouchdbException, CouchdbRasException {
         this(
@@ -169,6 +171,12 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
                 flushLogCache();
             }
         }
+
+        // Get log so far
+        // 1. Count lines in CouchDB
+        // 2. Count lines in cache
+        int linesInCache = logCache.size();
+
     }
 
     private void flushLogCache() throws ResultArchiveStoreException {
@@ -216,6 +224,11 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
         for (String message : messages) {
             writeLog(message);
         }
+    }
+
+    @Override
+    public String retrieveLog() {
+        return this.runLogContent;
     }
 
     @Override

@@ -61,7 +61,7 @@ public interface IResultArchiveStore {
      * each method in a test class.
      * @return the run log as a String at any given time in a test.
      */
-    default String retrieveLog() { return ""; };
+    String retrieveLog();
 
     /**
      * Update the Test Structure object in the RASs with the current status

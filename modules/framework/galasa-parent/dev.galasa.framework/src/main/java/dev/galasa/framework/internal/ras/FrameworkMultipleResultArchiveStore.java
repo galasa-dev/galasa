@@ -140,4 +140,9 @@ public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreS
             rasService.updateTestStructure(runId, testStructure);
         }
     }
+
+    @Override
+    public String retrieveLog() {
+        throw new UnsupportedOperationException("Unimplemented method 'retrieveLog'");
+    }
 }
