@@ -16,6 +16,10 @@ import org.junit.Test;
 
 import dev.galasa.framework.RunRasActionProcessor;
 import dev.galasa.framework.TestRunLifecycleStatus;
+import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
+import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
+import dev.galasa.framework.k8s.controller.mocks.MockKubernetesApiClient;
+import dev.galasa.framework.k8s.controller.mocks.MockKubernetesPodTestUtils;
 import dev.galasa.framework.mocks.MockFileSystem;
 import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.mocks.MockIResultArchiveStore;
@@ -28,8 +32,11 @@ import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import io.kubernetes.client.openapi.models.V1Pod;
 
 public class InterruptedRunEventProcessorTest {
+
+    private MockKubernetesPodTestUtils mockKubeTestUtils = new MockKubernetesPodTestUtils();
 
     private MockRun createMockRun(String runName, String status, String interruptReason) {
         // We only care about the run's name, status, and interrupt reason
@@ -71,7 +78,6 @@ public class InterruptedRunEventProcessorTest {
         RunRasAction mockRasAction = new RunRasAction(runId, TestRunLifecycleStatus.FINISHED.toString(), interruptReason);
         List<RunRasAction> rasActions = List.of(mockRasAction);
 
-
         MockRun mockRun = createMockRun(runName, status, interruptReason);
         List<IRun> mockRuns = List.of(mockRun);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
@@ -86,11 +92,17 @@ public class InterruptedRunEventProcessorTest {
 
         IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(mockRas);
 
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isReady = true;
+        List<V1Pod> etcdAndRasPods = mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady);
+        IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(etcdAndRasPods);
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
         RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason);
         eventQueue.add(interruptEvent);
 
-        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor);
+        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade);
 
         // When...
         processor.run();
@@ -130,11 +142,17 @@ public class InterruptedRunEventProcessorTest {
 
         IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(mockRas);
 
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isReady = true;
+        List<V1Pod> etcdAndRasPods = mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady);
+        IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(etcdAndRasPods);
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
         RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason);
         eventQueue.add(interruptEvent);
 
-        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor);
+        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade);
 
         // When...
         processor.run();
@@ -146,5 +164,57 @@ public class InterruptedRunEventProcessorTest {
         TestStructure runTestStructure = mockRunResult.getTestStructure();
         assertThat(runTestStructure.getStatus()).isEqualTo(TestRunLifecycleStatus.FINISHED.toString());
         assertThat(runTestStructure.getResult()).isEqualTo(interruptReason);
+    }
+
+    @Test
+    public void testEventProcessorDoesNothingIfRasOrEtcdAreNotReady() throws Exception {
+        // Given...
+        String runId = "this-is-a-run-id";
+        String runName = "RUN1";
+        String status = "running";
+        String interruptReason = Result.CANCELLED;
+
+        RunRasAction mockRasAction = new RunRasAction(runId, TestRunLifecycleStatus.FINISHED.toString(), interruptReason);
+        List<RunRasAction> rasActions = List.of(mockRasAction);
+
+        MockRun mockRun = createMockRun(runName, status, interruptReason);
+        List<IRun> mockRuns = List.of(mockRun);
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
+
+        MockFileSystem mockFileSystem = new MockFileSystem();
+        MockIResultArchiveStore mockRas = new MockIResultArchiveStore(runId, mockFileSystem);
+
+        IRunResult mockRunResult = createMockRunResult(runId, status);
+        List<IRunResult> runResults = List.of(mockRunResult);
+        MockResultArchiveStoreDirectoryService mockDirectoryService = new MockResultArchiveStoreDirectoryService(runResults);
+        mockRas.addDirectoryService(mockDirectoryService);
+
+        IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(mockRas);
+
+        String galasaServiceInstallName = "myGalasaService";
+
+        // Simulate a situation where the etcd and RAS are not ready
+        boolean isReady = false;
+        List<V1Pod> etcdAndRasPods = mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady);
+        IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(etcdAndRasPods);
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+
+        Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
+        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason);
+        eventQueue.add(interruptEvent);
+
+        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade);
+
+        // Check that we have one element in the event queue before processing
+        assertThat(eventQueue).hasSize(1);
+        assertThat(eventQueue.peek()).usingRecursiveComparison().isEqualTo(interruptEvent);
+
+        // When...
+        processor.run();
+
+        // Then...
+        // The event should not have been processed yet
+        assertThat(eventQueue).hasSize(1);
+        assertThat(eventQueue.peek()).usingRecursiveComparison().isEqualTo(interruptEvent);
     }
 }

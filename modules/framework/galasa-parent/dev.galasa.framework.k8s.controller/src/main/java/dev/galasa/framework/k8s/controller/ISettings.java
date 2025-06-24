@@ -5,19 +5,7 @@
  */
 package dev.galasa.framework.k8s.controller;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.models.V1ConfigMap;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
 
 /**
  * A collection of settings obtained from a config map.

@@ -48,6 +48,11 @@ public class K8sController {
     private static final int ENGINE_CONTROLLER_NUMBER_OF_THREADS = 5;
     private static final int INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS = 5;
 
+    private static final String GALASA_INSTALL_NAME_ENV_VAR = "GALASA_INSTALL_NAME";
+    private static final String NAMESPACE_ENV_VAR = "NAMESPACE";
+    private static final String PODNAME_ENV_VAR = "PODNAME";
+    private static final String CONFIG_ENV_VAR = "CONFIG";
+
     private Log                      logger           = LogFactory.getLog(this.getClass());
 
     // Note: These two flags are shared-state between two threads, so must be marked volatile.
@@ -120,17 +125,18 @@ public class K8sController {
             CoreV1Api api = new CoreV1Api();
 
             // *** Fetch the settings
-            String namespace = getEnvironmentVariableOrDefault("NAMESPACE", "default");
+            String galasaServiceInstallName = getEnvironmentVariableOrDefault(GALASA_INSTALL_NAME_ENV_VAR, "");
+            logger.info("Setting Galasa installation name to '" + galasaServiceInstallName + "'");
+            String namespace = getEnvironmentVariableOrDefault(NAMESPACE_ENV_VAR, "default");
             logger.info("Setting Namespace to '" + namespace + "'");
 
             IKubernetesApiClient apiClient = new KubernetesApiClient(api, protoClient);
-            KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(apiClient, namespace);
+            KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(apiClient, namespace, galasaServiceInstallName);
 
-
-            String podName = getEnvironmentVariableOrDefault("PODNAME", "k8s-controller");
+            String podName = getEnvironmentVariableOrDefault(PODNAME_ENV_VAR, "k8s-controller");
             logger.info("Setting Pod Name to '" + podName + "'");
 
-            String configMapName = getEnvironmentVariableOrDefault("CONFIG", "config");
+            String configMapName = getEnvironmentVariableOrDefault(CONFIG_ENV_VAR, "config");
             logger.info("Setting ConfigMap to '" + configMapName + "'");
 
             settings = new Settings(this, kubeEngineFacade, podName , configMapName);
@@ -204,11 +210,6 @@ public class K8sController {
         return value.trim();
     }
 
-    private void loadEnvironmentProperties() {
-
-        
-    }
-
     private void startRunPollingThreads(
         IFrameworkRuns frameworkRuns,
         IConfigurationPropertyStoreService cps,
@@ -229,7 +230,7 @@ public class K8sController {
         scheduledExecutorService.scheduleWithFixedDelay(runInterruptWatcher, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
         IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(ras);
-        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, rasActionProcessor);
+        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, rasActionProcessor, kubeEngineFacade);
         scheduledExecutorService.scheduleWithFixedDelay(interruptEventProcessor, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 

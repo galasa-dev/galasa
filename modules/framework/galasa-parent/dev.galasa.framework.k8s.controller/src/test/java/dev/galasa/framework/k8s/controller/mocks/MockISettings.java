@@ -7,10 +7,11 @@ import dev.galasa.framework.k8s.controller.ISettings;
 public class MockISettings implements ISettings {
 
     public int maxTestPodRetriesLimit = 2;
+    public static final String ENGINE_LABEL = "myEngineLabel";
 
     @Override
     public String getEngineLabel() {
-        return "myEngineLabel";
+        return ENGINE_LABEL;
     }
 
     @Override
