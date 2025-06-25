@@ -234,7 +234,7 @@ public class Network3270Test extends Zos3270TestBase {
         Screen mockScreen = CreateTestScreen();
         TerminalSize primarySize = new TerminalSize(mockScreen.getPrimaryColumns(), mockScreen.getPrimaryRows());
         TerminalSize alternateSize = new TerminalSize(mockScreen.getAlternateColumns(), mockScreen.getAlternateRows());
-        Terminal terminal = new Terminal("terminal1", "host", 0, false, primarySize, alternateSize, null, ebcdic);
+        Terminal terminal = new Terminal("terminal1", "host", 0, false, false, primarySize, alternateSize, null, ebcdic);
         terminal.setRequestedDeviceName(mockDeviceName);
 
         NetworkThread networkThread = new NetworkThread(terminal, mockScreen, network, inputStream, mockDeviceTypes);

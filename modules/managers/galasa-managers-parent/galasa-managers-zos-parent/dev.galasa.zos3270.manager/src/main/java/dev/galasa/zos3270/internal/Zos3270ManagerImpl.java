@@ -195,7 +195,7 @@ public class Zos3270ManagerImpl extends AbstractGherkinManager implements IZos32
             String terminaId = "term" + (terminalCount);
 
             Zos3270TerminalImpl terminal = new Zos3270TerminalImpl(terminaId, host.getHostname(), host.getTelnetPort(),
-                    host.isTelnetPortTls(), getFramework(), autoConnect, image, primarySize, alternateSize, textScannerManager);
+                    host.isTelnetPortTls(), host.shouldVerifyTelnetServer(), getFramework(), autoConnect, image, primarySize, alternateSize, textScannerManager);
             
             this.terminals.add(terminal);
             logger.info("Generated a terminal for zOS Image tagged " + imageTag);
