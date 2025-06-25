@@ -72,5 +72,9 @@ public class MockConfigurationPropertyStoreService implements IConfigurationProp
     public List<String> getCPSNamespaces() throws ConfigurationPropertyStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'getCPSNamespaces'");
     }
-    
+
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'setProperties'");
+    }
 }

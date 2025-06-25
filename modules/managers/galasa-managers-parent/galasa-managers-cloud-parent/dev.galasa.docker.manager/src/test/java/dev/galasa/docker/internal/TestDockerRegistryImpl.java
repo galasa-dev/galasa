@@ -196,5 +196,8 @@ public class TestDockerRegistryImpl {
 			return null;
 		}
 
+		@Override
+		public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {}
+
     }
 }

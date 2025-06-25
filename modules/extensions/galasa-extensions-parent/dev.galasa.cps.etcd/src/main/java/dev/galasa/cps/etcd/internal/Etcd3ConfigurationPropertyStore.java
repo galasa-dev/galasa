@@ -23,9 +23,13 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.KeyValue;
+import io.etcd.jetcd.Txn;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.kv.TxnResponse;
+import io.etcd.jetcd.op.Op;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.OptionsUtil;
+import io.etcd.jetcd.options.PutOption;
 
 /**
  * This class impletements the CPS for etcd using the JETCD client.
@@ -195,6 +199,27 @@ public class Etcd3ConfigurationPropertyStore extends Etcd3Store implements IConf
         return results;
     }
 
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        Txn putTransaction = kvClient.txn();
+        PutOption options = PutOption.DEFAULT;
 
+        // Build up a list of put operations
+        List<Op> operations = new ArrayList<>();
+        for (String key : propertiesToSet.keySet()) {
+            ByteSequence byteSeqKey = ByteSequence.from(key, UTF_8);
+            ByteSequence byteSeqValue = ByteSequence.from(propertiesToSet.get(key), UTF_8);
+            operations.add(Op.put(byteSeqKey, byteSeqValue, options));
+        }
 
+        // Run the transaction
+        Txn request = putTransaction.Then(operations.toArray(new Op[operations.size()]));
+        CompletableFuture<TxnResponse> response = request.commit();
+        try {
+            response.get();
+        } catch (InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
+            throw new ConfigurationPropertyStoreException("Failed to set properties", e);
+        }
+    }
 }

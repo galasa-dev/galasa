@@ -308,6 +308,11 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
     private void recordPropertyAccessed(String key, String valueObtained , String whereValueCameFrom ) {
         this.record.setProperty(key, valueObtained);
         this.record.setProperty(key+"._source",whereValueCameFrom);
+    }
+
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        this.cpsStore.setProperties(propertiesToSet);
     }       
 
 }

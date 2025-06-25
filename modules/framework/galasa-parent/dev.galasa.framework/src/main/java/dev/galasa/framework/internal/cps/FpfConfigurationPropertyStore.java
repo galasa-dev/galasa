@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.internal.cps;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -140,6 +141,15 @@ public class FpfConfigurationPropertyStore implements IConfigurationPropertyStor
             this.fpf.shutdown();
         } catch (FrameworkPropertyFileException e) {
             throw new ConfigurationPropertyStoreException("Problem shutting down the CPS File", e);
+        }
+    }
+
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        try {
+            fpf.set(propertiesToSet);
+        } catch (FrameworkPropertyFileException | IOException e) {
+            throw new ConfigurationPropertyStoreException("Unable to set properties", e);
         }
     }
 

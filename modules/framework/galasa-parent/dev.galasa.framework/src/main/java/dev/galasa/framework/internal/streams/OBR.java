@@ -18,6 +18,10 @@ public class OBR implements IOBR {
     private String artifactId;
     private String version;
 
+    public OBR(String groupId, String artifactId, String version) throws StreamsException {
+        this(MAVEN_PREFIX + groupId + "/" + artifactId + "/" + version + "/obr");
+    }
+
     public OBR(String obrString) throws StreamsException {
         String formattedObrString = obrString.trim();
         String[] obrParts = getValidatedObrParts(formattedObrString);

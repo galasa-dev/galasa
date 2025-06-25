@@ -91,6 +91,10 @@ public class Stream implements IStream {
         return this.obrs;
     }
 
+    public void setObrs(List<IOBR> obrs) throws StreamsException {
+        this.obrs = obrs;
+    }
+
     public void setObrsFromCommaSeparatedList(String commaSeparatedObrs) throws StreamsException {
         List<IOBR> formattedObrs = new ArrayList<>();
         if (commaSeparatedObrs != null && !commaSeparatedObrs.isBlank()) {
