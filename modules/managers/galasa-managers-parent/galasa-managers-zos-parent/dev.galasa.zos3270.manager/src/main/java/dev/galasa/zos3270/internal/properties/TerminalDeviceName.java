@@ -31,7 +31,7 @@ public class TerminalDeviceName extends CpsProperties {
 
     private static boolean isDeviceNameValid(String deviceName) {
         boolean isValid = false;
-        if (deviceName != null && !deviceName.isBlank()) {
+        if (!deviceName.isBlank()) {
             isValid = deviceName.length() <= MAX_DEVICE_NAME_LENGTH && US_ASCII_ENCODER.canEncode(deviceName);
         }
         return isValid;
@@ -40,8 +40,8 @@ public class TerminalDeviceName extends CpsProperties {
     public static String get(IZosImage image) throws Zos3270ManagerException {
         try {
             String deviceName = getStringNulled(Zos3270PropertiesSingleton.cps(), "image", "device.name", image.getImageID());
-            if (!isDeviceNameValid(deviceName)) {
-                throw new Zos3270ManagerException("Empty or invalid device name provided. Device name must not exceed 8 characters and must only include 7-bit US ASCII characters.");
+            if (deviceName != null && !isDeviceNameValid(deviceName)) {
+                throw new Zos3270ManagerException("Invalid device name provided. Device name must not exceed 8 characters and must only include 7-bit US ASCII characters.");
             }
             return deviceName;
         } catch (ConfigurationPropertyStoreException e) {
