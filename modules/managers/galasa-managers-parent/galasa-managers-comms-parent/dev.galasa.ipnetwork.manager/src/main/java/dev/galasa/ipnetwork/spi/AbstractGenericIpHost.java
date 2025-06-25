@@ -95,6 +95,16 @@ public abstract class AbstractGenericIpHost implements IIpHostSpi {
     }
 
     @Override
+    public boolean shouldVerifyTelnetServer() throws IpNetworkManagerException {
+        try {
+            return Boolean
+                    .parseBoolean(AbstractManager.nulled(this.cps.getProperty(this.prefix, "telnet.tls.verify", this.hostid)));
+        } catch (Exception e) {
+            throw new IpNetworkManagerException("Unable to retrieve telnet tls property for host " + this.hostid, e);
+        }
+    }
+
+    @Override
     public int getFtpPort() throws IpNetworkManagerException {
         try {
             String temp = AbstractManager.nulled(this.cps.getProperty(this.prefix, "ftp.port", this.hostid));

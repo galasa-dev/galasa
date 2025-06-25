@@ -56,6 +56,14 @@ public interface IIpHost {
     boolean isTelnetPortTls() throws IpNetworkManagerException;
 
     /**
+     * Should the Telnet server's certificate be verified, default false
+     * 
+     * @return verify?
+     * @throws IpNetworkManagerException if there is a problem accessing the CPS
+     */
+    boolean shouldVerifyTelnetServer() throws IpNetworkManagerException;
+
+    /**
      * Get the FTP port, defaults to 21
      * 
      * @return FTP port
