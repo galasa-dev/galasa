@@ -33,15 +33,31 @@ galasactl properties set --namespace framework --name test.stream.mystream.obr -
 
 These four commands each set a part of the stream. Streams must always be created in the `framework` namespace and must always have all four components set.
 
-You can view all test streams in the `framework` namespace by using the `galasactl properties get` command, as shown in the following example:
+You can view all test streams in the `framework` namespace by using the `galasactl streams get` command, as shown in the following example:
 
 ```
-galasactl properties get --namespace framework --name test.streams 
-namespace name         value 
-framework test.streams integrationtests, regressiontests 
+galasactl streams get
+name             state   description
+integrationtests enabled Test stream for in-development integration tests
+regressiontests  enabled Regression test suite
 
 Total:2
 ```
+
+The following table shows the available output formats that can be provided as part of the `galasactl streams get` command:
+
+| Name |  Description  |
+| :---- | :-------- | 
+| `--format summary` | The default format is _summary_. Summary format is useful if you need a quick, high-level overview. If you omit the `--format` flag in the command, results are returned in summary format. You can set the summary format explicitly by setting the `--format summary` flag in the `galasactl streams get` command.   | 
+| `--format yaml` |  The results from `galasactl streams get` are returned as GalasaStream resources in YAML format. This YAML content can then be used in `galasactl resources` commands to create, update, and delete secrets using a YAML file. See [Configuring an Ecosystem using resource files](./ecosystem-manage-resources.md) for more details.|
+
+For example, you can use the following command to retrieve all test streams in `yaml` format:
+
+```shell
+galasactl streams get --format yaml
+```
+
+For a complete list of supported parameters, see the [galasactl streams get](../reference/cli-syntax/galasactl_streams_get.md) command reference.
 
 ## Organising test streams
 

@@ -138,6 +138,79 @@ You can define multiple secrets in the same YAML file by separating them using t
 
 You can save the file with a `.yaml` or `.yml` file extension.
 
+## Test Streams as GalasaStream resources
+
+The topic [Test streams](../manage-ecosystem/test-streams.md) describes how to use the `galasactl streams get` command with the `--format yaml` flag specified to extract a YAML file which describes test streams. 
+
+If more than one test stream is returned, each test stream is separated in the file by three dashes, `---`, as shown in the following example: 
+
+```yaml
+apiVersion: galasa-dev/v1alpha1
+kind: GalasaStream
+metadata:
+    name: ivts
+    url: https://my-galasa-service/api/streams/ivts
+    description: Galasa installation verification tests
+data:
+    isEnabled: true
+    repository:
+        url: https://my-maven-repository/path/to/test/material
+    obrs:
+        - group-id: my.group
+          artifact-id: my.group.ivts.obr
+          version: 1.2.3
+    testCatalog:
+        url: https://my-maven-repository/path/to/testcatalog.json
+---
+apiVersion: galasa-dev/v1alpha1
+kind: GalasaStream
+metadata:
+    name: regressiontests
+    url: https://my-galasa-service/api/streams/regressiontests
+    description: My regression test suite
+data:
+    isEnabled: true
+    repository:
+        url: https://my-maven-repository/path/to/test/material
+    obrs:
+        - group-id: my.group
+          artifact-id: my.group.regressiontests.obr
+          version: 3.2.1
+    testCatalog:
+        url: https://my-maven-repository/path/to/testcatalog.json
+```
+
+
+Alternatively, if you want to create a new YAML file, you can do so but you must use the following example format:
+
+
+```yaml
+apiVersion: galasa-dev/v1alpha1
+kind: GalasaStream
+metadata:
+    name: streamName
+    description: My test stream
+data:
+    repository:
+        url: https://my-maven-repository/path/to/test/material
+    obrs:
+        - group-id: my.group
+          artifact-id: my.group.tests.obr
+          version: 0.0.1
+    testCatalog:
+        url: https://my-maven-repository/path/to/testcatalog.json
+```
+
+where:
+- `apiVersion` is the version of the API that you are using
+- `name` is the name of the test stream that you want to create or update
+- `description` is an optional description of the test stream being created or updated
+- `repository` is an object with a `url` property that points to the maven repository where your test material is stored
+- `obrs` is a list of OBRs consisting of a `group-id`, `artifact-id`, and `version` corresponding to the OBRs where your test bundles can be found within
+- `testCatalog` is an object with a `url` property that points to the `testcatalog.json` file used to identify the tests that are available to run using this test stream
+
+You can save the file with a `.yaml` or `.yml` file extension.
+
 
 ## Creating and updating resources using a YAML file
 
