@@ -99,20 +99,25 @@ public class GalasaStreamValidator extends GalasaResourceValidator<JsonObject> {
 
     private void validateObrArray(JsonObject streamData) {
         JsonArray streamArray = streamData.get(OBRS_KEY).getAsJsonArray();
-        for (JsonElement obrElement : streamArray) {
-            if (obrElement.isJsonObject()) {
-                JsonObject obrJsonObj = obrElement.getAsJsonObject();
-                List<String> missingFields = getMissingResourceFields(obrJsonObj, REQUIRED_STREAM_OBR_FIELDS);
-
-                if (!missingFields.isEmpty()) {
-                    ServletError error = new ServletError(GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS, OBRS_KEY, String.join(", ", missingFields));
+        if (streamArray.isEmpty()) {
+            ServletError error = new ServletError(GAL5437_INVALID_STREAM_MISSING_OBRS);
+            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+        } else {
+            for (JsonElement obrElement : streamArray) {
+                if (obrElement.isJsonObject()) {
+                    JsonObject obrJsonObj = obrElement.getAsJsonObject();
+                    List<String> missingFields = getMissingResourceFields(obrJsonObj, REQUIRED_STREAM_OBR_FIELDS);
+    
+                    if (!missingFields.isEmpty()) {
+                        ServletError error = new ServletError(GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS, OBRS_KEY, String.join(", ", missingFields));
+                        validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+                        break;
+                    }
+                } else {
+                    ServletError error = new ServletError(GAL5435_INVALID_GALASA_STREAM_OBR_DEFINITION);
                     validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
                     break;
                 }
-            } else {
-                ServletError error = new ServletError(GAL5435_INVALID_GALASA_STREAM_OBR_DEFINITION);
-                validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
-                break;
             }
         }
     }

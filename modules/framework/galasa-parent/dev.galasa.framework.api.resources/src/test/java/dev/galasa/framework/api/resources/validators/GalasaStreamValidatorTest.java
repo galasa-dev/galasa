@@ -194,6 +194,46 @@ public class GalasaStreamValidatorTest {
     }
 
     @Test
+    public void testApplyStreamWithEmptyObrsListHasValidationErrors() throws Exception {
+        // Given...
+        ResourceAction action = ResourceAction.APPLY;
+        GalasaStreamValidator validator = new GalasaStreamValidator(action);
+
+        JsonObject streamJson = new JsonObject();
+        streamJson.addProperty("apiVersion", GalasaStreamValidator.DEFAULT_API_VERSION);
+        streamJson.addProperty("kind", GalasaResourceType.GALASA_STREAM.toString());
+
+        JsonObject streamMetadata = new JsonObject();
+        streamMetadata.addProperty("name", "myStream");
+        streamMetadata.addProperty("description", "this is a stream description");
+
+        JsonObject streamData = new JsonObject();
+
+        JsonObject streamMavenRepo = new JsonObject();
+        streamMavenRepo.addProperty("url", "https://my-maven-repo");
+
+        JsonObject streamTestCatalog = new JsonObject();
+        streamTestCatalog.addProperty("url", "https://my-testcatalog/testcatalog.json");
+
+        JsonArray obrJsonArr = new JsonArray();
+
+        streamData.add("obrs", obrJsonArr);
+        streamData.add("repository", streamMavenRepo);
+        streamData.add("testCatalog", streamTestCatalog);
+
+        streamJson.add("metadata", streamMetadata);
+        streamJson.add("data", streamData);
+
+        // When...
+        validator.validate(streamJson);
+
+        // Then...
+        List<String> validationErrors = validator.getValidationErrors();
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.get(0)).contains("Invalid GalasaStream provided", "no OBRs were provided");
+    }
+
+    @Test
     public void testApplyStreamWithNoMavenAndTestCatalogURLsHasValidationErrors() throws Exception {
         // Given...
         ResourceAction action = ResourceAction.APPLY;

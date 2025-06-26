@@ -185,6 +185,7 @@ public enum ServletErrorMessage {
     GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS      (5434, "E: Invalid GalasaStream provided. One or more of the following mandatory fields are missing from the ''{0}'' field: [{1}]. Check that your request payload is correct and try again."),
     GAL5435_INVALID_GALASA_STREAM_OBR_DEFINITION      (5435, "E: Invalid GalasaStream provided. One or more of the provided OBRs is not in the correct format. Check that your request payload is correct and try again."),
     GAL5436_INVALID_STREAM_URL_PROVIDED               (5436, "E: Invalid GalasaStream provided. The URL provided for the ''{0}'' field is not a valid URL. Check that your request payload is correct and try again."),
+    GAL5437_INVALID_STREAM_MISSING_OBRS               (5437, "E: Invalid GalasaStream provided. Expecting at least one OBR in the ''obrs'' field but no OBRs were provided. Check that your request payload is correct and try again."),
 
     // Monitors APIs...
     GAL5421_ERROR_GETTING_MONITOR_DEPLOYMENTS         (5421, "E: Error occurred when getting the Galasa monitor deployments from Kubernetes. Report the problem to your Galasa systems administrator."),
@@ -200,7 +201,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5437;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5438;
 
 
     private String template ;
