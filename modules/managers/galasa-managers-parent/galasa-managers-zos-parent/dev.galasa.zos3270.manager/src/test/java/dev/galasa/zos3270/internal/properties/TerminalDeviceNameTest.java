@@ -46,7 +46,7 @@ public class TerminalDeviceNameTest {
     }
 
     @Test
-    public void testGetDeviceNameEmptyThrowsError() throws Exception {
+    public void testGetDeviceNameEmptyDoesNotThrowError() throws Exception {
         // Given...
         String imageId = "MYZOSIMAGE";
         String deviceNameInCps = "    ";
@@ -64,13 +64,31 @@ public class TerminalDeviceNameTest {
         Zos3270PropertiesSingleton.setCps(mockCps);
 
         // When...
-        Zos3270ManagerException thrown = catchThrowableOfType(() -> {
-            TerminalDeviceName.get(zosImage);
-        }, Zos3270ManagerException.class);
+        String deviceNameGotBack = TerminalDeviceName.get(zosImage);
 
         // Then...
-        assertThat(thrown).isNotNull();
-        assertThat(thrown).hasMessageContaining("Empty or invalid device name provided");
+        assertThat(deviceNameGotBack).isNull();
+    }
+
+    @Test
+    public void testGetDeviceNameNotSetDoesNotThrowError() throws Exception {
+        // Given...
+        String imageId = "MYZOSIMAGE";
+
+        IZosImage zosImage = new MockZosImage(imageId);
+
+        Map<String, String> cpsProps = new HashMap<>();
+
+        IConfigurationPropertyStoreService mockCps = new MockConfigurationPropertyStoreService(cpsProps);
+        Zos3270PropertiesSingleton singletonInstance = new Zos3270PropertiesSingleton();
+        singletonInstance.activate();
+        Zos3270PropertiesSingleton.setCps(mockCps);
+
+        // When...
+        String deviceNameGotBack = TerminalDeviceName.get(zosImage);
+
+        // Then...
+        assertThat(deviceNameGotBack).isNull();
     }
 
     @Test
@@ -98,7 +116,7 @@ public class TerminalDeviceNameTest {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown).hasMessageContaining("Empty or invalid device name provided");
+        assertThat(thrown).hasMessageContaining("Invalid device name provided");
     }
 
     @Test
@@ -131,7 +149,7 @@ public class TerminalDeviceNameTest {
 
         // Then...
         assertThat(thrown).isNotNull();
-        assertThat(thrown).hasMessageContaining("Empty or invalid device name provided");
+        assertThat(thrown).hasMessageContaining("Invalid device name provided");
     }
 
     @Test

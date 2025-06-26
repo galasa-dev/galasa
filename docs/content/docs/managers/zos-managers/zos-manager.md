@@ -213,6 +213,42 @@ The following properties are used to configure the z/OS Manager.
 | Examples: | `zos.image.SYSA.iphostid=sysa.example.com`<br> |
 
 
+### Telnet port number of the z/OS Image
+
+| Property: | Telnet port number of the zOS Image |
+| --------------------------------------- | :------------------------------------- |
+| Name: | zos.image.[imageId].telnet.port |
+| Description: | The port number for telnet 3270 access to the z/OS Image for the supplied tag. |
+| Required:  | No |
+| Default value: | 23 |
+| Valid values: | A valid TCP/IP port number |
+| Examples: | `zos.image.SYSA.telnet.port=992`<br> |
+
+
+### TLS for telnet on the z/OS Image
+
+| Property: | TLS for telnet on the zOS Image |
+| --------------------------------------- | :------------------------------------- |
+| Name: | zos.image.[imageId].telnet.tls |
+| Description: | Set this to true if Transport Layer Security (TLS) is used on the telnet 3270 port of the z/OS Image for the supplied tag. |
+| Required:  | No |
+| Default value: | false |
+| Valid values: | `true` or `false` |
+| Examples: | `zos.image.SYSA.telnet.tls=true`<br> |
+
+
+### Server certificate verification for telnet on the z/OS Image
+
+| Property: | Server certificate verification for telnet on the zOS Image |
+| --------------------------------------- | :------------------------------------- |
+| Name: | zos.image.[imageId].telnet.verify |
+| Description: | Set this to true to request verification of the certificate provided by the z/OS Image for the supplied tag when connecting to the telnet 3270 port.<br> This property is ignored if Transport Layer Security (TLS) is not in use.<br> By default, the trust store containing certificate authorities used for verification is `$JAVA_HOME/lib/security/cacerts`. To use a different trust store, you can specify a different path on a `-Djavax.net.ssl.trustStore` option for the `galasactl.jvm.local.launch.options` property in bootstrap.properties. |
+| Required:  | No |
+| Default value: | false |
+| Valid values: | `true` or `false` |
+| Examples: | `zos.image.SYSA.telnet.verify=true`<br> |
+
+
 ### The z/OS Image
 
 | Property: | The zOS Image |

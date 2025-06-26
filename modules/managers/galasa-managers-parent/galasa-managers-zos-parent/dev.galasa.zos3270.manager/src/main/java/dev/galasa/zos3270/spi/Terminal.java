@@ -73,15 +73,15 @@ public class Terminal implements ITerminal {
      */
     @Deprecated(since = "0.28.0", forRemoval = true)
     public Terminal(String id, String host, int port, boolean ssl, int primaryColumns, int primaryRows, int alternateColumns, int alternateRows, ITextScannerManagerSpi textScan) throws TerminalInterruptedException {
-        network = new Network(host, port, ssl, id);
+        network = new Network(host, port, ssl, false, id);
         screen = new Screen(primaryColumns, primaryRows, alternateColumns, alternateRows, this.network);
         this.id = id;
         this.textScan = textScan;
     }
 
 
-    public Terminal(String id, String host, int port, boolean ssl, TerminalSize primarySize, TerminalSize alternateSize, ITextScannerManagerSpi textScan, Charset codePage) throws TerminalInterruptedException {
-        network = new Network(host, port, ssl, id);
+    public Terminal(String id, String host, int port, boolean ssl, boolean verifyServer, TerminalSize primarySize, TerminalSize alternateSize, ITextScannerManagerSpi textScan, Charset codePage) throws TerminalInterruptedException {
+        network = new Network(host, port, ssl, verifyServer, id);
         screen = new Screen(primarySize, alternateSize, this.network, codePage);
         this.id = id;
         this.textScan = textScan;

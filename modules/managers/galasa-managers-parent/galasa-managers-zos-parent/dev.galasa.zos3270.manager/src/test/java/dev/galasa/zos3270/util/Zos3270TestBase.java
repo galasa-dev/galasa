@@ -41,7 +41,7 @@ public class Zos3270TestBase {
 				return logScanner;
 			}
 		};
-		return new Terminal("test", "", 0, false, terminalSize, alternateTerminalSize, mockTextScannerManager, ebcdic);
+		return new Terminal("test", "", 0, false, false, terminalSize, alternateTerminalSize, mockTextScannerManager, ebcdic);
 	}
 
     protected Screen CreateTestScreen() throws TerminalInterruptedException {

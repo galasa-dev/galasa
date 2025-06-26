@@ -11,7 +11,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -19,6 +22,7 @@ import java.time.temporal.ChronoUnit;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import dev.galasa.common.SSLTLSContextNameSelector;
@@ -35,6 +39,7 @@ public class Network {
     private final String        host;
     private final int           port;
     private final boolean       ssl;
+    private final boolean       verifyServer;
     private final String        terminalId;
     private boolean             switchedSSL     = false;
     private boolean             doStartTls      = true;    
@@ -53,14 +58,15 @@ public class Network {
     private SSLTLSContextNameSelector nameSelector = new SSLTLSContextNameSelector();
 
     public Network(String host, int port, String terminalId) {
-        this(host, port, false, terminalId);
+        this(host, port, false, false, terminalId);
     }
 
-    public Network(String host, int port, boolean ssl, String terminalId) {
-        this.host       = host;
-        this.port       = port;
-        this.ssl        = ssl;
-        this.terminalId = terminalId;
+    public Network(String host, int port, boolean ssl, boolean verifyServer, String terminalId) {
+        this.host         = host;
+        this.port         = port;
+        this.ssl          = ssl;
+        this.verifyServer = verifyServer;
+        this.terminalId   = terminalId;
     }
 
     public boolean connectClient() throws NetworkException {
@@ -118,7 +124,7 @@ public class Network {
         return (this.socket != null);
     }
 
-    public Socket createSocket() throws IOException, NoSuchAlgorithmException, KeyManagementException {
+    public Socket createSocket() throws IOException, NoSuchAlgorithmException, KeyManagementException, KeyStoreException, NoSuchProviderException {
         logger.trace("createSocket() entered");
         Socket newSocket = null;
         if (!ssl) {
@@ -129,7 +135,15 @@ public class Network {
             logger.trace("Initializing SSL context: " + String.valueOf(contextName));
 
             SSLContext sslContext = SSLContext.getInstance(contextName);
-            sslContext.init(null, new TrustManager[] { new TrustAllCerts() }, new java.security.SecureRandom());
+            TrustManager[] trustManagers;
+            if (verifyServer) {
+                TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                factory.init((KeyStore) null);
+                trustManagers = factory.getTrustManagers();
+            } else {
+                trustManagers = new TrustManager[] { new TrustAllCerts() };
+            }
+            sslContext.init(null, trustManagers, new java.security.SecureRandom());
 
             logger.trace("Initialized SSL context OK");
 
