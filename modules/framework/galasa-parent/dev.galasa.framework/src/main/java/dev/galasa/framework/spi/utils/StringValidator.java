@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.internal.streams;
+package dev.galasa.framework.spi.utils;
 
 public class StringValidator {
 

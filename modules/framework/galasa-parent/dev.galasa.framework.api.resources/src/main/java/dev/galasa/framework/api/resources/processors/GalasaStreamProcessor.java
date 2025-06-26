@@ -6,9 +6,7 @@
 package dev.galasa.framework.api.resources.processors;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
-import static dev.galasa.framework.api.common.resources.ResourceAction.CREATE;
-import static dev.galasa.framework.api.common.resources.ResourceAction.DELETE;
-import static dev.galasa.framework.api.common.resources.ResourceAction.UPDATE;
+import static dev.galasa.framework.api.common.resources.ResourceAction.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +27,11 @@ import dev.galasa.framework.api.common.RBACValidator;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.ResourceAction;
 import dev.galasa.framework.api.resources.validators.GalasaStreamValidator;
-import dev.galasa.framework.internal.streams.OBR;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.streams.IOBR;
 import dev.galasa.framework.spi.streams.IStream;
 import dev.galasa.framework.spi.streams.IStreamsService;
+import dev.galasa.framework.spi.streams.OBR;
 import dev.galasa.framework.spi.streams.StreamsException;
 
 public class GalasaStreamProcessor extends AbstractGalasaResourceProcessor implements IGalasaResourceProcessor {
@@ -119,15 +117,17 @@ public class GalasaStreamProcessor extends AbstractGalasaResourceProcessor imple
     }
 
     private IStream transformGalasaStreamToStream(Stream galasaStream) throws StreamsException {
-        dev.galasa.framework.internal.streams.Stream stream = new dev.galasa.framework.internal.streams.Stream();
+        dev.galasa.framework.spi.streams.Stream stream = new dev.galasa.framework.spi.streams.Stream();
         StreamMetadata metadata = galasaStream.getmetadata();
         StreamData data = galasaStream.getdata();
+
         stream.setName(metadata.getname());
         stream.setDescription(metadata.getdescription());
         stream.setTestCatalogUrl(data.getTestCatalog().geturl());
         stream.setMavenRepositoryUrl(data.getrepository().geturl());
         stream.setIsEnabled(data.getIsEnabled());
         stream.setObrs(transformGalasaStreamOBRsToOBRs(data.getobrs()));
+
         return stream;
     }
 

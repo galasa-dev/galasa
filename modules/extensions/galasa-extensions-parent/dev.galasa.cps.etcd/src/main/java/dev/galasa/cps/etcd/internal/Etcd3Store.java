@@ -9,6 +9,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +22,13 @@ import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
+import io.etcd.jetcd.Txn;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.kv.TxnResponse;
+import io.etcd.jetcd.op.Op;
 import io.etcd.jetcd.options.DeleteOption;
 import io.etcd.jetcd.options.GetOption;
+import io.etcd.jetcd.options.PutOption;
 
 /**
  * Abstract class containing common methods used to interact with etcd, like getting, setting,
@@ -82,6 +87,24 @@ public abstract class Etcd3Store {
         ByteSequence bytesKey = ByteSequence.from(key, UTF_8);
         ByteSequence bytesValue = ByteSequence.from(value, UTF_8);
         kvClient.put(bytesKey, bytesValue).get();
+    }
+
+    protected void putAll(Map<String, String> propertiesToSet) throws InterruptedException, ExecutionException {
+        Txn putTransaction = kvClient.txn();
+        PutOption options = PutOption.DEFAULT;
+
+        // Build up a list of put operations
+        List<Op> operations = new ArrayList<>();
+        for (String key : propertiesToSet.keySet()) {
+            ByteSequence byteSeqKey = ByteSequence.from(key, UTF_8);
+            ByteSequence byteSeqValue = ByteSequence.from(propertiesToSet.get(key), UTF_8);
+            operations.add(Op.put(byteSeqKey, byteSeqValue, options));
+        }
+
+        // Run the transaction
+        Txn request = putTransaction.Then(operations.toArray(new Op[operations.size()]));
+        CompletableFuture<TxnResponse> response = request.commit();
+        response.get();
     }
 
     protected void delete(@NotNull String key) throws InterruptedException, ExecutionException {

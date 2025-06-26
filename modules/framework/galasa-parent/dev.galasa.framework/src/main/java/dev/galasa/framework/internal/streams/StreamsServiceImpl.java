@@ -14,6 +14,7 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.streams.IStream;
 import dev.galasa.framework.spi.streams.IStreamsService;
+import dev.galasa.framework.spi.streams.Stream;
 import dev.galasa.framework.spi.streams.StreamsException;
 
 public class StreamsServiceImpl implements IStreamsService {

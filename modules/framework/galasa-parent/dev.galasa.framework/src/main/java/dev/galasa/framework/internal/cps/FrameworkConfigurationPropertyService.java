@@ -312,7 +312,13 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
 
     @Override
     public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
-        this.cpsStore.setProperties(propertiesToSet);
+        // Prefix all the keys in the properties with this CPS service's namespace
+        Map<String, String> propertiesWithNamespacePrefix = new HashMap<>();
+        for (Entry<String, String> entry : propertiesToSet.entrySet()) {
+            propertiesWithNamespacePrefix.put(namespace + "." + entry.getKey(), entry.getValue());
+        }
+
+        this.cpsStore.setProperties(propertiesWithNamespacePrefix);
     }       
 
 }

@@ -69,6 +69,48 @@ public class GalasaStreamValidatorTest {
     }
 
     @Test
+    public void testApplyStreamWithInvalidMavenRepoAndTestCatalogUrlsHasValidationErrors() throws Exception {
+        // Given...
+        ResourceAction action = ResourceAction.APPLY;
+        GalasaStreamValidator validator = new GalasaStreamValidator(action);
+
+        JsonObject streamJson = new JsonObject();
+        streamJson.addProperty("apiVersion", GalasaStreamValidator.DEFAULT_API_VERSION);
+        streamJson.addProperty("kind", GalasaResourceType.GALASA_STREAM.toString());
+
+        JsonObject streamMetadata = new JsonObject();
+        streamMetadata.addProperty("name", "myStream");
+        streamMetadata.addProperty("description", "this is a stream description");
+
+        JsonObject streamData = new JsonObject();
+
+        JsonObject streamMavenRepo = new JsonObject();
+        streamMavenRepo.addProperty("url", "not-a-url!");
+
+        JsonObject streamTestCatalog = new JsonObject();
+        streamTestCatalog.addProperty("url", "a bad testcatalog URL!");
+
+        JsonArray obrJsonArr = new JsonArray();
+        addObrJson(obrJsonArr, "mygroup", "mygroup.myartifact", "my-version");
+
+        streamData.add("repository", streamMavenRepo);
+        streamData.add("testCatalog", streamTestCatalog);
+        streamData.add("obrs", obrJsonArr);
+
+        streamJson.add("metadata", streamMetadata);
+        streamJson.add("data", streamData);
+
+        // When...
+        validator.validate(streamJson);
+
+        // Then...
+        List<String> validationErrors = validator.getValidationErrors();
+        assertThat(validationErrors).hasSize(2);
+        assertThat(validationErrors.get(0)).contains("The URL provided for the 'repository' field is not a valid URL");
+        assertThat(validationErrors.get(1)).contains("The URL provided for the 'testCatalog' field is not a valid URL");
+    }
+
+    @Test
     public void testApplyStreamWithInvalidObrHasValidationErrors() throws Exception {
         // Given...
         ResourceAction action = ResourceAction.APPLY;

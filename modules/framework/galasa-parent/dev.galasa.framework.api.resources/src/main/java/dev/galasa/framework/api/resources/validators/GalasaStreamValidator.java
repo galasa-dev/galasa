@@ -14,6 +14,9 @@ import com.google.gson.JsonObject;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static dev.galasa.framework.api.common.resources.ResourceAction.*;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 import dev.galasa.framework.api.common.InternalServletException;
@@ -23,11 +26,11 @@ import dev.galasa.framework.api.common.resources.ResourceAction;
 
 public class GalasaStreamValidator extends GalasaResourceValidator<JsonObject> {
 
-    private static final List<String> REQUIRED_STREAM_DATA_FIELDS = List.of(
-        "repository",
-        "obrs",
-        "testCatalog"
-    );
+    private static final String MAVEN_REPOSITORY_KEY = "repository";
+    private static final String TESTCATALOG_KEY = "testCatalog";
+    private static final String OBRS_KEY = "obrs";
+
+    private static final List<String> REQUIRED_STREAM_DATA_FIELDS = List.of(MAVEN_REPOSITORY_KEY, OBRS_KEY, TESTCATALOG_KEY);
 
     private static final List<String> REQUIRED_STREAM_MAVEN_REPO_FIELDS = List.of("url");
     private static final List<String> REQUIRED_STREAM_TESTCATALOG_FIELDS = List.of("url");
@@ -55,9 +58,33 @@ public class GalasaStreamValidator extends GalasaResourceValidator<JsonObject> {
 
         if (validationErrors.isEmpty()) {
             JsonObject dataJson = streamJson.get("data").getAsJsonObject();
-            validateStreamField("repository", dataJson, REQUIRED_STREAM_MAVEN_REPO_FIELDS);
-            validateStreamField("testCatalog", dataJson, REQUIRED_STREAM_TESTCATALOG_FIELDS);
+            validateMavenRepoAndTestCatalog(dataJson);
             validateObrArray(dataJson);
+        }
+    }
+
+    private void validateMavenRepoAndTestCatalog(JsonObject dataJson) {
+        validateStreamField(MAVEN_REPOSITORY_KEY, dataJson, REQUIRED_STREAM_MAVEN_REPO_FIELDS);
+        validateStreamField(TESTCATALOG_KEY, dataJson, REQUIRED_STREAM_TESTCATALOG_FIELDS);
+
+        if (validationErrors.isEmpty()) {
+            // Check that the URLs for the stream's maven repo and testcatalog are valid
+            String mavenRepoUrl = dataJson.get(MAVEN_REPOSITORY_KEY).getAsJsonObject().get("url").getAsString();
+            validateStreamUrl(MAVEN_REPOSITORY_KEY, mavenRepoUrl);
+   
+            String testCatalogUrl = dataJson.get(TESTCATALOG_KEY).getAsJsonObject().get("url").getAsString();
+            validateStreamUrl(TESTCATALOG_KEY, testCatalogUrl);
+        }
+    }
+
+    private void validateStreamUrl(String fieldName, String urlToCheck) {
+        try {
+            if (urlToCheck != null) {
+                new URL(urlToCheck).toURI();
+            }
+        } catch (MalformedURLException | URISyntaxException e) {
+            ServletError error = new ServletError(GAL5436_INVALID_STREAM_URL_PROVIDED, fieldName);
+            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
         }
     }
 
@@ -71,14 +98,14 @@ public class GalasaStreamValidator extends GalasaResourceValidator<JsonObject> {
     }
 
     private void validateObrArray(JsonObject streamData) {
-        JsonArray streamArray = streamData.get("obrs").getAsJsonArray();
+        JsonArray streamArray = streamData.get(OBRS_KEY).getAsJsonArray();
         for (JsonElement obrElement : streamArray) {
             if (obrElement.isJsonObject()) {
                 JsonObject obrJsonObj = obrElement.getAsJsonObject();
                 List<String> missingFields = getMissingResourceFields(obrJsonObj, REQUIRED_STREAM_OBR_FIELDS);
 
                 if (!missingFields.isEmpty()) {
-                    ServletError error = new ServletError(GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS, "obrs", String.join(", ", missingFields));
+                    ServletError error = new ServletError(GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS, OBRS_KEY, String.join(", ", missingFields));
                     validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
                     break;
                 }
