@@ -51,6 +51,7 @@ data:
 ```
 
 where:
+
 - `apiVersion` is the version of the API that you are using
 - `name` is the name of the property that you want to create or update
 - `namespace` is the namespace in which the property is contained in the configuration properties store (cps.properties). 
@@ -124,6 +125,7 @@ data:
 ```
 
 where:
+
 - `apiVersion` is the version of the API that you are using
 - `name` is the name of the secret that you want to create or update
 - `type` is the type of secret that you want to create or update. Supported values are: `Username`, `UsernamePassword`, `UsernameToken`, and `Token`
@@ -181,7 +183,7 @@ data:
 ```
 
 
-Alternatively, if you want to create a new YAML file, you can do so but you must use the following example format:
+Alternatively, if you want to create a new YAML file, you can do so using the following example format:
 
 
 ```yaml
@@ -202,6 +204,7 @@ data:
 ```
 
 where:
+
 - `apiVersion` is the version of the API that you are using
 - `name` is the name of the test stream that you want to create or update
 - `description` is an optional description of the test stream being created or updated
