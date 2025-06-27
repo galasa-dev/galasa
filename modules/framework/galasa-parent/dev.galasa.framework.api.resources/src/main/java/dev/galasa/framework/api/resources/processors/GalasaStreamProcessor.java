@@ -63,10 +63,10 @@ public class GalasaStreamProcessor extends AbstractGalasaResourceProcessor imple
                     IStream existingStream = streamsService.getStreamByName(streamName);
                     if (action == CREATE && existingStream != null) {
                         ServletError error = new ServletError(GAL5429_ERROR_STREAM_ALREADY_EXISTS);
-                        throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+                        throw new InternalServletException(error, HttpServletResponse.SC_CONFLICT);
                     } else if (action == UPDATE && existingStream == null) {
                         ServletError error = new ServletError(GAL5432_ERROR_STREAM_DOES_NOT_EXIST);
-                        throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+                        throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
                     }
 
                     setStream(galasaStream);
