@@ -71,4 +71,8 @@ public class MockConfigurationPropertyStoreService implements IConfigurationProp
         throw new UnsupportedOperationException("Unimplemented method 'deletePrefixedProperties'");
     }
 
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'setProperties'");
+    }
 }

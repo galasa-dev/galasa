@@ -115,4 +115,9 @@ public class MockCPSStore implements IConfigurationPropertyStore, IConfiguration
         throw new UnsupportedOperationException("Unimplemented method 'deletePrefixedProperties'");
     }
 
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'setProperties'");
+    }
+
 }

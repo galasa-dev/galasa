@@ -139,5 +139,10 @@ public class MockCPS implements IConfigurationPropertyStore {
         }
         
     }
+
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'setProperties'");
+    }
     
 }

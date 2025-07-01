@@ -123,6 +123,15 @@ public interface IConfigurationPropertyStoreService {
     void setProperty(@NotNull String name, @NotNull String value) throws ConfigurationPropertyStoreException;
     
     /**
+     * Sets a collection of given properties into the Configuration Property Store within the namespace
+     * for this object.
+     * 
+     * @param propertiesToSet The collection of key-value pairs to set into this CPS' namespace
+     * @throws ConfigurationPropertyStoreException if there was an issue accessing the CPS.
+     */
+    void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException;
+    
+    /**
      *
      * Removes a string property from the Configuration Property Store within the
      * namespace for this object.

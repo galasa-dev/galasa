@@ -103,4 +103,9 @@ public class InMemoryCps implements IConfigurationPropertyStore {
         
     }
 
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        this.properties.putAll(propertiesToSet);
+    }
+
 }

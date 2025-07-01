@@ -8,11 +8,14 @@ package dev.galasa.framework.internal.streams;
 import static org.assertj.core.api.Assertions.*;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
 import dev.galasa.framework.mocks.MockIConfigurationPropertyStoreService;
+import dev.galasa.framework.mocks.MockOBR;
+import dev.galasa.framework.mocks.MockStream;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.streams.IOBR;
 import dev.galasa.framework.spi.streams.IStream;
@@ -615,8 +618,39 @@ public class TestStreamServiceImpl {
         assertThat(stream).isNotNull();
         assertThat(stream.getName()).isEqualTo(streamName2);
         assertThat(stream.getDescription()).isEqualTo(streamDescription2);
-        
+    }
 
+    @Test
+    public void testSetStreamSetsPropertiesIntoCps() throws Exception {
+        // Given...
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+
+        String streamName = "stream1";
+        String streamDescription = "this is the first test stream!";
+        String streamMavenRepo = "https://my.company/maven/repository";
+        String streamTestCatalog = "https://my.company/maven/repository/testcatalog.json";
+
+        List<IOBR> obrs = new ArrayList<>();
+        MockOBR obr = new MockOBR("my.company", "my.company.obr", "0.0.1");
+        obrs.add(obr);
+
+        MockStream stream = new MockStream();
+        stream.setName(streamName);
+        stream.setDescription(streamDescription);
+        stream.setObrs(obrs);
+        stream.setMavenRepositoryUrl(streamMavenRepo);
+        stream.setTestCatalogUrl(streamTestCatalog);
+
+        StreamsServiceImpl streamsService = new StreamsServiceImpl(mockCps);
+
+        // When...
+        streamsService.setStream(stream);
+
+        // Then...
+        String streamPropertyPrefix = "test.stream." + streamName;
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "description")).isEqualTo(streamDescription);
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "repo")).isEqualTo(streamMavenRepo);
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "location")).isEqualTo(streamTestCatalog);
     }
 
 }

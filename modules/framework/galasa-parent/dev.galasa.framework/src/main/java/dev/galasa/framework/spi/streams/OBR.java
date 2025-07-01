@@ -3,10 +3,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.internal.streams;
+package dev.galasa.framework.spi.streams;
 
-import dev.galasa.framework.spi.streams.IOBR;
-import dev.galasa.framework.spi.streams.StreamsException;
+import dev.galasa.framework.spi.utils.StringValidator;
 
 public class OBR implements IOBR {
 
@@ -17,6 +16,10 @@ public class OBR implements IOBR {
     private String groupId;
     private String artifactId;
     private String version;
+
+    public OBR(String groupId, String artifactId, String version) throws StreamsException {
+        this(MAVEN_PREFIX + groupId + "/" + artifactId + "/" + version + "/obr");
+    }
 
     public OBR(String obrString) throws StreamsException {
         String formattedObrString = obrString.trim();

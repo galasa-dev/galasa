@@ -21,7 +21,6 @@ import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.resources.routes.ResourcesRoute;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;

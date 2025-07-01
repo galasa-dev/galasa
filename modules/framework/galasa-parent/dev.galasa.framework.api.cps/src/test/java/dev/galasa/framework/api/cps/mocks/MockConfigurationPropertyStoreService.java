@@ -59,4 +59,9 @@ public class MockConfigurationPropertyStoreService implements IConfigurationProp
     public void deletePrefixedProperties(@NotNull String prefix) throws ConfigurationPropertyStoreException {
         throw new MockMethodNotImplementedException();
     }
+
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        throw new MockMethodNotImplementedException();
+    }
 }

@@ -14,14 +14,17 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.streams.IStream;
 import dev.galasa.framework.spi.streams.IStreamsService;
+import dev.galasa.framework.spi.streams.Stream;
 import dev.galasa.framework.spi.streams.StreamsException;
 
 public class StreamsServiceImpl implements IStreamsService {
-
-    private IConfigurationPropertyStoreService cpsService;
+    
     private static final String TEST_STREAM_PREFIX = "test.stream.";
     private static final String TEST_STREAM_PREFIX_WITH_NAMESPACE = "framework.test.stream.";
 
+    private StreamPropertiesTransform streamTransform = new StreamPropertiesTransform();
+    private IConfigurationPropertyStoreService cpsService;
+    
     public StreamsServiceImpl(IConfigurationPropertyStoreService configurationPropertyStoreService) {
         this.cpsService = configurationPropertyStoreService;
     }
@@ -31,7 +34,7 @@ public class StreamsServiceImpl implements IStreamsService {
         List<IStream> streamsList = new ArrayList<>();
         try {
             // Keys are in the form: test.stream.<stream-name>.property
-            streamsList = handleStreamProperties(TEST_STREAM_PREFIX);
+            streamsList = getStreamsFromCpsProperties(TEST_STREAM_PREFIX);
 
         } catch (ConfigurationPropertyStoreException e) {
             throw new StreamsException("Failed to get streams from the CPS", e);
@@ -48,7 +51,7 @@ public class StreamsServiceImpl implements IStreamsService {
         try {
 
             String testStreamPrefix = TEST_STREAM_PREFIX + streamName + ".";
-            streams = handleStreamProperties(testStreamPrefix);
+            streams = getStreamsFromCpsProperties(testStreamPrefix);
 
             if (!streams.isEmpty()) {
                 stream = streams.get(0);
@@ -62,7 +65,7 @@ public class StreamsServiceImpl implements IStreamsService {
 
     }
 
-    private Stream createStreamFromProperties(String streamName, Map<String, String> streamProperties)
+    private IStream createStreamFromProperties(String streamName, Map<String, String> streamProperties)
             throws StreamsException {
         Stream streamBean = new Stream();
         streamBean.setName(streamName);
@@ -88,7 +91,7 @@ public class StreamsServiceImpl implements IStreamsService {
         return streamBean;
     }
 
-    private List<IStream> handleStreamProperties(String testStreamPrefix)
+    private List<IStream> getStreamsFromCpsProperties(String testStreamPrefix)
             throws ConfigurationPropertyStoreException, StreamsException {
         List<IStream> streamsList = new ArrayList<>();
 
@@ -117,7 +120,7 @@ public class StreamsServiceImpl implements IStreamsService {
         for (Map.Entry<String, Map<String, String>> streamEntry : groupedStreams.entrySet()) {
             String streamName = streamEntry.getKey();
             Map<String, String> streamProps = streamEntry.getValue();
-            Stream streamBean = createStreamFromProperties(streamName, streamProps);
+            IStream streamBean = createStreamFromProperties(streamName, streamProps);
             streamsList.add(streamBean);
         }
 
@@ -135,6 +138,17 @@ public class StreamsServiceImpl implements IStreamsService {
 
         } catch (ConfigurationPropertyStoreException e) {
             throw new StreamsException("Failed to delete properties for stream: " + streamName, e);
+        }
+    }
+
+    @Override
+    public void setStream(IStream stream) throws StreamsException {
+        Map<String, String> streamProperties = streamTransform.getStreamAsProperties(stream);
+
+        try {
+            cpsService.setProperties(streamProperties);
+        } catch (ConfigurationPropertyStoreException e) {
+            throw new StreamsException("Failed to set stream properties into the CPS", e);
         }
     }
 }

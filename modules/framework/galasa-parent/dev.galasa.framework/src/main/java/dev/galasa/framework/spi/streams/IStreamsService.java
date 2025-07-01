@@ -20,6 +20,7 @@ public interface IStreamsService {
     /**
      * Returns a test stream stored in the Configuration Property Store (CPS) with a matching name.
      *
+     * @param streamName the name of the stream to retrieve.
      * @return a stream stored in the Configuration Property Store (CPS) with a matching name.
      * @throws StreamsException if there is an issue accessing the CPS.
      */
@@ -28,8 +29,17 @@ public interface IStreamsService {
     /**
      * Deletes a test stream stored in the Configuration Property Store (CPS) with a matching name.
      *
+     * @param streamName the name of the stream to delete.
      * @throws StreamsException if there is an issue accessing the CPS.
      */
     void deleteStream(String streamName) throws StreamsException;
+
+    /**
+     * Creates or updates a test stream stored in the Configuration Property Store (CPS).
+     *
+     * @param stream the stream to set into the CPS.
+     * @throws StreamsException if there is an issue accessing the CPS.
+     */
+    void setStream(IStream stream) throws StreamsException;
     
 }

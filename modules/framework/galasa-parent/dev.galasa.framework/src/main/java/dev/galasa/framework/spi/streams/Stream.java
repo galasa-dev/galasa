@@ -3,16 +3,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.internal.streams;
+package dev.galasa.framework.spi.streams;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.galasa.framework.spi.streams.IOBR;
-import dev.galasa.framework.spi.streams.IStream;
-import dev.galasa.framework.spi.streams.StreamsException;
+import dev.galasa.framework.spi.utils.StringValidator;
 
 public class Stream implements IStream {
 
@@ -69,7 +67,7 @@ public class Stream implements IStream {
 
     public void setTestCatalogUrl(String testCatalogUrl) throws StreamsException {
         try {
-            if(testCatalogUrl != null) {
+            if (testCatalogUrl != null) {
                 this.testCatalogUrl = new URL(testCatalogUrl);
             }
         } catch (MalformedURLException e) {
@@ -89,6 +87,10 @@ public class Stream implements IStream {
     @Override
     public List<IOBR> getObrs() {
         return this.obrs;
+    }
+
+    public void setObrs(List<IOBR> obrs) throws StreamsException {
+        this.obrs = obrs;
     }
 
     public void setObrsFromCommaSeparatedList(String commaSeparatedObrs) throws StreamsException {

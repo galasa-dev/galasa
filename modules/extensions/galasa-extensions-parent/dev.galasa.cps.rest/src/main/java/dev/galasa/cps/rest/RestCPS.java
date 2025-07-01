@@ -538,4 +538,10 @@ public class RestCPS implements IConfigurationPropertyStore {
             throw new ConfigurationPropertyStoreException(msg,ioEx);
         }
     }
+
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        String msg = ERROR_GALASA_CPS_SET_OPERATIONS_NOT_PERMITTED.getMessage();
+        throw new ConfigurationPropertyStoreException(msg);
+    }
 }
