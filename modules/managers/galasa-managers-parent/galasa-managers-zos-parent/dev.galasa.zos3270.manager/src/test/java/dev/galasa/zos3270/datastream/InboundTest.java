@@ -163,7 +163,6 @@ public class InboundTest {
         // When...
         networkThread.processMessage(inputStream);
         String screenStr = screen.printScreenTextWithCursor();
-        System.out.println(screenStr);
 
         // Then...
         assertThat(screenStr).contains("condition=");
