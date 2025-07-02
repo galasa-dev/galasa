@@ -94,7 +94,7 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
 
     private LogFactory                         logFactory;
 
-    private String                             runLogContent;
+    private int                                runLogLineCount;
 
     public CouchdbRasStore(IFramework framework, URI rasUri) throws CouchdbException, CouchdbRasException {
         this(
@@ -172,10 +172,7 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
             }
         }
 
-        // Get log so far
-        // 1. Count lines in CouchDB
-        // 2. Count lines in cache
-        int linesInCache = logCache.size();
+        updateRunLogLineCountSoFar(lines.length);
 
     }
 
@@ -226,9 +223,18 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
         }
     }
 
-    @Override
-    public String retrieveLog() {
-        return this.runLogContent;
+    /**
+     * Update the run log line count so far into class variable.
+     * Then it can be retrieved through the Framework from the RAS so
+     * methods in a test class can state their start and end line.
+     * @param newLineCount
+     */
+    private void updateRunLogLineCountSoFar(int newLineCount) {
+        this.runLogLineCount += newLineCount;
+    }
+
+    public int retrieveRunLogLineCount() {
+        return this.runLogLineCount;
     }
 
     @Override

@@ -38,12 +38,20 @@ public class MockRASStoreService implements IResultArchiveStoreService{
 
     @Override
     public void writeLog(@NotNull String message) throws ResultArchiveStoreException {
+        if (!message.isEmpty() && !message.endsWith("\n")) {
+            message = message + "\n";
+        }
         this.log += message;
     }
 
     @Override
-    public String retrieveLog() {
-        return this.log;
+    public int retrieveRunLogLineCount() {
+        int runLogLineCount = 0;
+        if (!this.log.isEmpty()) {
+            String lines[] = this.log.split("\r\n?|\n");
+            runLogLineCount = lines.length;
+        }
+        return runLogLineCount;
     }
 
     // un-implemented methods are below.
@@ -84,5 +92,4 @@ public class MockRASStoreService implements IResultArchiveStoreService{
         throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
     }
 
-    
 }

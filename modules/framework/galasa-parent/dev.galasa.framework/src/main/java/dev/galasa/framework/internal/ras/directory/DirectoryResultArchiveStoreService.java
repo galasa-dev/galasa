@@ -54,7 +54,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 
     private DirectoryRASFileSystemProvider provider;
 
-    private String                         runLogContent;
+    private int                            runLogLineCount;
 
     public DirectoryResultArchiveStoreService(IFramework framework, URI rasUri) throws ResultArchiveStoreException {
         this.framework = framework;
@@ -147,6 +147,8 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
             message = message + "\n";
         }
 
+        String[] lines = message.split("\r\n?|\n");
+
         //If the framework is shutting down we will have lost the CTS - by which point 
         //there should be no confidential text to obscure anyway
         if(framework.getConfidentialTextService() != null)
@@ -158,7 +160,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
             throw new ResultArchiveStoreException("Unable to write message to run log", e);
         }
 
-        updateRunLogSoFar();
+        updateRunLogLineCountSoFar(lines.length);
 
     }
 
@@ -180,16 +182,13 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     }
 
     /**
-     * Update the run log so far into a global variable of this class.
+     * Update the run log line count so far into class variable.
      * Then it can be retrieved through the Framework from the RAS so
-     * methods in a test class can calculate their start and end line.
+     * methods in a test class can state their start and end line.
+     * @param newLineCount
      */
-    private void updateRunLogSoFar() throws ResultArchiveStoreException {
-        try {
-            this.runLogContent = Files.readString(this.runLog);
-        } catch (final Exception e) {
-            throw new ResultArchiveStoreException("Unable to read the run log", e);
-        }
+    private void updateRunLogLineCountSoFar(int newLineCount) {
+        this.runLogLineCount += newLineCount;
     }
 
     /*
@@ -259,8 +258,8 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     }
 
     @Override
-    public String retrieveLog() {
-        return this.runLogContent;
+    public int retrieveRunLogLineCount() {
+        return this.runLogLineCount;
     }
 
 
