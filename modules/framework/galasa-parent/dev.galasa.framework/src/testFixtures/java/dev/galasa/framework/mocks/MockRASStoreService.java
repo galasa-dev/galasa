@@ -45,8 +45,8 @@ public class MockRASStoreService implements IResultArchiveStoreService{
     }
 
     @Override
-    public int retrieveRunLogLineCount() {
-        int runLogLineCount = 0;
+    public long retrieveRunLogLineCount() {
+        long runLogLineCount = 0;
         if (!this.log.isEmpty()) {
             String lines[] = this.log.split("\r\n?|\n");
             runLogLineCount = lines.length;

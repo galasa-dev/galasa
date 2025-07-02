@@ -142,7 +142,7 @@ public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreS
     }
 
     @Override
-    public int retrieveRunLogLineCount() {
+    public long retrieveRunLogLineCount() {
         throw new UnsupportedOperationException("Unimplemented method 'retrieveRunLogLineCount'");
     }
 }

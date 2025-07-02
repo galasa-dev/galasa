@@ -74,7 +74,7 @@ public class MockArchiveStore implements IResultArchiveStore {
     }
 
     @Override
-    public int retrieveRunLogLineCount() {
+    public long retrieveRunLogLineCount() {
         throw new UnsupportedOperationException("Unimplemented method 'retrieveRunLogLineCount'");
     }
 }

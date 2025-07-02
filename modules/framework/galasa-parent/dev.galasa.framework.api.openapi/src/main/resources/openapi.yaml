@@ -3192,8 +3192,10 @@ components:
           type: string
         runLogStart:
           type: integer
+          format: int64
         runLogEnd:
           type: integer
+          format: int64
         befores:
           type: array
           items:

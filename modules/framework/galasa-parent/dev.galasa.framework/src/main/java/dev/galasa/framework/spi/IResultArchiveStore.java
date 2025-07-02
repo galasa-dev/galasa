@@ -61,7 +61,7 @@ public interface IResultArchiveStore {
      * of a test class, in the test structure.
      * @return
      */
-    int retrieveRunLogLineCount();
+    long retrieveRunLogLineCount();
 
     /**
      * Update the Test Structure object in the RASs with the current status

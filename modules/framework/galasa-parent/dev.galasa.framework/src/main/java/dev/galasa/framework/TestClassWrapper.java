@@ -417,9 +417,9 @@ public class TestClassWrapper {
         return this.testRunner.getFramework();
     }
 
-    protected int getRunLogLineCount() {
+    protected long getRunLogLineCount() {
         IResultArchiveStore ras = getFramework().getResultArchiveStore();
-        int runLogLineCount = ras.retrieveRunLogLineCount();
+        long runLogLineCount = ras.retrieveRunLogLineCount();
         return runLogLineCount;
     }
 

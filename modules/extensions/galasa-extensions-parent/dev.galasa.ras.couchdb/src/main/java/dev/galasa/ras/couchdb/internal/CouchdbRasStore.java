@@ -94,7 +94,7 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
 
     private LogFactory                         logFactory;
 
-    private int                                runLogLineCount;
+    private long                                runLogLineCount;
 
     public CouchdbRasStore(IFramework framework, URI rasUri) throws CouchdbException, CouchdbRasException {
         this(
@@ -229,11 +229,11 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
      * methods in a test class can state their start and end line.
      * @param newLineCount
      */
-    private void updateRunLogLineCountSoFar(int newLineCount) {
+    private void updateRunLogLineCountSoFar(long newLineCount) {
         this.runLogLineCount += newLineCount;
     }
 
-    public int retrieveRunLogLineCount() {
+    public long retrieveRunLogLineCount() {
         return this.runLogLineCount;
     }
 

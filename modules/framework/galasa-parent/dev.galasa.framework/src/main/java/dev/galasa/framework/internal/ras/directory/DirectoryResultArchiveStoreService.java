@@ -54,7 +54,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
 
     private DirectoryRASFileSystemProvider provider;
 
-    private int                            runLogLineCount;
+    private long                           runLogLineCount;
 
     public DirectoryResultArchiveStoreService(IFramework framework, URI rasUri) throws ResultArchiveStoreException {
         this.framework = framework;
@@ -187,7 +187,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
      * methods in a test class can state their start and end line.
      * @param newLineCount
      */
-    private void updateRunLogLineCountSoFar(int newLineCount) {
+    private void updateRunLogLineCountSoFar(long newLineCount) {
         this.runLogLineCount += newLineCount;
     }
 
@@ -258,7 +258,7 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     }
 
     @Override
-    public int retrieveRunLogLineCount() {
+    public long retrieveRunLogLineCount() {
         return this.runLogLineCount;
     }
 
