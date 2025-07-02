@@ -131,4 +131,41 @@ public class InboundTest {
         assertThat(screenStr).contains("WELCOME TO SIMBANK", "\n");
         assertThat(cursorPosition).isEqualTo(320);
     }
+
+    @Test
+    public void testCanRenderScreenWithBadModifyFieldOrder() throws Exception {
+
+        // Given...
+        Charset codePage = Charset.forName("1047");
+
+        String inbound3270Header = "0000000000";
+
+        // Create a bad modify field order with invalid attributes
+        // This one says it has 81 attribute type/value pairs, but there are only three
+        // and all three are not known attribute types
+        String badModifyField = "2c51db301106e813";
+
+        String inboundMessage = "f1c11106c98396958489a38996957ee77df0f1f77d404d2c51db301106e813";
+        String iacEorTrailer = Hex.encodeHexString(new byte[]{ NetworkThread.IAC, NetworkThread.EOR });
+
+        String inboundDataStream = inbound3270Header + inboundMessage + badModifyField + iacEorTrailer;
+        byte[] inboundAsBytes = Hex.decodeHex(inboundDataStream);
+
+        Network network = new Network("here", 1, "a");
+
+        TerminalSize terminalSize = new TerminalSize(80, 24);
+        Screen screen = new Screen(terminalSize, new TerminalSize(0, 0), network, codePage);
+
+        NetworkThread networkThread = new NetworkThread(null, screen, null, null);
+
+        InputStream inputStream = new ByteArrayInputStream(inboundAsBytes);
+        
+        // When...
+        networkThread.processMessage(inputStream);
+        String screenStr = screen.printScreenTextWithCursor();
+        System.out.println(screenStr);
+
+        // Then...
+        assertThat(screenStr).contains("condition=");
+    }
 }

@@ -933,7 +933,12 @@ public class NetworkThread extends Thread {
                         order = new OrderSetAttribute(buffer);
                         break;
                     case OrderModifyField.ID:
-                        order = new OrderModifyField(buffer);
+                        try {
+                            order = new OrderModifyField(buffer);
+                        } catch (DatastreamException e) {
+                            logger.trace("Failed to process MF order, processing as blank text instead", e);
+                            order = new OrderText(" ", codePage);
+                        }
                         break;
                     case OrderInsertCursor.ID:
                         order = new OrderInsertCursor();
