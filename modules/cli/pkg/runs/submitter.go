@@ -553,6 +553,8 @@ func (submitter *Submitter) markRunFinished(
 			}
 
 			runToMarkFinished.Tags = rasRun.TestStructure.GetTags()
+
+			runToMarkFinished.Requestor = rasRun.TestStructure.GetRequestor()
 		}
 	}
 
