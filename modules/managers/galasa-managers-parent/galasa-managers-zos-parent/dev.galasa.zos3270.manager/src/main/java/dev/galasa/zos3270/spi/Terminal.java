@@ -37,7 +37,16 @@ public class Terminal implements ITerminal {
     private final Screen  screen;
     private final Network network;
     private final String  id;
+
+    private String networkThreadLock = "LockToSynchronizeAroundNetworkThreadVariable";
     private NetworkThread networkThread;
+    /**
+     * The maximum time we will wait for the network thread to die before giving up.
+     * We use this when we have told the network thread to close, but it's not finished cleaning up and 
+     * exiting before this timeout is reached.
+     */
+    private static final long MAX_WAIT_MILLISECONDS_FOR_NETWORK_THREAD_TO_DIE = 30 * 1000 ; // 30 seconds
+
     private boolean connected = false;
 
     private int           defaultWaitTime = 120_000;
@@ -112,21 +121,38 @@ public class Terminal implements ITerminal {
         logger.trace("Connected client to server: " + connected);
         
         logger.trace("Creating network thread");
-        networkThread = new NetworkThread(this, screen, network, network.getInputStream(), this.deviceTypes);
-        networkThread.start();
+        logger.trace("connect: Thread "+Thread.currentThread().hashCode()+" is about to request the lock for the network thread");
+        synchronized(networkThreadLock) {
+            logger.trace("connect: Thread "+Thread.currentThread().hashCode()+" has acquired the lock for the network thread");
+            try {
+                networkThread = new NetworkThread(this, screen, network, network.getInputStream(), this.deviceTypes);
+                networkThread.start();
+            } finally {
+                logger.trace("connect: Thread "+Thread.currentThread().hashCode()+" is about to release the lock for the network thread");
+            }
+        }
         
         Instant expire = Instant.now().plus(60, ChronoUnit.SECONDS);
         boolean started = false;
         while(Instant.now().isBefore(expire)) {
-            NetworkThread nThread = this.networkThread;
-            if (nThread == null) {
-                this.network.close();
-                throw new NetworkException("The TN3270 network thread failed to start correctly");
-            }
-            if (nThread.isStarted()) {
-                logger.trace("Network thread started OK");
-                started = true;
-                break;
+
+            logger.trace("connect-2: Thread "+Thread.currentThread().hashCode()+" is about to request the lock for the network thread");
+            synchronized(networkThreadLock) {
+                logger.trace("connect-2: Thread "+Thread.currentThread().hashCode()+" has acquired the lock for the network thread");
+                try {
+                    NetworkThread nThread = this.networkThread;
+                    if (nThread == null) {
+                        this.network.close();
+                        throw new NetworkException("The TN3270 network thread failed to start correctly");
+                    }
+                    if (nThread.isStarted()) {
+                        logger.trace("Network thread started OK");
+                        started = true;
+                        break;
+                    }
+                } finally {
+                    logger.trace("connect-2: Thread "+Thread.currentThread().hashCode()+" is about to release the lock for the network thread");
+                }
             }
             
             try {
@@ -155,16 +181,36 @@ public class Terminal implements ITerminal {
             network.close();
             logger.trace("Network closed OK");
         }
-        if (networkThread != null) {
+
+        logger.trace("connect: Thread "+Thread.currentThread().hashCode()+" is about to request the lock for the network thread");
+        synchronized(networkThreadLock) {
+            logger.trace("connect: Thread "+Thread.currentThread().hashCode()+" has acquired the lock for the network thread");
             try {
-                logger.trace("Waiting for network thread to end...");
-                networkThread.join();
-                logger.trace("Network thread ended OK");
-            } catch (InterruptedException e) {
-                logger.warn("Interrupted while waiting for network thread to end. Network thread might still be active.");
-                throw new TerminalInterruptedException("Join of the network thread was interrupted",e);
+                networkThread = new NetworkThread(this, screen, network, network.getInputStream(), this.deviceTypes);
+                networkThread.start();
+            } finally {
+                logger.trace("connect: Thread "+Thread.currentThread().hashCode()+" is about to release the lock for the network thread");
             }
-            networkThread = null;
+        }
+
+        logger.trace("disconnect: Thread "+Thread.currentThread().hashCode()+" is about to request the lock for the network thread");
+        synchronized(networkThreadLock) {
+            logger.trace("disconnect: Thread "+Thread.currentThread().hashCode()+" has acquired the lock for the network thread");
+            try {
+                if (networkThread != null) {
+                    try {
+                        logger.trace("Waiting for network thread to end...");
+                        networkThread.join(MAX_WAIT_MILLISECONDS_FOR_NETWORK_THREAD_TO_DIE);
+                        logger.trace("Network thread ended OK");
+                    } catch (InterruptedException e) {
+                        logger.warn("Interrupted while waiting for network thread to end. Network thread might still be active.");
+                        throw new TerminalInterruptedException("Join of the network thread was interrupted",e);
+                    }
+                    networkThread = null;
+                }
+            } finally {
+                logger.trace("disconnect: Thread "+Thread.currentThread().hashCode()+" is about to release the lock for the network thread");
+            }
         }
         
         autoReconnect = oldAutoReconnect;
@@ -178,7 +224,13 @@ public class Terminal implements ITerminal {
         if (network != null) {
             network.close();
         }
-        networkThread = null;
+
+        logger.trace("networkClosed: Thread "+Thread.currentThread().hashCode()+" is about to request the lock for the network thread");
+        synchronized(networkThreadLock) {
+            logger.trace("networkClosed: Thread "+Thread.currentThread().hashCode()+" has acquired the lock for the network thread");
+            networkThread = null;
+            logger.trace("networkClosed: Thread "+Thread.currentThread().hashCode()+" is about to release the lock for the network thread");
+        }
         
         if (autoReconnect) {
             logger.trace("Auto reconnecting...");
