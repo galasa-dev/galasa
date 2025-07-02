@@ -417,19 +417,10 @@ public class TestClassWrapper {
         return this.testRunner.getFramework();
     }
 
-    protected int getRunLogLineCount() {
-        int runLogLines;
-
+    protected long getRunLogLineCount() {
         IResultArchiveStore ras = getFramework().getResultArchiveStore();
-
-        String logSoFar = ras.retrieveLog();
-        if (logSoFar.isEmpty()) {
-            runLogLines = 0;
-        } else {
-            String[] lines = logSoFar.split("\n");
-            runLogLines = lines.length;
-        }
-        return runLogLines;
+        long runLogLineCount = ras.retrieveRunLogLineCount();
+        return runLogLineCount;
     }
 
 }

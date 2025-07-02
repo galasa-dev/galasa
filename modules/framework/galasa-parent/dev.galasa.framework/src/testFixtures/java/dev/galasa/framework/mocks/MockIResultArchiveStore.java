@@ -96,4 +96,9 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
     public void shutdown() {
                throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
     }
+
+    @Override
+    public long retrieveRunLogLineCount() {
+                throw new UnsupportedOperationException("Unimplemented method 'retrieveRunLogLineCount'");
+    }
 }

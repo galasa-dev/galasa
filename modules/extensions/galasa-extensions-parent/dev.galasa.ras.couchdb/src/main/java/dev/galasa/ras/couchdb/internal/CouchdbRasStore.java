@@ -90,9 +90,11 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
     private String                             artifactDocumentRev;
 
     private TestStructure                      lastTestStructure;
-    private ITimeService timeService ;
+    private ITimeService                       timeService ;
 
-    private LogFactory logFactory;
+    private LogFactory                         logFactory;
+
+    private long                                runLogLineCount;
 
     public CouchdbRasStore(IFramework framework, URI rasUri) throws CouchdbException, CouchdbRasException {
         this(
@@ -169,6 +171,9 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
                 flushLogCache();
             }
         }
+
+        updateRunLogLineCountSoFar(lines.length);
+
     }
 
     private void flushLogCache() throws ResultArchiveStoreException {
@@ -216,6 +221,20 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
         for (String message : messages) {
             writeLog(message);
         }
+    }
+
+    /**
+     * Update the run log line count so far into class variable.
+     * Then it can be retrieved through the Framework from the RAS so
+     * methods in a test class can state their start and end line.
+     * @param newLineCount
+     */
+    private void updateRunLogLineCountSoFar(long newLineCount) {
+        this.runLogLineCount += newLineCount;
+    }
+
+    public long retrieveRunLogLineCount() {
+        return this.runLogLineCount;
     }
 
     @Override

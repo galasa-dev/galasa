@@ -23,8 +23,8 @@ public class TestMethod {
 
     private String           exception;
 
-    private int              runLogStart;
-    private int              runLogEnd;
+    private long              runLogStart;
+    private long              runLogEnd;
 
     private List<TestMethod> befores;
     private List<TestMethod> afters;
@@ -98,19 +98,19 @@ public class TestMethod {
         this.exception = exception;
     }
 
-    public int getRunLogStart() {
+    public long getRunLogStart() {
         return runLogStart;
     }
 
-    public void setRunLogStart(int runLogStart) {
+    public void setRunLogStart(long runLogStart) {
         this.runLogStart = runLogStart;
     }
 
-    public int getRunLogEnd() {
+    public long getRunLogEnd() {
         return runLogEnd;
     }
 
-    public void setRunLogEnd(int runLogEnd) {
+    public void setRunLogEnd(long runLogEnd) {
         this.runLogEnd = runLogEnd;
     }
 

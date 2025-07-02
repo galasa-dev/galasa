@@ -140,4 +140,9 @@ public class FrameworkMultipleResultArchiveStore implements IResultArchiveStoreS
             rasService.updateTestStructure(runId, testStructure);
         }
     }
+
+    @Override
+    public long retrieveRunLogLineCount() {
+        throw new UnsupportedOperationException("Unimplemented method 'retrieveRunLogLineCount'");
+    }
 }
