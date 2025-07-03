@@ -85,7 +85,6 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 	testRunRequest := galasaapi.NewTestRunRequest()
 	testRunRequest.SetClassNames(classNames)
 	testRunRequest.SetRequestorType(requestType)
-	testRunRequest.SetRequestor(systemUser)
 	testRunRequest.SetTestStream(stream)
 	testRunRequest.SetTrace(isTraceEnabled)
 	testRunRequest.SetOverrides(overrides)
