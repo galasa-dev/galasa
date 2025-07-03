@@ -164,7 +164,12 @@ func (submitter *Submitter) executeSubmitRuns(
 		return nil, nil, err
 	}
 
-	currentUser := submitter.GetCurrentUserName()
+	//
+	// The current system user might not be the user who is authenticated to the Galasa service.
+	// Pass it to the submitter and set as requestor initially anyway.
+	//
+	currentSystemUser := submitter.GetCurrentSystemUserName()
+
 	//
 	// Main submit loop
 	//
@@ -176,7 +181,7 @@ func (submitter *Submitter) executeSubmitRuns(
 		for len(submittedRuns) < throttle && len(readyRuns) > 0 {
 
 			readyRuns, err = submitter.submitRun(params.GroupName, readyRuns, submittedRuns,
-				lostRuns, &runOverrides, params.Trace, currentUser, params.RequestType, params.Tags)
+				lostRuns, &runOverrides, params.Trace, currentSystemUser, params.RequestType, params.Tags)
 
 			if err != nil {
 				// Ignore the error and continue to process the list of available runs.
@@ -623,7 +628,7 @@ func (submitter *Submitter) isRasDetailNeededForReports(params utils.RunsSubmitC
 func (submitter *Submitter) buildListOfRunsToSubmit(portfolio *Portfolio, runOverrides map[string]string) []TestRun {
 	log.Printf("buildListOfRunsToSubmit - portfolio %v, runOverrides %v", portfolio, runOverrides)
 	readyRuns := make([]TestRun, 0, len(portfolio.Classes))
-	currentUser := submitter.GetCurrentUserName()
+	currentSystemUser := submitter.GetCurrentSystemUserName()
 	for _, portfolioTest := range portfolio.Classes {
 		newTestrun := TestRun{
 			Bundle:         portfolioTest.Bundle,
@@ -631,7 +636,7 @@ func (submitter *Submitter) buildListOfRunsToSubmit(portfolio *Portfolio, runOve
 			Stream:         portfolioTest.Stream,
 			Obr:            portfolioTest.Obr,
 			QueuedTimeUTC:  submitter.timeService.Now().String(),
-			Requestor:      currentUser,
+			Requestor:      currentSystemUser,
 			Status:         "queued",
 			Overrides:      make(map[string]string, 0),
 			GherkinUrl:     portfolioTest.GherkinUrl,
@@ -874,7 +879,7 @@ func (submitter *Submitter) getPortfolio(portfolioFileName string, submitSelecti
 	return portfolio, err
 }
 
-func (submitter *Submitter) GetCurrentUserName() string {
+func (submitter *Submitter) GetCurrentSystemUserName() string {
 	userName := "cli"
 	currentUser, err := user.Current()
 	if err == nil {

@@ -69,7 +69,7 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 	groupName string,
 	className string,
 	requestType string,
-	requestor string,
+	systemUser string,
 	stream string,
 	obrFromPortfolio string,
 	isTraceEnabled bool,
@@ -85,13 +85,11 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 	testRunRequest := galasaapi.NewTestRunRequest()
 	testRunRequest.SetClassNames(classNames)
 	testRunRequest.SetRequestorType(requestType)
-	testRunRequest.SetRequestor(requestor)
+	testRunRequest.SetRequestor(systemUser)
 	testRunRequest.SetTestStream(stream)
 	testRunRequest.SetTrace(isTraceEnabled)
 	testRunRequest.SetOverrides(overrides)
 	testRunRequest.SetTags(tags)
-
-	log.Printf("RemoteLauncher.SubmitTestRuns : using requestor %s\n", requestor)
 
 	var resultGroup *galasaapi.TestRuns
 	var err error
@@ -107,6 +105,22 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 			return galasaErrors.GetGalasaErrorFromCommsResponse(httpResponse, err)
 		})
 	}
+
+	//
+	// The current system user may not match the username in the
+	// JWT that was used to authenticate to the Galasa API Server
+	//
+	submittedRun := resultGroup.GetRuns()[0]
+	if submittedRun.Requestor != nil {
+		runRequestor := *submittedRun.Requestor
+
+		if systemUser == runRequestor {
+			log.Printf("RemoteLauncher.SubmitTestRun : using requestor %s\n", runRequestor)
+		} else {
+			log.Printf("RemoteLauncher.SubmitTestRun : current system user is %s, but the user authenticated to the Galasa Service is %s, so using requestor %s\n", systemUser, runRequestor, runRequestor)
+		}
+	}
+
 	return resultGroup, err
 }
 
