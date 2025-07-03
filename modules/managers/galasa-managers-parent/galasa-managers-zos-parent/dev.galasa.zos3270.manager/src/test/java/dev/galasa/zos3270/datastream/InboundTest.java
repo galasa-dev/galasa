@@ -141,14 +141,23 @@ public class InboundTest {
         String inbound3270Header = "0000000000";
 
         // Create a bad modify field order with invalid attributes
-        // This one says it has 81 attribute type/value pairs, but there are only three
-        // and all three are not known attribute types
+        // Modify field orders take the following format:
+        // <order ID><number of attribute type/value pairs><attribute type><attribute value>
+        //
+        // In this case:
+        // <order ID> is 2c
+        // <number of attribute type/value pairs> is 51 (decodes to 81 in decimal)
+        // <attribute type><attribute value> covers every two bytes/four hex characters in 'db301106e813'
+        // (there’s only 3 attribute pairs, none of which contain a recognised attribute type)
         String badModifyField = "2c51db301106e813";
 
-        String inboundMessage = "f1c11106c98396958489a38996957ee77df0f1f77d404d2c51db301106e813";
+        String mockScreenText = "WELCOME TO SIMBANK";
+        String ebcdicScreen = Hex.encodeHexString(mockScreenText.getBytes(codePage));
+
+        String commandCode = "f1c11106c9";
         String iacEorTrailer = Hex.encodeHexString(new byte[]{ NetworkThread.IAC, NetworkThread.EOR });
 
-        String inboundDataStream = inbound3270Header + inboundMessage + badModifyField + iacEorTrailer;
+        String inboundDataStream = inbound3270Header + commandCode + ebcdicScreen + badModifyField + iacEorTrailer;
         byte[] inboundAsBytes = Hex.decodeHex(inboundDataStream);
 
         Network network = new Network("here", 1, "a");
@@ -165,6 +174,7 @@ public class InboundTest {
         String screenStr = screen.printScreenTextWithCursor();
 
         // Then...
-        assertThat(screenStr).contains("condition=");
+        // Check that the screen text rendered OK
+        assertThat(screenStr).contains(mockScreenText);
     }
 }
