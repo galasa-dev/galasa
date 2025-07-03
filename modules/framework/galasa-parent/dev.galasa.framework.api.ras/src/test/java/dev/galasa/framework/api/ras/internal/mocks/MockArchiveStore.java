@@ -72,4 +72,9 @@ public class MockArchiveStore implements IResultArchiveStore {
             throws ResultArchiveStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
     }
+
+    @Override
+    public long retrieveRunLogLineCount() {
+        throw new UnsupportedOperationException("Unimplemented method 'retrieveRunLogLineCount'");
+    }
 }

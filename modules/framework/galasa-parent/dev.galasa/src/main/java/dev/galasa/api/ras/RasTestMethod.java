@@ -17,13 +17,13 @@ public class RasTestMethod {
    private String result;
    private Instant startTime;
    private Instant endTime;
-   private int runLogStart;
-   private int runLogEnd;
+   private long runLogStart;
+   private long runLogEnd;
    private List<RasTestMethod> befores;
    private List<RasTestMethod> afters;
    
    public RasTestMethod(String className, String methodName, String type, String status, String result, 
-         Instant startTime, Instant endTime, int runLogStart, int runLogEnd, List<RasTestMethod> befores, List<RasTestMethod> afters) {
+         Instant startTime, Instant endTime, long runLogStart, long runLogEnd, List<RasTestMethod> befores, List<RasTestMethod> afters) {
       this.className = className;
       this.methodName = methodName;
       this.type = type;
@@ -93,19 +93,19 @@ public class RasTestMethod {
       this.endTime = endTime;
    }
 
-   public int getRunLogStart() {
+   public long getRunLogStart() {
       return runLogStart;
    }
 
-   public void setRunLogStart(int runLogStart) {
+   public void setRunLogStart(long runLogStart) {
       this.runLogStart = runLogStart;
    }
 
-   public int getRunLogEnd() {
+   public long getRunLogEnd() {
       return runLogEnd;
    }
 
-   public void setRunLogEnd(int runLogEnd) {
+   public void setRunLogEnd(long runLogEnd) {
       this.runLogEnd = runLogEnd;
    }
 
