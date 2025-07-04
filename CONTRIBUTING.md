@@ -27,6 +27,18 @@ Welcome to Galasa! To learn more about contributing to this repository, please r
 
 ## How to make a contribution?
 
+### Sign your commits
+
+Make sure you are able to sign commits with your personal GPG key. See https://git-scm.com/book/ms/v2/Git-Tools-Signing-Your-Work
+
+Whenever you commit, please sign commits with `-s -S` flags to sign the commit.
+This allows us to prove who made each change to the codebase.
+
+Each PR build has "Developer Certificate of Origin" [DCO](./CONTRIBUTIONS.md) checking turned on, so nothing will get
+delivered without signed commits.
+
+If you forgot to sign one or all of your commits, you can squash your PR changes and force-push your branch.
+
 ### Set up a fork of a repository
 
 1. On GitHub, navigate to the repository.
