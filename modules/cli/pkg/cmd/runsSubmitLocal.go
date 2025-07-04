@@ -96,7 +96,7 @@ func (cmd *RunsSubmitLocalCommand) createRunsSubmitLocalCobraCmd(
 		},
 	}
 
-	//currentUserName := runs.GetCurrentUserName()
+	//currentUserName := runs.GetCurrentSystemUserName()
 
 	runsSubmitLocalCobraCmd.Flags().StringVar(&cmd.values.runsSubmitLocalCmdParams.RemoteMaven, "remoteMaven",
 		"https://repo.maven.apache.org/maven2",
