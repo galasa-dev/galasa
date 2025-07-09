@@ -47,7 +47,6 @@ public class DssUtils {
                 throw new DynamicStatusStoreException("Swap wait interrupted", e);
             }
         }
-
     }
 
 }

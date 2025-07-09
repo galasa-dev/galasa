@@ -32,6 +32,7 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.spi.utils.DssInterruptedChecker;
 import dev.galasa.framework.spi.utils.DssUtils;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
@@ -66,12 +67,15 @@ public class BaseTestRunner {
 
     protected static final GalasaGson gson = new GalasaGson();
 
+    private DssInterruptedChecker dssChecker ;
+
     protected void init(ITestRunnerDataProvider dataProvider) throws TestRunException {
         this.run = dataProvider.getRun() ;
         this.framework = dataProvider.getFramework();
         this.cps = dataProvider.getCPS();
         this.ras = dataProvider.getRAS();
         this.dss = dataProvider.getDSS();
+        this.dssChecker = new DssInterruptedChecker(this.dss);
         this.bundleManager = dataProvider.getBundleManager();
         this.fileSystem = dataProvider.getFileSystem();
 
@@ -392,4 +396,10 @@ public class BaseTestRunner {
         }
         return continueOnTestFailure ;
     }
+
+    public boolean isTestRunInterrupted() {
+        return dssChecker.isTestRunInterrupted(run.getName());
+    }
+
+
 }

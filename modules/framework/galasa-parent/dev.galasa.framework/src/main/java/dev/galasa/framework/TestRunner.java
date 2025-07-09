@@ -84,6 +84,12 @@ public class TestRunner extends BaseTestRunner {
 
             Class<?> testClass ;
 
+            if (super.isTestRunInterrupted()) {
+                testStructure.setResult(Result.CANCELLED);
+                updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+                throw new TestRunException("Test run has been cancelled");
+            }
+
             try {
                 
                 String streamName = AbstractManager.nulled(run.getStream());
@@ -96,7 +102,6 @@ public class TestRunner extends BaseTestRunner {
                 // This is java-test-runner-specific
                 loadTestBundle(repositoryAdmin, bundleContext, testBundleName);
                 testClass = getTestClass(bundleContext, testBundleName, testClassName);
-
 
             } catch (Exception ex) {
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");

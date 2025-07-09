@@ -47,13 +47,11 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
 
     @Override
     public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue) {
-        // Don't record heartbeat events in the history. They are random how many there would be 
-        // based on the speed of the heartbeat thread. So make it hard for unit tests to check
-        // results.
-        if (!key.endsWith(".heartbeat")) {
-            history.add( new DssHistoryRecord(DssHistoryRecordType.PUT, key , newValue));
+        try {
+            this.put(key,newValue);
+        } catch( Exception ex) {
+            // Ignore.
         }
-        data.put(key,newValue);
         return true;
     }
 
@@ -71,8 +69,14 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
     }
 
     @Override
-    public void put(@NotNull String key, @NotNull String value) throws DynamicStatusStoreException {
-        data.put(key, value);
+    public void put(@NotNull String key, @NotNull String newValue) throws DynamicStatusStoreException {
+                // Don't record heartbeat events in the history. They are random how many there would be 
+        // based on the speed of the heartbeat thread. So make it hard for unit tests to check
+        // results.
+        if (!key.endsWith(".heartbeat")) {
+            history.add( new DssHistoryRecord(DssHistoryRecordType.PUT, key , newValue));
+        }
+        data.put(key, newValue);
     }
 
     @Override
