@@ -132,7 +132,7 @@ The following are properties used to configure the Galasa Ecosystem Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Valid URL |
-| Examples: | `galasaecosystem.isolated.full.zip=https://resources.galasa.dev/isolated.zip` |
+| Examples: | `galasaecosystem.isolated.full.zip=https://resources.galasa.dev/download/v0.43.0/isolated.zip` |
 
 
 ### Isolated MVP zip location
@@ -144,7 +144,7 @@ The following are properties used to configure the Galasa Ecosystem Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Valid URL |
-| Examples: | `galasaecosystem.isolated.mvp.zip=https://github.com/galasa-dev/isolated/releases/download/v0.43.0/galasa-isolated-mvp-0.43.0.zip` |
+| Examples: | `galasaecosystem.isolated.mvp.zip=https://resources.galasa.dev/download/v0.43.0/mvp.zip` |
 
 
 ### Kubernetes Ecosystem Tag Shared Environment
