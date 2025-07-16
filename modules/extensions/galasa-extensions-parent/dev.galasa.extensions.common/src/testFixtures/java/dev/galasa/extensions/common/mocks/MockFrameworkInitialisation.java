@@ -32,15 +32,22 @@ public class MockFrameworkInitialisation implements IApiServerInitialisation {
     
     protected URI authStoreUri;
     protected URI cpsBootstrapUri;
+    protected URI dssUri;
 
     private List<IAuthStore> registeredAuthStores = new ArrayList<IAuthStore>();
     private List<IConfigurationPropertyStore> registeredConfigPropertyStores = new ArrayList<IConfigurationPropertyStore>();
     private List<IEventsService> registeredEventsServices = new ArrayList<IEventsService>();
+    private List<IDynamicStatusStore> registeredDynamicStatusStores = new ArrayList<IDynamicStatusStore>();
 
     public MockFrameworkInitialisation() {}
 
     public MockFrameworkInitialisation(URI cpsBootstrapUri) {
         this.cpsBootstrapUri = cpsBootstrapUri;
+    }
+
+    public MockFrameworkInitialisation(URI cpsBootstrapUri, URI dssUri) {
+        this.cpsBootstrapUri = cpsBootstrapUri;
+        this.dssUri = dssUri;
     }
 
     public void setAuthStoreUri(URI authStoreUri) {
@@ -76,9 +83,31 @@ public class MockFrameworkInitialisation implements IApiServerInitialisation {
     }
 
     @Override
-    public URI getDynamicStatusStoreUri() {
-        throw new UnsupportedOperationException("Unimplemented method 'getDynamicStatusStoreUri'");
+    public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
+            throws DynamicStatusStoreException {
+        registeredDynamicStatusStores.add(dynamicStatusStore);
     }
+
+    @Override
+    public URI getDynamicStatusStoreUri() {
+        return dssUri;
+    }
+
+    @Override
+    public @NotNull IFramework getFramework() {
+        return new MockFramework();
+    }
+
+    @Override
+    public void registerEventsService(@NotNull IEventsService eventsService) throws EventsException {
+        registeredEventsServices.add(eventsService);
+    }
+
+    public List<IEventsService> getRegisteredEventsServices() {
+        return registeredEventsServices;
+    }
+
+    // UNIMPLEMENTED METHODS BELOW
 
     @Override
     public URI getCredentialsStoreUri() {
@@ -88,12 +117,6 @@ public class MockFrameworkInitialisation implements IApiServerInitialisation {
     @Override
     public @NotNull List<URI> getResultArchiveStoreUris() {
         throw new UnsupportedOperationException("Unimplemented method 'getResultArchiveStoreUris'");
-    }
-
-    @Override
-    public void registerDynamicStatusStore(@NotNull IDynamicStatusStore dynamicStatusStore)
-            throws DynamicStatusStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'registerDynamicStatusStore'");
     }
 
     @Override
@@ -119,17 +142,4 @@ public class MockFrameworkInitialisation implements IApiServerInitialisation {
         throw new UnsupportedOperationException("Unimplemented method 'registerCredentialsStore'");
     }
 
-    @Override
-    public @NotNull IFramework getFramework() {
-        return new MockFramework();
-    }
-
-    @Override
-    public void registerEventsService(@NotNull IEventsService eventsService) throws EventsException {
-        registeredEventsServices.add(eventsService);
-    }
-
-    public List<IEventsService> getRegisteredEventsServices() {
-        return registeredEventsServices;
-    }
 }
