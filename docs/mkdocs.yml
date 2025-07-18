@@ -19,7 +19,10 @@ edit_uri: edit/main/docs/content/
 use_directory_urls: true
 
 # Copyright
-copyright: Copyright &copy; Open Mainframe Project
+copyright: >
+  Copyright &copy; Open Mainframe Project -
+  <a href="#__consent">Change cookie settings</a> -
+  <a href="https://github.com/galasa-dev/galasa/blob/main/docs/privacy.md">Privacy policy</a>
 
 # Configuration
 docs_dir: content
@@ -30,6 +33,12 @@ theme:
   name: material
   logo: assets/galasa-icon-white.svg
   favicon: assets/galasa-icon-white.svg
+
+  # Saying there is no font theme, turns off access to the googleapi fonts which could be used
+  # to track personal activity. See https://github.com/galasa-dev/projectmanagement/issues/2342
+  font:
+    false
+
   icon:
     repo: fontawesome/brands/github
   custom_dir: overrides
@@ -108,6 +117,7 @@ plugins:
   - offline:
       enabled: !ENV [OFFLINE, false]
   - search
+  - privacy
   - blog:
       blog_dir: hub
       blog_toc: true
@@ -137,6 +147,14 @@ extra:
       link: https://github.com/galasa-dev
     - icon: fontawesome/brands/slack
       link: https://openmainframeproject.slack.com/signup#/domain-signup
+
+  consent:
+    title: Cookie consent
+    description: >- 
+      We use cookies to recognize your repeated visits and preferences, and to enhance the experience when interacting with Github.
+      For more detail see our notes on <a href="https://github.com/galasa-dev/galasa/blob/main/docs/privacy.md">cookie usage</a>.
+
+  generator: false
 
 # Page tree
 nav:
