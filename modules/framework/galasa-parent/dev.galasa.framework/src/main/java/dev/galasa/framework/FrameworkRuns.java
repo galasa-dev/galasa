@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -118,10 +119,10 @@ public class FrameworkRuns implements IFrameworkRuns {
     public List<IRun> getAllRuns() throws FrameworkException {
         HashMap<String, IRun> runs = new HashMap<>();
 
-        logger.trace("Fetching all runs from DSS");
-        Map<String, String> runProperties = dss.getPrefix(RUN_PREFIX);
-        logger.trace("Fetched all runs from DSS");
-        for (String key : runProperties.keySet()) {
+        logger.trace("Fetching all run keys from DSS");
+        Collection<String> runPropertiesKeys = dss.getPrefixKeysOnly(RUN_PREFIX);
+        logger.trace("Fetched all run keys from DSS");
+        for (String key : runPropertiesKeys) {
             Matcher matcher = runPattern.matcher(key);
             if (matcher.find()) {
                 String runName = matcher.group(1);
@@ -295,13 +296,14 @@ public class FrameworkRuns implements IFrameworkRuns {
     public boolean delete(String runname) throws DynamicStatusStoreException {
         String prefix = getRunDssPrefix(runname);
 
-        Map<String, String> properties = this.dss.getPrefix(prefix);
-        if (properties.isEmpty()) {
-            return false;
+        boolean isRunInDss = false;
+
+        if (isRunInDss(runname)) {
+            this.dss.deletePrefix(prefix);
+            isRunInDss = true;
         }
 
-        this.dss.deletePrefix(prefix);
-        return true;
+        return isRunInDss;
     }
 
     @Override
@@ -590,7 +592,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     private boolean isRunInDss(String runName) throws DynamicStatusStoreException {
         String prefix = getRunDssPrefix(runName);
-        Map<String, String> properties = this.dss.getPrefix(prefix);
+        Collection<String> properties = this.dss.getPrefixKeysOnly(prefix);
         return !properties.isEmpty();
     }
 
