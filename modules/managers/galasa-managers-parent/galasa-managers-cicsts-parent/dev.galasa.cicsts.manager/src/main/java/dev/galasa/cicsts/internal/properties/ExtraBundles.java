@@ -24,7 +24,8 @@ import dev.galasa.framework.spi.cps.CpsProperties;
  * 
  * @galasa.required No
  * 
- * @galasa.default dev.galasa.cicsts.ceci.manager,dev.galasa.cicsts.ceda.manager,dev.galasa.cicsts.cemt.manager
+ * @galasa.default dev.galasa.cicsts.ceci.manager,dev.galasa.cicsts.ceda.manager,dev.galasa.cicsts.cemt.manager,
+ *                 dev.galasa.cicsts.resource.manager,dev.galasa.zosliberty.manager,dev.galasa.textscan.manager
  * 
  * @galasa.valid_values bundle symbolic names comma separated
  * 
