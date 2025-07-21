@@ -48,7 +48,7 @@ public class ExtraBundles extends CpsProperties {
                 list.add("dev.galasa.textscan.manager");
             } else if (list.size() == 1) {
                 if (list.get(0).equalsIgnoreCase("none")) {
-                    return new ArrayList<>(0);
+                    list.clear();
                 }
             }
             
