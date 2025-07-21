@@ -42,13 +42,13 @@ public class ExtraBundles extends CpsProperties {
                 list.add("dev.galasa.textscan.manager");
             } else if (list.size() == 1) {
                 if (list.get(0).equalsIgnoreCase("none")) {
-                    return new ArrayList<>(0);
+                    list.clear();
                 }
             }
             
             return list;
         } catch (ConfigurationPropertyStoreException e) {
-            throw new Zos3270ManagerException("Problem asking CPS for the CICS TS extra bundles", e); 
+            throw new Zos3270ManagerException("Problem asking CPS for the z/OS 3270 extra bundles", e); 
         }
     }
 }
