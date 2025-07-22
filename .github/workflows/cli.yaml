@@ -310,10 +310,20 @@ jobs:
         env: 
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm \
-          ghcr.io/galasa-dev/argocdcli:main app actions run ${{ env.BRANCH }}-cli restart \
-          --kind Deployment --resource-name cli-${{ env.BRANCH }} --server argocd.galasa.dev \
-          --grpc-web
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app actions run ${{ env.BRANCH }}-cli restart \
+            --kind Deployment \
+            --resource-name cli-${{ env.BRANCH }} \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
        
       - name: Wait for application health in ArgoCD
         # Skip this step for forks
@@ -321,10 +331,20 @@ jobs:
         env: 
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm \
-          ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.BRANCH }}-cli \
-          --resource apps:Deployment:cli-${{ env.BRANCH }} --health --server argocd.galasa.dev \
-          --grpc-web
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app wait ${{ env.BRANCH }}-cli \
+            --resource apps:Deployment:cli-${{ env.BRANCH }} \
+            --health \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
   trigger-next-workflow:
     # Skip this job for forks

@@ -204,7 +204,20 @@ jobs:
         env: 
             ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app actions run ${{ env.BRANCH }}-maven-repos restart --kind Deployment --resource-name restapidocsite-${{ env.BRANCH }} --server argocd.galasa.dev --grpc-web
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app actions run ${{ env.BRANCH }}-maven-repos restart \
+            --kind Deployment \
+            --resource-name restapidocsite-${{ env.BRANCH }} \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
       - name: Wait for app health in ArgoCD
         # Skip this job for forks
@@ -212,7 +225,20 @@ jobs:
         env: 
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app wait ${{ env.BRANCH }}-maven-repos --resource apps:Deployment:restapidocsite-${{ env.BRANCH }} --health --server argocd.galasa.dev --grpc-web
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app wait ${{ env.BRANCH }}-maven-repos \
+            --resource apps:Deployment:restapidocsite-${{ env.BRANCH }} \
+            --health \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
   report-failure:
     # Skip this job for forks

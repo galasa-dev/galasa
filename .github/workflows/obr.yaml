@@ -279,7 +279,20 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/galasa-dev/argocdcli:main app actions run ${{ env.BRANCH }}-maven-repos restart --kind Deployment --resource-name obr-${{ env.BRANCH }} --server argocd.galasa.dev --grpc-web
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app actions run ${{ env.BRANCH }}-maven-repos restart \
+            --kind Deployment \
+            --resource-name obr-${{ env.BRANCH }} \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
       - name: Wait for OBR application health in ArgoCD
         # Skip this job for forks
@@ -287,7 +300,20 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.BRANCH }}-maven-repos --resource apps:Deployment:obr-${{ env.BRANCH }} --health --server argocd.galasa.dev --grpc-web
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app wait ${{ env.BRANCH }}-maven-repos \
+            --resource apps:Deployment:obr-${{ env.BRANCH }} \
+            --health \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
       # Here we remove the artifacts built by the other modules (everything
       # other than dev.galasa.uber.obr and galasa-bom) as otherwise when
@@ -581,16 +607,42 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app actions run ${{ env.BRANCH }}-maven-repos restart --kind Deployment --resource-name javadocsite-${{ env.BRANCH }} --server argocd.galasa.dev --grpc-web
-      
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app actions run ${{ env.BRANCH }}-maven-repos restart \
+            --kind Deployment \
+            --resource-name javadocsite-${{ env.BRANCH }} \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
+
       - name: Wait for javadocsite application health in ArgoCD
         # Skip this job for forks
         if: ${{ github.repository_owner == 'galasa-dev' }}
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app wait ${{ env.BRANCH }}-maven-repos --resource apps:Deployment:javadocsite-${{ env.BRANCH }} --health --server argocd.galasa.dev --grpc-web
-      
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app wait ${{ env.BRANCH }}-maven-repos \
+            --resource apps:Deployment:javadocsite-${{ env.BRANCH }} \
+            --health \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
+
       - name: Extract metadata for Javadoc Maven repo image
         id: metadata
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
@@ -616,7 +668,20 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app actions run ${{ env.BRANCH }}-maven-repos restart --kind Deployment --resource-name javadoc-${{ env.BRANCH }} --server argocd.galasa.dev --grpc-web
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app actions run ${{ env.BRANCH }}-maven-repos restart \
+            --kind Deployment \
+            --resource-name javadoc-${{ env.BRANCH }} \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
       - name: Wait for javadoc application health in ArgoCD
         # Skip this job for forks
@@ -624,7 +689,20 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app wait ${{ env.BRANCH }}-maven-repos --resource apps:Deployment:javadoc-${{ env.BRANCH }} --health --server argocd.galasa.dev --grpc-web
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app wait ${{ env.BRANCH }}-maven-repos \
+            --resource apps:Deployment:javadoc-${{ env.BRANCH }} \
+            --health \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
   build-obr-generic:
     name: Build OBR embedded and boot images using galasabld and maven
