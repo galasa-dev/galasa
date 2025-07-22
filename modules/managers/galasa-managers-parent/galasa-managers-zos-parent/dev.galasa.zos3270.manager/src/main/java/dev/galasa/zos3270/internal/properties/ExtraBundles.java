@@ -13,22 +13,22 @@ import dev.galasa.framework.spi.cps.CpsProperties;
 import dev.galasa.zos3270.Zos3270ManagerException;
 
 /**
- * Extra bundles required to implement the CICS TS Manager
+ * Extra bundles required to implement the z/OS 3270 Manager
  * 
  * @galasa.cps.property
  * 
- * @galasa.name cicsts.extra.bundles
+ * @galasa.name zos3270.extra.bundles
  * 
  * @galasa.description The symbolic names of any bundles that need to be loaded
- *                     with the CICS TS Manager
+ *                     with the z/OS 3270 Manager
  * 
  * @galasa.required No
  * 
- * @galasa.default dev.galasa.cicsts.ceci.manager,dev.galasa.cicsts.ceda.manager,dev.galasa.cicsts.cemt.manager
+ * @galasa.default dev.galasa.textscan.manager
  * 
  * @galasa.valid_values bundle symbolic names comma separated
  * 
- * @galasa.examples <code>cicsts.extra.bundles=org.example.cicsts.provisioning</code><br>
+ * @galasa.examples <code>zos3270.extra.bundles=dev.galasa.textscan.manager</code><br>
  *
  */
 public class ExtraBundles extends CpsProperties {
@@ -42,13 +42,13 @@ public class ExtraBundles extends CpsProperties {
                 list.add("dev.galasa.textscan.manager");
             } else if (list.size() == 1) {
                 if (list.get(0).equalsIgnoreCase("none")) {
-                    return new ArrayList<>(0);
+                    list.clear();
                 }
             }
             
             return list;
         } catch (ConfigurationPropertyStoreException e) {
-            throw new Zos3270ManagerException("Problem asking CPS for the CICS TS extra bundles", e); 
+            throw new Zos3270ManagerException("Problem asking CPS for the z/OS 3270 extra bundles", e); 
         }
     }
 }
