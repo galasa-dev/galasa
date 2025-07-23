@@ -20,9 +20,9 @@ use_directory_urls: true
 
 # Copyright
 copyright: >
-  Copyright &copy; Open Mainframe Project -
-  <a href="#__consent">Change cookie settings</a> -
-  <a href="https://github.com/galasa-dev/galasa/blob/main/docs/privacy.md">Privacy policy</a>
+  Copyright &copy; Open Mainframe Project - A Series of LF Projects, LLC 
+  <br/>For web site terms of use, privacy policy, trademark policy and general project policies please see <a href="https://lfprojects.org">https://lfprojects.org</a>
+  <br/><a href="#__consent">Change cookie settings</a>
 
 # Configuration
 docs_dir: content
@@ -152,7 +152,7 @@ extra:
     title: Cookie consent
     description: >- 
       We use cookies to recognize your repeated visits and preferences, and to enhance the experience when interacting with Github.
-      For more detail see our notes on <a href="https://github.com/galasa-dev/galasa/blob/main/docs/privacy.md">cookie usage</a>.
+      For more detail see our notes on <a href="https://github.com/galasa-dev/galasa/blob/main/docs/cookies.md">cookie usage</a>.
 
   generator: false
 
