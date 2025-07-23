@@ -158,3 +158,11 @@ jobs:
         with:
           name: galasa-docs-site
           path: docs/build/site
+ 
+      - name: Build galasa-docs-site image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: docs
+          file: docs/dockerfile.galasadocssite
+          load: true
+          tags: galasa-docs-site:test

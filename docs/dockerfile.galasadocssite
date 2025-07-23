@@ -1,0 +1,7 @@
+FROM ghcr.io/galasa-dev/httpd:alpine
+
+RUN rm -v /usr/local/apache2/htdocs/*
+
+COPY build/site/ /usr/local/apache2/htdocs/
+
+EXPOSE 80
