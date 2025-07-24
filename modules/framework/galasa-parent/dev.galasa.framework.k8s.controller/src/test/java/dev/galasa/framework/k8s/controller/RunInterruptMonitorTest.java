@@ -113,6 +113,66 @@ public class RunInterruptMonitorTest {
     }
 
     @Test
+    public void testPodsForMultipleInterruptedRunsAreOnlyDeletedWhenTimedOut() throws Exception {
+        // Given...
+        String runIdToMarkFinished1 = "run1-id";
+        String runIdToMarkFinished2 = "run2-id";
+
+        String runName1 = "run1";
+        String runName2 = "run2";
+
+        Instant timedOutInterruptedAt = Instant.EPOCH;
+        Instant currentTime = Instant.now();
+        String interruptReason = "cancelled";
+
+        ITimeService timeService = new MockTimeService(currentTime);
+
+        List<V1Pod> mockPods = new ArrayList<>();
+        V1Pod cancelledPod1 = mockKubeTestUtils.createMockTestPod(runName1);
+        mockPods.add(cancelledPod1);
+
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isReady = true;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
+
+        V1Pod cancelledPod2 = mockKubeTestUtils.createMockTestPod(runName2);
+        mockPods.add(cancelledPod2);
+
+        // Create runs associated with the pods
+        List<IRun> mockRuns = new ArrayList<>();
+        mockRuns.add(createMockRun(runIdToMarkFinished1, runName1, TestRunLifecycleStatus.STARTED.toString(), interruptReason, timedOutInterruptedAt));
+        mockRuns.add(createMockRun(runIdToMarkFinished2, runName2, TestRunLifecycleStatus.RUNNING.toString(), interruptReason, currentTime));
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
+
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+        Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
+
+        MockISettings settings = new MockISettings();
+        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings, timeService);
+
+        // When...
+        runPodInterrupt.run();
+
+        // Then...
+        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).doesNotContain(cancelledPod1);
+
+        // One event should have been added
+        assertThat(eventQueue).hasSize(1);
+
+        RunInterruptEvent interruptEvent1 = eventQueue.poll();
+        assertThat(interruptEvent1.getRunName()).isEqualTo(runName1);
+
+        List<RunRasAction> rasActions = interruptEvent1.getRasActions();
+        assertThat(rasActions).hasSize(1);
+        assertThat(rasActions.get(0).getRunId()).isEqualTo(runIdToMarkFinished1);
+
+        // No runs should have been deleted, only one pod
+        assertThat(mockFrameworkRuns.getAllRuns()).hasSize(2);
+    }
+
+    @Test
     public void testPodForAnInterruptedRunIsDeletedOk() throws Exception {
         // Given...
         String runName1 = "run1";
