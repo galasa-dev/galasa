@@ -60,6 +60,8 @@ public interface IRun {
 
     String getInterruptReason();
 
+    Instant getInterruptedAt();
+
     String getRasRunId();
 
     List<RunRasAction> getRasActions();

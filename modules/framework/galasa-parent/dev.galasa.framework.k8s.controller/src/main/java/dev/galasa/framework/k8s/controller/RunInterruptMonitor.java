@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.k8s.controller;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.RunRasAction;
+import dev.galasa.framework.spi.utils.ITimeService;
 import io.kubernetes.client.openapi.models.V1Pod;
 
 /**
@@ -36,12 +38,20 @@ public class RunInterruptMonitor implements Runnable {
     private final KubernetesEngineFacade kubeApi;
     private final Queue<RunInterruptEvent> eventQueue;
     private final ISettings settings ;
+    private final ITimeService timeService;
 
-    public RunInterruptMonitor(KubernetesEngineFacade kubeApi, IFrameworkRuns runs, Queue<RunInterruptEvent> eventQueue, ISettings settings) {
+    public RunInterruptMonitor(
+        KubernetesEngineFacade kubeApi,
+        IFrameworkRuns runs,
+        Queue<RunInterruptEvent> eventQueue,
+        ISettings settings,
+        ITimeService timeService
+    ) {
         this.runs = runs;
         this.kubeApi = kubeApi;
         this.eventQueue = eventQueue;
-        this.settings = settings ;
+        this.settings = settings;
+        this.timeService = timeService;
     }
 
     @Override
@@ -52,21 +62,42 @@ public class RunInterruptMonitor implements Runnable {
             logger.info("Starting scan for interrupted runs");
     
             try {
-                List<RunInterruptEvent> interruptedRunEvents = getInterruptedRunEvents();
-    
-                List<String> interruptedRunNames = getInterruptedRunNames(interruptedRunEvents);
-    
-                deletePodsForInterruptedRuns(interruptedRunNames);
+                List<RunInterruptEvent> timedOutInterruptEvents = getTimedOutInterruptEvents();
+
+                List<String> timedOutInterruptedRunNames = getInterruptedRunNames(timedOutInterruptEvents);
+                deletePodsForInterruptedRuns(timedOutInterruptedRunNames);
     
                 // Add the interrupt events to set the DSS entries of the interrupted
                 // runs to finished and complete all deferred RAS actions
-                eventQueue.addAll(interruptedRunEvents);
+                eventQueue.addAll(timedOutInterruptEvents);
     
                 logger.info("Finished scanning for interrupted runs");
             } catch (Exception e) {
                 logger.error("Problem with interrupted run scan", e);
             }
         }
+    }
+
+    private List<RunInterruptEvent> getTimedOutInterruptEvents() throws FrameworkException {
+        List<RunInterruptEvent> interruptedRunEvents = getInterruptedRunEvents();
+        List<RunInterruptEvent> timedOutInterruptEvents = new ArrayList<>();
+
+        long testPodInterruptTimeoutSecs = settings.getTestPodInterruptTimeoutSecs();
+        Instant currentTime = timeService.now();
+        for (RunInterruptEvent interruptEvent : interruptedRunEvents) {
+
+            Instant interruptedAt = interruptEvent.getInterruptedAt();
+            if (interruptedAt == null) {
+                // We don't know when this event's run was interrupted, so consider it timed out
+                timedOutInterruptEvents.add(interruptEvent);
+            } else {
+                Instant timeToDeletePod = interruptedAt.plusSeconds(testPodInterruptTimeoutSecs);
+                if (currentTime.isAfter(timeToDeletePod)) {
+                    timedOutInterruptEvents.add(interruptEvent);
+                }
+            }
+        }
+        return timedOutInterruptEvents;
     }
 
     private void deletePodsForInterruptedRuns(List<String> interruptedRunNames) throws K8sControllerException {
@@ -95,12 +126,13 @@ public class RunInterruptMonitor implements Runnable {
         for (IRun run : allRuns) {
             String runName = run.getName();
             String runInterruptReason = run.getInterruptReason();
+            Instant runInterruptedAt = run.getInterruptedAt();
             List<RunRasAction> rasActions = run.getRasActions();
 
             // Create an interrupted run event if the run hasn't finished and has an interrupt reason
             TestRunLifecycleStatus runStatus = TestRunLifecycleStatus.getFromString(run.getStatus());
             if ((runStatus != TestRunLifecycleStatus.FINISHED) && (runInterruptReason != null)) {
-                RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, runInterruptReason);
+                RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, runInterruptReason, runInterruptedAt);
                 interruptedRunEvents.add(interruptEvent);
             }
         }

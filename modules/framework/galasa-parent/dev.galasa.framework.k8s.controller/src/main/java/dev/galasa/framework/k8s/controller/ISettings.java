@@ -49,5 +49,7 @@ public interface ISettings {
     public long getKubeLaunchIntervalMillisecs();
 
     public int getMaxTestPodRetryLimit();
+
+    public long getTestPodInterruptTimeoutSecs();
 }
 

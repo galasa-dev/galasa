@@ -119,4 +119,33 @@ public class SettingsTest {
 
         assertThat(gotBack).isEqualTo(Settings.MAX_TEST_POD_RETRY_LIMIT_DEFAULT);
     }
+
+
+    @Test
+    public void testCanReadNonDefaultTestPodInterruptTimeoutSecsIfPresentInConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        KubernetesEngineFacade kube = null;
+        Settings settings = new Settings(controller, kube, "myPod", "myConfigMapName");
+        Map<String,String> configMap = new HashMap<String,String>();
+        configMap.put(Settings.TEST_POD_INTERRUPT_TIMEOUT_SECS_PROPERTY_NAME, "50");
+        settings.updateConfigMapProperties(configMap);
+
+        long gotBack = settings.getTestPodInterruptTimeoutSecs();
+
+        assertThat(gotBack).isEqualTo(50);
+    }
+
+    @Test
+    public void testUsesDefaultTestPodInterruptTimeoutSecsIfMissingFromConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        KubernetesEngineFacade kube = null;
+        Settings settings = new Settings(controller, kube, "myPod", "myConfigMapName");
+        Map<String,String> configMap = new HashMap<String,String>();
+
+        settings.updateConfigMapProperties(configMap);
+
+        long gotBack = settings.getTestPodInterruptTimeoutSecs();
+
+        assertThat(gotBack).isEqualTo(300);
+    }
 }

@@ -160,4 +160,9 @@ public class MockIRun implements IRun {
     public TestStructure toTestStructure() {
         throw new UnsupportedOperationException("Unimplemented method 'toTestStructure'");
     }
+
+    @Override
+    public Instant getInterruptedAt() {
+        throw new UnsupportedOperationException("Unimplemented method 'getInterruptedAt'");
+    }
 }
