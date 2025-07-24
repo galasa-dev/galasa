@@ -30,6 +30,7 @@ public class MockTestRunManagers implements ITestRunManagers {
     public int calledCountEndOfTestClass = 0 ;
     public int calledCountTestClassResult = 0 ;
     public int calledCountAnyReasonTestMethodShouldBeIgnored = 0 ;
+    public int calledCountEndOfTestMethod = 0 ;
 
     private Result resultToReturn;
     private Result testMethodResultToReturn;
@@ -118,6 +119,7 @@ public class MockTestRunManagers implements ITestRunManagers {
     @Override
     public Result endOfTestMethod(@NotNull GalasaMethod galasaMethod, @NotNull Result currentResult,
             Throwable currentException) throws FrameworkException {
+        calledCountEndOfTestMethod +=1;
         return this.testMethodResultToReturn;
     }
 

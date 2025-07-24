@@ -83,7 +83,6 @@ public class TestMethodWrapperTest {
     }
 
     private TestClassWrapper createTestClassWrapper() throws Exception {
-        TestRunner testRunner = new TestRunner();
 
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
@@ -98,12 +97,10 @@ public class TestMethodWrapperTest {
 
         mockDataProvider.setFramework(mockFramework);
 
-        testRunner.init(mockDataProvider);
-
         TestStructure testStructure = new TestStructure();
 
         String testBundle = "my/testbundle";
-        TestClassWrapper testClassWrapper = new TestClassWrapper(testRunner, testBundle, MockTestClass.class, testStructure);
+        TestClassWrapper testClassWrapper = new TestClassWrapper(testBundle, MockTestClass.class, testStructure, true , mockFramework);
         return testClassWrapper;
     }
 

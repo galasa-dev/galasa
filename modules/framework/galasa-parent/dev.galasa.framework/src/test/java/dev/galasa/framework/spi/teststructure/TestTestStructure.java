@@ -62,4 +62,11 @@ public class TestTestStructure {
         t.removeTag("tag1");
         assertThat(t.getTags()).containsExactlyInAnyOrder("tag2");
     }
+
+    @Test
+    public void testCanReportEvenWhenThereAreNoMethods() throws Exception {
+        TestStructure t = getPopulatedTestStructure();
+        t.setMethods(null);
+        t.report("***");
+    }
 }
