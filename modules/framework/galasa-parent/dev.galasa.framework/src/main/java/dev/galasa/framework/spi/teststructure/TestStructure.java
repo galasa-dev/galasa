@@ -202,9 +202,12 @@ public class TestStructure {
         sb.append(" status=");
         sb.append(actualStatus);
 
-        String methodPrefix = prefix + "    ";
-        for (TestMethod method : this.methods) {
-            method.report(methodPrefix, sb);
+        // Don't report any method data if there are no methods.
+        if (this.methods != null) {
+            String methodPrefix = prefix + "    ";
+            for (TestMethod method : this.methods) {
+                method.report(methodPrefix, sb);
+            }
         }
 
         return sb.toString();
