@@ -62,14 +62,14 @@ public class RunInterruptMonitor implements Runnable {
             logger.info("Starting scan for interrupted runs");
     
             try {
-                List<RunInterruptEvent> timedOutInterruptEvents = getTimedOutInterruptEvents();
+                List<RunInterruptEvent> interruptedRunEvents = getInterruptedRunEventsPastCleanupGracePeriod();
 
-                List<String> timedOutInterruptedRunNames = getInterruptedRunNames(timedOutInterruptEvents);
-                deletePodsForInterruptedRuns(timedOutInterruptedRunNames);
+                List<String> interruptedRunNames = getInterruptedRunNames(interruptedRunEvents);
+                deletePodsForInterruptedRuns(interruptedRunNames);
     
                 // Add the interrupt events to set the DSS entries of the interrupted
                 // runs to finished and complete all deferred RAS actions
-                eventQueue.addAll(timedOutInterruptEvents);
+                eventQueue.addAll(interruptedRunEvents);
     
                 logger.info("Finished scanning for interrupted runs");
             } catch (Exception e) {
@@ -78,26 +78,32 @@ public class RunInterruptMonitor implements Runnable {
         }
     }
 
-    private List<RunInterruptEvent> getTimedOutInterruptEvents() throws FrameworkException {
+    /**
+     * Gets all the test run interrupt events that are now outside the test run cleanup grace period timing window.
+     * 
+     * @return the test run interrupt events for test runs that remain after the cleanup grace period has passed
+     * @throws FrameworkException if there was an issue getting test runs from the framework
+     */
+    private List<RunInterruptEvent> getInterruptedRunEventsPastCleanupGracePeriod() throws FrameworkException {
         List<RunInterruptEvent> interruptedRunEvents = getInterruptedRunEvents();
-        List<RunInterruptEvent> timedOutInterruptEvents = new ArrayList<>();
+        List<RunInterruptEvent> interruptedRunEventsPastGracePeriod = new ArrayList<>();
 
-        long testPodInterruptTimeoutSecs = settings.getTestPodInterruptTimeoutSecs();
+        long testRunCleanupGracePeriodSeconds = settings.getInterruptedTestRunCleanupGracePeriodSeconds();
         Instant currentTime = timeService.now();
         for (RunInterruptEvent interruptEvent : interruptedRunEvents) {
 
             Instant interruptedAt = interruptEvent.getInterruptedAt();
             if (interruptedAt == null) {
                 // We don't know when this event's run was interrupted, so consider it timed out
-                timedOutInterruptEvents.add(interruptEvent);
+                interruptedRunEventsPastGracePeriod.add(interruptEvent);
             } else {
-                Instant timeToDeletePod = interruptedAt.plusSeconds(testPodInterruptTimeoutSecs);
+                Instant timeToDeletePod = interruptedAt.plusSeconds(testRunCleanupGracePeriodSeconds);
                 if (currentTime.isAfter(timeToDeletePod)) {
-                    timedOutInterruptEvents.add(interruptEvent);
+                    interruptedRunEventsPastGracePeriod.add(interruptEvent);
                 }
             }
         }
-        return timedOutInterruptEvents;
+        return interruptedRunEventsPastGracePeriod;
     }
 
     private void deletePodsForInterruptedRuns(List<String> interruptedRunNames) throws K8sControllerException {

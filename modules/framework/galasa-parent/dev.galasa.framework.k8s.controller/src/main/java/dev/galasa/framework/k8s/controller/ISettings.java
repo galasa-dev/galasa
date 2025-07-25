@@ -50,6 +50,6 @@ public interface ISettings {
 
     public int getMaxTestPodRetryLimit();
 
-    public long getTestPodInterruptTimeoutSecs();
+    public long getInterruptedTestRunCleanupGracePeriodSeconds();
 }
 

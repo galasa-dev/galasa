@@ -122,21 +122,21 @@ public class SettingsTest {
 
 
     @Test
-    public void testCanReadNonDefaultTestPodInterruptTimeoutSecsIfPresentInConfigMap() throws Exception {
+    public void testCanReadNonDefaultInterruptedTestRunCleanupGracePeriodSecsIfPresentInConfigMap() throws Exception {
         K8sController controller = new K8sController();
         KubernetesEngineFacade kube = null;
         Settings settings = new Settings(controller, kube, "myPod", "myConfigMapName");
         Map<String,String> configMap = new HashMap<String,String>();
-        configMap.put(Settings.TEST_POD_INTERRUPT_TIMEOUT_SECS_PROPERTY_NAME, "50");
+        configMap.put(Settings.INTERRUPTED_RUN_CLEANUP_GRACE_PERIOD_SECS_PROPERTY_NAME, "50");
         settings.updateConfigMapProperties(configMap);
 
-        long gotBack = settings.getTestPodInterruptTimeoutSecs();
+        long gotBack = settings.getInterruptedTestRunCleanupGracePeriodSeconds();
 
         assertThat(gotBack).isEqualTo(50);
     }
 
     @Test
-    public void testUsesDefaultTestPodInterruptTimeoutSecsIfMissingFromConfigMap() throws Exception {
+    public void testUsesDefaultInterruptedTestRunCleanupGracePeriodSecsIfMissingFromConfigMap() throws Exception {
         K8sController controller = new K8sController();
         KubernetesEngineFacade kube = null;
         Settings settings = new Settings(controller, kube, "myPod", "myConfigMapName");
@@ -144,7 +144,7 @@ public class SettingsTest {
 
         settings.updateConfigMapProperties(configMap);
 
-        long gotBack = settings.getTestPodInterruptTimeoutSecs();
+        long gotBack = settings.getInterruptedTestRunCleanupGracePeriodSeconds();
 
         assertThat(gotBack).isEqualTo(300);
     }
