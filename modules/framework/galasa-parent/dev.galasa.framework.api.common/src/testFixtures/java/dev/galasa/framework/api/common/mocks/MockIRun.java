@@ -213,4 +213,9 @@ public class MockIRun implements IRun{
     public List<RunRasAction> getRasActions() {
         throw new UnsupportedOperationException("Unimplemented method 'getRasActions'");
     }
+
+    @Override
+    public Instant getInterruptedAt() {
+        throw new UnsupportedOperationException("Unimplemented method 'getInterruptedAt'");
+    }
 }

@@ -226,7 +226,7 @@ public class K8sController {
         schedulePoll();
 
         Queue<RunInterruptEvent> interruptEventQueue = new LinkedBlockingQueue<RunInterruptEvent>();
-        RunInterruptMonitor runInterruptWatcher = new RunInterruptMonitor(kubeEngineFacade, frameworkRuns, interruptEventQueue, settings);
+        RunInterruptMonitor runInterruptWatcher = new RunInterruptMonitor(kubeEngineFacade, frameworkRuns, interruptEventQueue, settings, timeService);
         scheduledExecutorService.scheduleWithFixedDelay(runInterruptWatcher, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
         IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(ras);

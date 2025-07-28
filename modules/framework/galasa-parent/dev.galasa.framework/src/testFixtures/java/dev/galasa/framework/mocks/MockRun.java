@@ -32,6 +32,7 @@ public class MockRun implements IRun {
     private String submissionId;
     private String status;
     private String interruptReason;
+    private Instant interruptedAt;
     private String result;
     private String runId;
     private List<RunRasAction> rasActions = new ArrayList<>();
@@ -173,6 +174,15 @@ public class MockRun implements IRun {
     }
 
     @Override
+    public Instant getInterruptedAt() {
+        return this.interruptedAt;
+    }
+
+    public void setInterruptedAt(Instant interruptedAt) {
+        this.interruptedAt = interruptedAt;
+    }
+
+    @Override
     public String getResult() {
         return this.result;
     }
@@ -249,5 +259,4 @@ public class MockRun implements IRun {
     public Run getSerializedRun() {
         throw new UnsupportedOperationException("Unimplemented method 'getSerializedRun'");
     }
-
 }

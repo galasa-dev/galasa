@@ -54,6 +54,7 @@ public class RunImpl implements IRun {
     private final boolean sharedEnvironment;
     private final String  rasRunId;
     private final String  interruptReason;
+    private final Instant interruptedAt;
     private List<RunRasAction> rasActions = new ArrayList<>();
     private final Set<String> tags;
 
@@ -91,6 +92,7 @@ public class RunImpl implements IRun {
         sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + "shared.environment"));
         gherkin = runProperties.get(prefix + "gherkin");
         tags = getTagsFromDss(runProperties, prefix);
+        interruptedAt = getInterruptedAtTimeFromDss(runProperties, prefix);
 
         String encodedRasActions = runProperties.get(prefix + "rasActions");
         if (encodedRasActions != null) {
@@ -137,6 +139,15 @@ public class RunImpl implements IRun {
         }
 
         logger.info("RunImpl created: "+this.toString());
+    }
+
+    private Instant getInterruptedAtTimeFromDss(Map<String, String> runProperties, String prefix) {
+        Instant interruptedAt = null;
+        String interruptedAtStr = runProperties.get(prefix + "interruptedAt");
+        if (interruptedAtStr != null) {
+            interruptedAt = Instant.parse(interruptedAtStr);
+        }
+        return interruptedAt;
     }
 
     private Set<String> getTagsFromDss(Map<String, String> runProperties, String prefix) {
@@ -292,6 +303,11 @@ public class RunImpl implements IRun {
     @Override
     public String getInterruptReason() {
         return this.interruptReason;
+    }
+
+    @Override
+    public Instant getInterruptedAt() {
+        return this.interruptedAt;
     }
 
     @Override

@@ -7,6 +7,7 @@ import dev.galasa.framework.k8s.controller.ISettings;
 public class MockISettings implements ISettings {
 
     public int maxTestPodRetriesLimit = 2;
+    public int interruptedTestRunCleanupGracePeriodSecs = 10;
     public static final String ENGINE_LABEL = "myEngineLabel";
 
     @Override
@@ -94,10 +95,13 @@ public class MockISettings implements ISettings {
         return maxTestPodRetriesLimit;
     }
 
-        @Override
+    @Override
+    public long getInterruptedTestRunCleanupGracePeriodSeconds() {
+        return interruptedTestRunCleanupGracePeriodSecs;
+    }
+
+    @Override
     public List<String> getRequestorsByGroup() {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getRequestorsByGroup'");
     }
-    
 }

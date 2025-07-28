@@ -27,6 +27,7 @@ import dev.galasa.framework.mocks.MockCPSStore;
 import dev.galasa.framework.mocks.MockDSSStore;
 import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.mocks.MockRun;
+import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
@@ -825,7 +826,10 @@ public class FrameworkRunsTest {
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
         MockFramework mockFramework = new MockFramework(mockCps, mockDss);
 
-        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
 
         String runName = "mytestrun1";
         String rasRunId = "my-run-document-id";
@@ -839,6 +843,7 @@ public class FrameworkRunsTest {
         // Then...
         assertThat(isRunMarkedCancelled).isTrue();
         assertThat(mockDss.get("run." + runName + ".interruptReason")).isEqualTo(Result.CANCELLED);
+        assertThat(mockDss.get("run." + runName + ".interruptedAt")).isEqualTo(currentTime.toString());
 
         // We expect the 'rasActions' property to be populated with a base64-encoded JSON structure
         List<RunRasAction> expectedRasActions = new ArrayList<>();
@@ -851,13 +856,16 @@ public class FrameworkRunsTest {
     }
 
     @Test
-    public void testCancelRunWithoutRunIdSetsInterruptReasonOnly() throws Exception {
+    public void testCancelRunWithoutRunIdSetsInterruptReasonAndTimeOnly() throws Exception {
         // Given...
         MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
         MockFramework mockFramework = new MockFramework(mockCps, mockDss);
 
-        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
 
         String runName = "mytestrun1";
         String status = "allocated";
@@ -871,6 +879,7 @@ public class FrameworkRunsTest {
         // Then...
         assertThat(isRunMarkedCancelled).isTrue();
         assertThat(mockDss.get("run." + runName + ".interruptReason")).isEqualTo(Result.CANCELLED);
+        assertThat(mockDss.get("run." + runName + ".interruptedAt")).isEqualTo(currentTime.toString());
 
         // We expect the 'rasActions' property to be empty
         assertThat(mockDss.get("run." + runName + ".rasActions")).isNull();
@@ -936,7 +945,10 @@ public class FrameworkRunsTest {
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
         MockFramework mockFramework = new MockFramework(mockCps, mockDss);
 
-        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
 
         String runName = "mytestrun1";
         String rasRunId = "my-run-document-id";
@@ -951,6 +963,7 @@ public class FrameworkRunsTest {
         // Mark the run as cancelled already
         mockDss.put("run." + runName + ".rasrunid", rasRunId);
         mockDss.put("run." + runName + ".interruptReason", Result.CANCELLED);
+        mockDss.put("run." + runName + ".interruptedAt", currentTime.toString());
         mockDss.put("run." + runName + ".rasActions", encodedRasActionStr);
 
         // When...
@@ -992,13 +1005,16 @@ public class FrameworkRunsTest {
     }
 
     @Test
-    public void testmarkRunInterruptedSetsInterruptReasonAndRasActionOk() throws Exception {
+    public void testMarkRunInterruptedSetsInterruptPropertiesAndRasActionOk() throws Exception {
         // Given...
         MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
         MockFramework mockFramework = new MockFramework(mockCps, mockDss);
 
-        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
 
         String runName = "mytestrun1";
         String rasRunId = "my-run-document-id";
@@ -1012,6 +1028,7 @@ public class FrameworkRunsTest {
         // Then...
         assertThat(isRunMarkedRequeued).isTrue();
         assertThat(mockDss.get("run." + runName + ".interruptReason")).isEqualTo(Result.REQUEUED);
+        assertThat(mockDss.get("run." + runName + ".interruptedAt")).isEqualTo(currentTime.toString());
 
         // We expect the 'rasActions' property to be populated with a base64-encoded JSON structure
         List<RunRasAction> expectedRasActions = new ArrayList<>();
@@ -1030,7 +1047,10 @@ public class FrameworkRunsTest {
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
         MockFramework mockFramework = new MockFramework(mockCps, mockDss);
 
-        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
 
         String runName = "mytestrun1";
         String rasRunId = "my-run-document-id";
@@ -1124,13 +1144,17 @@ public class FrameworkRunsTest {
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
         MockFramework mockFramework = new MockFramework(mockCps, mockDss);
 
-        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
 
         String runName = "mytestrun1";
         String rasRunId = "my-run-document-id";
 
         mockDss.put("run." + runName + ".rasrunid", rasRunId);
         mockDss.put("run." + runName + ".interruptReason", Result.REQUEUED);
+        mockDss.put("run." + runName + ".interruptedAt", currentTime.toString());
         mockDss.put("run." + runName + ".heartbeat", Instant.now().toString());
 
         // When...
@@ -1139,6 +1163,7 @@ public class FrameworkRunsTest {
         // Then...
         assertThat(isRunReset).isTrue();
         assertThat(mockDss.get("run." + runName + ".interruptReason")).isNull();
+        assertThat(mockDss.get("run." + runName + ".interruptedAt")).isNull();
         assertThat(mockDss.get("run." + runName + ".heartbeat")).isNull();
         assertThat(mockDss.get("run." + runName + ".status")).isEqualTo(TestRunLifecycleStatus.QUEUED.toString());
     }

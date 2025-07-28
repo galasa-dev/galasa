@@ -8,6 +8,7 @@ package dev.galasa.framework.k8s.controller;
 import static org.assertj.core.api.Assertions.*;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -74,6 +75,7 @@ public class InterruptedRunEventProcessorTest {
         String runName = "RUN1";
         String status = "running";
         String interruptReason = Result.CANCELLED;
+        Instant interruptedAt = Instant.now();
 
         RunRasAction mockRasAction = new RunRasAction(runId, TestRunLifecycleStatus.FINISHED.toString(), interruptReason);
         List<RunRasAction> rasActions = List.of(mockRasAction);
@@ -99,7 +101,7 @@ public class InterruptedRunEventProcessorTest {
         KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
-        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason);
+        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, interruptedAt);
         eventQueue.add(interruptEvent);
 
         InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade, mockRas);
@@ -124,6 +126,7 @@ public class InterruptedRunEventProcessorTest {
         String runName = "RUN1";
         String status = "running";
         String interruptReason = Result.REQUEUED;
+        Instant interruptedAt = Instant.now();
 
         RunRasAction mockRasAction = new RunRasAction(runId, TestRunLifecycleStatus.FINISHED.toString(), interruptReason);
         List<RunRasAction> rasActions = List.of(mockRasAction);
@@ -149,7 +152,7 @@ public class InterruptedRunEventProcessorTest {
         KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
-        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason);
+        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, interruptedAt);
         eventQueue.add(interruptEvent);
 
         InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade, mockRas);
@@ -173,6 +176,7 @@ public class InterruptedRunEventProcessorTest {
         String runName = "RUN1";
         String status = "running";
         String interruptReason = Result.CANCELLED;
+        Instant interruptedAt = Instant.now();
 
         RunRasAction mockRasAction = new RunRasAction(runId, TestRunLifecycleStatus.FINISHED.toString(), interruptReason);
         List<RunRasAction> rasActions = List.of(mockRasAction);
@@ -200,7 +204,7 @@ public class InterruptedRunEventProcessorTest {
         KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
-        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason);
+        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, interruptedAt);
         eventQueue.add(interruptEvent);
 
         InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade, mockRas);

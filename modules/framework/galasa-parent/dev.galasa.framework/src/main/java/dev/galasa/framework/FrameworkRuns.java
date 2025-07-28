@@ -63,12 +63,17 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     private final String                             RUN_PREFIX   = "run.";
 
-    private ITimeService timeService = new SystemTimeService();
+    private ITimeService timeService;
 
     private final GalasaGson gson = new GalasaGson();
 
     public FrameworkRuns(IFramework framework) throws FrameworkException {
+        this(framework, new SystemTimeService());
+    }
+
+    public FrameworkRuns(IFramework framework, ITimeService timeService) throws FrameworkException {
         this.framework = framework;
+        this.timeService = timeService;
         this.dss = framework.getDynamicStatusStoreService("framework");
         this.cps = framework.getConfigurationPropertyService("framework");
         gson.setGsonBuilder(new GalasaGsonBuilder(false));
@@ -317,6 +322,7 @@ public class FrameworkRuns implements IFrameworkRuns {
             Set<String> keysToDelete = new HashSet<>();
             keysToDelete.add(getSuffixedRunDssKey(runName, "heartbeat"));
             keysToDelete.add(getSuffixedRunDssKey(runName, "interruptReason"));
+            keysToDelete.add(getSuffixedRunDssKey(runName, "interruptedAt"));
             this.dss.delete(keysToDelete);
 
             // Set the status of the run back to 'queued' and generate a new run ID
@@ -359,6 +365,7 @@ public class FrameworkRuns implements IFrameworkRuns {
             propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
         }
 
+        propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptedAt"), timeService.now().toString());
         propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), interruptReason);
 
         this.dss.put(propertiesToSet);

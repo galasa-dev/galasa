@@ -119,4 +119,33 @@ public class SettingsTest {
 
         assertThat(gotBack).isEqualTo(Settings.MAX_TEST_POD_RETRY_LIMIT_DEFAULT);
     }
+
+
+    @Test
+    public void testCanReadNonDefaultInterruptedTestRunCleanupGracePeriodSecsIfPresentInConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        KubernetesEngineFacade kube = null;
+        Settings settings = new Settings(controller, kube, "myPod", "myConfigMapName");
+        Map<String,String> configMap = new HashMap<String,String>();
+        configMap.put(Settings.INTERRUPTED_RUN_CLEANUP_GRACE_PERIOD_SECS_PROPERTY_NAME, "50");
+        settings.updateConfigMapProperties(configMap);
+
+        long gotBack = settings.getInterruptedTestRunCleanupGracePeriodSeconds();
+
+        assertThat(gotBack).isEqualTo(50);
+    }
+
+    @Test
+    public void testUsesDefaultInterruptedTestRunCleanupGracePeriodSecsIfMissingFromConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        KubernetesEngineFacade kube = null;
+        Settings settings = new Settings(controller, kube, "myPod", "myConfigMapName");
+        Map<String,String> configMap = new HashMap<String,String>();
+
+        settings.updateConfigMapProperties(configMap);
+
+        long gotBack = settings.getInterruptedTestRunCleanupGracePeriodSeconds();
+
+        assertThat(gotBack).isEqualTo(300);
+    }
 }
