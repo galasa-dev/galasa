@@ -125,8 +125,19 @@ public class TestClassWrapper {
 
         // *** Build the wrappers for the test methods
         for (Method method : temporaryTestMethods) {
-            this.testMethods
-            .add(new TestMethodWrapper(method, this.testClass, temporaryBeforeMethods, temporaryAfterMethods));
+
+            ArrayList<GenericMethodWrapper> beforesForThisTestMethod = new ArrayList<>();
+            for (GenericMethodWrapper before : temporaryBeforeMethods) {
+                beforesForThisTestMethod.add(before.createCopyGenericMethodWrapper());
+            }
+
+            ArrayList<GenericMethodWrapper> afterMethodsForThisTestMethod = new ArrayList<>();
+            for (GenericMethodWrapper after : temporaryAfterMethods) {
+                afterMethodsForThisTestMethod.add(after.createCopyGenericMethodWrapper());
+            }
+
+            TestMethodWrapper testMethodWrapper = new TestMethodWrapper(method, this.testClass, beforesForThisTestMethod, afterMethodsForThisTestMethod);
+            this.testMethods.add(testMethodWrapper);
         }
 
         // Populate more fields in the test structure so reporting has more information.
@@ -134,15 +145,21 @@ public class TestClassWrapper {
         this.testStructure.setMethods(structureMethods);
 
         for (GenericMethodWrapper before : this.beforeClassMethods) {
-            structureMethods.add(before.getStructure());
+            before.initialiseGenericMethodStructure();
+            TestMethod beforeTestStructureMethod = before.getGenericMethodStructure();
+            structureMethods.add(beforeTestStructureMethod);
         }
 
         for (TestMethodWrapper testMethod : this.testMethods) {
-            structureMethods.add(testMethod.getStructure());
+            testMethod.initialiseTestMethodStructure();
+            TestMethod testTestStructureMethod = testMethod.getTestStructureMethod();
+            structureMethods.add(testTestStructureMethod);
         }
 
         for (GenericMethodWrapper after : this.afterClassMethods) {
-            structureMethods.add(after.getStructure());
+            after.initialiseGenericMethodStructure();
+            TestMethod afterTestStructureMethod = after.getGenericMethodStructure();
+            structureMethods.add(afterTestStructureMethod);
         }
 
         String report = this.testStructure.report(LOG_START_LINE);
