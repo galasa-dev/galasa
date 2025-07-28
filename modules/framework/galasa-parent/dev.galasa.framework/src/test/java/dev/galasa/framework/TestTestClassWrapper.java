@@ -12,11 +12,14 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.junit.Test;
 
+import dev.galasa.After;
+import dev.galasa.Before;
 import dev.galasa.ContinueOnTestFailure;
 import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.mocks.MockLog;
+import dev.galasa.framework.mocks.MockRASStoreService;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.mocks.MockTestRunManagers;
 import dev.galasa.framework.mocks.MockTestRunnerDataProvider;
@@ -329,4 +332,92 @@ public class TestTestClassWrapper {
         assertThat(logger.contains("Finishing Test Class structure:-")).isTrue();
         
     }
+
+    public static class FakeTestThatCanBeRun {
+
+        public int allMethodsCalledCount = 0;
+
+        FakeTestThatCanBeRun() {
+        }
+
+        @Before
+        public void myBeforeMethod() throws Exception {
+            if (allMethodsCalledCount == 1) {
+                throw new TestRunException();
+            }
+        }
+
+        @dev.galasa.Test
+        public void myTestMethod1() throws Exception {
+            // Do nothing.
+        }
+
+        @dev.galasa.Test
+        public void myTestMethod2() throws Exception {
+            // Do nothing.
+        }
+
+        @After
+        public void myAfterMethod() throws Exception {
+            if (allMethodsCalledCount == 1) {
+                throw new TestRunException();
+            }
+
+            allMethodsCalledCount++; // Next loop we want different behaviour.
+        }
+    }
+
+    @Test
+    public void testFieldsOfAllBeforeAndAfterMethodsAreSetInStructureOK() throws Exception {
+
+        // Given...
+        String testBundle = null;
+
+        Class<?> testClass = FakeTestThatCanBeRun.class;
+        TestStructure testStructure = new TestStructure();
+        boolean isContinueOnTestFailureFromCPS = true;
+        MockFramework mockFramework = new MockFramework();
+
+        MockRASStoreService ras = new MockRASStoreService(null);
+        mockFramework.setMockRas(ras);
+
+        TestClassWrapper wrapper = new TestClassWrapper(
+            testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS , mockFramework);
+
+        ITestRunManagers managers = new MockTestRunManagers(isContinueOnTestFailureFromCPS, null);
+
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        String runName = "U1";
+
+        wrapper.parseTestClass();
+        wrapper.instantiateTestClass();
+
+        // When...
+        wrapper.runMethods(managers, dss, runName);
+
+        // Then...
+        assertThat(testStructure.getMethods().size()).isEqualTo(2);
+
+        // The Befores of the TestMethods should not be pointing to the same object...
+        assertThat(testStructure.getMethods().get(0).getBefores().get(0))
+        .isNotEqualTo(testStructure.getMethods().get(1).getBefores().get(0));
+
+        // The Afters of the TestMethods should not be pointing to the same object...
+        assertThat(testStructure.getMethods().get(0).getAfters().get(0))
+        .isNotEqualTo(testStructure.getMethods().get(1).getAfters().get(0));
+
+        // The structure of the TestMethods for myTestMethod1 and myTestMethod2 should be different...
+        assertThat(testStructure.getMethods().get(0).getBefores().get(0).getResult()).isEqualTo("Passed");
+        assertThat(testStructure.getMethods().get(0).getBefores().get(0).getStatus()).isEqualTo("finished");
+        assertThat(testStructure.getMethods().get(0).getResult()).isEqualTo("Passed");
+        assertThat(testStructure.getMethods().get(0).getAfters().get(0).getResult()).isEqualTo("Passed");
+        assertThat(testStructure.getMethods().get(0).getAfters().get(0).getStatus()).isEqualTo("finished");
+
+        assertThat(testStructure.getMethods().get(1).getBefores().get(0).getResult()).isEqualTo("Failed");
+        assertThat(testStructure.getMethods().get(1).getBefores().get(0).getStatus()).isEqualTo("finished");
+        assertThat(testStructure.getMethods().get(1).getResult()).isNull();
+        assertThat(testStructure.getMethods().get(1).getAfters().get(0).getResult()).isEqualTo("Failed");
+        assertThat(testStructure.getMethods().get(1).getAfters().get(0).getStatus()).isEqualTo("finished");
+    }
+
 }
