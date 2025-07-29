@@ -106,3 +106,10 @@ check_exit_code $? "Failed to build"
 success "OK"
 
 info "To preview, the docs are at: file://$BASEDIR/build/site/index.html"
+
+h2 "Building galasa-docs-site Docker image that hosts the website in a local web server"
+docker build -f dockerfile.galasadocssite -t galasa-docs-site .
+check_exit_code $? "Failed to build"
+success "OK"
+
+info "To run the image and access the docs in localhost:8080, run: docker run -d -p 8080:80 galasa-docs-site"

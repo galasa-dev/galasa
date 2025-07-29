@@ -2,13 +2,13 @@
 title: "Installing the Galasa CLI offline"
 ---
 
-The Galasa _isolated.zip_ file is available from the [https://resources.galasa.dev/](https://resources.galasa.dev){target="_blank"} site and can be downloaded and extracted to a directory of your choice. The zip file contains three directories (galasactl, maven, and javadoc), an `isolated.tar` file and a `docs.jar` file. 
+The Galasa _isolated.zip_ file is available from the [https://resources.galasa.dev/](https://resources.galasa.dev){target="_blank"} site and can be downloaded and extracted to a directory of your choice. The zip file contains three directories (galasactl, maven, and javadoc), an `isolated.tar` file and a `docs.tar` file. 
 
-The `galasactl` directory contains the binaries that are required to run the Galasa command line interface tool (Galasa CLI). The `maven` directory contains dependencies that are required for building Galasa tests. The `javadoc` directory contains the Javadoc API documentation for the Galasa Managers.
+The `galasactl` directory contains the binaries that are required to run the Galasa command line interface tool (Galasa CLI). The `maven` directory contains dependencies that are required for running Galasa tests. The `javadoc` directory contains the Javadoc API documentation for the Galasa Managers.
+
+The `docs.tar` file loads a Docker image that enables you to run the Galasa website locally on your machine or on an internal server. Instructions on how to do this are available in the `README.txt` that is provided in the Galasa zip file. 
 
 The `isolated.tar` file is an optional Docker image that hosts all the artifacts. You might want to use the Docker image if you want to host Galasa on an internal server that can be accessed by other users. If you want to host Galasa on your local machine only, you do not need to use the Docker image. 
-
-The `docs.jar` file enables you to run the Galasa website locally on your machine or on an internal server. Instructions on how to do this are available in the `README.txt` that is provided in the Galasa zip file. 
 
 
 ## Getting started

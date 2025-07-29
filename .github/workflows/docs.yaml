@@ -103,6 +103,31 @@ jobs:
           name: galasa-docs-site
           path: docs/build/site
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        env:
+          WRITE_GITHUB_PACKAGES_USERNAME: ${{ vars.WRITE_GITHUB_PACKAGES_USERNAME }}
+          WRITE_GITHUB_PACKAGES_TOKEN: ${{ secrets.WRITE_GITHUB_PACKAGES_TOKEN }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.WRITE_GITHUB_PACKAGES_USERNAME }}
+          password: ${{ env.WRITE_GITHUB_PACKAGES_TOKEN }}
+
+      - name: Extract metadata for galasa-docs-site image
+        id: metadata
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasa-docs-site
+        
+      - name: Build galasa-docs-site image
+        uses: docker/build-push-action@v5
+        with:
+          context: docs
+          file: docs/dockerfile.galasadocssite
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+
   deploy-docs-pr-preview-to-github-pages:
 
     if: ${{ (github.ref_name == 'main') }}
