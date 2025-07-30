@@ -137,11 +137,16 @@ public class GenericMethodWrapper {
             this.genericMethodStructure.setEndTime(Instant.now());
             this.genericMethodStructure.setStatus("finished");
         } catch (FrameworkException e) {
-            throw new TestRunException("There was a problem with the framework, please check stacktrace", e);
+            throw new TestRunException("There was a problem with the framework: "+e.getMessage(), e);
         }
 
         long runLogEnd = testClassWrapper.getRunLogLineCount();
+        saveRunLogStartAndEnd(runLogStart, runLogEnd);
 
+        return;
+    }
+
+    public void saveRunLogStartAndEnd(long runLogStart, long runLogEnd) {
         // Compare the run log start and run log end to see if this method produced any output.
         // If it did then set the runLogStart and runLogEnd in the test structure.
         // If it didn't, runLogStart and runLogEnd will stay as default of 0.
@@ -151,8 +156,6 @@ public class GenericMethodWrapper {
             setRunLogStart(runLogStart + 1);
             setRunLogEnd(runLogEnd);
         }
-
-        return;
     }
 
     public void initialiseGenericMethodStructure() {

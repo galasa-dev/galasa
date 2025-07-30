@@ -20,6 +20,8 @@ import javax.validation.constraints.NotNull;
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.framework.beans.Property;
 import dev.galasa.framework.internal.runner.ITestRunnerEventsProducer;
+import dev.galasa.framework.internal.runner.InterruptedMonitor;
+import dev.galasa.framework.internal.runner.InterruptedMonitorImpl;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -66,6 +68,8 @@ public class BaseTestRunner {
 
     protected static final GalasaGson gson = new GalasaGson();
 
+    private InterruptedMonitor interruptedMonitor;
+
     protected void init(ITestRunnerDataProvider dataProvider) throws TestRunException {
         this.run = dataProvider.getRun() ;
         this.framework = dataProvider.getFramework();
@@ -83,6 +87,12 @@ public class BaseTestRunner {
         checkRunIsSet(this.run);
 
         loadOverrideProperties(this.overrideProperties, this.run, this.dss);
+
+        this.interruptedMonitor = new InterruptedMonitorImpl( dss, this.run.getName());
+    }
+
+    protected InterruptedMonitor getInterruptedMonitor() {
+        return this.interruptedMonitor; 
     }
 
     protected void shutdownFramework(IShuttableFramework framework) {

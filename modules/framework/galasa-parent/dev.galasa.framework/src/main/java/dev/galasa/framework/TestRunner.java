@@ -306,7 +306,10 @@ public class TestRunner extends BaseTestRunner {
             TestStructure testStructure) throws TestRunException {
         TestClassWrapper testClassWrapper;
         try {
-            testClassWrapper = new TestClassWrapper(testBundleName, testClass, testStructure, this.getContinueOnTestFailureFromCPS(), this.getFramework());
+            testClassWrapper = new TestClassWrapper(
+                testBundleName, testClass, testStructure, this.getContinueOnTestFailureFromCPS(), 
+                this.getFramework().getResultArchiveStore(), getInterruptedMonitor()
+            );
         } catch (Exception e) {
             String msg = "Problem with the CPS when adding a wrapper";
             logger.error(msg + " " + e.getMessage());

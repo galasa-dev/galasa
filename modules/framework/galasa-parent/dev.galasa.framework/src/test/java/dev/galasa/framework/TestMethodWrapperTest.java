@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 import org.junit.Test;
 
 import dev.galasa.framework.GenericMethodWrapper.Type;
-import dev.galasa.framework.mocks.MockFramework;
+import dev.galasa.framework.internal.runner.InterruptedMonitorImpl;
 import dev.galasa.framework.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.mocks.MockRASStoreService;
@@ -92,15 +92,15 @@ public class TestMethodWrapperTest {
         mockDataProvider.setDss(dss);
         mockDataProvider.setRun(new MockRun(null, null, null, null, null, null, null, false));
 
-        MockFramework mockFramework = new MockFramework();
-        mockFramework.setMockRas(ras);
 
-        mockDataProvider.setFramework(mockFramework);
 
         TestStructure testStructure = new TestStructure();
 
         String testBundle = "my/testbundle";
-        TestClassWrapper testClassWrapper = new TestClassWrapper(testBundle, MockTestClass.class, testStructure, true , mockFramework);
+        String runName = "U12345";
+        TestClassWrapper testClassWrapper = new TestClassWrapper(
+            testBundle, MockTestClass.class, testStructure, 
+            true , ras, new InterruptedMonitorImpl(dss,runName));
         return testClassWrapper;
     }
 
@@ -407,5 +407,6 @@ public class TestMethodWrapperTest {
         assertThat(afterMethodWrapper.getGenericMethodStructure().getRunLogStart()).isEqualTo(2);
         assertThat(afterMethodWrapper.getGenericMethodStructure().getRunLogEnd()).isEqualTo(2);
     }
+
 
 }

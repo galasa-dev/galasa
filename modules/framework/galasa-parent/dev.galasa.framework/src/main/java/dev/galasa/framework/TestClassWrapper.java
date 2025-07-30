@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ContinueOnTestFailure;
 import dev.galasa.framework.GenericMethodWrapper.Type;
+import dev.galasa.framework.internal.runner.InterruptedMonitor;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -41,9 +42,8 @@ public class TestClassWrapper {
 
     private final Log                       logger;
 
-    private final String                    testBundle;
     private final Class<?>                  testClass;
-    private Object                          testClassObject;
+    protected Object                        testClassObject;
 
     private Result                          resultData;
 
@@ -67,8 +67,9 @@ public class TestClassWrapper {
 
     private final boolean       continueOnTestFailure;
 
-    boolean isContinueOnTestFailureFromCPS ;
-    IFramework framework ;
+    private final boolean isContinueOnTestFailureFromCPS;
+    private final IResultArchiveStore ras;
+    private final InterruptedMonitor interruptedMonitor;
 
     /**
      * Constructor
@@ -80,9 +81,10 @@ public class TestClassWrapper {
         Class<?> testClass, 
         TestStructure testStructure,
         boolean isContinueOnTestFailureFromCPS,
-        IFramework framework
+        IResultArchiveStore ras,
+        InterruptedMonitor interruptedMonitor
     ) throws ConfigurationPropertyStoreException {
-        this(testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS, framework, LogFactory.getLog(TestClassWrapper.class));
+        this(testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS, ras, interruptedMonitor, LogFactory.getLog(TestClassWrapper.class));
     }
     
 
@@ -91,15 +93,16 @@ public class TestClassWrapper {
         Class<?> testClass, 
         TestStructure testStructure,
         boolean isContinueOnTestFailureFromCPS,
-        IFramework framework,
+        IResultArchiveStore ras,
+        InterruptedMonitor interruptedMonitor,
         Log logger
     ) throws ConfigurationPropertyStoreException {
-        this.testBundle = testBundle;
         this.testClass = testClass;
         this.testStructure = testStructure;
         this.isContinueOnTestFailureFromCPS = isContinueOnTestFailureFromCPS;
-        this.framework = framework;
+        this.ras = ras;
         this.logger = logger ;
+        this.interruptedMonitor = interruptedMonitor;
 
         // Fill-in as much of the test structure as we can at this point.
         // If any failures occur after this, they will at least have the correct test name/bundle...etc attached.
@@ -226,54 +229,79 @@ public class TestClassWrapper {
         logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of test class "
                 + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
 
-        try {
-            managers.startOfTestClass();
-        } catch (FrameworkException e) {
-            throw new TestRunException("Unable to inform managers of start of test class", e);
-        }
+        if( interruptedMonitor.isInterrupted() ) {
 
-        // If we got this far, whatever happens, we need to tell the managers that there is a failure.
-        TestRunException originalEx = null ;
-        try {
+            // The test has been interrupted. 
+            setResultWithoutTellingManagers(Result.cancelled("Test run "+runName+" has been cancelled."));
+
+            // Complete the test structure and log
+            logEndTestLogLine();
+            updateTestStructureWithResult();
+            logEndOfTestClassLogLine();
+
+        } else {
+    
             try {
-                runAllMethods(managers, dss, runName);
-            } catch( TestRunException ex) {
-                originalEx = ex ;
-            }
-        } finally {
-            try {
-                Result newResult = managers.endOfTestClass(getResult(), originalEx); // TODO pass the class level exception
-                if (newResult != null) {
-                    logger.info("Result of test run overridden to " + newResult.getName());
-                    setResult(newResult, managers);
-                }
+                managers.startOfTestClass();
             } catch (FrameworkException e) {
-                // Don't let any exception in the managers.endOfTestClass over-ride the original test failure.
-                if (originalEx == null) {
-                    originalEx = new TestRunException("Problem with end of test class", e);
+                throw new TestRunException("Unable to inform managers of start of test class", e);
+            }
+
+            // If we got this far, whatever happens, we need to tell the managers that there is a failure.
+            TestRunException originalEx = null ;
+            try {
+                try {
+                    runAllMethods(managers, dss, runName);
+                } catch( TestRunException ex) {
+                    originalEx = ex ;
                 }
+            } finally {
+                try {
+                    Result newResult = managers.endOfTestClass(getResult(), originalEx); // TODO pass the class level exception
+                    if (newResult != null) {
+                        logger.info("Result of test run overridden to " + newResult.getName());
+                        setResult(newResult, managers);
+                    }
+                } catch (FrameworkException e) {
+                    // Don't let any exception in the managers.endOfTestClass over-ride the original test failure.
+                    if (originalEx == null) {
+                        originalEx = new TestRunException("Problem with end of test class", e);
+                    }
+                }
+
+                if (getResult() == null) {
+                    setResult(Result.passed(), managers);
+                }
+
+                // Close out the test run execution...
+                logEndTestLogLine();
+                updateTestStructureWithResult();
+                
+                managers.testClassResult(getResult(), originalEx);
+
+                logEndOfTestClassLogLine();
             }
 
-            if (getResult() == null) {
-                setResult(Result.passed(), managers);
+            if (originalEx != null) {
+                throw originalEx ;
             }
 
-            // Test result
-            logger.info(LOG_ENDING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** " + getResult().getName()
-            + " - Test class " + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
-
-            this.testStructure.setResult(getResult().getName());
-
-            managers.testClassResult(getResult(), originalEx);
-
-            String report = this.testStructure.report(LOG_START_LINE);
-            logger.trace("Finishing Test Class structure:-" + report);
         }
 
-        if (originalEx != null) {
-            throw originalEx ;
-        }
+    }
 
+    private void logEndTestLogLine() {
+        logger.info(LOG_ENDING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** " + getResult().getName()
+                + " - Test class " + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
+    }
+
+    private void logEndOfTestClassLogLine() {
+        String report = this.testStructure.report(LOG_START_LINE);
+        logger.trace("Finishing Test Class structure:-" + report);
+    }
+
+    private void updateTestStructureWithResult() {
+        this.testStructure.setResult(getResult().getName());
     }
 
     private void runAllMethods(ITestRunManagers managers, IDynamicStatusStoreService dss, String runName ) throws TestRunException {
@@ -346,6 +374,13 @@ public class TestClassWrapper {
 
             int actualMethod = 0;
             for (TestMethodWrapper testMethod : this.testMethods) {
+
+                // Check to see if the run has been cancelled...
+                if ( interruptedMonitor.isInterrupted() ) {
+                    setResult(Result.cancelled("Test run cancelled"), managers);
+                    break;
+                } 
+
                 actualMethod++;
                 dss.put("run." + runName + ".method.current", Integer.toString(actualMethod));
                 dss.put("run." + runName + ".method.name", testMethod.getName());
@@ -471,19 +506,23 @@ public class TestClassWrapper {
         }
 
         if (newResult != null) {
-            String from;
-            if (this.resultData == null) {
-                from = "null";
-            } else {
-                from = this.resultData.getName();
-            }
-            logger.info("Result in test class wrapper changed from " + from + " to " + newResult.getName());
-            
-            this.resultData = newResult;
+            setResultWithoutTellingManagers(newResult);
             if (managers != null ) {
                 managers.setResultSoFar(newResult);
             }
         }
+    }
+
+    protected void setResultWithoutTellingManagers(@Null Result newResult) {
+        String from;
+        if (this.resultData == null) {
+            from = "null";
+        } else {
+            from = this.resultData.getName();
+        }
+        logger.info("Result in test class wrapper changed from " + from + " to " + newResult.getName());
+        
+        this.resultData = newResult;
     }
 
     protected Result getResult() {
@@ -501,14 +540,9 @@ public class TestClassWrapper {
         }
         return isContinueOnTestFailureSet;
     }
-    
-    protected IFramework getFramework() {
-        return this.framework;
-    }
 
     protected long getRunLogLineCount() {
-        IResultArchiveStore ras = getFramework().getResultArchiveStore();
-        long runLogLineCount = ras.retrieveRunLogLineCount();
+        long runLogLineCount = this.ras.retrieveRunLogLineCount();
         return runLogLineCount;
     }
 

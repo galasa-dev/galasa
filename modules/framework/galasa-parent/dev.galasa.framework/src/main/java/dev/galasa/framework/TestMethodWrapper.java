@@ -79,6 +79,12 @@ public class TestMethodWrapper {
 
                 runBeforeMethods(managers, testClassObject, testClassWrapper);
 
+                // TODO After this point, should we invoke after methods even if the test method fails with an exception ?
+                // Seems that an exception will skip lots of things otherwise.
+                // Failures like an exception being thrown from the testcase method itself don't get thrown up to this point, only if 
+                // there is a bad framework issue such as the dss being unavailable or something. In which case all bets are probably off anyway.
+                // Managers will be invited to clean up even if we throw an exception out of this method.
+
                 if (this.result == null) {
                     runTestMethod(managers, testClassObject, testClassWrapper, continueOnTestFailure);
                 }
