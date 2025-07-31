@@ -26,6 +26,10 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
     StringBuffer runLog = new StringBuffer();
     private String runId ;
 
+    public MockIResultArchiveStore() {
+        // Do nothing...
+    }
+
     public MockIResultArchiveStore(String runId, MockFileSystem mockFileSystem) {
         this.runId = runId;
         this.mockFS = mockFileSystem;
@@ -42,6 +46,13 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
 
     @Override
     public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
+            throws ResultArchiveStoreException {
+        TestStructure historyRecord = new TestStructure(testStructure);
+        testStructureHistory.add(historyRecord);
+    }
+
+    @Override
+    public void createTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
             throws ResultArchiveStoreException {
         TestStructure historyRecord = new TestStructure(testStructure);
         testStructureHistory.add(historyRecord);
@@ -95,5 +106,10 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
     @Override
     public void shutdown() {
                throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
+    }
+
+    @Override
+    public long retrieveRunLogLineCount() {
+                throw new UnsupportedOperationException("Unimplemented method 'retrieveRunLogLineCount'");
     }
 }

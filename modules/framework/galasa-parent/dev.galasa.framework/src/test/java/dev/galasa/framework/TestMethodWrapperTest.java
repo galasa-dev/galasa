@@ -16,8 +16,10 @@ import javax.validation.constraints.NotNull;
 import org.junit.Test;
 
 import dev.galasa.framework.GenericMethodWrapper.Type;
+import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
+import dev.galasa.framework.mocks.MockRASStoreService;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.mocks.MockTestRunManagers;
 import dev.galasa.framework.mocks.MockTestRunnerDataProvider;
@@ -29,20 +31,33 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class TestMethodWrapperTest {
 
+    private MockRASStoreService ras = new MockRASStoreService(null);
+
     class MockTestClass {
         public int beforeMethodCallCount = 0;
         public int testMethodCallCount = 0;
         public int afterMethodCallCount = 0;
 
-        public void MockBeforeMethod() {
+        String testMethodRunLog = "";
+
+        MockTestClass(List<String> runLogLines) {
+            for (String runLogLine : runLogLines) {
+                this.testMethodRunLog += runLogLine + "\n";
+            }
+        }
+
+        public void MockBeforeMethod() throws Exception {
+            ras.writeLog("This is the before method\n");
             beforeMethodCallCount++;
         }
 
-        public void MockTestMethod() {
+        public void MockTestMethod() throws Exception {
+            ras.writeLog(testMethodRunLog);
             testMethodCallCount++;
         }
 
-        public void MockAfterMethod() {
+        public void MockAfterMethod() throws Exception {
+            ras.writeLog("This is the after method\n");
             afterMethodCallCount++;
         }
     }
@@ -67,8 +82,7 @@ public class TestMethodWrapperTest {
 
     }
 
-    private TestClassWrapper creatTestClassWrapper() throws Exception {
-        TestRunner testRunner = new TestRunner();
+    private TestClassWrapper createTestClassWrapper() throws Exception {
 
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
         MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
@@ -78,12 +92,15 @@ public class TestMethodWrapperTest {
         mockDataProvider.setDss(dss);
         mockDataProvider.setRun(new MockRun(null, null, null, null, null, null, null, false));
 
-        testRunner.init(mockDataProvider);
+        MockFramework mockFramework = new MockFramework();
+        mockFramework.setMockRas(ras);
+
+        mockDataProvider.setFramework(mockFramework);
 
         TestStructure testStructure = new TestStructure();
 
         String testBundle = "my/testbundle";
-        TestClassWrapper testClassWrapper = new TestClassWrapper(testRunner, testBundle, MockTestClass.class, testStructure);
+        TestClassWrapper testClassWrapper = new TestClassWrapper(testBundle, MockTestClass.class, testStructure, true , mockFramework);
         return testClassWrapper;
     }
 
@@ -105,7 +122,7 @@ public class TestMethodWrapperTest {
         afterMethods.add(afterMethodWrapper);
 
         TestMethodWrapper testMethodWrapper = new TestMethodWrapper(testMethod, MockTestClass.class, beforeMethods, afterMethods);
-        TestClassWrapper testClassWrapper = creatTestClassWrapper();
+        TestClassWrapper testClassWrapper = createTestClassWrapper();
 
         boolean continueOnTestFailure = false;
         boolean ignoreTestClass = false;
@@ -113,10 +130,10 @@ public class TestMethodWrapperTest {
 
         MockTestRunManagersExtended mockTestRunManagers = new MockTestRunManagersExtended(ignoreTestClass, resultToReturn);
 
-        MockTestClass mockTestClass = new MockTestClass();
+        MockTestClass mockTestClass = new MockTestClass(new ArrayList<String>());
 
         // When...
-        testMethodWrapper.getStructure();
+        testMethodWrapper.initialiseTestMethodStructure();
         testMethodWrapper.invoke(mockTestRunManagers, mockTestClass, continueOnTestFailure, testClassWrapper);
 
         // Then...
@@ -147,7 +164,7 @@ public class TestMethodWrapperTest {
         afterMethods.add(afterMethodWrapper);
 
         TestMethodWrapper testMethodWrapper = new TestMethodWrapper(testMethod, MockTestClass.class, beforeMethods, afterMethods);
-        TestClassWrapper testClassWrapper = creatTestClassWrapper();
+        TestClassWrapper testClassWrapper = createTestClassWrapper();
 
         boolean continueOnTestFailure = false;
         boolean ignoreTestClass = false;
@@ -157,10 +174,10 @@ public class TestMethodWrapperTest {
         MockTestRunManagersExtended mockTestRunManagers = new MockTestRunManagersExtended(ignoreTestClass, ignoredResult);
         mockTestRunManagers.setTestMethodResultToReturn(passedResult);
 
-        MockTestClass mockTestClass = new MockTestClass();
+        MockTestClass mockTestClass = new MockTestClass(new ArrayList<String>());
 
         // When...
-        testMethodWrapper.getStructure();
+        testMethodWrapper.initialiseTestMethodStructure();
         testMethodWrapper.invoke(mockTestRunManagers, mockTestClass, continueOnTestFailure, testClassWrapper);
 
         // Then...
@@ -192,7 +209,7 @@ public class TestMethodWrapperTest {
         afterMethods.add(afterMethodWrapper);
 
         TestMethodWrapper testMethodWrapper = new TestMethodWrapper(testMethod, MockTestClass.class, beforeMethods, afterMethods);
-        TestClassWrapper testClassWrapper = creatTestClassWrapper();
+        TestClassWrapper testClassWrapper = createTestClassWrapper();
 
         boolean continueOnTestFailure = false;
         boolean ignoreTestClass = false;
@@ -201,8 +218,8 @@ public class TestMethodWrapperTest {
         MockTestRunManagersExtended mockTestRunManagers = new MockTestRunManagersExtended(ignoreTestClass, resultToReturn);
 
         // When...
-        testMethodWrapper.getStructure();
-        testMethodWrapper.invoke(mockTestRunManagers, new MockTestClass(), continueOnTestFailure, testClassWrapper);
+        testMethodWrapper.initialiseTestMethodStructure();
+        testMethodWrapper.invoke(mockTestRunManagers, new MockTestClass(new ArrayList<String>()), continueOnTestFailure, testClassWrapper);
 
         // Then...
         List<GalasaMethod> galasaMethods = mockTestRunManagers.getGalasaMethodsReceived();
@@ -212,4 +229,183 @@ public class TestMethodWrapperTest {
         assertThat(galasaMethods.get(0).getJavaExecutionMethod()).isEqualTo(testMethod);
         assertThat(galasaMethods.get(0).getJavaTestMethod()).isNull();
     }
+
+    @Test
+    public void testInvokeSetsCorrectRunLogStartAndEndLines1TestMethodWithSingleLine() throws Exception {
+        // Given...
+        Class<?> mockClass = MockTestClass.class;
+
+        List<String> runLogLinesForTestMethod = new ArrayList<>();
+        runLogLinesForTestMethod.add("This is the test method");
+
+        MockTestClass mockClassInstance = new MockTestClass(runLogLinesForTestMethod);
+        Method testMethod = mockClass.getMethod("MockTestMethod");
+
+        ArrayList<GenericMethodWrapper> beforeMethods = new ArrayList<>();
+
+        ArrayList<GenericMethodWrapper> afterMethods = new ArrayList<>();
+
+        TestMethodWrapper testMethodWrapper = new TestMethodWrapper(testMethod, mockClass, beforeMethods, afterMethods);
+        testMethodWrapper.initialiseTestMethodStructure();
+
+        ITestRunManagers mockTestRunManagers = new MockTestRunManagers(false, null);
+
+        TestClassWrapper testClassWrapper = createTestClassWrapper();
+
+        // When...
+        testMethodWrapper.invoke(mockTestRunManagers, mockClassInstance, false, testClassWrapper);
+
+        // Then...
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogStart()).isEqualTo(1);
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogEnd()).isEqualTo(1);
+    }
+
+    @Test
+    public void testInvokeSetsCorrectRunLogStartAndEndLines1TestMethodWithMultiLine() throws Exception {
+        // Given...
+        Class<?> mockClass = MockTestClass.class;
+
+        List<String> runLogLinesForTestMethod = new ArrayList<>();
+        runLogLinesForTestMethod.add("This is the test method");
+        runLogLinesForTestMethod.add("It's run log has multiple lines");
+        runLogLinesForTestMethod.add("They need to be counted");
+
+        MockTestClass mockClassInstance = new MockTestClass(runLogLinesForTestMethod);
+        Method testMethod = mockClass.getMethod("MockTestMethod");
+
+        ArrayList<GenericMethodWrapper> beforeMethods = new ArrayList<>();
+
+        ArrayList<GenericMethodWrapper> afterMethods = new ArrayList<>();
+
+        TestMethodWrapper testMethodWrapper = new TestMethodWrapper(testMethod, mockClass, beforeMethods, afterMethods);
+        testMethodWrapper.initialiseTestMethodStructure();
+
+        ITestRunManagers mockTestRunManagers = new MockTestRunManagers(false, null);
+
+        TestClassWrapper testClassWrapper = createTestClassWrapper();
+
+        // When...
+        testMethodWrapper.invoke(mockTestRunManagers, mockClassInstance, false, testClassWrapper);
+
+        // Then...
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogStart()).isEqualTo(1);
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogEnd()).isEqualTo(3);
+    }
+
+    @Test
+    public void testInvokeSetsCorrectRunLogStartAndEndLines1TestMethodWithNoLines() throws Exception {
+        // Given...
+        Class<?> mockClass = MockTestClass.class;
+
+        List<String> runLogLinesForTestMethod = new ArrayList<>();
+
+        MockTestClass mockClassInstance = new MockTestClass(runLogLinesForTestMethod);
+        Method testMethod = mockClass.getMethod("MockTestMethod");
+
+        ArrayList<GenericMethodWrapper> beforeMethods = new ArrayList<>();
+
+        ArrayList<GenericMethodWrapper> afterMethods = new ArrayList<>();
+
+        TestMethodWrapper testMethodWrapper = new TestMethodWrapper(testMethod, mockClass, beforeMethods, afterMethods);
+        testMethodWrapper.initialiseTestMethodStructure();
+
+        ITestRunManagers mockTestRunManagers = new MockTestRunManagers(false, null);
+
+        TestClassWrapper testClassWrapper = createTestClassWrapper();
+
+        // When...
+        testMethodWrapper.invoke(mockTestRunManagers, mockClassInstance, false, testClassWrapper);
+
+        // Then...
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogStart()).isEqualTo(0);
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogEnd()).isEqualTo(0);
+    }
+
+    @Test
+    public void testInvokeSetsCorrectRunLogStartAndEndLinesBeforeTestAndAfterMethod() throws Exception {
+        // Given...
+        Class<?> mockClass = MockTestClass.class;
+
+        List<String> runLogLinesForTestMethod = new ArrayList<>();
+        runLogLinesForTestMethod.add("This is a test method");
+
+        MockTestClass mockClassInstance = new MockTestClass(runLogLinesForTestMethod);
+        Method beforeMethod = mockClass.getMethod("MockBeforeMethod");
+        Method testMethod = mockClass.getMethod("MockTestMethod");
+        Method afterMethod = mockClass.getMethod("MockAfterMethod");
+
+        ArrayList<GenericMethodWrapper> beforeMethods = new ArrayList<>();
+        GenericMethodWrapper beforeMethodWrapper = new GenericMethodWrapper(beforeMethod, mockClass, Type.Before);
+        beforeMethodWrapper.initialiseGenericMethodStructure();
+        beforeMethods.add(beforeMethodWrapper);
+
+        ArrayList<GenericMethodWrapper> afterMethods = new ArrayList<>();
+        GenericMethodWrapper afterMethodWrapper = new GenericMethodWrapper(afterMethod, mockClass, Type.After);
+        afterMethodWrapper.initialiseGenericMethodStructure();
+        afterMethods.add(afterMethodWrapper);
+
+        TestMethodWrapper testMethodWrapper = new TestMethodWrapper(testMethod, mockClass, beforeMethods, afterMethods);
+        testMethodWrapper.initialiseTestMethodStructure();
+
+        ITestRunManagers mockTestRunManagers = new MockTestRunManagers(false, null);
+
+        TestClassWrapper testClassWrapper = createTestClassWrapper();
+
+        // When...
+        testMethodWrapper.invoke(mockTestRunManagers, mockClassInstance, false, testClassWrapper);
+
+        // Then...
+        assertThat(beforeMethodWrapper.getGenericMethodStructure().getRunLogStart()).isEqualTo(1);
+        assertThat(beforeMethodWrapper.getGenericMethodStructure().getRunLogEnd()).isEqualTo(1);
+
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogStart()).isEqualTo(2);
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogEnd()).isEqualTo(2);
+
+        assertThat(afterMethodWrapper.getGenericMethodStructure().getRunLogStart()).isEqualTo(3);
+        assertThat(afterMethodWrapper.getGenericMethodStructure().getRunLogEnd()).isEqualTo(3);
+    }
+
+    @Test
+    public void testInvokeSetsCorrectRunLogStartAndEndLinesBeforeTestAndAfterMethodTestMethodHasNoRunLog() throws Exception {
+        // Given...
+        Class<?> mockClass = MockTestClass.class;
+
+        List<String> runLogLinesForTestMethod = new ArrayList<>();
+
+        MockTestClass mockClassInstance = new MockTestClass(runLogLinesForTestMethod);
+        Method beforeMethod = mockClass.getMethod("MockBeforeMethod");
+        Method testMethod = mockClass.getMethod("MockTestMethod");
+        Method afterMethod = mockClass.getMethod("MockAfterMethod");
+
+        ArrayList<GenericMethodWrapper> beforeMethods = new ArrayList<>();
+        GenericMethodWrapper beforeMethodWrapper = new GenericMethodWrapper(beforeMethod, mockClass, Type.Before);
+        beforeMethodWrapper.initialiseGenericMethodStructure();
+        beforeMethods.add(beforeMethodWrapper);
+
+        ArrayList<GenericMethodWrapper> afterMethods = new ArrayList<>();
+        GenericMethodWrapper afterMethodWrapper = new GenericMethodWrapper(afterMethod, mockClass, Type.After);
+        afterMethodWrapper.initialiseGenericMethodStructure();
+        afterMethods.add(afterMethodWrapper);
+
+        TestMethodWrapper testMethodWrapper = new TestMethodWrapper(testMethod, mockClass, beforeMethods, afterMethods);
+        testMethodWrapper.initialiseTestMethodStructure();
+
+        ITestRunManagers mockTestRunManagers = new MockTestRunManagers(false, null);
+
+        TestClassWrapper testClassWrapper = createTestClassWrapper();
+
+        // When...
+        testMethodWrapper.invoke(mockTestRunManagers, mockClassInstance, false, testClassWrapper);
+
+        // Then...
+        assertThat(beforeMethodWrapper.getGenericMethodStructure().getRunLogStart()).isEqualTo(1);
+        assertThat(beforeMethodWrapper.getGenericMethodStructure().getRunLogEnd()).isEqualTo(1);
+
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogStart()).isEqualTo(0);
+        assertThat(testMethodWrapper.getTestStructureMethod().getRunLogEnd()).isEqualTo(0);
+
+        assertThat(afterMethodWrapper.getGenericMethodStructure().getRunLogStart()).isEqualTo(2);
+        assertThat(afterMethodWrapper.getGenericMethodStructure().getRunLogEnd()).isEqualTo(2);
+    }
+
 }

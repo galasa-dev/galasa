@@ -11,11 +11,16 @@ import java.util.Queue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IFrameworkRuns;
+import dev.galasa.framework.spi.IResultArchiveStore;
+import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IRunRasActionProcessor;
 import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.RunRasAction;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 
 /**
  * InterruptedRunEventProcessor runs as a thread in the engine controller pod and it maintains a
@@ -32,15 +37,21 @@ public class InterruptedRunEventProcessor implements Runnable {
     private final Queue<RunInterruptEvent> queue;
     private IFrameworkRuns frameworkRuns;
     private IRunRasActionProcessor rasActionProcessor;
+    private KubernetesEngineFacade kubeFacade;
+    private IResultArchiveStore rasStore;
 
     public InterruptedRunEventProcessor(
         Queue<RunInterruptEvent> queue,
         IFrameworkRuns frameworkRuns,
-        IRunRasActionProcessor rasActionProcessor
+        IRunRasActionProcessor rasActionProcessor,
+        KubernetesEngineFacade kubeFacade,
+        IResultArchiveStore rasStore
     ) {
         this.queue = queue;
         this.frameworkRuns = frameworkRuns;
         this.rasActionProcessor = rasActionProcessor;
+        this.kubeFacade = kubeFacade;
+        this.rasStore = rasStore;
     }
 
     /**
@@ -50,12 +61,20 @@ public class InterruptedRunEventProcessor implements Runnable {
      */
     @Override
     public void run() {
+        if (!kubeFacade.isEtcdAndRasReady()) {
+            logger.warn("etcd or RAS pods are not ready, waiting for them to be ready before processing interrupt events");
+        } else {
+            processInterruptEvents();
+        }
+    }
+
+    private void processInterruptEvents() {
         try {
             boolean isDone = false;
-
+   
             logger.debug("Starting scan of interrupt events to process");
             while (!isDone) {
-
+   
                 RunInterruptEvent interruptEvent = queue.poll();
                 if (interruptEvent == null) {
                     isDone = true;
@@ -73,7 +92,7 @@ public class InterruptedRunEventProcessor implements Runnable {
                             markRunFinishedInDss(runName, interruptReason);
                             break;
                         case Result.REQUEUED:
-                            requeueRunInDss(runName);
+                            requeueRun(runName);
                             break;
                         default:
                             logger.warn("Unknown interrupt reason set '" + interruptReason + "', ignoring");
@@ -86,12 +105,24 @@ public class InterruptedRunEventProcessor implements Runnable {
         }
     }
 
-    private void requeueRunInDss(String runName) throws DynamicStatusStoreException {
+    private void requeueRun(String runName) throws DynamicStatusStoreException, ResultArchiveStoreException {
         logger.info("Requeuing run '" + runName + "' in the DSS");
 
         frameworkRuns.reset(runName);
 
         logger.info("Requeued run '" + runName + "' in the DSS OK");
+
+        IRun resetRun = frameworkRuns.getRun(runName);
+        String runId = resetRun.getRasRunId();
+        if (runId != null) {
+            logger.info("Creating new RAS record for requeued run " + runName);
+
+            TestStructure newTestStructure = resetRun.toTestStructure();
+
+            rasStore.createTestStructure(runId, newTestStructure);
+
+            logger.info("Created new RAS record for requeued run " + runName + " OK");
+        }
     }
 
     private void markRunFinishedInDss(String runName, String interruptReason) throws DynamicStatusStoreException {

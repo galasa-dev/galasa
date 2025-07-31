@@ -170,7 +170,8 @@ public class MockLog implements Log {
     public boolean contains(String containsSubString) {
         boolean contains = false ;
         for (MockLogRecord record : lines) {
-            contains = record.getContent().contains(containsSubString);
+            String content = record.getContent();
+            contains = content.contains(containsSubString);
             if (contains) {
                 break;
             }

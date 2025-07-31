@@ -56,6 +56,7 @@ public class TestStructure {
     public TestStructure( TestStructure source ) {
         if (source!=null) {
             this.runName = source.runName;
+            this.group = source.group;
             this.bundle = source.bundle;
             this.testName = source.testName;
             this.submissionId = source.submissionId;
@@ -201,9 +202,12 @@ public class TestStructure {
         sb.append(" status=");
         sb.append(actualStatus);
 
-        String methodPrefix = prefix + "    ";
-        for (TestMethod method : this.methods) {
-            method.report(methodPrefix, sb);
+        // Don't report any method data if there are no methods.
+        if (this.methods != null) {
+            String methodPrefix = prefix + "    ";
+            for (TestMethod method : this.methods) {
+                method.report(methodPrefix, sb);
+            }
         }
 
         return sb.toString();

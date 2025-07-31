@@ -2,7 +2,7 @@
 title: "WebAppIntegrationTest"
 ---
 
-The `WebAppIntegrationTest` is somewhat different to the previously described Galasa SimBank tests. It shows how you can use Galasa to test a hybrid cloud application that uses a mix of platforms and technologies. A mix of technologies makes end-to-end integration testing complicated. Use the `WebAppIntegrationTest` to help understand how Galasa simplifies integration testing in such an environment. The SimBank Web App Integration test is available in the <a href="https://github.com/galasa-dev/simplatform/blob/main/galasa-simbank-tests/dev.galasa.simbank.tests/src/main/java/dev/galasa/simbank/tests/WebAppIntegrationTest.java" target="_blank"> Galasa simplatform repository</a> in GitHub.
+The `WebAppIntegrationTest` is somewhat different to the previously described Galasa SimBank tests. It shows how you can use Galasa to test a hybrid cloud application that uses a mix of platforms and technologies. A mix of technologies makes end-to-end integration testing complicated. Use the `WebAppIntegrationTest` to help understand how Galasa simplifies integration testing in such an environment. The SimBank Web App Integration test is available in the [Galasa simplatform repository](https://github.com/galasa-dev/simplatform/blob/main/galasa-simbank-tests/dev.galasa.simbank.tests/src/main/java/dev/galasa/simbank/tests/WebAppIntegrationTest.java){target="_blank"} in GitHub.
 
 ## About the WebAppIntegrationTest
 
@@ -25,11 +25,12 @@ The test is still run locally but is designed to help you to understand how to s
 
 The test uses the Selenium Manager, which in turn is dependent on the Docker Manager. Use the following sections to help you to understand how to configure your environment to work with the Selenium Manager and Docker Manager. 
 
+
 ### Using the Selenium Manager
 
 To use the Selenium Manager you must have a web browser, for example,  Firefox or Chrome installed as well as a browser driver, for example, GeckoDriver or ChromeDriver. In this example, Firefox and GeckoDriver are used. 
 
-You can <a href="https://github.com/mozilla/geckodriver/releases" target="_blank"> download GeckoDriver from GitHub</a>. 
+You can [download GeckoDriver from GitHub](https://github.com/mozilla/geckodriver/releases){target="_blank"}. 
 
 You must define the default and local driver properties in the CPS, as shown in the following example:
 
@@ -63,6 +64,7 @@ docker run -d -p 127.0.0.1:2375:2375 -v /var/run/docker.sock:/var/run/docker.soc
 
 Although this configuration might see a little strange when running locally, the idea is to make the example consistent with the configuration that would be undertaken if contacting a remote Docker server in a Galasa Ecosystem.
 
+
 ### Building a Docker image
 
 Complete the following steps to build a Docker image called `simbank-webapp` to use in the test. We plan to automate these manual steps in a future release. 
@@ -77,12 +79,12 @@ Complete the following steps to build a Docker image called `simbank-webapp` to 
 	docker image build -t simbank-webapp .
 	docker run -p 8080:8080 -d simbank-webapp
 	```
-3. Access the Galasa SimBank web application from ```http://localhost:8080/galasa-simplatform-webapp/simbank```
+3. Access the Galasa SimBank web application from `http://localhost:8080/galasa-simplatform-webapp/simbank`
+
 
 ### Troubleshooting
 
-If the container is not working correctly, for example, compilation and runtime errors are returned, check the version of tomcat in the Dockerfile. You might need to edit the tomcat version to a version that is compatible with Java 11, for example, ```FROM tomcat:8.5.82-jre11-temurin```.
-
+If the container is not working correctly, for example, compilation and runtime errors are returned, check the version of tomcat in the Dockerfile. You might need to edit the tomcat version to a version that is compatible with Java 11, for example, `FROM tomcat:8.5.82-jre11-temurin`.
 
 
 ## Walkthrough - WebAppIntegrationTest

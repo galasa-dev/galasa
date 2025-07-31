@@ -14,16 +14,31 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
+import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 
-public class Settings implements Runnable {
+/**
+ * A collection of settings obtained from a config map.
+ * 
+ * Every so often (see the REFRESH_DELAY constants in this class), the values will be re-loaded,
+ * making the settings dynamically changeable if someone changes the config map settings.
+ */
+public class Settings implements Runnable, ISettings {
+
+    public static final int MAX_TEST_POD_RETRY_LIMIT_DEFAULT = 5;
+    public static final String MAX_TEST_POD_RETRY_LIMIT_CONFIG_MAP_PROPERTY_NAME = "max_test_pod_retry_limit";
+
+    public static final int INTERRUPTED_RUN_CLEANUP_GRACE_PERIOD_SECS_DEFAULT = 300;
+    public static final String INTERRUPTED_RUN_CLEANUP_GRACE_PERIOD_SECS_PROPERTY_NAME = "interrupted_test_run_cleanup_grace_period_seconds";
 
     private final Log         logger                      = LogFactory.getLog(getClass());
 
     private final K8sController controller;
+
+    // How often does the run() method get called to update all the values from the configMap
+    public static final long REFRESH_DELAY_SECS_INITIAL = 20;
+    public static final long REFRESH_DELAY_SECS = 20;
 
     private String            namespace;
     private String            podname;
@@ -39,6 +54,10 @@ public class Settings implements Runnable {
     private String            nodePreferredAffinity       = "";
     private String            nodeTolerations             = "";
 
+    // A fail-safe to make sure we never try to re-launch/re-create a pod for a testcase more than 
+    // this number  of times.
+    private int maxTestPodRetryLimit = MAX_TEST_POD_RETRY_LIMIT_DEFAULT ;
+
     private String            encryptionKeysSecretName;
 
     private HashSet<String>   requiredCapabilities        = new HashSet<>();
@@ -46,21 +65,25 @@ public class Settings implements Runnable {
     private String            reportCapabilties           = null;
 
     private long              kubeLaunchIntervalMillisecs = 1000L;
-    private int               runPoll                     = 60;
+    private long              interruptedTestRunCleanupGracePeriodSeconds = INTERRUPTED_RUN_CLEANUP_GRACE_PERIOD_SECS_DEFAULT;
+
+    // Poll loop interval which is looking for queued test runs, so they can be launched in a pod.
+    private int               runPollSeconds              = 60;
     private int               maxEngines                  = 0;
 
     private ArrayList<String> requestorsByScheduleID      = new ArrayList<>();
 
-    private final CoreV1Api   api;
+    private final KubernetesEngineFacade   kube;
     private String            oldConfigMapResourceVersion = "";
 
-    public Settings(K8sController controller, CoreV1Api api) throws K8sControllerException {
-        this.api = api;
+    public Settings(K8sController controller, KubernetesEngineFacade kube, String podName, String configMapName) throws K8sControllerException {
+        this.kube = kube;
         this.controller = controller;
+        this.podname = podName;
+        this.configMapName = configMapName;
     }
 
     public void init() throws K8sControllerException {
-        loadEnvironmentProperties();
         loadConfigMapProperties();
     }
 
@@ -74,7 +97,7 @@ public class Settings implements Runnable {
     }
 
     private void loadConfigMapProperties() throws K8sControllerException {
-        V1ConfigMap configMap = retrieveConfigMap();
+        V1ConfigMap configMap = kube.getConfigMap(configMapName);
         validateConfigMap(configMap);
         updateConfigMapProperties(configMap.getMetadata(), configMap.getData());
     }
@@ -100,7 +123,8 @@ public class Settings implements Runnable {
             }
         } catch (NumberFormatException ex) {
             String msg = MessageFormat.format(
-                "Info: Could not read launch interval value from the engine controller ConfigMap. Using default value of {0}. ConfigMap Value '{1}' is not a number.",
+                "Info: Could not read an integer value from the engine controller ConfigMap property {0}. Using default value of {1}. ConfigMap Value '{2}' is not a number.",
+                key,
                 defaultValueAsStr,
                 trimmedValueFromConfig
             );
@@ -142,16 +166,6 @@ public class Settings implements Runnable {
         return returnValue;
     }
 
-    protected V1ConfigMap retrieveConfigMap() throws K8sControllerException {
-        V1ConfigMap configMap = null;
-        try {
-            configMap = api.readNamespacedConfigMap(configMapName, namespace).pretty("true").execute();
-        } catch (ApiException e) {
-            throw new K8sControllerException("Failed to read configmap '" + configMapName + "' in namespace '" + namespace + "'", e);
-        }
-        return configMap;
-    }
-
     private void validateConfigMap(V1ConfigMap configMap) throws K8sControllerException {
         V1ObjectMeta configMapMetadata = configMap.getMetadata();
         Map<String, String> configMapData = configMap.getData();
@@ -185,6 +199,7 @@ public class Settings implements Runnable {
         this.engineLabel = updateProperty(configMapData, "engine_label", "k8s-standard-engine", this.engineLabel);
         this.engineImage = updateProperty(configMapData, "engine_image", "ghcr.io/galasa-dev/galasa-boot-embedded-amd64", this.engineImage);
         this.kubeLaunchIntervalMillisecs = updateProperty(configMapData, "kube_launch_interval_milliseconds", kubeLaunchIntervalMillisecs, this.kubeLaunchIntervalMillisecs);
+        this.interruptedTestRunCleanupGracePeriodSeconds = updateProperty(configMapData, INTERRUPTED_RUN_CLEANUP_GRACE_PERIOD_SECS_PROPERTY_NAME, INTERRUPTED_RUN_CLEANUP_GRACE_PERIOD_SECS_DEFAULT, this.interruptedTestRunCleanupGracePeriodSeconds);
 
         this.engineMemoryRequestMi = updateProperty(configMapData, "engine_memory_request", engineMemoryRequestMi, this.engineMemoryRequestMi);
         this.engineMemoryLimitMi = updateProperty(configMapData, "engine_memory_limit", engineMemoryLimitMi, this.engineMemoryLimitMi);
@@ -198,13 +213,15 @@ public class Settings implements Runnable {
         this.nodeTolerations = updateProperty(configMapData, "galasa_node_tolerations", "", this.nodeTolerations);
 
         this.encryptionKeysSecretName = updateProperty(configMapData, "encryption_keys_secret_name", "", this.encryptionKeysSecretName);
+
+        this.maxTestPodRetryLimit = updateProperty(configMapData, MAX_TEST_POD_RETRY_LIMIT_CONFIG_MAP_PROPERTY_NAME, MAX_TEST_POD_RETRY_LIMIT_DEFAULT, this.maxTestPodRetryLimit);
     }
 
     private void setRunPoll(Map<String,String> configMapData) throws K8sControllerException {
         int poll = getPropertyFromData(configMapData, "run_poll", 20);
-        if (poll != runPoll) {
-            logger.info("Setting Run Poll from '" + runPoll + "' to '" + poll + "'");
-            runPoll = poll;
+        if (poll != runPollSeconds) {
+            logger.info("Setting Run Poll from '" + runPollSeconds + "' to '" + poll + "'");
+            runPollSeconds = poll;
             controller.pollUpdated();
         }
     }
@@ -298,26 +315,6 @@ public class Settings implements Runnable {
         }
     }
 
-    private String getEnvironmentVariableOrDefault(String envVar, String defaultValue) {
-        String value = System.getenv(envVar);
-        if (value == null || value.isBlank()) {
-            value = defaultValue;
-        }
-        return value.trim();
-    }
-
-    private void loadEnvironmentProperties() {
-
-        namespace = getEnvironmentVariableOrDefault("NAMESPACE", "default");
-        logger.info("Setting Namespace to '" + namespace + "'");
-
-        podname = getEnvironmentVariableOrDefault("PODNAME", "k8s-controller");
-        logger.info("Setting Pod Name to '" + podname + "'");
-
-        configMapName = getEnvironmentVariableOrDefault("CONFIG", "config");
-        logger.info("Setting ConfigMap to '" + configMapName + "'");
-    }
-
     public String getPodName() {
         return this.podname;
     }
@@ -375,8 +372,8 @@ public class Settings implements Runnable {
         return this.engineCPULimitM;
     }
 
-    public long getPoll() {
-        return this.runPoll;
+    public long getPollSeconds() {
+        return this.runPollSeconds;
     }
 
     public String getEncryptionKeysSecretName() {
@@ -385,5 +382,13 @@ public class Settings implements Runnable {
 
     public long getKubeLaunchIntervalMillisecs() {
         return this.kubeLaunchIntervalMillisecs;
+    }
+
+    public int getMaxTestPodRetryLimit() {
+        return this.maxTestPodRetryLimit;
+    }
+
+    public long getInterruptedTestRunCleanupGracePeriodSeconds() {
+        return this.interruptedTestRunCleanupGracePeriodSeconds;
     }
 }

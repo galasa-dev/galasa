@@ -14,26 +14,17 @@ import org.junit.Test;
 
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
+import dev.galasa.framework.k8s.controller.mocks.MockISettings;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesApiClient;
-import dev.galasa.framework.k8s.controller.mocks.MockSettings;
+import dev.galasa.framework.k8s.controller.mocks.MockKubernetesPodTestUtils;
 import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.spi.IRun;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 
 public class RunPodCleanupTest {
 
-    private V1Pod createMockTestPod(String runName) {
-        V1Pod mockPod = new V1Pod();
-
-        V1ObjectMeta podMetadata = new V1ObjectMeta();
-        podMetadata.putLabelsItem(TestPodScheduler.GALASA_RUN_POD_LABEL, runName);
-        podMetadata.setName(runName);
-
-        mockPod.setMetadata(podMetadata);
-        return mockPod;
-    }
+    private MockKubernetesPodTestUtils mockKubeTestUtils = new MockKubernetesPodTestUtils();
 
     private MockRun createMockRun(String runName, String status) {
         // We only care about the run's name and status
@@ -61,12 +52,12 @@ public class RunPodCleanupTest {
 
         // Create terminated pods
         List<V1Pod> mockTerminatedPods = new ArrayList<>();
-        mockTerminatedPods.add(createMockTestPod(runName1));
-        mockTerminatedPods.add(createMockTestPod(runName2));
+        mockTerminatedPods.add(mockKubeTestUtils.createMockTestPod(runName1, "succeeded"));
+        mockTerminatedPods.add(mockKubeTestUtils.createMockTestPod(runName2, "failed"));
 
         // Create a list of all pods to also simulate running pods
         List<V1Pod> mockPods = new ArrayList<>(mockTerminatedPods);
-        V1Pod runningPod = createMockTestPod(runName3);
+        V1Pod runningPod = mockKubeTestUtils.createMockTestPod(runName3);
         mockPods.add(runningPod);
 
         // Create runs associated with the pods
@@ -75,18 +66,23 @@ public class RunPodCleanupTest {
         mockRuns.add(createMockRun(runName2, TestRunLifecycleStatus.FINISHED.toString()));
         mockRuns.add(createMockRun(runName3, TestRunLifecycleStatus.RUNNING.toString()));
 
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isReady = true;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
+
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
-        RunPodCleanup runPodCleanup = new RunPodCleanup(mockSettings, kubeEngineFacade, mockFrameworkRuns);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);
 
         // When...
-        runPodCleanup.deletePodsForCompletedRuns(mockTerminatedPods);
+        runPodCleanup.run();
 
         // Then...
-        List<V1Pod> remainingPods = mockApiClient.getMockPods();
+        List<V1Pod> remainingPods = kubeEngineFacade.getTestPods(MockISettings.ENGINE_LABEL);
         assertThat(remainingPods).hasSize(1);
         assertThat(remainingPods.get(0)).usingRecursiveComparison().isEqualTo(runningPod);
 
@@ -102,10 +98,14 @@ public class RunPodCleanupTest {
 
         // Create terminated pods
         List<V1Pod> mockTerminatedPods = new ArrayList<>();
-        mockTerminatedPods.add(createMockTestPod(runName1));
-        mockTerminatedPods.add(createMockTestPod(runName2));
+        mockTerminatedPods.add(mockKubeTestUtils.createMockTestPod(runName1, "failed"));
+        mockTerminatedPods.add(mockKubeTestUtils.createMockTestPod(runName2, "succeeded"));
 
         List<V1Pod> mockPods = new ArrayList<>(mockTerminatedPods);
+
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isReady = true;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
 
         // Simulate a situation where the runs have been deleted from the DSS but the pods still exist,
         // so the pods should get deleted
@@ -114,15 +114,16 @@ public class RunPodCleanupTest {
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
-        RunPodCleanup runPodCleanup = new RunPodCleanup(mockSettings, kubeEngineFacade, mockFrameworkRuns);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);
 
         // When...
-        runPodCleanup.deletePodsForCompletedRuns(mockTerminatedPods);
+        runPodCleanup.run();
 
         // Then...
-        assertThat(mockApiClient.getMockPods()).isEmpty();
+        assertThat(kubeEngineFacade.getTestPods(MockISettings.ENGINE_LABEL)).isEmpty();
     }
 
     @Test
@@ -131,26 +132,73 @@ public class RunPodCleanupTest {
         // Simulate a situation where the current kubernetes namespace has a terminated pod, which may
         // not be a Galasa-related pod, so it doesn't have a "galasa-run" label with a run name.
         List<V1Pod> mockTerminatedPods = new ArrayList<>();
-        V1Pod podWithNoRunName = createMockTestPod(null);
+        V1Pod podWithNoRunName = mockKubeTestUtils.createMockTestPod(null);
         mockTerminatedPods.add(podWithNoRunName);
 
         List<V1Pod> mockPods = new ArrayList<>(mockTerminatedPods);
+
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isReady = true;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
 
         List<IRun> mockRuns = new ArrayList<>();
 
         MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
 
-        MockSettings mockSettings = new MockSettings(null, null, null);
-        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, mockSettings);
-        RunPodCleanup runPodCleanup = new RunPodCleanup(mockSettings, kubeEngineFacade, mockFrameworkRuns);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);
 
         // When...
-        runPodCleanup.deletePodsForCompletedRuns(mockTerminatedPods);
+        runPodCleanup.run();
 
         // Then...
-        List<V1Pod> pods = mockApiClient.getMockPods();
+        List<V1Pod> pods = kubeEngineFacade.getTestPods(MockISettings.ENGINE_LABEL);
         assertThat(pods).hasSize(1);
         assertThat(pods.get(0)).usingRecursiveComparison().isEqualTo(podWithNoRunName);
+    }
+
+    @Test
+    public void testPodCleanupDoesNothingIfEtcdAndRasAreDown() throws Exception {
+        // Given...
+        String runName1 = "run1";
+        String runName2 = "run2";
+
+        // Create terminated pods
+        List<V1Pod> mockTerminatedPods = new ArrayList<>();
+        mockTerminatedPods.add(mockKubeTestUtils.createMockTestPod(runName1, "failed"));
+        mockTerminatedPods.add(mockKubeTestUtils.createMockTestPod(runName2, "succeeded"));
+
+        List<V1Pod> mockPods = new ArrayList<>(mockTerminatedPods);
+
+        String galasaServiceInstallName = "myGalasaService";
+
+        // Simulate a situation where the etcd and RAS pods are not ready
+        boolean isReady = false;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
+
+        // Simulate a situation where the runs have been deleted from the DSS but the pods still exist,
+        // so the pods should get deleted
+        List<IRun> mockRuns = new ArrayList<>();
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
+
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        RunPodCleanup runPodCleanup = new RunPodCleanup(settings, kubeEngineFacade, mockFrameworkRuns);
+
+        // Check that the test pods exist before processing
+        assertThat(kubeEngineFacade.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(2);
+
+        // When...
+        runPodCleanup.run();
+
+        // Then...
+        // The test pods should still exist
+        assertThat(kubeEngineFacade.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(2);
     }
 }

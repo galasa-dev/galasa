@@ -88,7 +88,7 @@ public class TestRunQuery extends RasServletTest {
 		RandomStringUtils randomStringGenerator = RandomStringUtils.insecure();
         String runName = randomStringGenerator.nextAlphanumeric(5);
         String testShortName = randomStringGenerator.nextAlphanumeric(5);
-        String requestor = randomStringGenerator.nextAlphanumeric(8);
+        String requestor = "galasa";
         String bundleName = randomStringGenerator.nextAlphanumeric(16);
 		String group = randomStringGenerator.nextAlphabetic(8);
 		String submissionId = randomStringGenerator.nextAlphanumeric(16);
@@ -597,14 +597,12 @@ public class TestRunQuery extends RasServletTest {
 		//Then...
 		// Expecting:
 		//  {
-		//   "pageNum": 1,
 		//   "pageSize": 100,
-		//   "numPages": 1,
 		//   "amountOfRuns": 0,
 		//   "runs": [
 		// 	 ]
 		//   }
-		String expectedJson = generateExpectedJson(mockInputRunResults, pageSize, pageNo);
+		String expectedJson = generateExpectedJson(mockInputRunResults, null, pageSize);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
@@ -988,6 +986,100 @@ public class TestRunQuery extends RasServletTest {
 
 		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
 		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testQueryWithRequestorWithUpperCaseSortedWithDBServiceTenRecordsPageSizeFiveReturnsOK() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,5,1);
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null,"GALASA", 72, null, null, null);
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		List<IRunResult> expectedRunResults = new ArrayList<IRunResult>(); ;
+		expectedRunResults.add(mockInputRunResults.get(0));
+		List<String> expectedRunNames = generateExpectedRunNames(expectedRunResults);
+        String actualOutput = outStream.toString();
+
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
+		Collections.sort(expectedRunNames, Collections.reverseOrder());
+
+		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testQueryWithRequestorWithCamelCaseSortedWithDBServiceTenRecordsPageSizeFiveReturnsOK() throws Exception {
+		//Given..
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,5,1);
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(1,100,null,null,"gaLASA", 72, null, null, null);
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		List<IRunResult> expectedRunResults = new ArrayList<IRunResult>(); ;
+		expectedRunResults.add(mockInputRunResults.get(0));
+		List<String> expectedRunNames = generateExpectedRunNames(expectedRunResults);
+        String actualOutput = outStream.toString();
+
+		assertThat(resp.getStatus()).isEqualTo(200);
+		assertThat(actualOutput).contains(expectedRunNames);
+		Collections.sort(expectedRunNames, Collections.reverseOrder());
+
+		String[] sortedList = (expectedRunNames).toArray(new String[expectedRunNames.size()]);
+		assertThat(checkIfSameOrder(sortedList, actualOutput, "runName"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
+	}
+
+	@Test
+	public void testQueryWithRequestorWithRequestorNotFoundNameSortedWithDBServiceTenRecordsPageSizeFiveReturnsOK() throws Exception {
+		//Given..
+		int pageSize = 100;
+
+		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10,5,1);
+		//Build Http query parameters
+		Map<String, String[]> parameterMap = setQueryParameter(1,pageSize,null,null,"not-galasa", 72, null, null, null);
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment( mockInputRunResults,mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		//When...
+		servlet.init();
+		servlet.doGet(req,resp);
+
+		String actualOutput = outStream.toString();
+		String expectedJson = generateExpectedJson(new ArrayList<>(), null, pageSize);
+		assertThat(actualOutput).isEqualTo(expectedJson);
+		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 

@@ -167,4 +167,9 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
         }
 
     }
+
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        this.properties.putAll(propertiesToSet);
+    }
 }

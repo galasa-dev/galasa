@@ -46,6 +46,7 @@ import dev.galasa.zos3270.common.screens.TerminalSize;
 import dev.galasa.zos3270.internal.properties.ApplyConfidentialTextFiltering;
 import dev.galasa.zos3270.internal.properties.LiveTerminalUrl;
 import dev.galasa.zos3270.internal.properties.LogConsoleTerminals;
+import dev.galasa.zos3270.internal.properties.TerminalDeviceName;
 import dev.galasa.zos3270.internal.properties.TerminalDeviceTypes;
 
 public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListener {
@@ -130,15 +131,16 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
         }
 
         setDeviceTypes(TerminalDeviceTypes.get(image));
+        setRequestedDeviceName(TerminalDeviceName.get(image));
 
         logConsoleTerminals = LogConsoleTerminals.get();
     }
 
 
-    public Zos3270TerminalImpl(String id, String host, int port, boolean tls, IFramework framework, boolean autoConnect,
+    public Zos3270TerminalImpl(String id, String host, int port, boolean tls, boolean verifyServer, IFramework framework, boolean autoConnect,
             IZosImage image, TerminalSize primarySize, TerminalSize alternateSize, ITextScannerManagerSpi textScanner)
             throws Zos3270ManagerException, TerminalInterruptedException, ZosManagerException {
-        super(id, host, port, tls, primarySize, alternateSize, textScanner, image.getCodePage());
+        super(id, host, port, tls, verifyServer, primarySize, alternateSize, textScanner, image.getCodePage());
         this.terminalId = id;
         this.runId = framework.getTestRunName();
         this.autoConnect = autoConnect;
@@ -176,6 +178,7 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
         }
 
         setDeviceTypes(TerminalDeviceTypes.get(image));
+        setRequestedDeviceName(TerminalDeviceName.get(image));
 
         logConsoleTerminals = LogConsoleTerminals.get();
     }

@@ -73,14 +73,17 @@ public class TestRunner extends BaseTestRunner {
 
         String testBundleName = run.getTestBundleName();
         String testClassName = run.getTestClassName();
-
-        this.testStructure = createNewTestStructure(run);
-        writeTestStructure();
             
         try {
+            this.testStructure = createNewTestStructure(run);
 
-            String rasRunId = this.ras.calculateRasRunId();
-            storeRasRunIdInDss(dss, rasRunId);
+            String rasRunId = run.getRasRunId();
+            if (rasRunId == null) {
+                writeTestStructure();
+
+                rasRunId = this.ras.calculateRasRunId();
+                storeRasRunIdInDss(dss, rasRunId);
+            }
 
             Class<?> testClass ;
 
@@ -145,7 +148,7 @@ public class TestRunner extends BaseTestRunner {
                 managers = initialiseManagers(testClass,dataProvider);
 
                 if( isAnyReasonToIgnoreTests(managers) ) {
-                    logger.debug("Test class should be ignored.");
+                    logger.debug("Test class should be ignored. It has been marked as finished already.");
                     return ; 
                 }
 
@@ -303,7 +306,7 @@ public class TestRunner extends BaseTestRunner {
             TestStructure testStructure) throws TestRunException {
         TestClassWrapper testClassWrapper;
         try {
-            testClassWrapper = new TestClassWrapper(this, testBundleName, testClass, testStructure);
+            testClassWrapper = new TestClassWrapper(testBundleName, testClass, testStructure, this.getContinueOnTestFailureFromCPS(), this.getFramework());
         } catch (Exception e) {
             String msg = "Problem with the CPS when adding a wrapper";
             logger.error(msg + " " + e.getMessage());
@@ -319,6 +322,7 @@ public class TestRunner extends BaseTestRunner {
             if (managers.anyReasonTestClassShouldBeIgnored()) {
                 logger.debug("managers.anyReasonTestClassShouldBeIgnored() is true. Shutting down.");
                 stopHeartbeat();
+                this.testStructure.setResult(Result.ignore("One or more managers insist this test is ignored.").getName());
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 isIgnore = true; // TODO handle ignored classes
             }

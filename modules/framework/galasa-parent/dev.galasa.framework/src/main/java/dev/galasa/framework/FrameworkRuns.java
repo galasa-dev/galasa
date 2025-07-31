@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -62,12 +63,17 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     private final String                             RUN_PREFIX   = "run.";
 
-    private ITimeService timeService = new SystemTimeService();
+    private ITimeService timeService;
 
     private final GalasaGson gson = new GalasaGson();
 
     public FrameworkRuns(IFramework framework) throws FrameworkException {
+        this(framework, new SystemTimeService());
+    }
+
+    public FrameworkRuns(IFramework framework, ITimeService timeService) throws FrameworkException {
         this.framework = framework;
+        this.timeService = timeService;
         this.dss = framework.getDynamicStatusStoreService("framework");
         this.cps = framework.getConfigurationPropertyService("framework");
         gson.setGsonBuilder(new GalasaGsonBuilder(false));
@@ -118,10 +124,10 @@ public class FrameworkRuns implements IFrameworkRuns {
     public List<IRun> getAllRuns() throws FrameworkException {
         HashMap<String, IRun> runs = new HashMap<>();
 
-        logger.trace("Fetching all runs from DSS");
-        Map<String, String> runProperties = dss.getPrefix(RUN_PREFIX);
-        logger.trace("Fetched all runs from DSS");
-        for (String key : runProperties.keySet()) {
+        logger.trace("Fetching all run keys from DSS");
+        Collection<String> runPropertiesKeys = dss.getPrefixKeysOnly(RUN_PREFIX);
+        logger.trace("Fetched all run keys from DSS");
+        for (String key : runPropertiesKeys) {
             Matcher matcher = runPattern.matcher(key);
             if (matcher.find()) {
                 String runName = matcher.group(1);
@@ -226,11 +232,13 @@ public class FrameworkRuns implements IFrameworkRuns {
         boolean local = runRequest.isLocalRun();
         boolean trace = runRequest.isTraceEnabled();
         Set<String> tags = runRequest.getTags();
+        String runId = generateRasRunId(runName);
 
         String runPropertyPrefix = RUN_PREFIX + runName;
 
         // *** Set up the otherRunProperties that will go with the Run number
         HashMap<String, String> otherRunProperties = new HashMap<>();
+        otherRunProperties.put(runPropertyPrefix + ".rasrunid", runId);
         otherRunProperties.put(runPropertyPrefix + ".status", "queued");
         otherRunProperties.put(runPropertyPrefix + ".queued", Instant.now().toString());
         otherRunProperties.put(runPropertyPrefix + ".testbundle", bundleName);
@@ -293,13 +301,14 @@ public class FrameworkRuns implements IFrameworkRuns {
     public boolean delete(String runname) throws DynamicStatusStoreException {
         String prefix = getRunDssPrefix(runname);
 
-        Map<String, String> properties = this.dss.getPrefix(prefix);
-        if (properties.isEmpty()) {
-            return false;
+        boolean isRunInDss = false;
+
+        if (isRunInDss(runname)) {
+            this.dss.deletePrefix(prefix);
+            isRunInDss = true;
         }
 
-        this.dss.deletePrefix(prefix);
-        return true;
+        return isRunInDss;
     }
 
     @Override
@@ -313,10 +322,15 @@ public class FrameworkRuns implements IFrameworkRuns {
             Set<String> keysToDelete = new HashSet<>();
             keysToDelete.add(getSuffixedRunDssKey(runName, "heartbeat"));
             keysToDelete.add(getSuffixedRunDssKey(runName, "interruptReason"));
+            keysToDelete.add(getSuffixedRunDssKey(runName, "interruptedAt"));
             this.dss.delete(keysToDelete);
 
-            // Set the status of the run back to 'queued'
-            this.dss.put(getSuffixedRunDssKey(runName, "status"), TestRunLifecycleStatus.QUEUED.toString());
+            // Set the status of the run back to 'queued' and generate a new run ID
+            Map<String, String> propertiesToSet = new HashMap<>();
+            propertiesToSet.put(getSuffixedRunDssKey(runName, "status"), TestRunLifecycleStatus.QUEUED.toString());
+            propertiesToSet.put(getSuffixedRunDssKey(runName, "rasrunid"), generateRasRunId(runName));
+            this.dss.put(propertiesToSet);
+
             isReset = true;
         }
 
@@ -351,6 +365,7 @@ public class FrameworkRuns implements IFrameworkRuns {
             propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
         }
 
+        propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptedAt"), timeService.now().toString());
         propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), interruptReason);
 
         this.dss.put(propertiesToSet);
@@ -448,6 +463,10 @@ public class FrameworkRuns implements IFrameworkRuns {
         if (!this.dss.putSwap(runPropertyPrefix + ".status", "up", "queued", otherProperties)) {
             throw new FrameworkException("Failed to switch Shared Environment " + sharedEnvironmentRunName + " to discard");
         }
+    }
+
+    private String generateRasRunId(String runName) {
+        return UUID.randomUUID().toString() + "-" + timeService.now().toEpochMilli() + "-" + runName;
     }
 
     private String assignNewRunName(SubmitRunRequest runRequest) throws FrameworkException, InterruptedException {
@@ -580,7 +599,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     private boolean isRunInDss(String runName) throws DynamicStatusStoreException {
         String prefix = getRunDssPrefix(runName);
-        Map<String, String> properties = this.dss.getPrefix(prefix);
+        Collection<String> properties = this.dss.getPrefixKeysOnly(prefix);
         return !properties.isEmpty();
     }
 

@@ -85,8 +85,8 @@ public class RunResultUtility {
       	      String result = method.getResult();
       	      Instant startTime = method.getStartTime();
       	      Instant endTime = method.getEndTime();
-      	      int runLogStart = method.getRunLogStart();
-      	      int runLogEnd = method.getRunLogEnd();
+      	      long runLogStart = method.getRunLogStart();
+      	      long runLogEnd = method.getRunLogEnd();
       	      List<RasTestMethod> befores = convertMethods(method.getBefores());
       	      List<RasTestMethod> afters = convertMethods(method.getAfters());
       	      

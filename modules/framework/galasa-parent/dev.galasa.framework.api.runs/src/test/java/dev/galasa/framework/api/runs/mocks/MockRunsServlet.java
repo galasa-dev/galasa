@@ -7,16 +7,17 @@ package dev.galasa.framework.api.runs.mocks;
 
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.IServletUnderTest;
-import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.runs.RunsServlet;
 import dev.galasa.framework.spi.IFramework;
 
 public class MockRunsServlet extends RunsServlet implements IServletUnderTest {
 
-    public MockRunsServlet(Environment env) {
+    public MockRunsServlet(Environment env, IFramework framework) {
 		super(env);
-		super.framework = new MockFramework();
+		setResponseBuilder(new ResponseBuilder(env));
+		super.framework = framework;
     }
 
 	@Override

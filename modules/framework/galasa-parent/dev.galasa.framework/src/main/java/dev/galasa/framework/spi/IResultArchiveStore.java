@@ -56,6 +56,14 @@ public interface IResultArchiveStore {
     void writeLog(@NotNull List<String> messages) throws ResultArchiveStoreException;
 
     /**
+     * Retrieves the run log line count so far from the RAS so we can
+     * provide the run log start and end line numbers for each method
+     * of a test class, in the test structure.
+     * @return
+     */
+    long retrieveRunLogLineCount();
+
+    /**
      * Update the Test Structure object in the RASs with the current status
      * 
      * @param testStructure - The Test Structure
@@ -72,7 +80,15 @@ public interface IResultArchiveStore {
      * @throws ResultArchiveStoreException - If there is a problem accessing or writing to the RAS
      */
     void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure) throws ResultArchiveStoreException;
-
+    
+    /**
+     * Creates a new RAS record for a run with the given ID and test structure
+     * 
+     * @param runId - the ID of the run to create the record for
+     * @param testStructure - the new test structure to write
+     * @throws ResultArchiveStoreException - if there is a problem accessing or writing to the RAS
+     */
+    void createTestStructure(@NotNull String runId, @NotNull TestStructure testStructure) throws ResultArchiveStoreException;
 
     /**
      * Obtain the root directory of the stored artifacts file system

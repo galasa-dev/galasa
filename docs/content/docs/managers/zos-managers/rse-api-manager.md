@@ -1,46 +1,37 @@
 ---
-path: "/docs/managers/rse-api-manager"
 title: "RSE API Manager"
 ---
 
-This Manager is at Alpha level. You can view the <a href="https://javadoc.galasa.dev/dev/galasa/zosrseapi/package-summary.html" target="_blank" rel="noopener noreferrer">Javadoc documentation for the Manager here</a>.<br>
+This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/zosrseapi/package-summary.html){target="_blank"}.
 
 
+## Overview
 
-[Overview](#overview)<br>
-[Provided annotation](#annotations)<br>
-[Configuring](#configuring)<br>
-
-
-# <a name="overview"></a>Overview
 This Manager provides Galasa tests with access to a RSE API server.
 
 
-## <a name="annotations"></a>Provided annotations
+## Provided annotations
 
 The following annotations are available with the RSE API Manager
-<details>
-<summary>RSE API</summary>
+
+
+### RSE API
 
 | Annotation: | RSE API |
 | --------------------------------------- | :------------------------------------- |
 | Name: | @Rseapi |
-| Description: | The <code>@Rseapi</code> annotation requests the RSE API Manager to provide a RSE API server instance associated with a z/OS image.  The test can request multiple RSE API instances, with the default being associated with the <b>primary</b> zOS image. |
+| Description: | The `@Rseapi` annotation requests the RSE API Manager to provide a RSE API server instance associated with a z/OS image.  The test can request multiple RSE API instances, with the default being associated with the **primary** zOS image. |
 | Attribute: `imageTag` |  The tag of the zOS Image this variable is to be populated with |
-| Syntax: | @ZosImage(imageTag="A")<br> public IZosImage zosImageA;<br> @Rseapi(imageTag="A")<br> public IRseapi rseapiA;<br></code> |
-| Notes: | The <code>IRseapi</code> interface has a number of methods to issue requests to the RSE API REST API. See <a href="https://javadoc.galasa.dev/dev/galasa/zosrseapi/Rseapi.html" target="_blank">Rseapi</a> and <a href="https://javadoc.galasa.dev/dev/galasa/zosrseapi/IRseapi.html" target="_blank">IRseapi</a> to find out more. |
-
-</details>
+| Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br>@Rseapi(imageTag="A")<br>public IRseapi rseapiA;<br></pre> |
+| Notes: | The `IRseapi` interface has a number of methods to issue requests to the RSE API REST API. See [Rseapi](https://javadoc.galasa.dev/dev/galasa/zosrseapi/Rseapi.html){target="_blank"} and [IRseapi](https://javadoc.galasa.dev/dev/galasa/zosrseapi/IRseapi.html){target="_blank"} to find out more. |
 
 
-
-
-## <a name="configuring"></a>Configuration Properties
+## Configuration Properties
 
 The following are properties used to configure the RSE API Manager.
  
-<details>
-<summary>RSE API Server port is https</summary>
+
+### RSE API Server port is https
 
 | Property: | RSE API Server port is https |
 | --------------------------------------- | :------------------------------------- |
@@ -49,12 +40,10 @@ The following are properties used to configure the RSE API Manager.
 | Required:  | No |
 | Default value: | true |
 | Valid values: | true or false |
-| Examples: | <code>rseapi.server.https=true</code><br> <code>rseapi.server.RSESYSA.https=true</code> |
+| Examples: | `rseapi.server.https=true`<br>`rseapi.server.RSESYSA.https=true` |
 
-</details>
- 
-<details>
-<summary>RSE API Image Servers</summary>
+
+### RSE API Image Servers
 
 | Property: | RSE API Image Servers |
 | --------------------------------------- | :------------------------------------- |
@@ -63,12 +52,10 @@ The following are properties used to configure the RSE API Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Comma separated RSE API server IDs |
-| Examples: | <code>rseapi.image.MYLPAR.servers=RSESYSA,RSESYSB</code><br> |
+| Examples: | `rseapi.image.MYLPAR.servers=RSESYSA,RSESYSB` |
 
-</details>
- 
-<details>
-<summary>RSE API Server retry request</summary>
+
+### RSE API Server retry request
 
 | Property: | RSE API Server retry request |
 | --------------------------------------- | :------------------------------------- |
@@ -77,12 +64,10 @@ The following are properties used to configure the RSE API Manager.
 | Required:  | No |
 | Default value: | 3 |
 | Valid values: | numerical value > 0 |
-| Examples: | <code>rseapi.server.request.retry=5</code><br> <code>rseapi.server.RSESYSA.request.retry=5</code> |
+| Examples: | `rseapi.server.request.retry=5`<br>`rseapi.server.RSESYSA.request.retry=5` |
 
-</details>
- 
-<details>
-<summary>RSE API Server Credentials</summary>
+
+### RSE API Server Credentials
 
 | Property: | RSE API Server Credentials |
 | --------------------------------------- | :------------------------------------- |
@@ -91,12 +76,10 @@ The following are properties used to configure the RSE API Manager.
 | Required:  | No |
 | Default value: | None, however the RSE API Manager will use the default z/OS image credentials |
 | Valid values: | Valid credential ID |
-| Examples: | <code>rseapi.server.RSESYSA.credentials=ZOS</code><br> |
+| Examples: | `rseapi.server.RSESYSA.credentials=ZOS` |
 
-</details>
- 
-<details>
-<summary>RSE API Server Image</summary>
+
+### RSE API Server Image
 
 | Property: | RSE API Server Image |
 | --------------------------------------- | :------------------------------------- |
@@ -105,12 +88,10 @@ The following are properties used to configure the RSE API Manager.
 | Required:  | No |
 | Default value: | The SERVERID value is used as the z/OS image ID |
 | Valid values: | z/OS image IDs |
-| Examples: | <code>rseapi.server.RSESYSA.image=SYSA</code><br> |
+| Examples: | `rseapi.server.RSESYSA.image=SYSA` |
 
-</details>
- 
-<details>
-<summary>RSE API Server port</summary>
+
+### RSE API Server port
 
 | Property: | RSE API Server port |
 | --------------------------------------- | :------------------------------------- |
@@ -119,12 +100,10 @@ The following are properties used to configure the RSE API Manager.
 | Required:  | no |
 | Default value: | 6800 |
 | Valid values: | A valid port number |
-| Examples: | <code>rseapi.server.port=6800</code><br> <code>rseapi.server.RSESYSA.port=6800</code> |
+| Examples: | `rseapi.server.port=6800`<br>`rseapi.server.RSESYSA.port=6800` |
 
-</details>
- 
-<details>
-<summary>RSE API Sysplex Servers</summary>
+
+### RSE API Sysplex Servers
 
 | Property: | RSE API Sysplex Servers |
 | --------------------------------------- | :------------------------------------- |
@@ -133,6 +112,5 @@ The following are properties used to configure the RSE API Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Comma separated RSE API server IDs |
-| Examples: | <code>rseapi.sysplex.default.servers=RSASYSA,RSASYSB</code><br> <code>rseapi.sysplex.PLEXA.default.servers=RSASYSA,RSASYSB</code> |
+| Examples: | `rseapi.sysplex.default.servers=RSASYSA,RSASYSB`<br>`rseapi.sysplex.PLEXA.default.servers=RSASYSA,RSASYSB` |
 
-</details>

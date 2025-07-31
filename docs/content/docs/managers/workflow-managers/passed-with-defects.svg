@@ -1,0 +1,11 @@
+<svg xml:space="preserve" width="32" height="32" style="enable-background:new 0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .passed-with-defects_svg__st0{display:none}.passed-with-defects_svg__st3{fill:none;stroke:#60a3ff;stroke-width:2.000000e-02;stroke-miterlimit:10}
+  </style>
+  <g id="passed-with-defects_svg__Layer_3" style="fill:#24a148">
+    <path d="M14 24C8.5 24 4 19.5 4 14S8.5 4 14 4s10 4.5 10 10h2c0-6.6-5.4-12-12-12S2 7.4 2 14s5.4 12 12 12v-2z"/>
+    <path d="M12 15.6 9.4 13 8 14.4l4 4 7-7-1.4-1.4z"/>
+    <path d="M27.4 28h-6.8l3.4-6.8 3.4 6.8zM24 18c-.4 0-.7.2-.9.6l-5 10c-.1.1-.1.2-.1.4 0 .6.4 1 1 1h10c.6 0 1-.4 1-1 0-.1 0-.3-.1-.4l-5-10.1c-.2-.3-.5-.5-.9-.5z" style="fill:#24a148"/>
+    <path d="M0 0h32v32H0z" style="fill:none"/>
+  </g>
+</svg>

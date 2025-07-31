@@ -9,25 +9,76 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
+import dev.galasa.extensions.common.couchdb.CouchdbException;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
 import dev.galasa.extensions.common.mocks.BaseHttpInteraction;
 import dev.galasa.extensions.common.mocks.HttpInteraction;
+import dev.galasa.extensions.common.mocks.MockCloseableHttpClient;
+import dev.galasa.extensions.common.mocks.cps.MockConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures;
+import dev.galasa.ras.couchdb.internal.mocks.MockIRun;
 import dev.galasa.ras.couchdb.internal.mocks.MockLogFactory;
 import dev.galasa.ras.couchdb.internal.pojos.TestStructureCouchdb;
 
 public class CouchdbRasStoreTest {
+
+    class GetCouchdbInteraction extends BaseHttpInteraction {
+
+        public GetCouchdbInteraction(String expectedUri, int statusCode, TestStructureCouchdb testStructure) {
+            super(expectedUri, statusCode);
+            setResponsePayload(testStructure);
+        }
+
+        @Override
+        public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+            super.validateRequest(host,request);
+            assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+        }
+    }
+
+    class CreateCouchdbDocumentInteraction extends BaseHttpInteraction {
+
+        private String[] expectedRequestBodyParts;
+
+        public CreateCouchdbDocumentInteraction(String expectedUri, int statusCode, PutPostResponse response, String... expectedRequestBodyParts) {
+            super(expectedUri, statusCode);
+            setResponsePayload(response);
+            this.expectedRequestBodyParts = expectedRequestBodyParts;
+        }
+
+        @Override
+        public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+            super.validateRequest(host,request);
+            assertThat(request.getRequestLine().getMethod()).isEqualTo("POST");
+            if (expectedRequestBodyParts.length > 0) {
+                validatePostRequestBody((HttpPost) request);
+            }
+        }
+
+        private void validatePostRequestBody(HttpPost postRequest) {
+            try {
+                String requestBody = EntityUtils.toString(postRequest.getEntity());
+                assertThat(requestBody).contains(expectedRequestBodyParts);
+
+            } catch (IOException ex) {
+                fail("Failed to parse POST request body");
+            }
+        }
+    }
 
     class UpdateCouchdbDocumentInteraction extends BaseHttpInteraction {
 
@@ -172,5 +223,239 @@ public class CouchdbRasStoreTest {
         // Then...
         assertThat(thrown).isNotNull();
         assertThat(thrown).hasMessage("Failed to get run document revision");
+    }
+
+    @Test
+    public void testWriteLogUpdatesRunLogLineCountUnder100NoFlushLogCache() throws Exception {
+        // Given...
+
+        // If the number of lines written to the run log in writeLog is under 100,
+        // so the logCache is under 100 lines, the logCache is not flushed but the
+        // lines just stored there, until it reaches 100.
+        List<String> runLogLines = new ArrayList<String>();
+        int desiredRunLogLineCount = 99;
+        for (int i = 1; i <= desiredRunLogLineCount; i++) {
+            runLogLines.add("This is run log line number " + i);
+        }
+
+        CouchdbRasStore rasStore = fixtures.createCouchdbRasStore(null);
+
+        // When...
+        rasStore.writeLog(runLogLines);
+
+        // Then...
+        assertThat(rasStore.retrieveRunLogLineCount()).isEqualTo(desiredRunLogLineCount);
+    }
+
+    @Test
+    public void testWriteLogUpdatesRunLogLineCountUnder100NoFlushLogCache_AllLinesEndWithNewLineChars() throws Exception {
+        // Given...
+        String runLogLine = "1. This is a run log line with a return character\r" +
+                            "2. and a run log line with a new line character\n" +
+                            "3. and a run log line ending with both\r\n";
+        List<String> runLogLines = new ArrayList<String>();
+        runLogLines.add(runLogLine);
+
+        CouchdbRasStore rasStore = fixtures.createCouchdbRasStore(null);
+
+        // When...
+        rasStore.writeLog(runLogLines);
+
+        // Then...
+        assertThat(rasStore.retrieveRunLogLineCount()).isEqualTo(3);
+    }
+
+    @Test
+    public void testWriteLogUpdatesRunLogLineCountUnder100NoFlushLogCache_InBetweenLinesHaveNewLineChars() throws Exception {
+        // Given...
+        String runLogLine = "1. This is a run log line with a return character\r" +
+                            "2. and a run log line with a new line character\n" +
+                            "3. and a run log line with nothing";
+        List<String> runLogLines = new ArrayList<String>();
+        runLogLines.add(runLogLine);
+
+        CouchdbRasStore rasStore = fixtures.createCouchdbRasStore(null);
+
+        // When...
+        rasStore.writeLog(runLogLines);
+
+        // Then...
+        assertThat(rasStore.retrieveRunLogLineCount()).isEqualTo(3);
+    }
+
+    @Test
+    public void testWriteLogUpdatesRunLogLineCountOver100FlushesLogCache() throws Exception {
+        // Given...
+
+        // Once the number of lines written to the run log in writeLog exceeds 100,
+        // the logCache is flushed (log is actually written to the CouchDB RAS store)
+        List<String> runLogLines = new ArrayList<String>();
+        int desiredRunLogLineCount = 101;
+        for (int i = 1; i <= desiredRunLogLineCount; i++) {
+            runLogLines.add("This is run log line number " + i);
+        }
+
+        String docId = "run1";
+        String revision = "my-revision";
+
+        PutPostResponse mockPutResponse = new PutPostResponse();
+        mockPutResponse.id = docId;
+        mockPutResponse.rev = revision;
+        mockPutResponse.ok = true;
+
+        String baseUri = "http://my.uri";
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = List.of(
+            // Create the run document
+            new CreateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB, HttpStatus.SC_CREATED, mockPutResponse),
+            // Create the artifacts document
+            new CreateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.ARTIFACTS_DB, HttpStatus.SC_CREATED, mockPutResponse),
+            // Create the run log document
+            new CreateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.LOG_DB, HttpStatus.SC_CREATED, mockPutResponse),
+            // Update the run document
+            new UpdateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_CREATED, mockPutResponse)
+        );
+
+        Map<String,String> inputProps = new HashMap<String,String>();
+
+        CouchdbRasStore rasStore = fixtures.createCouchdbRasStore(inputProps, interactions, mockLogFactory);
+
+        // When...
+        rasStore.writeLog(runLogLines);
+
+        // Then...
+        assertThat(rasStore.retrieveRunLogLineCount()).isEqualTo(desiredRunLogLineCount);
+    }
+
+    @Test
+    public void testCreateTestStructureWritesNewDocumentWithGivenID() throws Exception {
+        // Given...
+        String docId = "run1";
+        String revision = "my-revision";
+
+        TestStructure mockTestStructure = new TestStructure();
+        mockTestStructure.setRunName("RUN1");
+
+        PutPostResponse mockPutResponse = new PutPostResponse();
+        mockPutResponse.id = docId;
+        mockPutResponse.rev = revision;
+        mockPutResponse.ok = true;
+
+        String baseUri = "http://my.uri";
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = List.of(
+            new UpdateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_CREATED, mockPutResponse)
+        );
+
+        CouchdbRasStore rasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+
+        // When...
+        rasStore.createTestStructure(docId, mockTestStructure);
+
+        // Then...
+        // None of the interaction assertions should have failed.
+    }
+
+    @Test
+    public void testCreateTestStructureWritesNewDocumentWithoutCdbPrefix() throws Exception {
+        // Given...
+        String docId = "run1";
+        String runIdWithPrefix = "cdb-" + docId;
+        String revision = "my-revision";
+
+        TestStructure mockTestStructure = new TestStructure();
+        mockTestStructure.setRunName("RUN1");
+
+        PutPostResponse mockPutResponse = new PutPostResponse();
+        mockPutResponse.id = docId;
+        mockPutResponse.rev = revision;
+        mockPutResponse.ok = true;
+
+        String baseUri = "http://my.uri";
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = List.of(
+            new UpdateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_CREATED, mockPutResponse)
+        );
+
+        CouchdbRasStore rasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+
+        // When...
+        rasStore.createTestStructure(runIdWithPrefix, mockTestStructure);
+
+        // Then...
+        // None of the interaction assertions should have failed.
+    }
+
+    @Test
+    public void testInitialiseRunWithExistingRasDocumentUpdatesRunDocument() throws Exception {
+        // Given...
+        String runName = "RUN1";
+        String docId = "run1";
+        String runIdWithPrefix = "cdb-" + docId;
+        String revision = "my-revision";
+
+        TestStructureCouchdb mockTestStructure = new TestStructureCouchdb();
+        mockTestStructure._id = docId;
+        mockTestStructure._rev = revision;
+        mockTestStructure.setRunName("RUN1");
+
+        PutPostResponse mockUpdateRunDocResponse = new PutPostResponse();
+        mockUpdateRunDocResponse.id = docId;
+        mockUpdateRunDocResponse.rev = revision;
+        mockUpdateRunDocResponse.ok = true;
+
+        PutPostResponse mockCreateArtifactsDocResponse = new PutPostResponse();
+        mockCreateArtifactsDocResponse.id = "artifact-doc-1";
+        mockCreateArtifactsDocResponse.rev = "artifact-revision-1";
+        mockCreateArtifactsDocResponse.ok = true;
+
+        String baseUri = "http://my.uri";
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = List.of(
+            new GetCouchdbInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_OK, mockTestStructure),
+            new UpdateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_CREATED, mockUpdateRunDocResponse),
+            new CreateCouchdbDocumentInteraction(baseUri + "/" + CouchdbRasStore.ARTIFACTS_DB, HttpStatus.SC_CREATED, mockCreateArtifactsDocResponse)
+        );
+
+        MockConfigurationPropertyStoreService mockCps = new MockConfigurationPropertyStoreService(new HashMap<>());
+        MockIRun mockRun = new MockIRun(runName);
+        mockRun.setRasRunId(runIdWithPrefix);
+
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        
+        // When...
+        fixtures.createCouchdbRasStore(mockCps, mockRun, mockLogFactory, mockHttpClient);
+
+        // Then...
+        // None of the interaction assertions should have failed.
+    }
+
+    @Test
+    public void testInitialiseRunWithUnknownRasDocumentThrowsError() throws Exception {
+        // Given...
+        String runName = "RUN1";
+        String docId = "run1";
+        String runIdWithPrefix = "cdb-" + docId;
+
+        String baseUri = "http://my.uri";
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = List.of(
+            new GetCouchdbInteraction(baseUri + "/" + CouchdbRasStore.RUNS_DB + "/" + docId, HttpStatus.SC_NOT_FOUND, null)
+        );
+
+        MockConfigurationPropertyStoreService mockCps = new MockConfigurationPropertyStoreService(new HashMap<>());
+        MockIRun mockRun = new MockIRun(runName);
+        mockRun.setRasRunId(runIdWithPrefix);
+
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        
+        // When...
+        CouchdbException thrown = catchThrowableOfType(() -> {
+            fixtures.createCouchdbRasStore(mockCps, mockRun, mockLogFactory, mockHttpClient);
+        }, CouchdbException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("Unexpected response received from CouchDB");
     }
 }

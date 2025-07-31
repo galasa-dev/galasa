@@ -101,7 +101,7 @@ check_exit_code $? "Failed to install the python requirements"
 success "OK"
 
 h2 "Building"
-gradle --warning-mode All --info --stacktrace -PtargetMaven=${HOME}/.m2/repository buildDocsZip publish
+gradle --warning-mode All --info --stacktrace -PsourceMaven=${HOME}/.m2/repository -PtargetMaven=${HOME}/.m2/repository buildDocsZip publish
 check_exit_code $? "Failed to build"
 success "OK"
 

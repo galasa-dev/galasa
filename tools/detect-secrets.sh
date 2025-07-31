@@ -85,8 +85,22 @@ function check_if_python3_is_installed() {
 
     if command -v python3 &>/dev/null; then
         success "Python3 is already installed."
+
+        python_version=$(python3 --version | cut -f2 -d' ')
+        ver=$(echo -n "$python_version" | cut -f1 -d'.' )
+        if (( ver < 3 )); then
+            error "Python version must be v3.11.0 or above."
+            exit 1
+        fi
+
+        rel=$(echo -n "$python_version" | cut -f2 -d'.' )
+        if (( ver == 3)) && (( rel < 11 )); then
+            error "Python version must be v3.11.0 or above. Release $python_version is too low."
+            exit 1
+        fi
+
     else
-        error "Please install Python3 to conitnue."
+        error "Please install python v3.11.0 or above."
         exit 1
     fi
 }
@@ -121,7 +135,6 @@ function check_if_detect_secrets_is_installed() {
             info "detect-secrets was installed correctly"
         else
             error "Failed to install detect-secrets"
-            deactivate
             exit 1
         fi
     fi

@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -123,6 +124,26 @@ public class FrameworkPropertyFile implements FileAlterationListener {
             }
         }
         return values;
+    }
+
+    /**
+     * <p>
+     * This method retrieves a collection of keys from the properties file that have a common prefix.
+     * </p>
+     * 
+     * @param keyPrefix A common key prefix to a number of keys in the property store.
+     * @return A collection of any size or null of keys which start with the specified prefix.
+     */
+    public synchronized Collection<String> getPrefixKeysOnly(String keyPrefix) {
+        Collection<String> keys = new ArrayList<>();
+        observer.checkAndNotify();
+        for (Object k : currentProperties.keySet()) {
+            String key = (String) k;
+            if (key.startsWith(keyPrefix)) {
+                keys.add(key);
+            }
+        }
+        return keys;
     }
 
     /**

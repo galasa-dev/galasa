@@ -24,25 +24,31 @@ public class RunPodCleanup implements Runnable {
 
     private final IFrameworkRuns runs;
     private final KubernetesEngineFacade kubeApi;
+    private final ISettings settings;
 
-    public RunPodCleanup(Settings settings, KubernetesEngineFacade kubeApi, IFrameworkRuns runs) {
+    public RunPodCleanup(ISettings settings, KubernetesEngineFacade kubeApi, IFrameworkRuns runs) {
         this.runs = runs;
         this.kubeApi = kubeApi;
+        this.settings = settings ;
     }
 
     @Override
     public void run() {
-        logger.info("Starting run pod cleanup scan");
-
-        try {
-            List<V1Pod> pods = kubeApi.getPods();
-            pods = kubeApi.getTerminatedPods(pods);
-
-            deletePodsForCompletedRuns(pods);
-
-            logger.info("Finished run pod cleanup scan");
-        } catch (Exception e) {
-            logger.error("Problem with run pod cleanup scan", e);
+        if (!kubeApi.isEtcdAndRasReady()) {
+            logger.warn("etcd or RAS pods are not ready, waiting for them to be ready before scanning for pods to clean up");
+        } else {
+            logger.info("Starting run pod cleanup scan");
+    
+            try {
+                List<V1Pod> pods = kubeApi.getTestPods(settings.getEngineLabel());
+                pods = kubeApi.getTerminatedPods(pods);
+    
+                deletePodsForCompletedRuns(pods);
+    
+                logger.info("Finished run pod cleanup scan");
+            } catch (Exception e) {
+                logger.error("Problem with run pod cleanup scan", e);
+            }
         }
     }
 

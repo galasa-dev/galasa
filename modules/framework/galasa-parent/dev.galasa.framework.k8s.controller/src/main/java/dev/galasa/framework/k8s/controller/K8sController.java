@@ -24,6 +24,7 @@ import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -31,6 +32,9 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRunRasActionProcessor;
+import dev.galasa.framework.spi.SystemEnvironment;
+import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SystemTimeService;
 import io.kubernetes.client.ProtoClient;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.Configuration;
@@ -43,6 +47,11 @@ public class K8sController {
 
     private static final int ENGINE_CONTROLLER_NUMBER_OF_THREADS = 5;
     private static final int INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS = 5;
+
+    private static final String GALASA_INSTALL_NAME_ENV_VAR = "GALASA_INSTALL_NAME";
+    private static final String NAMESPACE_ENV_VAR = "NAMESPACE";
+    private static final String PODNAME_ENV_VAR = "PODNAME";
+    private static final String CONFIG_ENV_VAR = "CONFIG";
 
     private Log                      logger           = LogFactory.getLog(this.getClass());
 
@@ -65,7 +74,20 @@ public class K8sController {
 
     private ScheduledFuture<?> cleanupFuture;
 
-    private Settings settings;
+    private ITimeService timeService;
+
+    private Environment env ;
+
+    private Settings settings ;
+
+    public K8sController() {
+        this(new SystemTimeService(), new SystemEnvironment() );
+    }
+
+    public K8sController(ITimeService timeService, Environment env) {
+        this.timeService = timeService ;
+        this.env = env;
+    }
 
     public void run(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException {
 
@@ -103,8 +125,21 @@ public class K8sController {
             CoreV1Api api = new CoreV1Api();
 
             // *** Fetch the settings
+            String galasaServiceInstallName = getEnvironmentVariableOrDefault(GALASA_INSTALL_NAME_ENV_VAR, "");
+            logger.info("Setting Galasa installation name to '" + galasaServiceInstallName + "'");
+            String namespace = getEnvironmentVariableOrDefault(NAMESPACE_ENV_VAR, "default");
+            logger.info("Setting Namespace to '" + namespace + "'");
 
-            settings = new Settings(this, api);
+            IKubernetesApiClient apiClient = new KubernetesApiClient(api, protoClient);
+            KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(apiClient, namespace, galasaServiceInstallName);
+
+            String podName = getEnvironmentVariableOrDefault(PODNAME_ENV_VAR, "k8s-controller");
+            logger.info("Setting Pod Name to '" + podName + "'");
+
+            String configMapName = getEnvironmentVariableOrDefault(CONFIG_ENV_VAR, "config");
+            logger.info("Setting ConfigMap to '" + configMapName + "'");
+
+            settings = new Settings(this, kubeEngineFacade, podName , configMapName);
             settings.init();
 
             // *** Setup defaults and properties
@@ -118,7 +153,7 @@ public class K8sController {
             // *** Start the heartbeat
             scheduledExecutorService.scheduleWithFixedDelay(new Heartbeat(dss, settings), 0, 20, TimeUnit.SECONDS);
             // *** Start the settings poll
-            scheduledExecutorService.scheduleWithFixedDelay(settings, 20, 20, TimeUnit.SECONDS);
+            scheduledExecutorService.scheduleWithFixedDelay(settings, Settings.REFRESH_DELAY_SECS_INITIAL , Settings.REFRESH_DELAY_SECS, TimeUnit.SECONDS);
 
             // *** Start the metrics server
             this.metricsServer = startMetricsServer(metricsPort);
@@ -131,11 +166,9 @@ public class K8sController {
             this.healthServer = createHealthServer(healthPort);
 
             // *** Start the run polling
-            IKubernetesApiClient apiClient = new KubernetesApiClient(api, protoClient);
-            KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(apiClient, settings);
             IFrameworkRuns frameworkRuns = framework.getFrameworkRuns();
             IResultArchiveStore ras = framework.getResultArchiveStore();
-            startRunPollingThreads(frameworkRuns, cps, dss, ras, api, kubeEngineFacade);
+            startRunPollingThreads(frameworkRuns, cps, dss, ras, kubeEngineFacade, settings);
             
             
             logger.info("Kubernetes controller has started");
@@ -169,27 +202,35 @@ public class K8sController {
 
     }
 
+    private String getEnvironmentVariableOrDefault(String envVar, String defaultValue) {
+        String value = System.getenv(envVar);
+        if (value == null || value.isBlank()) {
+            value = defaultValue;
+        }
+        return value.trim();
+    }
+
     private void startRunPollingThreads(
         IFrameworkRuns frameworkRuns,
         IConfigurationPropertyStoreService cps,
         IDynamicStatusStoreService dss,
         IResultArchiveStore ras,
-        CoreV1Api api,
-        KubernetesEngineFacade kubeEngineFacade
+        KubernetesEngineFacade kubeEngineFacade,
+        Settings settings
     ) throws FrameworkException {
 
         runCleanup = new RunPodCleanup(settings, kubeEngineFacade, frameworkRuns);
         schedulePodCleanup();
 
-        podScheduler = new TestPodScheduler(dss, cps, settings, api, frameworkRuns);
+        podScheduler = new TestPodScheduler(env, dss, cps, settings, kubeEngineFacade, frameworkRuns, timeService);
         schedulePoll();
 
         Queue<RunInterruptEvent> interruptEventQueue = new LinkedBlockingQueue<RunInterruptEvent>();
-        RunInterruptMonitor runInterruptWatcher = new RunInterruptMonitor(kubeEngineFacade, frameworkRuns, interruptEventQueue);
+        RunInterruptMonitor runInterruptWatcher = new RunInterruptMonitor(kubeEngineFacade, frameworkRuns, interruptEventQueue, settings, timeService);
         scheduledExecutorService.scheduleWithFixedDelay(runInterruptWatcher, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
         IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(ras);
-        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, rasActionProcessor);
+        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, rasActionProcessor, kubeEngineFacade, ras);
         scheduledExecutorService.scheduleWithFixedDelay(interruptEventProcessor, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
@@ -263,7 +304,7 @@ public class K8sController {
             this.pollFuture.cancel(false);
         }
         
-        pollFuture = scheduledExecutorService.scheduleWithFixedDelay(podScheduler, 1, settings.getPoll(), TimeUnit.SECONDS);
+        pollFuture = scheduledExecutorService.scheduleWithFixedDelay(podScheduler, 1, settings.getPollSeconds(), TimeUnit.SECONDS);
     }
 
     private void schedulePodCleanup() {
@@ -271,7 +312,7 @@ public class K8sController {
             this.cleanupFuture.cancel(false);
         }
         
-        cleanupFuture = scheduledExecutorService.scheduleWithFixedDelay(runCleanup, 0, settings.getPoll(), TimeUnit.SECONDS);
+        cleanupFuture = scheduledExecutorService.scheduleWithFixedDelay(runCleanup, 0, settings.getPollSeconds(), TimeUnit.SECONDS);
     }
 
     private class ShutdownHook extends Thread {

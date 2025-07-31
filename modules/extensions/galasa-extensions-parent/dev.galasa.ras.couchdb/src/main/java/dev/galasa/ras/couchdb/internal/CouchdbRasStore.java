@@ -40,6 +40,7 @@ import dev.galasa.extensions.common.couchdb.CouchdbException;
 import dev.galasa.extensions.common.couchdb.CouchdbStore;
 import dev.galasa.extensions.common.couchdb.CouchdbValidator;
 import dev.galasa.extensions.common.couchdb.RetryableCouchdbUpdateOperationProcessor;
+import dev.galasa.extensions.common.couchdb.pojos.IdRev;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
 import dev.galasa.extensions.common.impl.HttpClientFactoryImpl;
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
@@ -90,9 +91,11 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
     private String                             artifactDocumentRev;
 
     private TestStructure                      lastTestStructure;
-    private ITimeService timeService ;
+    private ITimeService                       timeService ;
 
-    private LogFactory logFactory;
+    private LogFactory                         logFactory;
+
+    private long                                runLogLineCount;
 
     public CouchdbRasStore(IFramework framework, URI rasUri) throws CouchdbException, CouchdbRasException {
         this(
@@ -121,21 +124,35 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
 
         this.run = this.framework.getTestRun();
 
-        // *** If this is a run, ensure we can create the run document
+        // *** If this is a run, ensure we can create/update the run document
         if (this.run != null) {
-            lastTestStructure = new TestStructure();
-            lastTestStructure.setRunName(this.run.getName());
-            try {
-                updateTestStructure(lastTestStructure);
-            } catch (ResultArchiveStoreException e) {
-                throw new CouchdbException("Validation failed - unable to create initial run document", e);
-            }
-
-            createArtifactDocument();
+            initialiseRunDocument();
         }
 
         ResultArchiveStoreFileStore fileStore = new ResultArchiveStoreFileStore();
         this.provider = new CouchdbRasFileSystemProvider(fileStore, this, this.logFactory);
+    }
+
+    private void initialiseRunDocument() throws CouchdbException {
+        lastTestStructure = new TestStructure();
+        lastTestStructure.setRunName(this.run.getName());
+
+        // If we already have a RAS run ID associated with the run, get the existing document and revision
+        String runId = this.run.getRasRunId();
+        if (runId != null) {
+            this.runDocumentId = getRasDocumentId(runId);
+
+            IdRev runDocIdRev = getDocumentFromDatabase(RUNS_DB, runDocumentId, IdRev.class);
+            this.runDocumentRevision = runDocIdRev._rev;
+        }
+
+        try {
+            updateTestStructure(lastTestStructure);
+        } catch (ResultArchiveStoreException e) {
+            throw new CouchdbException("Validation failed - unable to create initial run document", e);
+        }
+
+        createArtifactDocument();
     }
 
     // Protected so that we can create artifact documents from elsewhere.
@@ -169,6 +186,9 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
                 flushLogCache();
             }
         }
+
+        updateRunLogLineCountSoFar(lines.length);
+
     }
 
     private void flushLogCache() throws ResultArchiveStoreException {
@@ -218,25 +238,56 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
         }
     }
 
+    /**
+     * Update the run log line count so far into class variable.
+     * Then it can be retrieved through the Framework from the RAS so
+     * methods in a test class can state their start and end line.
+     * @param newLineCount
+     */
+    private void updateRunLogLineCountSoFar(long newLineCount) {
+        this.runLogLineCount += newLineCount;
+    }
+
+    public long retrieveRunLogLineCount() {
+        return this.runLogLineCount;
+    }
+
     @Override
     public synchronized void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
             throws ResultArchiveStoreException {
 
         TestStructureCouchdb couchdbTestStructure = (TestStructureCouchdb) testStructure;
 
-        String documentId = runId;
-        if (runId.startsWith(COUCHDB_RUN_ID_PREFIX)) {
-            documentId = runId.substring(COUCHDB_RUN_ID_PREFIX.length());
-        }
+        String documentId = getRasDocumentId(runId);
 
         String revision = couchdbTestStructure._rev;
         if (revision == null) {
             throw new ResultArchiveStoreException("Failed to get run document revision");
         }
 
+        writeTestStructure(testStructure, documentId, revision);
+    }
+
+    private String getRasDocumentId(String runId) {
+        String documentId = runId;
+        if (runId.startsWith(COUCHDB_RUN_ID_PREFIX)) {
+            documentId = runId.substring(COUCHDB_RUN_ID_PREFIX.length());
+        }
+        return documentId;
+    }
+
+    private synchronized void writeTestStructure(TestStructure testStructure, String documentId, String revision)
+            throws ResultArchiveStoreException {
+
         String jsonStructure = gson.toJson(testStructure);
         HttpEntityEnclosingRequestBase request = httpRequestFactory.getHttpPutRequest(this.storeUri + "/"+RUNS_DB+"/" + documentId);
-        request.setHeader("If-Match", revision);
+
+        // If no revision is passed in, then the PUT request to CouchDB will create a new document
+        // with the given document ID.
+        if (revision != null) {
+            request.setHeader("If-Match", revision);
+        }
+
         request.setEntity(new StringEntity(jsonStructure, StandardCharsets.UTF_8));
 
         RetryableCouchdbUpdateOperationProcessor retryProcessor = new RetryableCouchdbUpdateOperationProcessor(timeService, logFactory);
@@ -251,6 +302,15 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
         } catch (CouchdbException e) {
             throw new ResultArchiveStoreException("Failed to update test structure", e);
         }
+    }
+
+    @Override
+    public synchronized void createTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
+            throws ResultArchiveStoreException {
+
+        String documentId = getRasDocumentId(runId);
+
+        writeTestStructure(testStructure, documentId, null);
     }
 
     @Override

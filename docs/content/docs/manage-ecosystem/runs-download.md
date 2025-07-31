@@ -4,8 +4,7 @@ title: "Downloading test artifacts"
 
 You can download the artifacts that are associated with a test run from the RAS and store those artifacts in a directory by using the `runs download` command. Use this output to gather information about a test, help debug and diagnose test failure, share test run output, and make comparisons between test run results.
 
-You can view the full list of options that are available with the `runs download` command in the 
-<a href="https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs_download.md#galasactl-runs-download" target="_blank">Galasa cli repository</a>.
+To view the full list of options that are available, see the [runs download](../reference/cli-syntax/galasactl_runs_download.md) command reference.
 
 ## Working with the `runs download` command
 
@@ -13,13 +12,13 @@ Downloaded artifacts are stored by default in a folder that is created within th
 
 In the following example, the test run is called _C1234_. All artifacts for test run `C1234` are downloaded to a folder named `C1234` in the current working directory by using the following command:
 
-```
+```shell
 galasactl runs download --name C1234
 ```
 
 If the folder named `C1234` does not exist, it is created. If artifacts are already stored within an existing folder named `C1234`, the download fails. You can force artifacts stored within an existing folder to be overwritten by using the `--force` flag:
 
-```
+```shell
 galasactl runs download --name C1234 –-force
 ```
 
@@ -31,7 +30,7 @@ You can specify a location where you want the test artifacts downloaded by using
 
 The downloaded artifacts are organised within the specified directory in sub-folders that are based on the run-name. The file path of the folder can be relative to the current working directory, or absolute. For example, you can save artifacts from test run _C1234_ to a folder called _mytestruns_ in a directory called _temp_ by using the following command:
 
-```
+```shell
 galasactl runs download --name C1234 --destination /temp/mytestruns
 ```
 

@@ -1,0 +1,33 @@
+FROM ghcr.io/galasa-dev/gradle:8.9-jdk17
+
+# The URL to a Galasa development build packaged as a zip file (e.g. an Isolated or MVP zip)
+ARG galasaBuildZipUrl
+
+# The path to the build.gradle file that should be used for this compilation test's Docker image
+ARG buildGradleFileToCopy
+
+RUN groupadd -r galasa && \
+    useradd -r -g galasa -d /galasa -s /bin/bash galasa && \
+    mkdir -p /galasa && \
+    chown galasa:galasa /galasa
+
+WORKDIR /galasa
+
+USER galasa
+
+# Download and extract the zipped Galasa build provided via an argument (e.g. isolated or MVP), then delete the zipped file
+RUN curl -L ${galasaBuildZipUrl} -o galasa-build.zip \
+    && unzip galasa-build.zip \
+    && rm galasa-build.zip
+
+# Create an example test project
+RUN chmod +x galasactl/galasactl-linux-x86_64 \
+    && ./galasactl/galasactl-linux-x86_64 project create --package dev.galasa.example --features compilation --gradle
+
+# Copy the provided build.gradle file into the test project
+COPY --chown=galasa:galasa ${buildGradleFileToCopy} ./dev.galasa.example/dev.galasa.example.compilation/build.gradle
+
+# When running a Docker container using this image with `docker run -d <image>`,
+# the following command will stop the container from exiting immediately, allowing
+# other commands to be run inside the container.
+CMD [ "tail", "-f", "/dev/null" ]

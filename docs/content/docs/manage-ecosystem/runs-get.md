@@ -4,25 +4,27 @@ title: "Viewing test run results"
 
 You can specify a number of options on the `galasactl runs get` command to query test run results on particular details, and to display the output of those queries in different formats. 
 
-You can view the full command syntax in the <a href="https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_runs_get.md" target="_blank">Galasa cli repository</a>.
+To view the full command syntax, see the [galasactl runs get](../reference/cli-syntax/galasactl_runs_get.md) command reference.
+
 
 ###  Options for querying and viewing test run results
 
 Use the tables provided to view the options for filtering test results, and for choosing the format in which you want those results displayed.
 
-<b>Table 1:</b> The following table shows the options that you can set on the `galasactl runs get` command to query test run data on specific details:
+**Table 1:** The following table shows the options that you can set on the `galasactl runs get` command to query test run data on specific details:
 
 | Name |  Description  |
 | :---- | :-------- | 
 | `--name`  | Use the `--name` option to query the status of a particular test run.  |
 | `--requestor`| Use the `--requestor` option to filter the results of test runs, so that only those tests that are submitted to the ecosystem by a specified user are shown. If not specified, the default behaviour is to show all the test results from any user. |
 | `--age`| Use the `--age` option to specify a time period in which the tests ran. The _age_ option is specified in the format _FROM:TO_. Units of time can be specified in weeks _w_, days _d_, hours _h_, or minutes _m_. The _FROM_ part is mandatory. The _TO_ part is optional, with a default set to `0`, which indicates the current time. The _FROM_ value specifies how far back in time the query is applied. The _FROM_ value must therefore always be a larger value than the _TO_ value. The returned times are in UTC (Coordinated Universal Time). If the `--name` option is specified, the `--age` parameter is not used. |
-| `--result`  | Use the [`--result` option](#result) to return test runs based on test run results. You can select more than one result by using a comma-separated list. The `--result` flag cannot be used in conjunction with the `--active` flag. The two flags are mutually exclusive. |
+| `--result`  | Use the [`--result` option](#more-about-the-result-option) to return test runs based on test run results. You can select more than one result by using a comma-separated list. The `--result` flag cannot be used in conjunction with the `--active` flag. The two flags are mutually exclusive. |
 | `--active`  | Use the `--active` option to query tests that have not finished, so that you can quickly see which tests are currently running. The `--active` flag cannot be used in conjunction with the `--result` flag. The two flags are mutually exclusive.|
-| `--group`   | Use the `--group` flag to get all the test runs associated with the given group name. A custom group name can be assigned to a set of test runs when submitting tests using the [galasactl runs submit](./ecosystem-cli-runs-submit) command, otherwise a random group name will be assigned. `--group` can be used with other flags, like `--age`, `--requestor`, and `--result`, to filter test runs as desired, but it cannot be used alongside the `--name` flag. |
-| `--tags`   | Use the `--tags` flag to get all the test runs that have the given test tags assigned to them. A custom set of tags can be assigned to a set of test runs when submitting tests using the [galasactl runs submit](./ecosystem-cli-runs-submit) command. `--tags` can be used with other flags, like `--age`, `--requestor`, and `--result`, to filter test runs as desired. Multiple tags can be supplied by either providing `--tags` with a comma-separated list of tags (e.g. `--tags tag1,tag2,tag3`) or by providing multiple `--tags` flags separately (e.g. `--tags tag1 --tags tag2 --tags tag3`). |
+| `--group`   | Use the `--group` flag to get all the test runs associated with the given group name. A custom group name can be assigned to a set of test runs when submitting tests using the [galasactl runs submit](./runs-submit.md) command, otherwise a random group name will be assigned. `--group` can be used with other flags, like `--age`, `--requestor`, and `--result`, to filter test runs as desired, but it cannot be used alongside the `--name` flag. |
+| `--tags`   | Use the `--tags` flag to get all the test runs that have test tags assigned to them. A custom set of tags can be assigned to a set of test runs when submitting tests using the [galasactl runs submit](./runs-submit.md) command. `--tags` can be used with other flags, like `--age`, `--requestor`, and `--result`, to filter test runs. Multiple tags can be supplied by either providing `--tags` with a comma-separated list of tags (e.g. `--tags tag1,tag2,tag3`) or by providing multiple `--tags` flags separately (e.g. `--tags tag1 --tags tag2 --tags tag3`). |
 
-<b>Table 2:</b> The following table shows the options that you can set on the `galasactl runs get` command to display test run results in different formats:
+
+**Table 2:** The following table shows the options that you can set on the `galasactl runs get` command to display test run results in different formats:
 
 | Name |  Description  |
 | :---- | :-------- | 
@@ -31,7 +33,7 @@ Use the tables provided to view the options for filtering test results, and for 
 | `--format raw` | The _raw_ format output is useful if you are writing scripts to report on multiple test runs programmatically. The output from `galasactl runs get` is returned in a form that makes it easy for scripting to digest the individual pieces of data available. Returned values are separated by pipes, without formatting or header information. | 
 
 
-## <a name="result"></a>More about the `--result` option
+## More about the `--result` option
 
 You might want to filter the test results that are returned based on run result. For example, you might choose to return only failed tests, so that you can quickly check if you need to investigate an issue. 
 
@@ -39,17 +41,18 @@ The _galasactl runs get_ command now supports the `--result` option, so that tes
 
 The `--result`  option accepts a comma-separated list of values. The following values are supported:
 
-_Passed_ <br>
-_Failed_<br>
-_EnvFailed_<br>
-_Ignored_<br>   
-_Unknown_<br>
+- _Passed_
+- _Failed_
+- _EnvFailed_
+- _Ignored_
+- _Unknown_
 
 The parameters are accepted regardless of whether they are entered in upper or lower-case.
 
 ## Examples
 
 Use the following sections to view some example command options and generated output. Note that the `--format summary` and `--format details` options return a total count of results returned, along with a breakdown of the number that are returned with a particular result, for example, _Passed_, _Failed_, _PassedWithDefects_. 
+
 
 ### View tests results in summary format
 
@@ -59,24 +62,23 @@ The following example command returns test status in a summary format for tests 
 
 On Mac or Unix:
 
- ```
- galasactl runs get --bootstrap http://example.com:30960/bootstrap \ 
- --requestor bobsmith --age 2w:1w
- ``` 
+```shell
+galasactl runs get --bootstrap http://example.com:30960/bootstrap \ 
+--requestor bobsmith --age 2w:1w
+```
 
 On Windows (Powershell):
 
- ```
- galasactl runs get --bootstrap http://example.com:30960/bootstrap ` 
- --requestor bobsmith --age 2w:1w
- ``` 
+```powershell
+galasactl runs get --bootstrap http://example.com:30960/bootstrap ` 
+--requestor bobsmith --age 2w:1w
+``` 
 
- where:
+where:
 
- - `--bootstrap` is the URL of the ecosystem's bootstrap properties
- - `--requestor` is the name of the user who requested the test run
- - `--age` is the period of time in which the tests ran
-
+- `--bootstrap` is the URL of the ecosystem's bootstrap properties
+- `--requestor` is the name of the user who requested the test run
+- `--age` is the period of time in which the tests ran
 
 Results are returned on the terminal in the following example format:
 
@@ -103,13 +105,14 @@ The following example command returns test status in a details format:
 
 On Mac or Unix:
 
-```
+```shell
 $galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap \
 --format details 
 ``` 
 
 On Windows (Powershell):
-```
+
+```powershell
 galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap `
 --format details 
 ``` 
@@ -118,7 +121,6 @@ where:
 - `--name` is the name of the test run 
 - `--bootstrap` is the URL of the ecosystem's bootstrap properties
 - `--format` is the format in which you want the results to display
-
 
 Results are returned on the terminal in the following example format:
 
@@ -151,13 +153,14 @@ The following example command returns test status in a raw format:
 
 On Mac or Unix:
 
-```
+```shell
 galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap \
 --format raw
 ``` 
 
 On Windows (Powershell):
-```
+
+```powershell
 galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap `
 --format raw
 ``` 
@@ -181,13 +184,14 @@ Use the following example command to return test information for test runs that 
 
 On Mac or Unix:
 
-```
+```shell
 galasactl runs get --age 1d --result failed,envfail \
 --bootstrap http://example.com:30960/bootstrap
 ``` 
 
 On Windows (Powershell):
-```
+
+```powershell
 galasactl runs get --age 1d --result failed,envfail `
 --bootstrap http://example.com:30960/bootstrap
 ``` 

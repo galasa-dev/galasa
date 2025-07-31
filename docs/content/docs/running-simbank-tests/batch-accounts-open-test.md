@@ -1,7 +1,8 @@
 ---
 title: "BatchAccountsOpenTest"
 ---
-This test uses the z/OS Batch Manager (which in the background, invokes z/OSMF) to add a set of accounts to the Galasa SimBank system via a z/OS batch job. The SimBank Batch Accounts Open test is available in the <a href="https://github.com/galasa-dev/simplatform/blob/main/galasa-simbank-tests/dev.galasa.simbank.tests/src/main/java/dev/galasa/simbank/tests/BatchAccountsOpenTest.java" target="_blank"> Galasa simplatform repository</a> in GitHub. 
+
+This test uses the z/OS Batch Manager (which in the background, invokes z/OSMF) to add a set of accounts to the Galasa SimBank system via a z/OS batch job. The SimBank Batch Accounts Open test is available in the [Galasa simplatform repository](https://github.com/galasa-dev/simplatform/blob/main/galasa-simbank-tests/dev.galasa.simbank.tests/src/main/java/dev/galasa/simbank/tests/BatchAccountsOpenTest.java){target="_blank"} in GitHub. 
 
 When you installed Galasa, some of the configuration information set in the `overrides.properties` file is specific to the z/OSMF and z/OS Batch Managers. Confirm that the file - it's located in your `.galasa` folder - contains, in its entirety:
 
@@ -71,13 +72,17 @@ The `HashMap` will eventually deposit its contents in the designated substitutio
 //DATAIN   DD *
 ++DATAIN++
 ```
+
 Loading the JCL with the parameters:
+
 ```java
 // Load the JCL with the given substitution parameters
 InputStream inputStream = resources.retrieveSkeletonFile("/resources/skeletons/SIMBANK.jcl", parameters);
 String jcl = resources.streamAsString(inputStream);
 ```
+
 At this stage, the String `jcl` contains:
+
 ```
 //SIMBANK  EXEC PGM=SIMBANK
 //SYSOUT   DD SYSOUT=*
@@ -94,7 +99,9 @@ ACCOUNT_OPEN
 901000008,20-40-60,1000
 901000009,20-40-60,1000
 ```
+
 The JCL is submitted and the program waits for the batch job to complete:
+
 ```java
 // Submit the JCL
 IZosBatchJob batchJob = zosBatch.submitJob(jcl, zosBatchJobname);
@@ -103,7 +110,9 @@ IZosBatchJob batchJob = zosBatch.submitJob(jcl, zosBatchJobname);
 logger.info("batchJob.toString() = " + batchJob.toString());
 int rc = batchJob.waitForJob();
 ```
+
 Finally, the return code is examined and if it is not 0, the test is failed:
+
 ```java
 // If highest CC was not 0, fail the test
 if (rc != 0) {
@@ -115,13 +124,16 @@ if (rc != 0) {
 }
 logger.info("Batch job complete RETCODE=" + batchJob.getRetcode());
 ```
+
 You can run this example just like the others - don't forget to launch SimBank first.
 
 By using the concepts introduced in this example, you can write your own z/OS Batch Manager tests.
 
 The z/OS Batch Manager stores the job output in the test results main archive store.
 
+
 ## Reviewing the stored artifacts in Eclipse
+
 When `BatchAccountsOpenTest` has finished running, you can expand the relevant entry in the *Galasa Results* tab - if it is not initially visible, choose *Galasa > Initialise Galasa Framework* and then *Window > Show View > Other* and finally, *Galasa Results*. 
 
 For example, your *Galasa Results* tab might resemble:
@@ -130,8 +142,9 @@ For example, your *Galasa Results* tab might resemble:
 
 Double-click on a run and you can explore the three tabs in the main pane:
 
-* <b>General</b>: presenting some useful overview metrics about the run, and its payload of tests and test classes
-* <b>Run Log</b>: which stores the console messages emitted by Eclipse as the test ran, which end with the following lines signifying test success:
+- **General**: presenting some useful overview metrics about the run, and its payload of tests and test classes
+
+- **Run Log**: which stores the console messages emitted by Eclipse as the test ran, which end with the following lines signifying test success:
 
 ```
 ****************************************************************************************************
@@ -144,14 +157,14 @@ Double-click on a run and you can explore the three tabs in the main pane:
 
 ```
 
-* <b>Stored Artifacts</b>: which contain a variety of detailed test-related outputs - the specifics are determined by the writer of the z/OS Batch Manager in this case.
+- **Stored Artifacts**: which contain a variety of detailed test-related outputs - the specifics are determined by the writer of the z/OS Batch Manager in this case.
 
 ![Stored Artifacts](./stored-artifacts.png)
 
 The outputs include the constructed input JCL and several of the usual JES batch output datasets.
 
-<details>
-<summary>BatchAccountsOpenTest - full source listing</summary>
+
+## BatchAccountsOpenTest - full source listing
 
 ```java
 package dev.galasa.simbanks.tests;
@@ -250,4 +263,3 @@ public class BatchAccountsOpenTest {
 }
 
 ```
-</details>

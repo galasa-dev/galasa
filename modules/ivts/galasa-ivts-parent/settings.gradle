@@ -19,6 +19,7 @@ include 'dev.galasa.ivts'
 include 'dev.galasa.zos.ivts'
 
 include 'dev.galasa.ivts:dev.galasa.ivts.artifact'
+include 'dev.galasa.ivts:dev.galasa.ivts.compilation'
 include 'dev.galasa.ivts:dev.galasa.ivts.core'
 include 'dev.galasa.ivts:dev.galasa.ivts.docker'
 include 'dev.galasa.ivts:dev.galasa.ivts.http'

@@ -2,26 +2,26 @@
 title: "CICS TS Manager"
 ---
 
-This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager here](https://javadoc.galasa.dev/dev/galasa/cicsts/package-summary.html){target="_blank"}.
+This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/cicsts/package-summary.html){target="_blank"}.
 
 
-# Overview
+## Overview
 
 This Manager provides Galasa tests to CICS/TS functions. 
+
 
 ## Testing in CICS Regions on z/OS
 
 To connect your Galasa test to a developer supplied environment with a provisioned CICS region as a minimum you need to configure the following properties for the CICS TS Manager: 
 
-
-```
+```properties
 cicsts.provision.type=dse
 cicsts.dse.tag.[TAG].applid=[APPLID]
 ```
 
-You also need to configure the following properties for the [z/OS Manager](zos-manager) as a minimum to connect to a CICS region, even if you do not reference a `@ZosImage` in your Galasa test. This is because CICS regions sit on a z/OS LPAR, and so to provision and connect to a CICS region in a test, you also need access to the z/OS image that it sits within to make requests on the CICS region. You might need to configure additional z/OS-related CPS properties, depending on your test.
+You also need to configure the following properties for the [z/OS Manager](../zos-managers/zos-manager.md) as a minimum to connect to a CICS region, even if you do not reference a `@ZosImage` in your Galasa test. This is because CICS regions sit on a z/OS LPAR, and so to provision and connect to a CICS region in a test, you also need access to the z/OS image that it sits within to make requests on the CICS region. You might need to configure additional z/OS-related CPS properties, depending on your test.
 
-```
+```properties
 zos.dse.tag.[tag].imageid=[IMAGEID]
     OR zos.tag.[tag].imageid=[IMAGEID] 
     OR zos.cluster.[CLUSTERID].images=[IMAGEID] (AND zos.dse.tag.[tag].clusterid=[CLUSTERID] if [CLUSTERID] is not DEFAULT)

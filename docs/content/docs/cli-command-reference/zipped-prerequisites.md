@@ -25,7 +25,7 @@ The following table shows the current compatibility between Gradle and Galasa ve
 | 8.x.x | 0.36.0 or later |
 
 
-If you are upgrading to Gradle version 8 from an earlier version, see the `Upgrading tests to compile using Gradle version 8` section in the [Upgrading](../upgrading) documentation to understand the changes you need to make to create Galasa projects and build and compile Galasa test code. 
+If you are upgrading to Gradle version 8 from an earlier version, see the `Upgrading tests to compile using Gradle version 8` section in the [Upgrading](../upgrading/index.md) documentation to understand the changes you need to make to create Galasa projects and build and compile Galasa test code. 
 
 Remember to add Gradle to your PATH. You can check by running `echo $PATH` on Mac or Unix, or `echo %PATH%` on Windows (PowerShell).
 

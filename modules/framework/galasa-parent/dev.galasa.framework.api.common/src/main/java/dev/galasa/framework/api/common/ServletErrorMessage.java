@@ -91,7 +91,7 @@ public enum ServletErrorMessage {
     GAL5044_INVALID_PROPERTY_NAME_TRAILING_DOT        (5044, "E: Invalid property name. Property name ''{0}'' must not end with a '.' (dot) separator."),
 
     //Resources APIs...
-    GAL5025_UNSUPPORTED_ACTION                        (5025, "E: Error occurred. The field ''action'' in the request body is invalid. Supported actions are: create, apply and update. This could indicate a mis-match between client and server levels.Check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
+    GAL5025_UNSUPPORTED_ACTION                        (5025, "E: Error occurred. The field ''action'' in the request body is invalid. Supported actions are: create, apply, update, and delete. This could indicate a mis-match between client and server levels. Check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
     GAL5026_UNSUPPORTED_RESOURCE_TYPE                 (5026, "E: Error occurred. The field ''kind'' in the request body is invalid. This could indicate a mis-match between client and server levels. Check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
     GAL5027_UNSUPPORTED_API_VERSION                   (5027, "E: Error occurred. The field ''apiVersion'' in the request body is invalid. Currently the ecosystem accepts the ''{0}'' api version. This could indicate a mis-match between client and server levels. Check the level with your Ecosystem administrator. You may have to upgrade/downgrade your client program so that the levels of client and server match."),
     GAL5067_NULL_RESOURCE_IN_BODY                     (5067, "E: Error occurred. A ''NULL'' value is not a valid resource. Check the request format, or check with your Ecosystem administrator."),
@@ -173,12 +173,19 @@ public enum ServletErrorMessage {
     GAL5413_USER_CANNOT_UPDATE_OWN_USER_ROLE          (5413, "E: A user is not allowed to update their own role. Ask a Galasa service administrator to change your role instead."),
     GAL5414_USER_CANNOT_UPDATE_SERVICE_OWNER_ROLE     (5414, "E: A user is not allowed to update the role of the Galasa service owner. Ask a Galasa service administrator to change the list of owners and update the kubernetes configuration of the service."),
 
-    // STREAMS API
+    // Streams API
     GAL5418_INVALID_STREAM_NAME                       (5418, "E: Invalid 'name' provided. A valid stream name should always start with 'a'-'z' or 'A'-'Z' and end with 'a'-'z', 'A'-'Z' or 0-9."),
     GAL5419_FAILED_TO_GET_STREAM_NAME_FROM_URL        (5419, "E: Failed to retrieve a stream name from the request path. Ensure that you have provided a valid name representing an existing stream in your request and try again"),
     GAL5420_ERROR_STREAM_NOT_FOUND                    (5420, "E: Unable to retrieve a stream with the given stream name. No such stream exists."),
     GAL5426_FAILED_TO_DELETE_STREAM                   (5426, "E: Failed to delete a test stream with the given name from the Configuration Property Store. The Configuration Property Store might be experiencing temporary issues. Report the problem to your Galasa service owner."),
     GAL5427_MISSING_STREAM_NAME                       (5427, "E: Error occurred because the Galasa Stream is invalid. The 'metadata' field cannot be empty. The field 'name' is mandatory for the type GalasaStream."),
+    GAL5429_ERROR_STREAM_ALREADY_EXISTS               (5279, "E: Error occurred when trying to create a stream with the given name. A stream with the provided name already exists."),
+    GAL5432_ERROR_STREAM_DOES_NOT_EXIST               (5432, "E: Error occurred. A stream with the provided name does not exist. Check that your provided stream name is correct and try again."),
+    GAL5433_FAILED_TO_SET_STREAM                      (5433, "E: Failed to set a stream with the given name in the Configuration Property Store. The Configuration Property Store might be experiencing temporary issues. Report the problem to your Galasa service owner."),
+    GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS      (5434, "E: Invalid GalasaStream provided. One or more of the following mandatory fields are missing from the ''{0}'' field: [{1}]. Check that your request payload is correct and try again."),
+    GAL5435_INVALID_GALASA_STREAM_OBR_DEFINITION      (5435, "E: Invalid GalasaStream provided. One or more of the provided OBRs is not in the correct format. Check that your request payload is correct and try again."),
+    GAL5436_INVALID_STREAM_URL_PROVIDED               (5436, "E: Invalid GalasaStream provided. The URL provided for the ''{0}'' field is not a valid URL. Check that your request payload is correct and try again."),
+    GAL5437_INVALID_STREAM_MISSING_OBRS               (5437, "E: Invalid GalasaStream provided. Expecting at least one OBR in the ''obrs'' field but no OBRs were provided. Check that your request payload is correct and try again."),
 
     // Monitors APIs...
     GAL5421_ERROR_GETTING_MONITOR_DEPLOYMENTS         (5421, "E: Error occurred when getting the Galasa monitor deployments from Kubernetes. Report the problem to your Galasa systems administrator."),
@@ -194,7 +201,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5432;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5438;
 
 
     private String template ;

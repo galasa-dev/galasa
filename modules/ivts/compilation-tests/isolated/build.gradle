@@ -1,0 +1,97 @@
+// This build.gradle file gets copied into the Isolated compilation tests Docker image.
+//
+// This section tells gradle which gradle plugins to use to build this project.
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'biz.aQute.bnd.builder' version '6.4.0'
+}
+
+// This section tells gradle where it should look for any dependencies
+repositories {
+    maven {
+    	url = "$sourceMaven"
+    }
+}
+
+// Set the variables which will control what the built OSGi bundle will be called
+// and the name it will be published under in the maven repository.
+group = 'dev.galasa.example'
+version = '0.0.1-SNAPSHOT'
+
+// What are the dependencies of the test code?
+dependencies {
+    implementation 'commons-logging:commons-logging:+'
+    implementation 'org.assertj:assertj-core:+'
+
+    implementation 'dev.galasa:dev.galasa:+'
+    implementation 'dev.galasa:dev.galasa.framework:+'
+
+    implementation 'dev.galasa:dev.galasa.artifact.manager:+'
+    implementation 'dev.galasa:dev.galasa.cicsts.ceci.manager:+'
+    implementation 'dev.galasa:dev.galasa.cicsts.ceda.manager:+'
+    implementation 'dev.galasa:dev.galasa.cicsts.cemt.manager:+'
+    implementation 'dev.galasa:dev.galasa.cicsts.manager:+'
+    implementation 'dev.galasa:dev.galasa.cicsts.resource.manager:+'
+    implementation 'dev.galasa:dev.galasa.core.manager:+'
+    implementation 'dev.galasa:dev.galasa.docker.manager:+'
+    implementation 'dev.galasa:dev.galasa.elasticlog.manager:+'
+    implementation 'dev.galasa:dev.galasa.galasaecosystem.manager:+'
+    implementation 'dev.galasa:dev.galasa.http.manager:+'
+    implementation 'dev.galasa:dev.galasa.ipnetwork.manager:+'
+    implementation 'dev.galasa:dev.galasa.java.manager:+'
+    implementation 'dev.galasa:dev.galasa.java.ubuntu.manager:+'
+    implementation 'dev.galasa:dev.galasa.java.windows.manager:+'
+    implementation 'dev.galasa:dev.galasa.jmeter.manager:+'
+    implementation 'dev.galasa:dev.galasa.kubernetes.manager:+'
+    implementation 'dev.galasa:dev.galasa.linux.manager:+'
+    implementation 'dev.galasa:dev.galasa.openstack.manager:+'
+    implementation 'dev.galasa:dev.galasa.sdv.manager:+'
+    implementation('dev.galasa:dev.galasa.selenium.manager:+'){
+        exclude group: 'com.squareup.okio', module: 'okio'
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+        exclude group: 'net.bytebuddy', module: 'byte-buddy'
+        exclude group: 'org.apache.commons', module: 'commons-exec'
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+    implementation 'dev.galasa:dev.galasa.textscan.manager:+'
+    implementation 'dev.galasa:dev.galasa.windows.manager:+'
+    implementation 'dev.galasa:dev.galasa.zos.manager:+'
+    implementation 'dev.galasa:dev.galasa.zos3270.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosbatch.rseapi.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosbatch.zosmf.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosconsole.oeconsol.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosconsole.zosmf.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosfile.rseapi.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosfile.zosmf.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosliberty.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosmf.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosprogram.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosrseapi.manager:+'
+    implementation 'dev.galasa:dev.galasa.zostsocommand.ssh.manager:+'
+    implementation 'dev.galasa:dev.galasa.zosunixcommand.ssh.manager:+'
+
+    constraints {
+        implementation('commons-codec:commons-codec:1.15'){
+            because "Force specific version of commons-codec for security reasons"
+        }
+        implementation('org.apache.httpcomponents:httpcore:4.4.14'){
+            because "Force specific version of httpcore for security reasons"
+        }
+    }
+
+    implementation 'org.apache.derby:derbyclient:10.14.+'
+    implementation 'org.osgi:org.osgi.service.component.annotations:1.3.0'
+
+    compileOnly 'javax.validation:validation-api:2.0.1.Final'
+}
+
+// Tell gradle to publish the built OSGi bundles as maven artifacts on the
+// local maven repository.
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}

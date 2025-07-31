@@ -221,5 +221,17 @@ public class CacheCPS implements IConfigurationPropertyStore {
         // Delegate this stimulus to the child, to give that a chance of closing resources.
         childCPS.shutdown();
     }
+
+
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        primeCaches(childCPS);
+
+        childCPS.setProperties(propertiesToSet);
+
+        if (isCacheEnabled) {
+            propertyCache.putAll(propertiesToSet);
+        }
+    }
     
 }

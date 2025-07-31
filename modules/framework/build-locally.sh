@@ -360,9 +360,22 @@ function build_framework_uml_diagrams {
     make_sure_plantuml_tool_is_available
 
     h2 "Building plantuml diagrams for framework internal docs." 
-    java -jar $BASEDIR/temp/plantuml.jar -tpng "${BASEDIR}/docs/design/**.plantuml"
+    pushd "$BASEDIR/docs" 
+    export BASEDIR
+
+    # Objective of using a make file is to only build/re-build the uml diagrams 
+    # ONLY if the source for the diagram has changed.
+    # This is supposed to make sure that the png files don't get re-generated 
+    # every time you run the build-locally, so don't have to be checked-in to git 
+    # all the time when they don't need to be.
+    # Make does this by always comparing timestamps on source and target files.
+    # If the target file is older than the source file, it re-builds things.
+    make 
+    
+    # java -jar $BASEDIR/temp/plantuml.jar -tpng "${BASEDIR}/docs/design/**.plantuml"
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to generate UML diagrams" ; exit 1 ; fi
 
+    popd
 }
 
 function make_sure_plantuml_tool_is_available {

@@ -1,58 +1,66 @@
 ---
-path: "/docs/managers/kubernetes-manager"
 title: "Kubernetes Manager"
 ---
 
-This Manager is at Alpha level. You can view the <a href="https://javadoc.galasa.dev/dev/galasa/kubernetes/package-summary.html" target="_blank" rel="noopener noreferrer">Javadoc documentation for the Manager here</a>.<br>
+This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/kubernetes/package-summary.html){target="_blank"}.
 
 
+## Overview
 
-[Overview](#overview)<br>
-[Provided annotation](#annotations)<br>
-[Code snippets and examples](#codesnippets)<br>
+This Manager provides a test with a Kubernetes Namespace to utilize. The test will provide YAML representations of the resources that the test requires.
 
+As an absolute minimum, the CPS property `kubernetes.cluster.K8S.url` must be provided as well as a credential `secure.credentials.K8S.token` for the API token.
 
-# <a name="overview"></a>Overview
-This Manager provides a test with a Kubernetes Namespace to utilize. The test will provide YAML representations of the resources that the test requires. <br><br> As an absolute minimum, the CPS property <code>kubernetes.cluster.K8S.url</code> must be provided as well as a credential <code>secure.credentials.K8S.token</code> for the API token. <br><br> The Kubernetes Manager supports Galasa Shared Environments. Shared environments provide  the ability to create a test environment that can be shared across multiple test runs  so you don't have to provision a test environment for each test.
+The Kubernetes Manager supports Galasa Shared Environments. Shared environments provide  the ability to create a test environment that can be shared across multiple test runs  so you don't have to provision a test environment for each test.
 
 ## Limitations
-The Manager only supports the following Kubernetes resources:-<br> <br> - Deployment<br> - StatefulSet<br> - Service<br> - Secret<br> - ConfigMap<br> - PersistentVolumeClaim<br> <br> If additional resources are required, please raise a GitHub issue.<br><br> 
+
+The Manager only supports the following Kubernetes resources:-
+
+- Deployment
+- StatefulSet
+- Service
+- Secret
+- ConfigMap
+- PersistentVolumeClaim
+
+If additional resources are required, please raise a GitHub issue.
 
 
-## <a name="annotations"></a>Annotations
+## Annotations
 
 The following annotations are available with the Kubernetes Manager
-<details>
-<summary>Kubernetes Namespace</summary>
+
+
+### Kubernetes Namespace
 
 | Annotation: | Kubernetes Namespace |
 | --------------------------------------- | :------------------------------------- |
 | Name: | @KubernetesNamespace |
-| Description: | The <code>@KubernetesNamespace</code> annotation requests the Kubernetes Manager to allocate a namespace on the infrastructure Kubernetes clusters.  The test can request as many namespaces as required so long as they  can be supported simultaneously by the Kubernetes Manager configuration. |
-| Attribute: `kubernetesNamespaceTag` |  The <code>kubernetesNamespaceTag</code> identifies the Kubernetes names to other Managers or Shared Environments.  If a test is using multiple  Kubernetes namespace, each separate Kubernetes namespace must have a unique tag.  If more than one Kubernetes namespace use the same tag, they will refer to the  same Kubernetes namespace. |
-| Syntax: | <code>@KubernetesNamespace<br> public IKubernetesNamesapce namespace;<br> </code> |
-| Notes: | The <code>IKubernetesNamespace</code> interface gives the test access to create and manage resources on the Kubernetes cluster.  See <a href="https://javadoc.galasa.dev/dev/galasa/kubernetes/KubernetesNamespace.html" target="_blank">KubernetesNamespace</a> and <a href="https://javadoc.galasa.dev/dev/galasa/kubernetes/IKubernetesNamespace.html" target="_blank">IKubernetesNamespace</a> to find out more. |
-
-</details>
+| Description: | The `@KubernetesNamespace` annotation requests the Kubernetes Manager to allocate a namespace on the infrastructure Kubernetes clusters.  The test can request as many namespaces as required so long as they  can be supported simultaneously by the Kubernetes Manager configuration. |
+| Attribute: `kubernetesNamespaceTag` |  The `kubernetesNamespaceTag` identifies the Kubernetes names to other Managers or Shared Environments.  If a test is using multiple  Kubernetes namespace, each separate Kubernetes namespace must have a unique tag.  If more than one Kubernetes namespace use the same tag, they will refer to the  same Kubernetes namespace. |
+| Syntax: | <pre lang="java">@KubernetesNamespace<br>public IKubernetesNamesapce namespace;<br> </pre> |
+| Notes: | The `IKubernetesNamespace` interface gives the test access to create and manage resources on the Kubernetes cluster.  See [KubernetesNamespace](https://javadoc.galasa.dev/dev/galasa/kubernetes/KubernetesNamespace.html){target="_blank"} and [IKubernetesNamespace](https://javadoc.galasa.dev/dev/galasa/kubernetes/IKubernetesNamespace.html){target="_blank"} to find out more. |
 
 
-
-## <a name="codesnippets"></a>Code snippets
+## Code snippets
 
 Use the following code snippets to help you get started with the Kubernetes Manager.
  
-<details><summary>Create Kubernetes namespaces for the Kubernetes Manager to use</summary>
+
+### Create Kubernetes namespaces for the Kubernetes Manager to use
 
 Note: Isolated namespaces must be provided for the Kubernetes Manager to use.  The Manager deletes any resources that 
 exist on the namespace once a test has finished.
 
 The following are example scripts and yaml files necessary to create namespaces:
-1. [Namespace creation script](https://github.com/galasa-dev/managers/blob/main/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/namespaces.yaml)
-1. [Create Service Account for the Manager to use (including api token)](https://github.com/galasa-dev/managers/blob/main/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/account.sh)
-1. [The RBAC rules to be applied to each namespace](https://github.com/galasa-dev/managers/blob/main/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/rbac.yaml)
-</details>
 
-<details><summary>Obtain a Kubernetes Namespace</summary>
+1. [Namespace creation script](https://github.com/galasa-dev/managers/blob/main/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/namespaces.yaml){target="_blank"}
+1. [Create Service Account for the Manager to use (including api token)](https://github.com/galasa-dev/managers/blob/main/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/account.sh){target="_blank"}
+1. [The RBAC rules to be applied to each namespace](https://github.com/galasa-dev/managers/blob/main/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/rbac.yaml){target="_blank"}
+
+
+### Obtain a Kubernetes Namespace
 
 ```java
 @KubernetesNamespace()
@@ -62,9 +70,9 @@ public IKubernetesNamespace namespace;
 This code requests the Kubernetes Manager to allocate a namespace for the test to use.
 
 There is no limit in Galasa on how many Kubernetes Namespaces can be used within a single test. The only limit is the number of Kubernetes Namespaces that can be started in the Galasa Ecosystem. This limit is set by the Galasa Administrator and is typically set to the maximum number of namespaces defined in the Kubernetes cluster.  If there are not enough slots available for an automated run, the run is put back on the queue in waiting state to retry.  Local test runs fail if there are not enough container slots available.
-</details>
 
-<details><summary>Create a resource on the namespace</summary>
+
+### Create a resource on the namespace
 
 ```java
 @ArtifactManager
@@ -87,9 +95,9 @@ public void test() {
 In this snippet, the test retrieves the contents of the `/example.yaml` resource file as a String.  The yaml file is passed the namespace for creation.  The yaml must contain only one Kubernetes resource.
 
 The resource is created but is not checked to see if the resource has been started or allocated.
-</details>
 
-<details><summary>Retrieve a pod log</summary>
+
+### Retrieve a pod log
 
 ```java
 IStatefulSet statefulSet = (IStatefulSet)namespace.createResource(yaml);
@@ -99,14 +107,14 @@ List<IPodLog> podLogs = statefulSet.getPodLogs("containername");
 ```
 
 As Deployments and StatefulSets can have multiple pods and therefore containers with the same name,  a List is returned containing all the current logs for all the named containers.
-</details>
+
 
 ## Configuration Properties
 
 The following are properties used to configure the Kubernetes Manager.
  
-<details>
-<summary>Kubernetes Cluster IDs CPS Property</summary>
+
+### Kubernetes Cluster IDs CPS Property
 
 | Property: | Kubernetes Cluster IDs CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -115,12 +123,10 @@ The following are properties used to configure the Kubernetes Manager.
 | Required:  | No |
 | Default value: | Defaults to a single cluster ID of K8S if the property is missing |
 | Valid values: | A comma separated list of alphanumeric IDs.  Normally uppercased. |
-| Examples: | <code>kubernetes.cluster.ids=K8S,ALTERNATE</code> |
+| Examples: | `kubernetes.cluster.ids=K8S,ALTERNATE` |
 
-</details>
- 
-<details>
-<summary>Kubernetes Cluster Credentials CPS Property</summary>
+
+### Kubernetes Cluster Credentials CPS Property
 
 | Property: | Kubernetes Cluster Credentials CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -129,12 +135,10 @@ The following are properties used to configure the Kubernetes Manager.
 | Required:  | No |
 | Default value: | K8S |
 | Valid values: | A valid credentials ID. Galasa convention states IDs should be uppercase |
-| Examples: | <code>kubernetes.cluster.K8S.credentials=K8S<br> kubernetes.cluster.credentials=K8S</code> |
+| Examples: | `kubernetes.cluster.K8S.credentials=K8S`<br> `kubernetes.cluster.credentials=K8S` |
 
-</details>
- 
-<details>
-<summary>Maximum Slots on Cluster CPS Property</summary>
+
+### Maximum Slots on Cluster CPS Property
 
 | Property: | Maximum Slots on Cluster CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -143,12 +147,10 @@ The following are properties used to configure the Kubernetes Manager.
 | Required:  | No |
 | Default value: | Defaults to 2 if not provided |
 | Valid values: | Integer value.  A value <0 disables the cluster. |
-| Examples: | <code>kubernetes.cluster.K8S.max.slots=5</code> |
+| Examples: | `kubernetes.cluster.K8S.max.slots=5` |
 
-</details>
- 
-<details>
-<summary>Kubernetes Tag Shared Environment</summary>
+
+### Kubernetes Tag Shared Environment
 
 | Property: | Kubernetes Tag Shared Environment |
 | --------------------------------------- | :------------------------------------- |
@@ -157,12 +159,10 @@ The following are properties used to configure the Kubernetes Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | A valid Shared Environment |
-| Examples: | <code>kubernetes.namespace.tag.SHARED.shared.environment=M1</code> |
+| Examples: | `kubernetes.namespace.tag.SHARED.shared.environment=M1` |
 
-</details>
- 
-<details>
-<summary>Kubernetes Namespace IDs CPS Property</summary>
+
+### Kubernetes Namespace IDs CPS Property
 
 | Property: | Kubernetes Namespace IDs CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -171,12 +171,10 @@ The following are properties used to configure the Kubernetes Manager.
 | Required:  | No |
 | Default value: | Defaults to galasa{1-2} if not provided |
 | Valid values: | A comma separated list of valid Kubernetes namespaces with resource pooling expanders |
-| Examples: | <code>kubernetes.cluster.K8S.namespaces=galasa1,galasa{2-9}<br> kubebernetes.cluster.namespaces=bob1,bob2,bob3</code> |
+| Examples: | `kubernetes.cluster.K8S.namespaces=galasa1,galasa{2-9}`<br> `kubebernetes.cluster.namespaces=bob1,bob2,bob3` |
 
-</details>
- 
-<details>
-<summary>Kubernetes Node Port Proxy Hostname CPS Property</summary>
+
+### Kubernetes Node Port Proxy Hostname CPS Property
 
 | Property: | Kubernetes Node Port Proxy Hostname CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -185,12 +183,10 @@ The following are properties used to configure the Kubernetes Manager.
 | Required:  | No |
 | Default value: | The hostname as specified in the API URL |
 | Valid values: | A valid URL hostname |
-| Examples: | <code>kubernetes.cluster.K8S.nodeport.proxy.hostname=cluster.org</code> |
+| Examples: | `kubernetes.cluster.K8S.nodeport.proxy.hostname=cluster.org` |
 
-</details>
- 
-<details>
-<summary>Kubernetes Override Storage Class CPS Property</summary>
+
+### Kubernetes Override Storage Class CPS Property
 
 | Property: | Kubernetes Override Storage Class CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -199,12 +195,10 @@ The following are properties used to configure the Kubernetes Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | A valid StorageClass that is defined in the Kubernetes cluster |
-| Examples: | <code>kubernetes.cluster.K8S.override.storageclass=fast<br> kubernetes.cluster.override.storageclass=slow</code> |
+| Examples: | `kubernetes.cluster.K8S.override.storageclass=fast`<br> `kubernetes.cluster.override.storageclass=slow` |
 
-</details>
- 
-<details>
-<summary>Kubernetes Cluster API URL CPS Property</summary>
+
+### Kubernetes Cluster API URL CPS Property
 
 | Property: | Kubernetes Cluster API URL CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -213,12 +207,10 @@ The following are properties used to configure the Kubernetes Manager.
 | Required:  | Yes |
 | Default value: | None |
 | Valid values: | A valid URL |
-| Examples: | <code>kubernetes.cluster.K8S.url=http://cluster.org:8443</code> |
+| Examples: | `kubernetes.cluster.K8S.url=http://cluster.org:8443` |
 
-</details>
- 
-<details>
-<summary>Kubernetes Validate Cluster Certificate CPS Property</summary>
+
+### Kubernetes Validate Cluster Certificate CPS Property
 
 | Property: | Kubernetes Validate Cluster Certificate CPS Property |
 | --------------------------------------- | :------------------------------------- |
@@ -227,6 +219,5 @@ The following are properties used to configure the Kubernetes Manager.
 | Required:  | No |
 | Default value: | true |
 | Valid values: | true or false |
-| Examples: | <code>kubernetes.cluster.K8S.validate.certificate=false<br> kubernetes.cluster.validate.certificate=true</code> |
+| Examples: | `kubernetes.cluster.K8S.validate.certificate=false`<br> `kubernetes.cluster.validate.certificate=true` |
 
-</details>

@@ -1,45 +1,38 @@
 ---
-path: "/docs/managers/zos-mf-manager"
 title: "zOS MF Manager"
 ---
 
-This Manager is at Beta level. You can view the <a href="https://javadoc.galasa.dev/overview-summary.html" target="_blank" rel="noopener noreferrer">Javadoc documentation for the Manager here</a>.<br>
+This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/overview-summary.html){target="_blank"}.
 
 
-[Overview](#overview)<br>
-[Provided annotation](#annotations)<br>
-[Configuring](#configuring)<br>
 
+## Overview
 
-# <a name="overview"></a>Overview
 This Manager provides Galasa tests with access to a zOS/MF server. Use the z/OS MF Manager to simplify areas of z/OS system management. The z/OS MF Manager can be called from a test or from other Managers. For example, the z/OS Manager calls the z/OS MF Manager to implement z/OS file, console and batch functions via the relevant interface.
 
 
-## <a name="overview"></a>Provided annotations
+## Provided annotations
 
 The following annotations are available with the zOS MF Manager
-<details>
-<summary>z/OS MF</summary>
+
+
+### z/OS MF
 
 | Annotation: | z/OS MF |
 | --------------------------------------- | :------------------------------------- |
 | Name: | @Zosmf |
-| Description: | The <code>@Zosmf</code> annotation requests the z/OSMF Manager to provide a z/OSMF instance associated with a z/OS image.  The test can request multiple z/OSMF instances, with the default being associated with the <b>primary</b> zOS image. |
+| Description: | The `@Zosmf` annotation requests the z/OSMF Manager to provide a z/OSMF instance associated with a z/OS image.  The test can request multiple z/OSMF instances, with the default being associated with the **primary** zOS image. |
 | Attribute: `imageTag` |  The tag of the zOS Image this variable is to be populated with |
-| Syntax: | @ZosImage(imageTag="A")<br> public IZosImage zosImageA;<br> @Zosmf(imageTag="A")<br> public IZosmf zosmfA;<br></code> |
-| Notes: | The <code>IZosmf</code> interface has a number of methods to issue requests to the zOSMF REST API. See <a href="https://javadoc.galasa.dev/dev/galasa/zosmf/Zosmf.html" target="_blank">Zosmf</a> and <a href="https://javadoc.galasa.dev/dev/galasa/zosmf/IZosmf.html" target="_blank">IZosmf</a> to find out more. |
-
-</details>
+| Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@Zosmf(imageTag="A")<br>public IZosmf zosmfA;<br></pre> |
+| Notes: | The `IZosmf` interface has a number of methods to issue requests to the zOSMF REST API. See [Zosmf](https://javadoc.galasa.dev/dev/galasa/zosmf/Zosmf.html){target="_blank"} and [IZosmf](https://javadoc.galasa.dev/dev/galasa/zosmf/IZosmf.html){target="_blank"} to find out more. |
 
 
-
-
-## <a name="configuring"></a>Configuration Properties
+## Configuration Properties
 
 The following are properties used to configure the zOS MF Manager.
  
-<details>
-<summary>zOSMF Server port is https</summary>
+
+### zOSMF Server port is https
 
 | Property: | zOSMF Server port is https |
 | --------------------------------------- | :------------------------------------- |
@@ -48,12 +41,10 @@ The following are properties used to configure the zOS MF Manager.
 | Required:  | No |
 | Default value: | true |
 | Valid values: | true or false |
-| Examples: | <code>zosmf.server.https=true</code><br> <code>zosmf.server.SYSA.https=true</code> |
+| Examples: | `zosmf.server.https=true`<br>`zosmf.server.SYSA.https=true` |
 
-</details>
- 
-<details>
-<summary>zOSMF Image Servers</summary>
+
+### zOSMF Image Servers
 
 | Property: | zOSMF Image Servers |
 | --------------------------------------- | :------------------------------------- |
@@ -62,12 +53,10 @@ The following are properties used to configure the zOS MF Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Comma separated zOS/MF server IDs |
-| Examples: | <code>zosmf.image.MYLPAR.servers=MFSYSA,MFSYSB</code><br> |
+| Examples: | `zosmf.image.MYLPAR.servers=MFSYSA,MFSYSB`<br> |
 
-</details>
- 
-<details>
-<summary>zOSMF Server retry request</summary>
+
+### zOSMF Server retry request
 
 | Property: | zOSMF Server retry request |
 | --------------------------------------- | :------------------------------------- |
@@ -76,12 +65,10 @@ The following are properties used to configure the zOS MF Manager.
 | Required:  | No |
 | Default value: | 3 |
 | Valid values: | numerical value > 0 |
-| Examples: | <code>zosmf.server.request.retry=5</code><br> <code>zosmf.server.MFSYSA.request.retry=5</code> |
+| Examples: | `zosmf.server.request.retry=5`<br>`zosmf.server.MFSYSA.request.retry=5` |
 
-</details>
- 
-<details>
-<summary>zOSMF Server Credentials</summary>
+
+### zOSMF Server Credentials
 
 | Property: | zOSMF Server Credentials |
 | --------------------------------------- | :------------------------------------- |
@@ -90,12 +77,10 @@ The following are properties used to configure the zOS MF Manager.
 | Required:  | No |
 | Default value: | None, however the zOS/MF Manager will use the default z/OS image credentials |
 | Valid values: | Valid credential ID |
-| Examples: | <code>zosmf.server.MFSYSA.credentials=ZOS</code><br> |
+| Examples: | `zosmf.server.MFSYSA.credentials=ZOS`<br> |
 
-</details>
- 
-<details>
-<summary>zOSMF Server Image</summary>
+
+### zOSMF Server Image
 
 | Property: | zOSMF Server Image |
 | --------------------------------------- | :------------------------------------- |
@@ -104,12 +89,10 @@ The following are properties used to configure the zOS MF Manager.
 | Required:  | No |
 | Default value: | The SERVERID value is used as the z/OS image ID |
 | Valid values: | z/OS image IDs |
-| Examples: | <code>zosmf.server.MFSYSA.image=SYSA</code><br> |
+| Examples: | `zosmf.server.MFSYSA.image=SYSA`<br> |
 
-</details>
- 
-<details>
-<summary>zOSMF Server port</summary>
+
+### zOSMF Server port
 
 | Property: | zOSMF Server port |
 | --------------------------------------- | :------------------------------------- |
@@ -118,12 +101,10 @@ The following are properties used to configure the zOS MF Manager.
 | Required:  | No |
 | Default value: | 443 |
 | Valid values: | A valid IP port number |
-| Examples: | <code>zosmf.server.port=443</code><br> <code>zosmf.server.MFSYSA.port=443</code> |
+| Examples: | `zosmf.server.port=443`<br>`zosmf.server.MFSYSA.port=443` |
 
-</details>
- 
-<details>
-<summary>zOSMF Sysplex Servers</summary>
+
+### zOSMF Sysplex Servers
 
 | Property: | zOSMF Sysplex Servers |
 | --------------------------------------- | :------------------------------------- |
@@ -132,6 +113,5 @@ The following are properties used to configure the zOS MF Manager.
 | Required:  | No |
 | Default value: | None |
 | Valid values: | Comma separated zOS/MF server IDs |
-| Examples: | <code>zosmf.sysplex.default.servers=MFSYSA,MFSYSB</code><br> <code>zosmf.sysplex.PLEXA.default.servers=MFSYSA,MFSYSB</code> |
+| Examples: | `zosmf.sysplex.default.servers=MFSYSA,MFSYSB`<br>`zosmf.sysplex.PLEXA.default.servers=MFSYSA,MFSYSB` |
 
-</details>

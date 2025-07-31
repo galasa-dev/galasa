@@ -33,20 +33,25 @@ import dev.galasa.zos3270.internal.comms.NetworkThread;
 
 public class Terminal implements ITerminal {
 
+    // The max amount of time this thread will wait around for the network thread to finish after
+    // we have closed the network. Units are milliseconds. 
+    public static final long MAX_MILLISECS_TO_WAIT_FOR_NETWORK_THREAD_TO_FINISH = 20 * 1000 ; // 20 seconds
+
 	public ITextScannerManagerSpi textScan;
     private final Screen  screen;
     private final Network network;
     private final String  id;
-    private NetworkThread networkThread;
-    private boolean connected = false;
+    private volatile NetworkThread networkThread;
+    private volatile boolean connected = false;
 
     private int           defaultWaitTime = 120_000;
 
     private Log           logger          = LogFactory.getLog(getClass());
     
-    private boolean       autoReconnect   = false;
+    private volatile boolean       autoReconnect   = false;
     
     private List<String>  deviceTypes;
+    private String        requestedDeviceName;
 
     /**
      * @deprecated use the {@link #Terminal(String id, String host, int port, boolean ssl, TerminalSize primarySize, TerminalSize alternateSize, ITextScannerManagerSpi textScan, Charset codePage)}
@@ -72,15 +77,22 @@ public class Terminal implements ITerminal {
      */
     @Deprecated(since = "0.28.0", forRemoval = true)
     public Terminal(String id, String host, int port, boolean ssl, int primaryColumns, int primaryRows, int alternateColumns, int alternateRows, ITextScannerManagerSpi textScan) throws TerminalInterruptedException {
-        network = new Network(host, port, ssl, id);
+        network = new Network(host, port, ssl, false, id);
         screen = new Screen(primaryColumns, primaryRows, alternateColumns, alternateRows, this.network);
         this.id = id;
         this.textScan = textScan;
     }
 
 
-    public Terminal(String id, String host, int port, boolean ssl, TerminalSize primarySize, TerminalSize alternateSize, ITextScannerManagerSpi textScan, Charset codePage) throws TerminalInterruptedException {
-        network = new Network(host, port, ssl, id);
+    public Terminal(String id, String host, int port, boolean ssl, boolean verifyServer, TerminalSize primarySize, TerminalSize alternateSize, ITextScannerManagerSpi textScan, Charset codePage) throws TerminalInterruptedException {
+        this(id, host, port, ssl, verifyServer, primarySize, alternateSize, textScan, codePage, new Network(host, port, ssl, verifyServer, id));
+    }
+
+    /** 
+     * A constructor which passes-in the network object, so unit tests can use this one.
+     */
+    protected Terminal(String id, String host, int port, boolean ssl, boolean verifyServer, TerminalSize primarySize, TerminalSize alternateSize, ITextScannerManagerSpi textScan, Charset codePage, Network network) throws TerminalInterruptedException {
+        this.network = network;
         screen = new Screen(primarySize, alternateSize, this.network, codePage);
         this.id = id;
         this.textScan = textScan;
@@ -92,6 +104,14 @@ public class Terminal implements ITerminal {
     
     public void setDeviceTypes(List<String> deviceTypes) {
         this.deviceTypes = deviceTypes;
+    }
+
+    public void setRequestedDeviceName(String deviceName) {
+        this.requestedDeviceName = deviceName;
+    }
+
+    public String getRequestedDeviceName() {
+        return this.requestedDeviceName;
     }
 
     @Override
@@ -134,6 +154,7 @@ public class Terminal implements ITerminal {
         logger.trace("connect() exiting");
     }
 
+
     @Override
     public void disconnect() throws TerminalInterruptedException {
         logger.trace("disconnect() entered");
@@ -149,7 +170,7 @@ public class Terminal implements ITerminal {
         if (networkThread != null) {
             try {
                 logger.trace("Waiting for network thread to end...");
-                networkThread.join();
+                networkThread.join(MAX_MILLISECS_TO_WAIT_FOR_NETWORK_THREAD_TO_FINISH);
                 logger.trace("Network thread ended OK");
             } catch (InterruptedException e) {
                 logger.warn("Interrupted while waiting for network thread to end. Network thread might still be active.");
@@ -163,14 +184,23 @@ public class Terminal implements ITerminal {
         logger.trace("disconnect() exiting");
     }
     
+    /**
+     * The network thread has closed the network connection.
+     * After this point, it will immediately exit.
+     */
     public void networkClosed() {
         logger.trace("networkClosed() entered");
         connected = false;
         if (network != null) {
             network.close();
         }
-        networkThread = null;
-        
+
+        // Do NOT null-out the networkThread variable. Doing so will potentially cause a race condition
+        // in the disconnect code.
+        // But nulling-out the connection will mean we potentially have an inactive thread which won't get cleaned
+        // up so quickly... until either the disconnect() or connect() calls are made, or this terminal is freed-up
+        // by garbage collection.
+        // Of both of these, avoiding the race is the best option.
         if (autoReconnect) {
             logger.trace("Auto reconnecting...");
             try {

@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
+import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.api.common.InternalServletException;
@@ -25,7 +26,9 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
@@ -33,12 +36,14 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class GroupRuns extends ProtectedRoute {
 
     protected IFramework framework;
+    private IResultArchiveStore rasStore;
     private final GalasaGson gson = new GalasaGson();
     
 
     public GroupRuns(ResponseBuilder responseBuilder, String path, IFramework framework) throws RBACException {
         super(responseBuilder, path, framework.getRBACService());
         this.framework = framework;
+        this.rasStore = framework.getResultArchiveStore();
     }
 
     protected List<IRun> getRuns(String groupName) throws InternalServletException {
@@ -129,11 +134,27 @@ public class GroupRuns extends ProtectedRoute {
                 );
                 
                 status.getRuns().add(newRun.getSerializedRun());
+                
+                // Create an empty RAS record for the submitted run
+                createRunRasRecord(newRun);
+
             } catch (FrameworkException fe) {
                 ServletError error = new ServletError(GAL5021_UNABLE_TO_SUBMIT_RUNS, className);  
                 throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, fe);
             }
         }
         return status;
+    }
+
+    private void createRunRasRecord(IRun newRun) throws InternalServletException {
+        TestStructure newTestStructure = newRun.toTestStructure();
+        String runId = newRun.getRasRunId();
+
+        try {
+            rasStore.createTestStructure(runId, newTestStructure);
+        } catch (ResultArchiveStoreException e) {
+            ServletError error = new ServletError(GAL5021_UNABLE_TO_SUBMIT_RUNS, runId);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+        }
     }
 }

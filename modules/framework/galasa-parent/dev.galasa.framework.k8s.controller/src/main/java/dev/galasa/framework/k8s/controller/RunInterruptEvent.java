@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.k8s.controller;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -23,11 +24,13 @@ public class RunInterruptEvent {
     private final List<RunRasAction> rasActions;
     private final String runName;
     private final String interruptReason;
+    private final Instant interruptedAt;
 
-    public RunInterruptEvent(List<RunRasAction> rasActions, String runName, String interruptReason) {
+    public RunInterruptEvent(List<RunRasAction> rasActions, String runName, String interruptReason, Instant interruptedAt) {
         this.rasActions = rasActions;
         this.runName = runName;
         this.interruptReason = interruptReason;
+        this.interruptedAt = interruptedAt;
 
         logger.debug("Created: " + this.toString());
     }
@@ -47,5 +50,9 @@ public class RunInterruptEvent {
 
     public String getInterruptReason() {
         return this.interruptReason;
+    }
+
+    public Instant getInterruptedAt() {
+        return this.interruptedAt;
     }
 }

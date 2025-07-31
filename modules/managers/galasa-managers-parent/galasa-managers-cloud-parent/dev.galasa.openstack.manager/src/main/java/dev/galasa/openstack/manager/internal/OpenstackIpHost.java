@@ -47,6 +47,11 @@ public class OpenstackIpHost implements IIpHost {
     }
 
     @Override
+    public boolean shouldVerifyTelnetServer() throws IpNetworkManagerException {
+        return false;
+    }
+
+    @Override
     public int getFtpPort() throws IpNetworkManagerException {
         return 21;
     }

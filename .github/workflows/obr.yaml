@@ -279,7 +279,20 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/galasa-dev/argocdcli:main app actions run ${{ env.BRANCH }}-maven-repos restart --kind Deployment --resource-name obr-${{ env.BRANCH }} --server argocd.galasa.dev
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app actions run ${{ env.BRANCH }}-maven-repos restart \
+            --kind Deployment \
+            --resource-name obr-${{ env.BRANCH }} \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
       - name: Wait for OBR application health in ArgoCD
         # Skip this job for forks
@@ -287,7 +300,20 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/galasa-dev/argocdcli:main app wait ${{ env.BRANCH }}-maven-repos --resource apps:Deployment:obr-${{ env.BRANCH }} --health --server argocd.galasa.dev
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app wait ${{ env.BRANCH }}-maven-repos \
+            --resource apps:Deployment:obr-${{ env.BRANCH }} \
+            --health \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
       # Here we remove the artifacts built by the other modules (everything
       # other than dev.galasa.uber.obr and galasa-bom) as otherwise when
@@ -495,15 +521,45 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           set -o pipefail
+          # Note: We install the built artifacts into a temporary location.
+          mkdir -p ${{ github.workspace }}/modules/obr/javadocs/temp
           mvn -f pom.xml deploy -X \
           -Dgalasa.source.repo=file:${{ github.workspace }}/modules/artifacts \
           -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
-          -Dgalasa.release.repo=file:${{ github.workspace }}/modules/obr/javadocs/docker/repo \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/modules/obr/javadocs/temp \
           -Dmaven.javadoc.failOnError=false \
-          -Dgpg.key.id="${{ env.GPG_KEYID }}" \
-          -Dgpg.passphrase="${{ env.GPG_PASSPHRASE }}" \
+          -Dgpg.key.id=${{ env.GPG_KEYID }} \
+          -Dgpg.passphrase=${{ env.GPG_PASSPHRASE }} \
           --batch-mode --errors --fail-at-end \
           --settings /home/runner/work/gpg/settings.xml 2>&1 | tee build.log
+
+      # Note: We publish from a different repository, so the maven comand can't find the javadoc's pom.xml,
+      # as we want it to create a new one.
+      - name: Publish the javadoc site using maven, so that the maven bundle contains no dependencies.
+        working-directory: modules/obr
+        env:
+          GPG_KEYID: ${{ secrets.GPG_KEYID }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GALASA_VERSION: ${{ inputs.galasa-version }}
+        run: |
+          # Note: This creates a new pom.xml which is very simple, so no transitive dependencies are
+          # available for it.
+          # Note: We append to the build log.
+          set -o pipefail
+          mvn deploy:deploy-file \
+          -Dgpg.key.id=${{ env.GPG_KEYID }} \
+          -Dgpg.passphrase=${{ env.GPG_PASSPHRASE }} \
+          -Durl=file:${{ github.workspace }}/modules/obr/javadocs/docker/repo \
+          -DgroupId=dev.galasa \
+          -Dversion=${{ env.GALASA_VERSION }} \
+          -DartifactId=galasa-uber-javadoc \
+          -Dpackaging=zip \
+          -Dfile=${{ github.workspace }}/modules/obr/javadocs/temp/dev/galasa/galasa-uber-javadoc/${{ env.GALASA_VERSION }}/galasa-uber-javadoc-${{ env.GALASA_VERSION }}.zip \
+          -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
+          -Dgalasa.release.repo=file:${{ github.workspace }}/modules/obr/javadocs/docker/repo \
+          -Dmaven.javadoc.failOnError=false \
+          --batch-mode --errors --fail-at-end \
+          --settings ${{ github.workspace }}/modules/obr/settings.xml 2>&1 | tee -a javadocs/build.log
       
       - name: Upload Javadoc site build log
         if: failure()
@@ -512,6 +568,12 @@ jobs:
           name: javadoc-site-build-log
           path: modules/obr/javadocs/build.log
           retention-days: 7
+
+      - name: Upload built javadoc maven artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: javadoc
+          path: modules/obr/javadocs/docker/repo
       
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
@@ -545,16 +607,42 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app actions run ${{ env.BRANCH }}-maven-repos restart --kind Deployment --resource-name javadocsite-${{ env.BRANCH }} --server argocd.galasa.dev
-      
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app actions run ${{ env.BRANCH }}-maven-repos restart \
+            --kind Deployment \
+            --resource-name javadocsite-${{ env.BRANCH }} \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
+
       - name: Wait for javadocsite application health in ArgoCD
         # Skip this job for forks
         if: ${{ github.repository_owner == 'galasa-dev' }}
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app wait ${{ env.BRANCH }}-maven-repos --resource apps:Deployment:javadocsite-${{ env.BRANCH }} --health --server argocd.galasa.dev
-      
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app wait ${{ env.BRANCH }}-maven-repos \
+            --resource apps:Deployment:javadocsite-${{ env.BRANCH }} \
+            --health \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
+
       - name: Extract metadata for Javadoc Maven repo image
         id: metadata
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
@@ -580,7 +668,20 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app actions run ${{ env.BRANCH }}-maven-repos restart --kind Deployment --resource-name javadoc-${{ env.BRANCH }} --server argocd.galasa.dev
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app actions run ${{ env.BRANCH }}-maven-repos restart \
+            --kind Deployment \
+            --resource-name javadoc-${{ env.BRANCH }} \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
       - name: Wait for javadoc application health in ArgoCD
         # Skip this job for forks
@@ -588,7 +689,20 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          docker run --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main app wait ${{ env.BRANCH }}-maven-repos --resource apps:Deployment:javadoc-${{ env.BRANCH }} --health --server argocd.galasa.dev
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app wait ${{ env.BRANCH }}-maven-repos \
+            --resource apps:Deployment:javadoc-${{ env.BRANCH }} \
+            --health \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
 
   build-obr-generic:
     name: Build OBR embedded and boot images using galasabld and maven

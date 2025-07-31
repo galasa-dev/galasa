@@ -9,10 +9,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import dev.galasa.api.run.Run;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.RunRasAction;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class MockIRun implements IRun{
 
@@ -169,6 +171,35 @@ public class MockIRun implements IRun{
     }
 
     @Override
+    public String getRasRunId() {
+        return UUID.randomUUID().toString();
+    }
+
+    public Set<String> getTags() {
+        Set<String> tagsToReturn = new HashSet<String>();
+        tagsToReturn.addAll(this.tags);
+        return tagsToReturn;
+    }
+
+    @Override
+    public TestStructure toTestStructure() {
+        TestStructure testStructure = new TestStructure();
+
+        testStructure.setBundle(bundle);
+        testStructure.setTestName(testClass);
+        testStructure.setRunName(runName);
+        testStructure.setRequestor(requestor);
+        testStructure.setSubmissionId(submissionId);
+        testStructure.setGroup(groupName);
+
+        for (String tag : tags) {
+            testStructure.addTag(tag);
+        }
+
+        return testStructure;
+    }
+
+    @Override
     public String getInterruptReason() {
         throw new UnsupportedOperationException("Unimplemented method 'getInterruptReason'");
     }
@@ -179,18 +210,12 @@ public class MockIRun implements IRun{
     }
 
     @Override
-    public String getRasRunId() {
-        throw new UnsupportedOperationException("Unimplemented method 'getRasRunId'");
-    }
-
-    @Override
     public List<RunRasAction> getRasActions() {
         throw new UnsupportedOperationException("Unimplemented method 'getRasActions'");
     }
-    public Set<String> getTags() {
-        Set<String> tagsToReturn = new HashSet<String>();
-        tagsToReturn.addAll(this.tags);
-        return tagsToReturn;
+
+    @Override
+    public Instant getInterruptedAt() {
+        throw new UnsupportedOperationException("Unimplemented method 'getInterruptedAt'");
     }
-    
 }

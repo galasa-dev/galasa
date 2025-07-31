@@ -71,7 +71,7 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
             if (stream.equals("null")){
                 throw new FrameworkException(language);
             }
-        return new MockIRun("runname"+testName, type, requestor, testName, sharedEnvironmentRunName, bundleName, language, groupName, this.mockSubmissionId, tags);
+        return new MockIRun("runname", type, requestor, bundleName + "/" + testName, null, bundleName, testName, groupName, this.mockSubmissionId, tags);
     }
 
     @Override

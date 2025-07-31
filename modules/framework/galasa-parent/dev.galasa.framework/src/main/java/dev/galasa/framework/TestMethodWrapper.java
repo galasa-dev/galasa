@@ -21,7 +21,7 @@ import dev.galasa.framework.spi.teststructure.TestMethod;
 
 public class TestMethodWrapper {
     
-    private Log                              logger        = LogFactory.getLog(TestMethodWrapper.class);
+    private final Log                        logger;
 
     private final List<GenericMethodWrapper> befores  = new ArrayList<>();
     private GenericMethodWrapper             testMethod;
@@ -30,8 +30,16 @@ public class TestMethodWrapper {
     private Result                           result;
     private boolean                          fullStop = false;
 
-    protected TestMethodWrapper(Method testMethod, Class<?> testClass, ArrayList<GenericMethodWrapper> beforeMethods,
-            ArrayList<GenericMethodWrapper> afterMethods) {
+    private TestMethod                       testMethodStructure;
+
+    protected TestMethodWrapper(
+        Method testMethod, 
+        Class<?> testClass, 
+        ArrayList<GenericMethodWrapper> beforeMethods,
+        ArrayList<GenericMethodWrapper> afterMethods
+        ) {
+
+        this.logger = LogFactory.getLog(TestMethodWrapper.class);
 
         this.testMethod = new GenericMethodWrapper(testMethod, testClass, GenericMethodWrapper.Type.Test);
 
@@ -48,7 +56,12 @@ public class TestMethodWrapper {
         return;
     }
 
-    public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, boolean continueOnTestFailure, TestClassWrapper testClassWrapper) throws TestRunException {
+    public void invoke(
+        @NotNull ITestRunManagers managers, 
+        Object testClassObject, 
+        boolean continueOnTestFailure, 
+        TestClassWrapper testClassWrapper
+        ) throws TestRunException {
         try {
             // Check if the test method should be ignored, and if so, mark it as ignored along
             // with any @Before and @After methods associated with the test method
@@ -63,51 +76,103 @@ public class TestMethodWrapper {
 
                 markTestAndLinkedMethodsIgnored(ignoredResult, testClassWrapper, managers);
             } else {
-                // run all the @Befores before the test method
-                for (GenericMethodWrapper before : this.befores) {
-                    before.invoke(managers, testClassObject, testMethod);
-                    testClassWrapper.setResult(before.getResult(), managers);
-                    if (before.getResult().isFullStop()) {
-                        this.fullStop = true;
-                        this.result = Result.failed("Before method failed");
-                        break;
-                    }
-                }
+
+                runBeforeMethods(managers, testClassObject, testClassWrapper);
 
                 if (this.result == null) {
-                    testMethod.invoke(managers, testClassObject, null);
-                    testClassWrapper.setResult(testMethod.getResult(), managers);
-                    if (this.testMethod.fullStop()) {
-                        if (continueOnTestFailure) {
-                            logger.warn("Test method failed, however, continue on test failure was requested, so carrying on");
-                        } else {
-                            this.fullStop = this.testMethod.fullStop();
-                        }
-                    }
-                    
-                    this.result = this.testMethod.getResult();
+                    runTestMethod(managers, testClassObject, testClassWrapper, continueOnTestFailure);
                 }
 
-                // run all the @Afters after the test method
-                Result afterResult = null;
-                for (GenericMethodWrapper after : this.afters) {
-                    after.invoke(managers, testClassObject, testMethod);
-                    testClassWrapper.setResult(after.getResult(), managers);
-                    if (after.fullStop()) {
-                        this.fullStop = true;
-                        if (afterResult == null) {
-                            afterResult = Result.failed("After method failed");
-                            if (this.result == null || this.result.isPassed()) {
-                                this.result = afterResult;
-                            }
-                        }
-                    }
-                }
+                runAfterMethods(managers, testClassObject, testClassWrapper);
+
             }
         } catch (FrameworkException ex) {
             throw new TestRunException("Failure occurred when invoking methods in the given test class", ex);
         }
     }
+
+    protected void runBeforeMethods(ITestRunManagers managers, Object testClassObject, TestClassWrapper testClassWrapper) throws TestRunException {
+        // run all the @Befores before the test method
+        for (GenericMethodWrapper before : this.befores) {
+            before.invoke(managers, testClassObject, testMethod, testClassWrapper);
+            testClassWrapper.setResult(before.getResult(), managers);
+            if (before.getResult().isFullStop()) {
+                this.fullStop = true;
+                this.result = Result.failed("Before method failed");
+                break;
+            }
+        }
+    }
+
+    protected void runAfterMethods(ITestRunManagers managers, Object testClassObject, TestClassWrapper testClassWrapper) throws TestRunException {
+        // run all the @Afters after the test method
+        Result afterResult = null;
+        for (GenericMethodWrapper after : this.afters) {
+            after.invoke(managers, testClassObject, testMethod, testClassWrapper);
+            testClassWrapper.setResult(after.getResult(), managers);
+            if (after.fullStop()) {
+                this.fullStop = true;
+                if (afterResult == null) {
+                    afterResult = Result.failed("After method failed");
+                    if (this.result == null || this.result.isPassed()) {
+                        this.result = afterResult;
+                    }
+                }
+            }
+        }
+    }
+
+    protected void runTestMethod(ITestRunManagers managers, Object testClassObject, TestClassWrapper testClassWrapper, boolean continueOnTestFailure) throws TestRunException {
+        testMethod.invoke(managers, testClassObject, null, testClassWrapper);
+        testClassWrapper.setResult(testMethod.getResult(), managers);
+        if (this.testMethod.fullStop()) {
+            if (continueOnTestFailure) {
+                logger.warn("Test method failed, however, continue on test failure was requested, so carrying on");
+            } else {
+                this.fullStop = this.testMethod.fullStop();
+            }
+        }
+        
+        this.result = this.testMethod.getResult();
+    }
+
+    /**
+     * This creates a new test structure for this @Test method, priming
+     * it with the @Before and @After methods that belong to it. It is
+     * then set as a class variable. It can be retrieved with getTestStructureMethod().
+     */
+    public void initialiseTestMethodStructure() {
+
+        testMethod.initialiseGenericMethodStructure();
+        this.testMethodStructure = testMethod.getGenericMethodStructure();
+
+        ArrayList<TestMethod> structureBefores = new ArrayList<>();
+        ArrayList<TestMethod> structureAfters = new ArrayList<>();
+
+        for (GenericMethodWrapper before : this.befores) {
+            before.initialiseGenericMethodStructure();
+            TestMethod beforeTestMethodStructure = before.getGenericMethodStructure();
+            structureBefores.add(beforeTestMethodStructure);
+        }
+
+        for (GenericMethodWrapper after : this.afters) {
+            after.initialiseGenericMethodStructure();
+            TestMethod afterTestMethodStructure = after.getGenericMethodStructure();
+            structureAfters.add(afterTestMethodStructure);
+        }
+
+        this.testMethodStructure.setBefores(structureBefores);
+        this.testMethodStructure.setAfters(structureAfters);
+    }
+
+    /**
+     * This returns the test structure for this @Test method.
+     * @return the existing TestMethod structure for this @Test method.
+     */
+    public TestMethod getTestStructureMethod() {
+        return this.testMethodStructure;
+    }
+
 
     public boolean fullStop() {
         return this.fullStop;
@@ -119,25 +184,6 @@ public class TestMethodWrapper {
 
     public String getName() {
         return this.testMethod.getName();
-    }
-    
-    public TestMethod getStructure() {
-        TestMethod methodStructure = testMethod.getStructure();
-        ArrayList<TestMethod> structureBefores = new ArrayList<>();
-        ArrayList<TestMethod> structureAfters = new ArrayList<>();
-
-        methodStructure.setBefores(structureBefores);
-        methodStructure.setAfters(structureAfters);
-
-        for (GenericMethodWrapper before : this.befores) {
-            structureBefores.add(before.getStructure());
-        }
-
-        for (GenericMethodWrapper after : this.afters) {
-            structureAfters.add(after.getStructure());
-        }
-
-        return methodStructure;
     }
 
     private void markTestAndLinkedMethodsIgnored(Result ignoredResult, TestClassWrapper testClassWrapper, ITestRunManagers managers) {

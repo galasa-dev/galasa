@@ -2,17 +2,21 @@
 title: "Role Based Access"
 ---
 
+# Role Based Access Control in Galasa
 
-# <a name="role-based-access-control-in-galasa"></a>Role Based Access Control in Galasa
 Role Based Access Control (RBAC) is a widely adopted mechanism of assigning roles to users of a system which grants such users permissions to perform some capability dictated by the role(s) they have been assigned. Here we discuss the Galasa implementation of RBAC.
 
-## <a name="why-do-we-need-role-based-access-control-"></a>Why do we need Role Based Access Control ?
+
+## Why do we need Role Based Access Control?
+
 Some actions that can be performed on the Galasa Service are powerful and dangerous, such as deleting CPS properties, secrets, users or other resources. Giving every user of the Galasa service the ability to perform those actions is inviting disaster from inexperienced or incautious users who are not aware of the consequences of their actions.
 Deleted resources could mean data being lost forever, which bears a cost to work out what was removed, and how to re-create it again. It would be far better to prevent those events occurring in the first place.
 
 To limit the risk of such events occurring, the Galasa Service provides some Role Based Access (RBAC) mechanisms to ensure users responsible for administering the service can perform these powerful actions, while other users are denied access to them.
 
-## <a name="understanding-the-galasa-rbac-model"></a>Understanding the Galasa RBAC model 
+
+## Understanding the Galasa RBAC model
+
 ![Diagram showing the RBAC model used by Galasa](./ecosystem-rbac-model.svg)
 
 The Galasa Service offers a list of "actions". Each one relates to something which can be performed on the Galasa Service.
@@ -30,7 +34,9 @@ For example, an "admin" role exists with an action CPS_PROPERTY_SET which allows
 
 Currently, the list of "actions" and "roles" are fixed within the system.
 
-## <a name="available-actions"></a>Available Actions
+
+## Available Actions
+
 This table shows the list of built-in actions:
 
 | Action | What it allows you to do |
@@ -45,8 +51,10 @@ This table shows the list of built-in actions:
 | USER_EDIT_OTHER | Allows the editing of a different user on the system. This includes changing their role, deleting personal access tokens, or deleting the user completely |
 
 
-## <a name="available-roles"></a>Available Roles
+## Available Roles
+
 This table shows the list of built-in roles:
+
 | Role name | Description | Actions someone with this role can perform |
 |-----------|-------------|--------------------------------------------|
 | deactivated | A user who has no permissions at all, and is able to do nothing on the Galasa service | none |
@@ -56,27 +64,38 @@ This table shows the list of built-in roles:
 
 
 
-## <a name="Constraints"></a>Constraints
+## Constraints
+
 The system also has some constraints on how these resources can be set up and used:
+
 - Nobody can change their own "role", assigning a different role to yourself is not permitted
+
 - New users on the system are assigned a default role when they first login to the Galasa service. This role is configurable. More details on how to configure this default role is described in section [how to set the default user role](#how-to-set-the-default-user-role).
+
 - One or more users can be assigned the `owner` role. Such users are privileged because an administrator role cannot directly update their role away from `owner` using the standard mechanisms. Similarly, such "owners" of the Galasa service cannot be removed, even by another "owner" without changing kubernetes configuration.
-- An administrator cannot delete their own user record. This constraint attempts to make sure that there is at least one owner or administrator on the system. If nobody active in your organisation has `admin` or `owner` rights, then a new owner of the service can be nominated using the Galasa service install/update instructions. See [How to nominate a user as the Galasa service `owner`](#how-to-nominate-a-user-as-the-galasa-service-owner)
+
+- An administrator cannot delete their own user record. This constraint attempts to make sure that there is at least one owner or administrator on the system. If nobody active in your organisation has `admin` or `owner` rights, then a new owner of the service can be nominated using the Galasa service install/update instructions. See [How to nominate a user as the Galasa service `owner`](#how-to-nominate-a-user-as-the-galasa-service-owner).
+
 - An administrator cannot change their own role.
+
 - Not even administrators can change the role of a user nominated as an `owner`.
+
 - The `owner` role can only be assigned using the Helm property, not via the command-line or REST interface.
 
-## <a name="upgrading-to-a-version-of-galasa-which-supports-rbac"></a>Upgrading to a version of Galasa which supports RBAC
-When upgrading your Galasa service to a version 0.41.0 or later, any existing users will be assigned the role of `admin` without any extra action being required.
+
+## Upgrading to a version of Galasa which supports RBAC
+
+When upgrading your Galasa service to a version 0.40.0 or later, any existing users will be assigned the role of `admin` without any extra action being required.
 
 Under such circumstances you may wish to assign the role of `tester` to anyone who now should not have administration rights.
 
 Upgrading the existing Galasa service will therefore not require any `owner` to be set up, because your system will already have multiple administrator users with the `admin` role.
 
 
-## <a name="setting-up-rbac-when-you-install-galasa-into-kubernetes"></a>Setting up RBAC when you install Galasa into Kubernetes
+## Setting up RBAC when you install Galasa into Kubernetes
 
-### <a name="how-to-nominate-a-user-as-the-galasa-service-owner"></a>How to nominate a user as the Galasa service `owner`
+### How to nominate a user as the Galasa service `owner`
+
 An "owner" of the Galasa service is a user who has been nominated as the owner of the service, and who has the `owner` RBAC role.
 
 This nomination is made at the time the Galasa service is first installed into the Kubernetes namespace, or 
@@ -85,7 +104,8 @@ when it is subsequently updated using the Galasa Helm chart.
 To nominate a user as an `owner` you need to set the property in the Helm values file when the Galasa service is installed or updated.
 
 For example, in the `.values.yaml` file used by Helm:
-```
+
+```yaml
 #
 # The list of login ids of the Galasa service owner(s), comma-separated.
 # If a user login id appears in this list, the user will appear to have the 'owner' role, rather than 
@@ -112,13 +132,15 @@ that when such a user logs in, they are able to promote other trusted users to t
 After that point, the Kubernetes configuration can be changed to remove the `owner` or not.
 
 
-### <a name="how-to-set-the-default-user-role"></a>How to set the default user role
+### How to set the default user role
+
 When a new user initially logs into the Galasa web user interface, a user record is created, and that user is assigned a default user role.
 
 The default user role is configurable by the system installer, who can set a property in the Helm values file when the Galasa service is installed or updated.
 
 For example, in the `.values` file used by helm:
-```
+
+```yaml
 #
 #  
 # New users logging into the system get a user record created and that user is assigned a role
@@ -136,9 +158,10 @@ galasaDefaultUserRole: "tester"
 
 The default will be set to "tester" unless the Galasa systems administrator wishes to change it.
 
-## <a name="using-the-galasactl-command-line-tool-to-view-roles"></a>Using the `galasactl` command-line tool to view roles
+## Using the `galasactl` command-line tool to view roles
 
 To list roles on the service:
+
 ```
 > galasactl roles get
 name        description
@@ -169,8 +192,10 @@ data:
         ...etc
 ```
 
-## <a name="sing-the-galasactl-command-line-tool-assigning-a-role-to-a-user"></a>Using the `galasactl` command-line tool assigning a "role" to a user
+## Using the `galasactl` command-line tool assigning a "role" to a user
+
 The user role can be listed by getting the user data. For example:
+
 ```
 > galasactl users get --name userName1
 login-id  role   web-last-login(UTC) rest-api-last-login(UTC)
@@ -180,11 +205,13 @@ Total:1
 ```
 
 If someone has the `USER_ROLE_UPDATE_ANY` action, then they are able to do the following to change the role of a different user.
-```
-> galasactl users set --name userName1 --role deactivated
+
+```shell
+galasactl users set --name userName1 --role deactivated
 ```
 
-## <a name="using-the-galasa-web-user-interface-to-view-your-own-user-role"></a>Using the Galasa web user interface to view your own user role
+## Using the Galasa web user interface to view your own user role
+
 The Web user interface for Galasa can be used to view your own user role.
 Navigate to the "My Settings" page.
 

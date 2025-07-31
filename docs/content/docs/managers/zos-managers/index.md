@@ -1,20 +1,77 @@
 ---
-path: "/docs/manager-groups/zos-manager-group"
 title: "z/OS Managers"
 ---
 
- Name                                                                                                                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| :-------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[RSE API Manager](/docs/managers/rse-api-manager)**<br> ![alpha](../../../assets/images/tags/alpha.svg)                      | Provides tests and Galasa Managers with access to RSE API functions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |                                                                                      
-| **[z/OS 3270 Manager](/docs/managers/zos3270terminal-manager)**<br> ![beta](../../../assets/images/tags/beta.svg)                                                            | Provides tests and Managers with a 3270 client.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **[z/OS Batch z/OS MF Manager](/docs/managers/z-os-batch-z-os-mf-manager)**<br> ![beta](../../../assets/images/tags/beta.svg)        | Provides the default implementation of the z/OS Batch Manager using z/OS MF. Can only be used via the z/OS Batch Manager interface.    |        
-| **[z/OS Batch RSE API Manager](/docs/managers/z-os-batch-rse-api-manager)**<br> ![alpha](../../../assets/images/tags/alpha.svg)        | Provides an implementation of the z/OS Batch Manager using the RSE API. Can only be used via the z/OS Batch Manager interface.    |     
-| **[z/OS Console oeconsol Manager](/docs/managers/zos-console-oeconsol-manager)**<br> ![alpha](../../../assets/images/tags/alpha.svg)      | Provides an implementation of the z/OS Console by using the z/OS UNIX oeconsol command. Can only be used via the z/OS Console Manager interface.      |                                                                                 
-| **[z/OS Console z/OS MF Manager](/docs/managers/zos-console-zos-mf-manager)**<br> ![beta](../../../assets/images/tags/beta.svg)      | Provides the default implementation of the z/OS Console by using z/OS MF. Can only be used via the z/OS Console Manager interface.      |
-| **[z/OS File RSE API Manager](/docs/managers/z-os-file-rse-api-manager)**<br> ![alpha](../../../assets/images/tags/alpha.svg)      | Provides an implementation of the z/OS File Manager by using RSE API. Can only be used via the z/OS File Manager interface.      |                                                                                               
-| **[z/OS File z/OS MF Manager](/docs/managers/zos-file-zos-mf-manager)**<br> ![beta](../../../assets/images/tags/beta.svg)            | Provides the default implementation of the z/OS File Manager using z/OS MF. Can only be used via the z/OS File Manager interface.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |                        
-| **[z/OS Manager](/docs/managers/zos-manager)**<br> ![beta](../../../assets/images/tags/beta.svg)                                     | Provides tests and Managers with access to z/OS images, sysplexes and log information. Additionally, the z/OS Manager contributes annotations which allow you to run batch jobs, issue console commands, transfer files and securely access z/OS systems via TSO or UNIX commands.   |                                                                                         
-| **[z/OS MF Manager](/docs/managers/zos-mf-manager)**<br> ![beta](../../../assets/images/tags/beta.svg)                               | Provides tests and Managers with access to z/OS MF functions.  
-| **[z/OS Program Manager](/docs/managers/zos-program-manager)**<br> ![alpha](../../../assets/images/tags/alpha.svg)   | Compiles test programs from source embedded in the Galasa test bundle at test start. The executable load module is then available for use in the test.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-| **[z/OS TSO Command SSH Manager](/docs/managers/zos-tso-command-ssh-manager)**<br> ![alpha](../../../assets/images/tags/alpha.svg)   | Provides the default implementation of the z/OS TSO Command Manager using SSH. Can only be used via the z/OS TSO Command Manager interface.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **[z/OS UNIX Command SSH Manager](/docs/managers/zos-unix-command-ssh-manager)**<br> ![alpha](../../../assets/images/tags/alpha.svg) | Provides the default implementation of the z/OS UNIX Command Manager using SSH. Can only be used via the z/OS UNIX Command Manager interface.    |
+[RSE API Manager](./rse-api-manager.md) ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+
+:   Provides tests and Managers with access to RSE API functions.
+
+
+[z/OS 3270 Manager](./zos3270terminal-manager.md) ![beta](../../../assets/images/tags/beta.svg){ valign=middle }
+
+:   Provides tests and Managers with a 3270 client.
+
+
+[z/OS Batch z/OS MF Manager](./zos-batch-zos-mf-manager.md) ![beta](../../../assets/images/tags/beta.svg){ valign=middle }
+
+:   Provides the default implementation of the z/OS Batch Manager using z/OS MF.
+    Can only be used via the z/OS Batch Manager interface.       
+
+
+[z/OS Batch RSE API Manager](./zos-batch-rse-api-manager.md) ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+
+:   Provides an implementation of the z/OS Batch Manager using the RSE API.
+    Can only be used via the z/OS Batch Manager interface.
+
+
+[z/OS Console oeconsol Manager](./zos-console-oeconsol-manager.md) ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+
+:   Provides an implementation of the z/OS Console by using the z/OS UNIX oeconsol command.
+    Can only be used via the z/OS Console Manager interface.                                                                               
+
+
+[z/OS Console z/OS MF Manager](./zos-console-zos-mf-manager.md) ![beta](../../../assets/images/tags/beta.svg){ valign=middle }
+
+:   Provides the default implementation of the z/OS Console by using z/OS MF.
+    Can only be used via the z/OS Console Manager interface.
+
+
+[z/OS File RSE API Manager](./zos-file-rse-api-manager.md) ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+
+:   Provides an implementation of the z/OS File Manager by using RSE API.
+    Can only be used via the z/OS File Manager interface.
+
+
+[z/OS File z/OS MF Manager](./zos-file-zos-mf-manager.md) ![beta](../../../assets/images/tags/beta.svg){ valign=middle }
+
+:   Provides the default implementation of the z/OS File Manager using z/OS MF.
+    Can only be used via the z/OS File Manager interface.                        
+
+
+[z/OS Manager](./zos-manager.md) ![beta](../../../assets/images/tags/beta.svg){ valign=middle }
+
+:   Provides tests and Managers with access to z/OS images, sysplexes and log information.
+    Additionally, the z/OS Manager contributes annotations which allow you to run batch jobs, issue console commands, transfer files and securely access z/OS systems via TSO or UNIX commands.
+
+
+[z/OS MF Manager](./zos-mf-manager.md) ![beta](../../../assets/images/tags/beta.svg){ valign=middle }
+
+:   Provides tests and Managers with access to z/OS MF functions.
+
+
+[z/OS Program Manager](./zos-program-manager.md) ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+
+:   Compiles test programs from source embedded in the Galasa test bundle at test start.
+    The executable load module is then available for use in the test.
+
+
+[z/OS TSO Command SSH Manager](./zos-tso-command-ssh-manager.md) ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+
+:   Provides the default implementation of the z/OS TSO Command Manager using SSH.
+    Can only be used via the z/OS TSO Command Manager interface.
+
+
+[z/OS UNIX Command SSH Manager](./zos-unix-command-ssh-manager.md) ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+
+:   Provides the default implementation of the z/OS UNIX Command Manager using SSH.
+    Can only be used via the z/OS UNIX Command Manager interface.

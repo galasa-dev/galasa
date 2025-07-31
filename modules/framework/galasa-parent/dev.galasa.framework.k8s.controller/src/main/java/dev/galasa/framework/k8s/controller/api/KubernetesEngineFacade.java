@@ -15,30 +15,38 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.k8s.controller.K8sControllerException;
-import dev.galasa.framework.k8s.controller.Settings;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.models.V1ConfigMap;
+import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodStatus;
 
 public class KubernetesEngineFacade {
 
-    private static final String ENGINE_CONTROLLER_LABEL_PREFIX = "galasa-engine-controller=";
+    public static final String ENGINE_CONTROLLER_LABEL_KEY = "galasa-engine-controller";
+
+    private static final String APP_LABEL = "app";
+    private static final String ETCD_APP_SUFFIX = "-etcd";
+    private static final String RAS_APP_SUFFIX = "-ras";
 
     private final Log logger = LogFactory.getLog(getClass());
 
     private IKubernetesApiClient apiClient;
-    private Settings settings;
 
-    public KubernetesEngineFacade(IKubernetesApiClient apiClient, Settings settings) {
+    private String namespace;
+    private String galasaServiceInstallName;
+
+    public KubernetesEngineFacade(IKubernetesApiClient apiClient, String namespace, String galasaServiceInstallName) {
         this.apiClient = apiClient;
-        this.settings = settings;
+        this.namespace = namespace;
+        this.galasaServiceInstallName = galasaServiceInstallName;
     }
 
-    public @NotNull List<V1Pod> getPods() throws K8sControllerException {
+    public @NotNull List<V1Pod> getTestPods( String engineLabel ) throws K8sControllerException {
         LinkedList<V1Pod> pods = new LinkedList<>();
 
         try {
-            List<V1Pod> podList = apiClient.getPods(settings.getNamespace(), ENGINE_CONTROLLER_LABEL_PREFIX + settings.getEngineLabel());
+            List<V1Pod> podList = apiClient.getPods(namespace, ENGINE_CONTROLLER_LABEL_KEY + "=" + engineLabel);
             for (V1Pod pod : podList) {
                 pods.add(pod);
             }
@@ -53,7 +61,7 @@ public class KubernetesEngineFacade {
         try {
             String podName = pod.getMetadata().getName();
             logger.info("Deleting pod " + podName);
-            apiClient.deletePod(settings.getNamespace(), podName);
+            apiClient.deletePod(namespace, podName);
         } catch (ApiException e) {
             logger.error("Failed to delete engine pod :-\n" + e.getResponseBody(), e);
         } catch (Exception e) {
@@ -96,5 +104,63 @@ public class KubernetesEngineFacade {
             }
         }
         return isActive;
+    }
+
+    public V1Pod createNamespacedPod(V1Pod newPodDefinition) throws ApiException {
+        V1Pod pod = apiClient.createNamespacedPod(namespace, newPodDefinition);
+        return pod;
+    }
+
+    public V1ConfigMap getConfigMap(String configMapName) throws K8sControllerException {
+        V1ConfigMap map ;
+        try {
+            map = apiClient.readNamespacedConfigMap(configMapName, namespace);
+        } catch( ApiException e) {
+            throw new K8sControllerException("Failed to read configmap '" + configMapName + "' in namespace '" + namespace + "'", e);
+        }        
+        return map;
+    }
+
+    public boolean isEtcdAndRasReady() {
+        logger.info("Checking if etcd and RAS pods are ready");
+        String etcdAppLabelSelector = APP_LABEL + "=" + this.galasaServiceInstallName + ETCD_APP_SUFFIX;
+        String rasAppLabelSelector = APP_LABEL + "=" + this.galasaServiceInstallName + RAS_APP_SUFFIX;
+        return isEachPodWithLabelReady(etcdAppLabelSelector) && isEachPodWithLabelReady(rasAppLabelSelector);
+    }
+
+    private boolean isEachPodWithLabelReady(String labelSelector) {
+        boolean isReady = false;
+
+        try {
+            List<V1Pod> podsToCheck = apiClient.getPods(namespace, labelSelector);
+            for (V1Pod pod : podsToCheck) {
+                V1PodStatus podStatus = pod.getStatus();
+                if (!isEachContainerInPodReady(podStatus)) {
+                    isReady = false;
+                    break;
+                } else {
+                    isReady = true;
+                }
+            }
+        } catch (ApiException e) {
+            logger.warn("Kubernetes API returned an exception when checking for pod readiness. Assuming pods are not ready", e);
+        }
+        return isReady;
+    }
+
+    private boolean isEachContainerInPodReady(V1PodStatus podStatus) {
+        boolean isReady = false;
+
+        if (podStatus != null) {
+            for (V1ContainerStatus containerStatus : podStatus.getContainerStatuses()) {
+                if (!containerStatus.getReady()) {
+                    isReady = false;
+                    break;
+                } else {
+                    isReady = true;
+                }
+            }
+        }
+        return isReady;
     }
 }

@@ -117,6 +117,15 @@ function set_version_in_all_modules() {
     success "OK - All modules have had their versions set to $component_version"
 }
 
+function set_version_in_docs() {
+    h2 "Setting the version number in the docs to $component_version"
+
+    ${REPO_ROOT_DIR}/docs/set-version.sh --version $component_version
+    check_for_error "Failed to set the version for module $module_name"
+
+    success "OK - docs version has been set to $component_version"
+}
+
 function set_version_in_readme() {
     h2 "Setting the version number in the README.md"
     mkdir -p ${REPO_ROOT_DIR}/temp
@@ -136,6 +145,8 @@ function set_version_in_build_properties() {
 h1 "Setting version of this repository to $component_version"
 set_version_in_all_modules
 check_for_error "Failed to set version in all modules"
+
+set_version_in_docs
 
 set_version_in_readme
 set_version_in_build_properties

@@ -201,7 +201,6 @@ public class CouchdbTestFixtures {
         }
     }
 
-
     public CouchdbRasStore createCouchdbRasStore(Map<String,String> inputProps) throws Exception {
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         interactions.add( new CreateTestDocInteractionOK(rasUriStr, documentId1, "124") );

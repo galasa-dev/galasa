@@ -70,4 +70,22 @@ public class MockStreamsService implements IStreamsService {
         }
     }
 
+    @Override
+    public void setStream(IStream stream) throws StreamsException {
+
+        IStream streamToReplace = null;
+        for (IStream existingStream : this.streams) {
+            if (existingStream.getName().equals(stream.getName())) {
+                streamToReplace = existingStream;
+                break;
+            }
+        }
+
+        // If there's an existing stream with the same name, simulate an update by replacing it with the new stream
+        if (streamToReplace != null) {
+            this.streams.remove(streamToReplace);
+        }
+        this.streams.add(stream);
+    }
+
 }

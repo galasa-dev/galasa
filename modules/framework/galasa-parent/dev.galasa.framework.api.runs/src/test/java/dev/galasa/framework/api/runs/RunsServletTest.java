@@ -5,103 +5,20 @@
  */
 package dev.galasa.framework.api.runs;
 
-
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.common.EnvironmentVariables;
-import dev.galasa.framework.api.common.ResponseBuilder;
-import dev.galasa.framework.api.common.mocks.MockEnvironment;
-import dev.galasa.framework.api.common.mocks.MockFramework;
-import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
-import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.mocks.MockIFrameworkRuns;
-import dev.galasa.framework.api.common.mocks.MockIRun;
-import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
-import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
-import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
-import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class RunsServletTest extends BaseServletTest {
 
     public static final Map<String, String> REQUIRED_HEADERS = new HashMap<>(Map.of("Authorization", "Bearer " + DUMMY_JWT));
-	static final GalasaGson gson = new GalasaGson();
-
-	MockRunsServlet servlet;
-	HttpServletRequest req;
-	HttpServletResponse resp;
-    protected List<IRun> runs = new ArrayList<IRun>();
-
-
-	protected void setServlet(String path, String groupName, List<IRun> runs){
-        MockEnvironment mockEnv = new MockEnvironment();
-        mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username,name,sub");
-
-        this.servlet = new MockRunsServlet(mockEnv);
-        servlet.setResponseBuilder(new ResponseBuilder(mockEnv));
-
-        ServletOutputStream outStream = new MockServletOutputStream();
-        PrintWriter writer = new PrintWriter(outStream);
-        this.resp = new MockHttpServletResponse(writer, outStream);
-        this.req = new MockHttpServletRequest(path, REQUIRED_HEADERS);
-		if (groupName != null){
-            IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(groupName, runs);
-			IFramework framework = new MockFramework(frameworkRuns);
-			this.servlet.setFramework(framework);
-		}
-	}
-	
-	protected void setServlet(String path, String groupName, String value, String method){
-		setServlet(path, groupName, null);
-		this.req = new MockHttpServletRequest(path, value, method, REQUIRED_HEADERS);
-	}
-
-    protected void setServlet(String path, String groupName, String value, String method, List<IRun> runs){
-		setServlet(path, groupName, runs);
-		this.req = new MockHttpServletRequest(path, value, method, REQUIRED_HEADERS);
-	}
-
-    protected void setServlet(String path, String groupName, String value, String method, Map<String, String> headerMap){
-		setServlet(path, groupName, null);
-        headerMap.putAll(REQUIRED_HEADERS);
-		this.req = new MockHttpServletRequest(path, value, method, headerMap);
-	}
-
-    protected void setServlet(String path, String groupName, List<IRun> runs, String value, String method, Map<String, String> headerMap){
-		setServlet(path, groupName, runs);
-        headerMap.putAll(REQUIRED_HEADERS);
-		this.req = new MockHttpServletRequest(path, value, method, headerMap);
-	}
-
-	protected MockRunsServlet getServlet(){
-		return this.servlet;
-	}
-
-	protected HttpServletRequest getRequest(){
-		return this.req;
-	}
-
-	protected HttpServletResponse getResponse(){
-	    return this.resp;
-	}
-
-    protected void addRun(String runName, String runType, String requestor, String test, String runStatus, String bundle, String testClass, String groupName, String submissionId, Set<String> tags){
-		this.runs.add(new MockIRun( runName, runType, requestor, test, runStatus, bundle, testClass, groupName, submissionId, tags));
-    }
 
     protected String generateStatusUpdateJson(String result) {
 		return
@@ -163,7 +80,6 @@ public class RunsServletTest extends BaseServletTest {
             requestor = overrideExpectedRequestor;
         }
         for (String className : classNames){
-            addRun( "runnamename", requestorType, requestor, "name", "submitted", className.split("/")[0], "java", groupName, submissionId, tags);
             classes += "\""+className+"\",";
         }
         classes = classes.substring(0, classes.length()-1);

@@ -1,0 +1,10 @@
+<svg xml:space="preserve" width="32" height="32" style="enable-background:new 0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .failed_svg__st0{display:none}.failed_svg__st3{fill:none;stroke:#60a3ff;stroke-width:2.000000e-02;stroke-miterlimit:10}
+  </style>
+  <g id="failed_svg__Layer_3">
+    <path id="failed_svg___x3C_Transparent_Rectangle_x3E__512_" d="M0 0h32v32H0z" style="fill:none"/>
+    <path d="M16 4c6.6 0 12 5.4 12 12s-5.4 12-12 12S4 22.6 4 16 9.4 4 16 4m0-2C8.3 2 2 8.3 2 16s6.3 14 14 14 14-6.3 14-14S23.7 2 16 2z" style="fill:#d62525"/>
+    <path d="M21.4 23 16 17.6 10.6 23 9 21.4l5.4-5.4L9 10.6 10.6 9l5.4 5.4L21.4 9l1.6 1.6-5.4 5.4 5.4 5.4z" style="fill:#d62525"/>
+  </g>
+</svg>

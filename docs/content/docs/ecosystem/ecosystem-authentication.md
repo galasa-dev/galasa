@@ -9,7 +9,7 @@ To do that, the Galasa Web UI must be used to allocate a personal access token, 
 
 A personal access tokens is stored in the `GALASA_TOKEN` property in the `galasactl.properties` file in your Galasa home folder, or in the `GALASA_TOKEN` environment variable. The `galasactl.properties` file is created when you run the `galasa local init` command. Setting the `GALASA_TOKEN` property in this file with a valid token value allows the galasactl tool to access and communicate with an Ecosystem on behalf of the user.
 
-If you have [installed your Galasa Ecosystem](../ecosystem/ecosystem-installing-k8s) by using the Galasa Ecosystem Helm chart that is provided with Galasa, you will have access to the Galasa Web UI. To get a value for the `GALASA_TOKEN` property, log into the Galasa Web UI and request a personal access token (using the 'My Settings' page) which can be copied into the `GALASA_TOKEN` property. The instructions on how to do this are displayed in a dialog box in the Galasa Web UI. You can choose to set the token as an environmental variable but the value would not persist across terminals, so is only valid for that session.
+If you have [installed your Galasa Ecosystem](./ecosystem-installing-k8s.md) by using the Galasa Ecosystem Helm chart that is provided with Galasa, you will have access to the Galasa Web UI. To get a value for the `GALASA_TOKEN` property, log into the Galasa Web UI and request a personal access token (using the 'My Settings' page) which can be copied into the `GALASA_TOKEN` property. The instructions on how to do this are displayed in a dialog box in the Galasa Web UI. You can choose to set the token as an environmental variable but the value would not persist across terminals, so is only valid for that session.
 
 ## Authentication architecture
 
@@ -56,7 +56,7 @@ The returned token list is sorted in creation date order, with the earliest crea
 
 You can also get tokens for a specific user
 
-```
+```console
 > galasactl auth tokens get --user m.smith@gmail.com
 tokenid         created(YYYY/MM/DD)  user                description
 09823128318238  2024-02-03           m.smith@gmail.com   Ecosystem1 access 
@@ -65,7 +65,8 @@ Total:1
 ```
 
 If you are unsure which user id you are currently using, you can find out with this command:
-```
+
+```console
 > galasactl users get --id me  
 id: m.smith@gmail.com
 ```
@@ -79,12 +80,13 @@ You can retrieve a list of available personal access tokens that have been creat
 
 Run the following command to revoke a personal access token with the token ID `myId` substituted for the numeric value visible from the `galasactl auth tokens get` command.
 
-```
+```shell
 galasactl auth tokens delete --tokenid {myId}
 ```
 
 For example:
-```
+
+```console
 > galasactl auth tokens get --user m.smith@gmail.com
 tokenid         created(YYYY/MM/DD)  user                description
 09823128318238  2024-02-03           m.smith@gmail.com   Ecosystem1 access 
@@ -95,7 +97,7 @@ Total: 1
 
 *Note:* The `galasactl auth tokens delete` command revokes personal access tokens that a user creates through the Galasa Web UI. When a user runs a CLI command that talks to the Ecosystem, the CLI uses the personal access token to get a JSON Web Token (JWT). A JWT is a separate, temporary token that identifies a user and is used in galasactl commands to talk to the API server. JWTs cannot be revoked, but they do expire, so a user can continue to run CLI commands after revoking their personal access token until their JWT expires. You can remove the JWT that is stored on a user's machine instead of having to wait for the JWT to expire, by running the `galasactl auth logout` command on that machine.
 
-For more information about JWTs, see the `Configuring Dex` section in the [Installing an Ecosystem using Helm](ecosystem-installing-k8s) documentation.
+For more information about JWTs, see the `Configuring Dex` section in the [Installing an Ecosystem using Helm](./ecosystem-installing-k8s.md) documentation.
 
 
 

@@ -5,8 +5,20 @@ This is the main source code repository for the Galasa open source project.
 - [`modules`](./modules/) - The code
 - [`tools`](./tools/) - Build tools and useful scripts
 
-## building locally
 
+
+## Building locally
+
+### Pre-reqs
+
+These are the versions of software which are known to work:
+- Python v3.11.0
+- Gradle 8.9
+- Apache Maven 3.9.0
+- openjdk 17.0.12
+- go 1.23.5
+
+### To build...
 Use the `./tools/build-locally.sh` script. `--help` shows you the options.
 
 Basic usage to build everything: `build-locally.sh`
@@ -17,7 +29,7 @@ The `set-version.sh` script allows you to set the version of the Galasa througho
 
 Use the `--help` flag to see what options are supported.
 
-Basic usage: `set-version.sh --version 0.42.0`
+Basic usage: `set-version.sh --version 0.43.0`
 
 ## Using vscode
 When using vscode to develop this code, we recommend the following settings are added to your `settings.json` file:

@@ -2,11 +2,12 @@
 title: "CICS TS CECI Manager"
 ---
 
-This Manager is at Release level. You can view the [Javadoc documentation for the Manager here](https://javadoc.galasa.dev/dev/galasa/cicsts/package-summary.html){target="_blank"}.
+This Manager is at Release level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/cicsts/package-summary.html){target="_blank"}.
 
 
-# Overview
-This Manager allows Galasa tests to issue CICS/TS CECI commands.<br><br> Use the command-level interpreter (CECI) Manager to request a CECI instance in a Galasa test,  issue basic CECI commands  which can be processed interactively on a 3270 screen and  retrieve results. Examples of using this Manager can include writing data to a temporary storage  queue, linking to a CICS program or retrieving the signed on user id. <br><br> 
+## Overview
+
+This Manager allows Galasa tests to issue CICS/TS CECI commands.<br><br> Use the command-level interpreter (CECI) Manager to request a CECI instance in a Galasa test,  issue basic CECI commands  which can be processed interactively on a 3270 screen and  retrieve results. Examples of using this Manager can include writing data to a temporary storage  queue, linking to a CICS program or retrieving the signed on user id.
 
 
 ## Provided annotation
@@ -58,7 +59,7 @@ The following snippet shows the code required to issue the a basic CECI command.
 String ceciCommand = "EXEC CICS WRITE OPERATOR TEXT('About to execute Galasa Test...')";
 ICECIResponse resp = ceciTerminal.issueCommand(terminal, ceciCommand);
 if (!resp.isNormal() {
-    ...
+    //...
 }
 ```
 
@@ -72,7 +73,7 @@ Create the input CONATINER called "MY-CONTAINER-IN" on CHANNEL "MY-CHANNEL" with
 ```java
 ICECIResponse resp = ceci.putContainer(ceciTerminal, "MY-CHANNEL", "MY-CONTAINER-IN", "My_Contaier_Data", null, null, null);
 if (!resp.isNormal()) {
-    ...
+    //...
 }
 ```
 
@@ -81,7 +82,7 @@ Link to PROGRAM "MYPROG" with the CHANNEL "MY-CHANNEL":
 ```java
 eib = ceci.linkProgramWithChannel(ceciTerminal, "MYPROG", "MY-CHANNEL", null, null, false);
 if (!resp.isNormal()) {
-    ...
+    //...
 }
 ```
 
@@ -90,7 +91,7 @@ Get the content of the CONTAINER "MY-CONTAINER-OUT" from CHANNEL "MY-CHANNEL" in
 ```java
 eib = ceci.getContainer(ceciTerminal, "MY-CHANNEL", "MY-CONTAINER-OUT", "&DATAOUT", null, null);
 if (!resp.isNormal()) {
-    ...
+    //...
 }
 String dataOut = ceci.retrieveVariableText(ceciTerminal, "&DATAOUT");
 ```
@@ -113,7 +114,7 @@ Write the binary variable to a TS QUEUE called "MYQUEUE":
 String command = "WRITEQ TS QUEUE('MYQUEUE') FROM(&BINDATA)";
 ICECIResponse resp = ceci.issueCommand(ceciTerminal, command);
 if (!resp.isNormal()) {
-    ...
+    //...
 }
 
 ```

@@ -44,12 +44,17 @@ public class GenericMethodWrapper {
     private Type       type;
     private Result     result;
 
-    private TestMethod testStructureMethod;
+    private TestMethod genericMethodStructure;
 
     public GenericMethodWrapper(Method executionMethod, Class<?> testClass, Type type) {
         this.executionMethod = executionMethod;
         this.testClass = testClass;
         this.type = type;
+    }
+
+    public GenericMethodWrapper createCopyGenericMethodWrapper() {
+        GenericMethodWrapper genericMethodWrapper = new GenericMethodWrapper(this.executionMethod, this.testClass, this.type);
+        return genericMethodWrapper;
     }
 
     /**
@@ -60,7 +65,10 @@ public class GenericMethodWrapper {
      * @param testMethod the test method if the execution method is @Before or @After 
      * @throws TestRunException The failure thrown by the test run
      */
-    public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, GenericMethodWrapper testMethod) throws TestRunException {
+    public void invoke(@NotNull ITestRunManagers managers, Object testClassObject, GenericMethodWrapper testMethod, TestClassWrapper testClassWrapper) throws TestRunException {
+
+        long runLogStart = testClassWrapper.getRunLogLineCount();
+        
         try {
             // Associate the wrapped method with a test method if a test method has been passed in
             Method testExecutionMethod = null;
@@ -76,8 +84,8 @@ public class GenericMethodWrapper {
                     + TestClassWrapper.LOG_START_LINE + "*** Start of test method " + testClass.getName() + "#"
                     + executionMethod.getName() + methodType + TestClassWrapper.LOG_START_LINE
                     + TestClassWrapper.LOG_ASTERS);
-            testStructureMethod.setStartTime(Instant.now());
-            testStructureMethod.setStatus("started");
+            this.genericMethodStructure.setStartTime(Instant.now());
+            this.genericMethodStructure.setStatus("started");
 
             try {
                 this.executionMethod.invoke(testClassObject);
@@ -93,16 +101,16 @@ public class GenericMethodWrapper {
                 this.result = overrideResult;
             }
 
-            this.testStructureMethod.setResult(this.result.getName());
+            this.genericMethodStructure.setResult(this.result.getName());
             if (this.result.getThrowable() != null) {
                 Throwable t = this.getResult().getThrowable();
                 try {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     t.printStackTrace(pw);
-                    this.testStructureMethod.setException(sw.toString());
+                    this.genericMethodStructure.setException(sw.toString());
                 } catch (Exception e) {
-                    this.testStructureMethod.setException("Unable to report exception because of " + e.getMessage());
+                    this.genericMethodStructure.setException("Unable to report exception because of " + e.getMessage());
                 }
             }
 
@@ -117,8 +125,8 @@ public class GenericMethodWrapper {
                         + TestClassWrapper.LOG_ASTERS);
             } else {
                 String exception = "";
-                if (this.testStructureMethod.getException() != null) {
-                    exception = "\n" + this.testStructureMethod.getException();
+                if (this.genericMethodStructure.getException() != null) {
+                    exception = "\n" + this.genericMethodStructure.getException();
                 }
                 logger.error(TestClassWrapper.LOG_ENDING + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS
                         + TestClassWrapper.LOG_START_LINE + "*** " + this.result.getName() + " - Test method "
@@ -126,12 +134,35 @@ public class GenericMethodWrapper {
                         + TestClassWrapper.LOG_START_LINE + TestClassWrapper.LOG_ASTERS + exception);
             }
 
-            testStructureMethod.setEndTime(Instant.now());
-            testStructureMethod.setStatus("finished");
+            this.genericMethodStructure.setEndTime(Instant.now());
+            this.genericMethodStructure.setStatus("finished");
         } catch (FrameworkException e) {
             throw new TestRunException("There was a problem with the framework, please check stacktrace", e);
         }
+
+        long runLogEnd = testClassWrapper.getRunLogLineCount();
+
+        // Compare the run log start and run log end to see if this method produced any output.
+        // If it did then set the runLogStart and runLogEnd in the test structure.
+        // If it didn't, runLogStart and runLogEnd will stay as default of 0.
+        if (runLogStart != runLogEnd) {
+            // The runLogStart value will be what is in the run log
+            // so far, so + 1 of that is where this method starts.
+            setRunLogStart(runLogStart + 1);
+            setRunLogEnd(runLogEnd);
+        }
+
         return;
+    }
+
+    public void initialiseGenericMethodStructure() {
+        this.genericMethodStructure = new TestMethod(testClass);
+        this.genericMethodStructure.setMethodName(executionMethod.getName());
+        this.genericMethodStructure.setType(this.type.toString());
+    }
+
+    public TestMethod getGenericMethodStructure() {
+        return this.genericMethodStructure;
     }
 
     public boolean fullStop() {
@@ -145,17 +176,17 @@ public class GenericMethodWrapper {
     public void setResult(Result result) {
         this.result = result;
 
-        if (this.testStructureMethod != null) {
-            this.testStructureMethod.setResult(result.getName());
+        if (this.genericMethodStructure != null) {
+            this.genericMethodStructure.setResult(result.getName());
         }
     }
 
-    public TestMethod getStructure() {
-        this.testStructureMethod = new TestMethod(testClass);
-        this.testStructureMethod.setMethodName(executionMethod.getName());
-        this.testStructureMethod.setType(this.type.toString());
+    public void setRunLogStart(long runLogStart) {
+        this.genericMethodStructure.setRunLogStart(runLogStart);
+    }
 
-        return this.testStructureMethod;
+    public void setRunLogEnd(long runLogEnd) {
+        this.genericMethodStructure.setRunLogEnd(runLogEnd);
     }
     
     public String getName() {
@@ -168,9 +199,5 @@ public class GenericMethodWrapper {
 
     public Method getExecutionMethod() {
         return executionMethod;
-    }
-
-    public TestMethod getTestStructureMethod() {
-        return testStructureMethod;
     }
 }

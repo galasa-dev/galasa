@@ -1725,3 +1725,84 @@ func TestGetRunsByIdReturnsOk(t *testing.T) {
 	assert.Equal(t, "Passed", run.TestStructure.GetResult())
 	assert.Equal(t, "simpleSampleTest", run.GetTestStructure().Methods[0].GetMethodName())
 }
+
+func TestLaunchOptionsNoSpacesNoQuotes(t *testing.T) {
+	var args []string = make([]string, 0)
+	props := props.JavaProperties{}
+	props[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS] = "-Dtest.property=NothingControversial"
+
+	launchOptions := appendArgsBootstrapJvmLaunchOptions(args, props)
+	assert.NotNil(t, launchOptions)
+	assert.Len(t, launchOptions, 1)
+	assert.Equal(t, "-Dtest.property=NothingControversial", launchOptions[0])
+}
+
+func TestLaunchOptionsSpacesNoQuotes(t *testing.T) {
+	var args []string = make([]string, 0)
+	props := props.JavaProperties{}
+	props[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS] = "-Dtest.property=NothingControversial -Dtest.property2=NeitherIsThis -Dtest.property3=OrThis"
+
+	launchOptions := appendArgsBootstrapJvmLaunchOptions(args, props)
+	assert.NotNil(t, launchOptions)
+	assert.Len(t, launchOptions, 3)
+	assert.Equal(t, "-Dtest.property=NothingControversial", launchOptions[0])
+	assert.Equal(t, "-Dtest.property2=NeitherIsThis", launchOptions[1])
+	assert.Equal(t, "-Dtest.property3=OrThis", launchOptions[2])
+}
+
+func TestLaunchOptionsSpacesAndQuotes(t *testing.T) {
+	var args []string = make([]string, 0)
+	props := props.JavaProperties{}
+	props[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS] = "-Dtest.property=NothingControversial -Dtest.property2=\"Spaces in this one\" -Dtest.property3=\"And this one\""
+
+	launchOptions := appendArgsBootstrapJvmLaunchOptions(args, props)
+	assert.NotNil(t, launchOptions)
+	assert.Len(t, launchOptions, 3)
+	assert.Equal(t, "-Dtest.property=NothingControversial", launchOptions[0])
+	assert.Equal(t, "-Dtest.property2=Spaces in this one", launchOptions[1])
+	assert.Equal(t, "-Dtest.property3=And this one", launchOptions[2])
+}
+
+func TestLaunchOptionsEscapedQuotesInQuotes(t *testing.T) {
+	var args []string = make([]string, 0)
+	props := props.JavaProperties{}
+	props[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS] = "-Dtest.property=\"Escaped \\\"Quotes\\\""
+
+	launchOptions := appendArgsBootstrapJvmLaunchOptions(args, props)
+	assert.NotNil(t, launchOptions)
+	assert.Len(t, launchOptions, 1)
+	assert.Equal(t, "-Dtest.property=Escaped \"Quotes\"", launchOptions[0])
+}
+
+func TestLaunchOptionsEscapedQuotesOutsideQuotes(t *testing.T) {
+	var args []string = make([]string, 0)
+	props := props.JavaProperties{}
+	props[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS] = "-Dtest.property=This\\\"Escaping should be ignored so we are now in a quoted block\""
+
+	launchOptions := appendArgsBootstrapJvmLaunchOptions(args, props)
+	assert.NotNil(t, launchOptions)
+	assert.Len(t, launchOptions, 1)
+	assert.Equal(t, "-Dtest.property=This\\Escaping should be ignored so we are now in a quoted block", launchOptions[0])
+}
+
+func TestLaunchOptionsImpliedClosure(t *testing.T) {
+	var args []string = make([]string, 0)
+	props := props.JavaProperties{}
+	props[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS] = "-Dtest.property=\"Opened it -Dtest.property2=ButForgotToCloseIt!"
+
+	launchOptions := appendArgsBootstrapJvmLaunchOptions(args, props)
+	assert.NotNil(t, launchOptions)
+	assert.Len(t, launchOptions, 1)
+	assert.Equal(t, "-Dtest.property=Opened it -Dtest.property2=ButForgotToCloseIt!", launchOptions[0])
+}
+
+func TestLaunchOptionsEscapeAtEnd(t *testing.T) {
+	var args []string = make([]string, 0)
+	props := props.JavaProperties{}
+	props[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS] = "-Dtest.property=\"Finishing with an escape and forgot to close\\"
+
+	launchOptions := appendArgsBootstrapJvmLaunchOptions(args, props)
+	assert.NotNil(t, launchOptions)
+	assert.Len(t, launchOptions, 1)
+	assert.Equal(t, "-Dtest.property=Finishing with an escape and forgot to close\\", launchOptions[0])
+}

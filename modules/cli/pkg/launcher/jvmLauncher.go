@@ -786,11 +786,43 @@ func appendArgsBootstrapJvmLaunchOptions(args []string, bootstrapProperties prop
 		// strip off the leading and trailing whitespace.
 		jvmLaunchOptions = strings.Trim(jvmLaunchOptions, " \t\n\r")
 
-		// Split based on commas
-		launchOptionParts := strings.Split(jvmLaunchOptions, api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_SEPARATOR)
+		// Split into separate characters
+		launchOptionChars := strings.Split(jvmLaunchOptions, "")
 
-		// Add each piece to the list of args returned.
-		args = append(args, launchOptionParts...)
+		// Process each character in turn
+		var argBuilder strings.Builder
+		for i, inQuotes := 0, false; i < len(launchOptionChars); i++ {
+			if launchOptionChars[i] == api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_QUOTE {
+				// Start or end of quoted block. Update flag and discard the quote.
+				inQuotes = !inQuotes
+			} else {
+				if !inQuotes {
+					if (launchOptionChars[i] == api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_SEPARATOR) {
+						// If we've reached an unquoted space, that marks the end of the argument so
+						// we add what we've built so far to the list of args returned
+						args = append(args, argBuilder.String())
+						argBuilder.Reset()
+					} else {
+						argBuilder.WriteString(launchOptionChars[i])
+					}
+				} else {
+					if i < len(launchOptionChars) - 1 &&
+							launchOptionChars[i] == api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_ESCAPE &&
+							launchOptionChars[i+1] == api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_QUOTE {
+						// It's an escaped quote. We include the quote in the argument but discard the escape character.
+						argBuilder.WriteString(api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS_QUOTE)
+						i++
+					} else {
+						argBuilder.WriteString(launchOptionChars[i])
+					}
+				}
+			}
+		}
+
+		// Add the last argument to the list
+		if argBuilder.Len() != 0 {
+			args = append(args, argBuilder.String())
+		}
 	}
 
 	return args

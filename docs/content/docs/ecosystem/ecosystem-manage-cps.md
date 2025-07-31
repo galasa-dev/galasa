@@ -2,17 +2,12 @@
 title: "Managing configuration properties"
 ---
 
-[Retrieving namespaces](#retrievingnamespaces)<br>
-[Retrieving properties](#retrieving)<br>
-[Setting properties](#setting)<br>
-[Deleting properties](#deleting)<br>
-
-
 Integration testing can be complicated. Tests often require configuration parameters to bind to a specific test environment. Galasa Managers require configuration so that systems under test can be contacted. Credentials for systems need to be supplied to tests and Managers to enable connections. The organisation of these parameters must be centralised if tests are to be run in automation. 
 
 To address these challenges, Galasa uses a Configuration Property Store (CPS) as part of the core Galasa framework. The CPS holds all the configuration values, so that the Galasa framework, Ecosystem, Managers, and individual tests can use the CPS to retrieve configuration information.
 
-A video -  <a href="https://www.youtube.com/watch?v=d_mufWVa31U" target="_blank">The Galasa Configuration Property Store </a> - is available on the Galasa YouTube channel. Watch the video to find out more about the features of the Galasa CPS, and to see a demonstration on how to manipulate CPS property values by using the Galasa command line tool.
+A video – [The Galasa Configuration Property Store](https://www.youtube.com/watch?v=d_mufWVa31U){target="_blank"} – is available on the Galasa YouTube channel. Watch the video to find out more about the features of the Galasa CPS, and to see a demonstration on how to manipulate CPS property values by using the Galasa command line tool.
+
 
 ## Simplifying test configuration with the CPS
 
@@ -38,12 +33,12 @@ Namespaces are used to group properties together within the CPS. Namespaces help
 Namespaces are either defined as `normal` or `secure` types. Returned values that are associated with properties in a `secure` namespace type are redacted, so property values are not displayed in returned results. All other namespaces are classed as `normal` type and these types of namespaces do display property values. The `--namespace` flag is mandatory for all `galasasctl properties` commands. 
 
 
-## <a name="retrievingnamespaces"></a>Retrieving namespaces from an Ecosystem
+## Retrieving namespaces from an Ecosystem
 
 Use the `galasactl properties namespaces get` command to retrieve a list of all namespaces that are in an Ecosystem. 
 You can use the appropriate namespace in the `galasasctl properties get`, `galasasctl properties set`, and `galasasctl properties delete` commands to view, create, update, or delete properties within that namespace. Namespaces are returned in either summary format, by setting the `--format summary` flag, or in raw format, by setting the `--format raw` flag on the `galasactl properties namespaces get` command. 
 
-<b>Table 1:</b> The following table shows the options that you can set on the `galasactl properties namespaces get` command to retrieve namespaces in different formats:
+**Table 1:** The following table shows the options that you can set on the `galasactl properties namespaces get` command to retrieve namespaces in different formats:
 
 | Name |  Description  |
 | :---- | :-------- | 
@@ -54,7 +49,7 @@ You can use the appropriate namespace in the `galasasctl properties get`, `galas
 
 Use the following command to retrieve all namespaces in an Ecosystem `summary` format:
 
-```
+```shell
 galasactl properties namespaces get
 ```
 
@@ -70,7 +65,7 @@ Total: 3
 
 Use the following command to retrieve all namespaces in an Ecosystem `raw` format:
 
-```
+```shell
 galasactl properties namespaces get --format raw
 ```
 
@@ -91,13 +86,14 @@ Use the `galasasctl properties get`, `galasasctl properties set`, and `galasasct
 
 The example commands that are provided in the following sections assume that the `GALASA_BOOTSTRAP` environment variable is set, so the `--bootstrap` flag is not required in the command. 
 
-## <a name="retrieving"></a>Retrieving properties from a namespace 
+
+## Retrieving properties from a namespace 
 
 Use the `galasactl properties get` command to read CPS properties and values from a specified namespace in the Galasa Ecosystem to verify that the properties exist and are set correctly. You can filter the properties that are returned by using the property name (to return a single property), or by using the prefix, suffix, and infix flags to return a subset of properties that match the provided criteria. 
 
 Property values that are returned from secure namespace types are redacted, so property values are not displayed. Namespaces that are classed as normal type do display property values.
 
-<b>Table 2:</b> The following table shows the options that you can set on the `galasactl properties get` command to retrieve property results in different formats:
+**Table 2:** The following table shows the options that you can set on the `galasactl properties get` command to retrieve property results in different formats:
 
 | Name |  Description  |
 | :---- | :-------- | 
@@ -108,8 +104,11 @@ Property values that are returned from secure namespace types are redacted, so p
 
 ### Retrieve properties from a namespace
 
-To retrieve properties that are stored in the `framework` namespace in summary format, use the following command:<br><br>
-`galasactl properties get --namespace framework`
+To retrieve properties that are stored in the `framework` namespace in summary format, use the following command:
+
+```shell
+galasactl properties get --namespace framework
+```
 
 
 ### Retrieve a single property from a namespace
@@ -118,7 +117,7 @@ To retrieve a specific property from the `framework` namespace, specify the prop
 
 On Mac or Unix:
 
-```
+```shell
 galasactl properties get --namespace framework \
 --name resultarchive.store \
 --format raw
@@ -126,7 +125,7 @@ galasactl properties get --namespace framework \
 
 On Windows (Powershell):
 
-```
+```powershell
 galasactl properties get --namespace framework `
 --name resultarchive.store `
 --format raw
@@ -142,7 +141,7 @@ To filter the properties that are returned, without specifying the property name
 
 On Mac and Unix:
 
-```
+```shell
 galasactl properties get \
 --namespace docker --prefix engine --suffix hostname --infix LOCAL,REMOTE \
 --format yaml
@@ -150,17 +149,15 @@ galasactl properties get \
 
 On Windows (Powershell):
 
-```
+```powershell
 galasactl properties get `
 --namespace docker --prefix engine --suffix hostname --infix LOCAL,REMOTE `
 --format yaml
 ```
 
-
 The `--prefix`, `--suffix` and `-–infix` flags can be used together or separately to retrieve all properties that match the provided criteria.
 
-
-For a complete list of supported parameters see the <a href="https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_properties_get.md" target="_blank"> galasactl properties get</a> documentation in the cli repository.
+For a complete list of supported parameters, see the [galasactl properties get](../reference/cli-syntax/galasactl_properties_get.md) command reference.
 
 
 ### Returned properties
@@ -180,7 +177,7 @@ Total: 2
 
 The following example shows the format of properties that are returned in a yaml file. As more than one property is returned, the properties are separated in the file by three dashes, `---`, as shown in the following example:
 
-```
+```yaml
 apiVersion: galasa-dev/v1alpha1
 kind: GalasaProperty
 metadata:
@@ -213,7 +210,7 @@ secure    property.example   ********
 Total: 1
 ```
 
-## <a name="setting"></a>Setting properties in a namespace
+## Setting properties in a namespace
 
 You can update a property and its value in a namespace by using the `galasactl properties set` command. If the property does not exist in that namespace, the command creates the property. You must provide the namespace, the name of the property, and the value of the property in the command in the following example format:
 
@@ -227,11 +224,12 @@ where:
 
 A success message is displayed when the property is updated or created.
 
-For a complete list of supported parameters see the <a href="https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_properties_set.md" target="_blank"> galasactl properties set</a> documentation in the cli repository.
+For a complete list of supported parameters, see the [galasactl properties set](../reference/cli-syntax/galasactl_properties_set.md) command reference.
+
 
 ### Examples of setting properties in a namespace
 
-The [WebAppIntegrationTest](../running-simbank-tests/web-app-integration-test) documentation is designed to help you to understand how to set the properties that enable a local test to run in a Galasa Ecosystem.
+The [WebAppIntegrationTest](../running-simbank-tests/web-app-integration-test.md) documentation is designed to help you to understand how to set the properties that enable a local test to run in a Galasa Ecosystem.
 
 For example, the following CPS properties are set for the Docker Manager when running the `WebAppIntegrationTest` locally:
 
@@ -249,7 +247,7 @@ You can use the `galasactl properties set` command to update these properties so
 
 For example, to change the value of the properties in the `docker` namespace, use the following example commands:
 
-```
+```shell
 galasactl properties set --namespace docker --name dse.engine.PRIMARY --value REMOTE
 galasactl properties set --namespace docker --name default.engines --value REMOTE
 galasactl properties set --namespace docker --name engine.REMOTE.hostname --value 103.67.89.6
@@ -258,11 +256,13 @@ galasactl properties set --namespace docker --name engine.REMOTE.max.slots --val
 ```
 
 
-## <a name="deleting"></a>Deleting properties from a namespace
+## Deleting properties from a namespace
 
 You can delete a property and its associated value in a namespace by using the `galasactl properties delete` command. You must provide the namespace and the name of the property that you want to delete.  For example:
 
-```galasactl properties delete --namespace myNamespace --name myName```
+```shell
+galasactl properties delete --namespace myNamespace --name myName
+```
 
 where: 
 
@@ -273,7 +273,7 @@ where:
 
 A success message is displayed when the property is deleted.
 
-For a complete list of supported parameters see the <a href="https://github.com/galasa-dev/cli/blob/main/docs/generated/galasactl_properties_delete.md" target="_blank"> galasactl properties delete</a> documentation in the cli repository.
+For a complete list of supported parameters, see the [galasactl properties delete](../reference/cli-syntax/galasactl_properties_delete.md) command reference.
 
 
 

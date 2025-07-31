@@ -166,3 +166,7 @@ cython_debug/
 
 # Don't ignore VS Code tasks
 !.vscode/tasks.json
+
+# Generated reference docs
+content/docs/reference/cli-syntax/*.md
+!content/docs/reference/cli-syntax/index.md

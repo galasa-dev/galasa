@@ -50,9 +50,11 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     private Path                           testStructureFile;
     private Path                           runLog;
 
-    private final GalasaGson                     gson     = new GalasaGson();
+    private final GalasaGson               gson     = new GalasaGson();
 
     private DirectoryRASFileSystemProvider provider;
+
+    private long                           runLogLineCount;
 
     public DirectoryResultArchiveStoreService(IFramework framework, URI rasUri) throws ResultArchiveStoreException {
         this.framework = framework;
@@ -145,6 +147,8 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
             message = message + "\n";
         }
 
+        String[] lines = message.split("\r\n?|\n");
+
         //If the framework is shutting down we will have lost the CTS - by which point 
         //there should be no confidential text to obscure anyway
         if(framework.getConfidentialTextService() != null)
@@ -155,6 +159,9 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
         } catch (final Exception e) {
             throw new ResultArchiveStoreException("Unable to write message to run log", e);
         }
+
+        updateRunLogLineCountSoFar(lines.length);
+
     }
 
     /*
@@ -172,6 +179,16 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
                 throw new ResultArchiveStoreException("Unable to write messages to run log", e);
             }
         }
+    }
+
+    /**
+     * Update the run log line count so far into class variable.
+     * Then it can be retrieved through the Framework from the RAS so
+     * methods in a test class can state their start and end line.
+     * @param newLineCount
+     */
+    private void updateRunLogLineCountSoFar(long newLineCount) {
+        this.runLogLineCount += newLineCount;
     }
 
     /*
@@ -238,6 +255,17 @@ public class DirectoryResultArchiveStoreService implements IResultArchiveStoreSe
     public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
             throws ResultArchiveStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
+    }
+
+    @Override
+    public long retrieveRunLogLineCount() {
+        return this.runLogLineCount;
+    }
+
+    @Override
+    public void createTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
+            throws ResultArchiveStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'createTestStructure'");
     }
 
 

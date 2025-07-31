@@ -31,9 +31,9 @@ public class ImsTerminalImpl extends Zos3270TerminalImpl implements IImsTerminal
     public final boolean connectAtStartup;
     public final String loginCredentialsTag;
 
-    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystem imsSystem, String host, int port, boolean ssl, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag)
+    public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystem imsSystem, String host, int port, boolean ssl, boolean verifyServer, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag)
             throws TerminalInterruptedException, Zos3270ManagerException, ZosManagerException {
-        super(imstmManager.getNextTerminalId(imsSystem), host, port, ssl, framework, false, imsSystem.getZosImage(), new TerminalSize(80, 24), new TerminalSize(0, 0), textScanner);
+        super(imstmManager.getNextTerminalId(imsSystem), host, port, ssl, verifyServer, framework, false, imsSystem.getZosImage(), new TerminalSize(80, 24), new TerminalSize(0, 0), textScanner);
 
         this.imsSystem = imsSystem;
         this.imstmManager = imstmManager;
@@ -45,7 +45,7 @@ public class ImsTerminalImpl extends Zos3270TerminalImpl implements IImsTerminal
 
     public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystem imsSystem, IIpHost ipHost, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag)
             throws TerminalInterruptedException, IpNetworkManagerException, Zos3270ManagerException, ZosManagerException {
-        this(imstmManager, framework, imsSystem, ipHost.getHostname(), ipHost.getTelnetPort(), ipHost.isTelnetPortTls(), connectAtStartup, textScanner, loginCredentialsTag);
+        this(imstmManager, framework, imsSystem, ipHost.getHostname(), ipHost.getTelnetPort(), ipHost.isTelnetPortTls(), ipHost.shouldVerifyTelnetServer(), connectAtStartup, textScanner, loginCredentialsTag);
     }
 
     public ImsTerminalImpl(IImstmManagerSpi imstmManager, IFramework framework, IImsSystem imsSystem, boolean connectAtStartup, ITextScannerManagerSpi textScanner, String loginCredentialsTag) throws TerminalInterruptedException, IpNetworkManagerException,

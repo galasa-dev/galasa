@@ -1,6 +1,6 @@
 ---
-title: Highlights
+title: Galasa Releases
 icon: material/tag-multiple
 ---
 
-Placeholder
+# Galasa Releases

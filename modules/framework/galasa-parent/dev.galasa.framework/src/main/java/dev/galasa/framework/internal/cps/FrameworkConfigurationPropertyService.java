@@ -308,6 +308,17 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
     private void recordPropertyAccessed(String key, String valueObtained , String whereValueCameFrom ) {
         this.record.setProperty(key, valueObtained);
         this.record.setProperty(key+"._source",whereValueCameFrom);
+    }
+
+    @Override
+    public void setProperties(Map<String, String> propertiesToSet) throws ConfigurationPropertyStoreException {
+        // Prefix all the keys in the properties with this CPS service's namespace
+        Map<String, String> propertiesWithNamespacePrefix = new HashMap<>();
+        for (Entry<String, String> entry : propertiesToSet.entrySet()) {
+            propertiesWithNamespacePrefix.put(namespace + "." + entry.getKey(), entry.getValue());
+        }
+
+        this.cpsStore.setProperties(propertiesWithNamespacePrefix);
     }       
 
 }

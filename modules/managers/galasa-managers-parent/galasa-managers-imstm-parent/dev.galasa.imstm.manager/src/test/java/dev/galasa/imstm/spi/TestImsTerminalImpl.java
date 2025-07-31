@@ -36,6 +36,7 @@ import dev.galasa.zos3270.internal.comms.Network;
 import dev.galasa.zos3270.internal.properties.ApplyConfidentialTextFiltering;
 import dev.galasa.zos3270.internal.properties.LiveTerminalUrl;
 import dev.galasa.zos3270.internal.properties.LogConsoleTerminals;
+import dev.galasa.zos3270.internal.properties.TerminalDeviceName;
 import dev.galasa.zos3270.internal.properties.TerminalDeviceTypes;
 import dev.galasa.zos3270.spi.NetworkException;
 import dev.galasa.zos3270.spi.Screen;
@@ -59,6 +60,7 @@ public class TestImsTerminalImpl {
     private static final String HOST = "my.test.host";
     private static final int PORT = 12345;
     private static final boolean SSL = true;
+    private static final boolean VERIFY = true;
     private static final boolean AUTOCONNECT = true;
     private static final String CREDENTIALS_TAG = "TEST_CREDENTIALS";
 
@@ -70,6 +72,7 @@ public class TestImsTerminalImpl {
         Mockito.when(ipHost.getHostname()).thenReturn(HOST);
         Mockito.when(ipHost.getTelnetPort()).thenReturn(PORT);
         Mockito.when(ipHost.isTelnetPortTls()).thenReturn(SSL);
+        Mockito.when(ipHost.shouldVerifyTelnetServer()).thenReturn(VERIFY);
         Mockito.when(zosImage.getIpHost()).thenReturn(ipHost);
         logonProviders = new ArrayList<IImsSystemLogonProvider>();
         logonProviders.add(logonProvider);
@@ -84,6 +87,7 @@ public class TestImsTerminalImpl {
             Assert.assertEquals("Wrong host name passed to Zos3270TerminalImpl constructor",HOST, (String) arguments.get(0));
             Assert.assertEquals("Wrong port passed to Zos3270TerminalImpl constructor",PORT, (int) arguments.get(1));
             Assert.assertEquals("Wrong SSL flag passed to Zos3270TerminalImpl constructor",SSL, (boolean) arguments.get(2));
+            Assert.assertEquals("Wrong Verify Server flag passed to Zos3270TerminalImpl constructor",VERIFY, (boolean) arguments.get(3));
             // Set up an exception so that a network call (that we will trigger later in this test)
             // fails quickly.
             Mockito.when(mock.connectClient()).thenThrow(new NetworkException());
@@ -100,9 +104,10 @@ public class TestImsTerminalImpl {
         MockedStatic<ApplyConfidentialTextFiltering> filtering = Mockito.mockStatic(ApplyConfidentialTextFiltering.class);
         MockedStatic<LiveTerminalUrl> url = Mockito.mockStatic(LiveTerminalUrl.class);
         MockedStatic<TerminalDeviceTypes> deviceTypes = Mockito.mockStatic(TerminalDeviceTypes.class);
+        MockedStatic<TerminalDeviceName> deviceName = Mockito.mockStatic(TerminalDeviceName.class);
         MockedStatic<LogConsoleTerminals> consoles = Mockito.mockStatic(LogConsoleTerminals.class)) {
-            terminal = new ImsTerminalImpl(imsManager, framework, system, HOST, PORT, SSL, AUTOCONNECT, textScanManager, CREDENTIALS_TAG);
-            verifyConstructorActions(networks.constructed(), deviceTypes, screens.constructed());
+            terminal = new ImsTerminalImpl(imsManager, framework, system, HOST, PORT, SSL, VERIFY, AUTOCONNECT, textScanManager, CREDENTIALS_TAG);
+            verifyConstructorActions(networks.constructed(), deviceTypes, deviceName, screens.constructed());
             Assert.assertEquals("Wrong login credentials tag was saved", CREDENTIALS_TAG, terminal.getLoginCredentialsTag());
         }
     }
@@ -114,6 +119,7 @@ public class TestImsTerminalImpl {
             Assert.assertEquals("Wrong host name passed to Zos3270TerminalImpl constructor",HOST, (String) arguments.get(0));
             Assert.assertEquals("Wrong port passed to Zos3270TerminalImpl constructor",PORT, (int) arguments.get(1));
             Assert.assertEquals("Wrong SSL flag passed to Zos3270TerminalImpl constructor",SSL, (boolean) arguments.get(2));
+            Assert.assertEquals("Wrong Verify Server flag passed to Zos3270TerminalImpl constructor",VERIFY, (boolean) arguments.get(3));
             // Set up an exception so that a network call (that we will trigger later in this test)
             // fails quickly.
             Mockito.when(mock.connectClient()).thenThrow(new NetworkException());
@@ -130,9 +136,10 @@ public class TestImsTerminalImpl {
         MockedStatic<ApplyConfidentialTextFiltering> filtering = Mockito.mockStatic(ApplyConfidentialTextFiltering.class);
         MockedStatic<LiveTerminalUrl> url = Mockito.mockStatic(LiveTerminalUrl.class);
         MockedStatic<TerminalDeviceTypes> deviceTypes = Mockito.mockStatic(TerminalDeviceTypes.class);
+        MockedStatic<TerminalDeviceName> deviceName = Mockito.mockStatic(TerminalDeviceName.class);
         MockedStatic<LogConsoleTerminals> consoles = Mockito.mockStatic(LogConsoleTerminals.class)) {
             terminal = new ImsTerminalImpl(imsManager, framework, system, ipHost, AUTOCONNECT, textScanManager, CREDENTIALS_TAG);
-            verifyConstructorActions(networks.constructed(), deviceTypes, screens.constructed());
+            verifyConstructorActions(networks.constructed(), deviceTypes, deviceName, screens.constructed());
             Assert.assertEquals("Wrong login credentials tag was saved", CREDENTIALS_TAG, terminal.getLoginCredentialsTag());
         }
     }
@@ -144,6 +151,7 @@ public class TestImsTerminalImpl {
             Assert.assertEquals("Wrong host name passed to Zos3270TerminalImpl constructor",HOST, (String) arguments.get(0));
             Assert.assertEquals("Wrong port passed to Zos3270TerminalImpl constructor",PORT, (int) arguments.get(1));
             Assert.assertEquals("Wrong SSL flag passed to Zos3270TerminalImpl constructor",SSL, (boolean) arguments.get(2));
+            Assert.assertEquals("Wrong Verify Server flag passed to Zos3270TerminalImpl constructor",VERIFY, (boolean) arguments.get(3));
             // Set up an exception so that a network call (that we will trigger later in this test)
             // fails quickly.
             Mockito.when(mock.connectClient()).thenThrow(new NetworkException());
@@ -160,9 +168,10 @@ public class TestImsTerminalImpl {
         MockedStatic<ApplyConfidentialTextFiltering> filtering = Mockito.mockStatic(ApplyConfidentialTextFiltering.class);
         MockedStatic<LiveTerminalUrl> url = Mockito.mockStatic(LiveTerminalUrl.class);
         MockedStatic<TerminalDeviceTypes> deviceTypes = Mockito.mockStatic(TerminalDeviceTypes.class);
+        MockedStatic<TerminalDeviceName> deviceName = Mockito.mockStatic(TerminalDeviceName.class);
         MockedStatic<LogConsoleTerminals> consoles = Mockito.mockStatic(LogConsoleTerminals.class)) {
             terminal = new ImsTerminalImpl(imsManager, framework, system, AUTOCONNECT, textScanManager, CREDENTIALS_TAG);
-            verifyConstructorActions(networks.constructed(), deviceTypes, screens.constructed());
+            verifyConstructorActions(networks.constructed(), deviceTypes, deviceName, screens.constructed());
             Assert.assertEquals("Wrong login credentials tag was saved", CREDENTIALS_TAG, terminal.getLoginCredentialsTag());
         }
     }
@@ -174,6 +183,7 @@ public class TestImsTerminalImpl {
             Assert.assertEquals("Wrong host name passed to Zos3270TerminalImpl constructor",HOST, (String) arguments.get(0));
             Assert.assertEquals("Wrong port passed to Zos3270TerminalImpl constructor",PORT, (int) arguments.get(1));
             Assert.assertEquals("Wrong SSL flag passed to Zos3270TerminalImpl constructor",SSL, (boolean) arguments.get(2));
+            Assert.assertEquals("Wrong Verify Server flag passed to Zos3270TerminalImpl constructor",VERIFY, (boolean) arguments.get(3));
             // Set up an exception so that a network call (that we will trigger later in this test)
             // fails quickly.
             Mockito.when(mock.connectClient()).thenThrow(new NetworkException());
@@ -190,9 +200,10 @@ public class TestImsTerminalImpl {
         MockedStatic<ApplyConfidentialTextFiltering> filtering = Mockito.mockStatic(ApplyConfidentialTextFiltering.class);
         MockedStatic<LiveTerminalUrl> url = Mockito.mockStatic(LiveTerminalUrl.class);
         MockedStatic<TerminalDeviceTypes> deviceTypes = Mockito.mockStatic(TerminalDeviceTypes.class);
+        MockedStatic<TerminalDeviceName> deviceName = Mockito.mockStatic(TerminalDeviceName.class);
         MockedStatic<LogConsoleTerminals> consoles = Mockito.mockStatic(LogConsoleTerminals.class)) {
             terminal = new ImsTerminalImpl(imsManager, framework, system, AUTOCONNECT, textScanManager);
-            verifyConstructorActions(networks.constructed(), deviceTypes, screens.constructed());
+            verifyConstructorActions(networks.constructed(), deviceTypes, deviceName, screens.constructed());
             Assert.assertEquals("Wrong login credentials tag was saved", "", terminal.getLoginCredentialsTag());
         }
     }
@@ -299,12 +310,13 @@ public class TestImsTerminalImpl {
         try (MockedStatic<ApplyConfidentialTextFiltering> filtering = Mockito.mockStatic(ApplyConfidentialTextFiltering.class);
         MockedStatic<LiveTerminalUrl> url = Mockito.mockStatic(LiveTerminalUrl.class);
         MockedStatic<TerminalDeviceTypes> deviceTypes = Mockito.mockStatic(TerminalDeviceTypes.class);
+        MockedStatic<TerminalDeviceName> deviceName = Mockito.mockStatic(TerminalDeviceName.class);
         MockedStatic<LogConsoleTerminals> consoles = Mockito.mockStatic(LogConsoleTerminals.class)) {
             terminal = new ImsTerminalImpl(imsManager, framework, system, AUTOCONNECT, textScanManager);
         }
     }
 
-    private void verifyConstructorActions(List<Network> networks, MockedStatic<TerminalDeviceTypes> deviceTypes, List<Screen> screens) throws NetworkException {
+    private void verifyConstructorActions(List<Network> networks, MockedStatic<TerminalDeviceTypes> deviceTypes, MockedStatic<TerminalDeviceName> deviceName, List<Screen> screens) throws NetworkException {
         Assert.assertEquals("Wrong terminal id is set", TERMID, terminal.getId());
         // Verifying that a network was constructed confirms that the asserts in the Network
         // MockedConstruction were executed
@@ -314,6 +326,7 @@ public class TestImsTerminalImpl {
         Mockito.verify(framework).getTestRunName();  
         // The following verify confirms that the correct zOS image was passed to Zos3270TerminalImpl
         deviceTypes.verify(() -> TerminalDeviceTypes.get(zosImage));
+        deviceName.verify(() -> TerminalDeviceName.get(zosImage));
         // Verifying that a screen was constructed confirms that the asserts in the Screen
         // MockedConstruction were executed
         Assert.assertEquals("Wrong number of screens created",1, screens.size());

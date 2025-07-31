@@ -1,0 +1,13 @@
+// This section tells gradle which gradle plugins to use to build this project.
+plugins {
+    id 'galasa.ivt'
+}
+
+description = 'Galasa Compilation IVTs'
+
+// What are the dependencies of the test code?
+dependencies {
+    implementation 'dev.galasa:dev.galasa.core.manager'
+    implementation 'dev.galasa:dev.galasa.docker.manager'
+    implementation 'dev.galasa:dev.galasa.http.manager'
+}

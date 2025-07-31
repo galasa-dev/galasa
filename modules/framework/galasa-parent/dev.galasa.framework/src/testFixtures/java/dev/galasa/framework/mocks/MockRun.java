@@ -15,6 +15,7 @@ import java.util.UUID;
 import dev.galasa.api.run.Run;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.RunRasAction;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class MockRun implements IRun {
     private String testBundleName;
@@ -31,6 +32,7 @@ public class MockRun implements IRun {
     private String submissionId;
     private String status;
     private String interruptReason;
+    private Instant interruptedAt;
     private String result;
     private String runId;
     private List<RunRasAction> rasActions = new ArrayList<>();
@@ -172,6 +174,15 @@ public class MockRun implements IRun {
     }
 
     @Override
+    public Instant getInterruptedAt() {
+        return this.interruptedAt;
+    }
+
+    public void setInterruptedAt(Instant interruptedAt) {
+        this.interruptedAt = interruptedAt;
+    }
+
+    @Override
     public String getResult() {
         return this.result;
     }
@@ -198,6 +209,28 @@ public class MockRun implements IRun {
         return this.tags;
     }
 
+    @Override
+    public boolean isTrace() {
+        return true;
+    }
+
+    @Override
+    public TestStructure toTestStructure() {
+        TestStructure testStructure = new TestStructure();
+
+        testStructure.setBundle(testBundleName);
+        testStructure.setTestName(testClassName);
+        testStructure.setRunName(testRunName);
+        testStructure.setRequestor(requestorName);
+        testStructure.setSubmissionId(submissionId);
+
+        for (String tag : tags) {
+            testStructure.addTag(tag);
+        }
+
+        return testStructure;
+    }
+
     // ------------- un-implemented methods follow ----------------
 
     @Override
@@ -210,10 +243,7 @@ public class MockRun implements IRun {
         throw new UnsupportedOperationException("Unimplemented method 'getTest'");
     }
 
-    @Override
-    public boolean isTrace() {
-        throw new UnsupportedOperationException("Unimplemented method 'isTrace'");
-    }
+
 
     @Override
     public Instant getFinished() {
@@ -229,5 +259,4 @@ public class MockRun implements IRun {
     public Run getSerializedRun() {
         throw new UnsupportedOperationException("Unimplemented method 'getSerializedRun'");
     }
-
 }

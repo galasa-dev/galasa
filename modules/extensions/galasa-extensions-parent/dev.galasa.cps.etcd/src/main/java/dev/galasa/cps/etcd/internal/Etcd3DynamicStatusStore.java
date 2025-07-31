@@ -9,6 +9,7 @@ import static com.google.common.base.Charsets.UTF_8;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,8 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
     private Log logger = LogFactory.getLog(Etcd3DynamicStatusStore.class);
 
     private final HashMap<UUID, PassthroughWatcher> watchers = new HashMap<>();
+
+    private final static boolean GET_KEYS_ONLY = true;
 
     /**
      * The constructure sets up a private KVClient that can be used by this class to
@@ -305,31 +308,61 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
     @Override
     public @NotNull Map<String, String> getPrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
 
-        logger.debug("Etcd extension getting property with a prefix of "+keyPrefix);
-        ByteSequence bsPrefix = ByteSequence.from(keyPrefix, UTF_8);
-
-        ByteSequence prefixEnd = OptionsUtil.prefixEndOf(bsPrefix);
-        GetOption options = GetOption.builder().withRange(prefixEnd).build();
-
-        CompletableFuture<GetResponse> getFuture = kvClient.get(bsPrefix, options);
         Map<String, String> keyValues = new HashMap<>();
 
-        try {
-            GetResponse response = getFuture.get();
-            List<KeyValue> kvs = response.getKvs();
+        List<KeyValue> kvs = getPropertiesFromETCDWithPrefix(keyPrefix, !GET_KEYS_ONLY);
 
-            if (kvs.isEmpty()) {
-                return new HashMap<>();
-            }
-
+        if (!kvs.isEmpty()) {
             for (KeyValue kv : kvs) {
                 keyValues.put(kv.getKey().toString(UTF_8), kv.getValue().toString(UTF_8));
             }
-            return keyValues;
+        }
+        return keyValues;
+    }
+
+    /**
+     * A get of all keys that start with a specified prefix. They are returned in a collection.
+     * 
+     * @param keyPrefix - the prefix for any key(s)
+     * @return A collection of keys
+     * @throws DynamicStatusStoreException A failure occurred.
+     */
+    @Override
+    public Collection<String> getPrefixKeysOnly(@NotNull String keyPrefix) throws DynamicStatusStoreException {
+
+        Collection<String> keysWithPrefix = new ArrayList<String>();
+
+        List<KeyValue> keyValues = getPropertiesFromETCDWithPrefix(keyPrefix, GET_KEYS_ONLY);
+
+        if (!keyValues.isEmpty()) {
+            for (KeyValue kv : keyValues) {
+                String key = kv.getKey().toString(UTF_8);
+                keysWithPrefix.add(key);
+            }
+        }
+        return keysWithPrefix;
+    }
+
+    private List<KeyValue> getPropertiesFromETCDWithPrefix(String keyPrefix, boolean keysOnly) throws DynamicStatusStoreException {
+
+        logger.debug("Etcd extension getting all keys with a prefix of " + keyPrefix);
+        ByteSequence bsPrefix = ByteSequence.from(keyPrefix, UTF_8);
+
+        ByteSequence prefixEnd = OptionsUtil.prefixEndOf(bsPrefix);
+        GetOption options = GetOption.builder().withRange(prefixEnd).withKeysOnly(keysOnly).build();
+
+        CompletableFuture<GetResponse> getFuture = kvClient.get(bsPrefix, options);
+
+        List<KeyValue> kvs = new ArrayList<>();
+        try {
+            GetResponse response = getFuture.get();
+            kvs = response.getKvs();
         } catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
             throw new DynamicStatusStoreException("Could not retrieve key.", e);
         }
+
+        return kvs;
     }
 
     /**

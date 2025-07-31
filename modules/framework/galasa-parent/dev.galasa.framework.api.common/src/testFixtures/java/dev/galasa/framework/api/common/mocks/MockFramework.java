@@ -119,9 +119,17 @@ public class MockFramework implements IFramework {
         return archiveStore;
     }
 
+    public void setResultArchiveStore(IResultArchiveStore rasStore) {
+        this.archiveStore = rasStore;
+    }
+
     @Override
     public IFrameworkRuns getFrameworkRuns() throws FrameworkException {
         return this.frameworkRuns;
+    }
+
+    public void setFrameworkRuns(IFrameworkRuns frameworkRuns) {
+        this.frameworkRuns = frameworkRuns;
     }
 
     @Override
