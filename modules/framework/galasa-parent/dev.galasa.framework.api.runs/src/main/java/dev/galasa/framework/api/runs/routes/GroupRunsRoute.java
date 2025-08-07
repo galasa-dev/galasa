@@ -32,6 +32,7 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.utils.SystemTimeService;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 public class GroupRunsRoute extends GroupRuns{
@@ -44,7 +45,7 @@ public class GroupRunsRoute extends GroupRuns{
         // Regex to match endpoints:
 		// -> /runs/{GroupID}
 		//
-        super(responseBuilder, path, framework);
+        super(responseBuilder, path, framework, new SystemTimeService() );
     }
 
     @Override

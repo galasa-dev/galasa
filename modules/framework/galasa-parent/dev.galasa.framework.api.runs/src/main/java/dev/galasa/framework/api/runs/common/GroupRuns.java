@@ -30,6 +30,7 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
@@ -38,12 +39,13 @@ public class GroupRuns extends ProtectedRoute {
     protected IFramework framework;
     private IResultArchiveStore rasStore;
     private final GalasaGson gson = new GalasaGson();
-    
+    private final ITimeService timeService ;
 
-    public GroupRuns(ResponseBuilder responseBuilder, String path, IFramework framework) throws RBACException {
+    public GroupRuns(ResponseBuilder responseBuilder, String path, IFramework framework, ITimeService timeService) throws RBACException {
         super(responseBuilder, path, framework.getRBACService());
         this.framework = framework;
         this.rasStore = framework.getResultArchiveStore();
+        this.timeService = timeService;
     }
 
     protected List<IRun> getRuns(String groupName) throws InternalServletException {
@@ -136,7 +138,7 @@ public class GroupRuns extends ProtectedRoute {
                 status.getRuns().add(newRun.getSerializedRun());
                 
                 // Create an empty RAS record for the submitted run
-                createRunRasRecord(newRun);
+                createRunRasRecord(newRun, rasStore, timeService);
 
             } catch (FrameworkException fe) {
                 ServletError error = new ServletError(GAL5021_UNABLE_TO_SUBMIT_RUNS, className);  
@@ -146,8 +148,10 @@ public class GroupRuns extends ProtectedRoute {
         return status;
     }
 
-    private void createRunRasRecord(IRun newRun) throws InternalServletException {
+    protected void createRunRasRecord(IRun newRun, IResultArchiveStore rasStore, ITimeService timeService) throws InternalServletException {
         TestStructure newTestStructure = newRun.toTestStructure();
+        newTestStructure.setStatus("queued");
+        newTestStructure.setQueued(timeService.now());
         String runId = newRun.getRasRunId();
 
         try {
