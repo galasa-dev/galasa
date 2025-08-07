@@ -26,6 +26,7 @@ import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.model.Container;
 
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
@@ -131,8 +132,8 @@ public class RunPoll implements Runnable {
         try {
             // *** First attempt to allocate the run to this controller
             HashMap<String, String> props = new HashMap<>();
-            props.put("run." + runName + ".controller", settings.getPodName());
-            if (!this.dss.putSwap("run." + runName + ".status", "queued", "allocated", props)) {
+            props.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.CONTROLLER, settings.getPodName());
+            if (!this.dss.putSwap("run." + runName + "." +DssPropertyKeyRunNameSuffix.STATUS, "queued", "allocated", props)) {
                 logger.info("run allocated by another controller");
                 return;
             }

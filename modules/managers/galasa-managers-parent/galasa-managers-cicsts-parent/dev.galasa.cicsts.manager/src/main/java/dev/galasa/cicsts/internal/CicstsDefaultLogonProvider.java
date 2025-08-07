@@ -133,6 +133,8 @@ public class CicstsDefaultLogonProvider implements ICicsRegionLogonProvider {
     private void waitForLoggedOnText(ICicsTerminal cicsTerminal) throws CicstsManagerException {
 
         String[] pass = { "Sign-on is complete" };
+        
+        // Note: This message contains a "Please"... which is something Galasa won't do in it's error messages, but this message is coming from the host.
         String[] fail = { 
             "Your password has expired. Please type your new password.",
             "Invalid credentials entered",

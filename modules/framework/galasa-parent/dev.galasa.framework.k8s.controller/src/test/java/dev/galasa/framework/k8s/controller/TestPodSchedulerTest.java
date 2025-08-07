@@ -27,6 +27,7 @@ import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.mocks.MockRun;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.mocks.MockFrameworkRuns;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
@@ -399,7 +400,7 @@ public class TestPodSchedulerTest {
         MockEnvironment mockEnvironment = new MockEnvironment();
 
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        mockDss.put("run."+testRunName+".status","queued");
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,"queued");
 
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
@@ -418,7 +419,7 @@ public class TestPodSchedulerTest {
 
         // Then...
         assertThat(api.podsLaunched).hasSize(1);
-        assertThat(mockDss.get("run."+testRunName+".status")).isEqualTo("allocated");
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("allocated");
     }
 
     @Test
@@ -430,7 +431,7 @@ public class TestPodSchedulerTest {
         MockEnvironment mockEnvironment = new MockEnvironment();
 
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        mockDss.put("run."+testRunName+".status","queued");
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,"queued");
 
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
@@ -459,7 +460,7 @@ public class TestPodSchedulerTest {
         // The code should have re-tried the launch, successfully launching the pod with a -1 suffix.
         assertThat(api.podsFailedToLaunch.get(0).getMetadata().getName()).isEqualTo("myEngineLabel-u12345");
         assertThat(api.podsLaunched.get(0).getMetadata().getName()).isEqualTo("myEngineLabel-u12345-1");
-        assertThat(mockDss.get("run."+testRunName+".status")).isEqualTo("allocated");
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("allocated");
     }
 
     @Test
@@ -471,7 +472,7 @@ public class TestPodSchedulerTest {
         MockEnvironment mockEnvironment = new MockEnvironment();
 
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        mockDss.put("run."+testRunName+".status","queued");
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,"queued");
 
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
 
@@ -501,8 +502,8 @@ public class TestPodSchedulerTest {
         // The code should have re-tried the launch, successfully launching the pod with a -1 suffix.
         assertThat(api.podsFailedToLaunch.get(0).getMetadata().getName()).isEqualTo("myEngineLabel-u12345");
         assertThat(api.podsFailedToLaunch.get(1).getMetadata().getName()).isEqualTo("myEngineLabel-u12345-1");
-        assertThat(mockDss.get("run."+testRunName+".status")).isEqualTo("finished");
-        assertThat(mockDss.get("run."+testRunName+".result")).isEqualTo("EnvFail");
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("finished");
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.RESULT)).isEqualTo("EnvFail");
     }
 
     @Test
@@ -550,7 +551,7 @@ public class TestPodSchedulerTest {
         MockEnvironment mockEnvironment = new MockEnvironment();
 
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        mockDss.put("run."+testRunName+".status",queuedStatus);
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,queuedStatus);
 
         List<IRun> runs = new ArrayList<>();
         runs.add(run);
@@ -579,7 +580,7 @@ public class TestPodSchedulerTest {
 
         // Then...
         assertThat(api.podsLaunched).hasSize(1);
-        assertThat(mockDss.get("run."+testRunName+".status")).isEqualTo("allocated");
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("allocated");
     }
 
     @Test
@@ -596,8 +597,8 @@ public class TestPodSchedulerTest {
 
         // Set a "queued" state and an interrupt reason of "cancelled" for this test run
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
-        mockDss.put("run."+testRunName+".status",queuedStatus);
-        mockDss.put("run."+testRunName+".interruptReason", interruptReason);
+        mockDss.put("run."+testRunName+"." +DssPropertyKeyRunNameSuffix.STATUS,queuedStatus);
+        mockDss.put("run."+testRunName+"." +DssPropertyKeyRunNameSuffix.INTERRUPT_REASON, interruptReason);
 
         List<IRun> runs = new ArrayList<>();
         runs.add(run);
@@ -626,6 +627,6 @@ public class TestPodSchedulerTest {
 
         // Then...
         assertThat(api.podsLaunched).hasSize(0);
-        assertThat(mockDss.get("run."+testRunName+".status")).isEqualTo("queued");
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("queued");
     }
 }

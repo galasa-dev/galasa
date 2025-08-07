@@ -12,6 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.Test;
 
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher.Event;
 
@@ -48,7 +49,7 @@ public class TestDssEventWatcher {
         Queue<DssEvent> eventQueue = new LinkedBlockingQueue<DssEvent>();
         IDynamicStatusStoreService dss = null;
         DssEventWatcher watcher = new DssEventWatcher(eventQueue,dss);
-        watcher.propertyModified( "run.U2345.status" , Event.MODIFIED , "old" , "new");
+        watcher.propertyModified( "run.U2345."+DssPropertyKeyRunNameSuffix.STATUS , Event.MODIFIED , "old" , "new");
 
         assertThat(eventQueue.size()).isEqualTo(1);
 

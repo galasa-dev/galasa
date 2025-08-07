@@ -16,6 +16,7 @@ import dev.galasa.framework.Framework;
 import dev.galasa.framework.IFrameworkInitialisationStrategy;
 import dev.galasa.framework.beans.Property;
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -108,7 +109,7 @@ public class TestRunInitStrategy implements IFrameworkInitialisationStrategy {
     private Properties loadOverridePropertiesFromDss(IFramework framework, IDynamicStatusStoreService dss, Properties overrideProperties) throws DynamicStatusStoreException {
         // The overrides DSS property contains a JSON array of overrides in the form:
         // dss.framework.run.X.overrides=[{ "key1": "value1" }, { "key2", "value2" }]
-        String runOverridesProp = "run." + framework.getTestRunName() + ".overrides";
+        String runOverridesProp = "run." + framework.getTestRunName() + "." + DssPropertyKeyRunNameSuffix.OVERRIDES;
         String runOverrides = dss.get(runOverridesProp);
         if (runOverrides != null && !runOverrides.isBlank()) {
             Property[] properties = gson.fromJson(runOverrides, Property[].class);

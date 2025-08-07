@@ -33,6 +33,7 @@ import dev.galasa.framework.beans.Property;
 import dev.galasa.framework.beans.SubmitRunRequest;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -234,50 +235,49 @@ public class FrameworkRuns implements IFrameworkRuns {
         Set<String> tags = runRequest.getTags();
         String runId = generateRasRunId(runName);
 
-        String runPropertyPrefix = RUN_PREFIX + runName;
-
         // *** Set up the otherRunProperties that will go with the Run number
         HashMap<String, String> otherRunProperties = new HashMap<>();
-        otherRunProperties.put(runPropertyPrefix + ".rasrunid", runId);
-        otherRunProperties.put(runPropertyPrefix + ".status", "queued");
-        otherRunProperties.put(runPropertyPrefix + ".queued", Instant.now().toString());
-        otherRunProperties.put(runPropertyPrefix + ".testbundle", bundleName);
-        otherRunProperties.put(runPropertyPrefix + ".testclass", testName);
-        otherRunProperties.put(runPropertyPrefix + ".request.type", runType);
-        otherRunProperties.put(runPropertyPrefix + ".local", Boolean.toString(local));
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.RAS_RUN_ID), runId);
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.STATUS), "queued");
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.QUEUED), Instant.now().toString());
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.TEST_BUNDLE), bundleName);
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.TEST_CLASS), testName);
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.REQUEST_TYPE), runType);
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.LOCAL), Boolean.toString(local));
         if (trace) {
-            otherRunProperties.put(runPropertyPrefix + ".trace", "true");
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.TRACE), "true");
         }
         if (mavenRepository != null) {
-            otherRunProperties.put(runPropertyPrefix + ".repository", mavenRepository);
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.REPOSITORY), mavenRepository);
         }
         if (obr != null) {
-            otherRunProperties.put(runPropertyPrefix + ".obr", obr);
+            otherRunProperties.put(getSuffixedRunDssKey(runName,DssPropertyKeyRunNameSuffix.OBR), obr);
         }
         if (stream != null) {
-            otherRunProperties.put(runPropertyPrefix + ".stream", stream);
-        }
-        if (groupName != null) {
-            otherRunProperties.put(runPropertyPrefix + ".group", groupName);
-        } else {
-            otherRunProperties.put(runPropertyPrefix + ".group", UUID.randomUUID().toString());
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.STREAM), stream);
         }
 
-        otherRunProperties.put(runPropertyPrefix + ".submissionId", submissionId);
+        if (groupName != null) {
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.GROUP) , groupName);
+        } else {
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.GROUP), UUID.randomUUID().toString());
+        }
+
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.SUBMISSION_ID) , submissionId);
 
         if (tags != null) {
             String tagsAsString = gson.toJson(tags);
-            otherRunProperties.put(runPropertyPrefix + ".tags",tagsAsString);
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.TAGS) ,tagsAsString);
         }
 
-        otherRunProperties.put(runPropertyPrefix + ".requestor", requestor);
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.REQUESTOR), requestor);
 
         if (sharedEnvironmentPhase != null) {
-            otherRunProperties.put(runPropertyPrefix + ".shared.environment", "true");
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.SHARED_ENVIRONMENT), "true");
             overrides.put("framework.run.shared.environment.phase", sharedEnvironmentPhase.toString());
         }
         if (gherkinTest != null) {
-            otherRunProperties.put(runPropertyPrefix + ".gherkin", gherkinTest);
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.GHERKIN), gherkinTest);
         }
 
         // *** Add in the overrides as a single property
@@ -289,12 +289,12 @@ public class FrameworkRuns implements IFrameworkRuns {
                 overridesArray.add(gson.toJsonTree(new Property(key, value)));
             }
 
-            otherRunProperties.put(runPropertyPrefix + ".overrides", gson.toJson(overridesArray));
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.OVERRIDES), gson.toJson(overridesArray));
         }
 
         // *** See if we can setup the runnumber properties (clashes possible if low max
         // number or sharing prefix
-        return this.dss.putSwap(runPropertyPrefix + ".test", null, bundleTest, otherRunProperties);
+        return this.dss.putSwap(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.TEST), null, bundleTest, otherRunProperties);
     }
 
     @Override
@@ -311,6 +311,8 @@ public class FrameworkRuns implements IFrameworkRuns {
         return isRunInDss;
     }
 
+
+
     @Override
     public boolean reset(String runName) throws DynamicStatusStoreException {
         boolean isReset = false;
@@ -320,15 +322,15 @@ public class FrameworkRuns implements IFrameworkRuns {
 
             // Remove the run's heartbeat and interrupt reason
             Set<String> keysToDelete = new HashSet<>();
-            keysToDelete.add(getSuffixedRunDssKey(runName, "heartbeat"));
-            keysToDelete.add(getSuffixedRunDssKey(runName, "interruptReason"));
-            keysToDelete.add(getSuffixedRunDssKey(runName, "interruptedAt"));
+            keysToDelete.add(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.HEARTBEAT));
+            keysToDelete.add(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.INTERRUPT_REASON));
+            keysToDelete.add(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.INTERRUPTED_AT));
             this.dss.delete(keysToDelete);
 
             // Set the status of the run back to 'queued' and generate a new run ID
             Map<String, String> propertiesToSet = new HashMap<>();
-            propertiesToSet.put(getSuffixedRunDssKey(runName, "status"), TestRunLifecycleStatus.QUEUED.toString());
-            propertiesToSet.put(getSuffixedRunDssKey(runName, "rasrunid"), generateRasRunId(runName));
+            propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.STATUS), TestRunLifecycleStatus.QUEUED.toString());
+            propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.RAS_RUN_ID), generateRasRunId(runName));
             this.dss.put(propertiesToSet);
 
             isReset = true;
@@ -336,6 +338,8 @@ public class FrameworkRuns implements IFrameworkRuns {
 
         return isReset;
     }
+
+
 
     @Override
     public void addRunRasAction(IRun run, RunRasAction rasActionToAdd) throws DynamicStatusStoreException {
@@ -346,7 +350,7 @@ public class FrameworkRuns implements IFrameworkRuns {
 
         String encodedRasActions = encodeRasActionsToBase64(updatedRasActions);
 
-        this.dss.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
+        this.dss.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.RAS_ACTIONS), encodedRasActions);
     }
 
     private void interruptRun(IRun run, String interruptReason) throws DynamicStatusStoreException {
@@ -362,11 +366,11 @@ public class FrameworkRuns implements IFrameworkRuns {
             rasActions.add(rasActionToAdd);
             String encodedRasActions = encodeRasActionsToBase64(rasActions);
 
-            propertiesToSet.put(getSuffixedRunDssKey(runName, "rasActions"), encodedRasActions);
+            propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.RAS_ACTIONS), encodedRasActions);
         }
 
-        propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptedAt"), timeService.now().toString());
-        propertiesToSet.put(getSuffixedRunDssKey(runName, "interruptReason"), interruptReason);
+        propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.INTERRUPTED_AT), timeService.now().toString());
+        propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.INTERRUPT_REASON), interruptReason);
 
         this.dss.put(propertiesToSet);
     }
@@ -396,9 +400,9 @@ public class FrameworkRuns implements IFrameworkRuns {
     public void markRunFinished(String runName, String result) throws DynamicStatusStoreException {
         if (isRunInDss(runName)) {
             Map<String, String> propertiesToSet = new HashMap<>();
-            propertiesToSet.put(getSuffixedRunDssKey(runName, "status"), TestRunLifecycleStatus.FINISHED.toString());
-            propertiesToSet.put(getSuffixedRunDssKey(runName, "result"), result);
-            propertiesToSet.put(getSuffixedRunDssKey(runName, "finished"), timeService.now().toString());
+            propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.STATUS ), TestRunLifecycleStatus.FINISHED.toString());
+            propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.RESULT), result);
+            propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.FINISHED_DATETIME), timeService.now().toString());
 
             this.dss.put(propertiesToSet);
         }
@@ -456,11 +460,11 @@ public class FrameworkRuns implements IFrameworkRuns {
 
         HashMap<String, String> otherProperties = new HashMap<>();
         String runPropertyPrefix = RUN_PREFIX + sharedEnvironmentRunName;
-        otherProperties.put(runPropertyPrefix + ".overrides", "framework.run.shared.environment.phase=" + SharedEnvironmentPhase.DISCARD.toString());
+        otherProperties.put(runPropertyPrefix + "." + DssPropertyKeyRunNameSuffix.OVERRIDES, "framework.run.shared.environment.phase=" + SharedEnvironmentPhase.DISCARD.toString());
         if (groupName != null) {
-            otherProperties.put(runPropertyPrefix + ".group", groupName);
+            otherProperties.put(runPropertyPrefix + "." + DssPropertyKeyRunNameSuffix.GROUP, groupName);
         }
-        if (!this.dss.putSwap(runPropertyPrefix + ".status", "up", "queued", otherProperties)) {
+        if (!this.dss.putSwap(runPropertyPrefix + "." + DssPropertyKeyRunNameSuffix.STATUS, "up", "queued", otherProperties)) {
             throw new FrameworkException("Failed to switch Shared Environment " + sharedEnvironmentRunName + " to discard");
         }
     }
@@ -607,7 +611,7 @@ public class FrameworkRuns implements IFrameworkRuns {
         return RUN_PREFIX + runName + ".";
     }
 
-    private String getSuffixedRunDssKey(String runName, String suffix) throws DynamicStatusStoreException {
-        return getRunDssPrefix(runName) + suffix;
+    private String getSuffixedRunDssKey(String runName, DssPropertyKeyRunNameSuffix suffix) throws DynamicStatusStoreException {
+        return getRunDssPrefix(runName) + suffix.toString();
     }
 }

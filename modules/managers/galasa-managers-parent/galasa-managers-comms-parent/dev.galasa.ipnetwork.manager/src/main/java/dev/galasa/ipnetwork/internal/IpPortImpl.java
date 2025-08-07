@@ -11,6 +11,7 @@ import java.util.HashSet;
 
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicResource;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -65,7 +66,7 @@ public class IpPortImpl implements IIpPort {
         otherProps = new HashMap<>();
         otherProps.put(sPort, runName);
         otherProps.put(sPort + ".type", type);
-        otherProps.put(sPort + ".allocated", Instant.now().toString());
+        otherProps.put(sPort + "." + DssPropertyKeyRunNameSuffix.ALLOCATED, Instant.now().toString());
         dssResource.put(otherProps);
 
         return new IpPortImpl(host, port, type);
@@ -78,7 +79,7 @@ public class IpPortImpl implements IIpPort {
         // *** Delete the user view set first before the control set
         HashSet<String> dssProperties = new HashSet<>();
         dssProperties.add(port);
-        dssProperties.add(port + ".allocated");
+        dssProperties.add(port + "." + DssPropertyKeyRunNameSuffix.ALLOCATED);
         dssProperties.add(port + ".type");
         dssResource.delete(dssProperties);
 

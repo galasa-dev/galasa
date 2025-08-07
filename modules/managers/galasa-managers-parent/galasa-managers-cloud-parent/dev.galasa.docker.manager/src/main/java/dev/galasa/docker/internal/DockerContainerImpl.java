@@ -684,7 +684,7 @@ public class DockerContainerImpl implements IDockerContainer {
     @Override
     public void storeFile(String absolutePath, InputStream file) throws DockerManagerException {
         if(!absolutePath.startsWith("/")) {
-            throw new DockerManagerException("Please specify the absolute path of the location on the container, including file name");
+            throw new DockerManagerException("Specify the absolute path of the location on the container, including file name");
         }
         Path locPath = Paths.get(absolutePath);
         File tar = compressToTar(file, locPath.getFileName().toString());

@@ -12,6 +12,7 @@ import java.util.HashSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.IDynamicResource;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.zos.ZosManagerException;
@@ -102,7 +103,7 @@ public class ZosProvisionedImageImpl extends ZosBaseImageImpl {
                     //*** Set the user view properties
                     HashMap<String, String> resProps = new HashMap<>();
                     resProps.put(resPrefix + ".run", runName);
-                    resProps.put(resPrefix + ".allocated", allocated);
+                    resProps.put(resPrefix + "." + DssPropertyKeyRunNameSuffix.ALLOCATED, allocated);
                     dynamicResource.put(resProps);
                     break;
                 }
@@ -139,7 +140,7 @@ public class ZosProvisionedImageImpl extends ZosBaseImageImpl {
             //*** delete the user view properties
             HashSet<String> resProps = new HashSet<>();
             resProps.add(resPrefix + ".run");
-            resProps.add(resPrefix + ".allocated");
+            resProps.add(resPrefix + "." + DssPropertyKeyRunNameSuffix.ALLOCATED);
             dynamicResource.delete(resProps);
 
             //*** Remove the control set
@@ -177,7 +178,7 @@ public class ZosProvisionedImageImpl extends ZosBaseImageImpl {
 
             HashSet<String> resProps = new HashSet<>();
             resProps.add(resPrefix + ".run");
-            resProps.add(resPrefix + ".allocated");
+            resProps.add(resPrefix + "." + DssPropertyKeyRunNameSuffix.ALLOCATED);
             dynamicResource.delete(resProps);
 
             //*** Now get the run slot to see if it is still active,   if so,  try to switch to free

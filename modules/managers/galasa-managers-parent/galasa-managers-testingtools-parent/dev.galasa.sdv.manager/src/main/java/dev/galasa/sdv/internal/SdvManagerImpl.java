@@ -230,7 +230,7 @@ public class SdvManagerImpl extends AbstractManager {
         String role = SdvRole.get(roleTag);
         if (role == null) {
             throw new SdvManagerException(
-                    "Cannot find role. Please create or update CPS Property 'sdv.roleTag."
+                    "Cannot find role. Create or update CPS Property 'sdv.roleTag."
                     + roleTag + ".role'.");
         }
 
@@ -246,7 +246,7 @@ public class SdvManagerImpl extends AbstractManager {
         String port = SdvPort.get(region.getTag());
         if (port == null) {
             throw new SdvManagerException(
-                "Could not find port. Please create or update CPS property 'sdv.cicsTag."
+                "Could not find port. Create or update CPS property 'sdv.cicsTag."
                 + region.getTag() + ".port'.");
         }
 
@@ -254,7 +254,7 @@ public class SdvManagerImpl extends AbstractManager {
         String hlq = SdvHlq.get(region.getTag());
         if (hlq == null) {
             throw new SdvManagerException(
-                "Could not find HLQ. Please create or update CPS property 'sdv.cicsTag."
+                "Could not find HLQ. Create or update CPS property 'sdv.cicsTag."
                 + region.getTag() + ".hlq'.");
         }
 

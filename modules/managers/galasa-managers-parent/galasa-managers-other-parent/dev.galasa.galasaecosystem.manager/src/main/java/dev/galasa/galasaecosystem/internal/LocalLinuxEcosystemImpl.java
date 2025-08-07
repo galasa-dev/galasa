@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.artifact.IBundleResources;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.InsufficientResourcesAvailableException;
 import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.galasaecosystem.GalasaEcosystemManagerException;
@@ -133,7 +134,7 @@ public class LocalLinuxEcosystemImpl extends LocalEcosystemImpl {
 
             // Create the overrides file if provided
             if (overrides != null && !overrides.isEmpty()) {
-                overridesFile = this.linuxImage.getRunDirectory().resolve("run" + this.internalRunNumber + ".overrides");
+                overridesFile = this.linuxImage.getRunDirectory().resolve("run" + this.internalRunNumber + "." + DssPropertyKeyRunNameSuffix.OVERRIDES);
                 overrides.store(Files.newOutputStream(overridesFile, StandardOpenOption.CREATE_NEW), "Galasa Ecosystem Manager");
                 this.runFiles.add(overridesFile);
             }

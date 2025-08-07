@@ -22,6 +22,7 @@ import dev.galasa.docker.DockerProvisionException;
 import dev.galasa.docker.internal.properties.DockerSlots;
 import dev.galasa.framework.spi.DssAdd;
 import dev.galasa.framework.spi.DssDelete;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicResource;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -283,7 +284,7 @@ public class DockerEnvironment implements IDockerEnvironment {
 
                 HashMap<String, String> resProps = new HashMap<>();
                 resProps.put(resourcePropertyPrefix, runName);
-                resProps.put(resourcePropertyPrefix + ".allocated", allocatedTime);
+                resProps.put(resourcePropertyPrefix + "." + DssPropertyKeyRunNameSuffix.ALLOCATED, allocatedTime);
 
                 dynamicResource.put(resProps);
 
@@ -339,7 +340,7 @@ public class DockerEnvironment implements IDockerEnvironment {
 
             HashSet<String> delProps = new HashSet<>();
             delProps.add(prefix);
-            delProps.add(prefix + ".allocated");
+            delProps.add(prefix + "." + DssPropertyKeyRunNameSuffix.ALLOCATED);
             delProps.add(slotKey);
             dss.delete(delProps);
             logger.info("Discarding slot: " + dockerSlot.getSlotName() + ". on the Docker engine: " + dockerEngineId);
@@ -377,7 +378,7 @@ public class DockerEnvironment implements IDockerEnvironment {
 
             HashSet<String> resProps = new HashSet<>();
             resProps.add(resPrefix);
-            resProps.add(resPrefix + ".allocated");
+            resProps.add(resPrefix + "." + DssPropertyKeyRunNameSuffix.ALLOCATED);
             dynamicResource.delete(resProps);
 
             String slotStatusKey = "slot." + dockerEngineId + ".run." + runName + "." + slotName;

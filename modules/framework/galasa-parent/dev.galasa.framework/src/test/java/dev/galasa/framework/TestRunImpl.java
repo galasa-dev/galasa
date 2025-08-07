@@ -13,6 +13,7 @@ import java.util.*;
 import org.junit.Test;
 
 import dev.galasa.framework.mocks.*;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -60,13 +61,13 @@ public class TestRunImpl {
         String queuedTimeAsString = Instant.now().toString();
 
         String tagsAsJsonString = gson.toJson(tagsValueGoingIn);
-        dssProps.put("run.U1234"+".tags", tagsAsJsonString);
+        dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.TAGS, tagsAsJsonString);
 
-        dssProps.put("run.U1234"+".test", "bundle/package.testclass");
-        dssProps.put("run.U1234"+".group", "my-test-group");
-        dssProps.put("run.U1234"+".submissionId", "my-submission-id");
-        dssProps.put("run.U1234"+".queued", queuedTimeAsString);
-        dssProps.put("run.U1234"+".requestor", "duck");
+        dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.TEST, "bundle/package.testclass");
+        dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.GROUP, "my-test-group");
+        dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.SUBMISSION_ID, "my-submission-id");
+        dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.QUEUED, queuedTimeAsString);
+        dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.REQUESTOR, "duck");
 
         IDynamicStatusStoreService dss = new MockDSSStore(dssProps);
         RunImpl run = new RunImpl(name,dss);
@@ -106,7 +107,7 @@ public class TestRunImpl {
         dssProps.put("run.U1234"+".group", "my-test-group");
         dssProps.put("run.U1234"+".submissionId", "my-submission-id");
         dssProps.put("run.U1234"+".queued", queuedTimeAsString);
-        dssProps.put("run.U1234"+".requestor", "duck");
+        dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.REQUESTOR, "duck");
 
         IDynamicStatusStoreService dss = new MockDSSStore(dssProps);
         RunImpl run = new RunImpl(name,dss);

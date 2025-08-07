@@ -28,6 +28,7 @@ import dev.galasa.framework.internal.runner.TagHarvester;
 import dev.galasa.framework.internal.runner.TestRunnerDataProvider;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.FrameworkResourceUnavailableException;
@@ -209,7 +210,7 @@ public class TestRunner extends BaseTestRunner {
             if (this.runType == RunType.SHARED_ENVIRONMENT_DISCARD) {
                 this.testStructure.setResult("Discarded");
                 try {
-                    this.dss.deletePrefix("run." + this.run.getName() + ".shared.environment");
+                    this.dss.deletePrefix("run." + this.run.getName() + "." + DssPropertyKeyRunNameSuffix.SHARED_ENVIRONMENT);
                 } catch (DynamicStatusStoreException e) {
                     logger.error("Problem cleaning shared environment properties", e);
                 }
@@ -306,7 +307,10 @@ public class TestRunner extends BaseTestRunner {
             TestStructure testStructure) throws TestRunException {
         TestClassWrapper testClassWrapper;
         try {
-            testClassWrapper = new TestClassWrapper(this, testBundleName, testClass, testStructure);
+            testClassWrapper = new TestClassWrapper(
+                testBundleName, testClass, testStructure, this.getContinueOnTestFailureFromCPS(), 
+                this.getFramework().getResultArchiveStore(), getInterruptedMonitor()
+            );
         } catch (Exception e) {
             String msg = "Problem with the CPS when adding a wrapper";
             logger.error(msg + " " + e.getMessage());

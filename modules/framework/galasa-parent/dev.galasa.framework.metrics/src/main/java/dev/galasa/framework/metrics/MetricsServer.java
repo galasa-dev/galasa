@@ -25,6 +25,7 @@ import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -271,7 +272,7 @@ public class MetricsServer implements IMetricsServer {
         Instant time = Instant.now();
 
         HashMap<String, String> props = new HashMap<>();
-        props.put("servers.metricsserver." + serverName + ".heartbeat", time.toString());
+        props.put("servers.metricsserver." + serverName + "."+DssPropertyKeyRunNameSuffix.HEARTBEAT, time.toString());
         props.put("servers.metricsserver." + serverName + ".hostname", hostname);
 
         try {

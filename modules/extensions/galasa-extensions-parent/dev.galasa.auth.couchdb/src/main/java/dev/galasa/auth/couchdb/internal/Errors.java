@@ -13,10 +13,10 @@ public enum Errors {
 
     ERROR_FAILED_TO_PARSE_COUCHDB_DESIGN_DOC                          (7500,
         "GAL7500E: The Galasa auth extension could not check that couchdb has the correct definition for the dababase in which access tokens are stored."+
-        "The design of the database could not be parsed. Please report this error to your Galasa system administrator. Detailed cause of this problem: {}"),
+        "The design of the database could not be parsed. Report this error to your Galasa system administrator. Detailed cause of this problem: {}"),
     ERROR_FAILED_TO_UPDATE_COUCHDB_DESING_DOC_CONFLICT                (7501,
         "GAL7501E: The Galasa auth extension could not upgrade the definition of the couchdb database in which access tokens are stored."+
-        "The design of the database could not be updated due to clashing updates.  Please report this error to your Galasa system administrator."),
+        "The design of the database could not be updated due to clashing updates. Report this error to your Galasa system administrator."),
     ;
 
     private String template;

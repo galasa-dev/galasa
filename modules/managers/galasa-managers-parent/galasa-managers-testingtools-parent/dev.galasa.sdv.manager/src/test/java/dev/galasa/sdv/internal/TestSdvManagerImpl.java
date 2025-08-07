@@ -260,7 +260,7 @@ class TestSdvManagerImpl {
         });
 
         Assertions
-                .assertEquals("Cannot find role. Please create or update CPS Property 'sdv.roleTag."
+                .assertEquals("Cannot find role. Create or update CPS Property 'sdv.roleTag."
                         + roleTag + ".role'.", exception.getMessage());
     }
 
@@ -350,7 +350,7 @@ class TestSdvManagerImpl {
         });
 
         Assertions.assertEquals(
-                "Could not find port. Please create or update CPS property 'sdv.cicsTag."
+                "Could not find port. Create or update CPS property 'sdv.cicsTag."
                         + testCicsTagA + ".port'.",
                 exception.getMessage());
     }
@@ -400,7 +400,7 @@ class TestSdvManagerImpl {
         });
 
         Assertions.assertEquals(
-                "Could not find HLQ. Please create or update CPS property 'sdv.cicsTag."
+                "Could not find HLQ. Create or update CPS property 'sdv.cicsTag."
                         + testCicsTagA + ".hlq'.",
                 exception.getMessage());
     }

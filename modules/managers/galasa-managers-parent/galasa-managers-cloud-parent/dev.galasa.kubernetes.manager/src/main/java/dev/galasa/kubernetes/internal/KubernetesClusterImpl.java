@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 
 import dev.galasa.ICredentials;
 import dev.galasa.ICredentialsToken;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResourcePoolingService;
@@ -124,7 +125,7 @@ public class KubernetesClusterImpl {
                     //*** First reserve the name
                     HashMap<String, String> otherValues = new HashMap<>();
                     otherValues.put(namespacePrefix + ".run", runName);
-                    otherValues.put(namespacePrefix + ".allocated", Instant.now().toString());
+                    otherValues.put(namespacePrefix + "." + DssPropertyKeyRunNameSuffix.ALLOCATED, Instant.now().toString());
                     if (!dss.putSwap(namespacePrefix, null, "allocating", otherValues)) {
                         rejectedNamespaces.add(possibleNamespace);
                         continue; //*** Unable to reserve this name,  add to rejected and try next

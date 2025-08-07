@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.api.run.Run;
 import dev.galasa.framework.spi.AbstractManager;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IRun;
@@ -68,38 +69,38 @@ public class RunImpl implements IRun {
 
         Map<String, String> runProperties = dss.getPrefix("run." + this.name);
 
-        String sHeartbeat = runProperties.get(prefix + "heartbeat");
+        String sHeartbeat = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.HEARTBEAT);
         if (sHeartbeat != null) {
             this.heartbeat = Instant.parse(sHeartbeat);
         } else {
             this.heartbeat = null;
         }
 
-        type = runProperties.get(prefix + "request.type");
-        test = runProperties.get(prefix + "test");
-        status = runProperties.get(prefix + "status");
-        result = runProperties.get(prefix + "result");
-        requestor = runProperties.get(prefix + "requestor");
-        stream = runProperties.get(prefix + "stream");
-        repo = runProperties.get(prefix + "repository");
-        obr = runProperties.get(prefix + "obr");
-        group = runProperties.get(prefix + "group");
-        submissionId = runProperties.get(prefix + "submissionId");
-        rasRunId = runProperties.get(prefix + "rasrunid");
-        interruptReason = runProperties.get(prefix + "interruptReason");
-        local = Boolean.parseBoolean(runProperties.get(prefix + "local"));
-        trace = Boolean.parseBoolean(runProperties.get(prefix + "trace"));
-        sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + "shared.environment"));
-        gherkin = runProperties.get(prefix + "gherkin");
+        type = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.REQUEST_TYPE);
+        test = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.TEST);
+        status = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.STATUS);
+        result = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.RESULT);
+        requestor = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.REQUESTOR);
+        stream = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.STREAM);
+        repo = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.REPOSITORY);
+        obr = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.OBR);
+        group = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.GROUP);
+        submissionId = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.SUBMISSION_ID);
+        rasRunId = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.RAS_RUN_ID);
+        interruptReason = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.INTERRUPT_REASON);
+        local = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.LOCAL));
+        trace = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.TRACE));
+        sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.SHARED_ENVIRONMENT));
+        gherkin = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.GHERKIN);
         tags = getTagsFromDss(runProperties, prefix);
         interruptedAt = getInterruptedAtTimeFromDss(runProperties, prefix);
 
-        String encodedRasActions = runProperties.get(prefix + "rasActions");
+        String encodedRasActions = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.RAS_ACTIONS);
         if (encodedRasActions != null) {
             this.rasActions = getRasActionsFromEncodedString(encodedRasActions);
         }
 
-        String sQueued = runProperties.get(prefix + "queued");
+        String sQueued = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.QUEUED);
         if (sQueued != null) {
             this.queued = Instant.parse(sQueued);
         } else {
@@ -110,14 +111,14 @@ public class RunImpl implements IRun {
             }
         }
 
-        String sFinished = runProperties.get(prefix + "finished");
+        String sFinished = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.FINISHED_DATETIME);
         if (sFinished != null) {
             this.finished = Instant.parse(sFinished);
         } else {
             this.finished = null;
         }
 
-        String sWaitUntil = runProperties.get(prefix + "wait.until");
+        String sWaitUntil = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.WAIT_UNTIL);
         if (sWaitUntil != null) {
             this.waitUntil = Instant.parse(sWaitUntil);
         } else {
@@ -143,7 +144,7 @@ public class RunImpl implements IRun {
 
     private Instant getInterruptedAtTimeFromDss(Map<String, String> runProperties, String prefix) {
         Instant interruptedAt = null;
-        String interruptedAtStr = runProperties.get(prefix + "interruptedAt");
+        String interruptedAtStr = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.INTERRUPTED_AT);
         if (interruptedAtStr != null) {
             interruptedAt = Instant.parse(interruptedAtStr);
         }
@@ -153,7 +154,7 @@ public class RunImpl implements IRun {
     private Set<String> getTagsFromDss(Map<String, String> runProperties, String prefix) {
         Set<String> tags = new HashSet<String>();
         try {
-            String tagsAsString = runProperties.get(prefix + "tags");
+            String tagsAsString = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.TAGS);
             if (tagsAsString!= null && !tagsAsString.trim().isEmpty()) {
                 HashSet<?> tagSetOfObj = gson.fromJson(tagsAsString, HashSet.class);
                 for( Object entry : tagSetOfObj) {

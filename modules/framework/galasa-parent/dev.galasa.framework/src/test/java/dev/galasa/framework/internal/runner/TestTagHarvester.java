@@ -7,8 +7,6 @@ package dev.galasa.framework.internal.runner;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 

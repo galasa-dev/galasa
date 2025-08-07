@@ -79,27 +79,28 @@ public class RASByteChannelTest {
 
     @Test
     public void testNotAvailable() throws IOException {
-        final ResultArchiveStoreByteChannel bc = new ResultArchiveStoreByteChannel();
+        try ( final ResultArchiveStoreByteChannel bc = new ResultArchiveStoreByteChannel() ) {
 
-        try {
-            bc.position(1);
-            fail("Should have failed with unavailable");
-        } catch (final IOException e) {
-            Assert.assertEquals("incorrect message", "Not available in dummy RAS channel", e.getMessage());
-        }
+            try {
+                bc.position(1);
+                fail("Should have failed with unavailable");
+            } catch (final IOException e) {
+                Assert.assertEquals("incorrect message", "Not available in dummy RAS channel", e.getMessage());
+            }
 
-        try {
-            bc.read(ByteBuffer.allocate(1));
-            fail("Should have failed with unavailable");
-        } catch (final IOException e) {
-            Assert.assertEquals("incorrect message", "Not available in dummy RAS channel", e.getMessage());
-        }
+            try {
+                bc.read(ByteBuffer.allocate(1));
+                fail("Should have failed with unavailable");
+            } catch (final IOException e) {
+                Assert.assertEquals("incorrect message", "Not available in dummy RAS channel", e.getMessage());
+            }
 
-        try {
-            bc.truncate(1);
-            fail("Should have failed with unavailable");
-        } catch (final IOException e) {
-            Assert.assertEquals("incorrect message", "Not available in dummy RAS channel", e.getMessage());
+            try {
+                bc.truncate(1);
+                fail("Should have failed with unavailable");
+            } catch (final IOException e) {
+                Assert.assertEquals("incorrect message", "Not available in dummy RAS channel", e.getMessage());
+            }   
         }
     }
 

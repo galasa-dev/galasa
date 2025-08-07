@@ -46,7 +46,7 @@ public enum ServletErrorMessage {
     // GenericErrors...
     GAL5000_GENERIC_API_ERROR                         (5000,"E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."),
     GAL5400_BAD_REQUEST                               (5400,"E: Error occurred when trying to execute request ''{0}''. Check your request parameters or report the problem to your Galasa Ecosystem owner."),
-    GAL5401_UNAUTHORIZED                              (5401,"E: Unauthorized. Please ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."),
+    GAL5401_UNAUTHORIZED                              (5401,"E: Unauthorized. Ensure you have provided a valid 'Authorization' header with a valid bearer token and try again."),
     GAL5404_UNRESOLVED_ENDPOINT_ERROR                 (5404,"E: Error occurred when trying to identify the endpoint ''{0}''. Check your endpoint URL or report the problem to your Galasa Ecosystem owner."),
     GAL5405_METHOD_NOT_ALLOWED                        (5405,"E: Error occurred when trying to access the endpoint ''{0}''. The method ''{1}'' is not allowed."),
     GAL5406_UNSUPPORTED_CONTENT_TYPE_REQUESTED        (5406, "E: Unsupported ''Accept'' header value set. Supported response types are: [{0}]. Ensure the ''Accept'' header in your request contains a valid value and try again"),

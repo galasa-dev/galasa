@@ -39,6 +39,7 @@ import dev.galasa.framework.IBundleManager;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -397,7 +398,7 @@ public class ResourceManagement implements IResourceManagement {
         Instant time = Instant.now();
 
         HashMap<String, String> props = new HashMap<>();
-        props.put("servers.resourcemonitor." + serverName + ".heartbeat", time.toString());
+        props.put("servers.resourcemonitor." + serverName + "."+DssPropertyKeyRunNameSuffix.HEARTBEAT, time.toString());
         props.put("servers.resourcemonitor." + serverName + ".hostname", hostname);
 
         try {

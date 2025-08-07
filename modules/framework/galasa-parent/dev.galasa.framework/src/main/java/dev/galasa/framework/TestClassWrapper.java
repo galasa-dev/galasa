@@ -23,11 +23,12 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ContinueOnTestFailure;
 import dev.galasa.framework.GenericMethodWrapper.Type;
+import dev.galasa.framework.internal.runner.InterruptedMonitor;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestMethod;
@@ -39,11 +40,10 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
  */
 public class TestClassWrapper {
 
-    private Log                             logger             = LogFactory.getLog(TestClassWrapper.class);
+    private final Log                       logger;
 
-    private final String                    testBundle;
     private final Class<?>                  testClass;
-    private Object                          testClassObject;
+    protected Object                        testClassObject;
 
     private Result                          resultData;
 
@@ -67,20 +67,42 @@ public class TestClassWrapper {
 
     private final boolean       continueOnTestFailure;
 
-    private final TestRunner    testRunner;
+    private final boolean isContinueOnTestFailureFromCPS;
+    private final IResultArchiveStore ras;
+    private final InterruptedMonitor interruptedMonitor;
 
     /**
      * Constructor
      * 
-     * @param testStructure
-     * @param testRunner
      * @throws ConfigurationPropertyStoreException 
      */
-    public TestClassWrapper(TestRunner testRunner, String testBundle, Class<?> testClass, TestStructure testStructure) throws ConfigurationPropertyStoreException {
-        this.testRunner = testRunner;
-        this.testBundle = testBundle;
+    public TestClassWrapper(    
+        String testBundle, 
+        Class<?> testClass, 
+        TestStructure testStructure,
+        boolean isContinueOnTestFailureFromCPS,
+        IResultArchiveStore ras,
+        InterruptedMonitor interruptedMonitor
+    ) throws ConfigurationPropertyStoreException {
+        this(testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS, ras, interruptedMonitor, LogFactory.getLog(TestClassWrapper.class));
+    }
+    
+
+    public TestClassWrapper(    
+        String testBundle, 
+        Class<?> testClass, 
+        TestStructure testStructure,
+        boolean isContinueOnTestFailureFromCPS,
+        IResultArchiveStore ras,
+        InterruptedMonitor interruptedMonitor,
+        Log logger
+    ) throws ConfigurationPropertyStoreException {
         this.testClass = testClass;
         this.testStructure = testStructure;
+        this.isContinueOnTestFailureFromCPS = isContinueOnTestFailureFromCPS;
+        this.ras = ras;
+        this.logger = logger ;
+        this.interruptedMonitor = interruptedMonitor;
 
         // Fill-in as much of the test structure as we can at this point.
         // If any failures occur after this, they will at least have the correct test name/bundle...etc attached.
@@ -125,8 +147,19 @@ public class TestClassWrapper {
 
         // *** Build the wrappers for the test methods
         for (Method method : temporaryTestMethods) {
-            this.testMethods
-            .add(new TestMethodWrapper(method, this.testClass, temporaryBeforeMethods, temporaryAfterMethods));
+
+            ArrayList<GenericMethodWrapper> beforesForThisTestMethod = new ArrayList<>();
+            for (GenericMethodWrapper before : temporaryBeforeMethods) {
+                beforesForThisTestMethod.add(before.createCopyGenericMethodWrapper());
+            }
+
+            ArrayList<GenericMethodWrapper> afterMethodsForThisTestMethod = new ArrayList<>();
+            for (GenericMethodWrapper after : temporaryAfterMethods) {
+                afterMethodsForThisTestMethod.add(after.createCopyGenericMethodWrapper());
+            }
+
+            TestMethodWrapper testMethodWrapper = new TestMethodWrapper(method, this.testClass, beforesForThisTestMethod, afterMethodsForThisTestMethod);
+            this.testMethods.add(testMethodWrapper);
         }
 
         // Populate more fields in the test structure so reporting has more information.
@@ -134,15 +167,21 @@ public class TestClassWrapper {
         this.testStructure.setMethods(structureMethods);
 
         for (GenericMethodWrapper before : this.beforeClassMethods) {
-            structureMethods.add(before.getStructure());
+            before.initialiseGenericMethodStructure();
+            TestMethod beforeTestStructureMethod = before.getGenericMethodStructure();
+            structureMethods.add(beforeTestStructureMethod);
         }
 
         for (TestMethodWrapper testMethod : this.testMethods) {
-            structureMethods.add(testMethod.getStructure());
+            testMethod.initialiseTestMethodStructure();
+            TestMethod testTestStructureMethod = testMethod.getTestStructureMethod();
+            structureMethods.add(testTestStructureMethod);
         }
 
         for (GenericMethodWrapper after : this.afterClassMethods) {
-            structureMethods.add(after.getStructure());
+            after.initialiseGenericMethodStructure();
+            TestMethod afterTestStructureMethod = after.getGenericMethodStructure();
+            structureMethods.add(afterTestStructureMethod);
         }
 
         String report = this.testStructure.report(LOG_START_LINE);
@@ -164,6 +203,17 @@ public class TestClassWrapper {
         }
     }
 
+    // Run @BeforeClass methods
+    protected void runBeforeClassMethods( @NotNull ITestRunManagers managers ) throws TestRunException {
+        runGenericMethods(managers, beforeClassMethods);
+    }
+
+
+    // Run @AfterClass methods
+    protected void runAfterClassMethods( @NotNull ITestRunManagers managers ) throws TestRunException {
+        runGenericMethods(managers, afterClassMethods);
+    }
+
     /**
      * Run the test methods in declared order together
      * with @BeforeClass, @Before, @After and @AfterClass
@@ -179,47 +229,114 @@ public class TestClassWrapper {
         logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of test class "
                 + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
 
-        try {
-            managers.startOfTestClass();
-        } catch (FrameworkException e) {
-            throw new TestRunException("Unable to inform managers of start of test class", e);
-        }
+        if( interruptedMonitor.isInterrupted() ) {
 
-        // Run @BeforeClass methods
-        runGenericMethods(managers, beforeClassMethods);
+            // The test has been interrupted. 
+            setResultWithoutTellingManagers(Result.cancelled("Test run "+runName+" has been cancelled."));
 
-        // Proceed with the @Test methods only if the result is null (there were no @BeforeClass methods) OR
-        // the result is not a full stop (i.e. a failed or env failed result).
-        if (getResult() == null || !getResult().isFullStop()) {
-            // Run @Test methods
-            runTestMethods(managers, dss, runName);
-        }
+            // Complete the test structure and log
+            logEndTestLogLine();
+            updateTestStructureWithResult();
+            logEndOfTestClassLogLine();
 
-        // Run @AfterClass methods
-        runGenericMethods(managers, afterClassMethods);
-
-        try {
-            Result newResult = managers.endOfTestClass(getResult(), null); // TODO pass the class level exception
-            if (newResult != null) {
-                logger.info("Result of test run overridden to " + newResult.getName());
-                setResult(newResult, managers);
+        } else {
+    
+            try {
+                managers.startOfTestClass();
+            } catch (FrameworkException e) {
+                throw new TestRunException("Unable to inform managers of start of test class", e);
             }
-        } catch (FrameworkException e) {
-            throw new TestRunException("Problem with end of test class", e);
+
+            // If we got this far, whatever happens, we need to tell the managers that there is a failure.
+            TestRunException originalEx = null ;
+            try {
+                try {
+                    runAllMethods(managers, dss, runName);
+                } catch( TestRunException ex) {
+                    originalEx = ex ;
+                }
+            } finally {
+                try {
+                    Result newResult = managers.endOfTestClass(getResult(), originalEx); // TODO pass the class level exception
+                    if (newResult != null) {
+                        logger.info("Result of test run overridden to " + newResult.getName());
+                        setResult(newResult, managers);
+                    }
+                } catch (FrameworkException e) {
+                    // Don't let any exception in the managers.endOfTestClass over-ride the original test failure.
+                    if (originalEx == null) {
+                        originalEx = new TestRunException("Problem with end of test class", e);
+                    }
+                }
+
+                if (getResult() == null) {
+                    setResult(Result.passed(), managers);
+                }
+
+                // Close out the test run execution...
+                logEndTestLogLine();
+                updateTestStructureWithResult();
+                
+                managers.testClassResult(getResult(), originalEx);
+
+                logEndOfTestClassLogLine();
+            }
+
+            if (originalEx != null) {
+                throw originalEx ;
+            }
+
         }
 
-        // Test result
+    }
+
+    private void logEndTestLogLine() {
         logger.info(LOG_ENDING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** " + getResult().getName()
-        + " - Test class " + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
+                + " - Test class " + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
+    }
 
-        this.testStructure.setResult(getResult().getName());
-
-        managers.testClassResult(getResult(), null);
-
+    private void logEndOfTestClassLogLine() {
         String report = this.testStructure.report(LOG_START_LINE);
         logger.trace("Finishing Test Class structure:-" + report);
+    }
 
-        return;
+    private void updateTestStructureWithResult() {
+        this.testStructure.setResult(getResult().getName());
+    }
+
+    private void runAllMethods(ITestRunManagers managers, IDynamicStatusStoreService dss, String runName ) throws TestRunException {
+
+        runBeforeClassMethods(managers);
+
+        // If we get this far, then regardless of what the methods do, we must call the @AfterClass methods
+
+        TestRunException originalEx = null ;
+        try {
+            try {
+                // Proceed with the @Test methods only if the result is null (there were no @BeforeClass methods) OR
+                // the result is not a full stop (i.e. a failed or env failed result).
+                if (getResult() == null || !getResult().isFullStop()) {
+                    // Run @Test methods
+                    runTestMethods(managers, dss, runName);
+                }
+            } catch( TestRunException ex ) {
+                // Save the original exception, so it can be re-thrown later.
+                originalEx = ex ;
+            }
+        } finally {
+            try {
+                runAfterClassMethods(managers);
+            } catch( TestRunException ex) {
+                // Don't let a failure in the afterClass methods over-write the original failure.
+                if (originalEx == null) {
+                    originalEx = ex ;
+                }
+            }
+        }
+
+        if( originalEx != null) {
+            throw originalEx ;
+        }
     }
 
     /**
@@ -229,7 +346,7 @@ public class TestClassWrapper {
      * @param genericMethods
      * @throws TestRunException
      */
-    private void runGenericMethods(@NotNull ITestRunManagers managers, ArrayList<GenericMethodWrapper> genericMethods) throws TestRunException {
+    protected void runGenericMethods(@NotNull ITestRunManagers managers, ArrayList<GenericMethodWrapper> genericMethods) throws TestRunException {
         for (GenericMethodWrapper genericMethod : genericMethods) {
             genericMethod.invoke(managers, this.testClassObject, null, this);
             // Set the result so far after every generic method
@@ -251,15 +368,22 @@ public class TestClassWrapper {
      * @param runName
      * @throws TestRunException
      */
-    private void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
+    protected void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
         try {
-            dss.put("run." + runName + ".method.total", Integer.toString(this.testMethods.size()));
+            dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_TOTAL, Integer.toString(this.testMethods.size()));
 
             int actualMethod = 0;
             for (TestMethodWrapper testMethod : this.testMethods) {
+
+                // Check to see if the run has been cancelled...
+                if ( interruptedMonitor.isInterrupted() ) {
+                    setResult(Result.cancelled("Test run cancelled"), managers);
+                    break;
+                } 
+
                 actualMethod++;
-                dss.put("run." + runName + ".method.current", Integer.toString(actualMethod));
-                dss.put("run." + runName + ".method.name", testMethod.getName());
+                dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_CURRENT, Integer.toString(actualMethod));
+                dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_NAME, testMethod.getName());
                 // Run @Test method
                 testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure, this);
                 // Setting the result so far after every @Test 
@@ -268,9 +392,9 @@ public class TestClassWrapper {
                     break;
                 }
             }
-            dss.delete("run." + runName + ".method.name");
-            dss.delete("run." + runName + ".method.total");
-            dss.delete("run." + runName + ".method.current");
+            dss.delete("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_NAME);
+            dss.delete("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_TOTAL);
+            dss.delete("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_CURRENT);
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update the run status", e);
         }
@@ -382,19 +506,30 @@ public class TestClassWrapper {
         }
 
         if (newResult != null) {
+            setResultWithoutTellingManagers(newResult);
+            if (managers != null ) {
+                managers.setResultSoFar(newResult);
+            }
+        }
+    }
+
+    protected void setResultWithoutTellingManagers(@Null Result newResult) {
+
+        // Log something if the state changes from what it was before.
+        if (newResult != null) {
             String from;
             if (this.resultData == null) {
                 from = "null";
             } else {
                 from = this.resultData.getName();
             }
-            logger.info("Result in test class wrapper changed from " + from + " to " + newResult.getName());
-            
-            this.resultData = newResult;
-            if (managers != null ) {
-                managers.setResultSoFar(newResult);
+            if( from.equals(newResult.getName())) {
+                logger.info("Result in test class wrapper changed from " + from + " to " + newResult.getName());
             }
         }
+        
+        // Make the state change so we remember it.
+        this.resultData = newResult;
     }
 
     protected Result getResult() {
@@ -408,18 +543,13 @@ public class TestClassWrapper {
         if (continueOnTestFailureAnnotation != null) {
             isContinueOnTestFailureSet = true;
         } else {
-            isContinueOnTestFailureSet = this.testRunner.getContinueOnTestFailureFromCPS();
+            isContinueOnTestFailureSet = this.isContinueOnTestFailureFromCPS;
         }
         return isContinueOnTestFailureSet;
     }
-    
-    protected IFramework getFramework() {
-        return this.testRunner.getFramework();
-    }
 
     protected long getRunLogLineCount() {
-        IResultArchiveStore ras = getFramework().getResultArchiveStore();
-        long runLogLineCount = ras.retrieveRunLogLineCount();
+        long runLogLineCount = this.ras.retrieveRunLogLineCount();
         return runLogLineCount;
     }
 

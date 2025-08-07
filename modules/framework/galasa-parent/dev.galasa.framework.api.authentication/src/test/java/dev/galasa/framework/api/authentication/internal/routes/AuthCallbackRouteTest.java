@@ -42,7 +42,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         // {
         // "error_code" : 5400,
         // "error_message" : "GAL5400E: Error occurred when trying to execute request
-        // '/auth/callback'. Please check your request parameters or report the problem to your
+        // '/auth/callback'. Check your request parameters or report the problem to your
         // Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
@@ -68,7 +68,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         // {
         // "error_code" : 5400,
         // "error_message" : "GAL5400E: Error occurred when trying to execute request
-        // '/auth/callback'. Please check your request parameters or report the problem to your
+        // '/auth/callback'. Check your request parameters or report the problem to your
         // Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);
@@ -94,7 +94,7 @@ public class AuthCallbackRouteTest extends BaseServletTest {
         // {
         // "error_code" : 5400,
         // "error_message" : "GAL5400E: Error occurred when trying to execute request
-        // '/auth/callback'. Please check your request parameters or report the problem to your
+        // '/auth/callback'. Check your request parameters or report the problem to your
         // Galasa Ecosystem owner."
         // }
         assertThat(servletResponse.getStatus()).isEqualTo(400);

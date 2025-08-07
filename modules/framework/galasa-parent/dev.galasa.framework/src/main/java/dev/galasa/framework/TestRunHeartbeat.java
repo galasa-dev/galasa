@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -34,7 +35,7 @@ public class TestRunHeartbeat extends Thread {
         this.framework = framework;
         this.dss = this.framework.getDynamicStatusStoreService("framework");
         this.ras = this.framework.getResultArchiveStore();
-        this.key = "run." + framework.getTestRunName() + ".heartbeat";
+        this.key = "run." + framework.getTestRunName() + "." + DssPropertyKeyRunNameSuffix.HEARTBEAT;
 
         // *** Set the initial
         setHeartbeat();

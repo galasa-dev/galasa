@@ -131,7 +131,7 @@ public class Db2ManagerImpl extends AbstractManager implements IDb2ManagerSpi{
 		
 		Db2InstanceImpl conn = connections.get(annotation.db2Tag());
 		if (conn == null) {
-			throw new Db2ManagerException("Requested db2 connection not valid. Please define the Db2 instance tagged: " + annotation.tag());
+			throw new Db2ManagerException("Requested db2 connection not valid. Define the Db2 instance tagged: " + annotation.tag());
 		}
 		
 		IDb2Schema schema = new Db2SchemaImpl(framework, conn, annotation.tag(), annotation.archive(), annotation.resultSetType(), annotation.resultSetConcurrency());

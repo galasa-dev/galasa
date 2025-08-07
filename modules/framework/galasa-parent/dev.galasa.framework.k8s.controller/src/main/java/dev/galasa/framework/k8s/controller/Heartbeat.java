@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 
@@ -31,7 +32,7 @@ public class Heartbeat implements Runnable {
         Instant time = Instant.now();
 
         HashMap<String, String> props = new HashMap<>();
-        props.put("servers.controller." + settings.getPodName() + ".heartbeat", time.toString());
+        props.put("servers.controller." + settings.getPodName() + "."+DssPropertyKeyRunNameSuffix.HEARTBEAT, time.toString());
 
         try {
             dss.put(props);

@@ -25,6 +25,7 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
     MockFileSystem mockFS ;
     StringBuffer runLog = new StringBuffer();
     private String runId ;
+    private long lineCount = 0;
 
     public MockIResultArchiveStore() {
         // Do nothing...
@@ -94,6 +95,12 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
         this.directoryServices.add(directoryService);
     }
 
+    @Override
+    public long retrieveRunLogLineCount() {
+        lineCount += 10;
+        return lineCount ;
+    }
+
     // --------------- un-implemented methods follow --------------------
 
     @Override
@@ -108,8 +115,5 @@ public class MockIResultArchiveStore implements IResultArchiveStore {
                throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
     }
 
-    @Override
-    public long retrieveRunLogLineCount() {
-                throw new UnsupportedOperationException("Unimplemented method 'retrieveRunLogLineCount'");
-    }
+
 }

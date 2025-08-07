@@ -136,6 +136,8 @@ public class SdvUserImpl implements ISdvUser {
     private void waitForLoggedOnText(ICicsTerminal cicsTerminal) throws CicstsManagerException {
 
         String[] pass = {"Sign-on is complete"};
+        // Note: This message has a 'Please' in, which Galasa doesn't do for it's messages,
+        // but the host application may return this.
         String[] fail = {"Your password has expired. Please type your new password.",
                          "Invalid credentials entered", "userid has been revoked"};
 

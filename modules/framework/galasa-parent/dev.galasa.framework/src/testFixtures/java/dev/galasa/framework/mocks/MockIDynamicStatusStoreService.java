@@ -11,6 +11,7 @@ import java.util.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreMatchException;
 import dev.galasa.framework.spi.IDssAction;
@@ -50,7 +51,7 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
         // Don't record heartbeat events in the history. They are random how many there would be 
         // based on the speed of the heartbeat thread. So make it hard for unit tests to check
         // results.
-        if (!key.endsWith(".heartbeat")) {
+        if (!key.endsWith("."+DssPropertyKeyRunNameSuffix.HEARTBEAT)) {
             history.add( new DssHistoryRecord(DssHistoryRecordType.PUT, key , newValue));
         }
         data.put(key,newValue);

@@ -240,7 +240,7 @@ public class Db2SchemaImpl implements IDb2Schema{
 			} else if (params[i] instanceof URL) {
 				ps.setURL(i+1, (URL)params[i]);
 			} else {
-				throw new Db2ManagerException("Galasa's execute SQL for Db2 implementation only supports basic types. Please retrieve the connection from the IDb2Instance object for full java SQL capabilities");
+				throw new Db2ManagerException("Galasa's execute SQL for Db2 implementation only supports basic types. Retrieve the connection from the IDb2Instance object for full java SQL capabilities");
 			}
 			
 		}

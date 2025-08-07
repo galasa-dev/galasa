@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.TestRunLifecycleStatus;
+import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
@@ -57,7 +58,7 @@ public class RunWaitingRuns implements Runnable {
                 }
                 Instant now = Instant.now();
                 if (finished.compareTo(now) <= 0) {
-                    if (this.dss.putSwap("run." + run.getName() + ".status", "waiting", "queued")) {
+                    if (this.dss.putSwap("run." + run.getName() + "."+DssPropertyKeyRunNameSuffix.STATUS, "waiting", "queued")) {
                         // *** Leave the queue time as is as we want the waiting runs to be actioned
                         // before 1st time queued runs
                         logger.info("Requeueing Waiting run " + runName);

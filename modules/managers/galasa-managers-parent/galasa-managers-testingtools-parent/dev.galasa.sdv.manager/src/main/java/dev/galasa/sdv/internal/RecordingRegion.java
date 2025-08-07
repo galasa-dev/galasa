@@ -44,7 +44,7 @@ class RecordingRegion {
             if (user.getUsername().equals(ru.getUsername())) {
                 throw new SdvManagerException("User '" + user.getUsername()
                         + "' has been allocated to more than one region in the test."
-                        + " Please report this to the Galasa project.");
+                        + " Report this to the Galasa project.");
             }
         }
 

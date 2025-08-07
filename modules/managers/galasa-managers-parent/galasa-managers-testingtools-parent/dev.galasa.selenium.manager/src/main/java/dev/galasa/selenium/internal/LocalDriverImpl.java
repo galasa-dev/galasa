@@ -20,7 +20,7 @@ import dev.galasa.selenium.SeleniumManagerException;
 
 /**
  * A local driver can be used to run Selenium tests. This is not support inside an Galasa ecosystem, as the tests run inside 
- * the default engine. Please use the Docker, Kubernetes or Grid implementations for automation runs.
+ * the default engine. Use the Docker, Kubernetes or Grid implementations for automation runs.
  * 
  *  
  *

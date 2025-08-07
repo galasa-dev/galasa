@@ -542,8 +542,9 @@ public class Launcher {
             return;
         }
 
-        logger.error("Galasa requires Java 11, we found: " + version + " will exit");
-        throw new LauncherException("Galasa requires Java 11, we found: " + version + " will exit");
+        String msg = "Galasa requires Java 11 or 17, we found: " + version + ". Correct your classpath to a supported version of java and re-try.";
+        logger.error(msg);
+        throw new LauncherException(msg);
     }
     
     /**
