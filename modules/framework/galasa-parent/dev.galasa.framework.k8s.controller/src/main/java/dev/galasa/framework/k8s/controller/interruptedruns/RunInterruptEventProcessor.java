@@ -6,7 +6,6 @@
 package dev.galasa.framework.k8s.controller.interruptedruns;
 
 import java.util.List;
-import java.util.Queue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,87 +34,94 @@ public class RunInterruptEventProcessor {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    private final Queue<RunInterruptEvent> queue;
     private IFrameworkRuns frameworkRuns;
     private IRunRasActionProcessor rasActionProcessor;
     private KubernetesEngineFacade kubeFacade;
     private IResultArchiveStore rasStore;
+    private PodDeleter podDeleter;
 
     public RunInterruptEventProcessor(
-        Queue<RunInterruptEvent> queue,
         IFrameworkRuns frameworkRuns,
         IRunRasActionProcessor rasActionProcessor,
         KubernetesEngineFacade kubeFacade,
-        IResultArchiveStore rasStore
+        IResultArchiveStore rasStore,
+        PodDeleter podDeleter
     ) {
-        this.queue = queue;
         this.frameworkRuns = frameworkRuns;
         this.rasActionProcessor = rasActionProcessor;
         this.kubeFacade = kubeFacade;
         this.rasStore = rasStore;
+        this.podDeleter = podDeleter;
     }
 
     /**
      * Gets called when there may be items on teh queue to process
      * 
      * Each time this method is invoked, it processes all the events in the event queue and then exits.
+     * @param interruptedRunEvents 
      */
-    public void processEventQueue() {
+    public void processEvents(List<RunInterruptEvent> interruptedRunEvents) {
         if (!kubeFacade.isEtcdAndRasReady()) {
             logger.warn("etcd or RAS pods are not ready, waiting for them to be ready before processing interrupt events");
         } else {
-            processInterruptEvents();
+            processInterruptEvents(interruptedRunEvents);
         }
     }
 
-    private void processInterruptEvents() {
+    private void processInterruptEvents(List<RunInterruptEvent> events ) {
         try {
-            boolean isDone = false;
-   
+
             logger.debug("Starting scan of interrupt events to process");
-            while (!isDone) {
-   
-                RunInterruptEvent interruptEvent = queue.poll();
-                if (interruptEvent == null) {
-                    isDone = true;
-                } else {
+            for( RunInterruptEvent interruptEvent : events ) {
 
-                    // If the test run is in queued state, mark it as Cancelling, because we don't want any 
-                    // instance of the engine controller to get hold of it and start the test by moving it
-                    // to allocated. This is a putSwap operation, so can fail if the pod is already moved
-                    // to allocated/started...etc. 
-                    if (TestRunLifecycleStatus.QUEUED == interruptEvent.getTestRunStatus()) {
-                        boolean isMarkedAsCancelling = markRunCancellingInDss(interruptEvent.getRunName());
-                        if(!isMarkedAsCancelling) {
-                            // The attempt to wrest ownership of this test pod failed.
-                            // Another instance of the engine controller got there first, and is trying to launch this test pod.
-                            // then abandon attempts at cancelling for now.
-                            // We will re-visit this pod when we next poll for things to cancel.
-                            // The pod won't get far once it gets scheduled before it notices it needs to cancel.
-                            logger.info("Run "+interruptEvent.getRunName()+" was scheduled just before it was cancelled. Will cancel it shortly...");
-                            break;
-                        }
+                // If the test run is in queued state mark it as Cancelling, because we don't want any 
+                // instance of the engine controller to get hold of it and start the test by moving it
+                // to allocated. This is a putSwap operation, so can fail if the pod is already moved
+                // to allocated/started...etc. 
+                TestRunLifecycleStatus runStatus = interruptEvent.getTestRunStatus();
+                if (TestRunLifecycleStatus.QUEUED == runStatus) {
+                    boolean isMarkedAsCancelling = markRunCancellingInDss(interruptEvent.getRunName(), runStatus);
+                    if(!isMarkedAsCancelling) {
+                        // The attempt to wrest ownership of this test pod failed.
+                        // Another instance of the engine controller got there first, and is trying to launch this test pod.
+                        // then abandon attempts at cancelling for now.
+                        // We will re-visit this pod when we next poll for things to cancel.
+                        // The pod won't get far once it gets scheduled before it notices it needs to cancel.
+                        logger.info("Run "+interruptEvent.getRunName()+" was scheduled just before it was cancelled. Will cancel it shortly...");
+                        break;
                     }
+                }
 
+                String runName = interruptEvent.getRunName();
 
-                    String runName = interruptEvent.getRunName();
-                    List<RunRasAction> rasActions = interruptEvent.getRasActions();
-                    if (rasActions != null && !rasActions.isEmpty()) {
-                        rasActionProcessor.processRasActions(runName, rasActions);
-                    }
-                    
-                    String interruptReason = interruptEvent.getInterruptReason();
-                    switch (interruptReason) {
-                        case Result.CANCELLED:
-                        case Result.HUNG:
-                            markRunFinishedInDss(runName, interruptReason);
-                            break;
-                        case Result.REQUEUED:
-                            requeueRun(runName);
+                if (runStatus!=null) {
+                    switch(runStatus) {
+                        case QUEUED:
+                        case CANCELLING:
+                            // There is no pod to cancel.
                             break;
                         default:
-                            logger.warn("Unknown interrupt reason set '" + interruptReason + "', ignoring");
+                            // There may be a pod to cancel.
+                            podDeleter.deletePod(runName);
                     }
+                }
+
+                List<RunRasAction> rasActions = interruptEvent.getRasActions();
+                if (rasActions != null && !rasActions.isEmpty()) {
+                    rasActionProcessor.processRasActions(runName, rasActions);
+                }
+                
+                String interruptReason = interruptEvent.getInterruptReason();
+                switch (interruptReason) {
+                    case Result.CANCELLED:
+                    case Result.HUNG:
+                        markRunFinishedInDss(runName, interruptReason);
+                        break;
+                    case Result.REQUEUED:
+                        requeueRun(runName);
+                        break;
+                    default:
+                        logger.warn("Unknown interrupt reason set '" + interruptReason + "', ignoring");
                 }
             }
             logger.debug("Finished scan of interrupt events to process");
@@ -152,8 +158,8 @@ public class RunInterruptEventProcessor {
         logger.info("Marked run '" + runName + "' as finished in the DSS OK");
     }
 
-    private boolean markRunCancellingInDss(String runName) throws DynamicStatusStoreException {
-        boolean isMarkedCancelling = frameworkRuns.markRunCancelling(runName, TestRunLifecycleStatus.QUEUED);
+    private boolean markRunCancellingInDss(String runName, TestRunLifecycleStatus currentRunStatus ) throws DynamicStatusStoreException {
+        boolean isMarkedCancelling = frameworkRuns.markRunCancelling(runName, currentRunStatus);
         return isMarkedCancelling ;
     }
 }

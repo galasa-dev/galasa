@@ -5,8 +5,7 @@
  */
 package dev.galasa.framework.k8s.controller.interruptedruns;
 
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.List;
 import dev.galasa.framework.RunRasActionProcessor;
 import dev.galasa.framework.k8s.controller.Settings;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
@@ -23,11 +22,6 @@ import dev.galasa.framework.spi.utils.ITimeService;
  */
 public class RunInterruptHandler implements Runnable {
 
-    /** 
-     * Queue on which detected events are enqueued.
-     */
-    Queue<RunInterruptEvent> interruptEventQueue ;
-
     /**
      * Something which processes interrupted runs which are eligable for action.
      */
@@ -41,21 +35,20 @@ public class RunInterruptHandler implements Runnable {
     public RunInterruptHandler(KubernetesEngineFacade kubeEngineFacade, IFrameworkRuns frameworkRuns, Settings settings,
             ITimeService timeService, IResultArchiveStore ras) {
 
-        interruptEventQueue = new LinkedBlockingQueue<RunInterruptEvent>();
-
-        runInterruptWatcher = new RunInterruptEventCollector(kubeEngineFacade, frameworkRuns, interruptEventQueue, settings, timeService);
+        runInterruptWatcher = new RunInterruptEventCollector(kubeEngineFacade, frameworkRuns, settings, timeService);
 
         IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(ras);
-        interruptEventProcessor = new RunInterruptEventProcessor(interruptEventQueue, frameworkRuns, rasActionProcessor, kubeEngineFacade, ras);
+        PodDeleter deleter = new PodDeleter(kubeEngineFacade);
+        interruptEventProcessor = new RunInterruptEventProcessor(frameworkRuns, rasActionProcessor, kubeEngineFacade, ras, deleter);
     }
 
     @Override
     public void run() {
         // Build up records in the queue.
-        runInterruptWatcher.collectInterruptRunEvents();
+        List<RunInterruptEvent> interruptedRunEvents = runInterruptWatcher.collectInterruptRunEvents();
 
         // Process all events in the queue.
-        interruptEventProcessor.processEventQueue();
+        interruptEventProcessor.processEvents(interruptedRunEvents);
     }
     
 }

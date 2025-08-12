@@ -25,6 +25,11 @@ public class KubernetesEngineFacade {
 
     public static final String ENGINE_CONTROLLER_LABEL_KEY = "galasa-engine-controller";
 
+    /**
+     * Test pods are marked with a kube label of this, with a value holding the test run name. eg: U643
+     */
+    public static final String KUBE_POD_LABEL_RUN_NAME = "galasa-run" ;
+
     private static final String APP_LABEL = "app";
     private static final String ETCD_APP_SUFFIX = "-etcd";
     private static final String RAS_APP_SUFFIX = "-ras";
@@ -56,6 +61,23 @@ public class KubernetesEngineFacade {
 
         return pods;
     }
+
+    public V1Pod getTestPod( String runName) throws K8sControllerException {
+        List<V1Pod> pods = new LinkedList<>();
+        try {
+            pods = apiClient.getPods(namespace, KUBE_POD_LABEL_RUN_NAME + "=" + runName);
+        } catch (Exception e) {
+            throw new K8sControllerException("Failed retrieving pods", e);
+        }
+
+        // There should only be one pod with this name.
+        V1Pod pod = null ;
+        if( !pods.isEmpty() ) {
+            pod = pods.get(0);
+        }
+        return pod;
+    }
+
 
     public void deletePod(V1Pod pod) {
         try {
