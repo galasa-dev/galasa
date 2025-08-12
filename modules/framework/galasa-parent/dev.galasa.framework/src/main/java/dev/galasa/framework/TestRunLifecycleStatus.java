@@ -15,16 +15,38 @@ import java.util.*;
  * @since 0.30.0
  */
 public enum TestRunLifecycleStatus {
+    // The starting state. From here the state can changed from QUEUED to CANCELLING
     QUEUED("queued"),
-    FINISHED("finished"),
-    BUILDING("building"),
-    GENERATING("generating"),
-    RUNNING("running"),
-    RUNDONE("rundone"),
-    UP("up"),
+
+    /** When the engine controller sees a QUEUED run, it moves it to ALLOCATED */
+    ALLOCATED("allocated"),
+
+    // When the test pod starts, it moves the test run to started.
     STARTED("started"),
+    BUILDING("building"),
     PROVSTART("provstart"),
-    ENDING("ending"),
+    GENERATING("generating"),
+    UP("up"),
+
+    /** The test is running */
+    RUNNING("running"),
+
+    // Clean up states.
+    RUNDONE("rundone"),
+    ENDING("ending"), 
+    FINISHED("finished"),
+
+    /**
+     * When the test run is cancelled, the engine controller moves the state to cancelling 
+     * from QUEUED
+     */
+    CANCELLING("cancelling"),
+
+    /** 
+     * The resources were not available to run the test, so it backs off waiting for a while
+     * before it can be attempted again.
+     */
+    WAITING("waiting"),
     ;
 
     private String value ;  

@@ -8,7 +8,7 @@ package dev.galasa.framework.spi.ras;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Assert;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 
 import dev.galasa.framework.TestRunLifecycleStatus;
@@ -36,12 +36,12 @@ public class TestRASSearchCriteriaStatus {
     @Test
     public void testGetDefaultStatusNames(){
         //Given ...
-        List<TestRunLifecycleStatus> statuses = Arrays.asList(TestRunLifecycleStatus.values());
+        TestRunLifecycleStatus[] values = TestRunLifecycleStatus.values();
         RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
         //When ...
         List<TestRunLifecycleStatus> returnedStatuses = searchCriteria.getStatuses();
         //Then ...
-        Assert.assertEquals(statuses,returnedStatuses);
+        assertThat(returnedStatuses).containsExactlyInAnyOrder(values);
     } 
 
     @Test
@@ -53,7 +53,7 @@ public class TestRASSearchCriteriaStatus {
         //When ...
         boolean criteriaMatched = searchCriteria.criteriaMatched(testStructure);
         //Then ...
-        Assert.assertEquals(criteriaMatched, true);
+        assertThat(criteriaMatched).isTrue();
     } 
 
     @Test
@@ -65,7 +65,7 @@ public class TestRASSearchCriteriaStatus {
         //When ...
         boolean criteriaMatched = searchCriteria.criteriaMatched(testStructure);
         //Then ...
-        Assert.assertEquals(criteriaMatched, false);
+       assertThat(criteriaMatched).isFalse();
     }
 
     @Test
@@ -77,17 +77,16 @@ public class TestRASSearchCriteriaStatus {
         //When ...
         boolean criteriaMatched = searchCriteria.criteriaMatched(testStructure);
         //Then ...
-        Assert.assertEquals(criteriaMatched, false);
+        assertThat(criteriaMatched).isFalse();
     }
 
     @Test
     public void testMultipleCriteriaReturnsAsStringArray(){
         //Given ...
         RasSearchCriteriaStatus searchCriteria = setupRasSearchCriteriaStatus();
-        String[] expectedStatuses = {"queued","finished","building","generating","running","rundone","up","started","provstart","ending"};
         //When ...
         String[] returnedStatuses = searchCriteria.getStatusesAsStrings();
         //Then ...
-        Assert.assertArrayEquals(returnedStatuses, expectedStatuses);
+        assertThat(returnedStatuses).containsExactlyInAnyOrderElementsOf(List.of("queued","finished","building","generating","running","rundone","up","started","provstart","ending","cancelling","allocated","waiting"));
     }
 }

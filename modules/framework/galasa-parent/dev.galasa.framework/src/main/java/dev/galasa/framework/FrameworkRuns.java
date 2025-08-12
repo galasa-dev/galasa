@@ -409,6 +409,26 @@ public class FrameworkRuns implements IFrameworkRuns {
     }
 
     @Override
+    public boolean markRunCancelling(String runName, TestRunLifecycleStatus currentStatus) throws DynamicStatusStoreException {
+
+        boolean isMarkedCancelling = true;
+        if (isRunInDss(runName)) {
+
+            String newState = TestRunLifecycleStatus.CANCELLING.toString();
+
+            // Other processes move this test through a state machine. So we want this to be atomic.
+            isMarkedCancelling = this.dss.putSwap(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.STATUS ), currentStatus.toString() , newState );
+
+            if (isMarkedCancelling) {
+                logger.info("Run "+runName+" has been marked with a state of "+newState);
+            } else {
+                logger.info("Run "+runName+" cannot be marked as "+newState+" because it has only just moved to a different state which isn't "+currentStatus);
+            }
+        }
+        return isMarkedCancelling;
+    }
+
+    @Override
     public IRun getRun(String runname) throws DynamicStatusStoreException {
         IRun run = null;
 

@@ -30,21 +30,22 @@ cd "${BASEDIR}/.."
 
 # Run a quick stand-alone test which doesn't do much.
 
+group=mcobbett-25
 count=0
-while [ $count -lt "1" ];  do
+while [ $count -lt "40" ];  do
     count=$(($count+1));
 
     galasactl runs submit \
-    --class dev.galasa.ivts/dev.galasa.ivts.core.CoreManagerIVT \
+    --class dev.galasa.ivts/dev.galasa.ivts.core.TestSleep \
     --stream ivts \
     --throttle 3 \
     --poll 10 \
     --progress 1 \
     --noexitcodeontestfailures \
-    --group mcobbett-$count \
+    --group $group \
     --tags singletest \
     --overridefile ${GALASA_HOME}/overrides.properties \
-    --log - --trace 
+    --log - --trace > /dev/null &
 
     # echo "Hello $count"
 done

@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.k8s.controller;
+package dev.galasa.framework.k8s.controller.interruptedruns;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,6 +15,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.TestRunLifecycleStatus;
+import dev.galasa.framework.k8s.controller.ISettings;
+import dev.galasa.framework.k8s.controller.K8sControllerException;
+import dev.galasa.framework.k8s.controller.TestPodScheduler;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFrameworkRuns;
@@ -28,9 +31,9 @@ import io.kubernetes.client.openapi.models.V1Pod;
  * for runs with an interrupt reason set.
  *
  * When it detects a run with an interrupt reason, it stops the run's pod (if there is one) and adds a
- * new interrupt event onto the event queue for processing by another thread.
+ * new interrupt event onto the event queue for processing.
  */
-public class RunInterruptMonitor implements Runnable {
+public class RunInterruptEventCollector {
 
     private final Log logger = LogFactory.getLog(getClass());
 
@@ -39,8 +42,9 @@ public class RunInterruptMonitor implements Runnable {
     private final Queue<RunInterruptEvent> eventQueue;
     private final ISettings settings ;
     private final ITimeService timeService;
+    
 
-    public RunInterruptMonitor(
+    public RunInterruptEventCollector(
         KubernetesEngineFacade kubeApi,
         IFrameworkRuns runs,
         Queue<RunInterruptEvent> eventQueue,
@@ -54,15 +58,15 @@ public class RunInterruptMonitor implements Runnable {
         this.timeService = timeService;
     }
 
-    @Override
-    public void run() {
+
+    public void collectInterruptRunEvents() {
         if (!kubeApi.isEtcdAndRasReady()) {
             logger.warn("etcd or RAS pods are not ready, waiting for them to be ready before scanning for interrupted runs");
         } else {
             logger.info("Starting scan for interrupted runs");
     
             try {
-                List<RunInterruptEvent> interruptedRunEvents = getInterruptedRunEventsPastCleanupGracePeriod();
+                List<RunInterruptEvent> interruptedRunEvents = getInterruptedRunsNeedingCleanupNow();
 
                 List<String> interruptedRunNames = getInterruptedRunNames(interruptedRunEvents);
                 deletePodsForInterruptedRuns(interruptedRunNames);
@@ -84,26 +88,41 @@ public class RunInterruptMonitor implements Runnable {
      * @return the test run interrupt events for test runs that remain after the cleanup grace period has passed
      * @throws FrameworkException if there was an issue getting test runs from the framework
      */
-    private List<RunInterruptEvent> getInterruptedRunEventsPastCleanupGracePeriod() throws FrameworkException {
+    private List<RunInterruptEvent> getInterruptedRunsNeedingCleanupNow() throws FrameworkException {
         List<RunInterruptEvent> interruptedRunEvents = getInterruptedRunEvents();
-        List<RunInterruptEvent> interruptedRunEventsPastGracePeriod = new ArrayList<>();
+        List<RunInterruptEvent> interruptedRunsNeedingCleanup = new ArrayList<>();
 
         long testRunCleanupGracePeriodSeconds = settings.getInterruptedTestRunCleanupGracePeriodSeconds();
         Instant currentTime = timeService.now();
         for (RunInterruptEvent interruptEvent : interruptedRunEvents) {
 
+            // assume we don't want to cleanup the run described by this event right now.
+            boolean isRunNeedingCleanup = false ;
+
+            // Check to see if this run has had long enough waiting around to be cleaned up more forcibly.
             Instant interruptedAt = interruptEvent.getInterruptedAt();
             if (interruptedAt == null) {
                 // We don't know when this event's run was interrupted, so consider it timed out
-                interruptedRunEventsPastGracePeriod.add(interruptEvent);
+                isRunNeedingCleanup = true ;
             } else {
                 Instant timeToDeletePod = interruptedAt.plusSeconds(testRunCleanupGracePeriodSeconds);
                 if (currentTime.isAfter(timeToDeletePod)) {
-                    interruptedRunEventsPastGracePeriod.add(interruptEvent);
-                }
+                    interruptEvent.setPastGracePeriod(true);
+                    isRunNeedingCleanup = true ;
+                } 
+            }
+
+            // Queued runs should be cleaned up immediately.
+            if( TestRunLifecycleStatus.QUEUED == interruptEvent.getTestRunStatus()) {
+                // The test run is in queued state
+                isRunNeedingCleanup = true ;
+            } 
+
+            if(isRunNeedingCleanup) {
+                interruptedRunsNeedingCleanup.add(interruptEvent);
             }
         }
-        return interruptedRunEventsPastGracePeriod;
+        return interruptedRunsNeedingCleanup;
     }
 
     private void deletePodsForInterruptedRuns(List<String> interruptedRunNames) throws K8sControllerException {
@@ -138,7 +157,7 @@ public class RunInterruptMonitor implements Runnable {
             // Create an interrupted run event if the run hasn't finished and has an interrupt reason
             TestRunLifecycleStatus runStatus = TestRunLifecycleStatus.getFromString(run.getStatus());
             if ((runStatus != TestRunLifecycleStatus.FINISHED) && (runInterruptReason != null)) {
-                RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, runInterruptReason, runInterruptedAt);
+                RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, runInterruptReason, runInterruptedAt, runStatus);
                 interruptedRunEvents.add(interruptEvent);
             }
         }

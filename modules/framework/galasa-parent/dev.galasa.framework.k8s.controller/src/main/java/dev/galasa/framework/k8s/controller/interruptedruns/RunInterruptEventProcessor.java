@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.k8s.controller;
+package dev.galasa.framework.k8s.controller.interruptedruns;
 
 import java.util.List;
 import java.util.Queue;
@@ -11,6 +11,7 @@ import java.util.Queue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IFrameworkRuns;
@@ -23,14 +24,14 @@ import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 /**
- * InterruptedRunEventProcessor runs as a thread in the engine controller pod and it maintains a
- * queue of interrupt events.
+ * InterruptedRunEventProcessor runs in the engine controller pod and it consumes a queue of 
+ * of interrupt events which are eligible for processing now.
  * 
- * When the interrupt event queue is not empty, it removes each event from the queue and processes them
+ * For each interrupt event on the queue it processes them
  * by marking interrupted runs as finished in the DSS and updating their RAS records as defined by the
- * deferred RAS actions within the interrupt event.
+ * deferred RAS actions within the interrupt event, killing pods if necessary.
  */
-public class InterruptedRunEventProcessor implements Runnable {
+public class RunInterruptEventProcessor {
 
     private Log logger = LogFactory.getLog(getClass());
 
@@ -40,7 +41,7 @@ public class InterruptedRunEventProcessor implements Runnable {
     private KubernetesEngineFacade kubeFacade;
     private IResultArchiveStore rasStore;
 
-    public InterruptedRunEventProcessor(
+    public RunInterruptEventProcessor(
         Queue<RunInterruptEvent> queue,
         IFrameworkRuns frameworkRuns,
         IRunRasActionProcessor rasActionProcessor,
@@ -55,12 +56,11 @@ public class InterruptedRunEventProcessor implements Runnable {
     }
 
     /**
-     * Gets called periodically based on the engine controller's scheduling.
+     * Gets called when there may be items on teh queue to process
      * 
      * Each time this method is invoked, it processes all the events in the event queue and then exits.
      */
-    @Override
-    public void run() {
+    public void processEventQueue() {
         if (!kubeFacade.isEtcdAndRasReady()) {
             logger.warn("etcd or RAS pods are not ready, waiting for them to be ready before processing interrupt events");
         } else {
@@ -79,6 +79,25 @@ public class InterruptedRunEventProcessor implements Runnable {
                 if (interruptEvent == null) {
                     isDone = true;
                 } else {
+
+                    // If the test run is in queued state, mark it as Cancelling, because we don't want any 
+                    // instance of the engine controller to get hold of it and start the test by moving it
+                    // to allocated. This is a putSwap operation, so can fail if the pod is already moved
+                    // to allocated/started...etc. 
+                    if (TestRunLifecycleStatus.QUEUED == interruptEvent.getTestRunStatus()) {
+                        boolean isMarkedAsCancelling = markRunCancellingInDss(interruptEvent.getRunName());
+                        if(!isMarkedAsCancelling) {
+                            // The attempt to wrest ownership of this test pod failed.
+                            // Another instance of the engine controller got there first, and is trying to launch this test pod.
+                            // then abandon attempts at cancelling for now.
+                            // We will re-visit this pod when we next poll for things to cancel.
+                            // The pod won't get far once it gets scheduled before it notices it needs to cancel.
+                            logger.info("Run "+interruptEvent.getRunName()+" was scheduled just before it was cancelled. Will cancel it shortly...");
+                            break;
+                        }
+                    }
+
+
                     String runName = interruptEvent.getRunName();
                     List<RunRasAction> rasActions = interruptEvent.getRasActions();
                     if (rasActions != null && !rasActions.isEmpty()) {
@@ -131,5 +150,10 @@ public class InterruptedRunEventProcessor implements Runnable {
         frameworkRuns.markRunFinished(runName, interruptReason);
 
         logger.info("Marked run '" + runName + "' as finished in the DSS OK");
+    }
+
+    private boolean markRunCancellingInDss(String runName) throws DynamicStatusStoreException {
+        boolean isMarkedCancelling = frameworkRuns.markRunCancelling(runName, TestRunLifecycleStatus.QUEUED);
+        return isMarkedCancelling ;
     }
 }

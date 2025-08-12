@@ -11,6 +11,8 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import dev.galasa.framework.TestRunLifecycleStatus;
+
 public interface IFrameworkRuns {
     
     public enum SharedEnvironmentPhase {
@@ -48,6 +50,18 @@ public interface IFrameworkRuns {
     boolean markRunInterrupted(String runName, String interruptReason) throws DynamicStatusStoreException;
 
     void markRunFinished(String runName, String result) throws DynamicStatusStoreException;
+
+    /**
+     * Marks the specified run as finished in the DSS. Only if the state of the test run is as we expect.
+     * Other processes may have moved the status of the test run without us knowing.
+     * @param runName
+     * @param result
+     * @param currentState The current status of the test run, the status we want to change it from
+     * @return True if the test was marked as finished, false if not. For example, someother process marked it as
+     * starting or building ahead of us marking it as finished here.
+     * @throws DynamicStatusStoreException
+     */
+    boolean markRunCancelling(String runName, TestRunLifecycleStatus currentStatus) throws DynamicStatusStoreException ;
 
     void addRunRasAction(IRun run, RunRasAction rasActionToAdd) throws DynamicStatusStoreException;
 }

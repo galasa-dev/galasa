@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.k8s.controller;
+package dev.galasa.framework.k8s.controller.interruptedruns;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -28,7 +28,7 @@ import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.utils.ITimeService;
 import io.kubernetes.client.openapi.models.V1Pod;
 
-public class RunInterruptMonitorTest {
+public class RunInterruptEventCollectorTest {
 
     private MockKubernetesPodTestUtils mockKubeTestUtils = new MockKubernetesPodTestUtils();
 
@@ -99,10 +99,10 @@ public class RunInterruptMonitorTest {
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
         MockISettings settings = new MockISettings();
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings, timeService);
+        RunInterruptEventCollector runPodInterrupt = new RunInterruptEventCollector(kube, mockFrameworkRuns, eventQueue, settings, timeService);
 
         // When...
-        runPodInterrupt.run();
+        runPodInterrupt.collectInterruptRunEvents();
 
         // Then...
         assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(3);
@@ -150,10 +150,10 @@ public class RunInterruptMonitorTest {
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
         MockISettings settings = new MockISettings();
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings, timeService);
+        RunInterruptEventCollector runPodInterrupt = new RunInterruptEventCollector(kube, mockFrameworkRuns, eventQueue, settings, timeService);
 
         // When...
-        runPodInterrupt.run();
+        runPodInterrupt.collectInterruptRunEvents();
 
         // Then...
         assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).doesNotContain(cancelledPod1);
@@ -209,10 +209,10 @@ public class RunInterruptMonitorTest {
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
         MockISettings settings = new MockISettings();
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings, timeService);
+        RunInterruptEventCollector runPodInterrupt = new RunInterruptEventCollector(kube, mockFrameworkRuns, eventQueue, settings, timeService);
 
         // When...
-        runPodInterrupt.run();
+        runPodInterrupt.collectInterruptRunEvents();
 
         // Then...
         assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(2);
@@ -271,10 +271,10 @@ public class RunInterruptMonitorTest {
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
         MockISettings settings = new MockISettings();
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings, timeService);
+        RunInterruptEventCollector runPodInterrupt = new RunInterruptEventCollector(kube, mockFrameworkRuns, eventQueue, settings, timeService);
 
         // When...
-        runPodInterrupt.run();
+        runPodInterrupt.collectInterruptRunEvents();
 
         // Then...
         assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(2);
@@ -333,10 +333,10 @@ public class RunInterruptMonitorTest {
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
         MockISettings settings = new MockISettings();
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings, timeService);
+        RunInterruptEventCollector runPodInterrupt = new RunInterruptEventCollector(kube, mockFrameworkRuns, eventQueue, settings, timeService);
 
         // When...
-        runPodInterrupt.run();
+        runPodInterrupt.collectInterruptRunEvents();
 
         // Then...
         assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).isEmpty();
@@ -386,10 +386,10 @@ public class RunInterruptMonitorTest {
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
         MockISettings settings = new MockISettings();
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings, timeService);
+        RunInterruptEventCollector runPodInterrupt = new RunInterruptEventCollector(kube, mockFrameworkRuns, eventQueue, settings, timeService);
 
         // When...
-        runPodInterrupt.run();
+        runPodInterrupt.collectInterruptRunEvents();
 
         // Then...
         List<V1Pod> pods = mockApiClient.getMockPods();
@@ -436,13 +436,13 @@ public class RunInterruptMonitorTest {
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
 
         MockISettings settings = new MockISettings();
-        RunInterruptMonitor runPodInterrupt = new RunInterruptMonitor(kube, mockFrameworkRuns, eventQueue, settings, timeService);
+        RunInterruptEventCollector runPodInterrupt = new RunInterruptEventCollector(kube, mockFrameworkRuns, eventQueue, settings, timeService);
 
         // Make sure that all 3 test pods exist before processing
         assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(3);
 
         // When...
-        runPodInterrupt.run();
+        runPodInterrupt.collectInterruptRunEvents();
 
         // Then...
         // Make sure that all 3 test pods still exist after processing
@@ -450,5 +450,52 @@ public class RunInterruptMonitorTest {
 
         // No events should have been added yet
         assertThat(eventQueue).isEmpty();
+    }
+
+
+
+    @Test
+    public void testQueuedRunsGetCollectedForDisposal() throws Exception {
+        // Given...
+        String runNameBeingCancelled = "run3";
+        String runIdToMarkFinished = "run3-id";
+
+        String interruptReason = "cancelled";
+
+        // The queued run has only just been interrupted.
+        Instant interruptedAt = Instant.EPOCH;
+        ITimeService timeService = new MockTimeService(Instant.EPOCH);
+
+        List<V1Pod> mockPods = new ArrayList<>();
+
+        String galasaServiceInstallName = "myGalasaService";
+
+        // etcd and RAS pods are ready
+        boolean isReady = true;
+        mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
+
+        // The run we are cancelling has no pod associated yet.
+
+        // Create runs being scanned
+        List<IRun> mockRuns = new ArrayList<>();
+        mockRuns.add(createMockRun(runIdToMarkFinished, runNameBeingCancelled, TestRunLifecycleStatus.QUEUED.toString(), interruptReason, interruptedAt));
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(mockRuns);
+
+        KubernetesEngineFacade kube = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
+        Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
+
+        MockISettings settings = new MockISettings();
+        RunInterruptEventCollector runPodInterrupt = new RunInterruptEventCollector(kube, mockFrameworkRuns, eventQueue, settings, timeService);
+
+        // When...
+        runPodInterrupt.collectInterruptRunEvents();
+
+        // Then...
+
+        // The queued run should have been added for cleanup, even though it's not been cancelled a long time ago.
+        assertThat(eventQueue).hasSize(1);
+        assertThat(eventQueue.poll().getRunName()).isEqualTo(runNameBeingCancelled);
     }
 }

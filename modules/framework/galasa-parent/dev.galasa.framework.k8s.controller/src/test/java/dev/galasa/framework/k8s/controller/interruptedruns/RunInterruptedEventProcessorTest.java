@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.k8s.controller;
+package dev.galasa.framework.k8s.controller.interruptedruns;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -35,7 +35,7 @@ import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import io.kubernetes.client.openapi.models.V1Pod;
 
-public class InterruptedRunEventProcessorTest {
+public class RunInterruptedEventProcessorTest {
 
     private MockKubernetesPodTestUtils mockKubeTestUtils = new MockKubernetesPodTestUtils();
 
@@ -101,13 +101,13 @@ public class InterruptedRunEventProcessorTest {
         KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
-        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, interruptedAt);
+        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, interruptedAt, status);
         eventQueue.add(interruptEvent);
 
-        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade, mockRas);
+        RunInterruptEventProcessor processor = new RunInterruptEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade, mockRas);
 
         // When...
-        processor.run();
+        processor.processEventQueue();
 
         // Then...
         assertThat(eventQueue).isEmpty();
@@ -152,13 +152,13 @@ public class InterruptedRunEventProcessorTest {
         KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
-        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, interruptedAt);
+        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, interruptedAt, status);
         eventQueue.add(interruptEvent);
 
-        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade, mockRas);
+        RunInterruptEventProcessor processor = new RunInterruptEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade, mockRas);
 
         // When...
-        processor.run();
+        processor.processEventQueue();
 
         // Then...
         assertThat(eventQueue).isEmpty();
@@ -204,17 +204,17 @@ public class InterruptedRunEventProcessorTest {
         KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         Queue<RunInterruptEvent> eventQueue = new LinkedBlockingQueue<>();
-        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, interruptedAt);
+        RunInterruptEvent interruptEvent = new RunInterruptEvent(rasActions, runName, interruptReason, interruptedAt, status);
         eventQueue.add(interruptEvent);
 
-        InterruptedRunEventProcessor processor = new InterruptedRunEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade, mockRas);
+        RunInterruptEventProcessor processor = new RunInterruptEventProcessor(eventQueue, mockFrameworkRuns, rasActionProcessor, facade, mockRas);
 
         // Check that we have one element in the event queue before processing
         assertThat(eventQueue).hasSize(1);
         assertThat(eventQueue.peek()).usingRecursiveComparison().isEqualTo(interruptEvent);
 
         // When...
-        processor.run();
+        processor.processEventQueue();
 
         // Then...
         // The event should not have been processed yet
