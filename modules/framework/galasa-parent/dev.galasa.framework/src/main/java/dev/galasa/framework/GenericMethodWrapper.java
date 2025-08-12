@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.Result;
+import dev.galasa.framework.spi.TestMethodResult;
 import dev.galasa.framework.spi.language.GalasaMethod;
 import dev.galasa.framework.spi.teststructure.TestMethod;
 
@@ -139,6 +140,10 @@ public class GenericMethodWrapper {
         } catch (FrameworkException e) {
             throw new TestRunException("There was a problem with the framework: "+e.getMessage(), e);
         }
+
+        ITestMethodResult testMethodResult = new TestMethodResult(
+            this.executionMethod.getName(), this.result.isPassed(), this.result.isFailed(), this.result.getThrowable());
+        testClassWrapper.addTestMethodResult(testMethodResult, managers);
 
         long runLogEnd = testClassWrapper.getRunLogLineCount();
         saveRunLogStartAndEnd(runLogStart, runLogEnd);

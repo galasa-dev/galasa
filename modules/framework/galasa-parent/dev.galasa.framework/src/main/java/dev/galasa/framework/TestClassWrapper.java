@@ -513,6 +513,12 @@ public class TestClassWrapper {
         }
     }
 
+    protected void addTestMethodResult(ITestMethodResult testMethodResult, ITestRunManagers managers) {
+        if (testMethodResult != null && managers != null) {
+            managers.addTestMethodResult(testMethodResult);
+        }
+    }
+
     protected void setResultWithoutTellingManagers(@Null Result newResult) {
 
         // Log something if the state changes from what it was before.

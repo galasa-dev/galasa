@@ -652,7 +652,18 @@ public class TestRunManagers implements ITestRunManagers {
             try {
                 manager.setResultSoFar(newResult);
             } catch (Exception e) {
-                logger.warn("Problem in test class result for manager " + manager.getClass().getName(), e);
+                logger.warn("Problem in set result so far for manager " + manager.getClass().getName(), e);
+            }
+        }
+    }
+
+    @Override
+    public void addTestMethodResult(ITestMethodResult newTestMethodResult) {
+        for (IManager manager : activeManagers) {
+            try {
+                manager.addTestMethodResult(newTestMethodResult);
+            } catch (Exception e) {
+                logger.warn("Problem in add test method result for manager " + manager.getClass().getName(), e);
             }
         }
     }

@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 
 import dev.galasa.ManagerException;
 import dev.galasa.framework.IResult;
+import dev.galasa.framework.ITestMethodResult;
 import dev.galasa.framework.spi.language.GalasaMethod;
 import dev.galasa.framework.spi.language.GalasaTest;
 
@@ -355,5 +356,14 @@ public interface IManager {
      * @since 0.41.0
      */
     default void setResultSoFar(IResult newResult) {}
+
+    /**
+     * This call is used to add to the list of executed method's results which is available to the managers.
+     * This can be used by the @TestResultProvider annotation to retrieve each executed method's name, passed or failed state, and
+     * thrown exception if applicable, which tests themselves and @AfterClass methods can use.
+     * 
+     * @since 0.43.0
+     */
+    default void addTestMethodResult(ITestMethodResult newTestMethodResult) {}
 
 }

@@ -21,6 +21,7 @@ import dev.galasa.BeforeClass;
 import dev.galasa.ContinueOnTestFailure;
 import dev.galasa.Summary;
 import dev.galasa.Test;
+import dev.galasa.framework.ITestMethodResult;
 import dev.galasa.core.manager.ITestResultProvider;
 import dev.galasa.core.manager.TestResultProvider;
 import dev.galasa.framework.spi.FrameworkException;
@@ -83,6 +84,14 @@ public class TestTestResultProvider {
         logger.info("In the afterClassMethod - is the test currently Failed? " + testResult.getResult().isFailed());
         if (testResult.getResult().isFailed()) {
             customCleanUpMethod();
+        }
+
+        List<ITestMethodResult> methodResults = testResult.getTestMethodResults();
+        for (ITestMethodResult result: methodResults) {
+            logger.info(result.getMethodName());
+            logger.info(result.getThrowable());
+            logger.info(result.isPassed());
+            logger.info(result.isFailed());
         }
     }
 

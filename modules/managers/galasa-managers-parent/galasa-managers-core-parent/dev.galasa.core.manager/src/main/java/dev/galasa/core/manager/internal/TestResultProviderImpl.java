@@ -5,10 +5,14 @@
  */
 package dev.galasa.core.manager.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import dev.galasa.core.manager.ITestResultProvider;
 import dev.galasa.framework.IResult;
+import dev.galasa.framework.ITestMethodResult;
 
 public class TestResultProviderImpl implements ITestResultProvider {
 
@@ -30,6 +34,8 @@ public class TestResultProviderImpl implements ITestResultProvider {
 
     private IResult result = new ResultNotSetYetResult();
 
+    private List<ITestMethodResult> testMethodResults = new ArrayList<ITestMethodResult>();
+
     public void setResult(IResult newResult) {
         this.result = newResult;
     }
@@ -37,6 +43,15 @@ public class TestResultProviderImpl implements ITestResultProvider {
     @Override
     public @NotNull IResult getResult() {
         return this.result;
+    }
+
+    public void addTestMethodResult(ITestMethodResult newTestMethodResult) {
+        this.testMethodResults.add(newTestMethodResult);
+    }
+
+    @Override
+    public List<ITestMethodResult> getTestMethodResults() {
+        return this.testMethodResults;
     }
 
 }

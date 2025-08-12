@@ -7,7 +7,10 @@ package dev.galasa.core.manager;
 
 import javax.validation.constraints.NotNull;
 
+import java.util.List;
+
 import dev.galasa.framework.IResult;
+import dev.galasa.framework.ITestMethodResult;
 
 /**
  * Implementations of this interface can provide a test result when asked.
@@ -17,12 +20,19 @@ import dev.galasa.framework.IResult;
 public interface ITestResultProvider {
 
     /**
-     * Gets the test result.
+     * Gets the overall test class result.
      * 
-     * @return The IResult which can be queried for whether the test has passed or failed at this point.
+     * @return The IResult which can be queried for whether the test class has passed or failed at this point.
      * It will never be null.
      * 
      * The returned result can be neither passing nor failing. If the test has not completed, then it won't have passed yet.
      */
     @NotNull IResult getResult();
+
+    /**
+     * Gets the list of individual test method results.
+     * 
+     * @return The list of ITestMethodResults which includes the method name, if it passed, if it failed, and thrown exception.
+     */
+    List<ITestMethodResult> getTestMethodResults();
 }

@@ -35,6 +35,7 @@ import dev.galasa.core.manager.TestResultProvider;
 import dev.galasa.core.manager.ITestResultProvider;
 import dev.galasa.core.manager.internal.gherkin.CoreStatementOwner;
 import dev.galasa.framework.IResult;
+import dev.galasa.framework.ITestMethodResult;
 import dev.galasa.framework.spi.AbstractGherkinManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -376,6 +377,11 @@ public class CoreManagerImpl extends AbstractGherkinManager implements ICoreMana
 		// Let the test know what the result is by setting the result into the result provider 
 		// which it will have access to via a field annotated as a @TestResultProvider
 		testProviderSingleton.setResult(newResult);
+	}
+
+	@Override
+	public void addTestMethodResult(ITestMethodResult newTestMethodResult) {
+		testProviderSingleton.addTestMethodResult(newTestMethodResult);
 	}
 
 }
