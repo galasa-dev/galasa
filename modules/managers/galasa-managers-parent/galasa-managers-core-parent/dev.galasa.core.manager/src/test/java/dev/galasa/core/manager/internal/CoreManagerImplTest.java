@@ -98,17 +98,17 @@ public class CoreManagerImplTest {
         assertThat(resultProvider.getTestMethodResults().get(0).getMethodName()).isEqualTo("beforeMethod");
         assertThat(resultProvider.getTestMethodResults().get(0).isPassed()).isEqualTo(true);
         assertThat(resultProvider.getTestMethodResults().get(0).isFailed()).isEqualTo(false);
-        assertThat(resultProvider.getTestMethodResults().get(0).getThrowable()).isNull();
+        assertThat(resultProvider.getTestMethodResults().get(0).getFailureReason()).isNull();
 
         assertThat(resultProvider.getTestMethodResults().get(1).getMethodName()).isEqualTo("testMethod");
         assertThat(resultProvider.getTestMethodResults().get(1).isPassed()).isEqualTo(false);
         assertThat(resultProvider.getTestMethodResults().get(1).isFailed()).isEqualTo(true);
-        assertThat(resultProvider.getTestMethodResults().get(1).getThrowable()).isInstanceOf(Exception.class);
+        assertThat(resultProvider.getTestMethodResults().get(1).getFailureReason()).isInstanceOf(Exception.class);
 
         assertThat(resultProvider.getTestMethodResults().get(2).getMethodName()).isEqualTo("afterClassMethod");
         assertThat(resultProvider.getTestMethodResults().get(2).isPassed()).isEqualTo(true);
         assertThat(resultProvider.getTestMethodResults().get(2).isFailed()).isEqualTo(false);
-        assertThat(resultProvider.getTestMethodResults().get(2).getThrowable()).isNull();
+        assertThat(resultProvider.getTestMethodResults().get(2).getFailureReason()).isNull();
     }
 
     @Test

@@ -62,7 +62,7 @@ public void afterMethod() throws FrameworkException {
     List<ITestMethodResult> methodResults = testResultProvider.getTestMethodResults();
     ITestMethodResult lastMethodRan = methodResults.get(methodResults.size() - 1);
 
-    if (lastMethodRan.isFailed() && lastMethodRan.getThrowable() instanceof FrameworkException) {
+    if (lastMethodRan.isFailed() && lastMethodRan.getFailureReason() instanceof FrameworkException) {
         myCustomCleanupMethod();
     }
 }

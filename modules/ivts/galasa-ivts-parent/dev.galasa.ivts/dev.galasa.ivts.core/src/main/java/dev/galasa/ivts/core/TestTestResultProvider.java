@@ -89,7 +89,7 @@ public class TestTestResultProvider {
         List<ITestMethodResult> methodResults = testResult.getTestMethodResults();
         for (ITestMethodResult result: methodResults) {
             logger.info(result.getMethodName());
-            logger.info(result.getThrowable());
+            logger.info(result.getFailureReason());
             logger.info(result.isPassed());
             logger.info(result.isFailed());
         }

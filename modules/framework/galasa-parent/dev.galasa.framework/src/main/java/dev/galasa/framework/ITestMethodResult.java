@@ -9,5 +9,5 @@ public interface ITestMethodResult {
     String getMethodName();
     boolean isPassed();
     boolean isFailed();
-    Throwable getThrowable();
+    Throwable getFailureReason();
 }

@@ -12,13 +12,13 @@ public class TestMethodResult implements ITestMethodResult {
     private String name;
     private boolean isPassed;
     private boolean isFailed;
-    private Throwable throwable;
+    private Throwable failureReason;
 
-    public TestMethodResult(String name, boolean passed, boolean failed, Throwable throwable) {
+    public TestMethodResult(String name, boolean passed, boolean failed, Throwable failureReason) {
         this.name = name;
         this.isPassed = passed;
         this.isFailed = failed;
-        this.throwable = throwable;
+        this.failureReason = failureReason;
     }
 
     public String getMethodName() {
@@ -33,8 +33,8 @@ public class TestMethodResult implements ITestMethodResult {
         return this.isFailed;
     }
 
-    public Throwable getThrowable() {
-        return this.throwable;
+    public Throwable getFailureReason() {
+        return this.failureReason;
     }
 
 }
