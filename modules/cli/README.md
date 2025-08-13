@@ -1,6 +1,6 @@
 # Galasa CLI
 
-The Galasa command line interface (Galasa CLI) is used to interact with the Galasa ecosystem or local development environment.
+The Galasa command line interface (Galasa CLI) is used to interact with a deployed Galasa service or local development environment.
 
 [![Main build](https://github.com/galasa-dev/cli/actions/workflows/build.yml/badge.svg)](https://github.com/galasa-dev/cli/actions/workflows/build.yml)
 
@@ -99,7 +99,7 @@ If you wish the generated code to depend upon the very latest/bleeding-edge of g
 
 ## auth login
 
-Before interacting with a Galasa ecosystem using `galasactl`, you must be authenticated with it. The `auth login` command allows you to log in to an ecosystem provided by your `GALASA_BOOTSTRAP` environment variable or through the `--bootstrap` flag.
+Before interacting with a deployed Galasa service using `galasactl`, you must be authenticated with it. The `auth login` command allows you to log in to a Galasa service provided by your `GALASA_BOOTSTRAP` environment variable or through the `--bootstrap` flag.
 
 Prior to running this command, you must have a `galasactl.properties` file in your `GALASA_HOME` directory, which is automatically created when running `galasactl local init`, that contains a `GALASA_TOKEN` property with the following format:
 
