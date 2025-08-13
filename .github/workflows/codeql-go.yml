@@ -114,7 +114,7 @@ jobs:
       working-directory: ${{ github.workspace }}/modules/cli
       run: |
         set -o pipefail
-        gradle -b build.gradle installJarsIntoTemplates --info \
+        gradle installJarsIntoTemplates --info \
         --no-daemon --console plain \
         -PsourceMaven=https://development.galasa.dev/main/maven-repo/obr \
         -PcentralMaven=https://repo.maven.apache.org/maven2/ \
