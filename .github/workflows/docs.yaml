@@ -9,6 +9,8 @@ on:
   workflow_call:
 
 env:
+  REGISTRY: ghcr.io
+  NAMESPACE: ${{ github.repository_owner }}
   BRANCH: ${{ github.ref_name }}
 
 jobs:
