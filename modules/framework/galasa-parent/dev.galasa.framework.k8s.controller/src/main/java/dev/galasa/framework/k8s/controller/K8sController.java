@@ -7,8 +7,6 @@ package dev.galasa.framework.k8s.controller;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -19,10 +17,10 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.FrameworkInitialisation;
-import dev.galasa.framework.RunRasActionProcessor;
 import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
+import dev.galasa.framework.k8s.controller.interruptedruns.RunInterruptHandler;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.FrameworkException;
@@ -31,7 +29,6 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResultArchiveStore;
-import dev.galasa.framework.spi.IRunRasActionProcessor;
 import dev.galasa.framework.spi.SystemEnvironment;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.utils.SystemTimeService;
@@ -224,14 +221,11 @@ public class K8sController {
 
         podScheduler = new TestPodScheduler(env, dss, cps, settings, kubeEngineFacade, frameworkRuns, timeService);
         schedulePoll();
+     
+        RunInterruptHandler interruptedRunHandler = new RunInterruptHandler(kubeEngineFacade, frameworkRuns, settings, timeService, ras);
+        scheduledExecutorService.scheduleWithFixedDelay(interruptedRunHandler, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
-        Queue<RunInterruptEvent> interruptEventQueue = new LinkedBlockingQueue<RunInterruptEvent>();
-        RunInterruptMonitor runInterruptWatcher = new RunInterruptMonitor(kubeEngineFacade, frameworkRuns, interruptEventQueue, settings, timeService);
-        scheduledExecutorService.scheduleWithFixedDelay(runInterruptWatcher, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
-        IRunRasActionProcessor rasActionProcessor = new RunRasActionProcessor(ras);
-        InterruptedRunEventProcessor interruptEventProcessor = new InterruptedRunEventProcessor(interruptEventQueue, frameworkRuns, rasActionProcessor, kubeEngineFacade, ras);
-        scheduledExecutorService.scheduleWithFixedDelay(interruptEventProcessor, 0, INTERRUPTED_RUN_WATCH_POLL_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
     private void shutdownExecutorService() {
