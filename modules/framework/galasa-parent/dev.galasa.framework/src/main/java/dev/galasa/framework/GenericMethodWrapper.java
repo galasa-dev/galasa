@@ -169,12 +169,22 @@ public class GenericMethodWrapper {
         }
     }
 
+    /**
+     * This initialises the test structure for this generic method.
+     * A generic method is a @BeforeClass, @Before, @After or @AfterClass
+     * so the test structure is initialised with just a name and type.
+     * It can be retrieved with getGenericMethodStructure().
+     */
     public void initialiseGenericMethodStructure() {
         this.genericMethodStructure = new TestMethod(testClass);
         this.genericMethodStructure.setMethodName(executionMethod.getName());
         this.genericMethodStructure.setType(this.type.toString());
     }
 
+    /**
+     * This returns the test structure for this generic method.
+     * @return the existing TestMethod structure for this generic method.
+     */
     public TestMethod getGenericMethodStructure() {
         return this.genericMethodStructure;
     }

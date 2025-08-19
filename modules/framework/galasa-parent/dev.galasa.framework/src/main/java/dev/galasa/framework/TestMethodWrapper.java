@@ -142,9 +142,10 @@ public class TestMethodWrapper {
     }
 
     /**
-     * This creates a new test structure for this @Test method, priming
-     * it with the @Before and @After methods that belong to it. It is
-     * then set as a class variable. It can be retrieved with getTestStructureMethod().
+     * This initialises the test structure for this @Test method, priming
+     * it with a name, type, and the @Before and @After methods that belong to it.
+     * It is then set as a class variable.
+     * It can be retrieved with getTestStructureMethod().
      */
     public void initialiseTestMethodStructure() {
 
