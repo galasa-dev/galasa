@@ -53,6 +53,12 @@ public class GenericMethodWrapper {
         this.type = type;
     }
 
+    /**
+     * This method creates a copy of this GenericMethodWrapper which is used when creating the wrapper for
+     * a @Test method. Each @Test method should have its own copy of the test's @Befores and @Afters, instead
+     * of pointing to the same set of @Befores and @Afters. This ensures each @Before/@After has a unique test structure.
+     * @return a copy of this GenericMethodWrapper.
+     */
     public GenericMethodWrapper createCopyGenericMethodWrapper() {
         GenericMethodWrapper genericMethodWrapper = new GenericMethodWrapper(this.executionMethod, this.testClass, this.type);
         return genericMethodWrapper;
