@@ -4,19 +4,16 @@ This is the main source code repository for the Galasa open source project.
 ## Code structure
 - [`modules`](./modules/) - The code
 - [`tools`](./tools/) - Build tools and useful scripts
+- [`docs`](./docs/) - The source code for our [preview](https://vnext.galasa.dev) and [live](https://galasa.dev) documentation sites
 
 
 
 ## Building locally
 
 ### Pre-reqs
+Some tools will need to be installed in order to build this code locally.
+See our install instructions [here](./developer-docs/install-pre-req-tools.md)
 
-These are the versions of software which are known to work:
-- Python v3.11.0
-- Gradle 8.9
-- Apache Maven 3.9.0
-- openjdk 17.0.12
-- go 1.23.5
 
 ### To build...
 Use the `./tools/build-locally.sh` script. `--help` shows you the options.
@@ -48,3 +45,15 @@ When using vscode to develop this code, we recommend the following settings are 
 ],
 "java.import.gradle.wrapper.enabled": false,
 ```
+
+## How to contribute to the Galasa project
+See our [contribution guidelines](./CONTRIBUTING.md) on how to contribute to the Galasa project.
+
+## Notes about the codebase and Galasa system for contributors
+We have some notes [here](./developer-docs/README.md) which may help you understand the codebase,
+should you wish to contribute to the project.
+
+## Legal
+Galasa is developed under this [license](./LICENSE)
+
+All contributions are governed by the [Developer Certificate of Origin](./CONTRIBUTIONS.md)
