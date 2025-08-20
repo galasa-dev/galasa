@@ -64,12 +64,6 @@ external:
     mvp: true
     isolated: true
 
-  - group: commons-lang
-    artifact: commons-lang
-    obr: true
-    mvp: true
-    isolated: true
-
   # commons-logging is not included in the OBR because it is exported in
   # the log4j2.bridge bundle and that bundle is directly installed into 
   # the Felix framework at runtime.

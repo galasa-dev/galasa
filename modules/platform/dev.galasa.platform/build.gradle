@@ -87,8 +87,6 @@ dependencies {
 
         api 'commons-io:commons-io:2.16.1' // If updating, also update in galasa-boot build.gradle and in obr/release.yaml.
 
-        api 'commons-lang:commons-lang:2.6'
-
         api 'commons-logging:commons-logging:1.3.4' // If updating, also update in obr/release.yaml.
 
         api 'dev.failsafe:failsafe:3.3.2'
