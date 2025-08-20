@@ -21,6 +21,9 @@ Welcome to Galasa! To learn more about contributing to this repository, please r
 - Ensure your contribution aligns with the project's roadmap.
 - Check out open issues with the label `good first issue`.
 
+### Abide by the contributions legal guidance
+To ship, all developer contributions must abide by the legal guidance detailed in the [Developer Certificate of Origin](./CONTRIBUTIONS.md)
+
 ### Documentation
 
 - Fix typos, improve examples, or enhance explanations.
@@ -226,4 +229,4 @@ git commit -s -S -m "Add a meaningful commit message"
 ```
 git push origin issue-number/contribution-description
 ```
-6. Open a pull request from your forked repository branch to the main branch of the 'galasa repository', and explain your changes.
+6. Open a pull request from your forked repository branch to the main branch of the 'galasa repository', and explain your changes. Refer to any stories which are relevent and explain why the change was made, what the change is, and anything else which reviewers would find helpful to understand the context of the change.
