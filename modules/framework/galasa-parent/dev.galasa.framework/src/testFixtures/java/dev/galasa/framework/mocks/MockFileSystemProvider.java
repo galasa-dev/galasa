@@ -29,7 +29,7 @@ import java.util.Set;
 
 public class MockFileSystemProvider extends FileSystemProvider {
 
-
+    private String scheme = "file";
     public static class MockDirectoryStream implements DirectoryStream<Path> {
 
         private MockFileSystem mockFS;
@@ -137,7 +137,7 @@ public class MockFileSystemProvider extends FileSystemProvider {
 
     @Override
     public String getScheme() {
-        throw new UnsupportedOperationException("Unimplemented method 'getScheme'");
+        return this.scheme;
     }
 
     @Override

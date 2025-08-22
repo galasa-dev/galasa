@@ -246,12 +246,12 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         return getContentsAsString(path);
     }
 
-    // -------------- Un-implemented methods follow ------------------
-
     @Override
     public void close() throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'close'");
+        // Do nothing...
     }
+
+    // -------------- Un-implemented methods follow ------------------
 
     @Override
     public boolean isOpen() {

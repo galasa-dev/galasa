@@ -9,7 +9,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.ProviderMismatchException;
@@ -20,13 +19,27 @@ import java.util.Iterator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dev.galasa.framework.spi.ras.ResultArchiveStorePath;
+import dev.galasa.framework.mocks.MockFileSystem;
 
 public class RASPathTest {
 
     @Test
+    public void testPathCanContainSpaces() throws Exception {
+        // Given...
+        String pathWithSpaces = "/this/is/a path with spaces/do not/throw an error";
+        FileSystem fileSystem = new MockFileSystem();
+        
+        // When...
+        ResultArchiveStorePath path = new ResultArchiveStorePath(fileSystem, pathWithSpaces);
+
+        // Then...
+        String expectedPath = pathWithSpaces.replaceAll(" ", "%20");
+        Assert.assertEquals("Unexpected path produced", expectedPath, path.toString());
+    }
+
+    @Test
     public void testNameElements() {
-        ResultArchiveStorePath path = new ResultArchiveStorePath(FileSystems.getDefault(), "/this/is/a//path/");
+        ResultArchiveStorePath path = new ResultArchiveStorePath(new MockFileSystem(), "/this/is/a//path/");
         Assert.assertEquals("Incorrect name count", 4, path.getNameCount());
 
         Iterator<Path> pathElements = path.iterator();
@@ -50,19 +63,20 @@ public class RASPathTest {
         Assert.assertNull("Incorrect Name for subpath 4,5, should be null", path.subpath(4, 5));
         Assert.assertNull("Incorrect Name for subpath 3,4, should be null", path.subpath(3, 4));
 
-        path = new ResultArchiveStorePath(FileSystems.getDefault(), "/");
+        path = new ResultArchiveStorePath(new MockFileSystem(), "/");
         Assert.assertEquals("Incorrect name count", 0, path.getNameCount());
         pathElements = path.iterator();
         Assert.assertFalse("Should be no elements", pathElements.hasNext());
     }
 
     @Test
-    public void testStartsWith() {
-        final ResultArchiveStorePath path = new ResultArchiveStorePath(FileSystems.getDefault(), "/this/is/a/path");
-        final ResultArchiveStorePath path1 = new ResultArchiveStorePath(FileSystems.getDefault(), "/this/is");
-        final ResultArchiveStorePath path2 = new ResultArchiveStorePath(FileSystems.getDefault(), "this/is");
-        final ResultArchiveStorePath path3 = new ResultArchiveStorePath(FileSystems.getDefault(), "/hello/there");
-        final ResultArchiveStorePath path4 = new ResultArchiveStorePath(FileSystems.getDefault(),
+    public void testStartsWith() throws Exception {
+        MockFileSystem mockFileSystem = new MockFileSystem();
+        final ResultArchiveStorePath path = new ResultArchiveStorePath(mockFileSystem, "/this/is/a/path");
+        final ResultArchiveStorePath path1 = new ResultArchiveStorePath(mockFileSystem, "/this/is");
+        final ResultArchiveStorePath path2 = new ResultArchiveStorePath(mockFileSystem, "this/is");
+        final ResultArchiveStorePath path3 = new ResultArchiveStorePath(mockFileSystem, "/hello/there");
+        final ResultArchiveStorePath path4 = new ResultArchiveStorePath(mockFileSystem,
                 "/this/is/a/path/extra");
 
         Assert.assertTrue("same path, so should have been true", path.startsWith(path.toString()));
@@ -84,20 +98,22 @@ public class RASPathTest {
         }
 
         try {
-            path.startsWith(FileSystems.getDefault().getPath("bob"));
+            path.startsWith(mockFileSystem.getPath("bob"));
             fail("Different filesystem paths should caused an exception");
         } catch (final ProviderMismatchException e) {
         }
 
+        mockFileSystem.close();
     }
 
     @Test
-    public void testEndsWith() {
-        final ResultArchiveStorePath path = new ResultArchiveStorePath(FileSystems.getDefault(), "/this/is/a/path");
-        final ResultArchiveStorePath path1 = new ResultArchiveStorePath(FileSystems.getDefault(), "a/path");
-        final ResultArchiveStorePath path2 = new ResultArchiveStorePath(FileSystems.getDefault(), "this/is/a/path");
-        final ResultArchiveStorePath path3 = new ResultArchiveStorePath(FileSystems.getDefault(), "b/path");
-        final ResultArchiveStorePath path4 = new ResultArchiveStorePath(FileSystems.getDefault(),
+    public void testEndsWith() throws Exception {
+        MockFileSystem mockFileSystem = new MockFileSystem();
+        final ResultArchiveStorePath path = new ResultArchiveStorePath(mockFileSystem, "/this/is/a/path");
+        final ResultArchiveStorePath path1 = new ResultArchiveStorePath(mockFileSystem, "a/path");
+        final ResultArchiveStorePath path2 = new ResultArchiveStorePath(mockFileSystem, "this/is/a/path");
+        final ResultArchiveStorePath path3 = new ResultArchiveStorePath(mockFileSystem, "b/path");
+        final ResultArchiveStorePath path4 = new ResultArchiveStorePath(mockFileSystem,
                 "/this/is/a/path/extra");
 
         Assert.assertTrue("same path, so should have been true", path.endsWith(path.toString()));
@@ -118,17 +134,19 @@ public class RASPathTest {
         } catch (final NullPointerException e) {
         }
 
+
         try {
-            path.endsWith(FileSystems.getDefault().getPath("bob"));
+            path.endsWith(mockFileSystem.getPath("bob"));
             fail("Different filesystem paths should caused an exception");
         } catch (final ProviderMismatchException e) {
         }
 
+        mockFileSystem.close();
     }
 
     @Test
     public void testSimpleStuff() throws IOException {
-        final FileSystem fs = FileSystems.getDefault();
+        final FileSystem fs = new MockFileSystem();
 
         final ResultArchiveStorePath path = new ResultArchiveStorePath(fs, "/this/is/a/path");
         Assert.assertEquals("Filesystem is different", fs, path.getFileSystem());
@@ -169,7 +187,7 @@ public class RASPathTest {
         }
 
         try {
-            new ResultArchiveStorePath(FileSystems.getDefault(), "/{}");
+            new ResultArchiveStorePath(new MockFileSystem(), "/{}");
             fail("Should have failed as invalid uri");
         } catch (final AssertionError e) {
         }
@@ -177,7 +195,7 @@ public class RASPathTest {
 
     @Test
     public void testRelativize() {
-        final FileSystem fs = FileSystems.getDefault();
+        final FileSystem fs = new MockFileSystem();
 
         final ResultArchiveStorePath path = new ResultArchiveStorePath(fs, "/this/is/a/path");
         final ResultArchiveStorePath path1 = new ResultArchiveStorePath(fs, "/this/is/a/path/with/extra");
@@ -197,7 +215,7 @@ public class RASPathTest {
 
     @Test
     public void testResolve() {
-        final FileSystem fs = FileSystems.getDefault();
+        final FileSystem fs = new MockFileSystem();
 
         final ResultArchiveStorePath path = new ResultArchiveStorePath(fs, "/this/is/a/path");
         final ResultArchiveStorePath path1 = new ResultArchiveStorePath(fs, "with/extra");
@@ -218,12 +236,12 @@ public class RASPathTest {
     @Test
     public void testAbsolute() {
         String pathName = "/this/is/a/path";
-        ResultArchiveStorePath path = new ResultArchiveStorePath(FileSystems.getDefault(), pathName);
+        ResultArchiveStorePath path = new ResultArchiveStorePath(new MockFileSystem(), pathName);
         Assert.assertTrue("Should be absolute path", path.isAbsolute());
         Assert.assertEquals("path name changed", pathName, path.toString());
 
         pathName = "this/is/a/path";
-        path = new ResultArchiveStorePath(FileSystems.getDefault(), "this/is/a/path");
+        path = new ResultArchiveStorePath(new MockFileSystem(), "this/is/a/path");
         Assert.assertFalse("Should not be absolute path", path.isAbsolute());
         Assert.assertEquals("path name changed", pathName, path.toString());
 
@@ -236,7 +254,7 @@ public class RASPathTest {
     public void testInvalidElements() {
         String path = "/this/./a/path";
         try {
-            new ResultArchiveStorePath(FileSystems.getDefault(), path);
+            new ResultArchiveStorePath(new MockFileSystem(), path);
             fail("Should have failed as . is not allowed");
         } catch (final InvalidPathException e) {
             Assert.assertEquals("Incorrect message", "Path parts of '.' are not allowed: " + path, e.getMessage());
@@ -244,7 +262,7 @@ public class RASPathTest {
 
         path = "/this/../a/path";
         try {
-            new ResultArchiveStorePath(FileSystems.getDefault(), path);
+            new ResultArchiveStorePath(new MockFileSystem(), path);
             fail("Should have failed as .. is not allowed");
         } catch (final InvalidPathException e) {
             Assert.assertEquals("Incorrect message", "Path parts of '..' are not allowed: " + path, e.getMessage());
@@ -252,7 +270,7 @@ public class RASPathTest {
 
         path = "/this/a~a/a/path";
         try {
-            new ResultArchiveStorePath(FileSystems.getDefault(), path);
+            new ResultArchiveStorePath(new MockFileSystem(), path);
             fail("Should have failed as ~ is not allowed");
         } catch (final InvalidPathException e) {
             Assert.assertEquals("Incorrect message", "Path parts with '~' are not allowed: " + path, e.getMessage());
@@ -260,7 +278,7 @@ public class RASPathTest {
 
         path = "/this/a=a/a/path";
         try {
-            new ResultArchiveStorePath(FileSystems.getDefault(), path);
+            new ResultArchiveStorePath(new MockFileSystem(), path);
             fail("Should have failed as ~ is not allowed");
         } catch (final InvalidPathException e) {
             Assert.assertEquals("Incorrect message", "Path parts with '=' are not allowed: " + path, e.getMessage());
@@ -269,7 +287,7 @@ public class RASPathTest {
 
     @Test
     public void testCompareTo() {
-        final FileSystem fs = FileSystems.getDefault();
+        final FileSystem fs = new MockFileSystem();
         "boo".compareTo("eek");
 
         final ResultArchiveStorePath patha = new ResultArchiveStorePath(fs, "/this/is/a/path");

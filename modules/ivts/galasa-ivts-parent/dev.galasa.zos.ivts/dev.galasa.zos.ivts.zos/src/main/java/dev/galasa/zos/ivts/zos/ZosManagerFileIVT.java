@@ -114,6 +114,31 @@ public class ZosManagerFileIVT {
     }
     
     @Test
+    public void testCanCreateUnixFileWithSpacesInPath() throws Exception {
+        // Tests the creation of a file with spaces in its path using ZosFileHandler and UNIX File(s)
+        // Establish file name and location
+        String filePath = "/u/" + userName + "/GalasaTests/fileTest/" + runName + "/create me with spaces";
+        IZosUNIXFile unixFile = fileHandler.newUNIXFile(filePath, imagePrimary);
+
+        String commandTestExist = "test -f \"" + filePath + "\" && echo \"File Exists\"";
+        
+        // Check file doesn't exist
+        assertThat(unixFile.exists()).isFalse(); // Using fileManager
+        assertThat(zosUNIXCommand.issueCommand(commandTestExist)).isEqualTo(""); // Using commandManager
+        
+        // Create File
+        unixFile.create();
+        
+        // Check file was created
+        assertThat(unixFile.exists()).isTrue(); // Using fileManager
+        assertThat(zosUNIXCommand.issueCommand(commandTestExist))
+            .isEqualToIgnoringWhitespace("File Exists"); // Using commandManager
+
+        // Try to save the file into the RAS
+        unixFile.saveToResultsArchive("path with spaces");
+    }
+    
+    @Test
     public void unixFileCreateWithPermissions() throws ZosUNIXFileException, ZosUNIXCommandException, CoreManagerException {
         // Tests file creation (with Specified Access Permissions) using ZosFileHandler and UNIX File(s)
         // Establish file name and location
