@@ -59,7 +59,7 @@ public class ResultArchiveStorePath implements Path {
         }
 
         if (path.contains(" ")) {
-            path = path.replaceAll(" ", "%20");
+            path = path.trim().replaceAll(" ", "%20");
         }
 
         this.absolute = path.startsWith("/");

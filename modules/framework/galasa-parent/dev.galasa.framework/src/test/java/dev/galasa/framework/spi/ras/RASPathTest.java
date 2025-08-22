@@ -38,6 +38,20 @@ public class RASPathTest {
     }
 
     @Test
+    public void testPathWithStartingAndTrailingSpacesAreTrimmed() throws Exception {
+        // Given...
+        String pathWithSpaces = "    /this/is/a path with spaces/do not/throw an error  ";
+        FileSystem fileSystem = new MockFileSystem();
+        
+        // When...
+        ResultArchiveStorePath path = new ResultArchiveStorePath(fileSystem, pathWithSpaces);
+
+        // Then...
+        String expectedPath = pathWithSpaces.trim().replaceAll(" ", "%20");
+        Assert.assertEquals("Unexpected path produced", expectedPath, path.toString());
+    }
+
+    @Test
     public void testNameElements() {
         ResultArchiveStorePath path = new ResultArchiveStorePath(new MockFileSystem(), "/this/is/a//path/");
         Assert.assertEquals("Incorrect name count", 4, path.getNameCount());
