@@ -20,18 +20,14 @@ The following diagram shows the relationship between the test code, test catalog
 ![test stream architecture:](test-streams-architecture.svg)
 
 
-## Creating and retrieving test stream components
+## Creating and retrieving a test stream
 
-The components of the `test.stream` property are set by using `galasactl properties set` command, as shown in the following example:
+The components of the `test.stream` property are set by using `galasactl resources apply -f {yaml-filename}` command.
+The `apply` sub-command will update the stream if it already exists, but you could use the `create` or `update` sub-command as an alternative.
 
-```shell
-galasactl properties set --namespace framework --name test.stream.mystream.description --value "My stream to use as an example"
-galasactl properties set --namespace framework --name test.stream.mystream.repo --value http://points-to-my-maven-repo.example.org
-galasactl properties set --namespace framework --name test.stream.mystream.location --value http://points-to-my-test-catalog.example.org
-galasactl properties set --namespace framework --name test.stream.mystream.obr --value mvn:myorg/myartifact/0.0.1/obr
-```
+See [the command reference](../reference/cli-syntax/galasactl_resources_apply.md) for specific syntax help.
 
-These four commands each set a part of the stream. Streams must always be created in the `framework` namespace and must always have all four components set.
+Streams are explained in more detail, with an example [here](../ecosystem/ecosystem-manage-resources.md/#test-streams-as-galasastream-resources).
 
 You can view all test streams in the `framework` namespace by using the `galasactl streams get` command, as shown in the following example:
 

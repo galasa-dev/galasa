@@ -2927,6 +2927,9 @@ components:
           type: string
         requestor:
           type: string
+          description: |-
+            The name of the user who submitted this test, in that it represents the owner 
+            of the Galasa personal access token used by the test submission REST call.
         stream:
           type: string
         repo:
@@ -2958,8 +2961,18 @@ components:
           type: string
         requestor:
           type: string
+          description: |-
+            This field is here for backwards-compatability reasons.
+            The value of the field is not used.
+            It is deprecated, as of v0.44.0 and may be removed in future versions of Galasa.
+            The requestor information is stamped into each launched test, but is now 
+            taken from the signed JWT token rather than trusting what the REST caller sends
+            in this field. 
+            This means launching tests attributed to the wrong person are not now possible.
         testStream:
           type: string
+          description: |-
+            Indicates the name of the test stream, which will identify where the test should be loaded from.
         obr:
           type: string
         mavenRepository:
@@ -2980,6 +2993,12 @@ components:
           type: object
         trace:
           type: boolean
+          description: |-
+            Set to true, and the test will log far more detail into the run log.
+            This may cause performance issues if used widely, as it slows the test execution down, 
+            increases the chance of timeouts occurring, and increases the storage required for saving the 
+            larger test run log, but it can be useful when diagnosing issues in the surrounding Galasa test
+            framework code, or if testcase code has more detailed debug logging available.
         tags:
           description: |-
             A set of tag strings which are associated with this test run in the future.
@@ -3155,6 +3174,7 @@ components:
           description: A uuid created to identify this test run. Useful until this run has been allocated a test name, which is allocated once the test is launched.
         requestor:
           type: string
+          description: The Galasa user who requested this test to be executed.
         status:
           type: string
         result:

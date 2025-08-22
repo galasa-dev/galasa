@@ -253,7 +253,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
 
         URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version,
                 buildArtifactFilename(artifactid, snapshotSuffix, type));
-        logger.debug("Attempting to download " + urlRemoteFile);
+        logger.debug("Attempting to download snapshot" + urlRemoteFile);
 
         URLConnection connection = urlRemoteFile.openConnection();
         connection.setConnectTimeout(300000);
@@ -278,7 +278,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
       Path tempMetadata = Files.createTempFile("metadata", ".xml");
       try {
           URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version, "maven-metadata.xml");
-          logger.debug("Attempting to download " + urlRemoteFile);
+          logger.debug("Attempting to download temporary metadata " + urlRemoteFile);
 
           URLConnection connection = urlRemoteFile.openConnection();
           connection.setConnectTimeout(300000);
