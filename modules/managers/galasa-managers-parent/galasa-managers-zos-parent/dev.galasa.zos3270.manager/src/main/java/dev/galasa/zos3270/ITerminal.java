@@ -311,6 +311,12 @@ public interface ITerminal {
      */
     Highlight retrieveHighlightAtPosition(int row, int col) throws Zos3270Exception;
     
+    /**
+     * Returns the current terminal screen in JSON format.
+     * 
+     * @return the current terminal screen in JSON format
+     */
+    String toJsonString();
     
 
 }

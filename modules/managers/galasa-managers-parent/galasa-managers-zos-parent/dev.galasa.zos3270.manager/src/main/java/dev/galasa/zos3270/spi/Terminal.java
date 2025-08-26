@@ -28,6 +28,7 @@ import dev.galasa.zos3270.TextNotFoundException;
 import dev.galasa.zos3270.TimeoutException;
 import dev.galasa.zos3270.Zos3270Exception;
 import dev.galasa.zos3270.common.screens.TerminalSize;
+import dev.galasa.zos3270.common.screens.json.TerminalJsonTransform;
 import dev.galasa.zos3270.internal.comms.Network;
 import dev.galasa.zos3270.internal.comms.NetworkThread;
 
@@ -38,6 +39,9 @@ public class Terminal implements ITerminal {
     public static final long MAX_MILLISECS_TO_WAIT_FOR_NETWORK_THREAD_TO_FINISH = 20 * 1000 ; // 20 seconds
 
 	public ITextScannerManagerSpi textScan;
+
+    private final TerminalJsonTransform terminalJsonTransform = new TerminalJsonTransform();
+    private dev.galasa.zos3270.common.screens.Terminal currentTerminal;
     private final Screen  screen;
     private final Network network;
     private final String  id;
@@ -779,5 +783,13 @@ public class Terminal implements ITerminal {
         return screen.getHighlightAtPosition(pos);
     }
 
+    @Override
+    public String toJsonString() {
+        return this.terminalJsonTransform.toJsonString(currentTerminal);
+    }
+
+    protected void setCurrentTerminal(dev.galasa.zos3270.common.screens.Terminal currentTerminal) {
+        this.currentTerminal = currentTerminal;
+    }
 
 }

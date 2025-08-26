@@ -9,14 +9,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.apache.commons.logging.Log;
 
-import dev.galasa.ICredentialsUsernamePassword;
+import com.google.gson.JsonObject;
+
 import dev.galasa.Test;
 import dev.galasa.core.manager.CoreManager;
-import dev.galasa.core.manager.CoreManagerException;
 import dev.galasa.core.manager.ICoreManager;
 import dev.galasa.core.manager.Logger;
 import dev.galasa.core.manager.RunName;
 import dev.galasa.core.manager.TestProperty;
+import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.zos.IZosImage;
 import dev.galasa.zos.ZosImage;
 import dev.galasa.zos3270.ErrorTextFoundException;
@@ -28,8 +29,6 @@ import dev.galasa.zos3270.TextNotFoundException;
 import dev.galasa.zos3270.TimeoutException;
 import dev.galasa.zos3270.Zos3270Exception;
 import dev.galasa.zos3270.Zos3270Terminal;
-import dev.galasa.zos3270.spi.Colour;
-import dev.galasa.zos3270.spi.Highlight;
 import dev.galasa.zos3270.spi.NetworkException;
 
 @Test
@@ -167,6 +166,38 @@ public class Zos3270IVT {
     		logger.info("No text found exception correctly thrown");
     		assertThat(tnfe.getMessage()).contains("Unable to find a field containing any of the request text");
     	}
+		terminal.clear().wfk();
+    }
+    
+    @Test
+    public void testToJsonStringReturnsCurrentScreenInJsonFormat() throws Exception {
+		String terminalScreen = terminal.retrieveScreen();
+		String terminalJsonStr = terminal.toJsonString();
+		String expectedText = "CICS FOR GALASA TEST";
+
+		// Make sure the screen doesn't already show the good morning panel
+		assertThat(terminalScreen).doesNotContain(expectedText);
+		assertThat(terminalJsonStr).doesNotContain(expectedText);
+
+		// Run the CGSM transaction to display the good morning panel
+    	terminal.type("CSGM").enter().wfk();
+		terminalScreen = terminal.retrieveScreen();
+		terminalJsonStr = terminal.toJsonString();
+
+		assertThat(terminalScreen).contains(expectedText);
+		assertThat(terminalJsonStr).contains(expectedText);
+
+		logger.info("Current terminal in JSON format:");
+		logger.info(terminalJsonStr);
+
+		// Check a few other fields in the outputted JSON
+		GalasaGson gson = new GalasaGson();
+		JsonObject terminalJsonObj = gson.fromJson(terminalJsonStr, JsonObject.class);
+		assertThat(terminalJsonObj.get("id").getAsString()).isEqualTo(terminal.getId());
+		assertThat(terminalJsonObj.get("runId").getAsString()).isEqualTo(runName);
+		assertThat(terminalJsonObj.get("images").getAsJsonArray()).hasSize(1);
+
+		terminal.clear().wfk();
     }
 
 	// TODO: Re-enable colour support IVTs once CBSA is installed on a region provisioned for the tests

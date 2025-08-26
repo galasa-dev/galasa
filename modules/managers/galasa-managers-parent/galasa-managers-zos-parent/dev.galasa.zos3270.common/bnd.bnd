@@ -4,5 +4,6 @@ Export-Package: dev.galasa.zos3270.common.screens,\
     dev.galasa.zos3270.common.screens.json
 Import-Package: javax.validation.constraints;resolution:=optional,\
     javax.imageio,\
-    dev.galasa.framework.spi
-
+    com.google.gson,\
+    dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.utils

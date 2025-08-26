@@ -15,23 +15,16 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SetContentType;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.textscan.spi.ITextScannerManagerSpi;
 import dev.galasa.zos.IZosImage;
 import dev.galasa.zos.ZosManagerException;
@@ -43,6 +36,7 @@ import dev.galasa.zos3270.common.screens.FieldContents;
 import dev.galasa.zos3270.common.screens.TerminalField;
 import dev.galasa.zos3270.common.screens.TerminalImage;
 import dev.galasa.zos3270.common.screens.TerminalSize;
+import dev.galasa.zos3270.common.screens.json.TerminalJsonTransform;
 import dev.galasa.zos3270.internal.properties.ApplyConfidentialTextFiltering;
 import dev.galasa.zos3270.internal.properties.LiveTerminalUrl;
 import dev.galasa.zos3270.internal.properties.LogConsoleTerminals;
@@ -53,8 +47,7 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
 
     private Log logger = LogFactory.getLog(getClass());
 
-    private final GalasaGson gson = new GalasaGson();
-
+    private final TerminalJsonTransform terminalJsonTransform = new TerminalJsonTransform();
     private final String terminalId;
     private int updateId;
     private final String runId;
@@ -217,6 +210,7 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
                 aidText, terminalSize, cursorCol, cursorRow);
         terminalImage.getFields().addAll(buildTerminalFields(getScreen()));
         cachedImages.add(terminalImage);
+        updateCurrentTerminal(terminalImage, terminalSize);
         if (cachedImages.size() >= 10) {
             writeRasOutput();
             flushTerminalCache();
@@ -230,9 +224,7 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
                 TerminalImage newTerminalImage = removeConfidentialTextFromTerminalImage(terminalImage);
                 liveTerminal.getImages().add(newTerminalImage);
 
-                JsonObject intermediateJson = (JsonObject) gson.toJsonTree(liveTerminal);
-                stripFalseBooleans(intermediateJson);
-                String tempJson = gson.toJson(intermediateJson);
+                String tempJson = terminalJsonTransform.toJsonString(liveTerminal);
 
                 HttpURLConnection connection = (HttpURLConnection) this.liveTerminalUrl.openConnection();
                 connection.setRequestMethod("PUT");
@@ -267,6 +259,16 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
         }
     }
 
+    private void updateCurrentTerminal(TerminalImage terminalImage, TerminalSize terminalSize) {
+        dev.galasa.zos3270.common.screens.Terminal rasTerminal = new dev.galasa.zos3270.common.screens.Terminal(
+            this.terminalId, this.runId, rasTerminalSequence, terminalSize);
+
+        TerminalImage sanitizedImage = removeConfidentialTextFromTerminalImage(terminalImage);
+        rasTerminal.addImage(sanitizedImage);
+
+        super.setCurrentTerminal(rasTerminal);
+    }
+
     public synchronized void writeRasOutput() {
         rasTerminalSequence++;
 
@@ -298,9 +300,7 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
             rasTerminal.getImages().add(newTerminalImage);
         }
 
-        JsonObject intermediateJson = (JsonObject) gson.toJsonTree(rasTerminal);
-        stripFalseBooleans(intermediateJson);
-        String tempJson = gson.toJson(intermediateJson);
+        String tempJson = terminalJsonTransform.toJsonString(rasTerminal);
 
         if (applyCtf) {
             tempJson = cts.removeConfidentialText(tempJson);
@@ -413,29 +413,4 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
     public String getId() {
         return this.terminalId;
     }
-
-    public static void stripFalseBooleans(JsonObject json) {
-
-        ArrayList<Entry<String, JsonElement>> entries = new ArrayList<>();
-        entries.addAll(json.entrySet());
-
-        for (Entry<String, JsonElement> entry : entries) {
-            JsonElement element = entry.getValue();
-
-            if (element.isJsonPrimitive() && ((JsonPrimitive) element).isBoolean()
-                    && !((JsonPrimitive) element).getAsBoolean()) {
-                json.remove(entry.getKey());
-            } else if (element.isJsonObject()) {
-                stripFalseBooleans((JsonObject) element);
-            } else if (element.isJsonArray()) {
-                JsonArray array = (JsonArray) element;
-                for (int i = 0; i < array.size(); i++) {
-                    if (array.get(i).isJsonObject()) {
-                        stripFalseBooleans((JsonObject) array.get(i));
-                    }
-                }
-            }
-        }
-    }
-
 }
