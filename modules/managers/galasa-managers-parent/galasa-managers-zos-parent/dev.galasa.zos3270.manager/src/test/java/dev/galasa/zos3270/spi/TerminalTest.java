@@ -52,7 +52,7 @@ public class TerminalTest {
     }
 
     @Test
-    public void testConvertNullTerminalToJsonReturnsNull() throws Exception {
+    public void testConvertNullTerminalScreenToJsonReturnsNull() throws Exception {
 
         String terminalId = "abcdef";
         String host = "myHost";
@@ -72,8 +72,11 @@ public class TerminalTest {
             }
         };
 
+        // Create the actual terminal instance
         Terminal terminal = new Terminal(terminalId, host, port, isSSL, isVerifyServer, primarySize, alternateSize,
         textScan, codePage, network);
+
+        // Do not call terminal.setCurrentTerminal() to set the current terminal pojo
 
         String terminalJsonStr = terminal.toJsonString();
         assertThat(terminalJsonStr).isNull();
@@ -81,6 +84,7 @@ public class TerminalTest {
 
     @Test
     public void testCanConvertTerminalToJson() throws Exception {
+        // Given...
         GalasaGson gson = new GalasaGson();
 
         String terminalId = "abcdef";
@@ -113,22 +117,31 @@ public class TerminalTest {
         String aid = "ENTER";
         int cursorColumn = 0;
         int cursorRow = 10;
-        dev.galasa.zos3270.common.screens.Terminal rasTerminal = new dev.galasa.zos3270.common.screens.Terminal(terminalId, runId, sequenceNo, primarySize);
-        TerminalImage image = new TerminalImage(0, terminalId, isInbound, type, aid, primarySize, cursorColumn, cursorRow);
 
+        // Create the terminal pojo that will be converted into JSON format
+        dev.galasa.zos3270.common.screens.Terminal currentTerminal = new dev.galasa.zos3270.common.screens.Terminal(terminalId, runId, sequenceNo, primarySize);
+        
+        // Create a mock image of the terminal, which contains a field with content inside
+        TerminalImage image = new TerminalImage(0, terminalId, isInbound, type, aid, primarySize, cursorColumn, cursorRow);
         TerminalField field = new TerminalField(0, 0, false, false, false,
             true, false, false, false, Colour.BLUE.getLetter(),
                 Colour.DEFAULT.getLetter(), Highlight.DEFAULT.getLetter()
         );
         FieldContents fieldContents = new FieldContents(fieldChars);
+
+        // Add some text into the terminal field, then add the field into the terminal image
         field.getContents().add(fieldContents);
         image.getFields().add(field);
 
-        rasTerminal.addImage(image);
+        // Add the built image to the terminal pojo
+        currentTerminal.addImage(image);
+        terminal.setCurrentTerminal(currentTerminal);
 
-        terminal.setCurrentTerminal(rasTerminal);
-
+        // When...
         String terminalJsonStr = terminal.toJsonString();
+
+        // Then...
+        // Check that the JSON returned contains the correct information
         JsonObject terminalJsonObj = gson.fromJson(terminalJsonStr, JsonObject.class);
 
         assertThat(terminalJsonObj.get("id").getAsString()).isEqualTo(terminalId);
