@@ -52,6 +52,34 @@ public class TerminalTest {
     }
 
     @Test
+    public void testConvertNullTerminalToJsonReturnsNull() throws Exception {
+
+        String terminalId = "abcdef";
+        String host = "myHost";
+        int port = 1234;
+        boolean isSSL = false;
+        boolean isVerifyServer = false;
+        TerminalSize primarySize = new TerminalSize(80,24);
+        TerminalSize alternateSize = new TerminalSize(80,24);
+        ITextScannerManagerSpi textScan = null ;
+        Charset codePage = Charset.availableCharsets().get("1024");
+
+        ByteArrayOutputStream networkOut = new ByteArrayOutputStream();
+
+        MockNetwork network = new MockNetwork(networkOut) {
+            public boolean connectClient() throws NetworkException {
+                return true;
+            }
+        };
+
+        Terminal terminal = new Terminal(terminalId, host, port, isSSL, isVerifyServer, primarySize, alternateSize,
+        textScan, codePage, network);
+
+        String terminalJsonStr = terminal.toJsonString();
+        assertThat(terminalJsonStr).isNull();
+    }
+
+    @Test
     public void testCanConvertTerminalToJson() throws Exception {
         GalasaGson gson = new GalasaGson();
 

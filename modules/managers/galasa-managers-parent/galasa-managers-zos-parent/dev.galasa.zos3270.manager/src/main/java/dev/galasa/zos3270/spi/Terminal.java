@@ -785,7 +785,11 @@ public class Terminal implements ITerminal {
 
     @Override
     public String toJsonString() {
-        return this.terminalJsonTransform.toJsonString(currentTerminal);
+        String terminalJsonStr = null;
+        if (currentTerminal != null) {
+            terminalJsonStr = this.terminalJsonTransform.toJsonString(currentTerminal);
+        }
+        return terminalJsonStr;
     }
 
     protected void setCurrentTerminal(dev.galasa.zos3270.common.screens.Terminal currentTerminal) {
