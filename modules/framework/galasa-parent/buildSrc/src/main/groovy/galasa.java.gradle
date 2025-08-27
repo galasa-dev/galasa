@@ -6,12 +6,12 @@ plugins {
 
 group = 'dev.galasa'
 
-sourceCompatibility = 11
-targetCompatibility = 11
-
 java {
     withJavadocJar()
     withSourcesJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
 }
 
 tasks.withType(Javadoc) {
