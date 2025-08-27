@@ -16,12 +16,12 @@ import dev.galasa.linux.LinuxManagerException;
 /**
  * Shared Linux images
  * <p>
- * A comma separated list of what servers are available to allocate to tests.
+ * A comma separated list of what images are available to allocate to tests.
  * </p>
  * <p>
  * Example:-<br>
  * <br>
- * linux.shared.servers=GALLNX01,GALLNX02<br>
+ * linux.shared.images=GALLNX01,GALLNX02<br>
  * </p>
  * <p>
  * There are no defaults
