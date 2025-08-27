@@ -68,7 +68,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: 8.9
+          gradle-version: 9.0.0
           cache-disabled: true
           # gradle-home-cache-excludes: |
           #   caches/modules-2/files-2.1/dev.galasa/**

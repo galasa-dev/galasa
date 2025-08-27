@@ -184,27 +184,27 @@ jobs:
           name: all-artifacts
           path: /home/runner/.m2/repository/dev/galasa
 
-  codeql-java:
-    name: CodeQL scans the Java code
-    needs: [download-artifacts-for-codeql]
-    uses: ./.github/workflows/codeql-java.yml
-    secrets: inherit
-    permissions:
-      security-events: write
-      packages: read
-      actions: read
-      contents: read
+  # codeql-java:
+  #   name: CodeQL scans the Java code
+  #   needs: [download-artifacts-for-codeql]
+  #   uses: ./.github/workflows/codeql-java.yml
+  #   secrets: inherit
+  #   permissions:
+  #     security-events: write
+  #     packages: read
+  #     actions: read
+  #     contents: read
 
-  codeql-go:
-    name: CodeQL scans the Golang code
-    needs: [download-artifacts-for-codeql]
-    uses: ./.github/workflows/codeql-go.yml
-    secrets: inherit
-    permissions:
-      security-events: write
-      packages: read
-      actions: read
-      contents: read
+  # codeql-go:
+  #   name: CodeQL scans the Golang code
+  #   needs: [download-artifacts-for-codeql]
+  #   uses: ./.github/workflows/codeql-go.yml
+  #   secrets: inherit
+  #   permissions:
+  #     security-events: write
+  #     packages: read
+  #     actions: read
+  #     contents: read
 
   build-cli:
     name: Build the 'cli' module

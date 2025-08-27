@@ -46,14 +46,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: 8.9
+          gradle-version: 9.0.0
           gradle-home-cache-excludes: |
             caches/modules-2/files-2.1/dev.galasa/**
 
       - name: Build Platform
-        working-directory: modules/platform
+        working-directory: modules/platform/dev.galasa.platform
         run: |
-          gradle -b dev.galasa.platform/build.gradle build check publish --info \
+          gradle build check publish --info \
           --no-daemon --console plain \
           -PsourceMaven=https://repo.maven.apache.org/maven2/ \
           -PcentralMaven=https://repo.maven.apache.org/maven2/ \
