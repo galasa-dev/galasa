@@ -455,7 +455,7 @@ fi
 # Over-rode SOURCE_MAVEN if you want to build from a different maven repo...
 if [[ -z ${SOURCE_MAVEN} ]]; then
     m2=${USER}/.m2/repository
-    export SOURCE_MAVEN=file://$m2
+    export SOURCE_MAVEN=file:///$m2
     # export SOURCE_MAVEN=https://development.galasa.dev/main/maven-repo/obr/
     info "SOURCE_MAVEN repo defaulting to ${SOURCE_MAVEN}."
     info "Set this environment variable if you want to over-ride this value."
