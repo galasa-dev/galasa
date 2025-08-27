@@ -12,6 +12,17 @@ dependencies {
     implementation 'commons-io:commons-io'
 }
 
+test {
+    // Exclude test source with no runnable Tests, as this causes an error in Gradle 9.0.0.
+    exclude '**/TestRseapiZosDatasetAttributesListdsi.class'
+    exclude '**/TestRseapiZosDatasetImpl.class'
+    exclude '**/TestRseapiZosFileHandlerImpl.class'
+    exclude '**/TestRseapiZosFileManagerImpl.class'
+    exclude '**/TestRseapiZosUnixCommand.class'
+    exclude '**/TestRseapiZosUNIXFileImpl.class'
+    exclude '**/TestRseapiZosVSAMDatasetImpl.class'
+}
+
 // Note: These values are consumed by the parent build process
 // They indicate which packages of functionality this OSGi bundle should be delivered inside,
 // or referenced from.

@@ -9,6 +9,14 @@ dependencies {
     implementation project(':galasa-managers-zos-parent:dev.galasa.zosunixcommand.ssh.manager')
 }
 
+test {
+    // Exclude test source with no runnable Tests, as this causes an error in Gradle 9.0.0.
+    exclude '**/TestOeconsolPath.class'
+    exclude '**/TestOeconsolZosConsoleCommandImpl.class'
+    exclude '**/TestOeconsolZosConsoleImpl.class'
+    exclude '**/TestOeconsolZosConsoleManagerImpl.class'
+}
+
 // Note: These values are consumed by the parent build process
 // They indicate which packages of functionality this OSGi bundle should be delivered inside,
 // or referenced from.

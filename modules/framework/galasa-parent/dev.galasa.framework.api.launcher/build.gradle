@@ -9,6 +9,12 @@ dependencies {
     implementation project(':dev.galasa.framework')
 }
 
+test {
+    // Exclude the LauncherTest.java class
+    // As it has no runnable Tests currently, this causes an error in Gradle 9.0.0.
+    exclude '**/LauncherTest.class'
+}
+
 // Note: These values are consumed by the parent build process
 // They indicate which packages of functionality this OSGi bundle should be delivered inside,
 // or referenced from.
