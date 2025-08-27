@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -59,6 +60,7 @@ import dev.galasa.zosunixcommand.ssh.manager.internal.ZosUNIXCommandManagerImpl;
 
 //@RunWith(PowerMockRunner.class)
 //@PrepareForTest({LogFactory.class})
+@Ignore("No runnable tests in this file currently which causes an error with Gradle 9.0.0.")
 public class TestZosmfZosUNIXFileImpl {
 //    
 //    private ZosmfZosUNIXFileImpl zosUNIXFile;

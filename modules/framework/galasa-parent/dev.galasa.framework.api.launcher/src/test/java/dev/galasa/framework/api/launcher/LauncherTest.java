@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -25,6 +26,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 
 //@RunWith(MockitoJUnitRunner.class)
+@Ignore("No runnable tests in this file currently which causes an error with Gradle 9.0.0.")
 public class LauncherTest {
 
     @Mock // TODO should not be mocking classes, only interfaces

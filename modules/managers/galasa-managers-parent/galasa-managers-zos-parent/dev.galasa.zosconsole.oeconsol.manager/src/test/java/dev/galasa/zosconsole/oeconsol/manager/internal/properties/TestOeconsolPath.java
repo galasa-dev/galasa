@@ -6,6 +6,7 @@
 package dev.galasa.zosconsole.oeconsol.manager.internal.properties;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -19,6 +20,7 @@ import dev.galasa.framework.spi.cps.CpsProperties;
 
 //@RunWith(PowerMockRunner.class)
 //@PrepareForTest({OeconsolPropertiesSingleton.class, CpsProperties.class})
+@Ignore("No runnable tests in this file currently which causes an error with Gradle 9.0.0.")
 public class TestOeconsolPath {
 //    
 //    @Mock

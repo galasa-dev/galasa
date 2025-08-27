@@ -10,6 +10,13 @@ dependencies {
     implementation 'com.google.code.gson:gson'
 }
 
+test {
+    // Exclude test source with no runnable Tests, as this causes an error in Gradle 9.0.0.
+    exclude '**/TestRseapiZosBatchImpl.class'
+    exclude '**/TestRseapiZosBatchJobImpl.class'
+    exclude '**/TestRseapiZosBatchManagerImpl.class'
+}
+
 // Note: These values are consumed by the parent build process
 // They indicate which packages of functionality this OSGi bundle should be delivered inside,
 // or referenced from.

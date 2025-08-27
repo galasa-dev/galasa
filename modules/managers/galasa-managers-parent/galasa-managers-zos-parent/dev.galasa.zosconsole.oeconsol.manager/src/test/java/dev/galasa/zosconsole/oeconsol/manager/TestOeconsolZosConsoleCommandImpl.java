@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -29,6 +30,7 @@ import dev.galasa.zosunixcommand.ZosUNIXCommandException;
 
 //@RunWith(PowerMockRunner.class)
 //@PrepareForTest({LogFactory.class})
+@Ignore("No runnable tests in this file currently which causes an error with Gradle 9.0.0.")
 public class TestOeconsolZosConsoleCommandImpl {
 //    
 //    private OeconsolZosConsoleCommandImpl zosConsoleCommand;

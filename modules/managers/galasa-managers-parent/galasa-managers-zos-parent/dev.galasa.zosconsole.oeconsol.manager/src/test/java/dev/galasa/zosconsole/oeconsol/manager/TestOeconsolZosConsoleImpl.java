@@ -7,6 +7,7 @@ package dev.galasa.zosconsole.oeconsol.manager;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,6 +28,7 @@ import dev.galasa.zosunixcommand.IZosUNIXCommand;
 
 //@RunWith(PowerMockRunner.class)
 //@PrepareForTest({OeconsolPath.class})
+@Ignore("No runnable tests in this file currently which causes an error with Gradle 9.0.0.")
 public class TestOeconsolZosConsoleImpl {
 //    
 //    private OeconsolZosConsoleImpl zosConsole;
