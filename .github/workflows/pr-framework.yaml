@@ -54,7 +54,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: 8.9
+          gradle-version: 9.0.0
           cache-disabled: true
           # gradle-home-cache-excludes: |
           #   caches/modules-2/files-2.1/dev.galasa/**
@@ -170,9 +170,9 @@ jobs:
           docker run --rm -v ${{ github.workspace }}:/var/workspace ghcr.io/${{ env.NAMESPACE }}/openapi2beans:main generate --yaml var/workspace/${{ env.YAML_LOCATION }} --output var/workspace/${{ env.OUTPUT_LOCATION }} --package ${{ env.PACKAGE }}
 
       - name: Build Framework source code
-        working-directory: modules/framework
+        working-directory: modules/framework/galasa-parent
         run: |
-          gradle -b galasa-parent/build.gradle check publish --info \
+          gradle check publish --info \
           --no-daemon --console plain \
           -Dorg.gradle.jvmargs=-Xmx5120M \
           -PsourceMaven=${{ github.workspace }}/modules/artifacts \
