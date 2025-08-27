@@ -15,7 +15,7 @@ configurations {
 
 }
 
-jar {
+tasks.named('jar', Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes (
@@ -24,7 +24,7 @@ jar {
         )
     }
     into ('/bundle') {
-        from configurations.bundleDependency
+        from(configurations.bundleDependency)
         // Strip version number
         rename { name ->
             def artifacts = configurations.bundleDependency.resolvedConfiguration.resolvedArtifacts

@@ -6,12 +6,12 @@ plugins {
 
 group = 'dev.galasa'
 
-sourceCompatibility = 11
-targetCompatibility = 11
-
 java {
     withJavadocJar()
     withSourcesJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
 }
 
 tasks.withType(Javadoc) {
@@ -47,8 +47,6 @@ task gitHash(dependsOn : 'classes') {
     def result = layout.buildDirectory.file("githash/META-INF/git.hash").get().asFile
 
     outputs.dir meta
-    tasks.jar.dependsOn('gitHash')
-    tasks.jar.from(dir)
 
     doLast {
         if(!meta.exists()) {
@@ -59,15 +57,20 @@ task gitHash(dependsOn : 'classes') {
 
         try {
             new ByteArrayOutputStream().withStream { os ->
-                def r = exec {
+                exec {
                     commandLine 'git', 'log',  '--pretty=format:%H', '-1', '.'
                     standardOutput = os
                 }
-            hash = os.toString()
+                hash = os.toString()
             }
         } catch(Exception e) {}
         result.write(hash)
     }
+}
+
+tasks.named('jar', Jar) {
+    dependsOn(gitHash)
+    from(layout.buildDirectory.dir("githash"))
 }
 
 publishing {
