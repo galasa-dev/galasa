@@ -266,6 +266,8 @@ dependencies {
 
         api 'org.junit.jupiter:junit-jupiter:5.10.2'
 
+        api 'org.junit.platform:junit-platform-launcher:1.10.2'
+
         api 'org.jspecify:jspecify:1.0.0'
 
         api 'org.mockito:mockito-core:3.1.0'

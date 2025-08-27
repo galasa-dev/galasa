@@ -46,6 +46,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.3.1' // Platform uses 3.1.0
     testImplementation 'org.mockito:mockito-junit-jupiter'
     testImplementation 'commons-io:commons-io'
+    // Required to add a JUnit Platform to the test classpath.
+    // junit-jupiter is a platform artifact, it doesn't pull the runtime engine.
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
