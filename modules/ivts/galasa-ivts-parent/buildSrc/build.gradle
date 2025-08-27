@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'biz.aQute.bnd.builder:biz.aQute.bnd.builder.gradle.plugin:6.4.0'
+    implementation 'biz.aQute.bnd.builder:biz.aQute.bnd.builder.gradle.plugin:7.1.0'
 
     implementation 'dev.galasa.tests:dev.galasa.tests.gradle.plugin:'+version
     implementation 'dev.galasa.obr:dev.galasa.obr.gradle.plugin:'+version

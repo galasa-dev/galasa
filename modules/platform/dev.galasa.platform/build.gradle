@@ -27,12 +27,12 @@ dependencies {
     // api platform('org.junit:junit-bom:?')
 
     constraints {
-        api 'biz.aQute.bnd:biz.aQute.bnd.gradle:5.3.0'
-        api 'biz.aQute.bnd:biz.aQute.bnd.embedded-repo:5.3.0'
-        api 'biz.aQute.bnd:biz.aQute.bndlib:5.3.0'
-        api 'biz.aQute.bnd:biz.aQute.repository:5.3.0'
-        api 'biz.aQute.bnd:biz.aQute.resolve:5.3.0'
-        api 'biz.aQute.bnd.builder:biz.aQute.bnd.builder.gradle.plugin:5.3.0'
+        api 'biz.aQute.bnd:biz.aQute.bnd.gradle:7.1.0'
+        api 'biz.aQute.bnd:biz.aQute.bnd.embedded-repo:7.1.0'
+        api 'biz.aQute.bnd:biz.aQute.bndlib:7.1.0'
+        api 'biz.aQute.bnd:biz.aQute.repository:7.1.0'
+        api 'biz.aQute.bnd:biz.aQute.resolve:7.1.0'
+        api 'biz.aQute.bnd.builder:biz.aQute.bnd.builder.gradle.plugin:7.1.0'
 
         api 'com.auth0:java-jwt:4.4.0' // used by wrapper.
         
@@ -265,6 +265,8 @@ dependencies {
         api 'org.jetbrains.kotlin:kotlin-osgi-bundle:1.4.0'
 
         api 'org.junit.jupiter:junit-jupiter:5.10.2'
+
+        api 'org.junit.platform:junit-platform-launcher:1.10.2'
 
         api 'org.jspecify:jspecify:1.0.0'
 
