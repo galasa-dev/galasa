@@ -6,11 +6,11 @@ This Manager is at Alpha level. You can view the [Javadoc documentation for the 
 
 
 ## Overview
-This Manager provides the tester with the capability to connect to a Linux image as part of a test and to access the command shell. Standard commands can then be run on the image. 
+This Manager provides the tester with the capability to connect to a Linux image as part of a test and to access the command shell. Linux commands can then be run on the image. 
 
 The Linux Manager has a dependency on the IP Network Manager, which establishes an IP connection to the image.
 
-A Linux image can be made available to a test from a Linux provisioner. There is either the DSE (Developer Supplied Environment) provisioner or the shared provisioner as part of the Linux Manager. Other Galasa Managers such as the [Openstack Manager](../cloud-managers/open-stack-manager.md) are also Linux provisioners.
+A Linux image can be made available to a test from a Linux provisioner. There is either the Developer Supplied Environment (DSE) provisioner or the shared provisioner as part of the Linux Manager. Other Galasa Managers such as the [Openstack Manager](../cloud-managers/open-stack-manager.md) are also Linux provisioners.
 
 The DSE provisioner provides a Galasa test with a Developer Supplied Environment, i.e., a specific Linux image you want your Galasa test to connect to. The shared provisioner however defines a pool of available Linux images known to Galasa, and then the test connects to one that is available that matches the requested capabilities and attributes specified in the CPS properties.
 
@@ -25,12 +25,12 @@ The following annotations are available with the Linux Manager.
 | Annotation: | Linux Image |
 | --------------------------------------- | :------------------------------------- |
 | Name: | `@LinuxImage` |
-| Description: | The `@LinuxImage` annotation requests the Linux Manager to allocate a Linux image to the test. The test can then access the command shell and run standard commands on the image. |
+| Description: | The `@LinuxImage` annotation requests the Linux Manager to allocate a Linux image to the test. The test can then access the command shell and run Linux commands on the image. |
 | Attribute: `imageTag` |  The `imageTag` is used to identify the Linux image to other Managers. If a test is using multiple Linux images, each separate Linux image must have a unique tag. If two Linux images use the same tag, they will refer to the same Linux image. |
 | Attribute: `operatingSystem` |  The `operatingSystem` attribute provides the requested operating system of the image. |
 | Attribute: `capabilities` |  The `capabilities` attribute specifies the capabilities required of the image, if any, in an array. |
 | Syntax: | <pre lang="java">@LinuxImage(imageTag = "PRIMARY", operatingSystem = OperatingSystem.ubuntu)<br>public ILinuxImage linuxImage;<br></pre> |
-| Notes: | The `ILinuxImage` interface gives the test access to the IPv4/6 address of the image. It also provides Paths for the root, home, tmp, run directory and archives directory paths. A command shell on the image is also available through the interface.<br><br> See [LinuxImage](https://galasa.dev/docs/reference/javadoc/dev/galasa/linux/LinuxImage.html){target="_blank"} and [ILinuxImage](https://galasa.dev/docs/reference/javadoc/dev/galasa/linux/ILinuxImage.html){target="_blank"} to find out more. |
+| Notes: | The `ILinuxImage` interface gives the test access to the IPv4/6 address of the image. It also provides paths for the root, home, tmp, run directory and archives directory. A command shell on the image is also available through the interface.<br><br> See [LinuxImage](https://galasa.dev/docs/reference/javadoc/dev/galasa/linux/LinuxImage.html){target="_blank"} and [ILinuxImage](https://galasa.dev/docs/reference/javadoc/dev/galasa/linux/ILinuxImage.html){target="_blank"} to find out more. |
 
 
 ### Linux IP Host
@@ -38,7 +38,7 @@ The following annotations are available with the Linux Manager.
 | Annotation: | Linux IP Host |
 | --------------------------------------- | :------------------------------------- |
 | Name: | `@LinuxIpHost` |
-| Description: | The `@LinuxIpHost` annotation represents a IP Host for a Linux image that has been provisioned for the test. |
+| Description: | The `@LinuxIpHost` annotation represents an IP Host for a Linux image that has been provisioned for the test. |
 | Attribute: `imageTag` |  The `imageTag` should match the `imageTag` of the `@LinuxImage` this variable is to be populated with. |
 | Syntax: | <pre lang="java">@LinuxIpHost(imageTag = "PRIMARY")<br>public IIpHost linuxHost;<br></pre> |
 | Notes: | The `IIpHost` interface gives the test access to the IPv4/6 address and information about the Telnet, FTP and SSH ports on the Linux image.<br><br> See [LinuxIpHost](https://galasa.dev/docs/reference/javadoc/dev/galasa/linux/LinuxIpHost.html){target="_blank"} and [IIpHost](https://galasa.dev/docs/reference/javadoc/dev/galasa/ipnetwork/IIpHost.html){target="_blank"} to find out more. |
@@ -72,7 +72,7 @@ If you wish to provide Galasa with a list of possible Linux images to connect to
 | Property: | Shared Linux images |
 | --------------------------------------- | :------------------------------------- |
 | Name: | `linux.shared.images` |
-| Description: | A comma separated list of images that are available to allocate to Galasa tests. This property should contain the tags that are used as the `imageid` values in the following properties. |
+| Description: | A comma-separated list of images that are available to allocate to Galasa tests. This property should contain the tags that are used as the `imageid` values in the following properties. |
 | Required:  | Yes |
 | Default value: | N/A |
 | Valid values: | A valid string that can be used as an `imageid` in the other CPS properties of the Linux Manager |
@@ -99,7 +99,7 @@ If you wish to provide Galasa with a list of possible Linux images to connect to
 | Property: | Linux image hostname |
 | --------------------------------------- | :------------------------------------- |
 | Name: | `linux.image.[imageid].ipv4.hostname` |
-| Description: | The location of the Linux image. This property contains the `imageid` tag that should correspond to an `imageid` specified by either the `linux.dse.tag.[dseimageid].hostid` or `linux.shared.images` property. If no `imageid` is specified, this property value is used for any provisioned Linux image. |
+| Description: | The location of the Linux image. This property must contain an `imageid` tag that should correspond to an `imageid` specified by either the `linux.dse.tag.[dseimageid].hostid` or `linux.shared.images` property. |
 | Required:  | Yes |
 | Default value: | N/A |
 | Valid values: | A valid DNS name or IPv4/6 address |
@@ -115,7 +115,7 @@ If you wish to provide Galasa with a list of possible Linux images to connect to
 | Required:  | Yes, if credentials are required for your Linux image |
 | Default value: | N/A |
 | Valid values: | A string |
-| Examples: | `linux.image.UBT.credentials=UBTCREDS` |
+| Examples: | `linux.image.UBT.credentials=UBTCREDS`, `linux.image.credentials.UBTCREDS` |
 
 
 ### Linux image operating system
@@ -127,7 +127,7 @@ If you wish to provide Galasa with a list of possible Linux images to connect to
 | Required:  | Yes |
 | Default value: | N/A |
 | Valid values: | `ubuntu` or `any` |
-| Examples: | `linux.image.[imageid].operating.system=UBUNTU` |
+| Examples: | `linux.image.[imageid].operating.system=UBUNTU`, `linux.image.operating.system=UBUNTU` |
 
 
 ### Linux image capabilities
@@ -135,7 +135,7 @@ If you wish to provide Galasa with a list of possible Linux images to connect to
 | Property: | Linux image capabilities |
 | --------------------------------------- | :------------------------------------- |
 | Name: | `linux.image.[imageid].capabilities` |
-| Description: | The special capabilities of the Linux image. This property contains the `imageid` tag that should correspond to an `imageid` specified by either the `linux.dse.tag.[dseimageid].hostid` or `linux.shared.images` property. If no `imageid` is specified, this property value is used for any provisioned Linux image. |
+| Description: | A comma-separated list of special capabilities of the Linux image, if any. When a `@LinuxImage` has one or more `capabilities` requested in the attribute of the annotation, the Linux Manager will find a Linux image that has the requested capabilities with this CPS property. This property contains the `imageid` tag that should correspond to an `imageid` specified by either the `linux.dse.tag.[dseimageid].hostid` or `linux.shared.images` property. If no `imageid` is specified, this property value is used for any provisioned Linux image. |
 | Required:  | No |
 | Default value: | Null, i.e., no special capabilities |
 | Valid values: | A string |
@@ -147,7 +147,7 @@ If you wish to provide Galasa with a list of possible Linux images to connect to
 | Property: | Linux image maximum slots |
 | --------------------------------------- | :------------------------------------- |
 | Name: | `linux.image.[imageid].max.slots` |
-| Description: | The maximum slots, i.e., the maximum amount of Galasa tests that can run on a Linux image at once. This property contains the `imageid` tag that should correspond to an `imageid` specified by either the `linux.dse.tag.[dseimageid].hostid` or `linux.shared.images` property. If no `imageid` is specified, this property value is used for any provisioned Linux image. |
+| Description: | The maximum number of Galasa tests that can run on a Linux image at once. This property contains the `imageid` tag that should correspond to an `imageid` specified by either the `linux.dse.tag.[dseimageid].hostid` or `linux.shared.images` property. If no `imageid` is specified, this property value is used for any provisioned Linux image. |
 | Required:  | No |
 | Default value: | `2` |
 | Valid values: | An integer value |
@@ -171,10 +171,10 @@ If you wish to provide Galasa with a list of possible Linux images to connect to
 | Property: | Linux image username pool |
 | --------------------------------------- | :------------------------------------- |
 | Name: | `linux.image.[imageid].username.pool` |
-| Description: | The username patterns that can be used on the Linux image. This property contains the `imageid` tag that should correspond to an `imageid` specified by either the `linux.dse.tag.[dseimageid].hostid` or `linux.shared.images` property. If no `imageid` is specified, this property value is used for any provisioned Linux image. |
+| Description: | A set of static usernames or resource string patterns that can be used to allocate usernames, that can be used on the Linux image. This property contains the `imageid` tag that should correspond to an `imageid` specified by either the `linux.dse.tag.[dseimageid].hostid` or `linux.shared.images` property. If no `imageid` is specified, this property value is used for any provisioned Linux image. |
 | Required:  | No |
 | Default value: | `galasa{0-9}{0-9}` |
-| Valid values: | A comma separated list of static or generated names or a valid string pattern template |
+| Valid values: | A comma-separated list of static usernames, or resource string patterns that can be used to allocate usernames. A resource string pattern can consist of a constant like `galasa`, and variables like `{0-9}` that expand into a character, that when combined make the resource strings like `galasa1` or `galasa9` |
 | Examples: | `linux.image.UBT.username.pool=galasa{0-9}{0-9}`, `linux.image.UBT.username.pool=BOB1,BOB2` |
 
  
@@ -195,8 +195,8 @@ If you wish to provide Galasa with a list of possible Linux images to connect to
 | Property: | Linux Manager extra bundles |
 | --------------------------------------- | :------------------------------------- |
 | Name: | `linux.bundle.extra.managers` |
-| Description: | Extra Galasa Managers that may be required to enable the Linux Manager. This may be required if your Linux images are stored in a platform that provides Infrastructure as a Service. |
+| Description: | Extra Galasa Managers that may be required to enable the Linux Manager. This may be required if your Linux images are stored in a platform that provides Infrastructure as a Service. If you require multiple extra managers, these should be provided in a comma-separated list. |
 | Required:  | No |
 | Default value: | N/A |
-| Valid values: | A valid Galasa Manager package name |
+| Valid values: | A valid Galasa Manager package name or comma-separated list of Galasa Manager package names |
 | Examples: | `linux.bundle.extra.managers=dev.galasa.openstack.manager` |
