@@ -4,7 +4,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'biz.aQute.bnd.builder' version '7.1.0'
+    id 'biz.aQute.bnd.builder' version '5.3.0'
 }
 
 // This section tells gradle where it should look for any dependencies
