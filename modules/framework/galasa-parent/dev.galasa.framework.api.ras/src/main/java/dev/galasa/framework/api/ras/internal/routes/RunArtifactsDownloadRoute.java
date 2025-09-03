@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -24,6 +25,9 @@ import java.util.regex.Matcher;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsJson;
@@ -48,6 +52,8 @@ import dev.galasa.framework.spi.utils.GalasaGson;
  * to the artifact.
  */
 public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
+
+    private static final Log logger = LogFactory.getLog(RunArtifactsDownloadRoute.class);
 
     static final GalasaGson gson = new GalasaGson();
 
@@ -150,8 +156,12 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
                 bytesRead = channel.read(buffer);
             }
             res.setStatus(HttpServletResponse.SC_OK);
-            res.setContentType(getFileSystem().probeContentType(artifactLocation));
+
+            String contentType = getFileSystem().probeContentType(artifactLocation);
+
+            res.setContentType(contentType);
             res.setHeader("Content-Disposition", "attachment");
+            logger.info("ContentType is "+contentType);
         }
         return res;
     }

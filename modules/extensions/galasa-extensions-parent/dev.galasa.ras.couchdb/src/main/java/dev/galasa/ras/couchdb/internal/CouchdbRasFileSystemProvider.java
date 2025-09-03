@@ -29,15 +29,12 @@ import java.util.Set;
 
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SetContentType;
+import dev.galasa.framework.SupportedFileAttributeName;
 import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider;
 import dev.galasa.extensions.common.api.LogFactory;
 import dev.galasa.extensions.common.couchdb.CouchdbException;
 
 public class CouchdbRasFileSystemProvider extends ResultArchiveStoreFileSystemProvider {
-
-    private static final String                                RAS_CONTENT_TYPE = "ras:contentType";
-    private static final String                                BASIC_SIZE       = "size";
-    private static final String                                POSIX_SIZE       = "posix:size";
 
     private final HashMap<Path, ResultArchiveStoreContentType> contentTypes     = new HashMap<>();
 
@@ -169,11 +166,11 @@ public class CouchdbRasFileSystemProvider extends ResultArchiveStoreFileSystemPr
         while (it.hasNext()) {
             final String attr = it.next();
             if ("*".equals(attr)) {
-                returnAttrs.put(RAS_CONTENT_TYPE, caPath.getContentType());
-                returnAttrs.put(BASIC_SIZE, caPath.getLength());
-                returnAttrs.put(POSIX_SIZE, caPath.getLength());
+                returnAttrs.put(SupportedFileAttributeName.CONTENT_TYPE.getValue(), caPath.getContentType());
+                returnAttrs.put(SupportedFileAttributeName.SIZE.getValue(), caPath.getLength());
+                returnAttrs.put(SupportedFileAttributeName.POSIX_SIZE.getValue(), caPath.getLength());
             } else if ("size".equals(attr)) {
-                returnAttrs.put(BASIC_SIZE, caPath.getLength());
+                returnAttrs.put(SupportedFileAttributeName.SIZE.getValue(), caPath.getLength());
             } else {
                 final int colon = attr.indexOf(':');
                 if (colon < 0) {
@@ -185,9 +182,9 @@ public class CouchdbRasFileSystemProvider extends ResultArchiveStoreFileSystemPr
                     final String attrName = attr.substring(colon + 1);
 
                     if ("*".equals(attrName)) {
-                        returnAttrs.put(RAS_CONTENT_TYPE, caPath.getContentType());
+                        returnAttrs.put(SupportedFileAttributeName.CONTENT_TYPE.getValue(), caPath.getContentType());
                     } else if ("contentType".equals(attrName)) {
-                        returnAttrs.put(RAS_CONTENT_TYPE, caPath.getContentType());
+                        returnAttrs.put(SupportedFileAttributeName.CONTENT_TYPE.getValue(), caPath.getContentType());
                     } else {
                         throw new UnsupportedOperationException("Attribute ras:" + attrName + " is not available");
                     }
@@ -197,9 +194,9 @@ public class CouchdbRasFileSystemProvider extends ResultArchiveStoreFileSystemPr
                     final String attrName = attr.substring(colon + 1);
 
                     if ("*".equals(attrName)) {
-                        returnAttrs.put(POSIX_SIZE, caPath.getLength());
+                        returnAttrs.put(SupportedFileAttributeName.POSIX_SIZE.getValue(), caPath.getLength());
                     } else if ("size".equals(attrName)) {
-                        returnAttrs.put(POSIX_SIZE, caPath.getLength());
+                        returnAttrs.put(SupportedFileAttributeName.POSIX_SIZE.getValue(), caPath.getLength());
                     }
                 }
             }

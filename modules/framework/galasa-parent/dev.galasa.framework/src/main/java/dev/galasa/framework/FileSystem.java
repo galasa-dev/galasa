@@ -14,11 +14,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import dev.galasa.ResultArchiveStoreContentType;
 
 public class FileSystem implements IFileSystem {
+
+    private static final Log logger = LogFactory.getLog(FileSystem.class);
     public FileSystem() {
     }
 
@@ -63,13 +70,31 @@ public class FileSystem implements IFileSystem {
     }
 
     public String probeContentType(Path path) throws IOException {
-        String contentType = Files.probeContentType(path);
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        } else if (path.toString().endsWith(".properties")) {
-            contentType = "text/plain";
-        }
+        logger.info("Probing the contentType of "+path.toString());
+        String contentType = getFileAttributeValue(path, SupportedFileAttributeName.CONTENT_TYPE, ResultArchiveStoreContentType.BINARY.value());
         return contentType;
+    }
+
+    private String getFileAttributeValue(Path artifactPath, SupportedFileAttributeName supportedAttributeName, String defaultValue ) {
+        String value = defaultValue;
+        String attributeName = supportedAttributeName.getValue();
+        try {
+            Map<String,Object> attributes = Files.readAttributes(artifactPath, attributeName);
+            if (attributes==null) {
+                logger.info("getFileAttributeValue: Failed to get attribute "+attributeName+" from file at "+artifactPath+" defaulting to "+value);
+            } else {
+                Object obj = attributes.get(attributeName);
+                if( obj == null ) {
+                    logger.info("getFileAttributeValue: File "+artifactPath+" has attribute "+attributeName+" with a null value. defaulting to "+value);
+                } else {
+                    value = obj.toString();
+                    logger.info("getFileAttributeValue: File "+artifactPath+" has attribute "+attributeName+" with a string value of:"+value);
+                }
+            }
+        } catch(Exception ex) {
+            logger.info("getFileAttributeValue: Failed to get attribute "+attributeName+" from artifact "+artifactPath+" defaulting to "+value,ex);
+        }
+        return value ;
     }
 
     @Override

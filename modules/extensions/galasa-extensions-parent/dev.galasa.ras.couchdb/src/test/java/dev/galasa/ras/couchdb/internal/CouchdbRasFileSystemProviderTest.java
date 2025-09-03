@@ -53,7 +53,7 @@ public class CouchdbRasFileSystemProviderTest {
 
         @Override
         public String getExpectedHttpContentType() {
-            return "plain/text";
+            return "text/plain";
         }
 
         @Override

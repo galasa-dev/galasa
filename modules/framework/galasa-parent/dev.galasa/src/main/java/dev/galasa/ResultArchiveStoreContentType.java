@@ -17,7 +17,7 @@ public class ResultArchiveStoreContentType implements FileAttribute<String> {
 
     public static final String                        ATTRIBUTE_NAME = "contentType";
 
-    public static final ResultArchiveStoreContentType TEXT           = new ResultArchiveStoreContentType("plain/text");
+    public static final ResultArchiveStoreContentType TEXT           = new ResultArchiveStoreContentType("text/plain");
     public static final ResultArchiveStoreContentType XML            = new ResultArchiveStoreContentType(
             "application/xml");
     public static final ResultArchiveStoreContentType JSON           = new ResultArchiveStoreContentType(
