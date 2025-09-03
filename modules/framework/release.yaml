@@ -197,6 +197,15 @@ api:
     isolated:     true
     codecoverage: true
 
+  - artifact: dev.galasa.framework.api.images
+    version: 0.44.0
+    obr:          true
+    mvp:          false
+    bom:          false
+    javadoc:      false
+    isolated:     true
+    codecoverage: true
+
   - artifact: dev.galasa.framework.api.launcher
     version: 0.44.0
     obr:          false

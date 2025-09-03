@@ -1,4 +1,4 @@
 -snapshot ${tstamp}
 Bundle-Name: Galasa Image REST API
-Import-Package: dev.galasa.framework.api.common,\
+Import-Package: dev.galasa.framework.api.images,\
                 *

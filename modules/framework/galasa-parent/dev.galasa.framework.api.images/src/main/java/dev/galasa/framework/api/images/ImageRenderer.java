@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 public class ImageRenderer {
 
     public void myFunction() throws Exception {
-        throw Exception("It failed!");
+        throw new Exception("It failed!");
     }
 
     // public static void main(String[] args) {
