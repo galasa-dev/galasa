@@ -240,6 +240,7 @@ public abstract class CouchdbStore {
      *
      * @param dbName     the name of the database to delete the document from
      * @param documentId the CouchDB ID for the document to delete
+     * @param documentRevision the version of this document, to protect against race-overwrite conditions.
      * @throws CouchdbException if there was a problem accessing the CouchDB store
      *                          or its response
      */
