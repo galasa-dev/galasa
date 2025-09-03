@@ -180,7 +180,7 @@ public class Zos3270IVT {
 		assertThat(terminalJsonStr).doesNotContain(expectedText);
 
 		// Run the CGSM transaction to display the good morning panel
-    	terminal.type("CSGM").enter().wfk();
+    	terminal.type("CSGM").enter().wfk().waitForTextInField(expectedText);
 		terminalScreen = terminal.retrieveScreen();
 		terminalJsonStr = terminal.toJsonString();
 
