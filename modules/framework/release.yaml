@@ -112,6 +112,15 @@ framework:
     isolated:     true
     codecoverage: true
 
+  - artifact: dev.galasa.zos3270.common
+    version: 0.44.0
+    obr:          true
+    mvp:          true
+    bom:          true
+    javadoc:      true
+    isolated:     true
+    codecoverage: false
+
   - artifact: galasa-boot
     version: 0.44.0
     obr:          false

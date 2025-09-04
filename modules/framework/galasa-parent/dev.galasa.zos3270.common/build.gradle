@@ -1,10 +1,12 @@
 plugins {
-    id 'galasa.manager'
+    id 'biz.aQute.bnd.builder'
+    id 'galasa.framework'
 }
 
 description = 'Galasa zOS 3270 Terminal Manager - Common Packages'
 
 dependencies {
+    implementation project(':dev.galasa.framework')
     implementation 'com.google.code.gson:gson'
 }
 

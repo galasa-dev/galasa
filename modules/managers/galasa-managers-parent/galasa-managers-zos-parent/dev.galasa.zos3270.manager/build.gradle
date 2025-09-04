@@ -5,13 +5,14 @@ plugins {
 description = 'Galasa zOS 3270 Terminal Manager'
 
 dependencies {
-    api            project(':galasa-managers-zos-parent:dev.galasa.zos3270.common')
+
     api            project(':galasa-managers-zos-parent:dev.galasa.zos.manager')
     api            project(':galasa-managers-core-parent:dev.galasa.textscan.manager')
     implementation project (':galasa-managers-common-parent:dev.galasa.common')
     implementation 'com.google.code.gson:gson'
     implementation 'commons-codec:commons-codec'
     implementation 'commons-io:commons-io'
+    implementation 'dev.galasa:dev.galasa.zos3270.common'
 }
 
 // Note: These values are consumed by the parent build process

@@ -9,7 +9,9 @@ plugins {
 description = 'Galasa Images API'
 
 dependencies {
-    // implementation project(':dev.galasa.framework')
+    implementation project(':dev.galasa.framework')
+    implementation project(':dev.galasa.zos3270.common')
+    
     // implementation project(':dev.galasa.framework.api.beans')
     // implementation project(':dev.galasa.framework.api.common')
     // implementation project(':dev.galasa.framework.auth.spi')
