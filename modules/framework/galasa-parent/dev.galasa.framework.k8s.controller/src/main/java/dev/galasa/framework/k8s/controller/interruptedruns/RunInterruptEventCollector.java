@@ -84,12 +84,16 @@ public class RunInterruptEventCollector {
      * @throws FrameworkException if there was an issue getting test runs from the framework
      */
     private List<RunInterruptEvent> getInterruptedRunsNeedingCleanupNow() throws FrameworkException {
+        logger.debug("getInterruptedRunsNeedingCleanupNow entered");
+
         List<RunInterruptEvent> interruptedRunEvents = getInterruptedRunEvents();
         List<RunInterruptEvent> interruptedRunsNeedingCleanup = new ArrayList<>();
 
         long testRunCleanupGracePeriodSeconds = settings.getInterruptedTestRunCleanupGracePeriodSeconds();
         Instant currentTime = timeService.now();
         for (RunInterruptEvent interruptEvent : interruptedRunEvents) {
+            String runName = interruptEvent.getRunName();
+            logger.info("Checking if interrupted run " + runName + " needs cleaning up");
 
             // assume we don't want to cleanup the run described by this event right now.
             boolean isRunNeedingCleanup = false ;
@@ -99,11 +103,15 @@ public class RunInterruptEventCollector {
             if (interruptedAt == null) {
                 // We don't know when this event's run was interrupted, so consider it timed out
                 isRunNeedingCleanup = true ;
+                logger.info("No 'interruptedAt' time recorded for run " + runName);
             } else {
                 Instant timeToDeletePod = interruptedAt.plusSeconds(testRunCleanupGracePeriodSeconds);
+                logger.info("Expected time after which to clean up run " + runName + ": " + timeToDeletePod.toString());
+
                 if (currentTime.isAfter(timeToDeletePod)) {
                     interruptEvent.setPastGracePeriod(true);
                     isRunNeedingCleanup = true ;
+                    logger.info(runName + " has exceeded the grace period, it needs cleaning up");
                 } 
             }
 
@@ -111,12 +119,17 @@ public class RunInterruptEventCollector {
             if( TestRunLifecycleStatus.QUEUED == interruptEvent.getTestRunStatus()) {
                 // The test run is in queued state
                 isRunNeedingCleanup = true ;
+                logger.info(runName + " has been interrupted in the 'queued' state, it needs cleaning up");
             } 
 
             if(isRunNeedingCleanup) {
                 interruptedRunsNeedingCleanup.add(interruptEvent);
+                logger.info(runName + " added to list of runs to clean up");
+            } else {
+                logger.info(runName + " does not need to be cleaned up yet");
             }
         }
+        logger.debug("getInterruptedRunsNeedingCleanupNow exiting");
         return interruptedRunsNeedingCleanup;
     }
 
