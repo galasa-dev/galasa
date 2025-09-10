@@ -46,14 +46,24 @@ public class RunRasActionProcessor implements IRunRasActionProcessor {
                         String runStatus = testStructure.getStatus();
                         String desiredRunStatus = rasAction.getDesiredRunStatus();
                         if (!desiredRunStatus.equals(runStatus)) {
+                            String desiredRunResult = rasAction.getDesiredRunResult();
+
+                            logger.info(runName + ": Updating run status in RAS from " + runStatus + " to " + desiredRunStatus);
+                            logger.info(runName + ": Setting result to " + desiredRunResult);
+
                             testStructure.setStatus(desiredRunStatus);
-                            testStructure.setResult(rasAction.getDesiredRunResult());
+                            testStructure.setResult(desiredRunResult);
         
                             rasStore.updateTestStructure(runId, testStructure);
+                            logger.info("Successfully updated RAS record for run " + runName);
                         } else {
                             logger.info("Run already has status '" + desiredRunStatus + "', will not update its RAS record");
                         }
+                    } else {
+                        logger.info("No RAS test structure found for run " + runName + ", skipping RAS actions for this run");
                     }
+                } else {
+                    logger.info("No RAS record ID found for run " + runName + ", skipping RAS actions for this run");
                 }
             } catch (ResultArchiveStoreException ex) {
                 logger.error("Failed to process RAS action", ex);

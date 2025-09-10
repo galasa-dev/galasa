@@ -72,8 +72,13 @@ public class KubernetesEngineFacade {
 
         // There should only be one pod with this name.
         V1Pod pod = null ;
-        if( !pods.isEmpty() ) {
-            pod = pods.get(0);
+        if (pods != null) {
+            logger.info("Found " + pods.size() + " test pod(s) for run " + runName);
+            if( !pods.isEmpty() ) {
+                pod = pods.get(0);
+            }
+        } else {
+            logger.info("No test pod found for run " + runName);
         }
         return pod;
     }
