@@ -364,6 +364,13 @@ public class RunImpl implements IRun {
             buff.append(" waitUntil: "+waitUntil.toString());
         }
 
+        if (this.interruptedAt == null) {
+            buff.append(" interruptedAt: null");
+        } else {
+            buff.append(" interruptedAt: "+interruptedAt.toString());
+        }
+
+        buff.append(" interruptReason: "+interruptReason);
         buff.append(" requestor: "+requestor);
         buff.append(" stream: "+stream);
         buff.append(" repo: "+repo);
