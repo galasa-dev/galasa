@@ -92,10 +92,6 @@ public class FrameworkRuns implements IFrameworkRuns {
                 continue;
             }
 
-            if ("allocated".equals(run.getStatus())) {
-                continue;
-            }
-
             if (run.isSharedEnvironment()) {
                 continue;
             }
