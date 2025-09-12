@@ -8,8 +8,7 @@ package dev.galasa.framework.k8s.controller.mocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.galasa.framework.k8s.controller.TestPodScheduler;
-import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
+import dev.galasa.framework.k8s.controller.TestPodKubeLabels;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
@@ -44,12 +43,13 @@ public class MockKubernetesPodTestUtils {
         return pod;
     }
 
-    public V1Pod createMockTestPod(String runName, String phase) {
+    public V1Pod createMockTestPod(String runName, String galasaServiceName, String phase) {
         V1Pod mockPod = new V1Pod();
 
         V1ObjectMeta podMetadata = new V1ObjectMeta();
-        podMetadata.putLabelsItem(TestPodScheduler.GALASA_RUN_POD_LABEL, runName);
-        podMetadata.putLabelsItem(KubernetesEngineFacade.ENGINE_CONTROLLER_LABEL_KEY, MockISettings.ENGINE_LABEL);
+        podMetadata.putLabelsItem(TestPodKubeLabels.GALASA_RUN.toString(), runName);
+        podMetadata.putLabelsItem(TestPodKubeLabels.ENGINE_CONTROLLER.toString(), MockISettings.ENGINE_LABEL);
+        podMetadata.putLabelsItem(TestPodKubeLabels.GALASA_SERVICE_NAME.toString(), galasaServiceName);
         podMetadata.setName(runName);
 
         V1PodStatus podStatus = new V1PodStatus();
@@ -60,7 +60,7 @@ public class MockKubernetesPodTestUtils {
         return mockPod;
     }
 
-    public V1Pod createMockTestPod(String runName) {
-        return createMockTestPod(runName, "running");
+    public V1Pod createMockTestPod(String runName, String galasaServiceName) {
+        return createMockTestPod(runName, galasaServiceName, "running");
     }
 }
