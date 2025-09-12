@@ -24,12 +24,10 @@ public class RunPodCleanup implements Runnable {
 
     private final IFrameworkRuns runs;
     private final KubernetesEngineFacade kubeApi;
-    private final ISettings settings;
 
-    public RunPodCleanup(ISettings settings, KubernetesEngineFacade kubeApi, IFrameworkRuns runs) {
+    public RunPodCleanup(KubernetesEngineFacade kubeApi, IFrameworkRuns runs) {
         this.runs = runs;
         this.kubeApi = kubeApi;
-        this.settings = settings ;
     }
 
     @Override
@@ -40,7 +38,7 @@ public class RunPodCleanup implements Runnable {
             logger.info("Starting run pod cleanup scan");
     
             try {
-                List<V1Pod> pods = kubeApi.getTestPods(settings.getEngineLabel());
+                List<V1Pod> pods = kubeApi.getTestPods();
                 pods = kubeApi.getTerminatedPods(pods);
     
                 deletePodsForCompletedRuns(pods);
@@ -55,7 +53,7 @@ public class RunPodCleanup implements Runnable {
     void deletePodsForCompletedRuns(List<V1Pod> terminatedPods) throws DynamicStatusStoreException {
         for (V1Pod pod : terminatedPods) {
             Map<String, String> labels = pod.getMetadata().getLabels();
-            String runName = labels.get(TestPodScheduler.GALASA_RUN_POD_LABEL);
+            String runName = labels.get(TestPodKubeLabels.GALASA_RUN.toString());
 
             if (runName != null) {
                 IRun run = runs.getRun(runName);

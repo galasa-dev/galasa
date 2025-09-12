@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.k8s.controller.K8sControllerException;
+import dev.galasa.framework.k8s.controller.TestPodKubeLabels;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
@@ -22,13 +23,6 @@ import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodStatus;
 
 public class KubernetesEngineFacade {
-
-    public static final String ENGINE_CONTROLLER_LABEL_KEY = "galasa-engine-controller";
-
-    /**
-     * Test pods are marked with a kube label of this, with a value holding the test run name. eg: U643
-     */
-    public static final String KUBE_POD_LABEL_RUN_NAME = "galasa-run" ;
 
     private static final String APP_LABEL = "app";
     private static final String ETCD_APP_SUFFIX = "-etcd";
@@ -47,11 +41,11 @@ public class KubernetesEngineFacade {
         this.galasaServiceInstallName = galasaServiceInstallName;
     }
 
-    public @NotNull List<V1Pod> getTestPods( String engineLabel ) throws K8sControllerException {
+    public @NotNull List<V1Pod> getTestPods() throws K8sControllerException {
         LinkedList<V1Pod> pods = new LinkedList<>();
 
         try {
-            List<V1Pod> podList = apiClient.getPods(namespace, ENGINE_CONTROLLER_LABEL_KEY + "=" + engineLabel);
+            List<V1Pod> podList = apiClient.getPods(namespace, TestPodKubeLabels.GALASA_SERVICE_NAME.toString() + "=" + this.galasaServiceInstallName);
             for (V1Pod pod : podList) {
                 pods.add(pod);
             }
@@ -62,10 +56,14 @@ public class KubernetesEngineFacade {
         return pods;
     }
 
-    public V1Pod getTestPod( String runName) throws K8sControllerException {
+    public V1Pod getTestPod(String runName) throws K8sControllerException {
         List<V1Pod> pods = new LinkedList<>();
         try {
-            pods = apiClient.getPods(namespace, KUBE_POD_LABEL_RUN_NAME + "=" + runName);
+            String runNameLabelSelector = TestPodKubeLabels.GALASA_RUN.toString() + "=" + runName;
+            String serviceNameLabelSelector = TestPodKubeLabels.GALASA_SERVICE_NAME.toString() + "=" + this.galasaServiceInstallName;
+            String commaSeparatedLabelSelectors = runNameLabelSelector + "," + serviceNameLabelSelector;
+
+            pods = apiClient.getPods(namespace, commaSeparatedLabelSelectors);
         } catch (Exception e) {
             throw new K8sControllerException("Failed retrieving pods", e);
         }
@@ -190,4 +188,9 @@ public class KubernetesEngineFacade {
         }
         return isReady;
     }
+
+    public String getGalasaServiceInstallName() {
+        return this.galasaServiceInstallName;
+    }
+
 }

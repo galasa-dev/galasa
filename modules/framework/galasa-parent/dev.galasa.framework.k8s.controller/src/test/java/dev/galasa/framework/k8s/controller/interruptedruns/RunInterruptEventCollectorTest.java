@@ -72,16 +72,16 @@ public class RunInterruptEventCollectorTest {
         ITimeService timeService = new MockTimeService(currentTime);
 
         String interruptReason = "cancelled";
+        String galasaServiceInstallName = "myGalasaService";
 
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1));
-        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1, galasaServiceInstallName));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2, galasaServiceInstallName));
 
-        String galasaServiceInstallName = "myGalasaService";
         boolean isReady = true;
         mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
 
-        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3);
+        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3, galasaServiceInstallName);
         mockPods.add(cancelledPod);
 
         // Create runs associated with the pods
@@ -103,7 +103,7 @@ public class RunInterruptEventCollectorTest {
         List<RunInterruptEvent> events = runPodInterrupt.collectInterruptRunEvents();
 
         // Then...
-        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(3);
+        assertThat(kube.getTestPods()).hasSize(3);
         assertThat(mockPods).contains(cancelledPod);
 
         assertThat(events).as("should not have collected any pods to delete as they haven't timed out yet.").hasSize(0);
@@ -116,11 +116,11 @@ public class RunInterruptEventCollectorTest {
 
         // Simulate a situation where the current kubernetes namespace has a pod that may
         // not be a Galasa-related pod, so it doesn't have a "galasa-run" label with a run name.
+        String galasaServiceInstallName = "myGalasaService";
         List<V1Pod> mockPods = new ArrayList<>();
-        V1Pod podWithNoRunName = mockKubeTestUtils.createMockTestPod(null);
+        V1Pod podWithNoRunName = mockKubeTestUtils.createMockTestPod(null, galasaServiceInstallName);
         mockPods.add(podWithNoRunName);
 
-        String galasaServiceInstallName = "myGalasaService";
         boolean isReady = true;
         mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
 
@@ -153,22 +153,22 @@ public class RunInterruptEventCollectorTest {
         String runName3 = "run3";
         String runIdToMarkFinished = "run3-id";
 
+        String galasaServiceInstallName = "myGalasaService";
         String interruptReason = "cancelled";
 
         Instant interruptedAt = Instant.EPOCH;
         ITimeService timeService = new MockTimeService(Instant.now());
 
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1));
-        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1, galasaServiceInstallName));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2, galasaServiceInstallName));
 
-        String galasaServiceInstallName = "myGalasaService";
 
         // Simulate a situation where the etcd and RAS pods are not ready
         boolean isReady = false;
         mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
 
-        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3);
+        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3, galasaServiceInstallName);
         mockPods.add(cancelledPod);
 
         // Create runs associated with the pods
@@ -187,14 +187,14 @@ public class RunInterruptEventCollectorTest {
         RunInterruptEventCollector runPodInterrupt = new RunInterruptEventCollector(kube, mockFrameworkRuns, settings, timeService);
 
         // Make sure that all 3 test pods exist before processing
-        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(3);
+        assertThat(kube.getTestPods()).hasSize(3);
 
         // When...
         List<RunInterruptEvent> events = runPodInterrupt.collectInterruptRunEvents();
 
         // Then...
         // Make sure that all 3 test pods still exist after processing
-        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(3);
+        assertThat(kube.getTestPods()).hasSize(3);
 
         // No events should have been added yet
         assertThat(events).isEmpty();

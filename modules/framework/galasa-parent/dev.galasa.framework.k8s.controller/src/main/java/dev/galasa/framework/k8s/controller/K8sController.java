@@ -216,7 +216,7 @@ public class K8sController {
         Settings settings
     ) throws FrameworkException {
 
-        runCleanup = new RunPodCleanup(settings, kubeEngineFacade, frameworkRuns);
+        runCleanup = new RunPodCleanup(kubeEngineFacade, frameworkRuns);
         schedulePodCleanup();
 
         podScheduler = new TestPodScheduler(env, dss, cps, settings, kubeEngineFacade, frameworkRuns, timeService);

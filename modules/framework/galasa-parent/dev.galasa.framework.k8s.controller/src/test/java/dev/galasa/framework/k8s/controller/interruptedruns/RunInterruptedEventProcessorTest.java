@@ -18,7 +18,6 @@ import dev.galasa.framework.RunRasActionProcessor;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
-import dev.galasa.framework.k8s.controller.mocks.MockISettings;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesApiClient;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesPodTestUtils;
 import dev.galasa.framework.mocks.MockFileSystem;
@@ -243,19 +242,19 @@ public class RunInterruptedEventProcessorTest {
         Instant interruptedAt = Instant.EPOCH;
 
         String interruptReason = "cancelled";
+        String galasaServiceInstallName = "myGalasaService";
 
         // Create 2 pods we won't touch
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1));
-        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1, galasaServiceInstallName));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2, galasaServiceInstallName));
 
         // Create the etcd and couchb pods that makes 4 pods total
-        String galasaServiceInstallName = "myGalasaService";
         boolean isReady = true;
         mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
 
         // Create a pod we can delete to match the run we are cancelling. That makes 5 pods.
-        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3);
+        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3, galasaServiceInstallName);
         mockPods.add(cancelledPod);
 
         // Create runs associated with the pods
@@ -291,7 +290,7 @@ public class RunInterruptedEventProcessorTest {
         processor.processEvents(events);
 
         // Then...
-        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).as("One of the 3 test engine pods should have been deleted").hasSize(2);
+        assertThat(kube.getTestPods()).as("One of the 3 test engine pods should have been deleted").hasSize(2);
         assertThat(mockPods).doesNotContain(cancelledPod);
 
     }
@@ -306,19 +305,19 @@ public class RunInterruptedEventProcessorTest {
 
         Instant interruptedAt = null;
         String interruptReason = "cancelled";
+        String galasaServiceInstallName = "myGalasaService";
 
         // 2 pods we will leave alone.
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1));
-        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName1, galasaServiceInstallName));
+        mockPods.add(mockKubeTestUtils.createMockTestPod(runName2, galasaServiceInstallName));
 
         // a couchdb and etcd pod
-        String galasaServiceInstallName = "myGalasaService";
         boolean isReady = true;
         mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
 
         // A pod we intend to cancel
-        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3);
+        V1Pod cancelledPod = mockKubeTestUtils.createMockTestPod(runName3, galasaServiceInstallName);
         mockPods.add(cancelledPod);
 
         // Create runs associated with the pods
@@ -353,7 +352,7 @@ public class RunInterruptedEventProcessorTest {
         processor.processEvents(events);
 
         // Then...
-        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).hasSize(2);
+        assertThat(kube.getTestPods()).hasSize(2);
         assertThat(mockPods).doesNotContain(cancelledPod);
 
     }
@@ -369,16 +368,16 @@ public class RunInterruptedEventProcessorTest {
 
         Instant interruptedAt = Instant.EPOCH;
         String interruptReason = "cancelled";
+        String galasaServiceInstallName = "myGalasaService";
 
         List<V1Pod> mockPods = new ArrayList<>();
-        V1Pod cancelledPod1 = mockKubeTestUtils.createMockTestPod(runName1);
+        V1Pod cancelledPod1 = mockKubeTestUtils.createMockTestPod(runName1, galasaServiceInstallName);
         mockPods.add(cancelledPod1);
 
-        String galasaServiceInstallName = "myGalasaService";
         boolean isReady = true;
         mockPods.addAll(mockKubeTestUtils.createEtcdAndRasPods(galasaServiceInstallName, isReady));
 
-        V1Pod cancelledPod2 = mockKubeTestUtils.createMockTestPod(runName2);
+        V1Pod cancelledPod2 = mockKubeTestUtils.createMockTestPod(runName2, galasaServiceInstallName);
         mockPods.add(cancelledPod2);
 
         // Create runs associated with the pods
@@ -413,6 +412,6 @@ public class RunInterruptedEventProcessorTest {
         processor.processEvents(events);
 
         // Then...
-        assertThat(kube.getTestPods(MockISettings.ENGINE_LABEL)).isEmpty();
+        assertThat(kube.getTestPods()).isEmpty();
     }
 }

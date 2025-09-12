@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
-import dev.galasa.framework.k8s.controller.mocks.MockISettings;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesApiClient;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesPodTestUtils;
 import io.kubernetes.client.openapi.models.V1Pod;
@@ -26,15 +25,16 @@ public class KubernetesEngineFacadeTest {
     @Test
     public void testGetPodsReturnsPodsOk() throws Exception {
         // Given...
+        String galasaServiceInstallName = "myGalasaService";
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN1", "running"));
-        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN2", "running"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN1", galasaServiceInstallName, "running"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN2", galasaServiceInstallName, "running"));
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
-        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         // When...
-        List<V1Pod> pods = facade.getTestPods(MockISettings.ENGINE_LABEL);
+        List<V1Pod> pods = facade.getTestPods();
 
         // Then...
         assertThat(pods).hasSize(2);
@@ -44,13 +44,14 @@ public class KubernetesEngineFacadeTest {
     @Test
     public void testGetActivePodsReturnsPodsOk() throws Exception {
         // Given...
+        String galasaServiceInstallName = "myGalasaService";
         List<V1Pod> mockPods = new ArrayList<>();
-        V1Pod runningPod = mockKubeTestUtils.createMockTestPod("RUN1", "running");
+        V1Pod runningPod = mockKubeTestUtils.createMockTestPod("RUN1", galasaServiceInstallName, "running");
         mockPods.add(runningPod);
-        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN2", "failed"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN2", galasaServiceInstallName, "failed"));
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
-        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         // When...
         List<V1Pod> pods = facade.getActivePods(mockPods);
@@ -63,14 +64,15 @@ public class KubernetesEngineFacadeTest {
     @Test
     public void testGetTerminatedPodsReturnsPodsOk() throws Exception {
         // Given...
+        String galasaServiceInstallName = "myGalasaService";
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN1", "running"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN1", galasaServiceInstallName, "running"));
 
-        V1Pod finishedPod = mockKubeTestUtils.createMockTestPod("RUN2", "failed");
+        V1Pod finishedPod = mockKubeTestUtils.createMockTestPod("RUN2", galasaServiceInstallName, "failed");
         mockPods.add(finishedPod);
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
-        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         // When...
         List<V1Pod> pods = facade.getTerminatedPods(mockPods);
@@ -83,20 +85,21 @@ public class KubernetesEngineFacadeTest {
     @Test
     public void testDeletePodRemovesPodOk() throws Exception {
         // Given...
+        String galasaServiceInstallName = "myGalasaService";
         List<V1Pod> mockPods = new ArrayList<>();
-        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN1", "running"));
+        mockPods.add(mockKubeTestUtils.createMockTestPod("RUN1", galasaServiceInstallName, "running"));
 
-        V1Pod podToDelete = mockKubeTestUtils.createMockTestPod("RUN2", "failed");
+        V1Pod podToDelete = mockKubeTestUtils.createMockTestPod("RUN2", galasaServiceInstallName, "failed");
         mockPods.add(podToDelete);
 
         IKubernetesApiClient mockApiClient = new MockKubernetesApiClient(mockPods);
-        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", "myGalasaService");
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(mockApiClient, "myNamespace", galasaServiceInstallName);
 
         // When...
         facade.deletePod(podToDelete);
 
         // Then...
-        List<V1Pod> remainingPods = facade.getTestPods(MockISettings.ENGINE_LABEL);
+        List<V1Pod> remainingPods = facade.getTestPods();
         assertThat(remainingPods).hasSize(1);
         assertThat(remainingPods).doesNotContain(podToDelete);
     }

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import io.kubernetes.client.openapi.ApiException;
@@ -53,15 +54,33 @@ public class MockKubernetesApiClient implements IKubernetesApiClient {
     public List<V1Pod> getPods(String namespace, String labelSelector) throws ApiException {
         List<V1Pod> matchingPods = new ArrayList<>();
 
-        // Label selectors are in the form <key>=<value>
-        String[] labelSelectorParts = labelSelector.split("=");
-        String labelSelectorKey = labelSelectorParts[0];
-        String labelSelectorValue = labelSelectorParts[1];
+        // Label selectors can be in the form <key>=<value>
+        // or <key1>=<value1>,<key2>=<value2> for multiple selectors
+        Map<String, String> labelSelectorMap = new HashMap<>();
+        String[] labelSelectorParts = labelSelector.split(",");
+
+        for (String part : labelSelectorParts) {
+            // Each part will now be in the form <key>=<value>
+            String[] keyValueSelectorPair = part.split("=");
+            
+            String labelSelectorKey = keyValueSelectorPair[0];
+            String labelSelectorValue = keyValueSelectorPair[1];
+
+            labelSelectorMap.put(labelSelectorKey, labelSelectorValue);
+        }
 
         for (V1Pod pod : mockPods) {
             Map<String, String> podLabels = pod.getMetadata().getLabels();
-            String podLabelValue = podLabels.get(labelSelectorKey);
-            if (podLabelValue != null && podLabelValue.equals(labelSelectorValue)) {
+            boolean isMatchingLabelSelectors = true;
+
+            for (Entry<String, String> selector : labelSelectorMap.entrySet()) {
+                String podLabelValue = podLabels.get(selector.getKey());
+                if (podLabelValue == null || !podLabelValue.equals(selector.getValue())) {
+                    isMatchingLabelSelectors = false;
+                    break;
+                }
+            }
+            if (isMatchingLabelSelectors) {
                 matchingPods.add(pod);
             }
         }
