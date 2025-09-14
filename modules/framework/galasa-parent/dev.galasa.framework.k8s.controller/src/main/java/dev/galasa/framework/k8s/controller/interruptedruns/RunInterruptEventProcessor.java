@@ -74,47 +74,56 @@ public class RunInterruptEventProcessor {
             logger.debug("Starting scan of interrupt events to process");
             for( RunInterruptEvent interruptEvent : events ) {
 
+                String runName = interruptEvent.getRunName();
+
                 // If the test run is in queued state mark it as Cancelling, because we don't want any 
                 // instance of the engine controller to get hold of it and start the test by moving it
                 // to allocated. This is a putSwap operation, so can fail if the pod is already moved
                 // to allocated/started...etc. 
                 TestRunLifecycleStatus runStatus = interruptEvent.getTestRunStatus();
                 if (TestRunLifecycleStatus.QUEUED == runStatus) {
-                    boolean isMarkedAsCancelling = markRunCancellingInDss(interruptEvent.getRunName(), runStatus);
+                    logger.info("Marking run " + runName + " as 'cancelling' as it was interrupted in the 'queued' state");
+                    boolean isMarkedAsCancelling = markRunCancellingInDss(runName, runStatus);
                     if(!isMarkedAsCancelling) {
                         // The attempt to wrest ownership of this test pod failed.
                         // Another instance of the engine controller got there first, and is trying to launch this test pod.
                         // then abandon attempts at cancelling for now.
                         // We will re-visit this pod when we next poll for things to cancel.
                         // The pod won't get far once it gets scheduled before it notices it needs to cancel.
-                        logger.info("Run "+interruptEvent.getRunName()+" was scheduled just before it was cancelled. Will cancel it shortly...");
+                        logger.info("Run "+runName+" was scheduled just before it was cancelled. Will cancel it shortly...");
                         break;
+                    } else {
+                        logger.info("Marked run " + runName + " as 'cancelling'");
                     }
                 }
-
-                String runName = interruptEvent.getRunName();
 
                 if (runStatus!=null) {
                     switch(runStatus) {
                         case QUEUED:
                         case CANCELLING:
                             // There is no pod to cancel.
+                            logger.info("There is no pod to cancel as run " + runName + " is in the state " + runStatus);
                             break;
                         default:
                             // There may be a pod to cancel.
+                            logger.info("Cancelling pod for run " + runName);
                             podDeleter.deletePod(runName);
                     }
                 }
 
                 List<RunRasAction> rasActions = interruptEvent.getRasActions();
                 if (rasActions != null && !rasActions.isEmpty()) {
+                    logger.info("Processing RAS actions for run " + runName);
                     rasActionProcessor.processRasActions(runName, rasActions);
+                } else {
+                    logger.info("No RAS actions to process for run " + runName);
                 }
                 
                 String interruptReason = interruptEvent.getInterruptReason();
                 switch (interruptReason) {
                     case Result.CANCELLED:
                     case Result.HUNG:
+                        logger.info(runName + " has an interrupt reason of " + interruptReason + ", so marking the run as 'finished' in the DSS");
                         markRunFinishedInDss(runName, interruptReason);
                         break;
                     case Result.REQUEUED:
