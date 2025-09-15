@@ -62,6 +62,8 @@ public interface IRun {
 
     Instant getInterruptedAt();
 
+    Instant getAllocatedTimeout();
+
     String getRasRunId();
 
     List<RunRasAction> getRasActions();

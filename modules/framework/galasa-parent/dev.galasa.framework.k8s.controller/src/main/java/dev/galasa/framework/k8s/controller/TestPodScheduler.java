@@ -187,11 +187,11 @@ public class TestPodScheduler implements Runnable {
         try {
             // *** First attempt to allocate the run to this controller
             Instant now = timeService.now();
-            Instant expire = now.plus(15, ChronoUnit.MINUTES);
+            Instant allocatedTimeoutTimestamp = now.plus(settings.getAllocatedTestRunTimeoutMinutes(), ChronoUnit.MINUTES);
             HashMap<String, String> props = new HashMap<>();
             props.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.CONTROLLER, settings.getPodName());
             props.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.ALLOCATED, now.toString());
-            props.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.ALLOCATE_TIMEOUT, expire.toString());
+            props.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.ALLOCATE_TIMEOUT, allocatedTimeoutTimestamp.toString());
             if (!this.dss.putSwap("run." + runName + "."+DssPropertyKeyRunNameSuffix.STATUS, "queued", "allocated", props)) {
                 logger.info("run allocated by another controller");
                 return;

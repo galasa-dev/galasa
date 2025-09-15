@@ -8,6 +8,7 @@ public class MockISettings implements ISettings {
 
     public int maxTestPodRetriesLimit = 2;
     public int interruptedTestRunCleanupGracePeriodSecs = 10;
+    public int allocatedTestRunTimeoutMins = 30;
     public static final String ENGINE_LABEL = "myEngineLabel";
 
     @Override
@@ -98,6 +99,11 @@ public class MockISettings implements ISettings {
     @Override
     public long getInterruptedTestRunCleanupGracePeriodSeconds() {
         return interruptedTestRunCleanupGracePeriodSecs;
+    }
+
+    @Override
+    public long getAllocatedTestRunTimeoutMinutes() {
+        return allocatedTestRunTimeoutMins;
     }
 
     @Override
