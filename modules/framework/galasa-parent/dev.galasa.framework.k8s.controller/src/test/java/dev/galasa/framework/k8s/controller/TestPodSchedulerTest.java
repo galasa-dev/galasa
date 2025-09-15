@@ -66,20 +66,31 @@ public class TestPodSchedulerTest {
 
     private void assertPodDetailsAreCorrect(
         V1Pod pod,
+        String expectedGalasaServiceName,
         String expectedRunName,
         String expectedPodName,
         String expectedEncryptionKeysMountPath,
         ISettings settings
     ) {
-        checkPodMetadata(pod, expectedRunName, expectedPodName, settings);
+        checkPodMetadata(pod, expectedGalasaServiceName, expectedRunName, expectedPodName, settings);
         checkPodContainer(pod, expectedEncryptionKeysMountPath, settings);
         checkPodVolumes(pod, settings);
         checkPodSpec(pod, settings);
     }
 
-    private void checkPodMetadata(V1Pod pod, String expectedRunName, String expectedPodName, ISettings settings) {
+    private void checkPodMetadata(
+        V1Pod pod,
+        String expectedGalasaServiceName,
+        String expectedRunName,
+        String expectedPodName,
+        ISettings settings
+    ) {
         V1ObjectMeta expectedMetadata = new V1ObjectMeta()
-            .labels(Map.of("galasa-run", expectedRunName, "galasa-engine-controller", settings.getEngineLabel()))
+            .labels(Map.of(
+                TestPodKubeLabels.GALASA_RUN.toString(), expectedRunName,
+                TestPodKubeLabels.ENGINE_CONTROLLER.toString(), settings.getEngineLabel(),
+                TestPodKubeLabels.GALASA_SERVICE_NAME.toString(), expectedGalasaServiceName
+            ))
             .name(expectedPodName);
 
         // Check the pod's metadata is as expected
@@ -188,7 +199,10 @@ public class TestPodSchedulerTest {
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns, new MockTimeService(Instant.now()));;
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));;
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -199,7 +213,7 @@ public class TestPodSchedulerTest {
 
         // Then...
         String expectedEncryptionKeysMountPath = "/encryption";
-        assertPodDetailsAreCorrect(pod, runName, podName, expectedEncryptionKeysMountPath, settings);
+        assertPodDetailsAreCorrect(pod, galasaServiceInstallName, runName, podName, expectedEncryptionKeysMountPath, settings);
     }
 
     @Test
@@ -218,7 +232,10 @@ public class TestPodSchedulerTest {
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -253,7 +270,10 @@ public class TestPodSchedulerTest {
 
         MockCPSStore mockCPS = new MockCPSStore(null);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -288,7 +308,10 @@ public class TestPodSchedulerTest {
 
         MockCPSStore mockCPS = new MockCPSStore(null);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -322,7 +345,10 @@ public class TestPodSchedulerTest {
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -358,7 +384,10 @@ public class TestPodSchedulerTest {
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, null, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
 
         // When...
         ArrayList<String> args = podScheduler.createCommandLineArgs(settings, "myRunName", TRACE_IS_ENABLED);

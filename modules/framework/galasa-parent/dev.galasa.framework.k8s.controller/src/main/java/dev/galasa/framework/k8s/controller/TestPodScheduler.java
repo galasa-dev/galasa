@@ -49,8 +49,6 @@ import io.prometheus.client.Counter;
 import dev.galasa.framework.spi.utils.ITimeService;
 
 public class TestPodScheduler implements Runnable {
-    public static final String GALASA_RUN_POD_LABEL = "galasa-run";
-
     private static final String RAS_TOKEN_ENV = "GALASA_RAS_TOKEN";
     private static final String EVENT_TOKEN_ENV = "GALASA_EVENT_STREAMS_TOKEN";
 
@@ -123,7 +121,7 @@ public class TestPodScheduler implements Runnable {
     
                 while (!queuedRuns.isEmpty()) {
                     // *** Check we are not at max engines
-                    List<V1Pod> pods = this.kubeEngineFacade.getTestPods(settings.getEngineLabel());
+                    List<V1Pod> pods = this.kubeEngineFacade.getTestPods();
                     kubeEngineFacade.getActivePods(pods);
     
                     logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
@@ -259,8 +257,10 @@ public class TestPodScheduler implements Runnable {
         V1ObjectMeta metadata = new V1ObjectMeta();
         newPod.setMetadata(metadata);
         metadata.setName(engineName);
-        metadata.putLabelsItem("galasa-engine-controller", this.settings.getEngineLabel());
-        metadata.putLabelsItem(GALASA_RUN_POD_LABEL, runName);
+        metadata.putLabelsItem(TestPodKubeLabels.ENGINE_CONTROLLER.toString(), this.settings.getEngineLabel());
+        metadata.putLabelsItem(TestPodKubeLabels.GALASA_RUN.toString(), runName);
+        metadata.putLabelsItem(TestPodKubeLabels.GALASA_SERVICE_NAME.toString(), kubeEngineFacade.getGalasaServiceInstallName());
+        logger.debug(metadata.toString());
 
         V1PodSpec podSpec = new V1PodSpec();
         newPod.setSpec(podSpec);
