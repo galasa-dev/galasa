@@ -160,4 +160,9 @@ public class MockRun implements IRun {
     public Instant getInterruptedAt() {
         throw new UnsupportedOperationException("Unimplemented method 'getInterruptedAt'");
     }
+
+    @Override
+    public Instant getAllocatedTimeout() {
+        throw new UnsupportedOperationException("Unimplemented method 'getAllocatedTimeout'");
+    }
 }

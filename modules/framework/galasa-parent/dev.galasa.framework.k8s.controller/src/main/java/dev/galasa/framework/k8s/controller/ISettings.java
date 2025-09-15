@@ -51,5 +51,7 @@ public interface ISettings {
     public int getMaxTestPodRetryLimit();
 
     public long getInterruptedTestRunCleanupGracePeriodSeconds();
+
+    public long getAllocatedTestRunTimeoutMinutes();
 }
 

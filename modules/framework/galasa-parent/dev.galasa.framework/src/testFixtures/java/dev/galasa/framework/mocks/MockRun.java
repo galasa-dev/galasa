@@ -33,6 +33,7 @@ public class MockRun implements IRun {
     private String status;
     private String interruptReason;
     private Instant interruptedAt;
+    private Instant allocatedTimeout;
     private String result;
     private String runId;
     private List<RunRasAction> rasActions = new ArrayList<>();
@@ -229,6 +230,15 @@ public class MockRun implements IRun {
         }
 
         return testStructure;
+    }
+
+    @Override
+    public Instant getAllocatedTimeout() {
+        return this.allocatedTimeout;
+    }
+
+    public void setAllocatedTimeout(Instant allocatedTimeout) {
+        this.allocatedTimeout = allocatedTimeout;
     }
 
     // ------------- un-implemented methods follow ----------------

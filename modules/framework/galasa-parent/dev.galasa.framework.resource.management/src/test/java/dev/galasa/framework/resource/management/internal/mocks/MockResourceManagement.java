@@ -12,6 +12,8 @@ import dev.galasa.framework.spi.IResourceManagement;
 
 public class MockResourceManagement implements IResourceManagement {
 
+    public boolean isSuccessful;
+
     @Override
     public ScheduledExecutorService getScheduledExecutorService() {
         throw new UnsupportedOperationException("Unimplemented method 'getScheduledExecutorService'");
@@ -19,7 +21,7 @@ public class MockResourceManagement implements IResourceManagement {
 
     @Override
     public void resourceManagementRunSuccessful() {
-        throw new UnsupportedOperationException("Unimplemented method 'resourceManagementRunSuccessful'");
+        this.isSuccessful = true;
     }
     
 }

@@ -132,6 +132,10 @@ public class MockFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public boolean markRunInterrupted(String runName, String interruptReason) throws DynamicStatusStoreException {
+        MockRun run = (MockRun) getRun(runName);
+        if (run != null) {
+            run.setInterruptReason(interruptReason);
+        }
         return true;
     }
 
