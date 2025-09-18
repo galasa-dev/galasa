@@ -1,13 +1,14 @@
-[![Galasa](https://img.shields.io/github/actions/workflow/status/galasa-dev/galasa/pushes.yaml?label="Galasa")](https://github.com/galasa-dev/galasa/actions/workflows/pushes.yaml) [![WebUI](https://img.shields.io/github/actions/workflow/status/galasa-dev/webui/build.yaml?label="WebUI")](https://github.com/galasa-dev/webui/actions/workflows/build.yaml) [![Helm](https://img.shields.io/github/actions/workflow/status/galasa-dev/helm/build.yaml?label="Helm")](https://github.com/galasa-dev/helm/actions/workflows/build.yaml)
+[![Galasa](https://img.shields.io/github/actions/workflow/status/galasa-dev/galasa/pushes.yaml?label="Galasa")](https://github.com/galasa-dev/galasa/actions/workflows/pushes.yaml) [![WebUI](https://img.shields.io/github/actions/workflow/status/galasa-dev/webui/build.yaml?label="WebUI")](https://github.com/galasa-dev/webui/actions/workflows/build.yaml) [![Helm](https://img.shields.io/github/actions/workflow/status/galasa-dev/helm/build.yaml?label="Helm")](https://github.com/galasa-dev/helm/actions/workflows/build.yaml) [![SimBank](https://img.shields.io/github/actions/workflow/status/galasa-dev/simplatform/test.yaml?label="Simbank")](https://github.com/galasa-dev/helm/actions/workflows/build.yaml) [![Isolated](https://img.shields.io/github/actions/workflow/status/galasa-dev/isolated/build.yaml?label="Isolated")](https://github.com/galasa-dev/isolated/actions/workflows/build.yaml) [![Integrated-tests](https://img.shields.io/github/actions/workflow/status/galasa-dev/isolated/build.yaml?label="Integrated-tests")](https://github.com/galasa-dev/integratedtests/actions/workflows/build.yaml) [![Isolated tests](https://img.shields.io/github/actions/workflow/status/galasa-dev/isolated/test.yaml?label="Isolated-tests")](https://github.com/galasa-dev/isolated/actions/workflows/test.yaml)
 
 # Galasa 
+
+
 This is the main source code repository for the Galasa open source project.
 
 ## Code structure
 - [`modules`](./modules/) - The code
 - [`tools`](./tools/) - Build tools and useful scripts
 - [`docs`](./docs/) - The source code for our [preview](https://vnext.galasa.dev) and [live](https://galasa.dev) documentation sites
-
 
 
 ## Building locally
