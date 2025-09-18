@@ -1,3 +1,5 @@
+[![Galasa](https://img.shields.io/github/actions/workflow/status/galasa-dev/galasa/pushes.yaml?label="Galasa")](https://github.com/galasa-dev/galasa/actions/workflows/pushes.yaml) [![WebUI](https://img.shields.io/github/actions/workflow/status/galasa-dev/webui/build.yaml?label="WebUI")](https://github.com/galasa-dev/webui/actions/workflows/build.yaml) [![Helm](https://img.shields.io/github/actions/workflow/status/galasa-dev/helm/build.yaml?label="Helm")](https://github.com/galasa-dev/helm/actions/workflows/build.yaml)
+
 # Galasa 
 This is the main source code repository for the Galasa open source project.
 
