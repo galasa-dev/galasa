@@ -33,6 +33,7 @@ dependencies {
     implementation ('dev.galasa:galasa-uber-javadoc:'+version+'@zip') {
         exclude group:"dev.galasa",module:"dev.galasa.platform"
     }
+    implementation ('dev.galasa:dev.galasa.framework.api.openapi:'+version+'@yaml')
 }
 
 task downloadRawDependencies(type: Copy) {
@@ -64,12 +65,22 @@ task importAndUnpackJavadocReferenceDocsZip(type: Copy) {
     dependsOn downloadRawDependencies
 }
 
+task importOpenApiDefinition(type: Copy) {
+    // Copy the yaml file containing the openapi.yaml definition.
+    from "build/dependencies/dev.galasa.framework.api.openapi-${version}.yaml"
+    into "content/docs/reference/rest-api"
+    include ("dev.galasa.framework.api.openapi-${version}.yaml")
+    rename ("dev.galasa.framework.api.openapi-${version}.yaml", "openapi.yaml")
+    
+    dependsOn downloadRawDependencies
+}
 
 // --------------------------------------------------------------------------------------------
 // Turn the .md content into an HTML site
 // --------------------------------------------------------------------------------------------
 task mkdocs(type: Exec) {
-     commandLine "python3", "-m", 'mkdocs', 'build', '--clean', '--no-strict', 
+
+    commandLine "python3", "-m", 'mkdocs', 'build', '--clean', '--no-strict', 
                 '--use-directory-urls', '--site-dir', 'build/site', '--verbose'
 }
 
@@ -86,6 +97,7 @@ task packageIntoAZip(type: Zip) {
 task buildDocsZip(dependsOn: [clean,mkdocs,packageIntoAZip]) {
     dependsOn importAndUnpackCliReferenceDocsZip
     dependsOn importAndUnpackJavadocReferenceDocsZip
+    dependsOn importOpenApiDefinition
     doLast{
     }
 }
