@@ -90,7 +90,7 @@ if [[ "$pod" == "" ]]; then
     pod=$(kubectl get pods | grep etcd | cut -f1 -d' ')
 fi
 
-kubectl -it exec techcobweb-galasa-1-etcd-0  -- etcdctl get dss --prefix=true > "$BASEDIR/etcd-temp.values"
+kubectl -it "${pod}"  -- etcdctl get dss --prefix=true > "$BASEDIR/etcd-temp.values"
 done=0
 while [[ "$done" == "0" ]]; do
     IFS= read -r key
