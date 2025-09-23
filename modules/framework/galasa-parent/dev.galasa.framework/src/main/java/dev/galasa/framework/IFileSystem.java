@@ -13,6 +13,9 @@ import java.nio.file.attribute.FileAttribute;
 import java.util.List;
 import java.util.stream.Stream;
 
+import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
+
 public interface IFileSystem {
 
     void createDirectories(Path folderPath ) throws IOException;
@@ -30,6 +33,8 @@ public interface IFileSystem {
     long size(Path folderPath) throws IOException;
 
     String probeContentType(Path artifactPath) throws IOException;
+
+    String getContentType( IRunResult run, Path artifactLocation) throws IOException  ;
 
     InputStream newInputStream(Path folderPath) throws IOException;
 

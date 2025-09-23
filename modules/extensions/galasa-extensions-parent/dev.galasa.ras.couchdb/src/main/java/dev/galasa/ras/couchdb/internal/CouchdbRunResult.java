@@ -7,6 +7,8 @@ package dev.galasa.ras.couchdb.internal;
 
 import java.nio.file.Path;
 
+import org.apache.commons.logging.Log;
+
 import dev.galasa.extensions.common.api.LogFactory;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -23,7 +25,14 @@ public class CouchdbRunResult implements IRunResult {
     private final CouchdbDeleteRunService deleteRunService;
     private Path path;
 
+    private final Log logger;
+    private final LogFactory logFactory;
+
     public CouchdbRunResult(CouchdbRasStore store, TestStructureCouchdb testStructure, LogFactory logFactory) {
+        this.logFactory = logFactory;
+        this.logger = logFactory.getLog(getClass());
+        logger.info("CouchdbRunResult being constructed.");
+
         this.store = store;
         this.deleteRunService = new CouchdbDeleteRunService(this.store);
         this.storeService = (CouchdbDirectoryService) store.getDirectoryServices().get(0);
@@ -65,7 +74,9 @@ public class CouchdbRunResult implements IRunResult {
 
     @Override
     public void loadArtifacts() throws ResultArchiveStoreException {
+        logger.info("CouchdbRunResult loadArtifacts called...");
         this.path = storeService.getRunArtifactPath(this.testStructure);
+        logger.info("CouchdbRunResult loadArtifacts exiting...");
     }
 
 }

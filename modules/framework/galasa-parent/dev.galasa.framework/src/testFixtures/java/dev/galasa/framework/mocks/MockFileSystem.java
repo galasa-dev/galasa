@@ -24,6 +24,8 @@ import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 
 import dev.galasa.framework.IFileSystem;
+import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
 
 import java.nio.file.DirectoryStream.Filter;
 import java.nio.charset.StandardCharsets;
@@ -154,6 +156,7 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
         return new MockPath(first + String.join("/", more), this);
     }
 
+    @Override
     public String probeContentType(Path path) throws IOException {
         String contentType = "application/octet-stream";
         if (path.toString().endsWith(".properties") 
@@ -165,6 +168,11 @@ public class MockFileSystem extends FileSystem implements IFileSystem {
             contentType = "application/json";
         }
         return contentType;
+    }
+
+    @Override
+    public String getContentType( IRunResult run, Path artifactPath) throws IOException {
+        return probeContentType(artifactPath);
     }
 
     public List<Path> getListOfFiles(String directory, Filter<? super Path> filter) throws IOException {

@@ -10,7 +10,8 @@ import java.nio.file.attribute.FileAttribute;
 /**
  * Used to set the File Type for a Stored Artifact in the Result Archive Store
  *
- *  
+ * According to https://www.iana.org/assignments/media-types/media-types.xhtml these types are
+ * valid mime types
  *
  */
 public class ResultArchiveStoreContentType implements FileAttribute<String> {
@@ -26,6 +27,8 @@ public class ResultArchiveStoreContentType implements FileAttribute<String> {
             "application/octet-stream");
     public static final ResultArchiveStoreContentType ZIP            = new ResultArchiveStoreContentType(
             "application/zip");
+    public static final ResultArchiveStoreContentType GZIP           = new ResultArchiveStoreContentType(
+            "application/gzip");
     public static final ResultArchiveStoreContentType PNG            = new ResultArchiveStoreContentType("image/png");
 
     protected final String                            value;
@@ -70,7 +73,7 @@ public class ResultArchiveStoreContentType implements FileAttribute<String> {
      */
     @Override
     public String toString() {
-        return "RasContentType=" + this.value;
+        return this.value;
     }
 
     /*
