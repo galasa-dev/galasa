@@ -55,13 +55,15 @@ jobs:
           name: javadoc
           path: /home/runner/.m2/repository
 
-      # - name: Download rest-api artifacts from this workflow
-      #   id: download-rest-api
-      #   continue-on-error: true
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: rest-api-docs
-      #     path: /home/runner/.m2/repository
+
+      - name: Download rest-api artifacts from this workflow
+        id: download-framework
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: framework
+          path: /home/runner/.m2/repository
+          
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
