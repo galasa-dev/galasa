@@ -22,7 +22,9 @@
                     url: "openapi.yaml", //Location of Open API spec in the repo
                     dom_id: '#swagger-ui',
                     deepLinking: true,
-                    supportedSubmitMethods: [],
+                    supportedSubmitMethods: [], // Don't allow the 'try it...' functionality.
+                    tryItOutEnabled: false, // Don't allow the 'try it...' functionality.
+                    docExpansion: "none", // Collapse all the sections initially.
                     presets: [
                         SwaggerUIBundle.presets.apis,
                         SwaggerUIBundle.SwaggerUIStandalonePreset
