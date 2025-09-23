@@ -8,6 +8,9 @@ package dev.galasa.ras.couchdb.internal;
 import java.nio.file.FileSystem;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import javax.validation.constraints.NotNull;
 
 import com.google.gson.JsonElement;
@@ -24,12 +27,16 @@ public class CouchdbArtifactPath extends ResultArchiveStorePath {
 
     private boolean directory = false;
 
+    private final Log logger = LogFactory.getLog(CouchdbArtifactPath.class);
+
     public CouchdbArtifactPath(@NotNull FileSystem fileSystem, String pathName) {
         super(fileSystem, pathName);
+        logger.info("CouchdbArtifactPath: constructor 1. Path: "+pathName);
     }
 
     protected CouchdbArtifactPath(FileSystem fileSystem, boolean b, List<String> nameElements, int i, int size) {
         super(fileSystem, b, nameElements, i, size);
+        logger.info("CouchdbArtifactPath: constructor 2. b:"+Boolean.toString(b)+" i:"+Integer.toString(i)+" size:"+Integer.toString(size)+" nameElements:"+nameElements.toString());
     }
 
     protected CouchdbArtifactPath(@NotNull FileSystem fileSystem, String pathName, JsonObject artifactDetails,
@@ -50,6 +57,8 @@ public class CouchdbArtifactPath extends ResultArchiveStorePath {
         } else {
             this.length = 0;
         }
+
+        logger.debug("CouchdbArtifactPath constructor 3 with path "+pathName+" contentType:"+this.contentType+" length:"+Integer.toString(this.length));
     }
 
     @Override

@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
+
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -130,7 +130,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
     }
 
     private HttpServletResponse downloadStoredArtifact(HttpServletResponse res, IRunResult run, String artifactPath) throws ResultArchiveStoreException, IOException {
-        FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
+        java.nio.file.FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
         Path artifactLocation = artifactFileSystem.getPath(artifactPath);
 
         // Open the artifact for reading
@@ -157,6 +157,11 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
             }
             res.setStatus(HttpServletResponse.SC_OK);
 
+
+            logAttributesOfFileBeingDownloaded(artifactFileSystem, artifactLocation);
+            
+            // Get content type from the artifact file system's attributes
+            // String contentType = getFileSystem().getContentType(run,artifactLocation);
             String contentType = getFileSystem().probeContentType(artifactLocation);
 
             res.setContentType(contentType);
@@ -164,6 +169,25 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
             logger.info("ContentType is "+contentType);
         }
         return res;
+    }
+
+    private void logAttributesOfFileBeingDownloaded(FileSystem artifactFileSystem, Path artifactLocation) {
+        try {
+            Map<String,Object> attributes = artifactFileSystem.provider().readAttributes(artifactLocation, "*");
+            for( String attributeName : attributes.keySet() ) {
+                Object valueObj = attributes.get(attributeName);
+                if (valueObj == null) {
+                    logger.info("download: Attribute "+attributeName+" on file "+artifactLocation+" has a value of null");
+                } else {
+                    logger.info("download: Attribute "+attributeName+" on file "+artifactLocation+" has a value of "+valueObj.toString());
+                }
+            }
+            if(attributes.isEmpty() ) {
+                logger.info("download: there are no attributes on file "+artifactLocation);
+            }
+        } catch (Exception ex) {
+            logger.info("Failed to get attributes of file being downloaded.",ex);
+        }
     }
 
     private HttpServletResponse setDownloadResponse(HttpServletResponse res, byte[] content, String contentType) throws IOException {

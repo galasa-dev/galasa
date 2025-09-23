@@ -22,6 +22,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ResultArchiveStoreContentType;
+import dev.galasa.ResultArchiveStoreFileAttributeView;
+import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.ResultArchiveStoreException;
 
 public class FileSystem implements IFileSystem {
 
@@ -71,7 +75,55 @@ public class FileSystem implements IFileSystem {
 
     public String probeContentType(Path path) throws IOException {
         logger.info("Probing the contentType of "+path.toString());
+        logAllAttributesOnFilePath(path);
         String contentType = getFileAttributeValue(path, SupportedFileAttributeName.CONTENT_TYPE, ResultArchiveStoreContentType.BINARY.value());
+        return contentType;
+    }
+
+    private void logAllAttributesOnFilePath(Path artifactPath) {
+        try {
+            Map<String,Object> attributes = Files.readAttributes(artifactPath, "*");
+            for( String attributeName : attributes.keySet() ) {
+                Object valueObj = attributes.get(attributeName);
+                if (valueObj == null) {
+                    logger.info("Attribute "+attributeName+" has a value of null");
+                } else {
+                    logger.info("Attribute "+attributeName+" has a value of "+valueObj.toString());
+                }
+            }
+        } catch(Exception ex) {
+            logger.info("logAllAttributesOnFilePath: Failed to get attributes from artifact "+artifactPath,ex);
+        }
+    }
+
+    public String getContentType( IRunResult run, Path artifactLocation) throws IOException  {
+        java.nio.file.FileSystem artifactFileSystem ;
+        try {
+            artifactFileSystem = run.getArtifactsRoot().getFileSystem();
+        } catch( Exception ex) {
+            logger.warn("Failed to obtain the file system for articact run "+run.getRunId(),ex);
+            throw new IOException(ex);
+        }
+        
+        // Get content type from the artifact file system's attributes
+        String contentType = "application/octet-stream"; // Default fallback
+        String contentTypeAttributeName = SupportedFileAttributeName.CONTENT_TYPE.getValue();
+        try {
+            
+            Map<String, Object> attributes = artifactFileSystem.provider().readAttributes(artifactLocation, contentTypeAttributeName);
+            if (attributes != null) {
+                Object contentTypeObj = attributes.get(contentTypeAttributeName);
+                if (contentTypeObj != null) {
+                    contentType = contentTypeObj.toString();
+                } else {
+                    logger.info("getContentType: Got null value for attribute "+contentTypeAttributeName+" from file at "+artifactLocation+" defaulting to "+contentType);
+                }
+            } else {
+                logger.info("getContentType: Failed to get attributes for "+contentTypeAttributeName+" from file at "+artifactLocation+" defaulting to "+contentType);
+            }
+        } catch (Exception e) {
+            logger.warn("getContentType: Failed to read content type attribute ("+contentTypeAttributeName+") from artifact ("+artifactLocation+"). Using default ("+contentType+") instead.", e);
+        }
         return contentType;
     }
 

@@ -308,7 +308,7 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
         Path terminalPath = terminalRasDirectory.resolve(terminalFilename);
 
         try (GZIPOutputStream gos = new GZIPOutputStream(Files.newOutputStream(terminalPath,
-                new SetContentType(new ResultArchiveStoreContentType("application/zos3270terminal")),
+                new SetContentType(ResultArchiveStoreContentType.GZIP),
                 StandardOpenOption.CREATE))) {
             IOUtils.write(tempJson, gos, "utf-8");
             gos.flush();
