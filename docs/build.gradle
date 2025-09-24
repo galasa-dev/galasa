@@ -71,7 +71,11 @@ task importOpenApiDefinition(type: Copy) {
     into "content/docs/reference/rest-api"
     include ("dev.galasa.framework.api.openapi-${version}.yaml")
     rename ("dev.galasa.framework.api.openapi-${version}.yaml", "openapi.yaml")
-    
+
+    // When we do the copy, remove the two lines in the output which contain the server 
+    // definition. The static docs don't have the 'try it...' functionality of the UI enabled.
+    filter { line -> line.replaceAll('.*API_SERVER_URL.*', '') }
+    filter { line -> line.replaceAll('^servers:$', '') }
     dependsOn downloadRawDependencies
 }
 
