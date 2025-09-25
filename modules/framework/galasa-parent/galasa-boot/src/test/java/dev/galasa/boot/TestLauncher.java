@@ -280,4 +280,28 @@ public class TestLauncher {
 
         assertThat(bootstrap.getProperty("framework.extra.bundles")).isEqualTo(trimmedExtraBundles);
     }
+
+    @Test
+    public void testCustomLog4jConfigFileCanBeSetIntoJVMArguments() throws Exception {
+        MockEnvironment mockEnv = new MockEnvironment();
+        Launcher launcher  = new Launcher(mockEnv);
+
+        String log4j2PropertiesPath = "file://mylog4j2.properties";
+
+        launcher.setLog4j2PropertiesFile(log4j2PropertiesPath);
+
+        assertThat(mockEnv.getProperty("log4j2.configurationFile")).isEqualTo(log4j2PropertiesPath);
+    }
+
+    @Test
+    public void testBadLog4jConfigPathLogsError() throws Exception {
+        MockEnvironment mockEnv = new MockEnvironment();
+        Launcher launcher  = new Launcher(mockEnv);
+
+        String log4j2PropertiesPath = "not a valid path!";
+
+        launcher.setLog4j2PropertiesFile(log4j2PropertiesPath);
+
+        assertThat(mockEnv.getExitCode()).isEqualTo(-1);
+    }
 }

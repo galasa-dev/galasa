@@ -110,6 +110,7 @@ public class FelixFramework {
             bootJarLoacation = boostrapProperties.getProperty("dev.galasa.boot.jar.location");
             // *** Load dependencies for the maven repo url handler
             installBundle("org.apache.felix.scr.jar", true);
+            installBundle("log4j-layout-template-json.jar", false);
             installBundle("dev.galasa.framework.log4j2.bridge.jar", false);
             installBundle("log4j-api.jar", true);
             installBundle("log4j-core.jar", true);

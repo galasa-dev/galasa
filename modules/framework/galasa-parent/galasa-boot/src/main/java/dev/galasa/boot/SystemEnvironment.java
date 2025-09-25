@@ -21,4 +21,13 @@ public class SystemEnvironment implements Environment {
         return System.getProperty(propertyName);
     }
     
+    @Override
+    public void setProperty(String propertyName, String value) {
+        System.setProperty(propertyName, value);
+    }
+
+    @Override
+    public void exit(int exitCode) {
+        System.exit(exitCode);
+    }
 }

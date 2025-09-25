@@ -17,4 +17,9 @@ public interface Environment {
 
     /** Gets a system property */
     String getProperty(String propertyName);
+
+    /** Sets a system property */
+    void setProperty(String propertyName, String value);
+
+    void exit(int exitCode);
 }

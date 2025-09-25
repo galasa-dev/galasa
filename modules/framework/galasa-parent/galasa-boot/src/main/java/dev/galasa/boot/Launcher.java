@@ -71,6 +71,8 @@ public class Launcher {
     private static final String     SETUPECO_OPTION           = "setupeco";
     private static final String     VALIDATEECO_OPTION        = "validateeco";
 
+    private static final String     LOG4J2_PROPERTIES_FILE_OPTION = "log4j2-properties-file";
+
     private static final String     USER_HOME                 = "user.home";
 
     private static final BootLogger logger                    = new BootLogger();
@@ -107,7 +109,15 @@ public class Launcher {
     private URL                     localMavenRepo;
     private List<URL>               remoteMavenRepos          = new ArrayList<>();
 
-    public Environment              env                       = new SystemEnvironment();
+    public Environment              env;
+
+    public Launcher() {
+        this(new SystemEnvironment());
+    }
+
+    public Launcher(Environment env) {
+        this.env = env;
+    }
 
     /**
      * Launcher main method
@@ -262,6 +272,7 @@ public class Launcher {
         options.addOption(null, DRY_RUN_OPTION, false, "Perform a dry-run of the specified actions. Can be combined with \"" + FILE_OPTION_LONG + "\"");
         options.addOption(null, SETUPECO_OPTION, false, "Setup the Galasa Ecosystem");
         options.addOption(null, VALIDATEECO_OPTION, false, "Validate the Galasa Ecosystem");
+        options.addOption(null, LOG4J2_PROPERTIES_FILE_OPTION, true, "The absolute path to a custom log4j2 properties file. Overrides the --trace option.");
         
 
         CommandLineParser parser = new DefaultParser();
@@ -279,6 +290,10 @@ public class Launcher {
         if (commandLine.hasOption(TRACE_OPTION)) {
             logger.setLevel(Level.TRACE);
             System.setProperty("log4j2.configurationFile", "trace-log4j2.properties");
+        }
+
+        if (commandLine.hasOption(LOG4J2_PROPERTIES_FILE_OPTION)) {
+            setLog4j2PropertiesFile(commandLine.getOptionValue(LOG4J2_PROPERTIES_FILE_OPTION));
         }
 
         // *** Add any OBRs if coded
@@ -515,6 +530,18 @@ public class Launcher {
         }
     }
 
+    void setLog4j2PropertiesFile(String log4j2PropertiesFilePath) {
+        if (log4j2PropertiesFilePath != null) {
+            try {
+                URL log4j2PropertiesFileUrl = new URL(log4j2PropertiesFilePath);
+                env.setProperty("log4j2.configurationFile", log4j2PropertiesFileUrl.toString());
+            } catch (MalformedURLException e) {
+                logger.error("Invalid log4j2 properties file URL", e);
+                commandLineError(null);
+            }
+        }
+    }
+
     /**
      * Issue command line options error and exit
      */
@@ -526,7 +553,7 @@ public class Launcher {
         logger.error(
                 "\nExample test run arguments: --obr infra.obr --obr test.obr --test test.bundle/test.package.TestClass\n"
                         + "Example Resource Management arguments: --obr infra.obr --obr test.obr --resourcemanagement");
-        System.exit(-1);
+        env.exit(-1);
     }
 
     public void validateJavaLevel(Environment env) throws LauncherException{
