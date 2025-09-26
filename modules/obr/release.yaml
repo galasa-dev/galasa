@@ -373,6 +373,12 @@ external:
     isolated: true
 
   - group: org.apache.logging.log4j
+    artifact: log4j-layout-template-json
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.logging.log4j
     artifact: log4j-slf4j-impl
     obr: true
     mvp: true
