@@ -272,7 +272,7 @@ public class Launcher {
         options.addOption(null, DRY_RUN_OPTION, false, "Perform a dry-run of the specified actions. Can be combined with \"" + FILE_OPTION_LONG + "\"");
         options.addOption(null, SETUPECO_OPTION, false, "Setup the Galasa Ecosystem");
         options.addOption(null, VALIDATEECO_OPTION, false, "Validate the Galasa Ecosystem");
-        options.addOption(null, LOG4J2_PROPERTIES_FILE_OPTION, true, "The absolute path to a custom log4j2 properties file. Overrides the --trace option.");
+        options.addOption(null, LOG4J2_PROPERTIES_FILE_OPTION, true, "Optional. Path to a custom log4j2 properties file. Overrides the --trace option.");
         
 
         CommandLineParser parser = new DefaultParser();
@@ -533,9 +533,19 @@ public class Launcher {
     void setLog4j2PropertiesFile(String log4j2PropertiesFilePath) {
         if (log4j2PropertiesFilePath != null) {
             try {
-                URL log4j2PropertiesFileUrl = new URL(log4j2PropertiesFilePath);
+                URI log4j2PropertiesFileUri = new URI(log4j2PropertiesFilePath);
+                URL log4j2PropertiesFileUrl = null;
+                if (log4j2PropertiesFileUri.getScheme() != null) {
+                    // The given path includes a scheme like "file://"
+                    log4j2PropertiesFileUrl = log4j2PropertiesFileUri.toURL();
+                } else {
+                    // Either an absolute or relative path was given
+                    Path path = Path.of(log4j2PropertiesFilePath).toAbsolutePath().normalize();
+                    log4j2PropertiesFileUrl = path.toUri().toURL();
+                }
+
                 env.setProperty("log4j2.configurationFile", log4j2PropertiesFileUrl.toString());
-            } catch (MalformedURLException e) {
+            } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
                 logger.error("Invalid log4j2 properties file URL", e);
                 commandLineError(null);
             }
