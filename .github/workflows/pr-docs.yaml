@@ -111,6 +111,26 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact-id }}
 
+      # We can download the framework openapi.yaml if it has changed. 
+      - name: Download openapi.yaml so we can show it in documentation
+        id: download-openapi-yaml
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: framework
+          path: /home/runner/.m2/repository
+
+      # The cli module wasn't changed, so download artifacts
+      # from the last successful workflow.
+      - name: Download openapi.yaml from main as it wasn't changed.
+        if: ${{ steps.download-openapi-yaml.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: framework
+          path: /home/runner/.m2/repository
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.artifact-id }}
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
