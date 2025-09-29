@@ -21,5 +21,6 @@ public interface Environment {
     /** Sets a system property */
     void setProperty(String propertyName, String value);
 
+    /** Stops the JVM with the given exit code */
     void exit(int exitCode);
 }
