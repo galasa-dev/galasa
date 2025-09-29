@@ -10,6 +10,8 @@ import static org.assertj.core.api.Assertions.*;
 import dev.galasa.boot.mocks.MockEnvironment;
 
 import org.junit.Test;
+
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class TestLauncher {
@@ -279,5 +281,54 @@ public class TestLauncher {
         launcher.setExtraBundlesFromEnvironment(mockEnv, bootstrap);
 
         assertThat(bootstrap.getProperty("framework.extra.bundles")).isEqualTo(trimmedExtraBundles);
+    }
+
+    @Test
+    public void testCustomLog4jConfigFileCanBeSetIntoJVMArguments() throws Exception {
+        MockEnvironment mockEnv = new MockEnvironment();
+        Launcher launcher  = new Launcher(mockEnv);
+
+        String log4j2PropertiesPath = "file://mylog4j2.properties";
+
+        launcher.setLog4j2PropertiesFile(log4j2PropertiesPath);
+
+        assertThat(mockEnv.getProperty("log4j2.configurationFile")).isEqualTo(log4j2PropertiesPath);
+    }
+
+    @Test
+    public void testCustomLog4jConfigFileWithUnsupportedUrlSchemeExits() throws Exception {
+        MockEnvironment mockEnv = new MockEnvironment();
+        Launcher launcher  = new Launcher(mockEnv);
+
+        String log4j2PropertiesPath = "https://mylog4j2.properties";
+
+        launcher.setLog4j2PropertiesFile(log4j2PropertiesPath);
+
+        assertThat(mockEnv.getExitCode()).isEqualTo(-1);
+    }
+
+    @Test
+    public void testCustomLog4jConfigFileWithRelativePathCanBeSetIntoJVMArguments() throws Exception {
+        MockEnvironment mockEnv = new MockEnvironment();
+        Launcher launcher  = new Launcher(mockEnv);
+
+        String log4j2PropertiesPath = "properties/mylog4j2.properties";
+        String expectedPath = Path.of(log4j2PropertiesPath).toAbsolutePath().toUri().toURL().toString();
+
+        launcher.setLog4j2PropertiesFile(log4j2PropertiesPath);
+
+        assertThat(mockEnv.getProperty("log4j2.configurationFile")).isEqualTo(expectedPath);
+    }
+
+    @Test
+    public void testBadLog4jConfigPathExits() throws Exception {
+        MockEnvironment mockEnv = new MockEnvironment();
+        Launcher launcher  = new Launcher(mockEnv);
+
+        String log4j2PropertiesPath = "not a valid path!";
+
+        launcher.setLog4j2PropertiesFile(log4j2PropertiesPath);
+
+        assertThat(mockEnv.getExitCode()).isEqualTo(-1);
     }
 }

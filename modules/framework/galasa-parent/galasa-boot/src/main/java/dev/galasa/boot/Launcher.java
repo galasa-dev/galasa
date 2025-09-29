@@ -48,6 +48,9 @@ import dev.galasa.boot.felix.FelixFramework;
  */
 public class Launcher {
 
+    private static final String LOG4J2_PROPERTIES_FILE_OPTION = "log4j2-properties-file";
+    private static final String LOG4J2_CONFIGURATION_FILE_PROPERTY_NAME = "log4j2.configurationFile";
+
     private static final String     OBR_OPTION                = "obr";
     private static final String     BOOTSTRAP_OPTION          = "bootstrap";
     private static final String     OVERRIDES_OPTION          = "overrides";
@@ -107,7 +110,15 @@ public class Launcher {
     private URL                     localMavenRepo;
     private List<URL>               remoteMavenRepos          = new ArrayList<>();
 
-    public Environment              env                       = new SystemEnvironment();
+    public Environment              env;
+
+    public Launcher() {
+        this(new SystemEnvironment());
+    }
+
+    public Launcher(Environment env) {
+        this.env = env;
+    }
 
     /**
      * Launcher main method
@@ -262,6 +273,7 @@ public class Launcher {
         options.addOption(null, DRY_RUN_OPTION, false, "Perform a dry-run of the specified actions. Can be combined with \"" + FILE_OPTION_LONG + "\"");
         options.addOption(null, SETUPECO_OPTION, false, "Setup the Galasa Ecosystem");
         options.addOption(null, VALIDATEECO_OPTION, false, "Validate the Galasa Ecosystem");
+        options.addOption(null, LOG4J2_PROPERTIES_FILE_OPTION, true, "Optional. Path to a custom log4j2 properties file. Overrides the --trace option.");
         
 
         CommandLineParser parser = new DefaultParser();
@@ -278,7 +290,11 @@ public class Launcher {
 
         if (commandLine.hasOption(TRACE_OPTION)) {
             logger.setLevel(Level.TRACE);
-            System.setProperty("log4j2.configurationFile", "trace-log4j2.properties");
+            System.setProperty(LOG4J2_CONFIGURATION_FILE_PROPERTY_NAME, "trace-log4j2.properties");
+        }
+
+        if (commandLine.hasOption(LOG4J2_PROPERTIES_FILE_OPTION)) {
+            setLog4j2PropertiesFile(commandLine.getOptionValue(LOG4J2_PROPERTIES_FILE_OPTION));
         }
 
         // *** Add any OBRs if coded
@@ -515,6 +531,35 @@ public class Launcher {
         }
     }
 
+    void setLog4j2PropertiesFile(String log4j2PropertiesFilePath) {
+        if (log4j2PropertiesFilePath != null) {
+            try {
+                URI log4j2PropertiesFileUri = new URI(log4j2PropertiesFilePath);
+                String log4j2PropertiesUrlScheme = log4j2PropertiesFileUri.getScheme();
+                URL log4j2PropertiesUrl = null;
+
+                if (log4j2PropertiesUrlScheme != null && !"file".equals(log4j2PropertiesUrlScheme)) {
+                    throw new IllegalArgumentException("A URL with an unsupported scheme was given. The supported scheme is 'file'");
+                }
+
+                if ("file".equals(log4j2PropertiesUrlScheme)) {
+                    // The given path includes a file:// scheme, convert it into a URL
+                    // to check that it is valid
+                    log4j2PropertiesUrl = log4j2PropertiesFileUri.toURL();
+                } else {
+                    // Either an absolute or relative path was given
+                    Path path = Path.of(log4j2PropertiesFilePath).toAbsolutePath().normalize();
+                    log4j2PropertiesUrl = path.toUri().toURL();
+                }
+
+                env.setProperty(LOG4J2_CONFIGURATION_FILE_PROPERTY_NAME, log4j2PropertiesUrl.toString());
+            } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
+                logger.error("Invalid log4j2 properties file URL", e);
+                commandLineError(null);
+            }
+        }
+    }
+
     /**
      * Issue command line options error and exit
      */
@@ -526,7 +571,7 @@ public class Launcher {
         logger.error(
                 "\nExample test run arguments: --obr infra.obr --obr test.obr --test test.bundle/test.package.TestClass\n"
                         + "Example Resource Management arguments: --obr infra.obr --obr test.obr --resourcemanagement");
-        System.exit(-1);
+        env.exit(-1);
     }
 
     public void validateJavaLevel(Environment env) throws LauncherException{

@@ -17,4 +17,10 @@ public interface Environment {
 
     /** Gets a system property */
     String getProperty(String propertyName);
+
+    /** Sets a system property */
+    void setProperty(String propertyName, String value);
+
+    /** Stops the JVM with the given exit code */
+    void exit(int exitCode);
 }

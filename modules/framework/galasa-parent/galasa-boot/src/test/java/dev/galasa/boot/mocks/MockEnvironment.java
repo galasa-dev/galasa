@@ -17,6 +17,7 @@ public class MockEnvironment implements Environment {
 
     Map<String,String> envProps ;
     Map<String,String> sysProps ;
+    int exitCode;
 
     public MockEnvironment(Map<String,String> envProps,Map<String,String> sysProps) {
         this.envProps = envProps;
@@ -46,6 +47,14 @@ public class MockEnvironment implements Environment {
         return this.sysProps.get(propertyName);
     }
 
+    public int getExitCode() {
+        return exitCode;
+    }
+
+    @Override
+    public void exit(int exitCode) {
+        this.exitCode = exitCode;   
+    }
 
     
 }
