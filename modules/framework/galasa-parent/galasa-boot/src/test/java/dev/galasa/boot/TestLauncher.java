@@ -296,6 +296,18 @@ public class TestLauncher {
     }
 
     @Test
+    public void testCustomLog4jConfigFileWithUnsupportedUrlSchemeExits() throws Exception {
+        MockEnvironment mockEnv = new MockEnvironment();
+        Launcher launcher  = new Launcher(mockEnv);
+
+        String log4j2PropertiesPath = "https://mylog4j2.properties";
+
+        launcher.setLog4j2PropertiesFile(log4j2PropertiesPath);
+
+        assertThat(mockEnv.getExitCode()).isEqualTo(-1);
+    }
+
+    @Test
     public void testCustomLog4jConfigFileWithRelativePathCanBeSetIntoJVMArguments() throws Exception {
         MockEnvironment mockEnv = new MockEnvironment();
         Launcher launcher  = new Launcher(mockEnv);
@@ -309,7 +321,7 @@ public class TestLauncher {
     }
 
     @Test
-    public void testBadLog4jConfigPathLogsError() throws Exception {
+    public void testBadLog4jConfigPathExits() throws Exception {
         MockEnvironment mockEnv = new MockEnvironment();
         Launcher launcher  = new Launcher(mockEnv);
 

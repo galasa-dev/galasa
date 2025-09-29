@@ -48,6 +48,9 @@ import dev.galasa.boot.felix.FelixFramework;
  */
 public class Launcher {
 
+    private static final String LOG4J2_PROPERTIES_FILE_OPTION = "log4j2-properties-file";
+    private static final String LOG4J2_CONFIGURATION_FILE_PROPERTY_NAME = "log4j2.configurationFile";
+
     private static final String     OBR_OPTION                = "obr";
     private static final String     BOOTSTRAP_OPTION          = "bootstrap";
     private static final String     OVERRIDES_OPTION          = "overrides";
@@ -70,8 +73,6 @@ public class Launcher {
     private static final String     DRY_RUN_OPTION            = "dryrun";
     private static final String     SETUPECO_OPTION           = "setupeco";
     private static final String     VALIDATEECO_OPTION        = "validateeco";
-
-    private static final String     LOG4J2_PROPERTIES_FILE_OPTION = "log4j2-properties-file";
 
     private static final String     USER_HOME                 = "user.home";
 
@@ -289,7 +290,7 @@ public class Launcher {
 
         if (commandLine.hasOption(TRACE_OPTION)) {
             logger.setLevel(Level.TRACE);
-            System.setProperty("log4j2.configurationFile", "trace-log4j2.properties");
+            System.setProperty(LOG4J2_CONFIGURATION_FILE_PROPERTY_NAME, "trace-log4j2.properties");
         }
 
         if (commandLine.hasOption(LOG4J2_PROPERTIES_FILE_OPTION)) {
@@ -534,17 +535,24 @@ public class Launcher {
         if (log4j2PropertiesFilePath != null) {
             try {
                 URI log4j2PropertiesFileUri = new URI(log4j2PropertiesFilePath);
-                URL log4j2PropertiesFileUrl = null;
-                if (log4j2PropertiesFileUri.getScheme() != null) {
-                    // The given path includes a scheme like "file://"
-                    log4j2PropertiesFileUrl = log4j2PropertiesFileUri.toURL();
+                String log4j2PropertiesUrlScheme = log4j2PropertiesFileUri.getScheme();
+                URL log4j2PropertiesUrl = null;
+
+                if (log4j2PropertiesUrlScheme != null && !"file".equals(log4j2PropertiesUrlScheme)) {
+                    throw new IllegalArgumentException("A URL with an unsupported scheme was given. The supported scheme is 'file'");
+                }
+
+                if ("file".equals(log4j2PropertiesUrlScheme)) {
+                    // The given path includes a file:// scheme, convert it into a URL
+                    // to check that it is valid
+                    log4j2PropertiesUrl = log4j2PropertiesFileUri.toURL();
                 } else {
                     // Either an absolute or relative path was given
                     Path path = Path.of(log4j2PropertiesFilePath).toAbsolutePath().normalize();
-                    log4j2PropertiesFileUrl = path.toUri().toURL();
+                    log4j2PropertiesUrl = path.toUri().toURL();
                 }
 
-                env.setProperty("log4j2.configurationFile", log4j2PropertiesFileUrl.toString());
+                env.setProperty(LOG4J2_CONFIGURATION_FILE_PROPERTY_NAME, log4j2PropertiesUrl.toString());
             } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
                 logger.error("Invalid log4j2 properties file URL", e);
                 commandLineError(null);
