@@ -198,12 +198,12 @@ For example, if you have a custom JSON template in a file called `MyLayout.json`
 
 1. Create a ConfigMap by running:
     ```
-    kubectl create configmap my-json-layout --from-file=/path/to/MyLayout.json
+    kubectl create configmap my-json-layouts --from-file=/path/to/MyLayout.json
     ```
 
 2. Set `log4jJsonTemplatesConfigMapName` in the Helm values to:
     ```yaml
-    log4jJsonTemplatesConfigMapName: "my-json-layout"
+    log4jJsonTemplatesConfigMapName: "my-json-layouts"
     ```
 
 3. Use the custom layout in the `log4j2Properties` value by adding these properties:
