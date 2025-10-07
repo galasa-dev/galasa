@@ -168,6 +168,51 @@ and the value of the `config.yaml` key must be a valid Dex configuration.
 
 For more information on configuring Dex, see the [Dex documentation](https://dexidp.io/docs){target="_blank"}.
 
+### Configuring Logging for the Galasa service (Optional)
+
+The Galasa service generates log messages using Log4j and these messages are sent to each process' standard output stream by default.
+
+If you would like to modify the format of the Galasa service's log messages or configure additional Log4j appenders:
+
+1. Provide a custom set of Log4j2 properties using the `log4j2Properties` value as a multi-line string in the form:
+
+    ```yaml
+    log4j2Properties: |
+      status = error
+      name = Default
+    
+      appender.console.type = Console
+      appender.console.name = stdout
+      appender.console.layout.type = PatternLayout
+      appender.console.layout.pattern = %d{dd/MM/yyyy HH:mm:ss.SSS} %-5p %c{1.} - %m%n
+    
+      rootLogger.level = debug
+      rootLogger.appenderRef.stdout.ref = stdout
+    ```
+
+If you are using Log4j's `JsonTemplateLayout` layout type and would like to use a custom JSON template for your log messages, then you can create a ConfigMap containing the JSON templates that you wish to make available to the Galasa service and supply the name of that ConfigMap in the `log4jJsonTemplatesConfigMapName` value.
+
+The ConfigMap is mounted into the Galasa service pods in the `/log4j-config` directory, so any Log4j properties that need to refer to a template's URI will need a value to be prefixed with `file:/log4j-config`.
+
+For example, if you have a custom JSON template in a file called `MyLayout.json`, then you would take the following steps:
+
+1. Create a ConfigMap by running:
+    ```
+    kubectl create configmap my-json-layout --from-file=/path/to/MyLayout.json
+    ```
+
+2. Set `log4jJsonTemplatesConfigMapName` in the Helm values to:
+    ```yaml
+    log4jJsonTemplatesConfigMapName: "my-json-layout"
+    ```
+
+3. Use the custom layout in the `log4j2Properties` value by adding these properties:
+    ```properties
+    appender.myAppender.layout.type = JsonTemplateLayout
+    appender.myAppender.layout.eventTemplateUri = file:/log4j-config/MyLayout.json
+    ```
+
+Refer to the [Log4j documentation](https://logging.apache.org/log4j/2.x/manual/configuration.html) for available properties.
 
 ## Configure the default user role, and 'owner' of the Galasa service
 
