@@ -51,8 +51,9 @@ paths:
         - name: base64_callback_url
           in: query
           description: |
-            A Base64URL-encoded URL to return to once the authentication process is complete.
-            This should be a URL to a client web application.
+            The URL to return to once the authentication process is complete.
+            This must be provided as a Base64URL encoded value and the URL should go to
+            a client web application.
           required: true
           schema:
             type: string
