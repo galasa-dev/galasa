@@ -44,6 +44,7 @@ paths:
 
             The URL to return to once the authentication process is complete.
             This should be a URL to a client web application.
+          deprecated: true
           required: false
           schema:
             type: string
