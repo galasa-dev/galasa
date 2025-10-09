@@ -40,7 +40,17 @@ paths:
         - name: callback_url
           in: query
           description: |
+            Deprecated. Use 'base64_callback_url' instead.
+
             The URL to return to once the authentication process is complete.
+            This should be a URL to a client web application.
+          required: false
+          schema:
+            type: string
+        - name: base64_callback_url
+          in: query
+          description: |
+            A Base64URL-encoded URL to return to once the authentication process is complete.
             This should be a URL to a client web application.
           required: true
           schema:
