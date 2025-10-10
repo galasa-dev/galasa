@@ -7,6 +7,7 @@ package dev.galasa.framework.api.authentication.internal.routes;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.util.Base64;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -45,9 +46,11 @@ public class AuthRoute extends AbstractAuthRoute {
     // Query parameters
     public static final String QUERY_PARAMETER_CLIENT_ID = "client_id";
     public static final String QUERY_PARAMETER_CALLBACK_URL = "callback_url";
+    public static final String QUERY_PARAMETER_BASE64_CALLBACK_URL = "base64_callback_url";
     public static final SupportedQueryParameterNames SUPPORTED_QUERY_PARAMETER_NAMES = new SupportedQueryParameterNames(
         QUERY_PARAMETER_CLIENT_ID,
-        QUERY_PARAMETER_CALLBACK_URL
+        QUERY_PARAMETER_CALLBACK_URL,
+        QUERY_PARAMETER_BASE64_CALLBACK_URL
     );
 
     // Fields in a payload of a POST request we parse for meaning.
@@ -101,7 +104,16 @@ public class AuthRoute extends AbstractAuthRoute {
 
         try {
             String clientId = sanitizeString(queryParams.getSingleString(QUERY_PARAMETER_CLIENT_ID, null));
-            String clientCallbackUrl = sanitizeString(queryParams.getSingleString(QUERY_PARAMETER_CALLBACK_URL, null));
+            String deprecatedClientCallbackUrl = sanitizeString(queryParams.getSingleString(QUERY_PARAMETER_CALLBACK_URL, null));
+            String encodedClientCallbackUrl = queryParams.getSingleString(QUERY_PARAMETER_BASE64_CALLBACK_URL, null);
+
+            String clientCallbackUrl = null;
+            if (encodedClientCallbackUrl != null) {
+                clientCallbackUrl = decodeClientCallbackUrl(request, encodedClientCallbackUrl);
+            } else if (deprecatedClientCallbackUrl != null) {
+                // Remove this once the old 'callback_url' query parameter is removed
+                clientCallbackUrl = deprecatedClientCallbackUrl;
+            }
 
             // Make sure the required query parameters exist
             if (clientId == null || clientCallbackUrl == null || !isUrlValid(clientCallbackUrl)) {
@@ -249,5 +261,18 @@ public class AuthRoute extends AbstractAuthRoute {
             stateId += "-" + clientIp;
         }
         return stateId;
+    }
+
+    private String decodeClientCallbackUrl(HttpServletRequest request, String encodedClientCallbackUrl)
+            throws InternalServletException {
+        String clientCallbackUrl = null;
+        try {
+            byte[] decodedUrlBytes = Base64.getUrlDecoder().decode(encodedClientCallbackUrl);
+            clientCallbackUrl = sanitizeString(new String(decodedUrlBytes));
+        } catch (IllegalArgumentException e) {
+            ServletError error = new ServletError(GAL5400_BAD_REQUEST, request.getServletPath());
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        return clientCallbackUrl;
     }
 }

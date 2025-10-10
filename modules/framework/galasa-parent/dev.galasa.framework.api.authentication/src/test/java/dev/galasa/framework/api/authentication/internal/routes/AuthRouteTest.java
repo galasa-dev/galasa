@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -419,6 +420,7 @@ public class AuthRouteTest extends BaseServletTest {
         String clientIp = "123.456.789.010";
         String clientId = "my-client";
         String clientCallbackUrl = "http://my.app";
+        String encodedCallbackUrl = Base64.getUrlEncoder().encodeToString(clientCallbackUrl.getBytes());
 
         MockOidcProvider mockOidcProvider = new MockOidcProvider(redirectLocation);
 
@@ -429,7 +431,7 @@ public class AuthRouteTest extends BaseServletTest {
         servlet.setFramework(mockFramework);
 
         Map<String, String[]> queryParams = Map.of(
-                "client_id", new String[] { clientId }, "callback_url", new String[] { clientCallbackUrl }
+                "client_id", new String[] { clientId }, "base64_callback_url", new String[] { encodedCallbackUrl }
         );
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
@@ -451,6 +453,8 @@ public class AuthRouteTest extends BaseServletTest {
     public void testAuthGetRequestWithEmptyReturnedLocationHeaderReturnsError() throws Exception {
         // Given...
         String clientIp = "123.456.789.010";
+        String clientCallbackUrl = "http://my.app";
+        String encodedCallbackUrl = Base64.getUrlEncoder().encodeToString(clientCallbackUrl.getBytes());
 
         // No "Location" returned from the issuer, will not be able to redirect anywhere to authenticate
         Map<String, List<String>> headers = new HashMap<>();
@@ -462,7 +466,7 @@ public class AuthRouteTest extends BaseServletTest {
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider);
 
         Map<String, String[]> queryParams = Map.of(
-                "client_id", new String[] { "my-client" }, "callback_url", new String[] { "http://my.app" }
+                "client_id", new String[] { "my-client" }, "base64_callback_url", new String[] { encodedCallbackUrl }
         );
 
         MockHttpServletRequest mockRequest = new MockHttpServletRequest(queryParams, null);
