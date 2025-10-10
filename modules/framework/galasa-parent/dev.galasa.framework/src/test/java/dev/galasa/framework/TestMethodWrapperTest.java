@@ -137,6 +137,9 @@ public class TestMethodWrapperTest {
         testMethodWrapper.invoke(mockTestRunManagers, mockTestClass, continueOnTestFailure, testClassWrapper);
 
         // Then...
+        // The test class shouldn't have had a result set yet
+        assertThat(testClassWrapper.getResult()).isNull();
+
         assertThat(beforeMethodWrapper.getResult().getName()).isEqualTo("Ignored");
         assertThat(afterMethodWrapper.getResult().getName()).isEqualTo("Ignored");
         assertThat(testMethodWrapper.getResult().getName()).isEqualTo("Ignored");
@@ -182,6 +185,8 @@ public class TestMethodWrapperTest {
 
         // Then...
         String passedResultStr = passedResult.getName();
+
+        assertThat(testClassWrapper.getResult().isPassed()).isTrue();
         assertThat(beforeMethodWrapper.getResult().getName()).isEqualTo(passedResultStr);
         assertThat(afterMethodWrapper.getResult().getName()).isEqualTo(passedResultStr);
         assertThat(testMethodWrapper.getResult().getName()).isEqualTo(passedResultStr);

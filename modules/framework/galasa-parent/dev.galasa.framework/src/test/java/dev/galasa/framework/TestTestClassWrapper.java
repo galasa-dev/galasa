@@ -513,6 +513,32 @@ public class TestTestClassWrapper {
         }
     }
 
+    @dev.galasa.Test
+    public static class TestClassWithIgnoredMethod {
+        MockTestRunManagers managers;
+        public int secondMethodCalledCounter;
+        public int firstMethodCalledCounter;
+
+
+        public TestClassWithIgnoredMethod() {
+        }
+        
+        public void init(MockTestRunManagers managers) {
+            this.managers = managers;
+        }
+
+        @dev.galasa.Test
+        public void firstMethodDoesNothing() {
+            firstMethodCalledCounter +=1 ;
+            managers.setResultToReturn(Result.ignore("Ignore me!"));
+        }
+
+        @dev.galasa.Test
+        public void secondMethodIsIgnored() throws Exception {
+            secondMethodCalledCounter += 1;
+        }
+    }
+
 
     public static class TestWrapperWhichAllowsTestMethodsToRun extends TestClassWrapper{
 
@@ -577,6 +603,74 @@ public class TestTestClassWrapper {
 
         Result result = wrapper.getResult();
         assertThat(result.isCancelled()).isTrue();
+    }
+
+    @Test
+    public void testClassWithOnlyIgnoredMethodsSetsTestClassResultToIgnored() throws Exception {
+        // Given...
+        String testBundle = null;
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        String testRunName = "U12346";
+
+        Class<?> testClass = FakeTestThatCanBeRun.class;
+        TestStructure testStructure = new TestStructure();
+        boolean isContinueOnTestFailureFromCPS = true;
+        boolean isTestClassToBeIgnored = true;
+
+        MockLog logger = new MockLog();
+        InterruptedMonitorImpl interruptedMonitor = new InterruptedMonitorImpl(dss,testRunName);
+        TestClassWrapper wrapper = new TestClassWrapper(
+            testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS , new MockIResultArchiveStore() , interruptedMonitor, (Log)logger );
+
+        // The managers will say that the test class' methods should be ignored
+        MockTestRunManagers managers = new MockTestRunManagers(isTestClassToBeIgnored, Result.ignore("IGNORED!"));
+
+        String runName = null;
+
+        wrapper.parseTestClass();
+        wrapper.instantiateTestClass();
+
+        // When...
+        wrapper.runMethods(managers, dss, runName);
+
+        // Then...
+        Result result = wrapper.getResult();
+        assertThat(result.isIgnored()).isTrue();
+    }
+
+    @Test
+    public void testClassWithOneIgnoredMethodSetsTestClassResultToOtherMethodResult() throws Exception {
+        // Given...
+        String testBundle = null;
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        String testRunName = "U12346";
+
+        Class<?> testClass = TestClassWithIgnoredMethod.class;
+        TestStructure testStructure = new TestStructure();
+        boolean isContinueOnTestFailureFromCPS = true;
+        boolean isTestClassToBeIgnored = false;
+
+        MockLog logger = new MockLog();
+        InterruptedMonitorImpl interruptedMonitor = new InterruptedMonitorImpl(dss,testRunName);
+        TestClassWrapper wrapper = new TestClassWrapper(
+            testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS , new MockIResultArchiveStore() , interruptedMonitor, (Log)logger );
+
+        // The managers will say that the test class' methods should be ignored
+        MockTestRunManagers managers = new MockTestRunManagers(isTestClassToBeIgnored, null);
+
+        String runName = null;
+
+        wrapper.parseTestClass();
+        wrapper.instantiateTestClass();
+        TestClassWithIgnoredMethod testClassInstance = (TestClassWithIgnoredMethod)wrapper.testClassObject;
+        testClassInstance.init(managers);
+
+        // When...
+        wrapper.runMethods(managers, dss, runName);
+
+        // Then...
+        Result result = wrapper.getResult();
+        assertThat(result.isPassed()).isTrue();
     }
 
 }

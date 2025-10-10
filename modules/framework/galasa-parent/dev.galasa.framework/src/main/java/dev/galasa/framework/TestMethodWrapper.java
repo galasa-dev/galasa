@@ -195,19 +195,16 @@ public class TestMethodWrapper {
     private void markTestAndLinkedMethodsIgnored(Result ignoredResult, TestClassWrapper testClassWrapper, ITestRunManagers managers) {
         // Mark test method as ignored
         testMethod.setResult(ignoredResult);
-        testClassWrapper.setResult(testMethod.getResult(), managers);
         this.result = ignoredResult;
 
         // Mark any before methods associated with the test method as ignored
         for (GenericMethodWrapper before : this.befores) {
             before.setResult(ignoredResult);
-            testClassWrapper.setResult(before.getResult(), managers);
         }
 
         // Mark any after methods associated with the test method as ignored
         for (GenericMethodWrapper after : this.afters) {
             after.setResult(ignoredResult);
-            testClassWrapper.setResult(after.getResult(), managers);
         }
     }
 }
