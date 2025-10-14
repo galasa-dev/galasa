@@ -513,6 +513,42 @@ public class TestTestClassWrapper {
         }
     }
 
+    @dev.galasa.Test
+    public static class TestClassWithIgnoredMethods {
+        MockTestRunManagers managers;
+        public int firstMethodCalledCounter;
+        public int secondMethodCalledCounter;
+        public int thirdMethodCalledCounter;
+        boolean isSimulateTestFailureRequested;
+
+        public TestClassWithIgnoredMethods() {
+        }
+        
+        public void init(MockTestRunManagers managers, boolean isSimulateTestFailureRequested) {
+            this.managers = managers;
+            this.isSimulateTestFailureRequested = isSimulateTestFailureRequested;
+        }
+
+        @dev.galasa.Test
+        public void firstMethodDoesNothing() throws Exception {
+            firstMethodCalledCounter++;
+            if (isSimulateTestFailureRequested) {
+                throw new Exception("simulating a test failure!");
+            }
+        }
+
+        @dev.galasa.Test
+        public void secondMethodSetsOtherMethodsToBeIgnored() {
+            secondMethodCalledCounter++;
+            managers.setResultToReturn(Result.ignore("Ignored"));
+        }
+
+        @dev.galasa.Test
+        public void thirdMethodIsIgnored() {
+            thirdMethodCalledCounter++;
+        }
+    }
+
 
     public static class TestWrapperWhichAllowsTestMethodsToRun extends TestClassWrapper{
 
@@ -579,4 +615,116 @@ public class TestTestClassWrapper {
         assertThat(result.isCancelled()).isTrue();
     }
 
+    @Test
+    public void testClassWithOnlyIgnoredMethodsSetsTestClassResultToIgnored() throws Exception {
+        // Given...
+        String testBundle = null;
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        String testRunName = "U12346";
+
+        Class<?> testClass = FakeTestThatCanBeRun.class;
+        TestStructure testStructure = new TestStructure();
+        boolean isContinueOnTestFailureFromCPS = true;
+        boolean isTestClassToBeIgnored = true;
+
+        MockLog logger = new MockLog();
+        InterruptedMonitorImpl interruptedMonitor = new InterruptedMonitorImpl(dss,testRunName);
+        TestClassWrapper wrapper = new TestClassWrapper(
+            testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS , new MockIResultArchiveStore() , interruptedMonitor, (Log)logger );
+
+        // The managers will say that the test class' methods should be ignored
+        MockTestRunManagers managers = new MockTestRunManagers(isTestClassToBeIgnored, Result.ignore("IGNORED!"));
+
+        String runName = null;
+
+        wrapper.parseTestClass();
+        wrapper.instantiateTestClass();
+
+        // When...
+        wrapper.runMethods(managers, dss, runName);
+
+        // Then...
+        Result result = wrapper.getResult();
+        assertThat(result.isIgnored()).isTrue();
+    }
+
+    @Test
+    public void testClassWithIgnoredMethodSetsCorrectResultWhenAllMethodsPass() throws Exception {
+        // Given...
+        String testBundle = null;
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        String testRunName = "U12346";
+
+        Class<?> testClass = TestClassWithIgnoredMethods.class;
+        TestStructure testStructure = new TestStructure();
+        boolean isContinueOnTestFailureFromCPS = true;
+        boolean isTestClassToBeIgnored = false;
+
+        MockLog logger = new MockLog();
+        InterruptedMonitorImpl interruptedMonitor = new InterruptedMonitorImpl(dss,testRunName);
+        TestClassWrapper wrapper = new TestClassWrapper(
+            testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS , new MockIResultArchiveStore() , interruptedMonitor, (Log)logger );
+
+        // The managers will say that the test class' methods should be ignored
+        MockTestRunManagers managers = new MockTestRunManagers(isTestClassToBeIgnored, null);
+
+        String runName = null;
+
+        wrapper.parseTestClass();
+        wrapper.instantiateTestClass();
+
+        boolean isSimulatingTestFailure = false;
+        TestClassWithIgnoredMethods testClassInstance = (TestClassWithIgnoredMethods)wrapper.testClassObject;
+        testClassInstance.init(managers, isSimulatingTestFailure);
+
+        // When...
+        wrapper.runMethods(managers, dss, runName);
+
+        // Then...
+        Result result = wrapper.getResult();
+        assertThat(result.isPassed()).isTrue();
+        assertThat(testClassInstance.firstMethodCalledCounter).isEqualTo(1);
+        assertThat(testClassInstance.secondMethodCalledCounter).isEqualTo(1);
+        assertThat(testClassInstance.thirdMethodCalledCounter).isEqualTo(0);
+    }
+
+    @Test
+    public void testClassWithIgnoredMethodSetsCorrectResultWhenAMethodFails() throws Exception {
+        // Given...
+        String testBundle = null;
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        String testRunName = "U12346";
+
+        Class<?> testClass = TestClassWithIgnoredMethods.class;
+        TestStructure testStructure = new TestStructure();
+        boolean isContinueOnTestFailureFromCPS = true;
+        boolean isTestClassToBeIgnored = false;
+
+        MockLog logger = new MockLog();
+        InterruptedMonitorImpl interruptedMonitor = new InterruptedMonitorImpl(dss,testRunName);
+        TestClassWrapper wrapper = new TestClassWrapper(
+            testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS , new MockIResultArchiveStore() , interruptedMonitor, (Log)logger );
+
+        // The managers will say that the test class' methods should be ignored
+        MockTestRunManagers managers = new MockTestRunManagers(isTestClassToBeIgnored, null);
+
+        String runName = null;
+
+        wrapper.parseTestClass();
+        wrapper.instantiateTestClass();
+
+        boolean isSimulatingTestFailure = true;
+        TestClassWithIgnoredMethods testClassInstance = (TestClassWithIgnoredMethods)wrapper.testClassObject;
+        testClassInstance.init(managers, isSimulatingTestFailure);
+
+        // When...
+        wrapper.runMethods(managers, dss, runName);
+
+        // Then...
+        Result result = wrapper.getResult();
+        assertThat(result.isFailed()).isTrue();
+        assertThat(testClassInstance.firstMethodCalledCounter).isEqualTo(1);
+        assertThat(testClassInstance.secondMethodCalledCounter).isEqualTo(1);
+        assertThat(testClassInstance.thirdMethodCalledCounter).isEqualTo(0);
+    }
 }

@@ -44,6 +44,10 @@ public class MockTestRunManagers implements ITestRunManagers {
         this.testMethodResultToReturn = testMethodResultToReturn;
     }
 
+    public void setResultToReturn(Result resultToReturn) {
+        this.resultToReturn = resultToReturn;
+    }
+
     @Override
     public boolean anyReasonTestClassShouldBeIgnored() throws FrameworkException {
         return ignoreTestClass;
@@ -92,7 +96,7 @@ public class MockTestRunManagers implements ITestRunManagers {
     @Override
     public Result endOfTestClass(@NotNull Result result, Throwable currentException) throws FrameworkException {
         calledCountEndOfTestClass +=1;
-        return resultToReturn;
+        return result;
     }
 
     @Override
