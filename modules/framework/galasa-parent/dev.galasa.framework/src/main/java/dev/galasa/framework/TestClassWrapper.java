@@ -374,7 +374,7 @@ public class TestClassWrapper {
         try {
             dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_TOTAL, Integer.toString(this.testMethods.size()));
 
-            Set<Result> testMethodResultsSoFar = new HashSet<>();
+            Set<String> testMethodResultNamesSoFar = new HashSet<>();
             int actualMethod = 0;
             for (TestMethodWrapper testMethod : this.testMethods) {
 
@@ -391,7 +391,7 @@ public class TestClassWrapper {
                 testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure, this);
                 // Setting the result so far after every @Test 
                 // method happens inside the testMethod class.
-                testMethodResultsSoFar.add(testMethod.getResult());
+                testMethodResultNamesSoFar.add(testMethod.getResult().getName());
                 if (testMethod.fullStop()) {
                     break;
                 }
@@ -399,10 +399,10 @@ public class TestClassWrapper {
 
             // If all of the test methods were ignored, then 'ignored' will be the only result recorded,
             // so mark the entire test class as ignored as well
-            if (testMethodResultsSoFar.size() == 1) {
-                Result result = testMethodResultsSoFar.iterator().next();
-                if (result.isIgnored()) {
-                    setResult(result, managers);
+            if (testMethodResultNamesSoFar.size() == 1) {
+                String resultName = testMethodResultNamesSoFar.iterator().next();
+                if (resultName.equalsIgnoreCase(Result.IGNORED)) {
+                    setResult(Result.ignore("All test methods were ignored"), managers);
                 }
             }
 
