@@ -196,7 +196,6 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
 
         Screen screen = getScreen();
 
-        int cursorPosition = screen.getCursor();
         int screenCols = screen.getNoOfColumns();
         int screenRows = screen.getNoOfRows();
 

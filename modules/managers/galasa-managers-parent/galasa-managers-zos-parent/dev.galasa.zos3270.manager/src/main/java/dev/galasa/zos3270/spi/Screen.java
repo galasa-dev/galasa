@@ -1696,17 +1696,27 @@ public class Screen {
         return this.screenCursor;
     }
 
+    /**
+     * @returns A zero-based number
+     */
     public int getCursorRow() {
         int row = 0;
-        if (this.rows != 0) {
+        if (this.rows == 0) {
+            logger.info("Screen has no rows, so cursor row is 0");
+        } else {
             row = this.screenCursor / this.columns;
         }
         return row;
     }
 
+    /**
+     * @returns A zero-based number
+     */
     public int getCursorColumn() {
         int column = 0;
-        if (this.columns != 0) {
+        if (this.columns == 0) {
+            logger.info("Screen has no columns, so cursor column is 0");
+        } else {
             column = this.screenCursor % this.columns;
         }
         return column;
