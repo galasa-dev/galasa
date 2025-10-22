@@ -126,7 +126,7 @@ public class ScreenTest extends Zos3270TestBase {
             "=|2nd   |\n"+
             "^| ^\n"+
             "=|3rd   |\n"+
-            "!| Disconnected-Plain Size=3x6 Cursor=7,2x1 Keyboard Unlocked\n";
+            "!| Disconnected-Plain Size=3x6 Cursor=7,1x1 Keyboard Unlocked\n";
 
         assertThat(printedScreen).isEqualTo(expectedScreen);
     }

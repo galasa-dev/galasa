@@ -194,18 +194,16 @@ public class Zos3270TerminalImpl extends Terminal implements IScreenUpdateListen
             aidString = " update";
         }
 
-        int cursorPosition = getScreen().getCursor();
-        int screenCols = getScreen().getNoOfColumns();
-        int screenRows = getScreen().getNoOfRows();
+        Screen screen = getScreen();
 
-        int cursorRow = cursorPosition / screenRows;
-        int cursorCol = cursorPosition % screenCols;
+        int screenCols = screen.getNoOfColumns();
+        int screenRows = screen.getNoOfRows();
 
-        TerminalSize terminalSize = new TerminalSize(screenCols, screenRows); // TODO
-        // sort
-        // out
-        // alt
-        // sizes
+        int cursorRow = screen.getCursorRow();
+        int cursorCol = screen.getCursorColumn();
+
+        TerminalSize terminalSize = new TerminalSize(screenCols, screenRows); 
+        
         TerminalImage terminalImage = new TerminalImage(updateId, update, direction == Direction.RECEIVED, null,
                 aidText, terminalSize, cursorCol, cursorRow);
         terminalImage.getFields().addAll(buildTerminalFields(getScreen()));
