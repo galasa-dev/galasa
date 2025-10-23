@@ -40,25 +40,11 @@
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-protobuf</artifactId>
 			<version>1.76.0</version>
-
-			<!-- 
-			This dependency has a transient dependency of this:
-			com.google.protobuf:protobuf-java:jar:3.25.8:compile
-
-			However, we need to depend on it directly or a this causess a NoClassDefFoundError
-			in dev.galasa.framework.auth.spi. We will add an explicit dependency below.
-			-->
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.protobuf</groupId>
-					<artifactId>protobuf-java</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!--
 		This dependency is relied upon by io.grpc:grpc-protobuf
-		but we want to explicitly depend on it here.
+		but we need to depend on it directly to avoid OSGi issues.
 		-->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
@@ -66,38 +52,20 @@
 			<version>3.25.8</version>
 		</dependency>
 
-
-
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-protobuf-lite</artifactId>
 			<version>1.76.0</version>
-
-			<!-- 
-			This dependency has a transient dependency of this:
-			com.google.protobuf:protobuf-javalite:jar:3.25.5:compile
-
-			This causes a NoClassDefFoundError in dev.galasa.framework.auth.spi.
-			We will add an explicit dependency on a later version that fixes this.
-			-->
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.protobuf</groupId>
-					<artifactId>protobuf-javalite</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!--
 		This dependency is relied upon by io.grpc:grpc-protobuf-lite
-		but we want to upgrade a transient dependency there.
+		but we need to depend on it directly to avoid OSGi issues.
 		-->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-javalite</artifactId>
-			<version>3.25.8</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>io.grpc</groupId>
