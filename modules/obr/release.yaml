@@ -58,7 +58,7 @@ external:
 
   - group: commons-io
     artifact: commons-io
-    version: 2.16.1
+    version: 2.20.0
     obr: true
     bom: true
     mvp: true
@@ -285,7 +285,7 @@ external:
 
   - group: org.apache.commons
     artifact: commons-lang3
-    version: 3.18.0
+    version: 3.19.0
     obr: true
     bom: true
     mvp: true

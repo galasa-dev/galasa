@@ -48,7 +48,7 @@ dependencies {
     embedImplementation 'org.apache.felix:org.apache.felix.framework:7.0.5'
     embedImplementation 'org.apache.felix:org.apache.felix.bundlerepository:2.0.10'
     embedImplementation 'commons-cli:commons-cli:1.4'
-    embedImplementation 'commons-io:commons-io:2.16.1'
+    embedImplementation 'commons-io:commons-io:2.20.0'
 
     // This adds the built-in log4j JSON templates to the boot.jar's classpath. These are
     // used when a user supplies a log4j configuration that uses the 'JsonTemplateLayout'
