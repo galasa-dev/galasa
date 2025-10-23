@@ -216,7 +216,7 @@ function setup_local_registry_for_minikube {
         check_exit_code ${rc} "Failed to start minikube cluster"
     fi
 
-    info" Enabling the minikube registry addons... see https://minikube.sigs.k8s.io/docs/handbook/registry"
+    info "Enabling the minikube registry addons... see https://minikube.sigs.k8s.io/docs/handbook/registry"
     
     minikube addons enable registry
 
