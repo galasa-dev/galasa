@@ -43,7 +43,7 @@
 
 			<!-- 
 			This dependency has a transient dependency of this:
-			com.google.protobuf:protobuf-javalite:jar:3.25.8:compile
+			com.google.protobuf:protobuf-java:jar:3.25.8:compile
 
 			However, we need to depend on it directly or a this causess a NoClassDefFoundError
 			in dev.galasa.framework.auth.spi. We will add an explicit dependency below.
