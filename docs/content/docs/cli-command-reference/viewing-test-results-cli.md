@@ -14,15 +14,9 @@ You can view the results of your test runs in the `run.log` file by completing t
 
 ## Viewing 3270 terminal interactions
 
-To view 3270 terminal screens and recorded web requests and responses that are generated from running tests you need to first update the `3270.terminal.output` property in the `cps.properties` file on your local machine. To do this, complete the following steps: 
+3270 terminal screens, and recorded web requests and responses for test runs are stored as .png files in the _ras > results > artifacts > zos3270 > images_ folder.
 
-1. Navigate to your ``.galasa`` directory 
-1. Open the _cps.properties_ file, for example in VS Code.
-1. Edit the _zos3270.terminal.output_ property to include ``.png`` files as well as `json` by adding the value `png` to the property. For example, ```zos3270.terminal.output=json,png```.
-
-3270 terminal screens, and recorded web requests and responses for test runs are now stored as .png files in the _ras > results > artifacts > zos3270 > images_ folder.
-
-You can then view the terminal interactions from your test runs in the `images` folder in the `zos3270` directory by completing the following steps:
+You can view the terminal interactions from your test runs in the `images` folder in the `zos3270` directory by completing the following steps:
 
 1. Navigate to your ``.galasa`` directory 
 1. Open the _images_ folder by selecting _ras > results > artifacts > zos3270 > images_

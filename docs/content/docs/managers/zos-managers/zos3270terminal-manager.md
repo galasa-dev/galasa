@@ -15,7 +15,7 @@ The `ConfidentialTextFiltering` service enables confidential information such as
 
 Examples of using colour support and screen sizing are available in the [Code snippets and examples](#code-snippets-and-examples) section.
 
-When running a Galasa test with the Galasa CLI, terminal images are logged to the run log and PNG representations of the terminal screens can also be saved to the Result Archive Store (RAS) as the outputs are now controlled by the `zos3270.terminal.output` CPS property.
+When running a Galasa test with the Galasa CLI, terminal images are logged to the run log and PNG representations of the terminal screens are saved to the Result Archive Store (RAS).
 
 The zos3270Terminal Manager supports [Gherkin keywords](https://github.com/galasa-dev/cli/blob/main/gherkin-docs.md#3270-terminal-manipulation-steps){target="_blank"}. 
 
@@ -133,18 +133,6 @@ The following properties are used to configure the Zos3270Terminal Manager:
 | Description: | Allows for a custom 3270 device name to be requested when connecting to a server. Device names are case-insensitive 7-bit US ASCII strings that must not exceed 8 characters. |
 | Required:  | No |
 | Examples: | `zos3270.image.IMAGE_A.device.name=IYCQTC57` |
-
-
-### Select 3270 terminal outputs
-
-| Property: | 3270TerminalOutput CPS Property |
-| --------------------------------------- | :------------------------------------- |
-| Name: | zos3270.terminal.output |
-| Description: | Experimental: Selects the representations of 3270 terminal screens to be saved to the RAS |
-| Required:  | No |
-| Default value: |  JSON  |
-| Valid values: | JSON, PNG  |
-| Examples: | `zos3270.terminal.output=json,png` |
 
 
 ## Annotations provided by the Manager
