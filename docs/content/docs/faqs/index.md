@@ -5,28 +5,6 @@ title: "Frequently asked questions"
 Use the following sections to scan for questions and problems that have been raised previously, and how these have been answered and resolved.
 
 
-## How can I generate screenshot output when running my tests locally?
-
-You can generate screenshot output by setting the `zos3270.terminal.output` property in your `cps.properties` file or your `overrides.properties` file. For example, to generate screenshot output in json and png format, set the property to `zos3270.terminal.output=json,png`. 
-
-If you used the `galasactl local init` command to initialise your environment, the following setting should be in the `cps.properties` file already, so you can un-comment the line `zos3270.terminal.output=json,png` by removing the hash symbol (`#`), as shown in the following example:
-
-```properties
-#-------------------------------------------------------------------------
-# zos3270.terminal.output
-#
-# Controls which output format(s) any 3270 traffic uses when creating artifact files
-# in the Result Archive Store (RAS).
-#
-# Supported values are 'json' or 'png' or both.
-# 
-# Default for a locally-launched JVM test is both.
-#
-# Example:
-zos3270.terminal.output=json,png
-```
-
-
 ## What function can I use to clear a CICS screen in a 3270 terminal?
 
 If your terminal object is of type `ITerminal` you can use the `terminal.clear().waitForKeyboard()` method in your test code. 
