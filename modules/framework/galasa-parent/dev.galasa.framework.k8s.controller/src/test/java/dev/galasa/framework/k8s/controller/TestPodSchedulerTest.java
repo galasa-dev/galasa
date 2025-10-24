@@ -671,7 +671,7 @@ public class TestPodSchedulerTest {
         mockEnvironment.setenv(TestPodScheduler.CACERTS_FILE_PATH_ENV_VAR, cacertsMountPath);
 
         String javaOptions = "-Djavax.net.ssl.trustStore=" + cacertsMountPath;
-        mockEnvironment.setenv("JDK_JAVA_OPTIONS", javaOptions);
+        mockEnvironment.setenv(TestPodScheduler.JAVA_OPTIONS_ENV_VAR, javaOptions);
 
         MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
         MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
@@ -718,7 +718,7 @@ public class TestPodSchedulerTest {
         assertThat(testContainer.getArgs()).contains("-jar", "boot.jar", "--run");
 
         V1EnvVar javaOptionsEnvVar = new V1EnvVar();
-        javaOptionsEnvVar.setName("JDK_JAVA_OPTIONS");
+        javaOptionsEnvVar.setName(TestPodScheduler.JAVA_OPTIONS_ENV_VAR);
         javaOptionsEnvVar.setValue(javaOptions);
         assertThat(testContainer.getEnv()).contains(javaOptionsEnvVar);
 

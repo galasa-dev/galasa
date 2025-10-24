@@ -49,6 +49,8 @@ import io.prometheus.client.Counter;
 import dev.galasa.framework.spi.utils.ITimeService;
 
 public class TestPodScheduler implements Runnable {
+    public static final String JAVA_OPTIONS_ENV_VAR = "JDK_JAVA_OPTIONS";
+
     public static final String CACERTS_FILE_PATH_ENV_VAR = "GALASA_CACERTS_FILE_PATH";
     public static final String CACERTS_VOLUME_NAME = "galasa-cacerts";
 
@@ -508,7 +510,7 @@ public class TestPodScheduler implements Runnable {
         addEnvVarToContainerIfPresent(CREDS_ENV_VAR, envs);
         addEnvVarToContainerIfPresent(EXTRA_BUNDLES_ENV_VAR, envs);
 
-        addEnvVarToContainerIfPresent("JDK_JAVA_OPTIONS", envs);
+        addEnvVarToContainerIfPresent(JAVA_OPTIONS_ENV_VAR, envs);
 
         //
         // envs.add(createSecretEnv("GALASA_SERVER_USER", "galasa-secret",
