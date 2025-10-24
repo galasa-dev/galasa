@@ -6,7 +6,6 @@
 package dev.galasa.framework.k8s.controller;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1Affinity;
+import io.kubernetes.client.openapi.models.V1ConfigMapVolumeSource;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1NodeAffinity;
@@ -49,6 +49,11 @@ import io.prometheus.client.Counter;
 import dev.galasa.framework.spi.utils.ITimeService;
 
 public class TestPodScheduler implements Runnable {
+    public static final String JAVA_OPTIONS_ENV_VAR = "JDK_JAVA_OPTIONS";
+
+    public static final String CACERTS_FILE_PATH_ENV_VAR = "GALASA_CACERTS_FILE_PATH";
+    public static final String CACERTS_VOLUME_NAME = "galasa-cacerts";
+
     private static final String RAS_TOKEN_ENV = "GALASA_RAS_TOKEN";
     private static final String EVENT_TOKEN_ENV = "GALASA_EVENT_STREAMS_TOKEN";
 
@@ -75,6 +80,10 @@ public class TestPodScheduler implements Runnable {
     // A time service, meaning unit tests can pass in a service which doesn't actually wait, making unit tests run faster.
     private ITimeService timeService ;
 
+    private boolean isUsingUserSuppliedCertificates;
+    private Path cacertsFilePath;
+    private String cacertsConfigMapName;
+
     public TestPodScheduler( 
         Environment env, 
         IDynamicStatusStoreService dss, 
@@ -91,6 +100,13 @@ public class TestPodScheduler implements Runnable {
         this.runs = runs;
         this.dss = dss;
         this.timeService = timeService;
+
+        String cacertsFilePathString = env.getenv(CACERTS_FILE_PATH_ENV_VAR);
+        if (cacertsFilePathString != null && !cacertsFilePathString.isBlank()) {
+            this.isUsingUserSuppliedCertificates = true;
+            this.cacertsFilePath = Path.of(cacertsFilePathString).toAbsolutePath();
+            this.cacertsConfigMapName = this.kubeEngineFacade.getGalasaServiceInstallName() + "-cacerts";
+        }
 
         // *** Create metrics
 
@@ -314,7 +330,6 @@ public class TestPodScheduler implements Runnable {
         return newPod;
     }
 
-
     /*
     * Tolerations are supplied as a string in the form:
     * "node-label1=Operator1:Condition1,node-label2=Operator2:Condition2"
@@ -431,6 +446,17 @@ public class TestPodScheduler implements Runnable {
 
         encryptionKeysVolume.setSecret(encryptionKeysSecretSource);
         volumes.add(encryptionKeysVolume);
+
+        if (this.isUsingUserSuppliedCertificates) {
+            V1Volume cacertsVolume = new V1Volume();
+            cacertsVolume.setName(CACERTS_VOLUME_NAME);
+
+            V1ConfigMapVolumeSource cacertsVolumeSource = new V1ConfigMapVolumeSource();
+            cacertsVolumeSource.setName(this.cacertsConfigMapName);
+
+            cacertsVolume.setConfigMap(cacertsVolumeSource);
+            volumes.add(cacertsVolume);
+        }
         return volumes;
     }
 
@@ -439,7 +465,7 @@ public class TestPodScheduler implements Runnable {
 
         String encryptionKeysMountPath = env.getenv(ENCRYPTION_KEYS_PATH_ENV);
         if (encryptionKeysMountPath != null && !encryptionKeysMountPath.isBlank()) {
-            Path encryptionKeysDirectory = Paths.get(encryptionKeysMountPath).getParent().toAbsolutePath();
+            Path encryptionKeysDirectory = Path.of(encryptionKeysMountPath).getParent().toAbsolutePath();
 
             V1VolumeMount encryptionKeysVolumeMount = new V1VolumeMount();
             encryptionKeysVolumeMount.setName(ENCRYPTION_KEYS_VOLUME_NAME);
@@ -447,6 +473,16 @@ public class TestPodScheduler implements Runnable {
             encryptionKeysVolumeMount.setReadOnly(true);
 
             volumeMounts.add(encryptionKeysVolumeMount);
+        }
+
+        if (this.isUsingUserSuppliedCertificates) {
+            V1VolumeMount cacertsFileVolumeMount = new V1VolumeMount();
+            cacertsFileVolumeMount.setName(CACERTS_VOLUME_NAME);
+            cacertsFileVolumeMount.setMountPath(this.cacertsFilePath.toString());
+            cacertsFileVolumeMount.setSubPath("cacerts");
+            cacertsFileVolumeMount.readOnly(true);
+
+            volumeMounts.add(cacertsFileVolumeMount);
         }
         return volumeMounts;
     }
@@ -473,6 +509,8 @@ public class TestPodScheduler implements Runnable {
         addEnvVarToContainerIfPresent(DSS_ENV_VAR, envs);
         addEnvVarToContainerIfPresent(CREDS_ENV_VAR, envs);
         addEnvVarToContainerIfPresent(EXTRA_BUNDLES_ENV_VAR, envs);
+
+        addEnvVarToContainerIfPresent(JAVA_OPTIONS_ENV_VAR, envs);
 
         //
         // envs.add(createSecretEnv("GALASA_SERVER_USER", "galasa-secret",
