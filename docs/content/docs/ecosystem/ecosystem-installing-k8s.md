@@ -214,6 +214,25 @@ For example, if you have a custom JSON template in a file called `MyLayout.json`
 
 Refer to the [Log4j documentation](https://logging.apache.org/log4j/2.x/manual/configuration.html) for available properties.
 
+#### Configuring Public Certificates (Optional)
+
+If you are deploying your Galasa service on an internal or corporate network and expect your Galasa tests to connect to servers that use internal certificates, you will need to supply the public certificates so that Galasa can contact those servers successfully.
+
+You can use the `certificatesConfigMapName` value to provide the name of an existing ConfigMap containing the certificates that you wish to inject into the Galasa service pods. To do this, take the following steps:
+
+1. Create a ConfigMap by running:
+    ```
+    kubectl create configmap my-certificates --from-file=/path/to/my/certificate.pem
+    ```
+    where `/path/to/my/certificate.pem` is a file path on your machine to a certificate that you wish to include. You can supply multiple `--from-file` flags if you wish to load multiple certificates into the ConfigMap.
+
+2. Set `certificatesConfigMapName` in the Helm values to the name of the ConfigMap that you created (in this example, the name is `my-certificates`):
+    ```yaml
+    certificatesConfigMapName: "my-certificates"
+    ```
+
+You can then proceed with the installation of the Galasa service and the Helm chart will inject the certificates inside the ConfigMap into the Galasa service pods.
+
 ## Configure the default user role, and 'owner' of the Galasa service
 
 When the Galasa service is first installed, users logging in will be assigned a role as dictated by the `galasaDefaultUserRole` Helm chart property. For example 'tester'.

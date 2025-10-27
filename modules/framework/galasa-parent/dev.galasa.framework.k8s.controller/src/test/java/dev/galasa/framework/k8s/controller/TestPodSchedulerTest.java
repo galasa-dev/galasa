@@ -658,4 +658,83 @@ public class TestPodSchedulerTest {
         assertThat(api.podsLaunched).hasSize(0);
         assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("queued");
     }
+
+    @Test
+    public void testCanCreateTestPodWithCustomCertificatesOk() throws Exception {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String encryptionKeysMountPath = "/encryption/encryption-keys.yaml";
+        mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, encryptionKeysMountPath);
+
+        String cacertsMountPath = "/galasa/certificates/cacerts";
+        mockEnvironment.setenv(TestPodScheduler.CACERTS_FILE_PATH_ENV_VAR, cacertsMountPath);
+
+        String javaOptions = "-Djavax.net.ssl.trustStore=" + cacertsMountPath;
+        mockEnvironment.setenv(TestPodScheduler.JAVA_OPTIONS_ENV_VAR, javaOptions);
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        MockISettings settings = new MockISettings();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));;
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
+
+        // Then...
+        String expectedEncryptionKeysMountPath = "/encryption";
+        checkPodMetadata(pod, galasaServiceInstallName, runName, podName, settings);
+        checkPodSpec(pod, settings);
+
+        // Check the volumes have been added
+        V1PodSpec actualPodSpec = pod.getSpec();
+        List<V1Volume> actualVolumes = actualPodSpec.getVolumes();
+        assertThat(actualVolumes).hasSize(2);
+
+        V1Volume encryptionKeysVolume = actualVolumes.get(0);
+        assertThat(encryptionKeysVolume.getName()).isEqualTo(TestPodScheduler.ENCRYPTION_KEYS_VOLUME_NAME);
+        assertThat(encryptionKeysVolume.getSecret().getSecretName()).isEqualTo(settings.getEncryptionKeysSecretName());
+
+        V1Volume cacertsVolume = actualVolumes.get(1);
+        assertThat(cacertsVolume.getName()).isEqualTo(TestPodScheduler.CACERTS_VOLUME_NAME);
+        assertThat(cacertsVolume.getConfigMap().getName()).isEqualTo(galasaServiceInstallName + "-cacerts");
+
+        // Check that test container has been added
+        List<V1Container> actualContainers = actualPodSpec.getContainers();
+        assertThat(actualContainers).hasSize(1);
+
+        V1Container testContainer = actualContainers.get(0);
+        assertThat(testContainer.getCommand()).containsExactly("java");
+        assertThat(testContainer.getArgs()).contains("-jar", "boot.jar", "--run");
+
+        V1EnvVar javaOptionsEnvVar = new V1EnvVar();
+        javaOptionsEnvVar.setName(TestPodScheduler.JAVA_OPTIONS_ENV_VAR);
+        javaOptionsEnvVar.setValue(javaOptions);
+        assertThat(testContainer.getEnv()).contains(javaOptionsEnvVar);
+
+        // Check that the encryption keys have been mounted to the correct location
+        List<V1VolumeMount> testContainerVolumeMounts = testContainer.getVolumeMounts();
+        assertThat(testContainerVolumeMounts).hasSize(2);
+
+        V1VolumeMount encryptionKeysVolumeMount = testContainerVolumeMounts.get(0);
+        assertThat(encryptionKeysVolumeMount.getName()).isEqualTo(TestPodScheduler.ENCRYPTION_KEYS_VOLUME_NAME);
+        assertThat(encryptionKeysVolumeMount.getMountPath()).isEqualTo(expectedEncryptionKeysMountPath);
+        assertThat(encryptionKeysVolumeMount.getReadOnly()).isTrue();
+
+        V1VolumeMount cacertsVolumeMount = testContainerVolumeMounts.get(1);
+        assertThat(cacertsVolumeMount.getName()).isEqualTo(TestPodScheduler.CACERTS_VOLUME_NAME);
+        assertThat(cacertsVolumeMount.getMountPath()).isEqualTo(cacertsMountPath);
+        assertThat(cacertsVolumeMount.getSubPath()).isEqualTo("cacerts");
+        assertThat(cacertsVolumeMount.getReadOnly()).isTrue();
+    }
 }
