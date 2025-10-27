@@ -229,9 +229,51 @@ function upgrade_running_simbank {
     success "Upgraded version in running-simbank-tests-cli.md."    
 }
 
+function upgrade_simbank_cli {
+    h1 "Upgrading the version in the simbank-cli.md file"
+    
+    source_path=${BASEDIR}/content/docs/running-simbank-tests/simbank-cli.md
+    temp_file=$temp_dir/simbank-cli.md
+    # This lines needs to change:
+    #    git clone https://github.com/galasa-dev/simplatform.git --branch v0.44.0 --single-branch
+    info "Upgrading version in file $source_path"
+
+    cat $source_path \
+    | sed "s/.*git clone https:\/\/github.com\/galasa-dev\/simplatform.git --branch v.* --single-branch/    git clone https:\/\/github.com\/galasa-dev\/simplatform.git --branch v$component_version --single-branch/1" \
+    > $temp_file
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace version in file $temp_file" ; exit 1 ; fi
+
+    cp $temp_file $source_path
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace master version file with the modified one." ; exit 1 ; fi
+
+    success "Upgraded version in simbank-cli.md."    
+}
+
+function upgrade_web_app {
+    h1 "Upgrading the version in the web-app-integration-test.md file"
+    
+    source_path=${BASEDIR}/content/docs/running-simbank-tests/web-app-integration-test.md
+    temp_file=$temp_dir/web-app-integration-test.md
+    # This lines needs to change:
+    #    git clone https://github.com/galasa-dev/simplatform.git --branch v0.44.0 --single-branch
+    info "Upgrading version in file $source_path"
+
+    cat $source_path \
+    | sed "s/.*git clone https:\/\/github.com\/galasa-dev\/simplatform.git --branch v.* --single-branch/    git clone https:\/\/github.com\/galasa-dev\/simplatform.git --branch v$component_version --single-branch/1" \
+    > $temp_file
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace version in file $temp_file" ; exit 1 ; fi
+
+    cp $temp_file $source_path
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace master version file with the modified one." ; exit 1 ; fi
+
+    success "Upgraded version in web-app-integration-test.md."    
+}
+
 upgrade_docs_build_gradle
 upgrade_index
 upgrade_installing_cli
 upgrade_ecosystem_installing
 upgrade_running_simbank_offline
 upgrade_running_simbank
+upgrade_simbank_cli
+upgrade_web_app
