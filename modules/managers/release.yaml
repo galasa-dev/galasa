@@ -447,24 +447,6 @@ managers:
     isolated:     false
     codecoverage: false
 
-  - artifact: dev.galasa.vtp.manager
-    version: 0.44.0
-    obr:          true
-    mvp:          false
-    bom:          true
-    javadoc:      true
-    isolated:     false
-    codecoverage: false
-
-  - artifact: dev.galasa.vtp.manager.ivt
-    version: 0.44.0
-    obr:          false
-    mvp:          false
-    bom:          false
-    javadoc:      false
-    isolated:     false
-    codecoverage: false
-
   - artifact: dev.galasa.linux.manager
     version: 0.44.0
     obr:          true
