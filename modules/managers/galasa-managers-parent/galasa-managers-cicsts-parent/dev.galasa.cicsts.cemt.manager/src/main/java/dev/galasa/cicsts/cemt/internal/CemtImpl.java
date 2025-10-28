@@ -5,24 +5,40 @@
  */
 package dev.galasa.cicsts.cemt.internal;
 
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import dev.galasa.cicsts.CemtException;
+import dev.galasa.cicsts.CemtManagerException;
 import dev.galasa.cicsts.CicstsHashMap;
 import dev.galasa.cicsts.CicstsManagerException;
 import dev.galasa.cicsts.ICemt;
 import dev.galasa.cicsts.ICicsRegion;
 import dev.galasa.cicsts.ICicsTerminal;
+import dev.galasa.cicsts.cemt.internal.properties.DefaultResourceTimeout;
+import dev.galasa.zos3270.FieldNotFoundException;
+import dev.galasa.zos3270.KeyboardLockedException;
+import dev.galasa.zos3270.TerminalInterruptedException;
+import dev.galasa.zos3270.TimeoutException;
+import dev.galasa.zos3270.spi.NetworkException;
 
 public class CemtImpl implements ICemt {
 
+    private static final Log logger = LogFactory.getLog(CemtImpl.class);
+    
     private ICicsRegion cicsRegion;
 
-    public CemtImpl(ICicsRegion cicsRegion) {
+    /** Holds the defaultResourceTimeout. */
+    private int defaultResourceTimeout;
+    
+    public CemtImpl(ICicsRegion cicsRegion) throws CemtManagerException {
         this.cicsRegion = cicsRegion;
+        this.defaultResourceTimeout = DefaultResourceTimeout.get(cicsRegion.getZosImage())*1000;
     }
 
     protected CicstsHashMap getAttributes(String string, String resourceName, CicstsHashMap map) throws Exception {
@@ -82,7 +98,7 @@ public class CemtImpl implements ICemt {
             @NotNull String resourceName) throws CemtException{
 
         if(cicsRegion != terminal.getCicsRegion()) {
-            throw new CemtException("CICS Version Mismatch");
+            throw new CemtException("Terminal provided does not match CICS region.");
         }
 
         CicstsHashMap returnMap = new CicstsHashMap();
@@ -172,13 +188,84 @@ public class CemtImpl implements ICemt {
 
     }
 
+    
+    @Override
+    public boolean inquireResource(@NotNull ICicsTerminal terminal, @NotNull String resourceType,
+            @NotNull String resourceName, @NotNull String searchText) throws CemtException {
+        if (terminal == null || resourceType == null || searchText == null) {
+            throw new CemtException("Terminal or resourcetype or search text is not valid.");
+        }
+        if (cicsRegion != terminal.getCicsRegion()) {
+            throw new CemtException("Terminal provided does not match CICS region.");
+        }
+        boolean found = false;
+        try {
+            terminal.resetAndClear().wfk();
+            if (resourceName == null || resourceName.isBlank()) {
+                terminal.type("CEMT INQUIRE " + resourceType).enter().waitForKeyboard();
+            } else {
+                terminal.type("CEMT INQUIRE " + resourceType + "(" + resourceName + ")").enter().waitForKeyboard();
+            }
+            // checking whether resource type is valid or not
+            if (!terminal.retrieveScreen().contains("E " + "'" + resourceType + "' is not valid and is ignored.")) {
+                terminal.waitForTextInField("STATUS: ");
+            } else {
+                throw new CemtException();
+            }
+            if (!terminal.retrieveScreen().contains("RESPONSE: NORMAL")) {
+                terminal.pf9();
+                terminal.waitForKeyboard();
+                terminal.pf3();
+                terminal.waitForKeyboard();
+                terminal.clear();
+                terminal.waitForKeyboard();
+                terminal.resetAndClear();
+                throw new CemtException("Normal response was not found.");
+            }
+            if(terminal.retrieveScreen().contains(searchText)) {
+                found=true;
+            }
+            if(!found) {
+                terminal.tab().waitForKeyboard().enter().waitForKeyboard();
+                String terminalString = terminal.retrieveScreen();
+                if (!terminalString.contains("RESULT - OVERTYPE TO MODIFY")) {
+                    throw new CemtException("Problem finding properties");
+                }          
+                if(terminalString.contains(searchText)) {
+                    found=true;
+                }
+                if(!found) {
+                    terminalString = terminal.retrieveScreen();
+                    boolean pageDown = terminalString.contains("+");
+                    while (pageDown) {
+                        terminal.pf11().waitForKeyboard();
+                        terminalString = terminal.retrieveScreen();
+                        found = terminalString.contains(searchText);
+                        if (found || terminalString.indexOf("+") == terminalString.lastIndexOf("+")) {
+                            pageDown = false;
+                        }
+                    }
+                }
+            }
+            terminal.pf3();
+            terminal.waitForKeyboard();
+            terminal.clear();
+            terminal.waitForKeyboard();
+        } catch (CicstsManagerException e) {
+            throw new CemtException("Problem reset and clearing screen for CEMT transaction", e);
+        } catch (Exception e) {
+            throw new CemtException("Problem with starting CEMT transaction");
+        }
+        return found;
+    }
+
 
     @Override
     public CicstsHashMap setResource(@NotNull ICicsTerminal terminal, @NotNull String resourceType, String resourceName,
             @NotNull String action) throws CemtException {
 
         if(cicsRegion != terminal.getCicsRegion()) {
-            throw new CemtException("CICS Version Mismatch");
+            throw new CemtException("Terminal provided does not match CICS region.");
         }
 
         CicstsHashMap returnMap = new CicstsHashMap();
@@ -218,10 +305,6 @@ public class CemtImpl implements ICemt {
 
         try {
             terminal.tab().waitForKeyboard().enter().waitForKeyboard();
-
-            if(!terminal.retrieveScreen().contains("+")) {
-                throw new CemtException("Problem finding properties");
-            }
         }catch(Exception e) {
             throw new CemtException("Problem retrieving properties for resource", e);
         }
@@ -269,7 +352,7 @@ public class CemtImpl implements ICemt {
             @NotNull String resourceName) throws CemtException {
 
         if(cicsRegion != terminal.getCicsRegion()) {
-            throw new CemtException("CICS Version Mismatch");
+            throw new CemtException("Terminal provided does not match CICS region.");
         }
 
         if (!terminal.isClearScreen()) {
@@ -324,7 +407,7 @@ public class CemtImpl implements ICemt {
             @NotNull String setRequest, @NotNull String expectedResponse) throws CemtException {
 
         if(cicsRegion != terminal.getCicsRegion()) {
-            throw new CemtException("CICS Version Mismatch");
+            throw new CemtException("Terminal provided does not match CICS region.");
         }
 
         if (!terminal.isClearScreen()) {
@@ -364,6 +447,165 @@ public class CemtImpl implements ICemt {
         }
 
 
+    }
+
+    @Override
+    public void waitForDisabledResource(ICicsTerminal terminal, String resourceType, String resourceName,
+        int resourceTimeout)
+            throws CemtException {
+
+        try {
+            long timeoutTimeInMilliseconds = Calendar.getInstance()
+                .getTimeInMillis() + resourceTimeout;
+            while (Calendar.getInstance().getTimeInMillis() < timeoutTimeInMilliseconds) {
+                terminal.resetAndClear();
+                terminal.type("CEMT INQUIRE " + resourceType + "(" + resourceName + ")").enter().waitForKeyboard();
+                if (terminal.retrieveScreen().contains(" Dis ")) {
+                    return;
+                } 
+                if (Calendar.getInstance().getTimeInMillis() >= timeoutTimeInMilliseconds) {
+                    break;
+                }
+                Thread.sleep(1000);
+            }
+        } catch (CicstsManagerException e) {
+            throw new CemtException(
+                "Problem with starting the CEMT transaction", e);
+
+        }
+        catch (Exception e) {
+            throw new CemtException("Unable to prepare for the CEMT inquire resource", e);
+        }
+        
+        throw new CemtException("Timeout of " + resourceTimeout
+            + "ms exceeded while waiting for " + resourceType + "("
+            + resourceName + ") to be disabled");
+    }
+
+    @Override
+    public void waitForEnabledResource(ICicsTerminal terminal, String resourceType, String resourceName)
+        throws CemtException
+    {
+        waitForEnabledResource(terminal, resourceType, resourceName, this.defaultResourceTimeout);
+    }
+
+    @Override
+    public void waitForEnabledResource(ICicsTerminal terminal, String resourceType, String resourceName,
+        int resourceTimeout) throws CemtException
+    {
+        // Calculate when we should timeout
+        long timeoutTimeInMilliseconds = Calendar.getInstance().getTimeInMillis() + resourceTimeout;
+
+        // Keep going until we reach timeout time
+        while (Calendar.getInstance().getTimeInMillis() < timeoutTimeInMilliseconds) {
+          try {
+            // Clear the terminal and issue the inquire command
+            terminal.resetAndClear();
+            terminal.type("CEMT INQUIRE " + resourceType + "(" + resourceName + ")").enter().waitForKeyboard();
+            
+            if (terminal.retrieveScreen().contains(" Ena "))
+            {
+                return;
+            }
+
+            // Double check the timeout time, just in case the the send text
+            // took ages
+            if (Calendar.getInstance().getTimeInMillis() >= timeoutTimeInMilliseconds)
+            {
+                break;
+            }
+            
+            // Sleep before we try again
+            Thread.sleep(500);
+          } catch (FieldNotFoundException | KeyboardLockedException | CicstsManagerException | 
+                   TerminalInterruptedException | NetworkException | TimeoutException | InterruptedException e) {
+            throw new CemtException("Problem with starting the CEMT transaction", e);
+          }
+        }
+        // Will only get here if we timed out
+        throw new CemtException("Timeout of " + resourceTimeout
+            + "ms exceeded while waiting for " + resourceType + "("
+            + resourceName + ") to be enabled");
+    }
+    
+    @Override
+    public boolean inquireResourceNotFound(ICicsTerminal terminal,
+            String resourceType, String resourceName, String searchText) throws CemtException
+             {
+        return inquireResourceNotFound(terminal, resourceType, resourceName,
+                 searchText,null);
+    }
+    
+    @Override
+    public boolean inquireResourceNotFound(ICicsTerminal terminal, String resourceType, String resourceName,
+        String searchText, String state) throws CemtException
+    {
+        boolean found = false;
+        try
+        {
+            try
+            {
+                terminal.resetAndClear().wfk();
+            }
+            catch (CicstsManagerException e)
+            {
+                throw new CemtException("Problem reset and clearing screen for CEMT transaction", e);
+            }
+
+            terminal
+                .type("CEMT INQUIRE " + resourceType + "(" + resourceName + ")" + ((state != null) ? " " + state : ""))
+                .enter().waitForKeyboard();
+            try
+            {
+                if (!terminal.searchText("NOT FOUND"))
+                {
+                    terminal.waitForKeyboard();
+                    throw new CemtException("Errors detected while inquiring resource, see terminal log");
+                }
+            }
+            catch (CicstsManagerException e)
+            {
+                throw new CemtException("Problem determine the result from the CEMT command", e);
+            }
+
+            if (searchText == null)
+            {
+                found = true;
+            }
+            else
+            {
+                found = terminal.searchText(searchText);
+            }
+            try
+            {
+                terminal.wfk();
+                terminal.resetAndClear();
+            }
+            catch (CicstsManagerException e)
+            {
+                throw new CemtException("Unable to return terminal back into reset state", e);
+            }
+        }
+        catch (FieldNotFoundException | KeyboardLockedException | CicstsManagerException | TerminalInterruptedException
+            | NetworkException | TimeoutException e)
+        {
+            throw new CemtException("Problem with starting the CEMT transaction", e);
+        }
+        return found;
+    }
+
+    @Override
+    public void waitForDisabledResource(ICicsTerminal terminal, String resourceType, String resourceName) throws CemtException
+    {
+        waitForDisabledResource(terminal, resourceType, resourceName, this.defaultResourceTimeout);
+    }
+    
+    @Override
+    public boolean isResourceEnabled(ICicsTerminal terminal, String resourceType,
+            String resourceName) throws CemtException 
+    {
+        // Use the inquire to search for " Ena "
+        return this.inquireResource(terminal, resourceType, resourceName, " Ena ");
     }
 
 

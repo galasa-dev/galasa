@@ -73,17 +73,20 @@ public class CemtManagerImpl extends AbstractManager implements ICemtManagerSpi,
 
 
    @Override
-   public @NotNull ICemt getCemt(ICicsRegion cicsRegion) {
+   public @NotNull ICemt getCemt(ICicsRegion cicsRegion) throws CicstsManagerException {
       
       ICemt cemt = regionCemt.get(cicsRegion);
       
       if(cemt == null) {
-         cemt = new CemtImpl(cicsRegion);
-         regionCemt.put(cicsRegion, cemt);
+         try { 
+             cemt = new CemtImpl(cicsRegion);
+             regionCemt.put(cicsRegion, cemt);
+          } catch(CemtManagerException e) {
+              throw new CicstsManagerException("Unable to create CEMT resource", e);
+          }
       }
-      
+
       return cemt;
-      
    }
    
 }
