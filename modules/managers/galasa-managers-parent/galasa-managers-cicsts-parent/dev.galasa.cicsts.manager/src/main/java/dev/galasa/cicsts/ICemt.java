@@ -58,12 +58,12 @@ public interface ICemt {
      * If mixed case is required, the terminal should be presented with no upper case translate status.
      * @param resourceType a {@link String} of the resource type you are looking for.
      * @param resourceName a {@link String} of the name of the resource you are looking for.
-     * @param resourceTimeout
+     * @param defaultResourceTimeoutMilliseconds The timeout in milliseconds.
      * @throws CemtException
      */
     public void waitForDisabledResource(ICicsTerminal terminal,
             String resourceType, String resourceName,
-            int resourceTimeout) throws CemtException;
+            long defaultResourceTimeoutMilliseconds) throws CemtException;
     
     /**
      * See {@link #waitForEnabledResource(ITerminal, String, String, int)} for
@@ -88,12 +88,11 @@ public interface ICemt {
      * If mixed case is required, the terminal should be presented with no upper case translate status.
      * @param resourceType a {@link String} of the resource type you are looking for.
      * @param resourceName a {@link String} of the name of the resource you are looking for.
-     * @param resourceTimeout
-     *            - The timeout in milliseconds.
+     * @param defaultResourceTimeoutMilliseconds The timeout in milliseconds.
      * @throws CEMTException
      */
     public void waitForEnabledResource(ICicsTerminal terminal, String resourceType,
-        String resourceName, int resourceTimeout) throws CemtException;
+        String resourceName, long defaultResourceTimeoutMilliseconds) throws CemtException;
 
     /** 
      * Set the state of a CEMT resource using the resource type and name.

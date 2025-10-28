@@ -5,7 +5,6 @@
  */
 package dev.galasa.cicsts.cemt.internal;
 
-import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,12 +32,11 @@ public class CemtImpl implements ICemt {
     
     private ICicsRegion cicsRegion;
 
-    /** Holds the defaultResourceTimeout. */
-    private int defaultResourceTimeout;
+    private long defaultResourceTimeoutMilliseconds;
     
     public CemtImpl(ICicsRegion cicsRegion) throws CemtManagerException {
         this.cicsRegion = cicsRegion;
-        this.defaultResourceTimeout = DefaultResourceTimeout.get(cicsRegion.getZosImage())*1000;
+        this.defaultResourceTimeoutMilliseconds = DefaultResourceTimeout.get(cicsRegion.getZosImage())*1000;
     }
 
     protected CicstsHashMap getAttributes(String string, String resourceName, CicstsHashMap map) throws Exception {
@@ -451,19 +449,18 @@ public class CemtImpl implements ICemt {
 
     @Override
     public void waitForDisabledResource(ICicsTerminal terminal, String resourceType, String resourceName,
-        int resourceTimeout)
+        long defaultResourceTimeoutMilliseconds)
             throws CemtException {
 
         try {
-            long timeoutTimeInMilliseconds = Calendar.getInstance()
-                .getTimeInMillis() + resourceTimeout;
-            while (Calendar.getInstance().getTimeInMillis() < timeoutTimeInMilliseconds) {
+            long timeoutTimeInMilliseconds = System.currentTimeMillis() + defaultResourceTimeoutMilliseconds;
+            while (System.currentTimeMillis() < timeoutTimeInMilliseconds) {
                 terminal.resetAndClear();
                 terminal.type("CEMT INQUIRE " + resourceType + "(" + resourceName + ")").enter().waitForKeyboard();
                 if (terminal.retrieveScreen().contains(" Dis ")) {
                     return;
                 } 
-                if (Calendar.getInstance().getTimeInMillis() >= timeoutTimeInMilliseconds) {
+                if (System.currentTimeMillis() >= timeoutTimeInMilliseconds) {
                     break;
                 }
                 Thread.sleep(1000);
@@ -477,7 +474,7 @@ public class CemtImpl implements ICemt {
             throw new CemtException("Unable to prepare for the CEMT inquire resource", e);
         }
         
-        throw new CemtException("Timeout of " + resourceTimeout
+        throw new CemtException("Timeout of " + defaultResourceTimeoutMilliseconds
             + "ms exceeded while waiting for " + resourceType + "("
             + resourceName + ") to be disabled");
     }
@@ -486,18 +483,18 @@ public class CemtImpl implements ICemt {
     public void waitForEnabledResource(ICicsTerminal terminal, String resourceType, String resourceName)
         throws CemtException
     {
-        waitForEnabledResource(terminal, resourceType, resourceName, this.defaultResourceTimeout);
+        waitForEnabledResource(terminal, resourceType, resourceName, this.defaultResourceTimeoutMilliseconds);
     }
 
     @Override
     public void waitForEnabledResource(ICicsTerminal terminal, String resourceType, String resourceName,
-        int resourceTimeout) throws CemtException
+        long defaultResourceTimeoutMilliseconds) throws CemtException
     {
         // Calculate when we should timeout
-        long timeoutTimeInMilliseconds = Calendar.getInstance().getTimeInMillis() + resourceTimeout;
+        long timeoutTimeInMilliseconds = System.currentTimeMillis() + defaultResourceTimeoutMilliseconds;
 
         // Keep going until we reach timeout time
-        while (Calendar.getInstance().getTimeInMillis() < timeoutTimeInMilliseconds) {
+        while (System.currentTimeMillis() < timeoutTimeInMilliseconds) {
           try {
             // Clear the terminal and issue the inquire command
             terminal.resetAndClear();
@@ -510,7 +507,7 @@ public class CemtImpl implements ICemt {
 
             // Double check the timeout time, just in case the the send text
             // took ages
-            if (Calendar.getInstance().getTimeInMillis() >= timeoutTimeInMilliseconds)
+            if (System.currentTimeMillis() >= timeoutTimeInMilliseconds)
             {
                 break;
             }
@@ -523,7 +520,7 @@ public class CemtImpl implements ICemt {
           }
         }
         // Will only get here if we timed out
-        throw new CemtException("Timeout of " + resourceTimeout
+        throw new CemtException("Timeout of " + defaultResourceTimeoutMilliseconds
             + "ms exceeded while waiting for " + resourceType + "("
             + resourceName + ") to be enabled");
     }
@@ -597,7 +594,7 @@ public class CemtImpl implements ICemt {
     @Override
     public void waitForDisabledResource(ICicsTerminal terminal, String resourceType, String resourceName) throws CemtException
     {
-        waitForDisabledResource(terminal, resourceType, resourceName, this.defaultResourceTimeout);
+        waitForDisabledResource(terminal, resourceType, resourceName, this.defaultResourceTimeoutMilliseconds);
     }
     
     @Override
