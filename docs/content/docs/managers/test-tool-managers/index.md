@@ -16,7 +16,3 @@ title: "Test Tool Managers"
 
 :   Allows tests to drive Web Browser testing using Selenium.
 
-
-[VTP Manager](./vtp-manager.md) ![release](../../../assets/images/tags/release.svg){ valign=middle }
-
-:   Create an automated test in Galasa and use the VTP Manager to record the interactions between the test and your CICS programs.
