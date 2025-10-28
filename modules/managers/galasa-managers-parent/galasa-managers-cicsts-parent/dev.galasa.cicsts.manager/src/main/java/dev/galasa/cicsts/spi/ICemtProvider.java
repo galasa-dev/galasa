@@ -25,5 +25,4 @@ public interface ICemtProvider {
      */
     @NotNull
     ICemt getCemt(ICicsRegion cicsRegion) throws CicstsManagerException;
-
 }
