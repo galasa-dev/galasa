@@ -30,7 +30,8 @@ import dev.galasa.zos.IZosImage;
  */
 public class DefaultResourceTimeout extends CpsProperties {
 
-    public static int get(IZosImage image) throws CemtManagerException {
-    	return getIntWithDefault(CemtPropertiesSingleton.cps(), 300, "default", image.getImageID(), "timeout");
+    public static long getInMilliseconds(IZosImage image) throws CemtManagerException {
+    	int defaultTimeInSeconds = getIntWithDefault(CemtPropertiesSingleton.cps(), 300, "default", image.getImageID(), "timeout");
+        return defaultTimeInSeconds*1000;
     }
 }

@@ -36,7 +36,7 @@ public class CemtImpl implements ICemt {
     
     public CemtImpl(ICicsRegion cicsRegion) throws CemtManagerException {
         this.cicsRegion = cicsRegion;
-        this.defaultResourceTimeoutMilliseconds = DefaultResourceTimeout.get(cicsRegion.getZosImage())*1000;
+        this.defaultResourceTimeoutMilliseconds = DefaultResourceTimeout.getInMilliseconds(cicsRegion.getZosImage());
     }
 
     protected CicstsHashMap getAttributes(String string, String resourceName, CicstsHashMap map) throws Exception {
