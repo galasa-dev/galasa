@@ -90,8 +90,6 @@ include 'galasa-managers-testingtools-parent:dev.galasa.sdv.manager'
 include 'galasa-managers-testingtools-parent:dev.galasa.sdv.manager.ivt'
 include 'galasa-managers-testingtools-parent:dev.galasa.selenium.manager'
 include 'galasa-managers-testingtools-parent:dev.galasa.selenium.manager.ivt'
-include 'galasa-managers-testingtools-parent:dev.galasa.vtp.manager'
-include 'galasa-managers-testingtools-parent:dev.galasa.vtp.manager.ivt'
 // galasa-managers-other-parent
 include 'galasa-managers-other-parent:dev.galasa.galasaecosystem.manager'
 include 'galasa-managers-other-parent:dev.galasa.galasaecosystem.manager.ivt'
