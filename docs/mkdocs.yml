@@ -253,7 +253,6 @@ nav:
         - docs/managers/test-tool-managers/jmeter-manager.md
         - docs/managers/test-tool-managers/sdv-manager.md
         - docs/managers/test-tool-managers/selenium-manager.md
-        - docs/managers/test-tool-managers/vtp-manager.md
       - Unix Managers:
         - docs/managers/unix-managers/index.md
         - docs/managers/unix-managers/linux-manager.md
