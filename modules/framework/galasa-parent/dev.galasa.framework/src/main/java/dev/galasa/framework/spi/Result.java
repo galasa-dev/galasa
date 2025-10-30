@@ -17,8 +17,8 @@ public class Result implements IResult {
     public static final String REQUEUED    = "Requeued";
     public static final String CANCELLED   = "Cancelled";
     public static final String HUNG        = "Hung";
+    public static final String IGNORED     = "Ignored";
 
-    private static final String IGNORED     = "Ignored";
     private static final String PASSED      = "Passed";
     private static final String FAILED      = "Failed";
     private static final String ENVFAIL     = "EnvFail";

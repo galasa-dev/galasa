@@ -9,9 +9,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -372,6 +374,7 @@ public class TestClassWrapper {
         try {
             dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_TOTAL, Integer.toString(this.testMethods.size()));
 
+            Set<String> testMethodResultNamesSoFar = new HashSet<>();
             int actualMethod = 0;
             for (TestMethodWrapper testMethod : this.testMethods) {
 
@@ -388,10 +391,21 @@ public class TestClassWrapper {
                 testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure, this);
                 // Setting the result so far after every @Test 
                 // method happens inside the testMethod class.
+                testMethodResultNamesSoFar.add(testMethod.getResult().getName());
                 if (testMethod.fullStop()) {
                     break;
                 }
             }
+
+            // If all of the test methods were ignored, then 'ignored' will be the only result recorded,
+            // so mark the entire test class as ignored as well
+            if (testMethodResultNamesSoFar.size() == 1) {
+                String resultName = testMethodResultNamesSoFar.iterator().next();
+                if (resultName.equalsIgnoreCase(Result.IGNORED)) {
+                    setResult(Result.ignore("All test methods were ignored"), managers);
+                }
+            }
+
             dss.delete("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_NAME);
             dss.delete("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_TOTAL);
             dss.delete("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_CURRENT);

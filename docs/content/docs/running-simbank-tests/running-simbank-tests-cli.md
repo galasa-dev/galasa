@@ -50,7 +50,7 @@ In order to run the Galasa SimBanks tests you need to add some configuration inf
 
 The SimBank tests are held in the [Galasa simplatform repository](https://github.com/galasa-dev/simplatform){target="_blank"} in GitHub. To start running the tests you need to clone the repository, if you have not already done so. To find out how to clone the cli repository, follow the instruction in the [Running Galasa SimBank online](../running-simbank-tests/simbank-cli.md) documentation.
 
-After cloning the repository, complete the following steps to run the SimBankIVT test that is provided with Galasa. The following example uses SimBank OBR version `0.44.0` and Galasa uber OBR version `0.44.0`.
+After cloning the repository, complete the following steps to run the SimBankIVT test that is provided with Galasa. The following example uses SimBank OBR version `0.45.0` and Galasa uber OBR version `0.45.0`.
 
 You can find the version of the `dev.galasa.simbank.obr` that you are using by looking in the `pom.xml` file in the `dev.galasa.simbank.obr` folder. The `dev.galasa.uber.obr` is the OBR that contains all the bundles that are needed for Galasa to work including Managers, any required dependencies, the framework, etc. The version of the `dev.galasa.uber.obr` depends on which version of Galasa you have installed.
 
@@ -87,7 +87,7 @@ Remember to initialise your local environment by running the `galasactl local in
 
     ```shell
     galasactl runs submit local --log - \
-    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.44.0/obr \
+    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.45.0/obr \
     --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.SimBankIVT 
     ```
 
@@ -95,7 +95,7 @@ Remember to initialise your local environment by running the `galasactl local in
 
     ```powershell
     galasactl runs submit local --log - `
-    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.44.0/obr `
+    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.45.0/obr `
     --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.SimBankIVT
     ```
 
@@ -115,7 +115,7 @@ On Mac or Unix:
 
 ```shell
 galasactl runs submit local --log - \
---obr mvn:dev.galasa/dev.galasa.simbank.obr/0.44.0/obr \
+--obr mvn:dev.galasa/dev.galasa.simbank.obr/0.45.0/obr \
 --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.BasicAccountCreditTest 
 ```
 
@@ -123,7 +123,7 @@ On Windows (Powershell):
 
 ```powershell
 galasactl runs submit local --log - `
---obr mvn:dev.galasa/dev.galasa.simbank.obr/0.44.0/obr `
+--obr mvn:dev.galasa/dev.galasa.simbank.obr/0.45.0/obr `
 --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.BasicAccountCreditTest
 ```
 

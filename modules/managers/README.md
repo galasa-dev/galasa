@@ -121,4 +121,3 @@ Below is a table with the currently available Galasa Managers as seen documented
 
 **Managers set to be removed from Open Source Galasa:**
 * Phoenix
-* VTP
