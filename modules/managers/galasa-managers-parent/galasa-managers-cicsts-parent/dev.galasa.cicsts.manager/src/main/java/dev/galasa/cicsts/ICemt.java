@@ -31,6 +31,68 @@ public interface ICemt {
                                                    @NotNull String resourceName
                                                    ) throws CemtException;
     
+    /**
+     * Inquire a CEMT resource using the resource type and name.
+     * This methods searches the text and give the response back as boolean value (true/false).
+     * @param cemtTerminal an {@link ITerminal} object logged on to the CICS region and in an active CEMT session.
+     * If mixed case is required, the terminal should be presented with no upper case translate status.
+     * @param resourceType a {@link String} of the resource type you are looking for.
+     * @param resourceName a {@link String} of the name of the resource you are looking for.
+     * @param searchText
+     * @return boolean value
+     * @throws CemtException
+     */
+    public boolean inquireResource(
+            @NotNull ICicsTerminal cemtTerminal,
+            @NotNull String resourceType,
+            @NotNull String resourceName,
+            @NotNull String searchText) throws CemtException;
+
+    /**
+     * Wait for a CICS resource to become disabled. This method will issue a
+     * CEMT INQUIRE every 500ms for as long as the resourceTimeout parameter
+     * specifies. This method looks for "Dis" to indicate the resource is
+     * disabled.
+     * 
+     * @param cemtTerminal an {@link ITerminal} object logged on to the CICS region and in an active CEMT session.
+     * If mixed case is required, the terminal should be presented with no upper case translate status.
+     * @param resourceType a {@link String} of the resource type you are looking for.
+     * @param resourceName a {@link String} of the name of the resource you are looking for.
+     * @param defaultResourceTimeoutMilliseconds The timeout in milliseconds.
+     * @throws CemtException
+     */
+    public void waitForDisabledResource(ICicsTerminal terminal,
+            String resourceType, String resourceName,
+            long defaultResourceTimeoutMilliseconds) throws CemtException;
+    
+    /**
+     * See {@link #waitForEnabledResource(ITerminal, String, String, int)} for
+     * explanation, the default resource timeout is used.
+     * 
+     * @param cemtTerminal an {@link ITerminal} object logged on to the CICS region and in an active CEMT session.
+     * If mixed case is required, the terminal should be presented with no upper case translate status.
+     * @param resourceType a {@link String} of the resource type you are looking for.
+     * @param resourceName a {@link String} of the name of the resource you are looking for.
+     * @throws CEMTException
+     */
+    public void waitForEnabledResource(ICicsTerminal terminal, String resourceType,
+        String resourceName) throws CemtException;
+
+    /**
+     * Wait for a CICS resource to become enabled. This method will issue a CEMT
+     * INQUIRE every 500ms for as long as the resourceTimeout parameter
+     * specifies. This method looks for " Ena " to indicate the resource is
+     * enabled.
+     * 
+     * @param cemtTerminal an {@link ITerminal} object logged on to the CICS region and in an active CEMT session.
+     * If mixed case is required, the terminal should be presented with no upper case translate status.
+     * @param resourceType a {@link String} of the resource type you are looking for.
+     * @param resourceName a {@link String} of the name of the resource you are looking for.
+     * @param defaultResourceTimeoutMilliseconds The timeout in milliseconds.
+     * @throws CEMTException
+     */
+    public void waitForEnabledResource(ICicsTerminal terminal, String resourceType,
+        String resourceName, long defaultResourceTimeoutMilliseconds) throws CemtException;
 
     /** 
      * Set the state of a CEMT resource using the resource type and name.
@@ -64,8 +126,6 @@ public interface ICemt {
                                @NotNull String resourceType,
                                @NotNull String resourceName) throws CemtException;
     
-
-    
     /**
      * 
      * @param cemtTerminal an {@link ITerminal} object logged on to the CICS region and in an active CEMT session.
@@ -82,4 +142,56 @@ public interface ICemt {
                                          @NotNull String systemArea,
                                          @NotNull String setRequest,
                                          @NotNull String expectedResponse)throws CemtException;
+
+    /**
+     * Does a CEMT Inquire and expects it to be NOTFOUND.
+     * 
+     * @param cemtTerminal an {@link ITerminal} object logged on to the CICS region and in an active CEMT session.
+     * If mixed case is required, the terminal should be presented with no upper case translate status.
+     * @param resourceType a {@link String} of the resource type you are looking for.
+     * @param resourceName a {@link String} of the name of the resource you are looking for.
+     * @param searchText - text to be searched on terminal           
+     * @throws CemtException - throws when error occurs in the CEMT transaction 
+     */
+    public boolean inquireResourceNotFound(ICicsTerminal terminal, String resourceType, String resourceName, String searchText) throws CemtException;
+
+    /**
+     * Does a CEMT Inquire and expects it to be NOTFOUND.
+     * 
+     * @param cemtTerminal an {@link ITerminal} object logged on to the CICS region and in an active CEMT session.
+     * If mixed case is required, the terminal should be presented with no upper case translate status.
+     * @param resourceType a {@link String} of the resource type you are looking for.
+     * @param resourceName a {@link String} of the name of the resource you are looking for.
+     * @param searchText - text to be searched on terminal
+     * @param state - the status of the resource
+     * @throws CemtException -throws when error occurs in the CEMT transaction 
+     */
+    public boolean inquireResourceNotFound(ICicsTerminal terminal, String resourceType, String resourceName, String searchText,
+        String state) throws CemtException;
+
+    /**
+     * Wait for a CICS resource to become disabled. This method will issue a
+     * CEMT INQUIRE . This method looks for "Dis" to indicate the resource is
+     * disabled.
+     * 
+     * @param cemtTerminal an {@link ITerminal} object logged on to the CICS region and in an active CEMT session.
+     * If mixed case is required, the terminal should be presented with no upper case translate status.
+     * @param resourceType a {@link String} of the resource type you are looking for.
+     * @param resourceName a {@link String} of the name of the resource you are looking for.
+     * @throws CemtException - throws when error occurs in the CEMT transaction.
+     */
+    public void waitForDisabledResource(ICicsTerminal terminal, String resourceType, String resourceName) throws CemtException;
+
+    /**
+     * Does a CEMT Inquire and expects it to be ENABLED.
+     * 
+     * @param cemtTerminal an {@link ITerminal} object logged on to the CICS region and in an active CEMT session.
+     * If mixed case is required, the terminal should be presented with no upper case translate status.
+     * @param resourceType a {@link String} of the resource type you are looking for.
+     * @param resourceName a {@link String} of the name of the resource you are looking for.
+     * @throws CemtException - throws when error occurs in the CEMT transaction.
+     */
+    boolean isResourceEnabled(ICicsTerminal terminal, String resourceType, String resourceName)
+        throws CemtException;
+
 }

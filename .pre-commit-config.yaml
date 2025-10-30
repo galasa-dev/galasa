@@ -2,7 +2,7 @@
 # Uses a baseline file for existing secrets and fails on unaudited new findings to ensure security.
 repos:
   - repo: https://github.com/ibm/detect-secrets
-    rev: 0.13.1+ibm.62.dss
+    rev: 0.13.1+ibm.64.dss
     hooks:
       - id: detect-secrets # pragma: whitelist secret
         args: [--baseline, .secrets.baseline, --use-all-plugins, --fail-on-unaudited]
