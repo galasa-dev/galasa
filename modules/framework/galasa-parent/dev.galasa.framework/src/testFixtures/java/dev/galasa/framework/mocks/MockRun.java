@@ -33,6 +33,7 @@ public class MockRun implements IRun {
     private String status;
     private String interruptReason;
     private Instant interruptedAt;
+    private Instant queuedTime = Instant.now();
     private Instant allocatedTimeout;
     private String result;
     private String runId;
@@ -107,7 +108,11 @@ public class MockRun implements IRun {
 
     @Override
     public Instant getQueued() {
-        return Instant.now();
+        return this.queuedTime;
+    }
+
+    public void setQueued(Instant queuedTime) {
+        this.queuedTime = queuedTime;
     }
 
     @Override
