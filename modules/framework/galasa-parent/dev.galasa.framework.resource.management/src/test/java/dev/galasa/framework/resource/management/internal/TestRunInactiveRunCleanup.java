@@ -225,4 +225,39 @@ public class TestRunInactiveRunCleanup {
         assertThat(mockResourceManagement.isSuccessful).isTrue();
         assertThat(timedOutRun.getInterruptReason()).isEqualTo(Result.HUNG);
     }
+
+    @Test
+    public void testDoesNotCleanUpLocalQueuedRunsThatHaveNotTimedOut() throws Exception {
+        // Given...
+        List<IRun> runs = new ArrayList<>();
+        MockRun timedOutRun = createMockRun("run1", TestRunLifecycleStatus.QUEUED, true);
+        MockRun newRun = createMockRun("run2", TestRunLifecycleStatus.QUEUED, true);
+
+        Instant currentTime = Instant.now();
+
+        timedOutRun.setQueued(Instant.EPOCH);
+
+        // This run has an allocated timeout set in the future
+        newRun.setQueued(currentTime);
+
+        runs.add(timedOutRun);
+
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(runs);
+
+        MockResourceManagement mockResourceManagement = new MockResourceManagement();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        RunInactiveRunCleanup runCleanup = new RunInactiveRunCleanup(mockFrameworkRuns, mockResourceManagement, mockTimeService, mockCps);
+
+        // When...
+        runCleanup.run();
+
+        // Then...
+        assertThat(mockResourceManagement.isSuccessful).isTrue();
+        assertThat(timedOutRun.getInterruptReason()).isEqualTo(Result.HUNG);
+        
+        // The run that hasn't timed out should not have been interrupted
+        assertThat(newRun.getInterruptReason()).isNull();
+    }
 }

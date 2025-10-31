@@ -46,6 +46,7 @@ public class RunInactiveRunCleanup implements Runnable {
         this.logger.info("Inactive runs cleanup monitor initialised");
     }
 
+    @Override
     public void run() {
         logger.info("Starting search for inactive runs to clean up");
         try {
@@ -87,11 +88,13 @@ public class RunInactiveRunCleanup implements Runnable {
             Instant now = timeService.now();
             int maxLocalRunQueuedTimeSecs = getMaxLocalRunQueuedTimeSecs();
             Instant queuedRunExpiryTime = runQueuedTime.plusSeconds(maxLocalRunQueuedTimeSecs);
+            String runName = run.getName();
 
             if (runQueuedTime != null && now.isAfter(queuedRunExpiryTime)) {
-                String runName = run.getName();
                 logger.info("Interrupting local run " + runName + " as the run has been in the 'queued' state for too long");
                 this.frameworkRuns.markRunInterrupted(runName, Result.HUNG);
+            } else {
+                logger.info("Local run " + runName + " has not been in the DSS for too long. It will expire after " + queuedRunExpiryTime.toString());
             }
         }
     }
