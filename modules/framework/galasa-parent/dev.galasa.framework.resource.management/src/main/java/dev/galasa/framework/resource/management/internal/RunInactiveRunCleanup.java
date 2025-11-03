@@ -25,7 +25,7 @@ import dev.galasa.framework.spi.utils.ITimeService;
 public class RunInactiveRunCleanup implements Runnable {
 
     // The default amount of time in seconds that local runs can be left in 'queued'
-    private static final int DEFAULT_MAX_LOCAL_RUN_QUEUED_TIME_SECS = 60 * 20;
+    private static final int DEFAULT_MAX_LOCAL_RUN_QUEUED_TIME_SECS = 60 * 15;
 
     private final IResourceManagement resourceManagement;
     private final IFrameworkRuns      frameworkRuns;
