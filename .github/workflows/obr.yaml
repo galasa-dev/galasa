@@ -919,26 +919,6 @@ jobs:
             dockerRepository=${{ env.REGISTRY }}
             jdkImage=ghcr.io/galasa-dev/openjdk:17
 
-      - name: Extract metadata for Galasa IBM boot embedded image
-        id: metadata-ibm-boot-embedded
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasa-ibm-boot-embedded
-  
-      - name: Build and push Galasa IBM boot embedded image
-        id: build-ibm-boot-embedded
-        uses: docker/build-push-action@v5
-        with:
-          context: modules/obr
-          file: modules/obr/dockerfiles/dockerfile.ibmbootembedded
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.metadata-ibm-boot-embedded.outputs.tags }}
-          labels: ${{ steps.metadata-ibm-boot-embedded.outputs.labels }}
-          build-args: |
-            tag=${{ env.BRANCH }}
-            dockerRepository=${{ env.REGISTRY }}
-
   trigger-next-workflows:
     # Skip this job for forks
     if: ${{ github.repository_owner == 'galasa-dev' }}
