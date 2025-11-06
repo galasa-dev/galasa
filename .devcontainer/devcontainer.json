@@ -1,0 +1,57 @@
+// /*
+//  * Copyright contributors to the Galasa project
+//  *
+//  * SPDX-License-Identifier: EPL-2.0
+//  */
+ 
+{
+  "name": "Java",
+	"image": "mcr.microsoft.com/devcontainers/java:17",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "jdkDistro": "sem",
+      "version": "17.0.14-sem",
+			"installMaven": "true",
+			"mavenVersion": "3.9.0",
+			"installGradle": "true",
+			"gradleVersion": "8.14.3"
+    },
+    
+    "ghcr.io/devcontainers/features/python:1": {
+			"version": "3.11.0"
+    },
+    
+    "ghcr.io/devcontainers/features/go:1": {
+			"version": "1.23.5"
+    },
+    
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20.10.0"
+    }
+  },
+
+  "mounts": [
+    "source=${localEnv:HOME}/.m2,target=/home/root/.m2,type=bind,consistency=cached",
+    "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
+  ],
+
+  "remoteEnv": {
+    "GALASA_TOKEN":"${localEnv:GALASA_TOKEN}",
+    "GALASA_API_SERVER_URL":"${localEnv:GALASA_API_SERVER_URL}",
+		"GALASA_BOOTSTRAP":"${localEnv:GALASA_BOOTSTRAP}",
+		"GPG_PASSPHRASE":"${localEnv:GPG_PASSPHRASE}"
+  },
+
+  "remoteUser": "root",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "golang.go",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}

@@ -75,8 +75,10 @@ jobs:
           cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
         
       - name: Import GPG
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
+          gpg --homedir /home/runner/work/gpg --passphrase $GPG_PASSPHRASE --import /home/runner/work/secrets/galasa.gpg
 
       # This is required so the galasabld-amd64 image can be run in the next step.
       - name: Login to Github Container Registry
@@ -433,8 +435,10 @@ jobs:
           cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
 
       - name: Import GPG
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
+          gpg --homedir /home/runner/work/gpg --passphrase $GPG_PASSPHRASE --import /home/runner/work/secrets/galasa.gpg
 
       # This is required so the galasabld-amd64 image can be run in the next step.
       - name: Login to Github Container Registry
@@ -758,8 +762,10 @@ jobs:
           cp ${{ github.workspace }}/.github/common-files/settings.xml /home/runner/work/gpg/settings.xml
         
       - name: Import GPG
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
+          gpg --homedir /home/runner/work/gpg --passphrase $GPG_PASSPHRASE --import /home/runner/work/secrets/galasa.gpg
 
       # This is required so the galasabld-amd64 image can be run in the next step.
       - name: Login to Github Container Registry
