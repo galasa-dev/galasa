@@ -104,7 +104,7 @@ public class RunInactiveRunCleanup implements Runnable {
      * be cleaned up.
      *
      * This value can be customised using the CPS property:
-     *     framework.resource.management.queued.timeout=[number of seconds]
+     *     framework.resource.management.local.queued.timeout=[number of seconds]
      *
      * If no value is set, then a default value will be returned.
      */
