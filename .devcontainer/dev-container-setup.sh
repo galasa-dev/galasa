@@ -30,7 +30,7 @@ function set_env_vars() {
   local GALASA_BOOTSTRAP_VALUE="$4"
   local GPG_PASSPHRASE_VALUE="$5"
 
-  local PROFILE_FILE="/home/node/.bashrc"
+  local PROFILE_FILE="/etc/profile"
 
   if [ -n "$GALASA_TOKEN_VALUE" ]; then
     echo "export GALASA_TOKEN=$GALASA_TOKEN_VALUE" >> "$PROFILE_FILE"
@@ -55,4 +55,4 @@ function set_env_vars() {
   success "Existing local envs copied sucessfully"
 }
 
-set_env_vars "$1" "$2" "$3"
+set_env_vars "$1" "$2" "$3" "$4" "$5"
