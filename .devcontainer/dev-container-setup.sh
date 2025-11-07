@@ -25,19 +25,14 @@ success() { printf "${green}✔ %s${reset}\n" "$@"
 # Sets envs if they are specified on local machine (prevents null values)
 function set_env_vars() {
   local GALASA_TOKEN_VALUE="$1"
-  local GALASA_API_SERVER_URL_VALUE="$2"
-  local SOURCE_MAVEN_VALUE="$3"
-  local GALASA_BOOTSTRAP_VALUE="$4"
-  local GPG_PASSPHRASE_VALUE="$5"
+  local SOURCE_MAVEN_VALUE="$2"
+  local GALASA_BOOTSTRAP_VALUE="$3"
+  local GPG_PASSPHRASE_VALUE="$4"
 
   local PROFILE_FILE="/etc/profile"
 
   if [ -n "$GALASA_TOKEN_VALUE" ]; then
     echo "export GALASA_TOKEN=$GALASA_TOKEN_VALUE" >> "$PROFILE_FILE"
-  fi
-
-  if [ -n "$GALASA_API_SERVER_URL_VALUE" ]; then
-    echo "export GALASA_API_SERVER_URL=$GALASA_API_SERVER_URL_VALUE" >> "$PROFILE_FILE"
   fi
 
   if [ -n "$SOURCE_MAVEN_VALUE" ]; then
@@ -55,4 +50,4 @@ function set_env_vars() {
   success "Existing local envs copied sucessfully"
 }
 
-set_env_vars "$1" "$2" "$3" "$4" "$5"
+set_env_vars "$1" "$2" "$3" "$4"

@@ -53,5 +53,5 @@
     }
   },
 
-  "postCreateCommand": "./.devcontainer/dev-container-setup.sh \"${localEnv:GALASA_TOKEN}\" \"${localEnv:GALASA_API_SERVER_URL}\" \"${localEnv:SOURCE_MAVEN}\" \"${localEnv:GALASA_BOOTSTRAP}\" \"${localEnv:GPG_PASSPHRASE}\""
+  "postCreateCommand": "./.devcontainer/dev-container-setup.sh \"${localEnv:GALASA_TOKEN}\" \"${localEnv:SOURCE_MAVEN}\" \"${localEnv:GALASA_BOOTSTRAP}\" \"${localEnv:GPG_PASSPHRASE}\""
 }
