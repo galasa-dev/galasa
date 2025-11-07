@@ -48,6 +48,7 @@ When using vscode to develop this code, we recommend the following settings are 
     },
 ],
 "java.import.gradle.wrapper.enabled": false,
+"java.gradle.buildServer.enabled": "off",
 ```
 
 ## How to contribute to the Galasa project
