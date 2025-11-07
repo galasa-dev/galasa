@@ -58,6 +58,7 @@ function usage {
     cat << EOF
 Options are:
 --help
+--docker : Optional. Builds the Docker image that hosts the website in a local web server
 
 Environment variables used:
 None
@@ -66,7 +67,7 @@ EOF
 }
 
 function check_exit_code () {
-    # This function takes 3 parameters in the form:
+    # This function takes 2 parameters in the form:
     # $1 an integer value of the returned exit code
     # $2 an error message to display if $1 is not equal to 0
     if [[ "$1" != "0" ]]; then 
@@ -77,9 +78,11 @@ function check_exit_code () {
 #-----------------------------------------------------------------------------------------                   
 # Process parameters
 #-----------------------------------------------------------------------------------------                   
-
+is_docker_build_requested=""
 while [ "$1" != "" ]; do
     case $1 in
+        --docker )              is_docker_build_requested="true"
+                                ;;
         -h | --help )           usage
                                 exit
                                 ;;
@@ -107,9 +110,11 @@ success "OK"
 
 info "To preview, the docs are at: file://$BASEDIR/build/site/index.html"
 
-h2 "Building galasa-docs-site Docker image that hosts the website in a local web server"
-docker build -f dockerfile.galasadocssite -t galasa-docs-site .
-check_exit_code $? "Failed to build"
-success "OK"
-
-info "To run the image and access the docs in localhost:8080, run: docker run -d -p 8080:80 galasa-docs-site"
+if [[ "${is_docker_build_requested}" == "true" ]]; then
+    h2 "Building galasa-docs-site Docker image that hosts the website in a local web server"
+    docker build -f dockerfile.galasadocssite -t galasa-docs-site .
+    check_exit_code $? "Failed to build"
+    success "OK"
+    
+    info "To run the image and access the docs in localhost:8080, run: docker run -d -p 8080:80 galasa-docs-site"
+fi
