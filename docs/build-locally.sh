@@ -116,5 +116,5 @@ if [[ "${is_docker_build_requested}" == "true" ]]; then
     check_exit_code $? "Failed to build"
     success "OK"
     
-    info "To run the image and access the docs in localhost:8080, run: docker run -d -p 8080:80 galasa-docs-site"
+    info "To run the image and access the docs in localhost:8080, run: docker run -d -p 8080:80 galasa-docs-site on your local machine"
 fi

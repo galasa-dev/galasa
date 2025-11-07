@@ -28,7 +28,12 @@
     
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20.10.0"
-    }
+    },
+
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+			"version": "28.3.3-1",
+      "moby": false
+		}
   },
 
   "mounts": [
