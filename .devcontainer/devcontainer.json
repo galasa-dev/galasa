@@ -41,13 +41,6 @@
     "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
   ],
 
-  "remoteEnv": {
-    "GALASA_TOKEN":"${localEnv:GALASA_TOKEN}",
-    "GALASA_API_SERVER_URL":"${localEnv:GALASA_API_SERVER_URL}",
-		"GALASA_BOOTSTRAP":"${localEnv:GALASA_BOOTSTRAP}",
-		"GPG_PASSPHRASE":"${localEnv:GPG_PASSPHRASE}"
-  },
-
   "remoteUser": "root",
   
   "customizations": {
@@ -58,5 +51,7 @@
         "dbaeumer.vscode-eslint"
       ]
     }
-  }
+  },
+
+  "postCreateCommand": "./.devcontainer/dev-container-setup.sh \"${localEnv:GALASA_TOKEN}\" \"${localEnv:GALASA_API_SERVER_URL}\" \"${localEnv:SOURCE_MAVEN}\" \"${localEnv:GALASA_BOOTSTRAP}\" \"${localEnv:GPG_PASSPHRASE}\""
 }
