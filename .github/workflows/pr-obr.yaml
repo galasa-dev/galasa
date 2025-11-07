@@ -335,7 +335,7 @@ jobs:
           path: modules/obr/repo
 
   build-obr-javadocs:
-    name: Build OBR javadocs using galasabld image and maven
+    name: Build galasa-uber-javadoc using galasabld image and maven
     if: ${{ inputs.changed == 'true' }}
     runs-on: ubuntu-latest
 
@@ -523,7 +523,7 @@ jobs:
           restore-keys: |
             cache-obr-javadoc-
         
-      - name: Build javadoc site using maven
+      - name: Build galasa-uber-javadoc and deploy into temporary location
         working-directory: modules/obr/javadocs
         run: |
           set -o pipefail
@@ -540,7 +540,7 @@ jobs:
 
       # Note: We publish from a different repository, so the maven comand can't find the javadoc's pom.xml,
       # as we want it to create a new one.
-      - name: Publish the javadoc site using maven, so that the maven bundle contains no dependencies.
+      - name: Publish galasa-uber-javadoc ZIP to local Maven repository
         working-directory: modules/obr
         env:
           GALASA_VERSION: ${{ inputs.galasa-version }}
@@ -563,11 +563,11 @@ jobs:
           --batch-mode --errors --fail-at-end \
           2>&1 | tee -a javadocs/build.log
 
-      - name: Upload Javadoc site build log
+      - name: Upload Javadoc build log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: javadoc-site-build-log
+          name: javadoc-build-log
           path: modules/obr/javadocs/build.log
           retention-days: 7
 
@@ -576,14 +576,6 @@ jobs:
         with:
           name: javadoc
           path: modules/obr/javadocs/docker/repo
-      
-      - name: Build Javadoc site image for testing
-        uses: docker/build-push-action@v5
-        with:
-          context: modules/obr
-          file: modules/obr/dockerfiles/dockerfile.javadocsite
-          load: true
-          tags: javadoc-site:test
 
       - name: Build Javadoc Maven repo image for testing
         uses: docker/build-push-action@v5
