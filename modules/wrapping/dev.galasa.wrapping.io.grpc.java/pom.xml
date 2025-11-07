@@ -6,11 +6,11 @@
 	<parent>
 		<groupId>dev.galasa</groupId>
 		<artifactId>dev.galasa.wrapping.parent</artifactId>
-		<version>0.44.0</version>
+		<version>0.45.0</version>
 	</parent>
 
 	<artifactId>dev.galasa.wrapping.io.grpc.java</artifactId>
-	<version>0.44.0</version>
+	<version>0.45.0</version>
 	<packaging>bundle</packaging>
 
 	<name>Galasa wrapped version of the io.grpc packages required for grpc-java</name>
@@ -19,94 +19,63 @@
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-api</artifactId>
-			<version>1.68.0</version>
+			<version>1.76.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-context</artifactId>
-			<version>1.68.0</version>
+			<version>1.76.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-core</artifactId>
-			<version>1.68.0</version>
+			<version>1.76.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-netty-shaded</artifactId>
-			<version>1.68.0</version>
+			<version>1.76.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-protobuf</artifactId>
-			<version>1.68.0</version>
-
-			<!-- 
-			This dependency has a transient dependency of this:
-			com.google.protobuf:protobuf-java:jar:3.25.3:compile
-
-			Which has a vulnerability. We will add an explicit dependency on 
-			a later version.
-			-->
-			<exclusions>
-				<exclusion>
-				<groupId>com.google.protobuf</groupId>
-				<artifactId>protobuf-java</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>1.76.0</version>
 		</dependency>
 
 		<!--
 		This dependency is relied upon by io.grpc:grpc-protobuf
-		but we want to upgrade a transient dependency there.
+		but we need to depend on it directly to avoid OSGi issues.
 		-->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>3.25.5</version>
+			<version>3.25.8</version>
 		</dependency>
-
-
 
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-protobuf-lite</artifactId>
-			<version>1.68.0</version>
-
-			<!-- 
-			This dependency has a transient dependency of this:
-			com.google.protobuf:protobuf-javalite:jar:3.25.3:compile
-
-			Which has a vulnerability. We will add an explicit dependency on 
-			a later version.
-			-->
-			<exclusions>
-				<exclusion>
-				<groupId>com.google.protobuf</groupId>
-				<artifactId>protobuf-javalite</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>1.76.0</version>
 		</dependency>
 
 		<!--
 		This dependency is relied upon by io.grpc:grpc-protobuf-lite
-		but we want to upgrade a transient dependency there.
+		but we need to depend on it directly to avoid OSGi issues.
 		-->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-javalite</artifactId>
 		</dependency>
 
-
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-stub</artifactId>
-			<version>1.68.0</version>
+			<version>1.76.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-util</artifactId>
-			<version>1.68.0</version>
+			<version>1.76.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.perfmark</groupId>

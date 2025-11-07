@@ -384,19 +384,6 @@ func TestJvmLauncherSetsRASStoreOverride(t *testing.T) {
 	assert.Contains(t, overridesGotBack, "framework.resultarchive.store")
 }
 
-func TestJvmLauncherSets3270TerminalOutputFormatProperty(t *testing.T) {
-	overrides := make(map[string]interface{})
-	fs := files.NewMockFileSystem()
-	env := utils.NewMockEnv()
-	galasaHome, _ := utils.NewGalasaHome(fs, env, "")
-
-	overridesGotBack := addStandardOverrideProperties(galasaHome, overrides)
-
-	assert.Contains(t, overridesGotBack, "zos3270.terminal.output")
-	assert.Contains(t, overridesGotBack["zos3270.terminal.output"], "png")
-	assert.Contains(t, overridesGotBack["zos3270.terminal.output"], "json")
-}
-
 func TestCanCreateTempPropsFile(t *testing.T) {
 	overrides := make(map[string]interface{})
 	fs := files.NewMockFileSystem()

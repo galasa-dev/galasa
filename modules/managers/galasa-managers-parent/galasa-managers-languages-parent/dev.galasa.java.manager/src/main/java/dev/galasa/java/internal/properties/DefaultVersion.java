@@ -22,17 +22,17 @@ import dev.galasa.java.JavaVersion;
  * 
  * @galasa.required No
  * 
- * @galasa.default v11
+ * @galasa.default v17
  * 
  * @galasa.valid_values string value of the JavaVersion enum
  * 
  * @galasa.examples 
- * <code>java.default.version=v11</code>
+ * <code>java.default.version=v17</code>
  * 
  */
 public class DefaultVersion extends CpsProperties {
     
-    public final static JavaVersion DEFAULT_VERSION = JavaVersion.v11;
+    public final static JavaVersion DEFAULT_VERSION = JavaVersion.v17;
 
     @NotNull
     public static JavaVersion get() throws JavaManagerException {

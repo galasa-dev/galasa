@@ -69,7 +69,8 @@ public class RunResourceManagement implements IResourceManagementProvider {
         }
         try {
             this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
-                    new RunAllocatedRunCleanup(this.framework.getFrameworkRuns(), this.resourceManagement, new SystemTimeService()),
+                    new RunInactiveRunCleanup(this.framework.getFrameworkRuns(), this.resourceManagement,
+                    new SystemTimeService(), cps),
                     this.framework.getRandom().nextInt(20), 5, TimeUnit.MINUTES);
         } catch (FrameworkException e) {
             logger.error("Unable to initialise Finished Run monitor", e);

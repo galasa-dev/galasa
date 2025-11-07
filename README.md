@@ -30,7 +30,7 @@ The `set-version.sh` script allows you to set the version of the Galasa througho
 
 Use the `--help` flag to see what options are supported.
 
-Basic usage: `set-version.sh --version 0.44.0`
+Basic usage: `set-version.sh --version 0.45.0`
 
 ## Using vscode
 When using vscode to develop this code, we recommend the following settings are added to your `settings.json` file:
@@ -48,6 +48,7 @@ When using vscode to develop this code, we recommend the following settings are 
     },
 ],
 "java.import.gradle.wrapper.enabled": false,
+"java.gradle.buildServer.enabled": "off",
 ```
 
 ## How to contribute to the Galasa project

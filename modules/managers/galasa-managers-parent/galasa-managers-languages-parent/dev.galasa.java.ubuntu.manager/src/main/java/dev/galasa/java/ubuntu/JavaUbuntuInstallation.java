@@ -32,7 +32,7 @@ public @interface JavaUbuntuInstallation {
     
     JavaType javaType() default JavaType.jdk;
     
-    JavaVersion javaVersion() default JavaVersion.v11;
+    JavaVersion javaVersion() default JavaVersion.v17;
     
     String javaJvm() default "hotspot";
 

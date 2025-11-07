@@ -1,7 +1,0 @@
--snapshot: ${tstamp}
-Bundle-Name: Galasa VTP Manager
-Export-Package: dev.galasa.vtp
-Import-Package: !javax.validation.constraints,\
-                *
-
-
