@@ -33,7 +33,7 @@
   },
 
   "mounts": [
-    "source=${localEnv:HOME}/.m2,target=/home/root/.m2,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind,consistency=cached",
     "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
   ],
 
