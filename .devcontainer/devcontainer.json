@@ -1,9 +1,9 @@
-// /*
-//  * Copyright contributors to the Galasa project
-//  *
-//  * SPDX-License-Identifier: EPL-2.0
-//  */
- 
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+
 {
   "name": "Java",
 	"image": "mcr.microsoft.com/devcontainers/java:17",
@@ -25,10 +25,6 @@
     "ghcr.io/devcontainers/features/go:1": {
 			"version": "1.23.5"
     },
-    
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20.10.0"
-    },
 
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
 			"version": "28.3.3-1",
@@ -41,7 +37,7 @@
     "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
   ],
 
-  "remoteUser": "root",
+  "remoteUser": "vscode",
   
   "customizations": {
     "vscode": {
@@ -53,5 +49,5 @@
     }
   },
 
-  "postCreateCommand": "./.devcontainer/dev-container-setup.sh \"${localEnv:GALASA_TOKEN}\" \"${localEnv:SOURCE_MAVEN}\" \"${localEnv:GALASA_BOOTSTRAP}\" \"${localEnv:GPG_PASSPHRASE}\""
+  "postCreateCommand": "chmod +x .devcontainer/dev-container-setup.sh && ./.devcontainer/dev-container-setup.sh \"${localEnv:GALASA_TOKEN}\" \"${localEnv:SOURCE_MAVEN}\" \"${localEnv:GALASA_BOOTSTRAP}\" \"${localEnv:GPG_PASSPHRASE}\""
 }
