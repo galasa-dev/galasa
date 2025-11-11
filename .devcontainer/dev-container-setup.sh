@@ -51,4 +51,3 @@ function set_env_vars() {
 }
 
 set_env_vars "$1" "$2" "$3" "$4"
-§
