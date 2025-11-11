@@ -279,7 +279,7 @@ java -jar ~/.m2/repository/dev/galasa/galasa-boot/${GALASA_BOOT_JAR_VERSION}/gal
 
 ## Web UI
 
-### install pre-reqs for teh web ui
+### install pre-reqs for the web ui
 ```bash
 brew install node@20
 node -v 

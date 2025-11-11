@@ -26,8 +26,6 @@ Environment variable over-rides:
 - `LOGS_DIR` - Optional. Where logs are placed. Defaults to creating a temporary directory.
 - `SOURCE_MAVEN` - Optional. Where a maven repository is from which the build will draw artifacts.
 - `DEBUG` - Optional. Defaults to 0 (off)
-- `GPG_PASSPHRASE` - Used to sign and verify artifacts during the build
-
 
 ## How to use the plugin
 Here we discuss how to use the maven plugin when building Galasa test projects.

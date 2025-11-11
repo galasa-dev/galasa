@@ -3,7 +3,6 @@
 
 # Galasa 
 
-
 This is the main source code repository for the Galasa open source project.
 
 ## Code structure
@@ -14,15 +13,31 @@ This is the main source code repository for the Galasa open source project.
 
 ## Building locally
 
-### Pre-reqs
+When setting up galasa locally, you can either use [(1) our development container (recommended set up)](#1-recommended-set-up-dev-container) or [(2) a manual set up](#2-manual-set-up).
+
+
+### (1) Recommended set up (dev container)
+
+1. Install a code editor that has Dev Container support, in this setup we will be using Visual Studio Code.
+2. Install the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) VSCode extension by Microsoft.
+3. Clone the repository.
+4. Install and open a container engine, such as Docker Desktop, Rancher Desktop or Podman.
+5. Open the project in a dev container via the VSCode extension.
+- Note: Changing your environment variables will require you to restart VSCode for the changes to be reflected in the container.
+
+
+### (2) Manual set up
+
 Some tools will need to be installed in order to build this code locally.
 See our install instructions [here](./developer-docs/install-pre-req-tools.md)
 
 
 ### To build...
+
 Use the `./tools/build-locally.sh` script. `--help` shows you the options.
 
 Basic usage to build everything: `build-locally.sh`
+
 
 ## setting the source code version
 
@@ -32,7 +47,9 @@ Use the `--help` flag to see what options are supported.
 
 Basic usage: `set-version.sh --version 0.45.0`
 
+
 ## Using vscode
+
 When using vscode to develop this code, we recommend the following settings are added to your `settings.json` file:
 
 ```

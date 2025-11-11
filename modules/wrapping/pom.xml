@@ -130,7 +130,7 @@
 							<goal>sign</goal>
 						</goals>
 						<configuration>
-						    <gpgArguments>
+							<gpgArguments>
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
 							</gpgArguments>

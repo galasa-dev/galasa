@@ -1,5 +1,7 @@
 all: clean test \
 	bin/galasabld-linux-amd64 \
+	bin/galasabld-linux-arm64 \
+	bin/galasabld-linux-aarch64 \
 	bin/galasabld-windows-amd64 \
 	bin/galasabld-darwin-amd64 \
 	bin/galasabld-linux-s390x \
@@ -17,6 +19,12 @@ test: src
 
 bin/galasabld-linux-amd64 : src
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/galasabld-linux-amd64 ./cmd/galasabld
+
+bin/galasabld-linux-arm64 : src
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o bin/galasabld-linux-arm64 ./cmd/galasabld
+
+bin/galasabld-linux-aarch64 : src
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o bin/galasabld-linux-aarch64 ./cmd/galasabld
 
 bin/galasabld-windows-amd64 : src
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/galasabld-windows-amd64 ./cmd/galasabld
