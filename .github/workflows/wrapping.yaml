@@ -88,10 +88,8 @@ jobs:
           chmod '700' /home/runner/work/gpg
 
       - name: Import GPG
-        env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          gpg --homedir /home/runner/work/gpg --passphrase $GPG_PASSPHRASE --import /home/runner/work/secrets/galasa.gpg
+          gpg --homedir /home/runner/work/gpg --pinentry-mode loopback --passphrase-file /home/runner/work/secrets/passphrase.file --import /home/runner/work/secrets/galasa.gpg
 
       # - name: Cache Maven dependencies
       #   uses: actions/cache@v4
