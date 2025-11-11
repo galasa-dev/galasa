@@ -13,7 +13,6 @@
 # LOGS_DIR - Optional. Where logs are placed. Defaults to creating a temporary directory.
 # SOURCE_MAVEN - Optional. Where a maven repository is from which the build will draw artifacts.
 # DEBUG - Optional. Defaults to 0 (off)
-# GPG_PASSPHRASE - Used to sign and verify artifacts during the build
 #
 #-----------------------------------------------------------------------------------------                   
 
@@ -151,15 +150,7 @@ info "Log will be placed at ${LOG_FILE}"
 
 cd ${BASEDIR}/${source_dir}
 
-if [[ -z $GPG_PASSPHRASE ]]; then
-    info "No GPG_PASSPHRASE environment variable set. So challenging using the terminal instead."
-    MVN_FLAGS=""
-else
-    info "Environment variable GPG_PASSPHRASE being used to sign and verify"
-    MVN_FLAGS=" -Dgpg.passphrase=${GPG_PASSPHRASE}"
-fi
-
-mvn clean install ${MVN_FLAGS} 2>&1 > ${LOG_FILE}
+mvn clean install -Dgpg.skip=true 2>&1 > ${LOG_FILE}
 rc=$? ; if [[ "${rc}" != "0" ]]; then cat ${LOG_FILE} ; error "Failed to build ${project}" ; exit 1 ; fi
 
 cat ${LOG_FILE} | grep --ignore-case "warning"
