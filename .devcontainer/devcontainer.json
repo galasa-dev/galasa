@@ -15,7 +15,7 @@
 			"installMaven": "true",
 			"mavenVersion": "3.9.0",
 			"installGradle": "true",
-			"gradleVersion": "8.14.3"
+			"gradleVersion": "9.0.0"
     },
     
     "ghcr.io/devcontainers/features/python:1": {
