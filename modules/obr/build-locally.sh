@@ -81,12 +81,6 @@ LOGS_DIR :
     Controls where logs are placed.
     Optional. Defaults to creating a new temporary folder
 
-GPG_PASSPHRASE :
-    Mandatory.
-    Controls how the obr is signed. Needs to be the alias of the private key of a
-    public-private gpg pair. eg: For development you could use your signing github
-    passphrase.
-
 EOF
 }
 
@@ -121,12 +115,6 @@ while [ "$1" != "" ]; do
     esac
     shift
 done
-
-if [[ -z $GPG_PASSPHRASE ]]; then
-    error "Environment variable GPG_PASSPHRASE needs to be set."
-    usage
-    exit 1
-fi
 
 if [[ "${detectsecrets}" != "true" ]] && [[ "${detectsecrets}" != "false" ]]; then
     error "--detectsecrets flag must be 'true' or 'false'. Was $detectsecrets"
@@ -408,7 +396,7 @@ function build_generated_bom_pom {
     cd "${BASEDIR}/galasa-bom" || (error "Failed to change folder" ; exit 1)
 
     cmd="mvn install \
-    -Dgpg.passphrase=${GPG_PASSPHRASE} \
+    -Dgpg.skip=true \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
     -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
     --settings ${WORKSPACE_DIR}/modules/obr/settings.xml"
@@ -429,7 +417,7 @@ function build_generated_uber_obr_pom {
     cd "${BASEDIR}/dev.galasa.uber.obr" || (error "Failed to change folder" ; exit 1)
 
     cmd="mvn install \
-    -Dgpg.passphrase=${GPG_PASSPHRASE} \
+    -Dgpg.skip=true \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
     -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
     --settings ${WORKSPACE_DIR}/modules/obr/settings.xml"
@@ -450,7 +438,7 @@ function build_generated_obr_generic_pom {
     cd "${BASEDIR}/obr-generic" || (error "Failed to change folder" ; exit 1)
 
     cmd="mvn install \
-    -Dgpg.passphrase=${GPG_PASSPHRASE} \
+    -Dgpg.skip=true \
     -Dgalasa.source.repo=${SOURCE_MAVEN} \
     -Dgalasa.central.repo=https://repo.maven.apache.org/maven2/ \
     dev.galasa:galasa-maven-plugin:$component_version:obrembedded \

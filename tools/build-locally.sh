@@ -316,7 +316,7 @@ function build_module() {
     if [[ "$module" == "docs" ]]; then
         h2 "Building $module"
         cd ${PROJECT_DIR}/$module
-        ${PROJECT_DIR}/$module/build-locally.sh
+        ${PROJECT_DIR}/$module/build-locally.sh ${build_docker_flag}
         rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
         success "Built module $module OK"
     fi

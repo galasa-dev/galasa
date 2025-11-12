@@ -63,19 +63,11 @@ function usage {
     info "Syntax: build-locally.sh [OPTIONS]"
     cat << EOF
 Options are:
--p | --passphrase - Optional. A GPG passphrase to use to sign the artifacts created.
-    This can be the same GPG passphrase as you use to sign github commits if you wish, 
-    provided that the artifacts are never released or deployed without being re-built
-    with the official verification GPG key.
-    The passphrase will default to the value of the GPG_PASSPHRASE environment variable
-    if available, otherwise the command will fail until some sort of passphrase is 
-    supplied.
 -s | --detectsecrets true|false : Do we want to detect secrets in the entire repo codebase ? Default is 'true'. Valid values are 'true' or 'false'
 -h | --help - See this help.
 
 Environment variables
 LOGS_DIR - Optional. Where logs are placed. Defaults to creating a temporary directory.
-GPG_PASSPHRASE - The passphrase. Over-ridden if the --passphrase parameter is used.
 EOF
 }
 
@@ -140,15 +132,9 @@ function check_secrets_unless_supressed() {
 # Process parameters
 #-----------------------------------------------------------------------------------------                   
 build_type=""
-
-gpg_passphrase=""
 detectsecrets="true"
 while [ "$1" != "" ]; do
     case $1 in
-        -p | --passphrase )
-                                shift
-                                export gpg_passphrase="$1"
-                                ;;
         -s | --detectsecrets )  detectsecrets="$2"
                                 shift
                                 ;;
@@ -161,20 +147,6 @@ while [ "$1" != "" ]; do
     esac
     shift
 done
-
-if [[ "${gpg_passphrase}" == "" ]]; then
-
-    if [[ "${GPG_PASSPHRASE}" != "" ]]; then
-        info "Environment variable GPG_PASSPHRASE is being used to sign the built artifacts."
-        export gpg_passphrase="${GPG_PASSPHRASE}"
-    else
-        error "Need to use the --passphrase parameter to supply a GPG key to be used for signing artifacts. Or supply a value with the GPG_PASSPHRASE environment variable."
-        usage
-        exit 1  
-    fi
-fi
-
-info "gpg passphrase is $gpg_passphrase"
 
 if [[ "${detectsecrets}" != "true" ]] && [[ "${detectsecrets}" != "false" ]]; then
     error "--detectsecrets flag must be 'true' or 'false'. Was $detectesecrets"
@@ -214,7 +186,7 @@ info "Log will be placed at ${log_file}"
 
 h2 "Building..."
 
-cmd="mvn clean install -Dgpg.passphrase=${gpg_passphrase}"
+cmd="mvn clean install -Dgpg.skip=true"
 
 
 info "Using command: $cmd"

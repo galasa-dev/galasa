@@ -1,0 +1,53 @@
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+
+{
+  "name": "Java",
+	"image": "mcr.microsoft.com/devcontainers/java:17",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "jdkDistro": "sem",
+      "version": "17.0.14-sem",
+			"installMaven": "true",
+			"mavenVersion": "3.9.0",
+			"installGradle": "true",
+			"gradleVersion": "9.0.0"
+    },
+    
+    "ghcr.io/devcontainers/features/python:1": {
+			"version": "3.11.0"
+    },
+    
+    "ghcr.io/devcontainers/features/go:1": {
+			"version": "1.23.5"
+    },
+
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+			"version": "28.3.3-1",
+      "moby": false
+		}
+  },
+
+  "mounts": [
+    "source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind,consistency=cached",
+    "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
+  ],
+
+  "remoteUser": "vscode",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "golang.go",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+
+  "postCreateCommand": "chmod +x .devcontainer/dev-container-setup.sh && ./.devcontainer/dev-container-setup.sh \"${localEnv:GALASA_TOKEN}\" \"${localEnv:SOURCE_MAVEN}\" \"${localEnv:GALASA_BOOTSTRAP}\" \"${localEnv:GPG_PASSPHRASE}\""
+}

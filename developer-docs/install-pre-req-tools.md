@@ -8,8 +8,6 @@ These are the versions of software tools which are known to work:
 - Apache Maven 3.9.0
 - openjdk 17.0.12
 - go 1.23.5
-- node v20.10.0
-- nvm 0.39.7
 - sdkman script: 5.18.2 native: 0.4.6
   
 ## Python 
@@ -203,56 +201,6 @@ Add this to your `~/.m2/settings.xml` file:
 </settings>
 ```
 That tells maven where it can find some custom maven plugin tools used by the build.
-
-
-
-## Node
-First install the Node.js Version Manager (nvm) like this:
-```shell
-brew install nvm
-```
-
-Create a directory for nvm:
-```shell
-mkdir ~/.nvm
-```
-
-Then edit your ~/.zprofile file to add:
-``` shell
-export NVM_DIR="$HOME/.nvm"
-[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-```
-
-Verify nvm is installed:
-```shell
-nvm --version
-```
-
-Install the latest long term support (LTS) version of Node.js:
-```shell
-nvm install --lts
-```
-
-Check the version installed:
-```shell
-nvm ls
-```
-
-Configure your environment to use this version:
-```shell
-nvm use default 
-```
-
-Try running Node.js itself:
-```shell
-node -v
-```
-
-You should see output like this:
-```
-v14.17.6
-```
 
 ## Go
 v1.23.5 or higher from [go.dev](https://go.dev/doc/install).
