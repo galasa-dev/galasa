@@ -635,10 +635,12 @@ public class FrameworkRuns implements IFrameworkRuns {
     public Map<String, String> getCpsPropertiesAndOverridesUsedByTestRun(String runName, List<String> namespaces) throws FrameworkException {
         Map<String, String> properties = new HashMap<>();
 
-        // Collect the CPS properties from the given namespaces as they appear currently
-        for (String namespace : namespaces) {
-            IConfigurationPropertyStoreService namespacedCps = this.framework.getConfigurationPropertyService(namespace);
-            properties.putAll(namespacedCps.getAllProperties());
+        if (namespaces != null) {
+            // Collect the CPS properties from the given namespaces as they appear currently
+            for (String namespace : namespaces) {
+                IConfigurationPropertyStoreService namespacedCps = this.framework.getConfigurationPropertyService(namespace);
+                properties.putAll(namespacedCps.getAllProperties());
+            }
         }
 
         // Collect the overrides from the DSS and puts them into the properties map that will be returned
