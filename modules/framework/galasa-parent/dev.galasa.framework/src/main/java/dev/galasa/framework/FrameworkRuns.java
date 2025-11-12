@@ -630,4 +630,28 @@ public class FrameworkRuns implements IFrameworkRuns {
     private String getSuffixedRunDssKey(String runName, DssPropertyKeyRunNameSuffix suffix) throws DynamicStatusStoreException {
         return getRunDssPrefix(runName) + suffix.toString();
     }
+
+    @Override
+    public Map<String, String> getCpsPropertiesAndOverridesUsedByTestRun(String runName, List<String> namespaces) throws FrameworkException {
+        Map<String, String> properties = new HashMap<>();
+
+        // Collect the CPS properties from the given namespaces as they appear currently
+        for (String namespace : namespaces) {
+            IConfigurationPropertyStoreService namespacedCps = this.framework.getConfigurationPropertyService(namespace);
+            properties.putAll(namespacedCps.getAllProperties());
+        }
+
+        // Collect the overrides from the DSS and puts them into the properties map that will be returned
+        if (isRunInDss(runName)) {
+            String runOverridesJson = this.dss.get(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.OVERRIDES));
+
+            if (runOverridesJson != null && !runOverridesJson.isBlank()) {
+                Property[] overrideProperties = gson.fromJson(runOverridesJson, Property[].class);
+                for (Property override : overrideProperties) {
+                    properties.put(override.getKey(), override.getValue());
+                }
+            }
+        }
+        return properties;
+    }
 }
