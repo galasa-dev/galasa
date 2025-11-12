@@ -84,7 +84,7 @@ Complete the following steps to build a Docker image called `simbank-webapp` to 
 
 ### Troubleshooting
 
-If the container is not working correctly, for example, compilation and runtime errors are returned, check the version of tomcat in the Dockerfile. You might need to edit the tomcat version to a version that is compatible with Java 17, for example, `FROM tomcat:11-jre17-temurin`.
+If the container is not working correctly, for example, compilation and runtime errors are returned, check the version of tomcat in the Dockerfile. You might need to edit the tomcat version to a version that is compatible with the `javax.servlet.*` API and Java 17, for example, `FROM tomcat:9-jre17-temurin`.
 
 
 ## Walkthrough - WebAppIntegrationTest
