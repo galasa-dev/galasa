@@ -31,7 +31,7 @@ public class RasTestStructure {
    
    public RasTestStructure(String runName, String bundle, String testName, String testShortName, String requestor,
          String status, String result, Instant queued, Instant startTime, Instant endTime, List<RasTestMethod> methods,
-         String group, String submissionId, Set<String> tags
+         String group, String submissionId, Set<String> tags, String webUiUrl, String restApiUrl
    ) {
       this.runName = runName;
       this.bundle = bundle;
@@ -47,6 +47,8 @@ public class RasTestStructure {
       this.group = group;
       this.submissionId = submissionId;
       this.tags = tags;
+      this.webUiUrl = webUiUrl;
+      this.restApiUrl = restApiUrl;
    }
 
    public String getRunName() {

@@ -21,15 +21,16 @@ import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.TestRunLifecycleStatus;
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
-import dev.galasa.framework.spi.SystemEnvironment;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -43,12 +44,14 @@ public class GroupRuns extends ProtectedRoute {
     private IResultArchiveStore rasStore;
     private final GalasaGson gson = new GalasaGson();
     private final ITimeService timeService ;
+    private final Environment env;
 
     public GroupRuns(ResponseBuilder responseBuilder, String path, IFramework framework, ITimeService timeService) throws RBACException {
         super(responseBuilder, path, framework.getRBACService());
         this.framework = framework;
         this.rasStore = framework.getResultArchiveStore();
         this.timeService = timeService;
+        this.env = new SystemEnvironment();
     }
 
     protected List<IRun> getRuns(String groupName) throws InternalServletException {
@@ -141,7 +144,7 @@ public class GroupRuns extends ProtectedRoute {
                 status.getRuns().add(newRun.getSerializedRun());
                 
                 // Create an empty RAS record for the submitted run
-                createRunRasRecord(newRun, rasStore, timeService);
+                createRunRasRecord(newRun, rasStore, timeService, env);
 
             } catch (FrameworkException fe) {
                 ServletError error = new ServletError(GAL5021_UNABLE_TO_SUBMIT_RUNS, className);  
@@ -151,17 +154,17 @@ public class GroupRuns extends ProtectedRoute {
         return status;
     }
 
-    protected void createRunRasRecord(IRun newRun, IResultArchiveStore rasStore, ITimeService timeService) throws InternalServletException {
+    protected void createRunRasRecord(IRun newRun, IResultArchiveStore rasStore, ITimeService timeService, Environment env) throws InternalServletException {
         TestStructure newTestStructure = newRun.toTestStructure();
         newTestStructure.setStatus(TestRunLifecycleStatus.QUEUED.toString());
         newTestStructure.setQueued(timeService.now());
         String runId = newRun.getRasRunId();
 
-        String baseWebUiUrl = new SystemEnvironment().getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
+        String baseWebUiUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
         String webUiUrl = baseWebUiUrl + "/test-runs/" + runId;
         newTestStructure.setWebUiUrl(webUiUrl);
         
-        String baseServletUrl = new SystemEnvironment().getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
+        String baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
         String restApiUrl = baseServletUrl + "/ras/runs/" + runId;
         newTestStructure.setRestApiUrl(restApiUrl); 
 

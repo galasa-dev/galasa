@@ -69,6 +69,8 @@ public class TestStructure {
             this.result = source.result;
             this.queued = source.queued;
             this.endTime = source.endTime;
+            this.webUiUrl = source.webUiUrl;
+            this.restApiUrl = source.restApiUrl;
             if (source.methods != null) {
                 this.methods = new ArrayList<TestMethod>();
                 this.methods.addAll(source.methods);

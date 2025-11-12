@@ -69,8 +69,10 @@ public class RunResultUtility {
 	   String submissionId = struc.getSubmissionId();
 	   List<RasTestMethod> rasMethods = convertMethods(methods);
 	   Set<String> tags = struc.getTags();
+		 String webUiUrl = struc.getWebUiUrl();
+	   String restApiUrl = struc.getRestApiUrl();
 	   
-	   return new RasTestStructure(runName, bundle, testName, testShortName, requestor, status, result, queued, startTime, endTime, rasMethods, group, submissionId, tags);
+	   return new RasTestStructure(runName, bundle, testName, testShortName, requestor, status, result, queued, startTime, endTime, rasMethods, group, submissionId, tags, webUiUrl, restApiUrl);
 	}
 	
 	private static List<RasTestMethod> convertMethods(List<TestMethod> methods){
