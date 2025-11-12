@@ -2962,6 +2962,10 @@ components:
           type: array
           items:
             type: string
+        webUiUrl: 
+          type: string
+        restApiUrl: 
+          type: string
     TestRunRequest:
       type: object
       properties:
@@ -3205,6 +3209,10 @@ components:
           type: array
           items: 
             type: string
+        webUiUrl: 
+          type: string
+        restApiUrl: 
+          type: string
     TestMethod:
       type: object
       properties:

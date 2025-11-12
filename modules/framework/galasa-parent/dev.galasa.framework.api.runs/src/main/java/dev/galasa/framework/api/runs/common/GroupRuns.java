@@ -21,6 +21,7 @@ import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.TestRunLifecycleStatus;
+import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -28,6 +29,7 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.SystemEnvironment;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -154,6 +156,14 @@ public class GroupRuns extends ProtectedRoute {
         newTestStructure.setStatus(TestRunLifecycleStatus.QUEUED.toString());
         newTestStructure.setQueued(timeService.now());
         String runId = newRun.getRasRunId();
+
+        String baseWebUiUrl = new SystemEnvironment().getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
+        String webUiUrl = baseWebUiUrl + "/test-runs/" + runId;
+        newTestStructure.setWebUiUrl(webUiUrl);
+        
+        String baseServletUrl = new SystemEnvironment().getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
+        String restApiUrl = baseServletUrl + "/ras/runs/" + runId;
+        newTestStructure.setRestApiUrl(restApiUrl); 
 
         try {
             rasStore.createTestStructure(runId, newTestStructure);

@@ -26,6 +26,8 @@ public class RasTestStructure {
    private Instant endTime;
    private List<RasTestMethod> methods;
    private Set<String> tags;
+   private String webUiUrl;
+   private String restApiUrl;
    
    public RasTestStructure(String runName, String bundle, String testName, String testShortName, String requestor,
          String status, String result, Instant queued, Instant startTime, Instant endTime, List<RasTestMethod> methods,
@@ -158,5 +160,20 @@ public class RasTestStructure {
    public void setTags(Set<String> newTags) {
       this.tags = newTags;
    }
-   
+
+   public String getWebUiUrl(){
+        return webUiUrl;
+    }
+
+    public void setWebUiUrl(String webUiUrl){
+        this.webUiUrl = webUiUrl;
+    }
+
+    public String getRestApiUrl(){
+        return restApiUrl;
+    }
+
+    public void setRestApiUrl(String restApiUrl){
+        this.restApiUrl = restApiUrl;
+    }
 }

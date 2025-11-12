@@ -46,6 +46,9 @@ public class TestStructure {
 
     private Set<String>     tags = new HashSet<String>();
 
+    private String          webUiUrl;
+    private String          restApiUrl;
+
     public TestStructure() {
     }
 
@@ -187,6 +190,22 @@ public class TestStructure {
         }
 
         return queued;
+    }
+
+    public String getWebUiUrl(){
+        return webUiUrl;
+    }
+
+    public void setWebUiUrl(String webUiUrl){
+        this.webUiUrl = webUiUrl;
+    }
+
+    public String getRestApiUrl(){
+        return restApiUrl;
+    }
+
+    public void setRestApiUrl(String restApiUrl){
+        this.restApiUrl = restApiUrl;
     }
 
     public String report(String prefix) {
