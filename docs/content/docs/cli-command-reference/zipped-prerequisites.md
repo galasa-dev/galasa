@@ -8,7 +8,7 @@ The following section explains more about the software prerequisites that you ne
 
 ### Java JDK 
 
-Required. Galasa tests and Managers are written in Java - you need to install a Java version 11 JDK or later to use it. _Note:_ We do not currently support Java 21 or later. After installing, you must set the `JAVA_HOME` environment variable to your Java JDK installation path and check it set successfully by running the command `echo $JAVA_HOME` on Mac or Unix, or `echo %JAVA_HOME%` on Windows (PowerShell). The returned result shows the path to your JDK installation.
+Required. Galasa tests and Managers are written in Java - you need to install Java version 11 JDK to use it. _Note:_ We do not currently support Java 21 or later. After installing, you must set the `JAVA_HOME` environment variable to your Java JDK installation path and check it set successfully by running the command `echo $JAVA_HOME` on Mac or Unix, or `echo %JAVA_HOME%` on Windows (PowerShell). The returned result shows the path to your JDK installation.
 
 ### Gradle
 
