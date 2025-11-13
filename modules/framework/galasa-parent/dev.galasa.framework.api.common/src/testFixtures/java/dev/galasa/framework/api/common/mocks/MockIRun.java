@@ -172,7 +172,8 @@ public class MockIRun implements IRun{
 
     @Override
     public String getRasRunId() {
-        return UUID.randomUUID().toString();
+        // return UUID.randomUUID().toString();
+        return "cdb-" + runName;
     }
 
     public Set<String> getTags() {

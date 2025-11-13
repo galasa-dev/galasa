@@ -31,13 +31,13 @@ public class Run {
     private boolean isTraceEnabled;
     private String  rasRunId;
     private Set<String> tags;
-
+    private String webUiUrl;
+    private String restApiUrl;
 
     public Run(String name, Instant heartbeat, String type, String group, String test, String bundleName,
             String testName, String status, String result, Instant queued, Instant finished, Instant waitUntil,
             String requestor, String stream, String repo, String obr, boolean isLocal, boolean isTraceEnabled,
-            String rasRunId, String submissionId, Set<String> tags
-    ) {
+            String rasRunId, String submissionId, Set<String> tags) {
         this.name = name;
         this.heartbeat = heartbeat;
         this.type = type;
@@ -58,9 +58,11 @@ public class Run {
         this.isLocal = isLocal;
         this.isTraceEnabled = isTraceEnabled;
         this.rasRunId = rasRunId;
+        // this.webUiUrl = webUiUrl;
+        // this.restApiUrl = restApiUrl;
 
         this.tags = new HashSet<String>();
-        if( tags != null) {
+        if (tags != null) {
             this.tags.addAll(tags);
         }
     }
@@ -174,7 +176,23 @@ public class Run {
     }
 
     public Set<String> getTags() {
-        return this.tags; 
+        return this.tags;
+    }
+
+    public String getWebUiUrl() {
+        return this.webUiUrl;
+    }
+
+    public void setWebUiUrl(String webUiUrl) {
+        this.webUiUrl = webUiUrl;
+    }
+
+    public String getRestApiUrl() {
+        return this.restApiUrl;
+    }
+
+    public void setRestApiUrl(String restApiUrl) {
+        this.restApiUrl = restApiUrl;
     }
 
 }

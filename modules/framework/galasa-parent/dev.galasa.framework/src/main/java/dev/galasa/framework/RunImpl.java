@@ -32,29 +32,29 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class RunImpl implements IRun {
 
-    private final String  name;
+    private final String name;
     private final Instant heartbeat;
-    private final String  type;
-    private final String  group;
-    private final String  submissionId;
-    private final String  test;
-    private final String  bundleName;
-    private final String  testName;
-    private final String  gherkin;
-    private final String  status;
-    private final String  result;
+    private final String type;
+    private final String group;
+    private final String submissionId;
+    private final String test;
+    private final String bundleName;
+    private final String testName;
+    private final String gherkin;
+    private final String status;
+    private final String result;
     private final Instant queued;
     private final Instant finished;
     private final Instant waitUntil;
-    private final String  requestor;
-    private final String  stream;
-    private final String  repo;
-    private final String  obr;
+    private final String requestor;
+    private final String stream;
+    private final String repo;
+    private final String obr;
     private final boolean local;
     private final boolean trace;
     private final boolean sharedEnvironment;
-    private final String  rasRunId;
-    private final String  interruptReason;
+    private final String rasRunId;
+    private final String interruptReason;
     private final Instant interruptedAt;
     private final Instant allocatedTimeout;
     private List<RunRasAction> rasActions = new ArrayList<>();
@@ -91,7 +91,8 @@ public class RunImpl implements IRun {
         interruptReason = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.INTERRUPT_REASON);
         local = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.LOCAL));
         trace = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.TRACE));
-        sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.SHARED_ENVIRONMENT));
+        sharedEnvironment = Boolean
+                .parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.SHARED_ENVIRONMENT));
         gherkin = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.GHERKIN);
         tags = getTagsFromDss(runProperties, prefix);
         interruptedAt = getInterruptedAtTimeFromDss(runProperties, prefix);
@@ -128,7 +129,7 @@ public class RunImpl implements IRun {
         }
 
         if (test != null) {
-            if(gherkin != null) {
+            if (gherkin != null) {
                 this.bundleName = null;
                 this.testName = null;
             } else {
@@ -141,7 +142,7 @@ public class RunImpl implements IRun {
             this.testName = null;
         }
 
-        logger.info("RunImpl created: "+this.toString());
+        logger.info("RunImpl created: " + this.toString());
     }
 
     private Instant getInterruptedAtTimeFromDss(Map<String, String> runProperties, String prefix) {
@@ -165,22 +166,22 @@ public class RunImpl implements IRun {
         Set<String> tags = new HashSet<String>();
         try {
             String tagsAsString = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.TAGS);
-            if (tagsAsString!= null && !tagsAsString.trim().isEmpty()) {
+            if (tagsAsString != null && !tagsAsString.trim().isEmpty()) {
                 HashSet<?> tagSetOfObj = gson.fromJson(tagsAsString, HashSet.class);
-                for( Object entry : tagSetOfObj) {
+                for (Object entry : tagSetOfObj) {
                     // Tags are always going to be strings, so we can safely cast as a string,
                     // but do an instanceof check to keep the compiler happy.
-                    if( entry instanceof String) {
-                        tags.add((String)entry);
+                    if (entry instanceof String) {
+                        tags.add((String) entry);
                     }
                 }
             }
-        } catch( Exception ex) {
-            logger.error("Failed to de-serialise tags from dss. ",ex);
-            // We don't want to fail the entire run because of this, so 
+        } catch (Exception ex) {
+            logger.error("Failed to de-serialise tags from dss. ", ex);
+            // We don't want to fail the entire run because of this, so
             // we will forget any tags which may have been in the dss test structure.
         }
-        logger.info("test tags retrieved from dss: "+tags.toString());
+        logger.info("test tags retrieved from dss: " + tags.toString());
         return tags;
     }
 
@@ -289,7 +290,8 @@ public class RunImpl implements IRun {
     @Override
     public Run getSerializedRun() {
         return new Run(name, heartbeat, type, group, test, bundleName, testName, status, result, queued,
-                finished, waitUntil, requestor, stream, repo, obr, local, trace, rasRunId, submissionId, tags);
+                finished, waitUntil, requestor, stream, repo, obr, local, trace, rasRunId, submissionId,
+                tags);
     }
 
     @Override
@@ -306,7 +308,7 @@ public class RunImpl implements IRun {
     public String getGherkin() {
         return this.gherkin;
     }
-    
+
     public String getRasRunId() {
         return this.rasRunId;
     }
@@ -330,82 +332,95 @@ public class RunImpl implements IRun {
     public List<RunRasAction> getRasActions() {
         return this.rasActions;
     }
+
+    // @Override
+    // public String getWebUiUrl() {
+    // return this.webUiUrl;
+    // }
+
+    // @Override
+    // public String getRestApiUrl() {
+    // return this.restApiUrl;
+    // }
+
     public String toString() {
         ByteArrayOutputStream buffArray = new ByteArrayOutputStream();
         PrintWriter buff = new PrintWriter(buffArray);
 
         buff.append("Run:");
 
-        if (this.name==null) {
+        if (this.name == null) {
             buff.append(" name: null");
         } else {
-            buff.append(" name: "+this.name);
+            buff.append(" name: " + this.name);
         }
 
         if (this.heartbeat == null) {
             buff.append(" heartbeat: null");
         } else {
-            buff.append(" heartbeat: "+heartbeat.toString());
+            buff.append(" heartbeat: " + heartbeat.toString());
         }
 
-        buff.append(" type: "+type);
-        buff.append(" group: "+group);
-        buff.append(" submissionId: "+submissionId);
-        buff.append(" test: "+test);
-        buff.append(" bundleName: "+bundleName);
+        buff.append(" type: " + type);
+        buff.append(" group: " + group);
+        buff.append(" submissionId: " + submissionId);
+        buff.append(" test: " + test);
+        buff.append(" bundleName: " + bundleName);
 
-
-        buff.append(" testName: "+testName);
-        buff.append(" gherkin: "+gherkin);
-        buff.append(" status: "+status);
-        buff.append(" result: "+result);
-
+        buff.append(" testName: " + testName);
+        buff.append(" gherkin: " + gherkin);
+        buff.append(" status: " + status);
+        buff.append(" result: " + result);
 
         if (this.queued == null) {
             buff.append(" queued: null");
         } else {
-            buff.append(" queued: "+queued.toString());
+            buff.append(" queued: " + queued.toString());
         }
 
         if (this.finished == null) {
             buff.append(" finished: null");
         } else {
-            buff.append(" finished: "+finished.toString());
+            buff.append(" finished: " + finished.toString());
         }
 
         if (this.waitUntil == null) {
             buff.append(" waitUntil: null");
         } else {
-            buff.append(" waitUntil: "+waitUntil.toString());
+            buff.append(" waitUntil: " + waitUntil.toString());
         }
 
         if (this.interruptedAt == null) {
             buff.append(" interruptedAt: null");
         } else {
-            buff.append(" interruptedAt: "+interruptedAt.toString());
+            buff.append(" interruptedAt: " + interruptedAt.toString());
         }
 
-        buff.append(" interruptReason: "+interruptReason);
-        buff.append(" requestor: "+requestor);
-        buff.append(" stream: "+stream);
-        buff.append(" repo: "+repo);
-        buff.append(" obr: "+obr);
-        buff.append(" local: "+Boolean.toString(local));
-        buff.append(" trace: "+Boolean.toString(trace));
-        buff.append(" sharedEnvironment: "+Boolean.toString(sharedEnvironment));
-        buff.append(" rasRunId: "+rasRunId);
-        buff.append(" bundleName: "+bundleName);
-        
+        buff.append(" interruptReason: " + interruptReason);
+        buff.append(" requestor: " + requestor);
+        buff.append(" stream: " + stream);
+        buff.append(" repo: " + repo);
+        buff.append(" obr: " + obr);
+        buff.append(" local: " + Boolean.toString(local));
+        buff.append(" trace: " + Boolean.toString(trace));
+        buff.append(" sharedEnvironment: " + Boolean.toString(sharedEnvironment));
+        buff.append(" rasRunId: " + rasRunId);
+        buff.append(" bundleName: " + bundleName);
+
         buff.append(" tags: [");
         boolean isFirst = true;
-        for( String tag : tags ) {
+        for (String tag : tags) {
             if (isFirst) {
-                isFirst = false ;
+                isFirst = false;
             } else {
                 buff.append(",");
             }
             buff.append(tag);
         }
+
+        // buff.append(" webUiUrl: " + webUiUrl);
+        // buff.append(" restApiUrl: " + restApiUrl);
+
         buff.append("]");
 
         buff.flush();
@@ -413,7 +428,9 @@ public class RunImpl implements IRun {
     }
 
     /**
-     * Create a new test structure, and populate it with as much information as we can from the run.
+     * Create a new test structure, and populate it with as much information as we
+     * can from the run.
+     * 
      * @return A TestStructure which is written into the RAS eventually.
      */
     @Override
@@ -427,9 +444,12 @@ public class RunImpl implements IRun {
         String submissionId = getSubmissionId();
         Instant queuedAt = getQueued();
         String requestor = AbstractManager.defaultString(getRequestor(), "unknown");
+        // String webUiUrl = getWebUiUrl();
+        // String restApiUrl = getRestApiUrl();
 
         if (testName != null) {
-            // The test name is in the form "package.class", so get the class after the last "."
+            // The test name is in the form "package.class", so get the class after the last
+            // "."
             String trimmedTestName = testName.trim();
             int lastDotIndex = trimmedTestName.lastIndexOf(".");
             if (lastDotIndex != -1 && (lastDotIndex + 1) < trimmedTestName.length()) {
@@ -452,6 +472,9 @@ public class RunImpl implements IRun {
         for (String tag : getTags()) {
             testStructure.addTag(tag);
         }
+
+        // testStructure.setWebUiUrl(webUiUrl);
+        // testStructure.setRestApiUrl(restApiUrl);
 
         return testStructure;
     }
