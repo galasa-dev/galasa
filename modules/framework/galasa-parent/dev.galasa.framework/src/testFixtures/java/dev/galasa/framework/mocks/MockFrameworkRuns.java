@@ -7,6 +7,7 @@ package dev.galasa.framework.mocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -19,7 +20,7 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.RunRasAction;
 
-public class MockFrameworkRuns implements IFrameworkRuns{
+public class MockFrameworkRuns implements IFrameworkRuns {
     protected String groupName;
     List<IRun> runs ;
 
@@ -142,5 +143,11 @@ public class MockFrameworkRuns implements IFrameworkRuns{
     @Override
     public void addRunRasAction(IRun run, RunRasAction rasActionToAdd) throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'addRunRasAction'");
+    }
+
+    @Override
+    public Map<String, String> getCpsPropertiesAndOverridesUsedByTestRun(String runName, List<String> namespaces)
+            throws FrameworkException {
+        throw new UnsupportedOperationException("Unimplemented method 'getCpsPropertiesAndOverridesUsedByTestRun'");
     }
 }

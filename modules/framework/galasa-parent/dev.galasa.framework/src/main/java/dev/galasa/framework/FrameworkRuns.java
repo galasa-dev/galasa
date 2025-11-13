@@ -630,4 +630,44 @@ public class FrameworkRuns implements IFrameworkRuns {
     private String getSuffixedRunDssKey(String runName, DssPropertyKeyRunNameSuffix suffix) throws DynamicStatusStoreException {
         return getRunDssPrefix(runName) + suffix.toString();
     }
+
+    @Override
+    public Map<String, String> getCpsPropertiesAndOverridesUsedByTestRun(String runName, List<String> namespaces) throws FrameworkException {
+        Map<String, String> properties = new HashMap<>();
+
+        logger.info("Collecting CPS and override properties for test run " + runName);
+
+        if (namespaces != null) {
+            // Collect the CPS properties from the given namespaces as they appear currently
+            for (String namespace : namespaces) {
+                logger.trace("Collecting CPS properties from namespace " + namespace);
+
+                IConfigurationPropertyStoreService namespacedCps = this.framework.getConfigurationPropertyService(namespace);
+                properties.putAll(namespacedCps.getAllProperties());
+
+                logger.trace("Collected CPS properties for namespace " + namespace);
+            }
+        }
+
+        // Collect the overrides from the DSS and puts them into the properties map that will be returned
+        if (isRunInDss(runName)) {
+            String runOverridesJson = this.dss.get(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.OVERRIDES));
+
+            if (runOverridesJson != null && !runOverridesJson.isBlank()) {
+                logger.trace("Collecting override properties for test run " + runName);
+
+                Property[] overrideProperties = gson.fromJson(runOverridesJson, Property[].class);
+                for (Property override : overrideProperties) {
+                    properties.put(override.getKey(), override.getValue());
+                }
+
+                logger.trace("Collected " + overrideProperties.length + " override properties for test run " + runName);
+            }
+        } else {
+            logger.info("Run " + runName + " does not exist in the DSS, so no overrides could be found");
+        }
+
+        logger.info("Collected " + properties.size() + " properties for test run " + runName);
+        return properties;
+    }
 }
