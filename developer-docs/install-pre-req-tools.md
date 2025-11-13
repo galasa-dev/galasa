@@ -76,16 +76,16 @@ List the available java releases
 sdk list java
 ```
 
-Install the semeru java 11 release:
+Install the semeru java 17 release:
 ```shell
-sdk install java 11.0.16.1-sem
+sdk install java 17.0.12-sem
 ```
 
 Add this to your `~.zprofile` :
 ```shell
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 sdk version
-export SDKMAN_JAVA_VERSION="11.0.16.1-sem"
+export SDKMAN_JAVA_VERSION="17.0.12-sem"
 sdk default java ${SDKMAN_JAVA_VERSION}
 sdk use java ${SDKMAN_JAVA_VERSION}
 ```

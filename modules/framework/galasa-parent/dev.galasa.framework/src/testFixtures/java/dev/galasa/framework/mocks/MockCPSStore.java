@@ -92,7 +92,7 @@ public class MockCPSStore implements IConfigurationPropertyStore, IConfiguration
 
     @Override
     public Map<String, String> getAllProperties() {
-        throw new UnsupportedOperationException("Unimplemented method 'getAllProperties'");
+        return this.properties;
     }
 
     @Override

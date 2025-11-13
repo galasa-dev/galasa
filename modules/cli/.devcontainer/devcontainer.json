@@ -10,10 +10,10 @@
             "version": "1.19.1"
         },
         "ghcr.io/devcontainers/features/java:1": {
-            "version": "11.0.18-sem",
+            "version": "17.0.12-sem",
             "jdkDistro": "sem",
             "installGradle"	: true,
-            "gradleVersion": "6.9.2",
+            "gradleVersion": "9.0.0",
             "installMaven": true,
             "mavenVersion": "3.8.6"
         }

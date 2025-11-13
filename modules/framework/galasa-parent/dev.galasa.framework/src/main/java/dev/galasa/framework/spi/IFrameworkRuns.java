@@ -6,6 +6,7 @@
 package dev.galasa.framework.spi;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -63,4 +64,20 @@ public interface IFrameworkRuns {
     boolean markRunCancelling(String runName, TestRunLifecycleStatus currentStatus) throws DynamicStatusStoreException ;
 
     void addRunRasAction(IRun run, RunRasAction rasActionToAdd) throws DynamicStatusStoreException;
+
+    /**
+     * Returns a map of CPS properties and overrides that were used by a test run with the given run name.
+     * 
+     * The returned map combines the current CPS properties from the given namespaces with the overrides
+     * associated with the given test run, so any overrides that were used will take precedence.
+     * 
+     * If no test run with the given run name exists, then the current CPS properties from the provided
+     * namespaces will be returned.
+     * 
+     * @param runName    the name of the existing test run to get the CPS properties that were used
+     * @param namespaces a list of CPS namespaces to get CPS properties from
+     * @return           a map of CPS properties combined with any overrides for the given test run
+     * @throws FrameworkException if there was an issue accessing the CPS or the DSS
+     */
+    Map<String, String> getCpsPropertiesAndOverridesUsedByTestRun(String runName, List<String> namespaces) throws FrameworkException;
 }

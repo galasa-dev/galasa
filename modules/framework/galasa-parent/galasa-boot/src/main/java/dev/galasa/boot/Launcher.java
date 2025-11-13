@@ -577,17 +577,17 @@ public class Launcher {
     public void validateJavaLevel(Environment env) throws LauncherException{
         String version = env.getProperty("java.version");
         logger.trace("Checking version of Java, found: " + version);
-        if(version == null || version.isEmpty()){
+        if (version == null || version.isEmpty()){
             logger.error("Unable to determine Java version - will exit");
             throw new LauncherException("Unable to determine Java version - will exit");
         }
 
-        if(version.startsWith("17") || version.startsWith("11")){
+        if (version.startsWith("17")){
             logger.trace("Java version " + version + " validated");
             return;
         }
 
-        String msg = "Galasa requires Java 11 or 17, we found: " + version + ". Correct your classpath to a supported version of java and re-try.";
+        String msg = "Galasa requires Java 17, we found: " + version + ". Correct your classpath to a supported version of java and re-try.";
         logger.error(msg);
         throw new LauncherException(msg);
     }

@@ -46,7 +46,7 @@ After building the framework module locally, the boot.jar will be located in `ga
 
 ### Syntax
 
-To run Galasa Boot, you must have Java 11 or above installed.
+To run Galasa Boot, you must have Java 17 installed.
 
 ```
 java -jar /path/to/galasa/galasa-boot-{version}.jar [OPTIONS]

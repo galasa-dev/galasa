@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.common.mocks;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -113,5 +114,11 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     public boolean markRunCancelling(String runName, TestRunLifecycleStatus currentStatus)
             throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'markRunFinished'");
+    }
+
+    @Override
+    public Map<String, String> getCpsPropertiesAndOverridesUsedByTestRun(String runName, List<String> namespaces)
+            throws FrameworkException {
+        throw new UnsupportedOperationException("Unimplemented method 'getCpsPropertiesAndOverridesUsedByTestRun'");
     }
 }
