@@ -20,6 +20,12 @@ release:
 
 external:
   bundles:
+  - group: com.github.mwiede
+    artifact: jsch
+    obr: true
+    mvp: true
+    isolated: true
+
   # Transitive dependency of selenium 4.27.0 required for isolated and MVP
   - group: com.google.auto.service
     artifact: auto-service-annotations
@@ -79,12 +85,6 @@ external:
   # Transitive dependency of selenium 4.27.0 required for isolated and MVP
   - group: dev.failsafe
     artifact: failsafe
-    mvp: true
-    isolated: true
-
-  - group: dev.galasa
-    artifact: dev.galasa.wrapping.com.jcraft.jsch
-    obr: true
     mvp: true
     isolated: true
 
