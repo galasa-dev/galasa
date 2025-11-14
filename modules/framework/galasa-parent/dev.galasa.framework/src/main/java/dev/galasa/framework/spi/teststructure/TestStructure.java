@@ -46,6 +46,9 @@ public class TestStructure {
 
     private Set<String>     tags = new HashSet<String>();
 
+    private String          webUiUrl;
+    private String          restApiUrl;
+
     public TestStructure() {
     }
 
@@ -66,6 +69,8 @@ public class TestStructure {
             this.result = source.result;
             this.queued = source.queued;
             this.endTime = source.endTime;
+            this.webUiUrl = source.webUiUrl;
+            this.restApiUrl = source.restApiUrl;
             if (source.methods != null) {
                 this.methods = new ArrayList<TestMethod>();
                 this.methods.addAll(source.methods);
@@ -187,6 +192,22 @@ public class TestStructure {
         }
 
         return queued;
+    }
+
+    public String getWebUiUrl(){
+        return webUiUrl;
+    }
+
+    public void setWebUiUrl(String webUiUrl){
+        this.webUiUrl = webUiUrl;
+    }
+
+    public String getRestApiUrl(){
+        return restApiUrl;
+    }
+
+    public void setRestApiUrl(String restApiUrl){
+        this.restApiUrl = restApiUrl;
     }
 
     public String report(String prefix) {

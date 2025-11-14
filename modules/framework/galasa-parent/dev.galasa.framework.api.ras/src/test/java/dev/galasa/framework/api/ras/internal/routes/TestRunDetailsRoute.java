@@ -43,9 +43,12 @@ import javax.servlet.http.HttpServletResponse;
 
 public class TestRunDetailsRoute extends RasServletTest {
 
-    public String generateExpectedJson (String runId, String runName, String submissionId) {
+	private final static String REST_API_URL_BASE = "https://my.galasa.service/api/ras/runs/";
+	private final static String WEBUI_URL_BASE = "https://my.galasa.service/test-runs/";
 
-		RasTestStructure testStructure = new RasTestStructure(runName, null, null, null, "galasa", null, "Passed", null, null, null, Collections.emptyList(), "none", submissionId, new HashSet<String>());
+	public String generateExpectedJson (String runId, String runName, String submissionId) {
+
+		RasTestStructure testStructure = new RasTestStructure(runName, null, null, null, "galasa", null, "Passed", null, null, null, Collections.emptyList(), "none", submissionId, new HashSet<String>(), null, null);
 		RasRunResult rasRunResult = new RasRunResult(runId, Collections.emptyList(), testStructure);
 
 		testStructure.setRunName(runName);
@@ -53,13 +56,15 @@ public class TestRunDetailsRoute extends RasServletTest {
 		testStructure.setResult("Passed");
 		testStructure.setGroup("none");
 		testStructure.setMethods(Collections.emptyList());
+		testStructure.setWebUiUrl(WEBUI_URL_BASE + runId);
+		testStructure.setRestApiUrl(REST_API_URL_BASE + runId);
 
 		rasRunResult.setRunId(runId);
 		rasRunResult.setArtifacts(Collections.emptyList());
 		rasRunResult.setTestStructure(testStructure);
 
 		return gson.toJson(rasRunResult);
-    }
+	}
 
 	public String generateStatusUpdateJson(String status, String result) {
 		return
@@ -272,6 +277,8 @@ public class TestRunDetailsRoute extends RasServletTest {
 		testStructure.setRequestor("galasa");
 		testStructure.setResult("Passed");
 		testStructure.setSubmissionId(submissionId);
+		testStructure.setRestApiUrl(REST_API_URL_BASE + runId);
+		testStructure.setWebUiUrl(WEBUI_URL_BASE + runId);
 
 		List<IRunResult> mockInputRunResults = generateTestData(runId, testStructure, null);
 
@@ -303,12 +310,15 @@ public class TestRunDetailsRoute extends RasServletTest {
 		String runId = "xx12345xx";
         String runName = "U123";
 		String submissionId = "submission1";
+		String baseUrl = "";
 		
 		TestStructure testStructure = new TestStructure();
 		testStructure.setRunName(runName);
 		testStructure.setRequestor("galasa");
 		testStructure.setResult("Passed");
 		testStructure.setSubmissionId(submissionId);
+		testStructure.setRestApiUrl(REST_API_URL_BASE + runId);
+		testStructure.setWebUiUrl(WEBUI_URL_BASE + runId);
 		
 		List<IRunResult> mockInputRunResults = generateTestData(runId, testStructure, null);
 

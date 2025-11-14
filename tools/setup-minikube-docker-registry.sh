@@ -186,7 +186,7 @@ function push_galasa_images_to_local_registry {
 function push_image_to_local_registry {
     # This function expects the name of the image to push
     image_name=$1
-    retagged_image_name="localhost:5000/${image_name}"
+    retagged_image_name="localhost:4500/${image_name}"
 
     h2 "Retagging ${image_name} for local registry..."
     docker tag ${image_name} ${retagged_image_name}
@@ -231,13 +231,13 @@ function setup_local_registry_for_minikube {
         check_exit_code ${rc} "Failed to restart the existing docker-to-minikube registry mapping container"
     else
         info "It isn't, so start it..."
-        docker run --name ${socat_container_name} -d --network=host alpine sh -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000"
+        docker run --name ${socat_container_name} -d --network=host alpine sh -c "apk add socat && socat TCP-LISTEN:4500,reuseaddr,fork TCP:$(minikube ip):4500"
         rc=$?
         check_exit_code ${rc} "Failed to start a container that exposes the local docker registry to minikube"
     fi
 
     info "Waiting for container to be ready for use..."
-    loop_get_url_until_success "http://localhost:5000"
+    loop_get_url_until_success "http://localhost:4500"
 
     success "minikube can now pull images from a local Docker registry OK"
 }
