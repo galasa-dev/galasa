@@ -6,7 +6,7 @@ title: "Upgrading"
 
 You can upgrade your version of Galasa by completing the following steps:
 
-1. Download the appropriate version of the Galasa CLI for your machine architecture from the [Galasa CLI repository](https://github.com/galasa-dev/cli/releases){target="_blank"} in GitHub.
+1. Download the appropriate version of the Galasa CLI for your machine architecture from the [Galasa CLI repository](https://github.com/galasa-dev/galasa/releases){target="_blank"} in GitHub.
 2. Re-name the your existing `galasactl` binary so that you can re-name the Galasa binary that you just downloaded to `galasactl` to replace it. 
 3. Set execute permission on the binary by running the `chmod +x galasactl` command in the directory containing `galasactl`.If you are using a Mac, you can set permission to open the Galasa CLI tool by running the `xattr -dr com.apple.quarantine galasactl` command in the directory containing `galasactl`. 
 
