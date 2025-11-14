@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -23,6 +24,7 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import dev.galasa.framework.beans.Property;
 import dev.galasa.framework.mocks.MockCPSStore;
 import dev.galasa.framework.mocks.MockDSSStore;
 import dev.galasa.framework.mocks.MockFramework;
@@ -887,7 +889,7 @@ public class FrameworkRunsTest {
     }
 
     @Test
-    public void testCancelNonExistantRunReturnsFalse() throws Exception {
+    public void testCancelNonExistentRunReturnsFalse() throws Exception {
         // Given...
         MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
@@ -1079,7 +1081,7 @@ public class FrameworkRunsTest {
     }
 
     @Test
-    public void testRequeueRunOnNonExistantRunDoesNotUpdateDss() throws Exception {
+    public void testRequeueRunOnNonExistentRunDoesNotUpdateDss() throws Exception {
         // Given...
         MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
@@ -1119,7 +1121,7 @@ public class FrameworkRunsTest {
     }
 
     @Test
-    public void testResetRunOnNonExistantRunDoesNotUpdateDss() throws Exception {
+    public void testResetRunOnNonExistentRunDoesNotUpdateDss() throws Exception {
         // Given...
         MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
         MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
@@ -1167,5 +1169,168 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run." + runName + "." +DssPropertyKeyRunNameSuffix.INTERRUPTED_AT)).isNull();
         assertThat(mockDss.get("run." + runName + "." +DssPropertyKeyRunNameSuffix.HEARTBEAT)).isNull();
         assertThat(mockDss.get("run." + runName + "." +DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo(TestRunLifecycleStatus.QUEUED.toString());
+    }
+
+    @Test
+    public void testCanGetCpsPropertiesForExistingRunWithNoOverrides() throws Exception {
+        // Given...
+        Map<String, String> cpsProps = new HashMap<>();
+        cpsProps.put("namespace1.first.cps.property", "hello");
+        cpsProps.put("namespace1.second.cps.property", "world");
+        cpsProps.put("namespace2.cps.property", "another value!");
+
+        Map<String, String> dssProps = new HashMap<>();
+        String runName = "U123";
+        dssProps.put("run." + runName + ".status", TestRunLifecycleStatus.FINISHED.toString());
+
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockCPSStore mockCps = new MockCPSStore(cpsProps);
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
+
+        // When...
+        List<String> namespacesToGet = List.of("namespace1", "namespace2");
+        Map<String, String> propertiesGotBack = frameworkRuns.getCpsPropertiesAndOverridesUsedByTestRun(runName, namespacesToGet);
+
+        // Then...
+        assertThat(propertiesGotBack).hasSize(3);
+        assertThat(propertiesGotBack).containsAllEntriesOf(cpsProps);
+    }
+
+    @Test
+    public void testCanGetCpsPropertiesForExistingRunWithBlankOverrides() throws Exception {
+        // Given...
+        Map<String, String> cpsProps = new HashMap<>();
+        cpsProps.put("namespace1.first.cps.property", "hello");
+        cpsProps.put("namespace1.second.cps.property", "world");
+        cpsProps.put("namespace2.cps.property", "another value!");
+
+        Map<String, String> dssProps = new HashMap<>();
+        String runName = "U123";
+        dssProps.put("run." + runName + ".overrides", "     ");
+
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockCPSStore mockCps = new MockCPSStore(cpsProps);
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
+
+        // When...
+        List<String> namespacesToGet = List.of("namespace1", "namespace2");
+        Map<String, String> propertiesGotBack = frameworkRuns.getCpsPropertiesAndOverridesUsedByTestRun(runName, namespacesToGet);
+
+        // Then...
+        assertThat(propertiesGotBack).hasSize(3);
+        assertThat(propertiesGotBack).containsAllEntriesOf(cpsProps);
+    }
+
+    @Test
+    public void testCanGetCpsPropertiesAndOverridesForExistingRun() throws Exception {
+        // Given...
+        Map<String, String> cpsProps = new HashMap<>();
+        cpsProps.put("namespace1.first.cps.property", "hello");
+        cpsProps.put("namespace1.second.cps.property", "world");
+        cpsProps.put("namespace2.cps.property", "another value");
+
+        Map<String, String> dssProps = new HashMap<>();
+
+        List<Property> overrideProperties = new ArrayList<>();
+        overrideProperties.add(new Property("this.is.an.override", "I'm a value!"));
+        overrideProperties.add(new Property("namespace1.second.cps.property", "I'm an overridden value!"));
+
+        String runName = "U123";
+        dssProps.put("run." + runName + ".overrides", gson.toJson(overrideProperties));
+        
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockCPSStore mockCps = new MockCPSStore(cpsProps);
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
+
+        // When...
+        List<String> namespacesToGet = List.of("namespace1", "namespace2");
+        Map<String, String> propertiesGotBack = frameworkRuns.getCpsPropertiesAndOverridesUsedByTestRun(runName, namespacesToGet);
+
+        // Then...
+        assertThat(propertiesGotBack).hasSize(4);
+        assertThat(propertiesGotBack.get("namespace1.first.cps.property")).isEqualTo("hello");
+        assertThat(propertiesGotBack.get("namespace1.second.cps.property")).isEqualTo("I'm an overridden value!");
+        assertThat(propertiesGotBack.get("namespace2.cps.property")).isEqualTo("another value");
+        assertThat(propertiesGotBack.get("this.is.an.override")).isEqualTo("I'm a value!");
+    }
+
+    @Test
+    public void testGetCpsPropertiesForNonExistentRunReturnsCurrentCpsProperties() throws Exception {
+        // Given...
+        Map<String, String> cpsProps = new HashMap<>();
+        cpsProps.put("namespace1.first.cps.property", "hello");
+        cpsProps.put("namespace1.second.cps.property", "world");
+        cpsProps.put("namespace2.cps.property", "another value");
+
+        Map<String, String> dssProps = new HashMap<>();
+        String runName = "U123";
+        
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockCPSStore mockCps = new MockCPSStore(cpsProps);
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
+
+        // When...
+        List<String> namespacesToGet = List.of("namespace1", "namespace2");
+        Map<String, String> propertiesGotBack = frameworkRuns.getCpsPropertiesAndOverridesUsedByTestRun(runName, namespacesToGet);
+
+        // Then...
+        assertThat(propertiesGotBack).hasSize(3);
+        assertThat(propertiesGotBack).containsAllEntriesOf(cpsProps);
+    }
+
+    @Test
+    public void testGetPropertiesForExistingRunWithNullNamespacesReturnsOnlyOverrides() throws Exception {
+        // Given...
+        Map<String, String> cpsProps = new HashMap<>();
+        cpsProps.put("namespace1.first.cps.property", "hello");
+        cpsProps.put("namespace1.second.cps.property", "world");
+        cpsProps.put("namespace2.cps.property", "another value");
+
+        Map<String, String> dssProps = new HashMap<>();
+
+        List<Property> overrideProperties = new ArrayList<>();
+        overrideProperties.add(new Property("this.is.an.override", "I'm a value!"));
+        overrideProperties.add(new Property("namespace1.second.cps.property", "I'm an overridden value!"));
+
+        String runName = "U123";
+        dssProps.put("run." + runName + ".overrides", gson.toJson(overrideProperties));
+        
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockCPSStore mockCps = new MockCPSStore(cpsProps);
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        Instant currentTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
+
+        // When...
+        List<String> namespacesToGet = null;
+        Map<String, String> propertiesGotBack = frameworkRuns.getCpsPropertiesAndOverridesUsedByTestRun(runName, namespacesToGet);
+
+        // Then...
+        assertThat(propertiesGotBack).hasSize(2);
+        assertThat(propertiesGotBack.get("this.is.an.override")).isEqualTo("I'm a value!");
+        assertThat(propertiesGotBack.get("namespace1.second.cps.property")).isEqualTo("I'm an overridden value!");
     }
 }
