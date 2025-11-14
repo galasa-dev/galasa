@@ -72,6 +72,12 @@ public class SSHClient implements ICommandShell {
 
     public SSHClient(String hostname, int port, ICredentials credentials, long defaultTimeoutInMillis) throws SSHException {
 
+        // Remove this notice once the SSH client library has been upgraded to drop support for RSA/SHA1
+        logger.warn(
+            "Deprecation notice: In a future release, Galasa will no longer support SSH connections using the RSA/SHA1 signature algorithm. "+
+            "If you are using RSA/SHA1 to connect to a server via SSH, you must upgrade your server to use a more secure algorithm."
+        );
+
         this.hostname = hostname;
         this.port = port;
         this.defaultTimeout = defaultTimeoutInMillis;
