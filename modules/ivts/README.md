@@ -56,7 +56,7 @@ galasactl runs submit local \
 
 For more information on Test streams, see the [Test streams page](https://galasa.dev/docs/manage-ecosystem/test-streams) on our website.
 
-For more information on running tests locally or remotely with `galasactl`, see our [command-line interface documentation](https://github.com/galasa-dev/cli/blob/main/README.md) on GitHub.
+For more information on running tests locally or remotely with `galasactl`, see our [command-line interface documentation](https://github.com/galasa-dev/galasa/blob/main/modules/cli/README.md) on GitHub.
 
 
 ## How to contribute to this module

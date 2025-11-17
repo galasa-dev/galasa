@@ -7,7 +7,7 @@ To run the Db2 manager IVT, it requires a Db2 instance to connect to. This can b
 You will need:
 
 - Docker engine (e.g. using [Rancher Desktop](https://rancherdesktop.io) or [colima](https://github.com/abiosoft/colima))
-- [galasactl](https://github.com/galasa-dev/cli/releases)
+- [galasactl](https://github.com/galasa-dev/galasa/releases)
 - Gradle 6.8.2
 
 ### Running on Apple Silicon

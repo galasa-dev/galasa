@@ -17,7 +17,7 @@ Examples of using colour support and screen sizing are available in the [Code sn
 
 When running a Galasa test with the Galasa CLI, terminal images are logged to the run log and PNG representations of the terminal screens are saved to the Result Archive Store (RAS).
 
-The zos3270Terminal Manager supports [Gherkin keywords](https://github.com/galasa-dev/cli/blob/main/gherkin-docs.md#3270-terminal-manipulation-steps){target="_blank"}. 
+The zos3270Terminal Manager supports [Gherkin keywords](https://github.com/galasa-dev/galasa/blob/main/modules/cli/gherkin-docs.md#3270-terminal-manipulation-steps){target="_blank"}. 
 
 *Note:* The feature for saving PNG representations of the terminal screens to the RAS is available in the current release as experimental code only.
 

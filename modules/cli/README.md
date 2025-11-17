@@ -2,7 +2,7 @@
 
 The Galasa command line interface (Galasa CLI) is used to interact with a deployed Galasa service or local development environment.
 
-[![Main build](https://github.com/galasa-dev/cli/actions/workflows/build.yml/badge.svg)](https://github.com/galasa-dev/cli/actions/workflows/build.yml)
+[![Main build](https://github.com/galasa-dev/galasa/actions/workflows/pushes.yaml/badge.svg)](https://github.com/galasa-dev/galasa/actions/workflows/pushes.yaml)
 
 ## Environment variables
 
@@ -858,7 +858,7 @@ Built artifacts include:
 
 Browse the following web site and download whichever built binary files you wish:
 
-- Latest (and previous) stable releases: https://github.com/galasa-dev/cli/releases
+- Latest (and previous) stable releases: https://github.com/galasa-dev/galasa/releases
 - Bleeding edge/Unstable : https://development.galasa.dev/main/binary/cli/
 
 ## Docker images containing the command-line tools

@@ -72,7 +72,7 @@ where:
 - `--log` specifies that debugging information is directed somewhere, and the `-` means that it is sent to the console (stderr).
 - `--gherkin` specifies the path where the  CLI tool can find the Gherkin file containing the Gherkin tests. The path must be specified in a URL form, ending in a `.feature` extension. For example,`file:///Users/myuserid/gherkin/MyGherkinFile.feature` or `file:///C:/Users/myuserid/gherkin/MyGherkinFile.feature`.
 
-For more information about the Gherkin support currently available, see the [Galasa CLI Gherkin documentation](https://github.com/galasa-dev/cli/blob/main/gherkin-docs.md){target="_blank"}.
+For more information about the Gherkin support currently available, see the [Galasa CLI Gherkin documentation](https://github.com/galasa-dev/galasa/blob/main/modules/cli/gherkin-docs.md){target="_blank"}.
 
 
 ## Overriding the path to the default local Maven repository
