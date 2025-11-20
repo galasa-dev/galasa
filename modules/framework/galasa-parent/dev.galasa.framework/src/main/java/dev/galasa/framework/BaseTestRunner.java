@@ -30,6 +30,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IShuttableFramework;
@@ -364,9 +365,13 @@ public class BaseTestRunner {
 
     protected void clearRunHungInterruptIfSet() throws TestRunException {
         try {
-            String interruptReason = this.run.getInterruptReason();
+            String runName = this.run.getName();
+            IFrameworkRuns frameworkRuns = framework.getFrameworkRuns();
+            IRun currentRunInDss = frameworkRuns.getRun(runName);
+            String interruptReason = currentRunInDss.getInterruptReason();
+
             if (interruptReason != null && interruptReason.equals(Result.HUNG)) {
-                this.framework.getFrameworkRuns().clearRunInterrupt(this.run.getName());
+                frameworkRuns.clearRunInterrupt(runName);
             }
         } catch (FrameworkException e) {
             throw new TestRunException("Failed to clear run interrupt", e);
