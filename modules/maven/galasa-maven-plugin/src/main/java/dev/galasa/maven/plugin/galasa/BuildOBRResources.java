@@ -129,9 +129,15 @@ public class BuildOBRResources extends AbstractMojo {
                     }
 
                     if (name.endsWith(".jar")) {
-                        processBundle(artifact, newRepository, obrDataModelHelper);
+                        processBundle(artifact, file, newRepository, obrDataModelHelper);
                     } else if (name.endsWith(".obr")) {
                         processObr(artifact, newRepository, obrDataModelHelper);
+                    } else if (file.isDirectory() && name.equals("classes")) {
+                        file = new File(file.getParentFile(), artifact.getArtifactId()+"-"+artifact.getVersion()+".jar"); 
+                        getLog().info("BuildOBRResources: Searching for "+file.getName());
+                        if (file.exists()) {
+                            processBundle(artifact, file, newRepository, obrDataModelHelper);
+                        }
                     }
                 }
             }
@@ -180,13 +186,13 @@ public class BuildOBRResources extends AbstractMojo {
         }
     }
 
-    private void processBundle(DefaultArtifact artifact, RepositoryImpl repository, DataModelHelper obrDataModelHelper)
+    private void processBundle(DefaultArtifact artifact, File file, RepositoryImpl repository, DataModelHelper obrDataModelHelper)
             throws MojoExecutionException {
 
         try {
             getLog().info("BuildOBRResources: Processing artifact " + artifact.getId());
             ResourceImpl newResource = (ResourceImpl) obrDataModelHelper
-                    .createResource(artifact.getFile().toURI().toURL());
+                    .createResource(file.toURI().toURL());
             if (newResource == null) {
                 throw new MojoExecutionException("Problem with jar file. Not an OSGi bundle?");
             }
