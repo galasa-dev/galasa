@@ -30,9 +30,11 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IShuttableFramework;
+import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
@@ -337,6 +339,10 @@ public class BaseTestRunner {
     protected void updateStatus(TestRunLifecycleStatus status, String dssTimePropSuffix) throws TestRunException {
         Instant time = Instant.now();
 
+        // If the test runner wants to update the status of a run but the run has already been marked as "Hung",
+        // we should clear this interrupt as the run has progressed and is no longer hanging.
+        clearRunHungInterruptIfSet();
+
         this.testStructure.setStatus(status.toString());
         if ("finished".equals(status.toString())) {
             updateResult();
@@ -355,6 +361,21 @@ public class BaseTestRunner {
         }
 
         this.eventsProducer.produceTestRunLifecycleStatusChangedEvent(framework.getTestRunName(), status);
+    }
+
+    protected void clearRunHungInterruptIfSet() throws TestRunException {
+        try {
+            String runName = this.run.getName();
+            IFrameworkRuns frameworkRuns = framework.getFrameworkRuns();
+            IRun currentRunInDss = frameworkRuns.getRun(runName);
+            String interruptReason = currentRunInDss.getInterruptReason();
+
+            if (interruptReason != null && interruptReason.equals(Result.HUNG)) {
+                frameworkRuns.clearRunInterrupt(runName);
+            }
+        } catch (FrameworkException e) {
+            throw new TestRunException("Failed to clear run interrupt", e);
+        }
     }
 
     

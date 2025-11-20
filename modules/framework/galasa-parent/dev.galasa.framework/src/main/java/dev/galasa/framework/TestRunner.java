@@ -76,6 +76,8 @@ public class TestRunner extends BaseTestRunner {
         String testClassName = run.getTestClassName();
             
         try {
+            clearRunHungInterruptIfSet();
+
             this.testStructure = createNewTestStructure(run);
 
             String rasRunId = run.getRasRunId();
@@ -89,7 +91,6 @@ public class TestRunner extends BaseTestRunner {
             Class<?> testClass ;
 
             try {
-                
                 String streamName = AbstractManager.nulled(run.getStream());
                 new MavenRepositoryListBuilder(this.mavenRepository, this.cps)
                     .addMavenRepositories(streamName, run.getRepository());
@@ -131,7 +132,6 @@ public class TestRunner extends BaseTestRunner {
                 logger.error("Logic error. A RunType has been added for which the cleanup logic has not been implemented!");
             }
 
-            logger.debug("state changing to started.");
             updateStatus(TestRunLifecycleStatus.STARTED, "started");
 
 

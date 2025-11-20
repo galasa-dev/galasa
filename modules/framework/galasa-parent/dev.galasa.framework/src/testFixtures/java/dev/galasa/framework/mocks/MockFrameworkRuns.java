@@ -150,4 +150,13 @@ public class MockFrameworkRuns implements IFrameworkRuns {
             throws FrameworkException {
         throw new UnsupportedOperationException("Unimplemented method 'getCpsPropertiesAndOverridesUsedByTestRun'");
     }
+
+    @Override
+    public void clearRunInterrupt(String runName) throws DynamicStatusStoreException {
+        MockRun run = (MockRun) getRun(runName);
+        if (run != null) {
+            run.setInterruptReason(null);
+            run.setInterruptedAt(null);
+        }
+    }
 }
