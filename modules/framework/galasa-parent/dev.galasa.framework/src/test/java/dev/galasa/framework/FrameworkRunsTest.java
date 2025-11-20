@@ -1333,4 +1333,36 @@ public class FrameworkRunsTest {
         assertThat(propertiesGotBack.get("this.is.an.override")).isEqualTo("I'm a value!");
         assertThat(propertiesGotBack.get("namespace1.second.cps.property")).isEqualTo("I'm an overridden value!");
     }
+
+    @Test
+    public void testCanClearInterruptPropertiesFromExistingRun() throws Exception {
+        // Given...
+        Map<String, String> dssProps = new HashMap<>();
+
+        String runName = "U123";
+        Instant currentTime = Instant.now();
+        dssProps.put("run." + runName + ".status", TestRunLifecycleStatus.RUNNING.toString());
+        dssProps.put("run." + runName + ".interruptedAt", currentTime.toString());
+        dssProps.put("run." + runName + ".interruptReason", Result.HUNG);
+        
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+
+        MockTimeService mockTimeService = new MockTimeService(currentTime);
+
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework, mockTimeService);
+
+        // Check that the interrupt properties have been set correctly
+        IRun existingRun = frameworkRuns.getRun(runName);
+        assertThat(existingRun.getInterruptReason()).isEqualTo(Result.HUNG);
+        assertThat(existingRun.getInterruptedAt()).isEqualTo(currentTime.toString());
+
+        // When...
+        frameworkRuns.clearRunInterrupt(runName);
+
+        // Then...
+        assertThat(dssProps).hasSize(1);
+        assertThat(dssProps.get("run." + runName + ".status")).isEqualTo(TestRunLifecycleStatus.RUNNING.toString());
+    }
 }

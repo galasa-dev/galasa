@@ -393,6 +393,20 @@ public class FrameworkRuns implements IFrameworkRuns {
     }
 
     @Override
+    public void clearRunInterrupt(String runName) throws DynamicStatusStoreException {
+        if (isRunInDss(runName)) {
+            logger.info("Clearing interrupt properties for run " + runName);
+            Set<String> propertyKeysToDelete = new HashSet<>();
+            propertyKeysToDelete.add(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.INTERRUPTED_AT));
+            propertyKeysToDelete.add(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.INTERRUPT_REASON));
+
+            this.dss.delete(propertyKeysToDelete);
+
+            logger.info("Cleared interrupt properties for run " + runName);
+        }
+    }
+
+    @Override
     public void markRunFinished(String runName, String result) throws DynamicStatusStoreException {
         if (isRunInDss(runName)) {
             Map<String, String> propertiesToSet = new HashMap<>();

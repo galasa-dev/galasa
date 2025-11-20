@@ -50,6 +50,14 @@ public interface IFrameworkRuns {
 
     boolean markRunInterrupted(String runName, String interruptReason) throws DynamicStatusStoreException;
 
+    /**
+     * Clears all interrupt-related properties for a run with the given name from the DSS.
+     * 
+     * @param runName the run to remove interrupt properties for
+     * @throws DynamicStatusStoreException if there was an issue accessing the DSS
+     */
+    void clearRunInterrupt(String runName) throws DynamicStatusStoreException;
+
     void markRunFinished(String runName, String result) throws DynamicStatusStoreException;
 
     /**
