@@ -38,6 +38,10 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
         this(cpsUri, null, null);
     }
 
+    public MockFrameworkInitialisation(MockFramework framework) {
+        this(null, null, null, framework);
+    }
+
     public MockFrameworkInitialisation(URI cpsUri, URI dssUri, URI credsUri) {
         this(cpsUri, dssUri, credsUri, new MockFramework());
     }

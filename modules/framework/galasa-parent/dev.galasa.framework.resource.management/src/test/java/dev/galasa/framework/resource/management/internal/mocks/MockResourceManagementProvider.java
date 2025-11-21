@@ -14,6 +14,7 @@ public class MockResourceManagementProvider implements IResourceManagementProvid
 
     private boolean isInitialised = false;
     private boolean isStarted = false;
+    private boolean isRunCalled = false;
 
     @Override
     public boolean initialise(IFramework framework, IResourceManagement resourceManagement)
@@ -27,12 +28,21 @@ public class MockResourceManagementProvider implements IResourceManagementProvid
         isStarted = true;
     }
 
+    @Override
+    public void run() {
+        isRunCalled = true;
+    }
+
     public boolean isInitialised() {
         return isInitialised;
     }
 
     public boolean isStarted() {
         return isStarted;
+    }
+
+    public boolean isRunCalled() {
+        return isRunCalled;
     }
 
     @Override

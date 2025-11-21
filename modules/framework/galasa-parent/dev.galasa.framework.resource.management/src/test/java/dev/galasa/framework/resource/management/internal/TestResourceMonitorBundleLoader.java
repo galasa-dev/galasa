@@ -32,7 +32,7 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IResourceManagementProvider;
 import dev.galasa.framework.spi.streams.IOBR;
 
-public class TestResourceManagement {
+public class TestResourceMonitorBundleLoader {
 
     private MockResource createMockBundleWithServiceCapability(String bundleName) {
         String RESOURCE_MANAGEMENT_PROVIDER_CLASS = IResourceManagementProvider.class.getCanonicalName();
@@ -53,8 +53,6 @@ public class TestResourceManagement {
     @Test
     public void testLoadMonitorBundlesCanLoadBundles() throws Exception {
         // Given...
-        ResourceManagement resourceManagement = new ResourceManagement();
-        
         String REPO_URL = "http://myhost/myRepositoryForMyRun";
         String BUNDLE_NAME_1 = "my.custom.bundle";
         String BUNDLE_NAME_2 = "my.other.custom.bundle";
@@ -71,16 +69,16 @@ public class TestResourceManagement {
         Resolver mockResolver = new MockResolver(IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE);
         MockRepositoryAdmin mockRepositoryAdmin = new MockRepositoryAdmin(mockRepositories, mockResolver);
 
-        resourceManagement.repositoryAdmin = mockRepositoryAdmin;
-
         String stream = null;
 
         MockBundleManager mockBundleManager = new MockBundleManager();
 
         MockStreamsService mockStreamsService = new MockStreamsService(new ArrayList<>());
 
+        ResourceMonitorBundleLoader bundleLoader = new ResourceMonitorBundleLoader(null, mockStreamsService, mockRepositoryAdmin, null);
+
         // When...
-        resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockStreamsService);
+        bundleLoader.loadMonitorBundles(mockBundleManager, stream);
 
         // Then...
         List<String> loadedBundles = mockBundleManager.getLoadedBundleSymbolicNames();
@@ -91,8 +89,6 @@ public class TestResourceManagement {
     @Test
     public void testLoadMonitorBundlesAddsRepositoryFromTestStream() throws Exception {
         // Given...
-        ResourceManagement resourceManagement = new ResourceManagement();
-        
         String REPO_URL = "http://myhost/myRepositoryForMyRun";
 
         String OBR_GROUP_ID = "my.group";
@@ -118,9 +114,6 @@ public class TestResourceManagement {
         MockRepositoryAdmin mockRepositoryAdmin = new MockRepositoryAdmin(mockRepositories, mockResolver);
         MockMavenRepository mockMavenRepository = new MockMavenRepository();
 
-        resourceManagement.repositoryAdmin = mockRepositoryAdmin;
-        resourceManagement.mavenRepository = mockMavenRepository;
-
         String stream = "myStream";
 
         MockBundleManager mockBundleManager = new MockBundleManager();
@@ -135,8 +128,10 @@ public class TestResourceManagement {
 
         MockStreamsService mockStreamsService = new MockStreamsService(List.of(mockStream));
 
+        ResourceMonitorBundleLoader bundleLoader = new ResourceMonitorBundleLoader(null, mockStreamsService, mockRepositoryAdmin, mockMavenRepository);
+
         // When...
-        resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockStreamsService);
+        bundleLoader.loadMonitorBundles(mockBundleManager, stream);
 
         // Then...
         // Check that the maven repository associated with the stream has been added
@@ -157,8 +152,6 @@ public class TestResourceManagement {
     @Test
     public void testLoadMonitorBundlesWithBadStreamThrowsCorrectError() throws Exception {
         // Given...
-        ResourceManagement resourceManagement = new ResourceManagement();
-        
         String REPO_URL = "http://myhost/myRepositoryForMyRun";
 
         String OBR_GROUP_ID = "my.group";
@@ -181,9 +174,6 @@ public class TestResourceManagement {
         MockRepositoryAdmin mockRepositoryAdmin = new MockRepositoryAdmin(mockRepositories, mockResolver);
         MockMavenRepository mockMavenRepository = new MockMavenRepository();
 
-        resourceManagement.repositoryAdmin = mockRepositoryAdmin;
-        resourceManagement.mavenRepository = mockMavenRepository;
-
         String stream = "myStream";
 
         MockBundleManager mockBundleManager = new MockBundleManager();
@@ -197,9 +187,11 @@ public class TestResourceManagement {
 
         MockStreamsService mockStreamsService = new MockStreamsService(List.of(mockStream));
 
+        ResourceMonitorBundleLoader bundleLoader = new ResourceMonitorBundleLoader(null, mockStreamsService, mockRepositoryAdmin, mockMavenRepository);
+
         // When...
         FrameworkException thrown = catchThrowableOfType(() -> {
-            resourceManagement.loadMonitorBundles(mockBundleManager, stream, mockStreamsService);
+            bundleLoader.loadMonitorBundles(mockBundleManager, stream);
         }, FrameworkException.class);
 
         // Then...
