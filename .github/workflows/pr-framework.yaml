@@ -19,7 +19,6 @@ on:
 
 env:
   NAMESPACE: ${{ github.repository_owner }}
-  SWAGGER_VERSION: "3.0.41"
   
 jobs:
 
@@ -193,53 +192,3 @@ jobs:
         with:
           name: framework
           path: modules/framework/repo
-
-  build-rest-api-documentation:
-    name: Build REST API documentation using openapi2beans and gradle
-    if: ${{ inputs.changed == 'true' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            modules/framework
-      
-      - name: Setup JDK 
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'semeru'
-      
-      - name: Fetch swagger-cli cache
-        id: swagger-cache
-        uses: actions/cache@v4.2.3
-        with:
-          path: swagger-codegen-cli.jar
-          key: swagger-codegen-${{ env.SWAGGER_VERSION }}-cli.jar
-      
-      - name: Install Swagger CLI
-        if: steps.swagger-cache.outputs != 'true'
-        working-directory: modules/framework
-        run: |
-          wget https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/${{ env.SWAGGER_VERSION }}/swagger-codegen-cli-${{ env.SWAGGER_VERSION }}.jar -O swagger-codegen-cli.jar
-      
-      - name: Generate Swagger docs
-        working-directory: modules/framework
-        run: |
-          java -jar swagger-codegen-cli.jar generate -i galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml -l html2 -o docs/generated/galasaapi
-
-      - name: Build Restapidoc image for testing
-        uses: docker/build-push-action@v5
-        with:
-          context: modules/framework
-          file: modules/framework/dockerfiles/dockerfile.restapidocsite
-          load: true
-          tags: restapidoc-site:test
-      
-      - name: Upload rest-api-docs artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: rest-api-docs
-          path: ${{ github.workspace }}/modules/framework/repo
