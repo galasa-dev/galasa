@@ -18,23 +18,24 @@ public interface IResourceManagementProvider {
     boolean initialise(IFramework framework, IResourceManagement resourceManagement) throws ResourceManagerException;
 
     /**
-     * Used to schedule and start the resource management provider's cleanup jobs that are intended to run forever
+     * Schedule and starts resource cleanup jobs that are intended to run indefinitely for this resource management provider
+     * This is called by Galasa's resource management process when running in a Galasa service.
      */
     void start();
 
     /**
-     * Used to runs the resource management provider's cleanup jobs only once.
+     * Runs resource cleanup for this resource management provider once.
      * This is called by Galasa's resource management when running locally.
      */
-    default void run() {}
+    default void runOnce() {}
 
     /**
-     * Shuts down this resource management provider
+     * Shuts down this resource management provider.
      */
     void shutdown();
 
     /**
-     * Used to run specific resource cleanup when a run has been marked as finished or has been deleted from Galasa's
+     * Run resource cleanup when a run has been marked as finished or has been deleted from Galasa's
      * Dynamic Status Store (DSS).
      * 
      * @param runName the name of the run that has just finished or has been deleted from the DSS

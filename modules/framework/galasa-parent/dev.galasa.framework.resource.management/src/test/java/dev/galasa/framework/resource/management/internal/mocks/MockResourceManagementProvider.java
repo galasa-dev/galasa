@@ -29,7 +29,7 @@ public class MockResourceManagementProvider implements IResourceManagementProvid
     }
 
     @Override
-    public void run() {
+    public void runOnce() {
         isRunCalled = true;
     }
 

@@ -37,7 +37,7 @@ public class MockResourceManagementProviders implements IResourceManagementProvi
     public void runOnce() {
         this.isRunOnceCalled = true;
         for (IResourceManagementProvider provider : resourceManagementProviders) {
-            provider.run();
+            provider.runOnce();
         }
     }
 

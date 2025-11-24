@@ -117,7 +117,7 @@ public class ResourceManagementProviders implements IResourceManagementProviders
 
     public void runOnce() {
         for (IResourceManagementProvider provider : resourceManagementProviders) {
-            provider.run();
+            provider.runOnce();
         }
     }
 
