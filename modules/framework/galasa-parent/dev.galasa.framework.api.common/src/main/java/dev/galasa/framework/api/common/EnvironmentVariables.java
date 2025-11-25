@@ -16,6 +16,11 @@ public class EnvironmentVariables {
     public static final String GALASA_EXTERNAL_API_URL = "GALASA_EXTERNAL_API_URL";
 
     /**
+     * Represents the WebUI server's external URL that is used by clients to communicate with Galasa's front end.
+     */
+    public static final String GALASA_EXTERNAL_WEBUI_URL = "GALASA_EXTERNAL_WEBUI_URL";
+
+    /**
      * Represents the issuer URL of the Dex server so that the API server can communicate with Dex via OpenID Connect REST APIs.
      */
     public static final String GALASA_DEX_ISSUER = "GALASA_DEX_ISSUER";

@@ -93,6 +93,9 @@ public class TestGroupRunsRoute extends BaseServletTest {
             }
             runJson.add("tags", tagsArray);
 
+            runJson.addProperty("webUiUrl", "http://my-api.server/test-runs/" + run.getRasRunId());
+            runJson.addProperty("restApiUrl", "http://my-api.server/api/ras/runs/" + "cdb-" + run.getName());
+
             runsJsonArray.add(runJson);
         }
 

@@ -17,6 +17,9 @@ import dev.galasa.framework.mocks.MockResultArchiveStoreDirectoryService;
 import dev.galasa.framework.mocks.MockRunResult;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.api.ras.RasTestStructure;
+import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.EnvironmentVariables;
+import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
@@ -43,10 +46,14 @@ import javax.servlet.http.HttpServletResponse;
 
 public class TestRunDetailsRoute extends RasServletTest {
 
-    public String generateExpectedJson (String runId, String runName, String submissionId) {
+	Environment env = FilledMockEnvironment.createTestEnvironment();
+
+	public String generateExpectedJson (String runId, String runName, String submissionId) {
 
 		RasTestStructure testStructure = new RasTestStructure(runName, null, null, null, "galasa", null, "Passed", null, null, null, Collections.emptyList(), "none", submissionId, new HashSet<String>());
-		RasRunResult rasRunResult = new RasRunResult(runId, Collections.emptyList(), testStructure);
+		String baseWebUiUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
+		String baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
+		RasRunResult rasRunResult = new RasRunResult(runId, Collections.emptyList(), testStructure, baseWebUiUrl, baseServletUrl);
 
 		testStructure.setRunName(runName);
 		testStructure.setRequestor("galasa");
@@ -59,7 +66,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		rasRunResult.setTestStructure(testStructure);
 
 		return gson.toJson(rasRunResult);
-    }
+	}
 
 	public String generateStatusUpdateJson(String status, String result) {
 		return
@@ -287,10 +294,8 @@ public class TestRunDetailsRoute extends RasServletTest {
 		//When...
 		servlet.init();
 		servlet.doGet(req,resp);
-
+		
 		// Then...
-		// Expecting this json:
-		// {
 		String expectedJson = generateExpectedJson(runId, runName, submissionId);
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat( outStream.toString() ).isEqualTo(expectedJson);
@@ -301,7 +306,7 @@ public class TestRunDetailsRoute extends RasServletTest {
     public void testGoodRunIdAcceptHeaderReturnsOK() throws Exception {
 		//Given..
 		String runId = "xx12345xx";
-        String runName = "U123";
+    	String runName = "U123";
 		String submissionId = "submission1";
 		
 		TestStructure testStructure = new TestStructure();

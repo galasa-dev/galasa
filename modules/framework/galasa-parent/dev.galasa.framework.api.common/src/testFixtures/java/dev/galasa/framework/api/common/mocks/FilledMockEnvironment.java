@@ -12,6 +12,7 @@ public class FilledMockEnvironment {
         MockEnvironment mockEnv = new MockEnvironment();
 
         mockEnv.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL, "http://my-api.server/api");
+        mockEnv.setenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL, "http://my-api.server");
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_ISSUER, "http://my-dex.issuer/dex");
         mockEnv.setenv(EnvironmentVariables.GALASA_DEX_GRPC_HOSTNAME, "dex-grpc:1234");
         mockEnv.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username,name,sub");

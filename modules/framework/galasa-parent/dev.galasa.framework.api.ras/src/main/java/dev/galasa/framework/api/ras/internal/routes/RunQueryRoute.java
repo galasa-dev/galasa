@@ -16,6 +16,8 @@ import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.SupportedQueryParameterNames;
+import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.api.ras.internal.common.RasDetailsQueryParams;
@@ -96,7 +98,9 @@ public class RunQueryRoute extends RunsRoute {
 
 	private static final GalasaGson gson = new GalasaGson();
 
-	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
+	private final Environment env;
+
+	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
 		/*
 		 * Regex to match endpoints:
 		 * -> /ras/runs
@@ -104,6 +108,8 @@ public class RunQueryRoute extends RunsRoute {
 		 * -> /ras/runs?{querystring}
 		 */
 		super(responseBuilder, path, framework);
+
+		this.env = env;
 	}
 
 	@Override
@@ -230,7 +236,8 @@ public class RunQueryRoute extends RunsRoute {
 				IRunResult run = getRunByRunId(runId.trim());
 
 				if (run != null) {
-					runs.add(RunResultUtility.toRunResult(run, isMethodDetailsExcluded));
+      				RunResultUtility runResultUtility = new RunResultUtility(env);
+					runs.add(runResultUtility.toRunResult(run, isMethodDetailsExcluded));
 				}
 			} catch (ResultArchiveStoreException e) {
 				ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
@@ -448,7 +455,8 @@ public class RunQueryRoute extends RunsRoute {
 		// Convert each result to the required format
 		List<RasRunResult> runResults = new ArrayList<>();
 		for (IRunResult run : runs) {
-			runResults.add(RunResultUtility.toRunResult(run, isMethodDetailsExcluded));
+			RunResultUtility runResultUtility = new RunResultUtility(env);
+			runResults.add(runResultUtility.toRunResult(run, isMethodDetailsExcluded));
 		}
 		return runResults;
 	}
