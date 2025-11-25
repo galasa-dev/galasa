@@ -56,6 +56,8 @@ const (
 	COMMAND_NAME_RUNS_SUBMIT_LOCAL        = "runs submit local"
 	COMMAND_NAME_RUNS_RESET               = "runs reset"
 	COMMAND_NAME_RUNS_CANCEL              = "runs cancel"
+	COMMAND_NAME_RUNS_CLEANUP             = "runs cleanup"
+	COMMAND_NAME_RUNS_CLEANUP_LOCAL       = "runs cleanup local"
 	COMMAND_NAME_RUNS_DELETE              = "runs delete"
 	COMMAND_NAME_RESOURCES                = "resources"
 	COMMAND_NAME_RESOURCES_APPLY          = "resources apply"
@@ -336,6 +338,8 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 	var runsResetCommand spi.GalasaCommand
 	var runsCancelCommand spi.GalasaCommand
 	var runsDeleteCommand spi.GalasaCommand
+	var runsCleanupCommand spi.GalasaCommand
+	var runsCleanupLocalCommand spi.GalasaCommand
 
 	runsCommand, err = NewRunsCmd(rootCommand, commsFlagSet)
 	if err == nil {
@@ -361,6 +365,12 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 				}
 			}
 		}
+		if err == nil {
+			runsCleanupCommand, err = NewRunsCleanupCmd(runsCommand)
+			if err == nil {
+				runsCleanupLocalCommand, err = NewRunsCleanupLocalCommand(factory, runsCleanupCommand, rootCommand)
+			}
+		}
 	}
 
 	if err == nil {
@@ -373,6 +383,8 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 		commands.commandMap[runsResetCommand.Name()] = runsResetCommand
 		commands.commandMap[runsCancelCommand.Name()] = runsCancelCommand
 		commands.commandMap[runsDeleteCommand.Name()] = runsDeleteCommand
+		commands.commandMap[runsCleanupCommand.Name()] = runsCleanupCommand
+		commands.commandMap[runsCleanupLocalCommand.Name()] = runsCleanupLocalCommand
 	}
 
 	return err
@@ -455,6 +467,9 @@ func (commands *commandCollectionImpl) addMonitorsCommands(factory spi.Factory, 
 
 	if err == nil {
 		monitorsGetCommand, err = NewMonitorsGetCommand(factory, monitorsCommand, commsFlagSet)
+	}
+
+	if err == nil {
 		monitorsSetCommand, err = NewMonitorsSetCommand(factory, monitorsCommand, commsFlagSet)
 	}
 

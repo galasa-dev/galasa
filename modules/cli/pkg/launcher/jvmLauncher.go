@@ -109,6 +109,25 @@ type RunsSubmitLocalCmdParameters struct {
 	GherkinURL string
 }
 
+type RunsCleanupLocalCmdParameters struct {
+
+	// A list of OBRs, which we hope one of these contains the tests we want to run.
+	Obrs []string
+
+	// The local maven repo, eg: file:///home/.m2/repository, where we can load the galasa uber-obr
+	LocalMaven string
+
+	// The remote maven repositories, eg: maven central, where we can load the galasa uber-obr
+	// and any other OBRs providing resource cleanup services
+	RemoteMavenRepos []string
+
+	// The list of glob patterns representing the resource cleanup services that we should load
+	IncludesPatterns []string
+
+	// The list of glob patterns representing the resource cleanup services that we should not load
+	ExcludesPatterns []string
+}
+
 const (
 	DEBUG_PORT_DEFAULT uint32 = 2970
 )
