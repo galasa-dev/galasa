@@ -76,7 +76,7 @@ publishing {
                     developers {
                         developer {
                             name = 'Galasa Contributors'
-                            email = 'galasadelivery@ibm.com'
+                            email = 'galasa-maintainers@lists.openmainframeproject.org'
                             organization = 'Linux Foundation'
                             organizationUrl = 'https://github.com/galasa-dev'
                         }
