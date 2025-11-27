@@ -322,7 +322,7 @@ publishing {
                 developers {
                     developer {
                         name = 'Galasa Developer'
-                        email = 'galasadelivery@ibm.com'
+                        email = 'galasa-maintainers@lists.openmainframeproject.org'
                         organization = 'IBM'
                         organizationUrl = 'https://www.ibm.com'
                     }
