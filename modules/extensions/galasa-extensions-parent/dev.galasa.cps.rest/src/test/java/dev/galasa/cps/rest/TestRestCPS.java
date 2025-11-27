@@ -123,7 +123,7 @@ public class TestRestCPS {
     // @Test
     // public void testCPSCanGetValueFromRealServer() throws Exception {
     //     String jwt = ...";
-    //     String ecosystemApiServerUrl = "galasacps://galasa-ecosystem1.galasa.dev/api";
+    //     String ecosystemApiServerUrl = "galasacps://galasa-service1.galasa.dev/api";
     //     String propertyName = "mcobbett.test.prop1";
     //     String propertyValueExpected = "hello";
 
@@ -247,7 +247,7 @@ public class TestRestCPS {
     // @Test
     // public void testCPSCanGetValuesFromRealServer() throws Exception {
     //     String jwt = "...";
-    //     String ecosystemApiServerUrl = "galasacps://galasa-ecosystem1.galasa.dev/api";
+    //     String ecosystemApiServerUrl = "galasacps://galasa-service1.galasa.dev/api";
     //     String propertyName = "mcobbett.test.prop1";
     //     String namespaceAndPrefix = "mcobbett.test";
     //     String propertyValueExpected = "hello";
@@ -303,7 +303,7 @@ public class TestRestCPS {
     // @Test
     // public void testCPSCanGetValuesFromRealServer() throws Exception {
     //     String jwt = "eyJh...hbPhCB3Q";
-    //     String ecosystemApiServerUrl = "galasacps://galasa-ecosystem1.galasa.dev/api";
+    //     String ecosystemApiServerUrl = "galasacps://galasa-service1.galasa.dev/api";
     //     String propertyName = "mcobbett.test.prop1";
     //     String namespace = "mcobbett";
     //     String propertyValueExpected = "hello";
@@ -391,7 +391,7 @@ public class TestRestCPS {
     // @Test
     // public void testCPSCanGetNamespacesFromRealServer() throws Exception {
     //     String jwt = "eyJ...sjhdf"
-    //     String ecosystemApiServerUrl = "galasacps://galasa-ecosystem1.galasa.dev/api";
+    //     String ecosystemApiServerUrl = "galasacps://galasa-service1.galasa.dev/api";
     //     String namespaceExpected = "mcobbett";
 
     //     JwtProvider jwtProvider = new MockJwtProvider(jwt);

@@ -239,7 +239,7 @@ jobs:
         working-directory: ./modules/cli
         run : |
           chmod +x test-galasactl-ecosystem.sh
-          ./test-galasactl-ecosystem.sh --bootstrap https://galasa-ecosystem1.galasa.dev/api/bootstrap
+          ./test-galasactl-ecosystem.sh --bootstrap https://galasa-service1.galasa.dev/api/bootstrap
 
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
