@@ -154,6 +154,34 @@ func TestCanLaunchLocalJVMResourceCleanup(t *testing.T) {
 	assert.NoError(t, err, "Launcher should have launched command OK")
 }
 
+func TestCanLaunchLocalJVMResourceCleanupWithRemoteCPS(t *testing.T) {
+	// Given...
+	bootstrapProps, env, fs, embeddedReadOnlyFS,
+		jvmLaunchParams, timeService, timedSleeper, mockProcessFactory, galasaHome := NewMockResourceCleanupLauncherParams()
+
+	bootstrapProps["framework.config.store"] = "galasacps:my-remote-cps"
+
+	mockFactory := &utils.MockFactory{
+		Env:         env,
+		FileSystem:  fs,
+		TimeService: timeService,
+	}
+
+	launcher, err := NewResourceCleanupJVMLauncher(
+		mockFactory,
+		bootstrapProps, embeddedReadOnlyFS,
+		jvmLaunchParams, mockProcessFactory, galasaHome, timedSleeper,
+	)
+
+	assert.NoError(t, err, "JVM launcher should have been creatable.")
+	assert.NotNil(t, launcher, "Launcher returned is nil!")
+
+	// When...
+	err = launcher.RunResourceCleanup()
+
+	assert.NoError(t, err, "Launcher should have launched command OK")
+}
+
 func TestBadlyFormedCleanupObrFromProfileInfoCausesError(t *testing.T) {
 
 	// Given...
@@ -180,6 +208,64 @@ func TestBadlyFormedCleanupObrFromProfileInfoCausesError(t *testing.T) {
 	if err != nil {
 		// Expect badly formed OBR
 		assert.Contains(t, err.Error(), "GAL1061E:")
+	}
+}
+
+func TestBadlyFormedIncludesPatternsCausesError(t *testing.T) {
+
+	// Given...
+	bootstrapProps, env, fs, embeddedReadOnlyFS,
+		jvmLaunchParams, timeService, timedSleeper, mockProcessFactory, galasaHome := NewMockResourceCleanupLauncherParams()
+	
+	jvmLaunchParams.IncludesPatterns = []string{"this is a bad pattern!!!!"}
+
+	mockFactory := &utils.MockFactory{
+		Env:         env,
+		FileSystem:  fs,
+		TimeService: timeService,
+	}
+
+	launcher, _ := NewResourceCleanupJVMLauncher(
+		mockFactory,
+		bootstrapProps, embeddedReadOnlyFS,
+		jvmLaunchParams, mockProcessFactory, galasaHome, timedSleeper)
+
+	// When...
+	err := launcher.RunResourceCleanup()
+
+	assert.NotNil(t, err)
+	if err != nil {
+		// Expect invalid glob pattern
+		assert.Contains(t, err.Error(), "Unsupported glob pattern character provided")
+	}
+}
+
+func TestBadlyFormedExcludesPatternsCausesError(t *testing.T) {
+
+	// Given...
+	bootstrapProps, env, fs, embeddedReadOnlyFS,
+		jvmLaunchParams, timeService, timedSleeper, mockProcessFactory, galasaHome := NewMockResourceCleanupLauncherParams()
+	
+	jvmLaunchParams.ExcludesPatterns = []string{"this is a bad pattern!!!!"}
+
+	mockFactory := &utils.MockFactory{
+		Env:         env,
+		FileSystem:  fs,
+		TimeService: timeService,
+	}
+
+	launcher, _ := NewResourceCleanupJVMLauncher(
+		mockFactory,
+		bootstrapProps, embeddedReadOnlyFS,
+		jvmLaunchParams, mockProcessFactory, galasaHome, timedSleeper)
+
+	// When...
+	err := launcher.RunResourceCleanup()
+
+	assert.NotNil(t, err)
+	if err != nil {
+		// Expect invalid glob pattern
+		assert.Contains(t, err.Error(), "Unsupported glob pattern character provided")
 	}
 }
 
