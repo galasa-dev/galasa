@@ -7,7 +7,10 @@ package cmd
 
 import (
 	"log"
+	"strconv"
 
+	"github.com/galasa-dev/cli/pkg/api"
+	"github.com/galasa-dev/cli/pkg/embedded"
 	"github.com/galasa-dev/cli/pkg/launcher"
 	"github.com/galasa-dev/cli/pkg/spi"
 	"github.com/galasa-dev/cli/pkg/utils"
@@ -29,12 +32,12 @@ type RunsCleanupLocalCommand struct {
 func NewRunsCleanupLocalCommand(
     factory spi.Factory,
     runsCleanupCommand spi.GalasaCommand,
-	rootCmd spi.GalasaCommand,
+	commsFlagSet GalasaFlagSet,
 ) (spi.GalasaCommand, error) {
 
     cmd := new(RunsCleanupLocalCommand)
 
-    err := cmd.init(factory, runsCleanupCommand, rootCmd)
+    err := cmd.init(factory, runsCleanupCommand, commsFlagSet)
     return cmd, err
 }
 
@@ -56,14 +59,14 @@ func (cmd *RunsCleanupLocalCommand) Values() interface{} {
 // ------------------------------------------------------------------------------------------------
 // Private methods
 // ------------------------------------------------------------------------------------------------
-func (cmd *RunsCleanupLocalCommand) init(factory spi.Factory, runsCleanupCommand spi.GalasaCommand, rootCmd spi.GalasaCommand) error {
+func (cmd *RunsCleanupLocalCommand) init(factory spi.Factory, runsCleanupCommand spi.GalasaCommand, commsFlagSet GalasaFlagSet) error {
     var err error
 
 	cmd.values = &RunsCleanupLocalCmdValues{
 		runsCleanupLocalCmdParams:  &launcher.RunsCleanupLocalCmdParameters{},
 	}
 
-    cmd.cobraCommand, err = cmd.createCobraCmd(factory, runsCleanupCommand, rootCmd)
+    cmd.cobraCommand, err = cmd.createCobraCmd(factory, runsCleanupCommand, commsFlagSet.Values().(*CommsFlagSetValues))
 
     return err
 }
@@ -71,7 +74,7 @@ func (cmd *RunsCleanupLocalCommand) init(factory spi.Factory, runsCleanupCommand
 func (cmd *RunsCleanupLocalCommand) createCobraCmd(
     factory spi.Factory,
     runsCleanupCommand spi.GalasaCommand,
-	rootCmd spi.GalasaCommand,
+	commsFlagSetValues *CommsFlagSetValues,
 ) (*cobra.Command, error) {
 
     var err error
@@ -87,9 +90,14 @@ func (cmd *RunsCleanupLocalCommand) createCobraCmd(
 			"For example, the pattern 'dev.galasa*' will match any monitor that includes 'dev.galasa' as its prefix, so a provider like 'dev.galasa.core.CoreResourceMonitorClass' will be matched.",
         Aliases: []string{COMMAND_NAME_RUNS_CLEANUP_LOCAL},
         RunE: func(cobraCommand *cobra.Command, args []string) error {
-			return cmd.executeRunsCleanupLocal(factory, runsCleanupCommand.Values().(*RunsCleanupCmdValues), rootCmd.Values().(*RootCmdValues))
+			return cmd.executeRunsCleanupLocal(factory, commsFlagSetValues)
         },
     }
+
+	currentGalasaVersion, _ := embedded.GetGalasaVersion()
+	runsCleanupLocalCobraCmd.Flags().StringVar(&cmd.values.runsCleanupLocalCmdParams.TargetGalasaVersion, "galasaVersion",
+		currentGalasaVersion,
+		"the version of galasa you want to use. This should match the version of the galasa obr you built your resource cleanup providers against.")
 
 	runsCleanupLocalCobraCmd.Flags().StringSliceVar(&cmd.values.runsCleanupLocalCmdParams.RemoteMavenRepos, "remoteMaven",
 		[]string{"https://repo.maven.apache.org/maven2"},
@@ -118,7 +126,29 @@ func (cmd *RunsCleanupLocalCommand) createCobraCmd(
 			"'?' matches exactly one character\n"+
 			"For example, the pattern '*MyResourceCleanupClass' will match any provider that ends with 'MyResourceCleanupClass' such as 'my.company.resources.MyResourceCleanupClass' and so that provider will not be loaded.")
 
-	runsCleanupLocalCobraCmd.MarkFlagRequired("obr")
+	runsCleanupLocalCobraCmd.Flags().Uint32Var(&cmd.values.runsCleanupLocalCmdParams.DebugPort, "debugPort", 0,
+		"The port to use when the --debug option causes the resource cleanup provider to connect to a java debugger. "+
+			"The default value used is "+strconv.FormatUint(uint64(launcher.DEBUG_PORT_DEFAULT), 10)+" which can be "+
+			"overridden by the '"+api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_DEBUG_PORT+"' property in the bootstrap file, "+
+			"which in turn can be overridden by this explicit parameter on the galasactl command.",
+	)
+
+	runsCleanupLocalCobraCmd.Flags().StringVar(&cmd.values.runsCleanupLocalCmdParams.DebugMode, "debugMode", "",
+		"The mode to use when the --debug option causes the resource management provider to connect to a Java debugger. "+
+			"Valid values are 'listen' or 'attach'. "+
+			"'listen' means the JVM will pause on startup, waiting for the Java debugger to connect to the debug port "+
+			"(see the --debugPort option). "+
+			"'attach' means the JVM will pause on startup, trying to attach to a java debugger which is listening on the debug port. "+
+			"The default value is 'listen' but can be overridden by the '"+api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_DEBUG_MODE+"' property in the bootstrap file, "+
+			"which in turn can be overridden by this explicit parameter on the galasactl command.",
+	)
+
+	runsCleanupLocalCobraCmd.Flags().BoolVar(&cmd.values.runsCleanupLocalCmdParams.IsDebugEnabled, "debug", false,
+		"When set (or true) the debugger pauses on startup and tries to connect to a Java debugger. "+
+			"The connection is established using the --debugMode and --debugPort values.",
+	)
+
+	runsCleanupLocalCobraCmd.Flags().BoolVar(&cmd.values.runsCleanupLocalCmdParams.IsTraceEnabled, "trace", false, "Enables trace-level logging")
 
     runsCleanupCommand.CobraCommand().AddCommand(runsCleanupLocalCobraCmd)
 
@@ -127,19 +157,61 @@ func (cmd *RunsCleanupLocalCommand) createCobraCmd(
 
 func (cmd *RunsCleanupLocalCommand) executeRunsCleanupLocal(
     factory spi.Factory,
-    runsCleanupCmdValues *RunsCleanupCmdValues,
-    rootCmdValues *RootCmdValues,
+    commsFlagSetValues *CommsFlagSetValues,
 ) error {
 
     var err error
     // Operations on the file system will all be relative to the current folder.
     fileSystem := factory.GetFileSystem()
 
-	err = utils.CaptureLog(fileSystem, rootCmdValues.logFileName)
+	err = utils.CaptureLog(fileSystem, commsFlagSetValues.logFileName)
 	if err == nil {
-		rootCmdValues.isCapturingLogs = true
+		commsFlagSetValues.isCapturingLogs = true
 	
 		log.Println("Galasa CLI - Run resource cleanup for local runs")
+
+		// Get the ability to query environment variables.
+		env := factory.GetEnvironment()
+
+		// Work out where galasa home is, only once.
+		var galasaHome spi.GalasaHome
+		galasaHome, err = utils.NewGalasaHome(fileSystem, env, commsFlagSetValues.CmdParamGalasaHomePath)
+		if err == nil {
+
+			var commsClient api.APICommsClient
+			commsClient, err = api.NewAPICommsClient(
+				commsFlagSetValues.bootstrap,
+				commsFlagSetValues.maxRetries,
+				commsFlagSetValues.retryBackoffSeconds,
+				factory,
+				galasaHome,
+			)
+
+			if err == nil {
+
+				timedSleeper := utils.NewRealTimedSleeper()
+
+				// the submit is targetting a local JVM
+				embeddedFileSystem := embedded.GetReadOnlyFileSystem()
+
+				// Something which can kick off new operating system processes
+				processFactory := launcher.NewRealProcessFactory()
+
+				bootstrapData := commsClient.GetBootstrapData()
+
+				// A launcher is needed to launch anything
+				var launcherInstance launcher.ResourceCleanupLauncher
+				launcherInstance, err = launcher.NewResourceCleanupJVMLauncher(
+					factory,
+					bootstrapData.Properties, embeddedFileSystem,
+					cmd.values.runsCleanupLocalCmdParams,
+					processFactory, galasaHome, timedSleeper)
+
+				if err == nil {
+					launcherInstance.RunResourceCleanup()
+				}
+			}
+		}
 	}
 
     return err

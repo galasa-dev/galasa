@@ -368,7 +368,7 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 		if err == nil {
 			runsCleanupCommand, err = NewRunsCleanupCmd(runsCommand)
 			if err == nil {
-				runsCleanupLocalCommand, err = NewRunsCleanupLocalCommand(factory, runsCleanupCommand, rootCommand)
+				runsCleanupLocalCommand, err = NewRunsCleanupLocalCommand(factory, runsCleanupCommand, commsFlagSet)
 			}
 		}
 	}

@@ -17,10 +17,14 @@ galasactl runs cleanup local [flags]
 ### Options
 
 ```
+      --debug                      When set (or true) the debugger pauses on startup and tries to connect to a Java debugger. The connection is established using the --debugMode and --debugPort values.
+      --debugMode string           The mode to use when the --debug option causes the resource management provider to connect to a Java debugger. Valid values are 'listen' or 'attach'. 'listen' means the JVM will pause on startup, waiting for the Java debugger to connect to the debug port (see the --debugPort option). 'attach' means the JVM will pause on startup, trying to attach to a java debugger which is listening on the debug port. The default value is 'listen' but can be overridden by the 'galasactl.jvm.local.launch.debug.mode' property in the bootstrap file, which in turn can be overridden by this explicit parameter on the galasactl command.
+      --debugPort uint32           The port to use when the --debug option causes the resource cleanup provider to connect to a java debugger. The default value used is 2970 which can be overridden by the 'galasactl.jvm.local.launch.debug.port' property in the bootstrap file, which in turn can be overridden by this explicit parameter on the galasactl command.
       --excludes-pattern strings   The glob pattern(s) representing the resource cleanup providers that should not be loaded. Supported glob patterns include the following special characters:
                                    '*' (wildcard) Matches zero or more characters.
                                    '?' matches exactly one character
                                    For example, the pattern '*MyResourceCleanupClass' will match any provider that ends with 'MyResourceCleanupClass' such as 'my.company.resources.MyResourceCleanupClass' and so that provider will not be loaded.
+      --galasaVersion string       the version of galasa you want to use. This should match the version of the galasa obr you built your resource cleanup providers against. (default "0.45.0")
   -h, --help                       Displays the options for the 'runs cleanup local' command.
       --includes-pattern strings   The glob pattern(s) representing the resource cleanup providers that should be loaded. Supported glob patterns include the following special characters:
                                    '*' (wildcard) Matches zero or more characters.
@@ -29,6 +33,7 @@ galasactl runs cleanup local [flags]
       --localMaven string          The url of a local maven repository are where galasa bundles can be loaded from on your local file system. Defaults to your home .m2/repository file. Please note that this should be in a URL form e.g. 'file:///Users/myuserid/.m2/repository', or 'file://C:/Users/myuserid/.m2/repository'
       --obr strings                The maven coordinates of the obr bundle(s) which refer to your resource cleanup bundles. The format of this parameter is 'mvn:${OBR_GROUP_ID}/${OBR_ARTIFACT_ID}/${OBR_VERSION}/obr' Multiple instances of this flag can be used to describe multiple obr bundles.
       --remoteMaven strings        the urls of the remote maven repositories where galasa bundles can be loaded from. Defaults to maven central. (default [https://repo.maven.apache.org/maven2])
+      --trace                      Enables trace-level logging
 ```
 
 ### Options inherited from parent commands

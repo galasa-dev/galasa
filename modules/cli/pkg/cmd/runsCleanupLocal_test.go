@@ -43,23 +43,6 @@ func TestRunsCleanupLocalHelpFlagSetCorrectly(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestRunsCleanupLocalWithoutObrErrors(t *testing.T) {
-	// Given...
-	factory := utils.NewMockFactory()
-	var args []string = []string{"runs", "cleanup", "local"}
-
-	// When...
-	err := Execute(factory, args)
-
-	// Then...
-	// Check what the user saw was reasonable
-	checkOutput("", "required flag(s) \"obr\" not set", factory, t)
-
-	// Should throw an error asking for flags to be set
-	assert.NotNil(t, err, "err should have been set!")
-	assert.Contains(t, err.Error(), "required flag(s) \"obr\" not set")
-}
-
 func TestRunsCleanupLocalObrFlagReturnsOk(t *testing.T) {
 	// Given...
 	factory := utils.NewMockFactory()
