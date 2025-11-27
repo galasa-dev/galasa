@@ -99,6 +99,7 @@ public class RunQueryRoute extends RunsRoute {
 	private static final GalasaGson gson = new GalasaGson();
 
 	private final Environment env;
+	private final RunResultUtility runResultUtility;
 
 	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
 		/*
@@ -110,6 +111,7 @@ public class RunQueryRoute extends RunsRoute {
 		super(responseBuilder, path, framework);
 
 		this.env = env;
+		this.runResultUtility = new RunResultUtility(env);
 	}
 
 	@Override
@@ -236,7 +238,6 @@ public class RunQueryRoute extends RunsRoute {
 				IRunResult run = getRunByRunId(runId.trim());
 
 				if (run != null) {
-      				RunResultUtility runResultUtility = new RunResultUtility(env);
 					runs.add(runResultUtility.toRunResult(run, isMethodDetailsExcluded));
 				}
 			} catch (ResultArchiveStoreException e) {
@@ -455,7 +456,6 @@ public class RunQueryRoute extends RunsRoute {
 		// Convert each result to the required format
 		List<RasRunResult> runResults = new ArrayList<>();
 		for (IRunResult run : runs) {
-			RunResultUtility runResultUtility = new RunResultUtility(env);
 			runResults.add(runResultUtility.toRunResult(run, isMethodDetailsExcluded));
 		}
 		return runResults;

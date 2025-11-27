@@ -66,7 +66,7 @@ public class GroupRuns extends ProtectedRoute {
         return runs;
     }
 
-    private Run setwebUiAndRestApiUrls(Run run) {
+    private Run setwebUiAndRestApiUrls(IRun run, Environment env) {
         String runId = run.getRasRunId();
 
         String baseWebUiUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
@@ -92,7 +92,7 @@ public class GroupRuns extends ProtectedRoute {
                 complete = false;
             }
 
-            SerializedRun serializedRun = setwebUiAndRestApiUrls(run)
+            Run serializedRun = setwebUiAndRestApiUrls(run, env);
 
             status.getRuns().add(serializedRun);
         }
@@ -162,7 +162,7 @@ public class GroupRuns extends ProtectedRoute {
                         "java",
                         submissionId);
                         
-                SerializedRun serializedRun = setwebUiAndRestApiUrls(run)
+                Run serializedRun = setwebUiAndRestApiUrls(newRun, env);
 
                 status.getRuns().add(serializedRun);
 

@@ -22,11 +22,16 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestMethod;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 
 public class RunResultUtility {
 
 	Environment env;
+
+	public RunResultUtility() {
+		this.env = new SystemEnvironment();
+	}
 
 	public RunResultUtility(Environment env) {
 		this.env = env;
@@ -36,7 +41,7 @@ public class RunResultUtility {
 			throws ResultArchiveStoreException {
 
 		String runId = runResult.getRunId();
-		RasTestStructure structure = getTestStructure(runResult, runId);
+		RasTestStructure structure = getTestStructure(runResult);
 		Path artifactsPath = runResult.getArtifactsRoot();
 		List<RasArtifact> artifacts = new ArrayList<>();
 
@@ -64,7 +69,7 @@ public class RunResultUtility {
 
 	}
 
-	private RasTestStructure getTestStructure(IRunResult runResult, String runId) throws ResultArchiveStoreException {
+	private RasTestStructure getTestStructure(IRunResult runResult) throws ResultArchiveStoreException {
 		TestStructure struc = runResult.getTestStructure();
 		List<TestMethod> methods = struc.getMethods();
 
