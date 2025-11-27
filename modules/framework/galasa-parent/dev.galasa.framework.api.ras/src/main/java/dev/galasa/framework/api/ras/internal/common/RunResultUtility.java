@@ -30,7 +30,7 @@ public class RunResultUtility {
 	Environment env;
 
 	public RunResultUtility() {
-		this.env = new SystemEnvironment();
+		this(new SystemEnvironment());
 	}
 
 	public RunResultUtility(Environment env) {
