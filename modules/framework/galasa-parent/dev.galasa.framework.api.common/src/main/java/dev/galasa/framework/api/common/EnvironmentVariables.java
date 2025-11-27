@@ -16,7 +16,7 @@ public class EnvironmentVariables {
     public static final String GALASA_EXTERNAL_API_URL = "GALASA_EXTERNAL_API_URL";
 
     /**
-     * Represents the WebUI server's external URL that is used by clients to communicate with Galasa's front end.
+     * The external URL where users can find Galasa's front-end client.
      */
     public static final String GALASA_EXTERNAL_WEBUI_URL = "GALASA_EXTERNAL_WEBUI_URL";
 

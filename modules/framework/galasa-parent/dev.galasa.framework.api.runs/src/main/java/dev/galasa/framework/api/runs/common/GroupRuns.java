@@ -66,6 +66,22 @@ public class GroupRuns extends ProtectedRoute {
         return runs;
     }
 
+    private Run setwebUiAndRestApiUrls(Run run) {
+        String runId = run.getRasRunId();
+
+        String baseWebUiUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
+        String webUiUrl = baseWebUiUrl + "/test-runs/" + runId;
+
+        String baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
+        String restApiUrl = baseServletUrl + "/ras/runs/" + runId;
+
+        Run serializedRun = run.getSerializedRun();
+        serializedRun.setWebUiUrl(webUiUrl);
+        serializedRun.setRestApiUrl(restApiUrl);
+
+        return serializedRun;
+    }
+
     protected ScheduleStatus serializeRuns(@NotNull List<IRun> runs, Environment env) {
 
         ScheduleStatus status = new ScheduleStatus();
@@ -76,17 +92,7 @@ public class GroupRuns extends ProtectedRoute {
                 complete = false;
             }
 
-            String runId = run.getRasRunId();
-
-            String baseWebUiUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
-            String webUiUrl = baseWebUiUrl + "/test-runs/" + runId;
-
-            String baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
-            String restApiUrl = baseServletUrl + "/ras/runs/" + runId;
-
-            Run serializedRun = run.getSerializedRun();
-            serializedRun.setWebUiUrl(webUiUrl);
-            serializedRun.setRestApiUrl(restApiUrl);
+            SerializedRun serializedRun = setwebUiAndRestApiUrls(run)
 
             status.getRuns().add(serializedRun);
         }
@@ -155,18 +161,8 @@ public class GroupRuns extends ProtectedRoute {
                         request.getSharedEnvironmentRunName(),
                         "java",
                         submissionId);
-
-                String runId = newRun.getRasRunId();
-
-                String baseWebUiUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
-                String webUiUrl = baseWebUiUrl + "/test-runs/" + runId;
-
-                String baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
-                String restApiUrl = baseServletUrl + "/ras/runs/" + runId;
-
-                Run serializedRun = newRun.getSerializedRun();
-                serializedRun.setWebUiUrl(webUiUrl);
-                serializedRun.setRestApiUrl(restApiUrl);
+                        
+                SerializedRun serializedRun = setwebUiAndRestApiUrls(run)
 
                 status.getRuns().add(serializedRun);
 
