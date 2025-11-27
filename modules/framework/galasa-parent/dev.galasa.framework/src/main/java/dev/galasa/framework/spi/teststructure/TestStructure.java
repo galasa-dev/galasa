@@ -44,7 +44,7 @@ public class TestStructure {
 
     private List<String>     artifactRecordIds;
 
-    private Set<String>     tags = new HashSet<String>();
+    private Set<String>      tags = new HashSet<String>();
 
     public TestStructure() {
     }

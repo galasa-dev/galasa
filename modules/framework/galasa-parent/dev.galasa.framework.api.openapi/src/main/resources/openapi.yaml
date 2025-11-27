@@ -2962,6 +2962,10 @@ components:
           type: array
           items:
             type: string
+        webUiUrl: 
+          type: string
+        restApiUrl: 
+          type: string
     TestRunRequest:
       type: object
       properties:
@@ -3275,6 +3279,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Artifact'
+        webUiUrl: 
+          type: string
+        restApiUrl: 
+          type: string
     RunResults:
       type: object
       properties:

@@ -26,6 +26,7 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.RunStatusUpdate;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.Environment;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
@@ -47,65 +48,76 @@ public class RunDetailsRoute extends RunsRoute {
 
    protected static final String path = "\\/runs\\/([A-Za-z0-9.\\-=]+)\\/?";
 
-   public RunDetailsRoute(ResponseBuilder responseBuilder, IFramework framework) throws RBACException {
-      //  Regex to match endpoint: /ras/runs/{runid}
+   private final Environment env;
+
+   public RunDetailsRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+      // Regex to match endpoint: /ras/runs/{runid}
       super(responseBuilder, path, framework);
       this.framework = framework;
+      this.env = env;
    }
 
    @Override
-   public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams, HttpRequestContext requestContext, HttpServletResponse res) throws ServletException, IOException, FrameworkException {
+   public HttpServletResponse handleGetRequest(String pathInfo, QueryParameters queryParams,
+         HttpRequestContext requestContext, HttpServletResponse res)
+         throws ServletException, IOException, FrameworkException {
       HttpServletRequest request = requestContext.getRequest();
       String runId = getRunIdFromPath(pathInfo);
-      try{
+      try {
          RasRunResult run = getRunFromFramework(runId);
          String outputString = gson.toJson(run);
-         return getResponseBuilder().buildResponse(request, res, "application/json", outputString, HttpServletResponse.SC_OK );
-      }catch(ResultArchiveStoreException ex){
-         ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
+         return getResponseBuilder().buildResponse(request, res, "application/json", outputString,
+               HttpServletResponse.SC_OK);
+      } catch (ResultArchiveStoreException ex) {
+         ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
          throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, ex);
       }
    }
 
    @Override
-   public HttpServletResponse handlePutRequest(String pathInfo, HttpRequestContext requestContext, HttpServletResponse response) throws DynamicStatusStoreException, FrameworkException, IOException {
+   public HttpServletResponse handlePutRequest(String pathInfo, HttpRequestContext requestContext,
+         HttpServletResponse response) throws DynamicStatusStoreException, FrameworkException, IOException {
       HttpServletRequest request = requestContext.getRequest();
       String runId = getRunIdFromPath(pathInfo);
       String runName = getRunNameFromRunId(runId);
 
       RunStatusUpdate runStatusUpdate = new RunStatusUpdate(framework);
       RunActionJson runAction = getUpdatedRunActionFromRequestBody(request);
-      
-      return getResponseBuilder().buildResponse(request, response, "text/plain", updateRunStatus(runName, runAction, runStatusUpdate), HttpServletResponse.SC_ACCEPTED);
-   } 
 
+      return getResponseBuilder().buildResponse(request, response, "text/plain",
+            updateRunStatus(runName, runAction, runStatusUpdate), HttpServletResponse.SC_ACCEPTED);
+   }
 
    @Override
-   public HttpServletResponse handleDeleteRequest(String pathInfo, HttpRequestContext requestContext, HttpServletResponse response ) throws ServletException, IOException, FrameworkException {
+   public HttpServletResponse handleDeleteRequest(String pathInfo, HttpRequestContext requestContext,
+         HttpServletResponse response) throws ServletException, IOException, FrameworkException {
       HttpServletRequest request = requestContext.getRequest();
       String runId = getRunIdFromPath(pathInfo);
       IRunResult run = getRunByRunId(runId);
 
       String runRequestor = run.getTestStructure().getRequestor();
       String requestUsername = requestContext.getUsername();
-      
+
       // Check if the user sending this request is allowed to delete runs submitted by other users
-      if (!runRequestor.equals(requestUsername) && !isActionPermitted(BuiltInAction.RUNS_DELETE_OTHER_USERS, requestUsername)) {
-         ServletError error = new ServletError(GAL5125_ACTION_NOT_PERMITTED, BuiltInAction.RUNS_DELETE_OTHER_USERS.getAction().getId());
+      if (!runRequestor.equals(requestUsername)
+            && !isActionPermitted(BuiltInAction.RUNS_DELETE_OTHER_USERS, requestUsername)) {
+         ServletError error = new ServletError(GAL5125_ACTION_NOT_PERMITTED,
+               BuiltInAction.RUNS_DELETE_OTHER_USERS.getAction().getId());
          throw new InternalServletException(error, HttpServletResponse.SC_FORBIDDEN);
       }
-      
+
       run.discard();
 
       response = getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_NO_CONTENT);
       return response;
-   } 
+   }
 
-   private String updateRunStatus(String runName, RunActionJson runAction, RunStatusUpdate runStatusUpdate) throws InternalServletException, ResultArchiveStoreException {
+   private String updateRunStatus(String runName, RunActionJson runAction, RunStatusUpdate runStatusUpdate)
+         throws InternalServletException, ResultArchiveStoreException {
       String responseBody = "";
       RunActionStatus status = RunActionStatus.getfromString(runAction.getStatus());
       String result = runAction.getResult();
-      
+
       if (status == null) {
          ServletError error = new ServletError(GAL5045_INVALID_STATUS_UPDATE_REQUEST, runAction.getStatus());
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
@@ -117,13 +129,15 @@ public class RunDetailsRoute extends RunsRoute {
          runStatusUpdate.cancelRun(runName, result);
          logger.info("Run cancelled by external source.");
          responseBody = String.format("The request to cancel run %s has been received.", runName);
-      } 
+      }
       return responseBody;
    }
 
-   private @NotNull RasRunResult getRunFromFramework(@NotNull String id) throws ResultArchiveStoreException, InternalServletException {
+   private @NotNull RasRunResult getRunFromFramework(@NotNull String id)
+         throws ResultArchiveStoreException, InternalServletException {
       IRunResult run = getRunByRunId(id);
-      return RunResultUtility.toRunResult(run, false);
+      RunResultUtility runResultUtility = new RunResultUtility(env);
+      return runResultUtility.toRunResult(run, false);
    }
 
    private String getRunIdFromPath(String pathInfo) throws InternalServletException {
@@ -138,14 +152,15 @@ public class RunDetailsRoute extends RunsRoute {
     * @param runId
     * @return The short run name of the run.
     * @throws ResultArchiveStoreException
-    * @throws InternalServletException If the runID was not found.
+      * @throws InternalServletException If the runID was not found.
     */
-   private String getRunNameFromRunId(@NotNull String runId) throws ResultArchiveStoreException, InternalServletException {
+   private String getRunNameFromRunId(@NotNull String runId)
+         throws ResultArchiveStoreException, InternalServletException {
       IRunResult run = getRunByRunId(runId);
       String runName = run.getTestStructure().getRunName();
       return runName;
    }
-   
+
    private RunActionJson getUpdatedRunActionFromRequestBody(HttpServletRequest request) throws IOException {
       ServletInputStream body = request.getInputStream();
       String jsonString = new String(body.readAllBytes(), StandardCharsets.UTF_8);

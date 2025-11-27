@@ -24,10 +24,14 @@ import dev.galasa.framework.api.ras.internal.mocks.*;
 import dev.galasa.framework.mocks.MockPath;
 import dev.galasa.framework.mocks.MockResultArchiveStoreDirectoryService;
 import dev.galasa.framework.mocks.MockRunResult;
+import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
+import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
+import dev.galasa.framework.api.common.mocks.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -51,6 +55,8 @@ import com.google.gson.JsonParser;
 public class TestRunQuery extends RasServletTest {
 
     private GalasaGson gson = new GalasaGson();
+
+	private Environment env = FilledMockEnvironment.createTestEnvironment();
 
 	private void addQueryParameter ( Map<String, String[]> map, String key, String value){
 		if (value != null){
@@ -84,24 +90,26 @@ public class TestRunQuery extends RasServletTest {
 		return parameterMap;
 	}
 
-    private MockRunResult createTestRun(String runId, Instant queuedTime, Instant startTime, Instant endTime, List<TestMethod> methods) {
+	private MockRunResult createTestRun(String runId, Instant queuedTime, Instant startTime, Instant endTime, List<TestMethod> methods) {
 		RandomStringUtils randomStringGenerator = RandomStringUtils.insecure();
-        String runName = randomStringGenerator.nextAlphanumeric(5);
-        String testShortName = randomStringGenerator.nextAlphanumeric(5);
-        String requestor = "galasa";
-        String bundleName = randomStringGenerator.nextAlphanumeric(16);
+		String runName = randomStringGenerator.nextAlphanumeric(5);
+		String testShortName = randomStringGenerator.nextAlphanumeric(5);
+		String requestor = "galasa";
+		String bundleName = randomStringGenerator.nextAlphanumeric(16);
 		String group = randomStringGenerator.nextAlphabetic(8);
 		String submissionId = randomStringGenerator.nextAlphanumeric(16);
+		MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
 
-        TestStructure testStructure = new TestStructure();
-        testStructure.setRunName(runName);
-        testStructure.setRequestor(requestor);
-        testStructure.setTestShortName(testShortName);
-        testStructure.setBundle(bundleName);
-        testStructure.setTestName(testShortName + "." + RandomStringUtils.insecure().nextAlphanumeric(8));
-        testStructure.setQueued(queuedTime);
-        testStructure.setStartTime(startTime);
-        testStructure.setEndTime(endTime);
+
+		TestStructure testStructure = new TestStructure();
+		testStructure.setRunName(runName);
+		testStructure.setRequestor(requestor);
+		testStructure.setTestShortName(testShortName);
+		testStructure.setBundle(bundleName);
+		testStructure.setTestName(testShortName + "." + RandomStringUtils.insecure().nextAlphanumeric(8));
+		testStructure.setQueued(queuedTime);
+		testStructure.setStartTime(startTime);
+		testStructure.setEndTime(endTime);
 		testStructure.setGroup(group);
 		testStructure.setSubmissionId(submissionId);
 
@@ -109,10 +117,10 @@ public class TestRunQuery extends RasServletTest {
 			testStructure.setMethods(methods);
 		}
 
-        Path artifactsRoot = new MockPath("/", mockFileSystem);
-        String log = RandomStringUtils.insecure().nextAlphanumeric(6);
-        return new MockRunResult(runId, testStructure, artifactsRoot, log);
-    }
+		Path artifactsRoot = new MockPath("/", mockFileSystem);
+		String log = RandomStringUtils.insecure().nextAlphanumeric(6);
+		return new MockRunResult(runId, testStructure, artifactsRoot, log);
+	}
 
 	private TestMethod createTestMethod(String methodName, String type, String status, String result, Instant startTime, Instant endTime){
 
@@ -187,11 +195,13 @@ public class TestRunQuery extends RasServletTest {
 		return runnames;
 	}
 
-    private JsonArray createRunsJsonArray(List<IRunResult> mockRuns, List<TestMethod> methods) throws ResultArchiveStoreException {
-        JsonArray runsJson = new JsonArray();
-        for (IRunResult run : mockRuns) {
-            JsonObject runJson = new JsonObject();
-            runJson.addProperty("runId", run.getRunId());
+	private JsonArray createRunsJsonArray(List<IRunResult> mockRuns, List<TestMethod> methods) throws ResultArchiveStoreException {
+		JsonArray runsJson = new JsonArray();
+		for (IRunResult run : mockRuns) {
+			JsonObject runJson = new JsonObject();
+
+      String runId = run.getRunId();
+			runJson.addProperty("runId", runId);
 
 			TestStructure testStructure = run.getTestStructure();
 			if(methods != null & !methods.isEmpty()) {
@@ -207,12 +217,21 @@ public class TestRunQuery extends RasServletTest {
 				testStructure.setMethods(methods);
 			}
 
-            JsonElement testStructureJson = gson.toJsonTree(testStructure);
-            runJson.add("testStructure", testStructureJson);
-            runsJson.add(runJson);
-        }
-        return runsJson;
-    }
+			JsonElement testStructureJson = gson.toJsonTree(testStructure);
+			runJson.add("testStructure", testStructureJson);
+
+      String baseWebUiUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
+      String webUiUrl = baseWebUiUrl + "/test-runs/" + runId;
+      runJson.addProperty("webUiUrl", webUiUrl);
+      
+		  String baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
+      String restApiUrl = baseServletUrl + "/ras/runs/" + runId;
+      runJson.addProperty("restApiUrl", restApiUrl);
+
+			runsJson.add(runJson);
+		}
+		return runsJson;
+	}
 
 	private String generateExpectedJson(List<IRunResult> mockInputRunResults, int pageSize, int pageNum) throws ResultArchiveStoreException {
         List<List<IRunResult>> pagedRuns = ListUtils.partition(mockInputRunResults, pageSize);
@@ -2204,7 +2223,7 @@ public class TestRunQuery extends RasServletTest {
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
 		Throwable thrown = catchThrowable( () -> {
-        	new RunQueryRoute( new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params,Instant.now());
+        	new RunQueryRoute( new ResponseBuilder(), new MockFramework(), env).getQueriedFromTime(params,Instant.now());
         });
 
         assertThat(thrown).isNotNull();
@@ -2218,7 +2237,7 @@ public class TestRunQuery extends RasServletTest {
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
 
 		Throwable thrown = catchThrowable( () -> {
-            new RunQueryRoute( new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params,Instant.now());
+            new RunQueryRoute( new ResponseBuilder(), new MockFramework(), env).getQueriedFromTime(params,Instant.now());
         });
 
         assertThat(thrown).isNotNull();
@@ -2232,7 +2251,7 @@ public class TestRunQuery extends RasServletTest {
 		String fromString = fromInstant.toString();
         map.put("from", new String[] {fromString} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework(), env).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNotNull();
         assertThat(checker).isEqualTo(fromInstant);
@@ -2246,7 +2265,7 @@ public class TestRunQuery extends RasServletTest {
         map.put("from", new String[] {fromString} );
 		map.put("runname", new String[] {"runname"} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework(), env).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNotNull();
         assertThat(checker).isEqualTo(fromInstant);
@@ -2257,7 +2276,7 @@ public class TestRunQuery extends RasServletTest {
         Map<String,String[]> map = new HashMap<String,String[]>();
         map.put("runname", new String[] {"runname"} );
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework(), env).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNull();
     }
@@ -2266,7 +2285,7 @@ public class TestRunQuery extends RasServletTest {
     public void testGetDefaultFromInstantIfNoQueryIsPresentNoQueryReturnsValue() throws Exception {
         Map<String,String[]> map = new HashMap<String,String[]>();
         RasQueryParameters params = new RasQueryParameters(new QueryParameters(map));
-        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework()).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
+        Instant checker = new RunQueryRoute(new ResponseBuilder(), new MockFramework(), env).getQueriedFromTime(params, Instant.parse("2023-07-21T06:10:29.640750Z"));
 
 		assertThat(checker).isNotNull();
     }
@@ -2368,17 +2387,17 @@ public class TestRunQuery extends RasServletTest {
 		// Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(1,1,1);
 
-        // Build query parameters
-        int pageSize = 100;
+		// Build query parameters
+		int pageSize = 100;
 		Map<String, String[]> parameterMap = setQueryParameter(null,pageSize,null, null,null, 72, null, null, null);;
-        addQueryParameter(parameterMap, "cursor", "iwantthispage");
+		addQueryParameter(parameterMap, "cursor", "iwantthispage");
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/runs");
 		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockInputRunResults,mockRequest);
-        MockResultArchiveStoreDirectoryService mockRasService = (MockResultArchiveStoreDirectoryService) mockServletEnvironment.getDirectoryService().get(0);
+		MockResultArchiveStoreDirectoryService mockRasService = (MockResultArchiveStoreDirectoryService) mockServletEnvironment.getDirectoryService().get(0);
 
-        String nextCursor = "next-page";
-        mockRasService.setNextCursor(nextCursor);
+		String nextCursor = "next-page";
+		mockRasService.setNextCursor(nextCursor);
 
 		RasServlet servlet = mockServletEnvironment.getServlet();
 		HttpServletRequest req = mockServletEnvironment.getRequest();
@@ -2390,13 +2409,10 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		String payloadGotBack = outStream.toString();
-		// System.out.println("Got back: "+payloadGotBack);
 		String expectedJson = generateExpectedJson(mockInputRunResults, nextCursor, pageSize);
 
-		// System.out.println("Expected: "+expectedJson);
 		assertThat(resp.getStatus()).isEqualTo(200);
-		assertThat(payloadGotBack).isEqualTo(expectedJson);
+		assertThat(outStream.toString()).isEqualTo(expectedJson);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
 	}
 

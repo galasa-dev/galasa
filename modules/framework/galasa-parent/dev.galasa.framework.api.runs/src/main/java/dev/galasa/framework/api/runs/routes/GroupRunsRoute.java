@@ -40,12 +40,14 @@ public class GroupRunsRoute extends GroupRuns{
     protected static final String path = "\\/[a-zA-Z0-9_\\-]*";
     private final GalasaGson gson = new GalasaGson();
     private final String GROUP_RUNS_CANCELLED_STATUS = "cancelled";
+    private final Environment env;
 
     public GroupRunsRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
         // Regex to match endpoints:
 		// -> /runs/{GroupID}
 		//
         super(responseBuilder, path, framework, new SystemTimeService() );
+        this.env = env;
     }
 
     @Override
@@ -60,7 +62,7 @@ public class GroupRunsRoute extends GroupRuns{
 
         List<IRun> runs = getRuns(groupName.substring(1));
         if (runs != null){
-            ScheduleStatus serializedRuns = serializeRuns(runs);
+            ScheduleStatus serializedRuns = serializeRuns(runs, env);
             return getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(serializedRuns), HttpServletResponse.SC_OK);
         }else{
             ServletError error = new ServletError(GAL5019_UNABLE_TO_RETRIEVE_RUNS, groupName);
@@ -82,7 +84,7 @@ public class GroupRunsRoute extends GroupRuns{
 
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
-        ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName.substring(1), requestor);
+        ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName.substring(1), requestor, env);
         return getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(scheduleStatus), HttpServletResponse.SC_CREATED);
     }
 
