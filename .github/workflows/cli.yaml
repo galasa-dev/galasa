@@ -210,18 +210,18 @@ jobs:
           ./test-galasactl-local.sh --buildTool gradle
 
       # Skip testing of Galasa service related commands if the
-      # GALASA_TOKEN_ECOSYSTEM1 secret is not set as the test
-      # script will not be able to authenticate to ecosystem1.
-      - name: Check if secret GALASA_TOKEN_ECOSYSTEM1 exists
+      # GALASA_TOKEN_SERVICE1 secret is not set as the test
+      # script will not be able to authenticate to service1.
+      - name: Check if secret GALASA_TOKEN_SERVICE1 exists
         continue-on-error: true
         env:
-          GALASA_TOKEN_ECOSYSTEM1: ${{ secrets.GALASA_TOKEN_ECOSYSTEM1 }}
+          GALASA_TOKEN_SERVICE1: ${{ secrets.GALASA_TOKEN_SERVICE1 }}
         run: |
-          if [ -z "${GALASA_TOKEN_ECOSYSTEM1}" ] || [ "${GALASA_TOKEN_ECOSYSTEM1}" = "" ]; then
-            echo "GALASA_TOKEN_ECOSYSTEM1 is not set. Skipping tests where the CLI interacts with the Galasa service."
+          if [ -z "${GALASA_TOKEN_SERVICE1}" ] || [ "${GALASA_TOKEN_SERVICE1}" = "" ]; then
+            echo "GALASA_TOKEN_SERVICE1 is not set. Skipping tests where the CLI interacts with the Galasa service."
             exit 1
           else
-            echo "GALASA_TOKEN_ECOSYSTEM1 is set. Proceeding with tests where the CLI interacts with the Galasa service."
+            echo "GALASA_TOKEN_SERVICE1 is set. Proceeding with tests where the CLI interacts with the Galasa service."
           fi
         id: check-galasa-token
 
@@ -229,7 +229,7 @@ jobs:
         if: ${{ steps.check-galasa-token.outcome == 'success' }}
         env:
           GALASA_HOME: /home/runner/galasa
-          GALASA_TOKEN: ${{ secrets.GALASA_TOKEN_ECOSYSTEM1 }}
+          GALASA_TOKEN: ${{ secrets.GALASA_TOKEN_SERVICE1 }}
         run : |
           echo "GALASA_HOME=${{ env.GALASA_HOME }}" >> $GITHUB_ENV
           echo "GALASA_TOKEN=${{ env.GALASA_TOKEN }}" >> $GITHUB_ENV
