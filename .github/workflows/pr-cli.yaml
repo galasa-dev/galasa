@@ -330,7 +330,7 @@ jobs:
         working-directory: ./modules/cli
         run : |
           chmod +x test-galasactl-ecosystem.sh
-          ./test-galasactl-ecosystem.sh --bootstrap https://galasa-ecosystem1.galasa.dev/api/bootstrap
+          ./test-galasactl-ecosystem.sh --bootstrap https://galasa-service1.galasa.dev/api/bootstrap
 
       - name: Build Docker image with galasactl executable
         uses: docker/build-push-action@v5
