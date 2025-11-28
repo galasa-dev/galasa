@@ -24,6 +24,10 @@ import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.IResourceManagement;
 import dev.galasa.framework.spi.streams.IStreamsService;
 
+/**
+ * A factory class that provides methods to create real instances of the dependencies used in
+ * resource management classes.
+ */
 public class ResourceManagementFactory implements IResourceManagementFactory {
 
     private IFrameworkInitialisation frameworkInitialisation;

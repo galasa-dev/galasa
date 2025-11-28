@@ -26,6 +26,9 @@ import dev.galasa.framework.spi.streams.IOBR;
 import dev.galasa.framework.spi.streams.IStream;
 import dev.galasa.framework.spi.streams.IStreamsService;
 
+/**
+ * This class is responsible for loading OSGi bundles used in resource management processes.
+ */
 public class ResourceMonitorBundleLoader implements IResourceMonitorBundleLoader {
 
     private final Log logger = LogFactory.getLog(this.getClass());
@@ -41,7 +44,7 @@ public class ResourceMonitorBundleLoader implements IResourceMonitorBundleLoader
         IStreamsService streamsService,
         RepositoryAdmin repositoryAdmin,
         IMavenRepository mavenRepository
-) {
+    ) {
         this.bundleContext = bundleContext;
         this.streamsService = streamsService;
         this.repositoryAdmin = repositoryAdmin;

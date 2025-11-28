@@ -20,6 +20,11 @@ import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.IResourceManagement;
 import dev.galasa.framework.spi.streams.IStreamsService;
 
+/**
+ * An interface for resource management factories to implement.
+ * This provides methods to create certain dependencies used by resource management
+ * and allows us to inject a mock factory for unit tests.
+ */
 public interface IResourceManagementFactory {
 
     IFrameworkInitialisation getFrameworkInitialisation(Properties bootstrapProperties, Properties overrideProperties) throws FrameworkException;

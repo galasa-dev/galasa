@@ -21,7 +21,7 @@ import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.FrameworkException;
 
 /**
- * An implementation of resource management intended to clean up resources 
+ * An implementation of resource management intended to clean up resources
  * allocated during local runs
  */
 @Component(service = { LocalResourceManagement.class })
@@ -48,10 +48,14 @@ public class LocalResourceManagement extends AbstractResourceManagement {
     }
 
     /**
-     * Run Resource Management locally
-     * @param bootstrapProperties
-     * @param overrideProperties
-     * @throws FrameworkException
+     * Load and run a list of resource management provider classes once.
+     *
+     * @param bootstrapProperties the bootstrap properties to launch the framework
+     * @param overrideProperties  the override properties passed to the framework (optional)
+     * @param stream              the name of a Galasa stream to pull resource monitor bundles from (optional)
+     * @param bundleIncludes      a list of glob patterns representing the resource monitors that should be loaded
+     * @param bundleExcludes      a list of glob patterns representing the resource monitors that should not be loaded
+     * @throws FrameworkException if there was an issue starting or accessing the framework
      */
     public void run(
         Properties bootstrapProperties,
@@ -77,8 +81,6 @@ public class LocalResourceManagement extends AbstractResourceManagement {
                 logger.info("Running resource management providers");
                 this.resourceManagementProviders.runOnce();
             }
-
-            
         } finally {
             shutdown();
             logger.info("Resource Management shutdown is complete.");

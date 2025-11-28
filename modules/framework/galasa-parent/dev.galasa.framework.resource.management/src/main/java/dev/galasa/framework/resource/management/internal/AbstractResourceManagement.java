@@ -26,6 +26,10 @@ import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.IResourceManagement;
 import dev.galasa.framework.spi.streams.IStreamsService;
 
+/**
+ * This is an abstract base class that provides methods that can be commonly
+ * used by classes that implement the IResourceManagement interface.
+ */
 public abstract class AbstractResourceManagement implements IResourceManagement {
 
     private Log logger = LogFactory.getLog(this.getClass());
