@@ -71,6 +71,12 @@ public class SdvResourceManagement implements IResourceManagementProvider {
     }
 
     @Override
+    public void runOnce() {
+        this.sdvUserResourceMonitor.run();
+        this.sdvManagersResourceMonitor.run();
+    }
+
+    @Override
     public void shutdown() {
         // Not required
     }

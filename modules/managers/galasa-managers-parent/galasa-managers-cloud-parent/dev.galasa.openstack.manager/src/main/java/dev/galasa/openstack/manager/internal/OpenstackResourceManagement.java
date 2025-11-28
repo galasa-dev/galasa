@@ -68,6 +68,12 @@ public class OpenstackResourceManagement implements IResourceManagementProvider 
     }
 
     @Override
+    public void runOnce() {
+        this.serverResourceMonitor.run();
+        this.fipResourceMonitor.run();
+    }
+
+    @Override
     public void shutdown() {
     }
 
