@@ -344,6 +344,87 @@ public class FelixFramework {
     }
 
     /**
+     * Run the local Resource Management process
+     * 
+     * @param boostrapProperties  the bootstrap properties
+     * @param overridesProperties the override properties
+     * @param extraBundles a list of extra bundles to load
+     * @param ResourceManagementConfiguration the config containing details on the resource management providers to load
+     * @throws LauncherException if there was an issue launching the resource management process
+     */
+    public void runLocalResourceManagement(
+        Properties boostrapProperties,
+        Properties overridesProperties,
+        List<String> extraBundles,
+        ResourceManagementConfiguration resourceManagementConfig
+    ) throws LauncherException {
+
+        // Get the framework bundle
+        Bundle frameworkBundle = getBundle("dev.galasa.framework");
+
+        if (!extraBundles.isEmpty()) {
+            // *** Load extra bundles
+            for (String bundle : extraBundles) {
+                try {
+                    loadBundle(bundle);
+                } catch (Exception e) {
+                    throw new LauncherException("Failed to load extra bundle " + bundle, e);
+                }
+            }
+        }
+
+        // Load the resource management bundle
+        loadBundle("dev.galasa.framework.resource.management");
+
+        String classString = "dev.galasa.framework.resource.management.internal.LocalResourceManagement";
+        String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
+        ServiceReference<?>[] serviceReferences;
+        try {
+            serviceReferences = frameworkBundle.getBundleContext().getServiceReferences(classString, filterString);
+        } catch (InvalidSyntaxException e) {
+            throw new LauncherException("Unable to get framework service reference", e);
+        }
+        if (serviceReferences == null || serviceReferences.length != 1) {
+            throw new LauncherException("Unable to get single reference to LocalResourceManagement service: "
+                    + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
+        }
+        Object service = frameworkBundle.getBundleContext().getService(serviceReferences[0]);
+        if (service == null) {
+            throw new LauncherException("Unable to get LocalResourceManagement service");
+        }
+
+        // Get the dev.galasa.framework.resource.management.internal.LocalResourceManagement#run(...) method
+        Method runMethod;
+        try {
+            runMethod = service.getClass().getMethod(
+                "run",
+                Properties.class,
+                Properties.class,
+                String.class,
+                List.class,
+                List.class
+            );
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new LauncherException("Unable to get Framework local resource management run method", e);
+        }
+
+        // Invoke the run method
+        logger.debug("Invoking local resource management run()");
+        try {
+            runMethod.invoke(
+                service,
+                boostrapProperties,
+                overridesProperties,
+                resourceManagementConfig.getStream(),
+                resourceManagementConfig.getIncludesGlobPatterns(),
+                resourceManagementConfig.getExcludesGlobPatterns()
+            );
+        } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+            throw new LauncherException(e.getCause());
+        }
+    }
+
+    /**
      * Run the Metrics Server Server
      * 
      * @param boostrapProperties  the bootstrap properties

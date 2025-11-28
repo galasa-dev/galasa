@@ -16,6 +16,7 @@ import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -50,6 +51,10 @@ public class Launcher {
 
     private static final String LOG4J2_PROPERTIES_FILE_OPTION = "log4j2-properties-file";
     private static final String LOG4J2_CONFIGURATION_FILE_PROPERTY_NAME = "log4j2.configurationFile";
+    
+    private static final String LOCAL_RESOURCE_MANAGEMENT_OPTION = "local-resource-management";
+    private static final String INCLUDES_MONITOR_PATTERN_OPTION  = "includes-monitor-pattern";
+    private static final String EXCLUDES_MONITOR_PATTERN_OPTION  = "excludes-monitor-pattern";
 
     private static final String     OBR_OPTION                = "obr";
     private static final String     BOOTSTRAP_OPTION          = "bootstrap";
@@ -101,6 +106,7 @@ public class Launcher {
     private boolean                 isDryRun;
     private boolean                 setupEco;
     private boolean                 validateEco;
+    private boolean                 isLocalResourceManagement;
 
     private Integer                 metrics;
     private Integer                 health;
@@ -109,6 +115,9 @@ public class Launcher {
 
     private URL                     localMavenRepo;
     private List<URL>               remoteMavenRepos          = new ArrayList<>();
+
+    private List<String>            includeMonitorGlobPatterns = new ArrayList<>();
+    private List<String>            excludeMonitorGlobPatterns = new ArrayList<>();
 
     public Environment              env;
 
@@ -181,8 +190,12 @@ public class Launcher {
                 felixFramework.runTest(bootstrapProperties, overridesProperties);
             } else if (isResourceManagement) {
                 logger.debug("Resource Management");
-                ResourceManagementConfiguration resourceManagementConfig = new ResourceManagementConfiguration(env);
+                ResourceManagementConfiguration resourceManagementConfig = new ResourceManagementConfiguration(includeMonitorGlobPatterns, excludeMonitorGlobPatterns, env);
                 felixFramework.runResourceManagement(bootstrapProperties, overridesProperties, bundles, metrics, health, resourceManagementConfig);
+            } else if (isLocalResourceManagement) {
+                logger.debug("Local Resource Management");
+                ResourceManagementConfiguration resourceManagementConfig = new ResourceManagementConfiguration(includeMonitorGlobPatterns, excludeMonitorGlobPatterns, env);
+                felixFramework.runLocalResourceManagement(bootstrapProperties, overridesProperties, bundles, resourceManagementConfig);
             } else if (isK8sController) {
                 logger.debug("Kubernetes Controller");
                 felixFramework.runK8sController(bootstrapProperties, overridesProperties, bundles, metrics, health);
@@ -274,6 +287,17 @@ public class Launcher {
         options.addOption(null, SETUPECO_OPTION, false, "Setup the Galasa Ecosystem");
         options.addOption(null, VALIDATEECO_OPTION, false, "Validate the Galasa Ecosystem");
         options.addOption(null, LOG4J2_PROPERTIES_FILE_OPTION, true, "Optional. Path to a custom log4j2 properties file. Overrides the --trace option.");
+        options.addOption(null, LOCAL_RESOURCE_MANAGEMENT_OPTION, false, "Starts a local resource management process.");
+        options.addOption(null, INCLUDES_MONITOR_PATTERN_OPTION, true, "Optional. Used alongside " + LOCAL_RESOURCE_MANAGEMENT_OPTION + ". " +
+                "A list of Java class glob patterns representing the resource monitors that the framework should load. "+
+                "To use multiple patterns, this flag can be supplied multiple times or by providing a comma-separated list of patterns. "+
+                "If omitted, the resource monitors in the Galasa uber OBR will be loaded."
+        );
+        options.addOption(null, EXCLUDES_MONITOR_PATTERN_OPTION, true, "Optional. Used alongside " + LOCAL_RESOURCE_MANAGEMENT_OPTION + ". " +
+                "A list of Java class glob patterns representing the resource monitors that the framework should not load. "+
+                "To use multiple patterns, this flag can be supplied multiple times or by providing a comma-separated list of patterns. "+
+                "If omitted, no resource monitors will be excluded."
+        );
         
 
         CommandLineParser parser = new DefaultParser();
@@ -313,6 +337,7 @@ public class Launcher {
         checkForHealthPort(commandLine);
         checkForLocalMaven(commandLine);
         checkForRemoteMaven(commandLine);
+        checkForResourceMonitorIncludesAndExcludes(commandLine);
 
         isTestRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION) || commandLine.hasOption(GHERKIN_OPTION);
         isResourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
@@ -323,6 +348,7 @@ public class Launcher {
         isDryRun = commandLine.hasOption(DRY_RUN_OPTION);
         setupEco = commandLine.hasOption(SETUPECO_OPTION);
         validateEco = commandLine.hasOption(VALIDATEECO_OPTION);
+        isLocalResourceManagement = commandLine.hasOption(LOCAL_RESOURCE_MANAGEMENT_OPTION);
 
         if (isTestRun) {
             runName = commandLine.getOptionValue(RUN_OPTION);
@@ -350,7 +376,7 @@ public class Launcher {
             return;
         }
 
-        if (isResourceManagement) {
+        if (isResourceManagement || isLocalResourceManagement) {
             return;
         }
 
@@ -385,6 +411,7 @@ public class Launcher {
                 		+ ", --" + K8SCONTROLLER_OPTION
                 		+ ", --" + METRICSERVER_OPTION
                 		+ ", --" + RESOURCEMANAGEMENT_OPTION
+                		+ ", --" + LOCAL_RESOURCE_MANAGEMENT_OPTION
                 		+ ", --" + BUNDLE_OPTION
                         + ", --" + SETUPECO_OPTION
                         + ", --" + VALIDATEECO_OPTION
@@ -528,6 +555,18 @@ public class Launcher {
         } catch (IOException e) {
             logger.error("Unable to load overrides properties", e);
             commandLineError(null);
+        }
+    }
+
+    private void checkForResourceMonitorIncludesAndExcludes(CommandLine commandLine) {
+        if (commandLine.hasOption(INCLUDES_MONITOR_PATTERN_OPTION)) {
+            String[] includesPatterns = commandLine.getOptionValues(INCLUDES_MONITOR_PATTERN_OPTION);
+            this.includeMonitorGlobPatterns = Arrays.asList(includesPatterns);
+        }
+
+        if (commandLine.hasOption(EXCLUDES_MONITOR_PATTERN_OPTION)) {
+            String[] excludesPatterns = commandLine.getOptionValues(EXCLUDES_MONITOR_PATTERN_OPTION);
+            this.excludeMonitorGlobPatterns = Arrays.asList(excludesPatterns);
         }
     }
 

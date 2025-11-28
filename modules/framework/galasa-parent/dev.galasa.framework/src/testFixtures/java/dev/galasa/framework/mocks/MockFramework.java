@@ -14,6 +14,8 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IResultArchiveStore;
+import dev.galasa.framework.spi.streams.IStreamsService;
+import dev.galasa.framework.spi.streams.StreamsException;
 
 import java.io.File;
 import java.util.Properties;
@@ -28,6 +30,7 @@ public class MockFramework extends Framework {
     private MockDSSStore mockDss;
     private MockCPSStore mockCps;
     private MockRASStoreService mockRas;
+    private MockStreamsService mockStreamsService;
 
     private String runName ;
 
@@ -49,6 +52,11 @@ public class MockFramework extends Framework {
     @Override
     public @NotNull IResultArchiveStore getResultArchiveStore() {
         return this.mockRas;
+    }
+
+    @Override
+    public @NotNull IStreamsService getStreamsService() throws StreamsException {
+        return this.mockStreamsService;
     }
 
     @Override
@@ -76,6 +84,10 @@ public class MockFramework extends Framework {
             dss = super.getDynamicStatusStoreService(namespace);
         }
         return dss;
+    }
+
+    public void setStreamsService(MockStreamsService mockStreamsService) {
+        this.mockStreamsService = mockStreamsService;
     }
 
     public void setMockCps(MockCPSStore mockCps) {

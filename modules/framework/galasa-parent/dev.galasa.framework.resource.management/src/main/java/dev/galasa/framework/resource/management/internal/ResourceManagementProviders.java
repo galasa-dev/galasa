@@ -26,7 +26,7 @@ import dev.galasa.framework.spi.IResourceManagementProvider;
  * 
  * Operations against this list of providers will be passed on to each provider separately.
  */
-public class ResourceManagementProviders {
+public class ResourceManagementProviders implements IResourceManagementProviders {
     
     private Log logger = LogFactory.getLog(this.getClass());
     private List<IResourceManagementProvider> resourceManagementProviders = new ArrayList<IResourceManagementProvider>() ;
@@ -70,6 +70,10 @@ public class ResourceManagementProviders {
         }
     }
 
+    public List<IResourceManagementProvider> getLoadedResourceManagementProviders() {
+        return this.resourceManagementProviders;
+    }
+
     private Set<IResourceManagementProvider> getResourceManagementProviders(
         BundleContext bundleContext,
         ServiceReference<?>[] serviceReferences
@@ -108,6 +112,12 @@ public class ResourceManagementProviders {
     public void start() {
         for (IResourceManagementProvider provider : resourceManagementProviders) {
             provider.start();
+        }
+    }
+
+    public void runOnce() {
+        for (IResourceManagementProvider provider : resourceManagementProviders) {
+            provider.runOnce();
         }
     }
 
