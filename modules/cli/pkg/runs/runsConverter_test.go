@@ -61,8 +61,8 @@ func createRunForConverter(
 	run1 := galasaapi.Run{
 		RunId:         &run1Id,
 		TestStructure: &testStructure,
-		WebUiUrl: &webUiUrl,
-		RestApiUrl: &restApiUrl,
+		WebUiUrl:      &webUiUrl,
+		RestApiUrl:    &restApiUrl,
 	}
 	return run1
 }
