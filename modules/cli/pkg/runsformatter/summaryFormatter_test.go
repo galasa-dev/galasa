@@ -54,7 +54,6 @@ func createFormattableTestForSummary(
 		Lost:          isLost,
 		Tags:          tags,
 		WebUiUrl:      WEB_UI_URL,
-		RestApiUrl:    REST_API_URL,
 	}
 	return formattableTest
 }
@@ -72,8 +71,8 @@ func TestSummaryFormatterLongResultStringReturnsExpectedFormat(t *testing.T) {
 
 	assert.Nil(t, err)
 	expectedFormattedOutput :=
-		"submitted-time(UTC) name requestor status   result             test-name  group tags web-ui-url                                            rest-api-url\n" +
-			"2023-05-04 10:55:29 U456 myUserId1 Finished MyLongResultString MyTestName none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
+		"submitted-time(UTC) name requestor status   result             test-name  group tags web-ui-url\n" +
+			"2023-05-04 10:55:29 U456 myUserId1 Finished MyLongResultString MyTestName none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
 			"Total:1\n"
 	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
@@ -92,8 +91,8 @@ func TestSummaryFormatterShortResultStringReturnsExpectedFormat(t *testing.T) {
 
 	assert.Nil(t, err)
 	expectedFormattedOutput :=
-		"submitted-time(UTC) name requestor status   result test-name  group tags web-ui-url                                            rest-api-url\n" +
-			"2023-05-04 10:55:29 U456 myUserId1 Finished Short  MyTestName none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
+		"submitted-time(UTC) name requestor status   result test-name  group tags web-ui-url\n" +
+			"2023-05-04 10:55:29 U456 myUserId1 Finished Short  MyTestName none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
 			"Total:1\n"
 	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
@@ -113,9 +112,9 @@ func TestSummaryFormatterShortAndLongStatusReturnsExpectedFormat(t *testing.T) {
 
 	assert.Nil(t, err)
 	expectedFormattedOutput :=
-		"submitted-time(UTC) name        requestor status     result             test-name  group tags web-ui-url                                            rest-api-url\n" +
-			"2023-05-04 10:45:29 LongRunName myUserId1 LongStatus Short              TestName   none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 U456        myUserId1 short      MyLongResultString MyTestName none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
+		"submitted-time(UTC) name        requestor status     result             test-name  group tags web-ui-url\n" +
+			"2023-05-04 10:45:29 LongRunName myUserId1 LongStatus Short              TestName   none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 U456        myUserId1 short      MyLongResultString MyTestName none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
 			"Total:2\n"
 	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
@@ -142,16 +141,16 @@ func TestSummaryFormatterWithMultipleRunsPrintsOnlyFinishedRuns(t *testing.T) {
 
 	assert.Nil(t, err)
 	expectedFormattedOutput :=
-		"submitted-time(UTC) name requestor status   result              test-name   group tags web-ui-url                                            rest-api-url\n" +
-			"2023-05-04 10:45:29 U123 myUserId1 Finished Passed              TestName    none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 U456 myUserId2 Finished Failed              MyTestName1 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 U789 myUserId1 Finished EnvFail             MyTestName2 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 L123 myUserId2 UNKNOWN                      MyTestName3 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 L456 myUserId1 Building EnvFail             MyTestName4 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 L789 myUserId2 Finished Passed With Defects MyTestName5 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 C111 myUserId1 Finished Failed              MyTestName6 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 C222 myUserId2 Finished UNKNOWN             MyTestName7 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 C333 myUserId1 Finished Ignored             MyTestName8 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
+		"submitted-time(UTC) name requestor status   result              test-name   group tags web-ui-url\n" +
+			"2023-05-04 10:45:29 U123 myUserId1 Finished Passed              TestName    none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 U456 myUserId2 Finished Failed              MyTestName1 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 U789 myUserId1 Finished EnvFail             MyTestName2 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L123 myUserId2 UNKNOWN                      MyTestName3 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L456 myUserId1 Building EnvFail             MyTestName4 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L789 myUserId2 Finished Passed With Defects MyTestName5 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 C111 myUserId1 Finished Failed              MyTestName6 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 C222 myUserId2 Finished UNKNOWN             MyTestName7 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 C333 myUserId1 Finished Ignored             MyTestName8 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
 			"Total:9 Passed:1 PassedWithDefects:1 Failed:2 EnvFail:2 UNKNOWN:1 Active:1 Ignored:1\n"
 	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
@@ -179,13 +178,13 @@ func TestSummaryFormatterMultipleRunsWithLostRunsDoesNotDisplayLostRunsAndCounts
 
 	assert.Nil(t, err)
 	expectedFormattedOutput :=
-		"submitted-time(UTC) name requestor status   result              test-name   group tags web-ui-url                                            rest-api-url\n" +
-			"2023-05-04 10:45:29 U123 myUserId1 Finished Passed              TestName    none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 L123 myUserId2 UNKNOWN                      MyTestName3 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 L456 myUserId1 Building EnvFail             MyTestName4 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 L789 myUserId2 Finished Passed With Defects MyTestName5 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 C111 myUserId1 Finished Failed              MyTestName6 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 C222 myUserId2 Finished UNKNOWN             MyTestName7 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
+		"submitted-time(UTC) name requestor status   result              test-name   group tags web-ui-url\n" +
+			"2023-05-04 10:45:29 U123 myUserId1 Finished Passed              TestName    none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L123 myUserId2 UNKNOWN                      MyTestName3 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L456 myUserId1 Building EnvFail             MyTestName4 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L789 myUserId2 Finished Passed With Defects MyTestName5 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 C111 myUserId1 Finished Failed              MyTestName6 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 C222 myUserId2 Finished UNKNOWN             MyTestName7 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
 			"Total:9 Passed:1 PassedWithDefects:1 Failed:1 Lost:3 EnvFail:1 UNKNOWN:1 Active:1\n"
 
@@ -214,13 +213,13 @@ func TestSummaryFormatterMultipleRunsWithUnknownStatusOfLostRunsDoesNotDisplayLo
 
 	assert.Nil(t, err)
 	expectedFormattedOutput :=
-		"submitted-time(UTC) name requestor status   result              test-name   group tags web-ui-url                                            rest-api-url\n" +
-			"2023-05-04 10:45:29 U123 myUserId1 Finished Passed              TestName    none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 L123 myUserId2 UNKNOWN                      MyTestName3 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 L456 myUserId1 Building EnvFail             MyTestName4 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 L789 myUserId2 Finished Passed With Defects MyTestName5 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 C111 myUserId1 Finished Failed              MyTestName6 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
-			"2023-05-04 10:55:29 C222 myUserId2 Finished UNKNOWN             MyTestName7 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
+		"submitted-time(UTC) name requestor status   result              test-name   group tags web-ui-url\n" +
+			"2023-05-04 10:45:29 U123 myUserId1 Finished Passed              TestName    none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L123 myUserId2 UNKNOWN                      MyTestName3 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L456 myUserId1 Building EnvFail             MyTestName4 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L789 myUserId2 Finished Passed With Defects MyTestName5 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 C111 myUserId1 Finished Failed              MyTestName6 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 C222 myUserId2 Finished UNKNOWN             MyTestName7 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
 			"Total:10 Passed:1 PassedWithDefects:1 Failed:1 Lost:4 EnvFail:1 UNKNOWN:1 Active:1\n"
 
@@ -241,8 +240,8 @@ func TestSummaryFormatterHasTestWithoutTimeStamps(t *testing.T) {
 
 	assert.Nil(t, err)
 	expectedFormattedOutput :=
-		"submitted-time(UTC) name requestor status   result test-name group tags web-ui-url                                            rest-api-url\n" +
-			"                    U123 myUserId1 Finished Passed TestName  none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
+		"submitted-time(UTC) name requestor status   result test-name group tags web-ui-url\n" +
+			"                    U123 myUserId1 Finished Passed TestName  none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
 			"Total:1 Passed:1\n"
 
@@ -264,8 +263,8 @@ func TestSummaryFormatterHasTestWithTags(t *testing.T) {
 
 	assert.Nil(t, err)
 	expectedFormattedOutput :=
-		"submitted-time(UTC) name requestor status   result test-name group tags web-ui-url                                            rest-api-url\n" +
-			"                    U123 myUserId1 Finished Passed TestName  none  a,b  https://my-api-server.com/test-runs/cdb-ba06e2a6-U123 https://my-api-server.com/api/ras/runs/cdb-ba06e2a6-U123\n" +
+		"submitted-time(UTC) name requestor status   result test-name group tags web-ui-url\n" +
+			"                    U123 myUserId1 Finished Passed TestName  none  a,b  https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
 			"Total:1 Passed:1\n"
 

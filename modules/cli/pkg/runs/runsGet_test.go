@@ -185,8 +185,8 @@ func TestRunsGetOfRunNameWhichExistsProducesExpectedSummary(t *testing.T) {
 		textGotBack := mockConsole.ReadText()
 		assert.Contains(t, textGotBack, runName)
 		want :=
-			"submitted-time(UTC) name requestor   status   result test-name                group      tags web-ui-url                                                                               rest-api-url\n" +
-				"2023-05-10 06:00:13 U456 unitTesting Finished Passed myTestPackage.MyTestName dummyGroup      http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456 http://example.com/api/ras/runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
+			"submitted-time(UTC) name requestor   status   result test-name                group      tags web-ui-url\n" +
+				"2023-05-10 06:00:13 U456 unitTesting Finished Passed myTestPackage.MyTestName dummyGroup      http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
 				"\n" +
 				"Total:1 Passed:1\n"
 		assert.Equal(t, want, textGotBack)
@@ -282,9 +282,9 @@ func TestRunsGetWhereRunNameExistsTwiceProducesTwoRunResultLines(t *testing.T) {
 		textGotBack := mockConsole.ReadText()
 		assert.Contains(t, textGotBack, runName)
 		want :=
-			"submitted-time(UTC) name requestor     status   result           test-name                group      tags            web-ui-url                                                                               rest-api-url\n" +
-				"2023-05-10 06:00:13 U456 unitTesting   Finished Passed           myTestPackage.MyTestName dummyGroup                 http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456 http://example.com/api/ras/runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
-				"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2               anothertag,core http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456 http://example.com/api/ras/runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
+			"submitted-time(UTC) name requestor     status   result           test-name                group      tags            web-ui-url\n" +
+				"2023-05-10 06:00:13 U456 unitTesting   Finished Passed           myTestPackage.MyTestName dummyGroup                 http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
+				"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2               anothertag,core http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
 				"\n" +
 				"Total:2 Passed:1\n"
 		assert.Equal(t, want, textGotBack)
@@ -1812,8 +1812,8 @@ func TestRunsGetWithOneTagSendsRequestWithCorrectTagsQuery(t *testing.T) {
 	textGotBack := mockConsole.ReadText()
 	assert.Contains(t, textGotBack, runName)
 	want :=
-		"submitted-time(UTC) name requestor     status   result           test-name             group tags            web-ui-url                                                                               rest-api-url\n" +
-			"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2       anothertag,core http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456 http://example.com/api/ras/runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
+		"submitted-time(UTC) name requestor     status   result           test-name             group tags            web-ui-url\n" +
+			"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2       anothertag,core http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
 			"\n" +
 			"Total:1\n"
 	assert.Equal(t, want, textGotBack)
@@ -1872,8 +1872,8 @@ func TestRunsGetWithMultipleTagsSendsRequestWithCorrectTagsQuery(t *testing.T) {
 	textGotBack := mockConsole.ReadText()
 	assert.Contains(t, textGotBack, runName)
 	want :=
-		"submitted-time(UTC) name requestor     status   result           test-name             group tags            web-ui-url                                                                               rest-api-url\n" +
-			"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2       anothertag,core http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456 http://example.com/api/ras/runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
+		"submitted-time(UTC) name requestor     status   result           test-name             group tags            web-ui-url\n" +
+			"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2       anothertag,core http://example.com/test-runs/cdb-86a1d914-5b6e-4506-8238-94c333b67d7c-1764068489964-U456\n" +
 			"\n" +
 			"Total:1\n"
 	assert.Equal(t, want, textGotBack)
