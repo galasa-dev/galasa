@@ -107,6 +107,8 @@ func tabulateCoreRunDetails(run FormattableTest) [][]string {
 		{HEADER_GROUP, ": " + run.Group},
 		{HEADER_TAGS, ": " + strings.Join(run.Tags[:], ",")},
 		{HEADER_RUN_LOG, ": " + run.ApiServerUrl + RAS_RUNS_URL + run.RunId + "/runlog"},
+		{HEADER_WEBUI_URL, ": " + run.WebUiUrl},
+		{HEADER_REST_API_URL, ": " + run.RestApiUrl},
 	}
 	return table
 }
