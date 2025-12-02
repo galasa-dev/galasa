@@ -61,10 +61,10 @@ public class RasServlet extends BaseServlet {
 		super.init();
 
 		try {
-			addRoute(new RunDetailsRoute(getResponseBuilder(), framework));
+			addRoute(new RunDetailsRoute(getResponseBuilder(), framework, env));
 			addRoute(new RunLogRoute(getResponseBuilder(), framework));
 			addRoute(new RunArtifactsListRoute(getResponseBuilder(), fileSystem, framework));
-			addRoute(new RunQueryRoute(getResponseBuilder(), framework));
+			addRoute(new RunQueryRoute(getResponseBuilder(), framework, env));
 			addRoute(new RunArtifactsDownloadRoute(getResponseBuilder(), fileSystem, framework));
 			addRoute(new ResultNamesRoute(getResponseBuilder(), framework));
 			addRoute(new RequestorRoute(getResponseBuilder(), framework));

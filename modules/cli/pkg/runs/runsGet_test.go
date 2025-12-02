@@ -50,7 +50,9 @@ const (
 		 "artifacts": [{
 			 "artifactPath": "myPathToArtifact1",
 			 "contentType":	"application/json"
-		 }]
+		 }],
+		 "webUiUrl": "http://example.com/test-runs/xxx876xxx",
+     "restApiUrl": "http://example.com/api/ras/runs/xxx876xxx"
 	 }`
 
 	RUN_U456_v2 = `{
@@ -86,8 +88,10 @@ const (
 		 "artifacts": [{
 			 "artifactPath": "myPathToArtifact1",
 			 "contentType":	"application/json"
-			 }]
-			 }`
+		 }],
+		 "webUiUrl": "http://example.com/test-runs/xxx876xxx",
+     "restApiUrl": "http://example.com/api/ras/runs/xxx876xxx"
+	 }`
 
 	EMPTY_RUNS_RESPONSE = `
 		{
@@ -181,8 +185,8 @@ func TestRunsGetOfRunNameWhichExistsProducesExpectedSummary(t *testing.T) {
 		textGotBack := mockConsole.ReadText()
 		assert.Contains(t, textGotBack, runName)
 		want :=
-			"submitted-time(UTC) name requestor   status   result test-name                group      tags\n" +
-				"2023-05-10 06:00:13 U456 unitTesting Finished Passed myTestPackage.MyTestName dummyGroup \n" +
+			"submitted-time(UTC) name requestor   status   result test-name                group      tags web-ui-url\n" +
+				"2023-05-10 06:00:13 U456 unitTesting Finished Passed myTestPackage.MyTestName dummyGroup      http://example.com/test-runs/xxx876xxx\n" +
 				"\n" +
 				"Total:1 Passed:1\n"
 		assert.Equal(t, want, textGotBack)
@@ -278,9 +282,9 @@ func TestRunsGetWhereRunNameExistsTwiceProducesTwoRunResultLines(t *testing.T) {
 		textGotBack := mockConsole.ReadText()
 		assert.Contains(t, textGotBack, runName)
 		want :=
-			"submitted-time(UTC) name requestor     status   result           test-name                group      tags\n" +
-				"2023-05-10 06:00:13 U456 unitTesting   Finished Passed           myTestPackage.MyTestName dummyGroup \n" +
-				"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2               anothertag,core\n" +
+			"submitted-time(UTC) name requestor     status   result           test-name                group      tags            web-ui-url\n" +
+				"2023-05-10 06:00:13 U456 unitTesting   Finished Passed           myTestPackage.MyTestName dummyGroup                 http://example.com/test-runs/xxx876xxx\n" +
+				"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2               anothertag,core http://example.com/test-runs/xxx876xxx\n" +
 				"\n" +
 				"Total:2 Passed:1\n"
 		assert.Equal(t, want, textGotBack)
@@ -392,6 +396,8 @@ func TestRunsGetOfRunNameWhichExistsProducesExpectedDetails(t *testing.T) {
 				"group               : dummyGroup\n" +
 				"tags                : \n" +
 				"run-log             : " + apiServerUrl + "/ras/runs/xxx876xxx/runlog\n" +
+				"web-ui-url          : http://example.com/test-runs/xxx876xxx\n" +
+				"rest-api-url        : http://example.com/api/ras/runs/xxx876xxx\n" +
 				"\n" +
 				"method           type status result  start-time(UTC)     end-time(UTC)       duration(ms)\n" +
 				"myTestMethodName test Done   Success 2023-05-10 06:00:13 2023-05-10 06:03:11 178628\n" +
@@ -503,7 +509,7 @@ func TestRunsGetOfRunNameWhichExistsProducesExpectedRaw(t *testing.T) {
 	assert.Nil(t, err)
 	textGotBack := mockConsole.ReadText()
 	assert.Contains(t, textGotBack, runName)
-	want := "U456|Finished|Passed|2023-05-10T06:00:13.043037Z|2023-05-10T06:00:36.159003Z|2023-05-10T06:02:53.823338Z|137664|myTestPackage.MyTestName|unitTesting|myBundleId|dummyGroup|" + apiServerUrl + "/ras/runs/xxx876xxx/runlog|\n"
+	want := "U456|Finished|Passed|2023-05-10T06:00:13.043037Z|2023-05-10T06:00:36.159003Z|2023-05-10T06:02:53.823338Z|137664|myTestPackage.MyTestName|unitTesting|myBundleId|dummyGroup|" + apiServerUrl + "/ras/runs/xxx876xxx/runlog||http://example.com/test-runs/xxx876xxx|http://example.com/api/ras/runs/xxx876xxx\n"
 	assert.Equal(t, textGotBack, want)
 }
 
@@ -1661,7 +1667,7 @@ func TestRunsGetWithNextCursorGetsNextPageOfRuns(t *testing.T) {
 	runsReturned := mockConsole.ReadText()
 	assert.Contains(t, runsReturned, runName)
 
-	run := "U456|Finished|Passed|2023-05-10T06:00:13.043037Z|2023-05-10T06:00:36.159003Z|2023-05-10T06:02:53.823338Z|137664|myTestPackage.MyTestName|unitTesting|myBundleId|dummyGroup|" + apiServerUrl + "/ras/runs/xxx876xxx/runlog|\n"
+	run := "U456|Finished|Passed|2023-05-10T06:00:13.043037Z|2023-05-10T06:00:36.159003Z|2023-05-10T06:02:53.823338Z|137664|myTestPackage.MyTestName|unitTesting|myBundleId|dummyGroup|" + apiServerUrl + "/ras/runs/xxx876xxx/runlog||http://example.com/test-runs/xxx876xxx|http://example.com/api/ras/runs/xxx876xxx\n"
 	expectedResults := run + run
 	assert.Equal(t, runsReturned, expectedResults)
 }
@@ -1717,7 +1723,7 @@ func TestRunsGetOfGroupWhichExistsProducesExpectedRaw(t *testing.T) {
 	assert.Nil(t, err)
 	textGotBack := mockConsole.ReadText()
 	assert.Contains(t, textGotBack, runName)
-	want := "U456|Finished|Passed|2023-05-10T06:00:13.043037Z|2023-05-10T06:00:36.159003Z|2023-05-10T06:02:53.823338Z|137664|myTestPackage.MyTestName|unitTesting|myBundleId|dummyGroup|" + apiServerUrl + "/ras/runs/xxx876xxx/runlog|\n"
+	want := "U456|Finished|Passed|2023-05-10T06:00:13.043037Z|2023-05-10T06:00:36.159003Z|2023-05-10T06:02:53.823338Z|137664|myTestPackage.MyTestName|unitTesting|myBundleId|dummyGroup|" + apiServerUrl + "/ras/runs/xxx876xxx/runlog||http://example.com/test-runs/xxx876xxx|http://example.com/api/ras/runs/xxx876xxx\n"
 	assert.Equal(t, textGotBack, want)
 }
 
@@ -1806,8 +1812,8 @@ func TestRunsGetWithOneTagSendsRequestWithCorrectTagsQuery(t *testing.T) {
 	textGotBack := mockConsole.ReadText()
 	assert.Contains(t, textGotBack, runName)
 	want :=
-		"submitted-time(UTC) name requestor     status   result           test-name             group tags\n" +
-			"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2       anothertag,core\n" +
+		"submitted-time(UTC) name requestor     status   result           test-name             group tags            web-ui-url\n" +
+			"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2       anothertag,core http://example.com/test-runs/xxx876xxx\n" +
 			"\n" +
 			"Total:1\n"
 	assert.Equal(t, want, textGotBack)
@@ -1866,8 +1872,8 @@ func TestRunsGetWithMultipleTagsSendsRequestWithCorrectTagsQuery(t *testing.T) {
 	textGotBack := mockConsole.ReadText()
 	assert.Contains(t, textGotBack, runName)
 	want :=
-		"submitted-time(UTC) name requestor     status   result           test-name             group tags\n" +
-			"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2       anothertag,core\n" +
+		"submitted-time(UTC) name requestor     status   result           test-name             group tags            web-ui-url\n" +
+			"2023-05-10 06:00:13 U456 unitTesting22 Finished LongResultString myTestPackage.MyTest2       anothertag,core http://example.com/test-runs/xxx876xxx\n" +
 			"\n" +
 			"Total:1\n"
 	assert.Equal(t, want, textGotBack)

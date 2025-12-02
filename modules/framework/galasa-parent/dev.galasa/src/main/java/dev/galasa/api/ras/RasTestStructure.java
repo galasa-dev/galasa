@@ -158,5 +158,4 @@ public class RasTestStructure {
    public void setTags(Set<String> newTags) {
       this.tags = newTags;
    }
-   
 }

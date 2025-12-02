@@ -43,6 +43,8 @@ func createRunForConverter(
 	bundle := ""
 	startTime := ""
 	endTime := ""
+	webUiUrl := ""
+	restApiUrl := ""
 
 	testStructure := galasaapi.TestStructure{
 		RunName:   &runName,
@@ -59,6 +61,8 @@ func createRunForConverter(
 	run1 := galasaapi.Run{
 		RunId:         &run1Id,
 		TestStructure: &testStructure,
+		WebUiUrl:      &webUiUrl,
+		RestApiUrl:    &restApiUrl,
 	}
 	return run1
 }
