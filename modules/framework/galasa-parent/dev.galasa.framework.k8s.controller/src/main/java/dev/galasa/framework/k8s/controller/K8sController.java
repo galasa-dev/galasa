@@ -21,6 +21,8 @@ import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesApiClient;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.k8s.controller.interruptedruns.RunInterruptHandler;
+import dev.galasa.framework.k8s.controller.scheduling.IPrioritySchedulingService;
+import dev.galasa.framework.k8s.controller.scheduling.PrioritySchedulingService;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.FrameworkException;
@@ -219,7 +221,9 @@ public class K8sController {
         runCleanup = new RunPodCleanup(kubeEngineFacade, frameworkRuns);
         schedulePodCleanup();
 
-        podScheduler = new TestPodScheduler(env, dss, cps, settings, kubeEngineFacade, frameworkRuns, timeService);
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(frameworkRuns, cps, timeService);
+
+        podScheduler = new TestPodScheduler(env, dss, cps, settings, kubeEngineFacade, timeService, prioritySchedulingService);
         schedulePoll();
      
         RunInterruptHandler interruptedRunHandler = new RunInterruptHandler(kubeEngineFacade, frameworkRuns, settings, timeService, ras);

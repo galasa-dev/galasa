@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,8 @@ import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.k8s.controller.mocks.MockISettings;
 import dev.galasa.framework.k8s.controller.mocks.MockKubernetesApiClient;
+import dev.galasa.framework.k8s.controller.scheduling.IPrioritySchedulingService;
+import dev.galasa.framework.k8s.controller.scheduling.PrioritySchedulingService;
 import dev.galasa.framework.mocks.MockCPSStore;
 import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
@@ -202,7 +205,11 @@ public class TestPodSchedulerTest {
         String galasaServiceInstallName = "myGalasaService";
         KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));;
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -235,7 +242,11 @@ public class TestPodSchedulerTest {
         String galasaServiceInstallName = "myGalasaService";
         KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -273,7 +284,11 @@ public class TestPodSchedulerTest {
         String galasaServiceInstallName = "myGalasaService";
         KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -311,7 +326,11 @@ public class TestPodSchedulerTest {
         String galasaServiceInstallName = "myGalasaService";
         KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -348,7 +367,11 @@ public class TestPodSchedulerTest {
         String galasaServiceInstallName = "myGalasaService";
         KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -387,7 +410,11 @@ public class TestPodSchedulerTest {
         String galasaServiceInstallName = "myGalasaService";
         KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
 
         // When...
         ArrayList<String> args = podScheduler.createCommandLineArgs(settings, "myRunName", TRACE_IS_ENABLED);
@@ -441,7 +468,11 @@ public class TestPodSchedulerTest {
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
     
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.startPod(run);
@@ -477,7 +508,11 @@ public class TestPodSchedulerTest {
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.startPod(run);
@@ -519,7 +554,11 @@ public class TestPodSchedulerTest {
         settings.maxTestPodRetriesLimit = 5;
         MockCPSStore mockCPS = new MockCPSStore(null);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.startPod(run);
@@ -560,7 +599,11 @@ public class TestPodSchedulerTest {
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
     
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.run();
@@ -600,9 +643,13 @@ public class TestPodSchedulerTest {
         KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
 
         MockISettings settings = new MockISettings();
-        MockCPSStore mockCPS = new MockCPSStore(null);
+        MockCPSStore mockCPS = new MockCPSStore(new HashMap<>());
     
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.run();
@@ -649,7 +696,11 @@ public class TestPodSchedulerTest {
         MockISettings settings = new MockISettings();
         MockCPSStore mockCPS = new MockCPSStore(null);
     
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockFrameworkRuns, new MockTimeService(Instant.now()));
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.run();
@@ -682,7 +733,11 @@ public class TestPodSchedulerTest {
         String galasaServiceInstallName = "myGalasaService";
         KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockFrameworkRuns, new MockTimeService(Instant.now()));;
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
