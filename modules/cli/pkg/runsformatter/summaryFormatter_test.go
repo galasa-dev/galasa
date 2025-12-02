@@ -15,7 +15,6 @@ const (
 	EXAMPLE_URL  = "https://my-api-server.com/"
 	RUN_ID       = "cdb-ba06e2a6-U123"
 	WEB_UI_URL   = EXAMPLE_URL + "test-runs/" + RUN_ID
-	REST_API_URL = EXAMPLE_URL + "api/ras/runs/" + RUN_ID
 )
 
 func TestSummaryFormatterNoDataReturnsTotalCountAllZeros(t *testing.T) {
