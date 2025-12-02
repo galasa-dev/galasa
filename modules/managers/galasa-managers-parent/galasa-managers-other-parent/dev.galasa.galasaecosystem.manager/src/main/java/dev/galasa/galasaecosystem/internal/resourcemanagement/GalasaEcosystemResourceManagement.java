@@ -66,6 +66,12 @@ public class GalasaEcosystemResourceManagement implements IResourceManagementPro
 	}
 
 	@Override
+	public void runOnce() {
+		this.runResourceMonitor.run();
+		this.runIdPrefixMonitor.run();
+	}
+
+	@Override
 	public void shutdown() {
 	}
 
