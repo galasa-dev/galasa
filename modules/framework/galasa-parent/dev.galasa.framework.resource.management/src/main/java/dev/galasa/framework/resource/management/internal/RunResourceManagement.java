@@ -27,6 +27,11 @@ public class RunResourceManagement implements IResourceManagementProvider {
     private IResourceManagement                resourceManagement;
     private IDynamicStatusStoreService         dss;
     private IConfigurationPropertyStoreService cps;
+    private RunDeadHeartbeatMonitor            deadHeartbeatMonitor;
+    private RunExpiredSharedEnvironment        runExpiredSharedEnvironment;
+    private RunFinishedRuns                    runFinishedRuns;
+    private RunInactiveRunCleanup              runInactiveRunCleanup;
+    private RunWaitingRuns                     runWaitingRuns;
 
     @Override
     public boolean initialise(IFramework framework, IResourceManagement resourceManagement)
@@ -40,47 +45,99 @@ public class RunResourceManagement implements IResourceManagementProvider {
             throw new ResourceManagerException("Unable to initialise Active Run resource monitor", e);
         }
 
+        try {
+            this.deadHeartbeatMonitor = new RunDeadHeartbeatMonitor(this.framework, this.resourceManagement, this.dss, this, cps);
+        } catch (FrameworkException e) {
+            logger.error("Unable to initialise Run Dead Heartbeat monitor", e);
+        }
+
+        try {
+            this.runExpiredSharedEnvironment = new RunExpiredSharedEnvironment(this.framework, this.resourceManagement, this.dss, this, cps);
+        } catch (FrameworkException e) {
+            logger.error("Unable to initialise Run expired shared environment monitor", e);
+        }
+
+        try {
+            this.runFinishedRuns = new RunFinishedRuns(this.framework, this.resourceManagement, this.dss, this, cps);
+        } catch (FrameworkException e) {
+            logger.error("Unable to initialise Finished Run monitor", e);
+        }
+
+        try {
+            this.runInactiveRunCleanup = new RunInactiveRunCleanup(this.framework.getFrameworkRuns(), this.resourceManagement,
+                new SystemTimeService(), cps);
+        } catch (FrameworkException e) {
+            logger.error("Unable to initialise inactive run monitor", e);
+        }
+
+        try {
+            this.runWaitingRuns = new RunWaitingRuns(this.framework, this.resourceManagement, this.dss, this, cps);
+        } catch (FrameworkException e) {
+            logger.error("Unable to initialise waiting run monitor", e);
+        }
+
         return true;
     }
 
     @Override
     public void start() {
+        if (this.deadHeartbeatMonitor != null) {
+            this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
+                    this.deadHeartbeatMonitor,
+                    this.framework.getRandom().nextInt(20), 20, TimeUnit.SECONDS);
+        }
 
-        try {
+        if (this.runExpiredSharedEnvironment != null) {
             this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
-                    new RunDeadHeartbeatMonitor(this.framework, this.resourceManagement, this.dss, this, cps),
-                    this.framework.getRandom().nextInt(20), 20, TimeUnit.SECONDS);
-        } catch (FrameworkException e) {
-            logger.error("Unable to initialise Run Dead Heartbeat monitor", e);
-        }
-        try {
-            this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
-                    new RunExpiredSharedEnvironment(this.framework, this.resourceManagement, this.dss, this, cps),
+                    runExpiredSharedEnvironment,
                     this.framework.getRandom().nextInt(1), 5, TimeUnit.MINUTES);
-        } catch (FrameworkException e) {
-            logger.error("Unable to initialise Run Dead Heartbeat monitor", e);
         }
-        try {
+
+        if (this.runFinishedRuns != null) {
             this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
-                    new RunFinishedRuns(this.framework, this.resourceManagement, this.dss, this, cps),
+                    this.runFinishedRuns,
                     this.framework.getRandom().nextInt(20), 20, TimeUnit.SECONDS);
-        } catch (FrameworkException e) {
-            logger.error("Unable to initialise Finished Run monitor", e);
         }
-        try {
+
+        if (this.runInactiveRunCleanup != null) {
             this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
-                    new RunInactiveRunCleanup(this.framework.getFrameworkRuns(), this.resourceManagement,
-                    new SystemTimeService(), cps),
+                    this.runInactiveRunCleanup,
                     this.framework.getRandom().nextInt(20), 5, TimeUnit.MINUTES);
-        } catch (FrameworkException e) {
-            logger.error("Unable to initialise Finished Run monitor", e);
         }
-        try {
+
+        if (this.runWaitingRuns != null) {
             this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
-                    new RunWaitingRuns(this.framework, this.resourceManagement, this.dss, this, cps),
+                    this.runWaitingRuns,
                     this.framework.getRandom().nextInt(20), 20, TimeUnit.SECONDS);
-        } catch (FrameworkException e) {
-            logger.error("Unable to initialise Finished Run monitor", e);
+        }
+    }
+
+    @Override
+    public void runOnce() {
+        if (this.deadHeartbeatMonitor != null) {
+            this.deadHeartbeatMonitor.run();
+        }
+
+        if (this.runExpiredSharedEnvironment != null) {
+            this.runExpiredSharedEnvironment.run();
+        }
+
+        if (this.runFinishedRuns != null) {
+            this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
+                    this.runFinishedRuns,
+                    this.framework.getRandom().nextInt(20), 20, TimeUnit.SECONDS);
+        }
+
+        if (this.runInactiveRunCleanup != null) {
+            this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
+                    this.runInactiveRunCleanup,
+                    this.framework.getRandom().nextInt(20), 5, TimeUnit.MINUTES);
+        }
+
+        if (this.runWaitingRuns != null) {
+            this.resourceManagement.getScheduledExecutorService().scheduleWithFixedDelay(
+                    this.runWaitingRuns,
+                    this.framework.getRandom().nextInt(20), 20, TimeUnit.SECONDS);
         }
     }
 

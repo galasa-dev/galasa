@@ -61,6 +61,11 @@ public class CoreResourceManagement implements IResourceManagementProvider {
     }
 
     @Override
+    public void runOnce() {
+        this.slotResourceManagement.run();
+    }
+
+    @Override
     public void shutdown() {
     }
 

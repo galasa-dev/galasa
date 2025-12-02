@@ -55,6 +55,12 @@ public class LinuxResourceManagement implements IResourceManagementProvider {
     }
 
     @Override
+    public void runOnce() {
+        this.usernameResourceManagement.run();
+        this.slotResourceManagement.run();
+    }
+
+    @Override
     public void shutdown() {
     }
 
