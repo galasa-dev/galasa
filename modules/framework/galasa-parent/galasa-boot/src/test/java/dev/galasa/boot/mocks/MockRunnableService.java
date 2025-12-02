@@ -14,5 +14,15 @@ import java.util.Properties;
  */
 public class MockRunnableService {
     
+    // run method used to invoke the API server startup
     public void run(Properties bootstrapProperties, Properties overrideProperties, List<String> extraBundles) {}
+
+    // run method used to invoke resource management
+    public void run(
+        Properties bootstrapProperties,
+        Properties overrideProperties,
+        String stream,
+        List<String> includesGlobPatterns,
+        List<String> excludesGlobPatterns
+    ) {}
 }

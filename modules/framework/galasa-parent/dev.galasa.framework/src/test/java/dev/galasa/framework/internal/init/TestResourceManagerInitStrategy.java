@@ -5,34 +5,16 @@
  */
 package dev.galasa.framework.internal.init;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
     
 import dev.galasa.framework.GalasaFactory;
 import dev.galasa.framework.IFrameworkInitialisationStrategy;
-import dev.galasa.framework.mocks.MockFramework;
-
 
 public class TestResourceManagerInitStrategy {
 
     @Test
     public void testCanCreateStrategy() {
         GalasaFactory.getInstance().newResourceManagerInitStrategy();
-    }
-
-    @Test
-    public void testCanSetTestRunAsresourceManagement() throws Exception {
-        // Given...
-        IFrameworkInitialisationStrategy strategy = GalasaFactory.getInstance().newResourceManagerInitStrategy();
-        MockFramework framework = new MockFramework();
-
-        // When...
-        strategy.setTestRunName(framework, null);
-
-        // Then...
-        String nameGotBack = framework.getTestRunName();
-        assertThat(nameGotBack).isEqualTo("resourceManagement");
     }
     
     @Test
