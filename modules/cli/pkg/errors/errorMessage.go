@@ -458,6 +458,9 @@ var (
 	GALASA_ERROR_UPDATE_MONITOR_SERVER_REPORTED_ERROR    = NewMessageType("GAL1231E: Failed to update a monitor named '%s'. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1231, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_UPDATE_MONITOR_EXPLANATION_NOT_JSON     = NewMessageType("GAL1232E: Failed to update a monitor named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1232, STACK_TRACE_NOT_WANTED)
 
+	// Runs cleanup local errors
+	GALASA_ERROR_INVALID_GLOB_PATTERN_PROVIDED = NewMessageType("GAL1248E: Unsupported glob pattern character provided. Only alphanumeric (A-Z, a-z, 0-9), '.', '?', and '*' characters can be provided in the '--includes-pattern' and '--excludes-pattern' flags.", 1248, STACK_TRACE_NOT_WANTED)
+
 	// Warnings...
 	GALASA_WARNING_MAVEN_NO_GALASA_OBR_REPO = NewMessageType("GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '%s', and 'pre-release' repository is '%s'", 2000, STACK_TRACE_WANTED)
 
