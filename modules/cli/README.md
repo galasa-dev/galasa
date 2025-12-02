@@ -457,6 +457,35 @@ The run "C1234" can be cancelled using the following command:
 galasactl runs cancel --name C1234
 ```
 
+## runs cleanup local
+
+This command can be used to run a set of resource managment providers within a local JVM to clean up resources that may have been provisioned by local test runs and were not cleaned up properly as part of the test runs' lifecycles. This could be because the test runs' JVM processes exited before the provisioned resources could be discarded.
+
+The `--obr` flag can be supplied multiple times to load additional OBRs that contain resource management provider services that you would like to run. Likewise, the `--remoteMaven` flag can also be supplied multiple times to specify the remote Maven repositories where Galasa can download the provided OBRs from.
+
+To select which resource management providers to run, you can supply a glob pattern to the `--includes-pattern` flag to tell Galasa which providers should be executed. To exclude certain resource management providers, you can supply a glob pattern to the `--excludes-pattern` flag. The `--includes-pattern` and `--excludes-pattern` flags can be supplied multiple times if you wish to supply multiple glob patterns.
+
+The following special characters can be provided within the supplied glob patterns:
+
+- `*` (wildcard) Matches zero or more characters
+- `?` matches exactly one character
+
+For example, the pattern `dev.galasa*` will match any resource management provider that includes `dev.galasa` as its prefix, so a class like `dev.galasa.core.CoreResourceMonitorClass` will be matched.
+
+A pattern like `*MyResourceMonitorClass` will match any resource management provider that ends with `MyResourceMonitorClass`, such as `my.company.monitors.MyResourceMonitorClass`.
+
+The `runs cleanup local` command also supports a set of debug flags, like `--debug` and `--debugPort`, to launch the resource cleanup JVM process in 'debug mode'. This works in the same way as the debugger support for the `runs submit local` command. See [Debugging a single test which runs in the local JVM](#debugging-a-single-test-which-runs-in-the-local-jvm).
+
+A complete list of supported parameters for the `runs cleanup local` command is available [here](./docs/generated/galasactl_runs_cleanup_local.md)
+
+### Examples
+
+The following command provides an OBR `my.company.group/my.company.group.obr/0.0.1/obr` to load resource management provider bundles from and an extra remote Maven repository `https://my-company/maven-repo` where the OBR can be downloaded from. The command then supplies an includes pattern which will match any Java classes that start with `my.company.` in their fully qualified class names and an excludes pattern to exclude any classes that end with `MyUnwantedCleanupProviderClass`:
+
+```
+galasactl runs cleanup local --obr my.company.group/my.company.group.obr/0.0.1/obr --remoteMaven https://my-company/maven-repo --includes-pattern "my.company.*" --excludes-pattern "*MyUnwantedCleanupProviderClass" --log -
+```
+
 ## monitors set
 
 This command can be used to update a monitor in the Galasa service. The name of the monitor to be enabled must be provided using the `--name` flag.
