@@ -19,14 +19,7 @@ import (
 
 // A local test which gets run.
 type LocalTest struct {
-	process Process
-	stdout  *JVMOutputProcessor
-	stderr  *bytes.Buffer
-
-	// A go channel. Anything waiting for the test to complete will wait on
-	// this channel. When the test completes, a string message is placed
-	// on this channel to wake up any waiting threads.
-	reportingChannel chan string
+	LocalGalasaBootProcess
 
 	// What runId is this test using ?
 	// We don't initially know it. This info is extracted from the JVM trace.
@@ -42,15 +35,9 @@ type LocalTest struct {
 	// So the reporting code can all be re-used to summarise the results.
 	testRun *galasaapi.TestRun
 
-	// A time service. When a significant event occurs, we interrupt it.
-	mainPollLoopSleeper spi.TimedSleeper
-
 	// The file system the local test deposits results onto.
 	// We use this to read the results back to find out if it passed/failed. ...etc.
 	fileSystem spi.FileSystem
-
-	// Something which can create new processes in the operating system
-	processFactory ProcessFactory
 }
 
 // A structure which tells us all we know about a JVM process we launched.
@@ -198,11 +185,8 @@ func (localTest *LocalTest) waitForCompletion() error {
 	localTest.updateTestStatusFromRasFile()
 
 	// Tell any polling thread that the JVM is complete now.
-	localTest.reportingChannel <- "DONE"
-	close(localTest.reportingChannel)
-
 	msg := fmt.Sprintf("Test run %s completed.", localTest.runId)
-	localTest.mainPollLoopSleeper.Interrupt(msg)
+	notifyComplete(msg, localTest.reportingChannel, localTest.mainPollLoopSleeper)
 
 	return err
 }
@@ -245,17 +229,7 @@ func (localTest *LocalTest) isCompleted() bool {
 
 		// The JVM may not be finished. So check the channel where the output monitor tells us
 		// when the JVM is shutting down.
-		select {
-		case msg := <-localTest.reportingChannel:
-			log.Printf("Message received from JVM launch thread: %s\n", msg)
-			if msg == "DONE" || msg == "" {
-				isComplete = true
-			}
-
-		default:
-			// log.Printf("No message received from JVM launch thread. Would block. JVM is not finished.")
-			isComplete = false
-		}
+		isComplete = isJvmCompleted(localTest.reportingChannel)
 
 		localTest.updateTestStatusFromRasFile()
 		if localTest.testRun != nil && localTest.testRun.GetStatus() == "finished" {

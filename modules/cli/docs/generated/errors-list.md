@@ -247,6 +247,7 @@ The `galasactl` tool can generate the following errors:
 - GAL1245E: Failed to delete stream {}. Unexpected http status code {} received from the server. Error details from the server are: '{}'
 - GAL1246E: Failed to delete stream {}. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
 - GAL1247E: Error cancelling runs with group name '{}'. Reason: '{}'
+- GAL1248E: Unsupported glob pattern character provided. Only alphanumeric (A-Z, a-z, 0-9), '.', '?', and '*' characters can be provided in the '--includes-pattern' and '--excludes-pattern' flags.
 - GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'
 - GAL2501I: Downloaded {} artifacts to folder '{}'
 
