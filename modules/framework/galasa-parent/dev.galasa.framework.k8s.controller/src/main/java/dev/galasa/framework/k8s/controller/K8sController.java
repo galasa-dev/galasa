@@ -223,7 +223,7 @@ public class K8sController {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(frameworkRuns, cps, timeService);
 
-        podScheduler = new TestPodScheduler(env, dss, cps, settings, kubeEngineFacade, timeService, prioritySchedulingService);
+        podScheduler = new TestPodScheduler(env, dss, settings, kubeEngineFacade, timeService, prioritySchedulingService);
         schedulePoll();
      
         RunInterruptHandler interruptedRunHandler = new RunInterruptHandler(kubeEngineFacade, frameworkRuns, settings, timeService, ras);

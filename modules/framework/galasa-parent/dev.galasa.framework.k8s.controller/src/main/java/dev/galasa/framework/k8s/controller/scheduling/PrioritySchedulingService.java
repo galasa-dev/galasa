@@ -33,7 +33,13 @@ import dev.galasa.framework.spi.utils.ITimeService;
  */
 public class PrioritySchedulingService implements IPrioritySchedulingService {
 
-    private static final long DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN = 1;
+    public static final long DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN = 1;
+
+    private static final String RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_PREFIX = "runs.priority";
+    private static final String RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_SUFFIX = "growth.rate.per.min";
+    private static final String RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_KEY =
+        "framework." + RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_PREFIX + "." + RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_SUFFIX;
+
     private final Log logger = LogFactory.getLog(getClass());
 
     private IFrameworkRuns frameworkRuns;
@@ -70,7 +76,7 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         return queuedRuns;
     }
 
-    private long getQueuedRunPriority(IRun run) {
+    long getQueuedRunPriority(IRun run) {
         Instant queuedTime = run.getQueued();
         long priorityGrowthRatePerMin = getPriorityGrowthRatePerMin();
         Instant currentTime = timeService.now();
@@ -83,12 +89,14 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         long priorityGrowthRatePerMin = DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN;
 
         try {
-            String priorityGrowthRateStr = cps.getProperty("runs.priority.points", "growth.per.min");
+            String priorityGrowthRateStr = cps.getProperty(RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_PREFIX, RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_SUFFIX);
             if (priorityGrowthRateStr != null && !priorityGrowthRateStr.isBlank()) {
                 priorityGrowthRatePerMin = Long.parseLong(priorityGrowthRateStr);
+            } else {
+                logger.info(RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_KEY + " CPS property is not set or is empty, using default: " + DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
             }
         } catch (Exception e) {
-            logger.info("Could not get framework.test.runs.priority.growth.rate.per.min CPS property, using default: " + DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
+            logger.info("Could not get CPS property " + RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_KEY + ", using default: " + DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
         }
         return priorityGrowthRatePerMin;
     }

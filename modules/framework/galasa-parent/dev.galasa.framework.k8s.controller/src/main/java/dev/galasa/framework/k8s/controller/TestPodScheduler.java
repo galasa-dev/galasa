@@ -19,7 +19,6 @@ import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
 import dev.galasa.framework.k8s.controller.scheduling.IPrioritySchedulingService;
 import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.Environment;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SystemEnvironment;
@@ -84,7 +83,6 @@ public class TestPodScheduler implements Runnable {
     public TestPodScheduler( 
         Environment env, 
         IDynamicStatusStoreService dss, 
-        IConfigurationPropertyStoreService cps, 
         ISettings settings, 
         KubernetesEngineFacade kubeEngineFacade,
         ITimeService timeService,

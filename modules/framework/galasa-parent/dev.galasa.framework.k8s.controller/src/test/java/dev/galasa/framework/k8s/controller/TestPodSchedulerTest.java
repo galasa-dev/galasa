@@ -209,7 +209,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -246,7 +246,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -288,7 +288,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -330,7 +330,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -371,7 +371,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
@@ -414,7 +414,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
         // When...
         ArrayList<String> args = podScheduler.createCommandLineArgs(settings, "myRunName", TRACE_IS_ENABLED);
@@ -472,7 +472,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.startPod(run);
@@ -512,7 +512,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.startPod(run);
@@ -558,7 +558,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.startPod(run);
@@ -603,7 +603,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.run();
@@ -649,7 +649,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.run();
@@ -700,7 +700,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
         // When...
         podScheduler.run();
@@ -737,7 +737,7 @@ public class TestPodSchedulerTest {
 
         IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
 
-        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, mockCPS, settings, facade, mockTimeService, prioritySchedulingService);
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
         String runName = "run1";
         String podName = settings.getEngineLabel() + "-" + runName;
