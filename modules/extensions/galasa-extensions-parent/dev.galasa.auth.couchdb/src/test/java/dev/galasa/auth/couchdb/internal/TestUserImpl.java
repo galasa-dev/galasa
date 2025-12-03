@@ -97,6 +97,7 @@ public class TestUserImpl {
         private String userNumber;
         private String loginId;
         private String roleId;
+        private int priority;
 
         private List<IFrontEndClient> clients;
 
@@ -146,6 +147,15 @@ public class TestUserImpl {
             this.roleId = newRoleId ;
         }
 
+        @Override
+        public int getPriority() {
+            return this.priority;
+        }
+
+        @Override
+        public void setPriority(int newPriority) {
+            this.priority = newPriority;
+        }
     }
 
     @Test
