@@ -61,6 +61,43 @@ public class PrioritySchedulingServiceTest {
     }
 
     @Test
+    public void testRunsWithinTheSameMinuteAreOrderedCorrectly() throws Exception {
+        // Given...
+        Instant now = Instant.now();
+        List<IRun> runs = new ArrayList<>();
+        MockRun oldRun1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        oldRun1.setQueued(now.minusSeconds(30));
+        oldRun1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+
+        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        oldRun2.setQueued(now.minusSeconds(29));
+        oldRun2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+
+        MockRun newRun = new MockRun(null, null, "run3", null, null, null, null, false);
+        newRun.setQueued(now);
+        newRun.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+
+        runs.add(newRun);
+        runs.add(oldRun1);
+        runs.add(oldRun2);
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(runs);
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockTimeService mockTimeService = new MockTimeService(now);
+
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockTimeService);
+
+        // When...
+        List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
+
+        // Then...
+        assertThat(runsGotBack).hasSize(3);
+        assertThat(runsGotBack.get(0)).isEqualTo(oldRun1);
+        assertThat(runsGotBack.get(1)).isEqualTo(oldRun2);
+        assertThat(runsGotBack.get(2)).isEqualTo(newRun);
+    }
+
+    @Test
     public void testRunsIncreaseInPriorityUsingGrowthRateCPSProperty() throws Exception {
         // Given...
         Instant now = Instant.now();
