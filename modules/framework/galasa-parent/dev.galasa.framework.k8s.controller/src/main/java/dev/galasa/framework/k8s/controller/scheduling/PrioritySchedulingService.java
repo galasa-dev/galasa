@@ -97,10 +97,10 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
             if (priorityGrowthRateStr != null && !priorityGrowthRateStr.isBlank()) {
                 priorityGrowthRatePerMin = Double.parseDouble(priorityGrowthRateStr);
             } else {
-                logger.info(RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_KEY + " CPS property is not set or is empty, using default: " + DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
+                logger.trace(RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_KEY + " CPS property is not set or is empty, using default: " + DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
             }
         } catch (Exception e) {
-            logger.info("Could not get CPS property " + RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_KEY + ", using default: " + DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
+            logger.trace("Could not get CPS property " + RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_KEY + ", using default: " + DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
         }
         return priorityGrowthRatePerMin;
     }
