@@ -81,6 +81,11 @@ public class FpfDynamicStatusStore implements IDynamicStatusStore {
     }
 
     @Override
+    public void put(@NotNull Map<String, String> keyValues, @NotNull long timeToLiveSecs) throws DynamicStatusStoreException {
+        throw new UnsupportedOperationException("Creating entries that expire for a file-based DSS is not supported");
+    }
+
+    @Override
     public void put(@NotNull String key, @NotNull String value, @NotNull long timeToLiveSecs)
             throws DynamicStatusStoreException {
         throw new UnsupportedOperationException("Creating entries that expire for a file-based DSS is not supported");

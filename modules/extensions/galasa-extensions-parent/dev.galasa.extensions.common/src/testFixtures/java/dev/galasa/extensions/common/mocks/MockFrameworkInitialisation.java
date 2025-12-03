@@ -7,17 +7,20 @@ package dev.galasa.extensions.common.mocks;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.logging.Log;
+
 import dev.galasa.framework.spi.CertificateStoreException;
 import dev.galasa.framework.spi.ConfidentialTextException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.EventsException;
-import dev.galasa.framework.spi.IApiServerInitialisation;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.ICertificateStoreService;
 import dev.galasa.framework.spi.IConfidentialTextService;
 import dev.galasa.framework.spi.IConfigurationPropertyStore;
 import dev.galasa.framework.spi.IDynamicStatusStore;
 import dev.galasa.framework.spi.IEventsService;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.IResultArchiveStoreService;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.auth.IAuthStore;
@@ -28,7 +31,7 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
 import java.net.URI;
 import java.util.*;
 
-public class MockFrameworkInitialisation implements IApiServerInitialisation {
+public class MockFrameworkInitialisation implements IFrameworkInitialisation {
     
     protected URI authStoreUri;
     protected URI cpsBootstrapUri;
@@ -131,5 +134,10 @@ public class MockFrameworkInitialisation implements IApiServerInitialisation {
 
     public List<IEventsService> getRegisteredEventsServices() {
         return registeredEventsServices;
+    }
+
+    @Override
+    public void initialiseAuthStore(Log logger, Properties overrideProperties) throws FrameworkException {
+        throw new UnsupportedOperationException("Unimplemented method 'initialiseAuthStore'");
     }
 }

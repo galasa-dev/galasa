@@ -18,6 +18,8 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
+import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.utils.ITimeService;
 
 /**
@@ -45,9 +47,16 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
     private IFrameworkRuns frameworkRuns;
     private IConfigurationPropertyStoreService cps;
     private ITimeService timeService;
+    private RBACService rbacService;
     
-    public PrioritySchedulingService(IFrameworkRuns frameworkRuns, IConfigurationPropertyStoreService cps, ITimeService timeService) {
+    public PrioritySchedulingService(
+        IFrameworkRuns frameworkRuns,
+        IConfigurationPropertyStoreService cps,
+        RBACService rbacService,
+        ITimeService timeService
+    ) {
         this.frameworkRuns = frameworkRuns;
+        this.rbacService = rbacService;
         this.cps = cps;
         this.timeService = timeService;
     }
@@ -60,7 +69,7 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
     }
 
     private Comparator<IRun> getPriorityComparator() {
-        return (a, b) -> Double.compare(getQueuedRunPriority(b), getQueuedRunPriority(a));
+        return (a, b) -> Double.compare(getQueuedRunTotalPriorityPoints(b), getQueuedRunTotalPriorityPoints(a));
     }
 
     private List<IRun> getQueuedRemoteRuns() throws FrameworkException {
@@ -76,8 +85,14 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         return queuedRuns;
     }
 
-    double getQueuedRunPriority(IRun run) {
-        Instant queuedTime = run.getQueued();
+    double getQueuedRunTotalPriorityPoints(IRun run) {
+        double totalPriorityPoints = getPriorityPointsFromQueuedTime(run.getQueued());
+        totalPriorityPoints += getRequestorPriorityPoints(run.getRequestor());
+
+        return totalPriorityPoints;
+    }
+
+    private double getPriorityPointsFromQueuedTime(Instant queuedTime) {
         double priorityGrowthRatePerMin = getPriorityGrowthRatePerMin();
         Instant currentTime = timeService.now();
 
@@ -87,6 +102,17 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
 
     private double getMinutesBetween(Instant startTime, Instant endTime) {
         return Duration.between(startTime, endTime).toMillis() / (60 * 1000.0);
+    }
+
+    private long getRequestorPriorityPoints(String requestor) {
+        long requestorPriority = 0;
+        try {
+            requestorPriority = rbacService.getUserPriority(requestor);
+        } catch (RBACException e) {
+            logger.warn("Could not get user priority details, ignoring user priority");
+        }
+
+        return requestorPriority;
     }
 
     private double getPriorityGrowthRatePerMin() {

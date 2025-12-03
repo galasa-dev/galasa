@@ -33,4 +33,7 @@ public interface IUser {
 
     void addClient(IFrontEndClient client);
 
+    long getPriority();
+
+    void setPriority(long newPriority);
 }

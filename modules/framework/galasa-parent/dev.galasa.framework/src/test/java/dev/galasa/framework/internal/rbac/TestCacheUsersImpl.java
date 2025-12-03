@@ -8,8 +8,6 @@ package dev.galasa.framework.internal.rbac;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.*;
 
@@ -20,13 +18,11 @@ import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.mocks.MockUser;
 import dev.galasa.framework.spi.rbac.Action;
-import dev.galasa.framework.spi.rbac.BuiltInAction;
-import dev.galasa.framework.spi.rbac.RBACException;
 
 import static org.assertj.core.api.Assertions.*;
 import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
-public class TestCacheRBACImpl {
+public class TestCacheUsersImpl {
 
     @Test
     public void testIsActionPermittedReturnsTrueForValidMappings() throws Exception {
@@ -43,7 +39,7 @@ public class TestCacheRBACImpl {
         mockAuthStoreService.addUser(mockUser);
         MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(loginId);
 
-        CacheRBAC cache = new CacheRBACImpl(mockDssService, mockAuthStoreService, mockRbacService);
+        CacheUsers cache = new CacheUsersImpl(mockDssService, mockAuthStoreService, mockRbacService);
 
         String apiAccessActionId = "GENERAL_API_ACCESS";
         String secretsGetActionId = "SECRETS_GET_UNREDACTED_VALUES";
@@ -68,13 +64,14 @@ public class TestCacheRBACImpl {
         MockUser mockUser = new MockUser();
         mockUser.setLoginId(loginId);
         mockUser.setRoleId("2");
+        mockUser.setPriority(100);
 
         mockAuthStoreService.addUser(mockUser);
 
         List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), CPS_PROPERTIES_SET.getAction());
 
         MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(loginId, permittedActions);
-        CacheRBAC cache = new CacheRBACImpl(mockDssService, mockAuthStoreService, mockRbacService);
+        CacheUsers cache = new CacheUsersImpl(mockDssService, mockAuthStoreService, mockRbacService);
 
         Map<String, String> dssData = mockDssService.data;
         assertThat(dssData).isEmpty();
@@ -84,7 +81,9 @@ public class TestCacheRBACImpl {
 
         // Then...
         assertThat(isApiAccessPermitted).isTrue();
-        assertThat(dssData).hasSize(1);
+        assertThat(dssData).hasSize(2);
+
+        assertThat(dssData.get("user." + loginId + ".priority")).isEqualTo("100");
 
         // The DSS should have a property of the form:
         // dss.rbac.loginId.actions = GENERAL_API_ACCESS,CPS_PROPERTIES_SET
@@ -107,12 +106,9 @@ public class TestCacheRBACImpl {
         mockAuthStoreService.addUser(mockUser);
         MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(loginId);
 
-        CacheRBAC cache = new CacheRBACImpl(mockDssService, mockAuthStoreService, mockRbacService);
+        CacheUsers cache = new CacheUsersImpl(mockDssService, mockAuthStoreService, mockRbacService);
 
-        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), SECRETS_GET_UNREDACTED_VALUES.getAction());
-        Set<String> permittedActionsIds = permittedActions.stream().map(Action::getId).collect(Collectors.toSet());
-
-        cache.addUser(loginId, permittedActionsIds);
+        cache.addUser(mockUser);
 
         // Then...
         assertThat(cache.isActionPermitted(loginId, "not_a_permitted_action")).isFalse();
@@ -130,7 +126,7 @@ public class TestCacheRBACImpl {
         MockRBACService mockRbacService = FilledMockRBACService.createTestRBACService();
         MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
 
-        CacheRBAC cache = new CacheRBACImpl(mockDssService, mockAuthStoreService, mockRbacService);
+        CacheUsers cache = new CacheUsersImpl(mockDssService, mockAuthStoreService, mockRbacService);
         String loginId = "unknown";
         String apiAccessActionId = "GENERAL_API_ACCESS";
 
@@ -149,17 +145,18 @@ public class TestCacheRBACImpl {
         MockRBACService mockRbacService = FilledMockRBACService.createTestRBACService();
         MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
 
-        CacheRBAC cache = new CacheRBACImpl(mockDssService, mockAuthStoreService, mockRbacService);
+        CacheUsers cache = new CacheUsersImpl(mockDssService, mockAuthStoreService, mockRbacService);
         String loginId = "bob";
+        MockUser mockUser = new MockUser();
+        mockUser.setLoginId(loginId);
+        mockUser.setRoleId("2");
 
-        List<Action> permittedActions = BuiltInAction.getActions();
-        Set<String> permittedActionsIds = permittedActions.stream().map(Action::getId).collect(Collectors.toSet());
-
-        cache.addUser(loginId, permittedActionsIds);
+        cache.addUser(mockUser);
 
         Map<String, String> dssData = mockDssService.data;
-        assertThat(dssData).hasSize(1);
+        assertThat(dssData).hasSize(2);
         assertThat(dssData).containsKey("user." + loginId + ".actions");
+        assertThat(dssData).containsKey("user." + loginId + ".priority");
 
         // When...
         cache.invalidateUser(loginId);

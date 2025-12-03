@@ -12,6 +12,7 @@ public class InternalUser implements IInternalUser {
     private String loginId;
     private String dexUserId;
     private String roleId;
+    private long priority;
 
     public InternalUser(String loginId, String dexUserId) {
         this.loginId = loginId;
@@ -29,5 +30,10 @@ public class InternalUser implements IInternalUser {
     @Override
     public String getRoleId() {
         return roleId;
+    }
+
+    @Override
+    public long getPriority() {
+        return priority;
     }
 }

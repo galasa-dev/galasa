@@ -30,6 +30,10 @@ public class UserDoc {
     @SerializedName("activity")
     private List<FrontEndClient> clients;
 
+    @SerializedName("priority")
+    private long priority;
+
+
     public UserDoc() {
         setClients(new ArrayList<FrontEndClient>());
     }
@@ -79,5 +83,12 @@ public class UserDoc {
     public void setClients(List<FrontEndClient> clients) {
         this.clients = clients;
     }
-    
+
+    public long getPriority() {
+        return this.priority;
+    }
+
+    public void setPriority(long priority) {
+        this.priority = priority;
+    }
 }
