@@ -46,6 +46,8 @@ const (
 	HEADER_METHOD_TYPE    = "type"
 	HEADER_GROUP          = "group"
 	HEADER_TAGS           = "tags"
+	HEADER_WEBUI_URL      = "web-ui-url"
+	HEADER_REST_API_URL   = "rest-api-url"
 
 	RAS_RUNS_URL = "/ras/runs/"
 )
@@ -68,6 +70,8 @@ type FormattableTest struct {
 	Methods       []galasaapi.TestMethod
 	Lost          bool
 	Tags          []string
+	WebUiUrl      string
+	RestApiUrl    string
 }
 
 func NewFormattableTest() FormattableTest {

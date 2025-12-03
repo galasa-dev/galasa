@@ -53,6 +53,11 @@ public class IpNetworkResourceManagement implements IResourceManagementProvider 
     }
 
     @Override
+    public void runOnce() {
+        this.portResourceMonitor.run();
+    }
+
+    @Override
     public void shutdown() {
     }
 

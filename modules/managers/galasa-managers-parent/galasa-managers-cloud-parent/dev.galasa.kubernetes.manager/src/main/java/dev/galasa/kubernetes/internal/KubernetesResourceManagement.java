@@ -61,6 +61,11 @@ public class KubernetesResourceManagement implements IResourceManagementProvider
 	}
 
 	@Override
+	public void runOnce() {
+		this.slotResourceMonitor.run();
+	}
+
+	@Override
 	public void shutdown() {
 	}
 

@@ -82,6 +82,16 @@ public class DockerResourceManagement implements IResourceManagementProvider {
     }
 
     /**
+     * Run the resource management of docker slots once.
+     */
+    @Override
+    public void runOnce() {
+        this.slotResourceMonitor.run();
+        this.containerResourceMonitor.run();
+        this.volumeResourceMonitor.run();
+    }
+
+    /**
      * Shutdown resource management of docker slots.
      */
     @Override

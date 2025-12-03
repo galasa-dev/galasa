@@ -55,6 +55,12 @@ public class ZosResourceManagement implements IResourceManagementProvider {
 	}
 
     @Override
+    public void runOnce() {
+        this.slotResourceMonitor.run();
+        this.zosPortResourceMonitor.run();
+    }
+
+    @Override
     public void shutdown() {
     }
 

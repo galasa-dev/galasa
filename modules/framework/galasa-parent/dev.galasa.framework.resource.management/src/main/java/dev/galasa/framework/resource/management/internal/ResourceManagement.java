@@ -7,35 +7,21 @@ package dev.galasa.framework.resource.management.internal;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.felix.bundlerepository.Capability;
-import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
-import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import dev.galasa.framework.BundleManager;
-import dev.galasa.framework.FrameworkInitialisation;
-import dev.galasa.framework.GalasaFactory;
-import dev.galasa.framework.IBundleManager;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -44,11 +30,6 @@ import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.IResourceManagement;
-import dev.galasa.framework.spi.streams.IOBR;
-import dev.galasa.framework.spi.streams.IStream;
-import dev.galasa.framework.spi.streams.IStreamsService;
 import io.prometheus.client.Counter;
 import io.prometheus.client.exporter.HTTPServer;
 
@@ -56,7 +37,7 @@ import io.prometheus.client.exporter.HTTPServer;
  * Run Resource Management
  */
 @Component(service = { ResourceManagement.class })
-public class ResourceManagement implements IResourceManagement {
+public class ResourceManagement extends AbstractResourceManagement {
 
     private Log logger = LogFactory.getLog(this.getClass());
 
@@ -69,7 +50,6 @@ public class ResourceManagement implements IResourceManagement {
     protected IMavenRepository mavenRepository;
 
     private ResourceManagementProviders                  resourceManagementProviders;
-    private ScheduledExecutorService                     scheduledExecutorService;
 
     // This flag is set by one thread, and read by another, so we always want the variable to be in memory rather than 
     // in some code-optimised register.
@@ -106,37 +86,22 @@ public class ResourceManagement implements IResourceManagement {
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
         try {
-            // *** Initialise the framework services
-            FrameworkInitialisation frameworkInitialisation = null;
-            try {
-                frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties, GalasaFactory.getInstance().newResourceManagerInitStrategy());
-            } catch (Exception e) {
-                throw new FrameworkException("Unable to initialise the Framework Services", e);
-            }
-            IFramework framework = frameworkInitialisation.getFramework();
+            super.init(bootstrapProperties, overrideProperties, stream, bundleIncludes, bundleExcludes);
 
-            IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService("framework");
-            IStreamsService streamsService = framework.getStreamsService();
             IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
 
             // Load the requested monitor bundles
-            IBundleManager bundleManager = new BundleManager();
-            loadMonitorBundles(bundleManager, stream, streamsService);
+            super.loadMonitorBundles(bundleContext, stream, repositoryAdmin, mavenRepository);
 
             // *** Now start the Resource Management framework
-
             logger.info("Starting Resource Management");
 
             this.hostname = getHostName();
             this.serverName = getServerName(cps, this.serverName);
             
-            int numberOfRunThreads = getRunThreadCount(cps);
             int metricsPort = getMetricsPort(cps);
             int healthPort = getHealthPort(cps);
  
-
-            scheduledExecutorService = new ScheduledThreadPoolExecutor(numberOfRunThreads);
-
             this.metricsServer = startMetricsServer(metricsPort);
 
             // *** Create metrics
@@ -154,7 +119,7 @@ public class ResourceManagement implements IResourceManagement {
             this.resourceManagementProviders.start();
             
             // *** Start the Run watch thread
-            ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, resourceManagementProviders, scheduledExecutorService);
+            ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, resourceManagementProviders, getScheduledExecutorService());
 
             logger.info("Resource Manager has started");
 
@@ -173,21 +138,7 @@ public class ResourceManagement implements IResourceManagement {
                 }
             }
 
-            // *** shutdown the scheduler
-            logger.error("Asking the scheduler to shut down.");
-            this.scheduledExecutorService.shutdown();
-            try {
-                this.scheduledExecutorService.awaitTermination(30, TimeUnit.SECONDS);
-                logger.error("The scheduler shut down ok.");
-            } catch (Exception e) {
-                logger.error("Unable to shutdown the scheduler");
-            }
-
-            runWatch.shutdown();
-
-            resourceManagementProviders.shutdown();
-            stopMetricsServer(this.metricsServer);
-            stopHealthServer(this.healthServer);
+            shutdown(runWatch);
 
         } finally {
             logger.info("Resource Management shutdown is complete.");
@@ -197,97 +148,13 @@ public class ResourceManagement implements IResourceManagement {
         }
     }
 
-    // Package-level to allow unit testing
-    void loadMonitorBundles(IBundleManager bundleManager, String stream, IStreamsService streamsService) throws FrameworkException {
-        if (stream != null && !stream.isBlank()) {
-            loadRepositoriesFromStream(stream.trim(), streamsService);
-        }
+    private void shutdown(ResourceManagementRunWatch runWatch) {
+        super.shutdown();
+        runWatch.shutdown();
+        resourceManagementProviders.shutdown();
 
-        Set<String> bundlesToLoad = getResourceMonitorBundles();
-
-        // Load the resulting bundles that have the IResourceManagementProvider service
-        for (String bundle : bundlesToLoad) {
-            if (!bundleManager.isBundleActive(bundleContext, bundle)) {
-                logger.info("ResourceManagement - loading bundle: " + bundle);
-
-                bundleManager.loadBundle(repositoryAdmin, bundleContext, bundle);
-
-                logger.info("ResourceManagement - bundle '" + bundle + "' loaded OK");
-            }
-        }
-    }
-
-    private void loadRepositoriesFromStream(String streamName, IStreamsService streamsService) throws FrameworkException {
-        IStream stream = streamsService.getStreamByName(streamName);
-        stream.validate();
-
-        // Add the stream's maven repo to the maven repositories
-        URL mavenRepo = stream.getMavenRepositoryUrl();
-        mavenRepository.addRemoteRepository(mavenRepo);
-
-        // Add the stream's OBR to the repository admin
-        List<IOBR> obrs = stream.getObrs();
-        for (IOBR obr : obrs) {
-            try {
-                repositoryAdmin.addRepository(obr.toString());
-            } catch (Exception e) {
-                throw new FrameworkException("Unable to load repository " + obr, e);
-            }
-        }
-    }
-
-    private boolean isResourceMonitorCapability(Capability capability) {
-        boolean isResourceMonitor = false;
-        if ("service".equals(capability.getName())) {
-            Map<String, Object> properties = capability.getPropertiesAsMap();
-            String services = (String) properties.get("objectClass");
-            if (services == null) {
-                services = (String) properties.get("objectClass:List<String>");
-            }
-
-            if (services != null) {
-                for (String service : services.split(",")) {
-                    if ("dev.galasa.framework.spi.IResourceManagementProvider".equals(service)) {
-                        isResourceMonitor = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return isResourceMonitor;
-    }
-
-    private Set<String> getResourceMonitorBundles() {
-        Set<String> bundlesToLoad = new HashSet<>();
-        for (Repository repository : repositoryAdmin.listRepositories()) {
-            if (repository.getResources() != null) {
-                bundlesToLoad.addAll(getResourceMonitorsFromRepository(repository));
-            }
-        }
-        return bundlesToLoad;
-    }
-
-    private Set<String> getResourceMonitorsFromRepository(Repository repository) {
-        Set<String> resourceMonitorBundles = new HashSet<>();
-        for (Resource resource : repository.getResources()) {
-            if (isResourceContainingAResourceMonitor(resource)) {
-                resourceMonitorBundles.add(resource.getSymbolicName());
-            }
-        }
-        return resourceMonitorBundles;
-    }
-
-    private boolean isResourceContainingAResourceMonitor(Resource resource) {
-        boolean isResourceContainsResourceMonitor = false;
-        if (resource.getCapabilities() != null) {
-            for (Capability capability : resource.getCapabilities()) {
-                if (isResourceMonitorCapability(capability)) {
-                    isResourceContainsResourceMonitor = true;
-                    break;
-                }
-            }
-        }
-        return isResourceContainsResourceMonitor;
+        stopMetricsServer(this.metricsServer);
+        stopHealthServer(this.healthServer);
     }
 
     private void stopHealthServer(ResourceManagementHealth healthServer) {
@@ -350,15 +217,6 @@ public class ResourceManagement implements IResourceManagement {
         return metricsPort ;
     }
 
-    private int getRunThreadCount(IConfigurationPropertyStoreService cps) throws ConfigurationPropertyStoreException {
-        int runThreadCount = 5;
-        String threads = AbstractManager.nulled(cps.getProperty("resource.management", "threads"));
-        if (threads != null) {
-            runThreadCount = Integer.parseInt(threads);
-        }
-        return runThreadCount ;
-    }
-
     private String getHostName() {
         String hostName = "unknown";
         try {
@@ -411,11 +269,6 @@ public class ResourceManagement implements IResourceManagement {
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
-    }
-
-    @Override
-    public ScheduledExecutorService getScheduledExecutorService() {
-        return this.scheduledExecutorService;
     }
 
     @Override

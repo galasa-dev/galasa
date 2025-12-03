@@ -72,6 +72,10 @@ func (formatter *RawFormatter) FormatRuns(runs []FormattableTest) (string, error
 		buff.WriteString(runLog)
 		buff.WriteString("|")
 		buff.WriteString(tags)
+		buff.WriteString("|")
+		buff.WriteString(run.WebUiUrl)
+		buff.WriteString("|")
+		buff.WriteString(run.RestApiUrl)
 
 		buff.WriteString("\n")
 

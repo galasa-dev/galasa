@@ -20,8 +20,10 @@ import org.osgi.framework.Bundle;
 
 import dev.galasa.boot.mocks.MockRunnableService;
 import dev.galasa.boot.LauncherException;
+import dev.galasa.boot.ResourceManagementConfiguration;
 import dev.galasa.boot.mocks.MockBundle;
 import dev.galasa.boot.mocks.MockBundleContext;
+import dev.galasa.boot.mocks.MockEnvironment;
 import dev.galasa.boot.mocks.MockFelixFramework;
 import dev.galasa.boot.mocks.MockOsgiFramework;
 import dev.galasa.boot.mocks.MockRepositoryAdmin;
@@ -217,5 +219,52 @@ public class TestFelixFramework {
             .collect(Collectors.toList());
 
         assertThat(addedResourceIds).doesNotContain(extraBundleName);
+    }
+
+    @Test
+    public void testRunLocalResourceManagementLoadsCorrectBundles() throws Exception {
+        // Given...
+        String extraBundleName = "my.extra.bundle";
+
+        MockResolver mockResolver = new MockResolver();
+        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(mockResolver);
+
+        Map<String, MockServiceReference<?>> services = new HashMap<>();
+        MockServiceReference<MockRunnableService> mockService = new MockServiceReference<>(new MockRunnableService(), null);
+        services.put("dev.galasa.framework.resource.management.internal.LocalResourceManagement", mockService);
+
+        MockBundleContext mockFrameworkBundleContext = new MockBundleContext(services);
+        MockBundle mockFrameworkBundle = new MockBundle("dev.galasa.framework", mockFrameworkBundleContext);
+
+        Bundle[] availableBundles = new Bundle[] {
+            mockFrameworkBundle,
+            new MockBundle("dev.galasa.framework.resource.management"),
+            new MockBundle(extraBundleName)
+        };
+
+        MockBundleContext mockBundleContext = new MockBundleContext(availableBundles);
+        MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
+
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
+        Properties bootstrapProperties = new Properties();
+        Properties overridesProperties = new Properties();
+        List<String> extraBundles = List.of(extraBundleName);
+
+        MockEnvironment mockEnv = new MockEnvironment();
+        List<String> includes = List.of("*");
+        List<String> excludes = new ArrayList<>();
+        ResourceManagementConfiguration config = new ResourceManagementConfiguration(includes, excludes, mockEnv);
+
+        // When...
+        felixFramework.runLocalResourceManagement(bootstrapProperties, overridesProperties, extraBundles, config);
+
+        // Then...
+        List<String> addedResourceIds = mockResolver.getAllResources()
+            .stream()
+            .map(Resource::getId)
+            .collect(Collectors.toList());
+
+        assertThat(addedResourceIds).contains("dev.galasa.framework.resource.management");
+        assertThat(addedResourceIds).contains(extraBundleName);
     }
 }
