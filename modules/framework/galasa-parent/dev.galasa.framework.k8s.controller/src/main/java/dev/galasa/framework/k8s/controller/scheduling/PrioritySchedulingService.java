@@ -33,7 +33,7 @@ import dev.galasa.framework.spi.utils.ITimeService;
  */
 public class PrioritySchedulingService implements IPrioritySchedulingService {
 
-    public static final long DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN = 1;
+    public static final double DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN = 1;
 
     private static final String RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_PREFIX = "runs.priority";
     private static final String RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_SUFFIX = "growth.rate.per.min";
@@ -60,7 +60,7 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
     }
 
     private Comparator<IRun> getPriorityComparator() {
-        return (a, b) -> Long.compare(getQueuedRunPriority(b), getQueuedRunPriority(a));
+        return (a, b) -> Double.compare(getQueuedRunPriority(b), getQueuedRunPriority(a));
     }
 
     private List<IRun> getQueuedRemoteRuns() throws FrameworkException {
@@ -76,22 +76,26 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         return queuedRuns;
     }
 
-    long getQueuedRunPriority(IRun run) {
+    double getQueuedRunPriority(IRun run) {
         Instant queuedTime = run.getQueued();
-        long priorityGrowthRatePerMin = getPriorityGrowthRatePerMin();
+        double priorityGrowthRatePerMin = getPriorityGrowthRatePerMin();
         Instant currentTime = timeService.now();
 
-        long minutesElapsedSinceQueued = Duration.between(queuedTime, currentTime).toMinutes();
+        double minutesElapsedSinceQueued = getMinutesBetween(queuedTime, currentTime);
         return minutesElapsedSinceQueued * priorityGrowthRatePerMin;
     }
 
-    private long getPriorityGrowthRatePerMin() {
-        long priorityGrowthRatePerMin = DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN;
+    private double getMinutesBetween(Instant startTime, Instant endTime) {
+        return Duration.between(startTime, endTime).toMillis() / (60 * 1000.0);
+    }
+
+    private double getPriorityGrowthRatePerMin() {
+        double priorityGrowthRatePerMin = DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN;
 
         try {
             String priorityGrowthRateStr = cps.getProperty(RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_PREFIX, RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_SUFFIX);
             if (priorityGrowthRateStr != null && !priorityGrowthRateStr.isBlank()) {
-                priorityGrowthRatePerMin = Long.parseLong(priorityGrowthRateStr);
+                priorityGrowthRatePerMin = Double.parseDouble(priorityGrowthRateStr);
             } else {
                 logger.info(RUNS_PRIORITY_GROWTH_RATE_CPS_PROPERTY_KEY + " CPS property is not set or is empty, using default: " + DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
             }

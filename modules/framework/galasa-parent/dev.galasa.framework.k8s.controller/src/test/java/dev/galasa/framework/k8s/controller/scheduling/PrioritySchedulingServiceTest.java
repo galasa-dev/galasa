@@ -91,8 +91,8 @@ public class PrioritySchedulingServiceTest {
         PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockTimeService);
 
         // When...
-        long run1Priority = schedulingService.getQueuedRunPriority(run1);
-        long run2Priority = schedulingService.getQueuedRunPriority(run2);
+        double run1Priority = schedulingService.getQueuedRunPriority(run1);
+        double run2Priority = schedulingService.getQueuedRunPriority(run2);
 
         // Then...
         assertThat(run1Priority).isEqualTo(2 * priorityGrowthRatePerMin);
@@ -131,8 +131,8 @@ public class PrioritySchedulingServiceTest {
         PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockTimeService);
 
         // When...
-        long run1Priority = schedulingService.getQueuedRunPriority(run1);
-        long run2Priority = schedulingService.getQueuedRunPriority(run2);
+        double run1Priority = schedulingService.getQueuedRunPriority(run1);
+        double run2Priority = schedulingService.getQueuedRunPriority(run2);
 
         // Then...
         assertThat(run1Priority).isEqualTo(2 * PrioritySchedulingService.DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
