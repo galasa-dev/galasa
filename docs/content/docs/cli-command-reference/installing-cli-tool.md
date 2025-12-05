@@ -31,8 +31,8 @@ On Mac:
 3. Then you have a choice. Either install the latest version fo the `galasactl` tool, or install a specific version.
     1. To install the latest version of `galasactl`: 
     `brew install --no-quarantine galasactl`
-    2. To install a specific version of `galasactl` (version 0.45.0 for example): 
-    `brew install --no-quarantine galasactl@0.45.0`
+    2. To install a specific version of `galasactl` (version 0.46.0 for example): 
+    `brew install --no-quarantine galasactl@0.46.0`
     Note: You can check to see what versions are available using this:
     `brew tap-info galasa-dev/tap --json` and look in the `"cask_tokens"` part of the json file.
 
