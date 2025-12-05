@@ -7,7 +7,7 @@ To start exploring the Galasa Simbank application and to run the sample SimBank 
 
 1. Clone the Galasa `simplatform` repository on your machine by running the following command in a terminal in the directory on your local machine in which you want to clone the repository files:
     ```
-    git clone https://github.com/galasa-dev/simplatform.git --branch v0.45.0 --single-branch
+    git clone https://github.com/galasa-dev/simplatform.git --branch v0.46.0 --single-branch
     ```
 1. Run the `./build-locally.sh` script to build the code.
 1. Run the `./run-locally.sh --server` script to start the simbank server inside a local JVM.

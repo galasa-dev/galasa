@@ -154,7 +154,7 @@ cp $temp_dir/release.yaml ${BASEDIR}/release.yaml
 
 
 ## Update the openapi file
-cat ${BASEDIR}/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml | sed "s/^[ ]*version[ ]*[:].*/  version : \"$component_version\"/1" > $temp_dir/openapi.yaml
+cat ${BASEDIR}/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml | sed "s/^[ ]*version[ ]*:[ ]*\".*\"/  version : \"$component_version\"/1" > $temp_dir/openapi.yaml
 cp $temp_dir/openapi.yaml ${BASEDIR}/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml
 
 ## and the openapi bundle
