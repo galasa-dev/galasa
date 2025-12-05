@@ -3069,6 +3069,11 @@ components:
           description: |- 
             The role that the user has in the system. This is not a readable name, but a numeric.
             It must be less than 128 characters and a consist of alphanumeric characters, '-' (hyphen) or '_' (underscore)
+        priority: 
+          type: integer
+          description: |-
+            A numeric priority modifier that the user has in the system.
+            Used to determine the priority the user has when performing certain actions.
         clients:
           type: array
           description: The list of client activities, containing client names and last login times.

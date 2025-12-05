@@ -66,10 +66,10 @@ public class UsersRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
-        MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui", rbacService.getDefaultRoleId());
+        MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui", rbacService.getDefaultRoleId(), 1);
         authStoreService.addUser(mockUser1);
     
-        MockUser mockUser2 = createMockUser("user-2", "docid-2", "rest-api", rbacService.getDefaultRoleId());
+        MockUser mockUser2 = createMockUser("user-2", "docid-2", "rest-api", rbacService.getDefaultRoleId(), 2);
         authStoreService.addUser(mockUser2);
 
         // When...
@@ -86,7 +86,7 @@ public class UsersRouteTest extends BaseServletTest {
         String gotBackPayload = outStream.toString();
         UserData[] usersGotBack = gson.fromJson(gotBackPayload, UserData[].class);
 
-        // Should be two users returned.
+        // Should have returned one user.
         assertThat(usersGotBack).hasSize(1);
 
         UserData userGotBack = usersGotBack[0];
@@ -95,6 +95,8 @@ public class UsersRouteTest extends BaseServletTest {
             assertThat(userGotBack.getid()).isEqualTo("docid");
             assertThat(userGotBack.geturl()).isEqualTo(baseUrl + "/users/" + userGotBack.getid());
             assertThat(userGotBack.getrole()).isEqualTo( rbacService.getDefaultRoleId() );
+            assertThat(userGotBack.getpriority()).isEqualTo(1);
+
             FrontEndClient[] clients = userGotBack.getclients();
 
             assertThat(clients).hasSize(1);
@@ -134,10 +136,10 @@ public class UsersRouteTest extends BaseServletTest {
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
         
-        MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui", rbacService.getDefaultRoleId());
+        MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui", rbacService.getDefaultRoleId(), 1);
         authStoreService.addUser(mockUser1);
     
-        MockUser mockUser2 = createMockUser("user-2", "docid-2", "rest-api", rbacService.getDefaultRoleId());
+        MockUser mockUser2 = createMockUser("user-2", "docid-2", "rest-api", rbacService.getDefaultRoleId(), 2);
         authStoreService.addUser(mockUser2);
         
 
@@ -164,6 +166,8 @@ public class UsersRouteTest extends BaseServletTest {
             assertThat(userGotBack.getid()).isEqualTo("docid");
             assertThat(userGotBack.geturl()).isEqualTo(baseUrl + "/users/" + userGotBack.getid());
             assertThat(userGotBack.getrole()).isEqualTo( rbacService.getDefaultRoleId() );
+            assertThat(userGotBack.getpriority()).isEqualTo(1);
+
             FrontEndClient[] clients = userGotBack.getclients();
 
             assertThat(clients).hasSize(1);
@@ -187,6 +191,8 @@ public class UsersRouteTest extends BaseServletTest {
             assertThat(userGotBack.getid()).isEqualTo("docid-2");
             assertThat(userGotBack.geturl()).isEqualTo(baseUrl + "/users/" + userGotBack.getid());
             assertThat(userGotBack.getrole()).isEqualTo( rbacService.getDefaultRoleId() );
+            assertThat(userGotBack.getpriority()).isEqualTo(2);
+
             FrontEndClient[] clients = userGotBack.getclients();
 
             assertThat(clients).hasSize(1);
@@ -205,7 +211,13 @@ public class UsersRouteTest extends BaseServletTest {
         }
     }
 
-    private MockUser createMockUser(String loginId, String userNumber, String clientName, String roleId ){
+    private MockUser createMockUser(
+        String loginId,
+        String userNumber,
+        String clientName,
+        String roleId,
+        int priority
+    ) {
 
         MockFrontEndClient newClient = new MockFrontEndClient("web-ui");
         newClient.name = clientName;
@@ -217,6 +229,7 @@ public class UsersRouteTest extends BaseServletTest {
         mockUser.loginId = loginId;
         mockUser.addClient(newClient);
         mockUser.roleId = roleId ;
+        mockUser.setPriority(priority);
 
         return mockUser;
 

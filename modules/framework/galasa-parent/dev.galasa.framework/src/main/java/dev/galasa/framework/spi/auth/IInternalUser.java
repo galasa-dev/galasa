@@ -16,4 +16,6 @@ public interface IInternalUser {
     String getLoginId();
 
     String getRoleId();
+
+    int getPriority();
 }

@@ -75,6 +75,16 @@ public class UserImpl implements IUser {
     }
 
     @Override
+    public @NotNull int getPriority() {
+        return this.userDocBean.getPriority();
+    }
+
+    @Override
+    public void setPriority(int newPriority) {
+        this.userDocBean.setPriority(newPriority);
+    }
+
+    @Override
     public String getUserNumber() {
         return this.userDocBean.getUserNumber();
     }
