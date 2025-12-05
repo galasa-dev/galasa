@@ -12,7 +12,7 @@ metadata:
 
 
 release:
-  version: 0.45.0
+  version: 0.46.0
 
 # Dependencies with bom: true need their versions stated explicitly
 # As the galasa-bom is a component consumed by users, its too risky
@@ -20,6 +20,12 @@ release:
 
 external:
   bundles:
+  - group: com.github.mwiede
+    artifact: jsch
+    obr: true
+    mvp: true
+    isolated: true
+
   # Transitive dependency of selenium 4.27.0 required for isolated and MVP
   - group: com.google.auto.service
     artifact: auto-service-annotations
@@ -83,12 +89,6 @@ external:
     isolated: true
 
   - group: dev.galasa
-    artifact: dev.galasa.wrapping.com.jcraft.jsch
-    obr: true
-    mvp: true
-    isolated: true
-
-  - group: dev.galasa
     artifact: dev.galasa.wrapping.com.auth0.jwt
     obr: true
     mvp: false      # Only used for Authentication - not needed.
@@ -96,14 +96,14 @@ external:
 
   - group: dev.galasa
     artifact: dev.galasa.wrapping.gson
-    version: 0.45.0
+    version: 0.46.0
     obr: true
     bom: true
     mvp: true
     isolated: true
 
   - artifact: dev.galasa.wrapping.httpclient-osgi
-    version: 0.45.0
+    version: 0.46.0
     obr: true
     bom: true
     mvp: true

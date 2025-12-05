@@ -5,7 +5,7 @@
 
 	<groupId>dev.galasa</groupId>
 	<artifactId>dev.galasa.wrapping.parent</artifactId>
-	<version>0.45.0</version>
+	<version>0.46.0</version>
 	<packaging>pom</packaging>
 
 	<name>Galasa OSGi Wrapping</name>
@@ -36,7 +36,6 @@
 
 	<modules>
 		<module>dev.galasa.wrapping.com.auth0.jwt</module>
-		<module>dev.galasa.wrapping.com.jcraft.jsch</module>
 		<module>dev.galasa.wrapping.gson</module>
         <module>dev.galasa.wrapping.httpclient-osgi</module>
 		<module>dev.galasa.wrapping.io.grpc.java</module>
@@ -63,7 +62,7 @@
 			<dependency>
 				<groupId>dev.galasa</groupId>
 				<artifactId>dev.galasa.platform</artifactId>
-				<version>0.45.0</version>
+				<version>0.46.0</version>
 				<type>pom</type>
           		<scope>import</scope>
 			</dependency>
