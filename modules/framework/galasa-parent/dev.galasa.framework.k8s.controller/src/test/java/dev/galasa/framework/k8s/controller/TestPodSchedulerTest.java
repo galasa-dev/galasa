@@ -792,4 +792,105 @@ public class TestPodSchedulerTest {
         assertThat(cacertsVolumeMount.getSubPath()).isEqualTo("cacerts");
         assertThat(cacertsVolumeMount.getReadOnly()).isTrue();
     }
+
+    @Test
+    public void testThatPodDoesNotGetScheduledWhenEngineLimitHasBeenReached() throws Exception {
+        // Given...
+        String testRunName = "U12345";
+        MockRun run = createMockRun(testRunName);
+        String queuedStatus = TestRunLifecycleStatus.QUEUED.toString();
+        run.setStatus(queuedStatus);
+
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,queuedStatus);
+
+        List<IRun> runs = new ArrayList<>();
+        runs.add(run);
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(runs);
+
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isPodReady = true;
+        V1Pod etcdPod = createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
+        V1Pod rasPod = createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
+
+        mockPods.add(etcdPod);
+        mockPods.add(rasPod);
+
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        settings.setMaxEngines(0);
+
+        MockCPSStore mockCPS = new MockCPSStore(new HashMap<>());
+    
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+        
+        // When...
+        podScheduler.run();
+
+        // Then...
+        assertThat(api.podsLaunched).isEmpty();
+    }
+
+    @Test
+    public void testThatSecondPodDoesNotGetScheduledWhenEngineLimitHasBeenReached() throws Exception {
+        // Given...
+        String testRunName1 = "U12345";
+        String testRunName2 = "U123456";
+        String queuedStatus = TestRunLifecycleStatus.QUEUED.toString();
+        MockRun run = createMockRun(testRunName1);
+        MockRun run2 = createMockRun(testRunName2);
+        run.setStatus(queuedStatus);
+        run2.setStatus(queuedStatus);
+
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run."+testRunName1+"."+DssPropertyKeyRunNameSuffix.STATUS,queuedStatus);
+        mockDss.put("run."+testRunName2+"."+DssPropertyKeyRunNameSuffix.STATUS,queuedStatus);
+
+        List<IRun> runs = new ArrayList<>();
+        runs.add(run);
+        runs.add(run2);
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(runs);
+
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isPodReady = true;
+        V1Pod etcdPod = createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady);
+        V1Pod rasPod = createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady);
+
+        mockPods.add(etcdPod);
+        mockPods.add(rasPod);
+
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        settings.setMaxEngines(1);
+
+        MockCPSStore mockCPS = new MockCPSStore(new HashMap<>());
+    
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockTimeService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+        
+        // When...
+        podScheduler.run();
+
+        // Then...
+        assertThat(api.podsLaunched).hasSize(1);
+    }
 }

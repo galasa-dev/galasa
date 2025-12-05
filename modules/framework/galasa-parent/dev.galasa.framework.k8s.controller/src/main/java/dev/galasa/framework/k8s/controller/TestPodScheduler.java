@@ -117,20 +117,13 @@ public class TestPodScheduler implements Runnable {
             
             try {
                 // Check we are not at max engines
-                List<V1Pod> pods = this.kubeEngineFacade.getTestPods();
-                kubeEngineFacade.getActivePods(pods);
-
-                logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
-
-                int currentActive = pods.size();
-                if (currentActive >= settings.getMaxEngines()) {
-                    logger.info(
-                            "Not looking for runs, currently at maximum engines (" + settings.getMaxEngines() + ")");
+                if (isMaximumEngineLimitReached()) {
+                    logger.info("Not looking for runs, currently at maximum engines (" + settings.getMaxEngines() + ")");
                 } else {
                     logger.info("Looking for new runs");
                     List<IRun> prioritisedQueuedRuns = prioritySchedulingService.getPrioritisedTestRunsToSchedule();
         
-                    while (!prioritisedQueuedRuns.isEmpty()) {        
+                    while (!prioritisedQueuedRuns.isEmpty()) {    
                         IRun selectedRun = prioritisedQueuedRuns.remove(0);
         
                         startPod(selectedRun);
@@ -151,13 +144,28 @@ public class TestPodScheduler implements Runnable {
                             // This may or may not be necessary if the scheduling policies in the cluster are changed. Not sure.
                             long launchIntervalMilliseconds = settings.getKubeLaunchIntervalMillisecs();
                             timeService.sleepMillis(launchIntervalMilliseconds); 
-                        } 
+                        }
+
+                        if (isMaximumEngineLimitReached()) {
+                            logger.info("Not scheduling any more runs, currently at maximum engines (" + settings.getMaxEngines() + ")");
+                            break;
+                        }
                     }
                 }
             } catch (Exception e) {
                 logger.error("Unable to poll for new runs", e);
             }
         }
+    }
+
+    private boolean isMaximumEngineLimitReached() throws K8sControllerException {
+        List<V1Pod> pods = this.kubeEngineFacade.getTestPods();
+        pods = kubeEngineFacade.getActivePods(pods);
+
+        logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
+
+        int currentActive = pods.size();
+        return currentActive >= settings.getMaxEngines();
     }
 
 
