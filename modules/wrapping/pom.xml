@@ -36,7 +36,6 @@
 
 	<modules>
 		<module>dev.galasa.wrapping.com.auth0.jwt</module>
-		<module>dev.galasa.wrapping.com.jcraft.jsch</module>
 		<module>dev.galasa.wrapping.gson</module>
         <module>dev.galasa.wrapping.httpclient-osgi</module>
 		<module>dev.galasa.wrapping.io.grpc.java</module>

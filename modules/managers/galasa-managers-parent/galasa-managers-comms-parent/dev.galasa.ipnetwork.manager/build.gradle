@@ -5,7 +5,7 @@ plugins {
 description = 'IP Network Manager'
 
 dependencies {
-    implementation 'dev.galasa:dev.galasa.wrapping.com.jcraft.jsch'
+    implementation 'com.github.mwiede:jsch'
     implementation 'commons-codec:commons-codec'
 }
 
