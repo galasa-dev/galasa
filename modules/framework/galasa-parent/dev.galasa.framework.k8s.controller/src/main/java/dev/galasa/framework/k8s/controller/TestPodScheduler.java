@@ -9,21 +9,17 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.k8s.controller.api.KubernetesEngineFacade;
+import dev.galasa.framework.k8s.controller.scheduling.IPrioritySchedulingService;
 import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.Environment;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.SystemEnvironment;
 import dev.galasa.framework.spi.creds.FrameworkEncryptionService;
@@ -70,8 +66,6 @@ public class TestPodScheduler implements Runnable {
     private final ISettings                   settings;
 
     private final IDynamicStatusStoreService dss;
-    private final IFrameworkRuns             runs;
-    private final QueuedComparator           queuedComparator = new QueuedComparator();
 
     private Counter                          submittedRuns;
     private Environment                      env              = new SystemEnvironment();
@@ -84,22 +78,23 @@ public class TestPodScheduler implements Runnable {
     private Path cacertsFilePath;
     private String cacertsConfigMapName;
 
+    private IPrioritySchedulingService prioritySchedulingService;
+
     public TestPodScheduler( 
         Environment env, 
         IDynamicStatusStoreService dss, 
-        IConfigurationPropertyStoreService cps, 
         ISettings settings, 
         KubernetesEngineFacade kubeEngineFacade,
-        IFrameworkRuns runs, 
-        ITimeService timeService
+        ITimeService timeService,
+        IPrioritySchedulingService prioritySchedulingService
     ) {
 
         this.env = env;
         this.settings = settings;
         this.kubeEngineFacade = kubeEngineFacade;
-        this.runs = runs;
         this.dss = dss;
         this.timeService = timeService;
+        this.prioritySchedulingService = prioritySchedulingService;
 
         String cacertsFilePathString = env.getenv(CACERTS_FILE_PATH_ENV_VAR);
         if (cacertsFilePathString != null && !cacertsFilePathString.isBlank()) {
@@ -119,73 +114,58 @@ public class TestPodScheduler implements Runnable {
         if (!kubeEngineFacade.isEtcdAndRasReady()) {
             logger.warn("etcd or RAS pods are not ready, waiting for them to be ready before scheduling new runs");
         } else {
-            logger.info("Looking for new runs");
-    
+            
             try {
-                // *** No we are not, get all the queued runs
-                List<IRun> queuedRuns = this.runs.getQueuedRuns();
-                // TODO filter by capability
-    
-                // Remove all the local runs and any runs that have been interrupted
-                Iterator<IRun> queuedRunsIterator = queuedRuns.iterator();
-                while (queuedRunsIterator.hasNext()) {
-                    IRun run = queuedRunsIterator.next();
-                    if (run.isLocal() || run.getInterruptReason() != null) {
-                        queuedRunsIterator.remove();
+                // Check we are not at max engines
+                if (isMaximumEngineLimitReached()) {
+                    logger.info("Not looking for runs, currently at maximum engines (" + settings.getMaxEngines() + ")");
+                } else {
+                    logger.info("Looking for new runs");
+                    List<IRun> prioritisedQueuedRuns = prioritySchedulingService.getPrioritisedTestRunsToSchedule();
+        
+                    while (!prioritisedQueuedRuns.isEmpty()) {    
+                        IRun selectedRun = prioritisedQueuedRuns.remove(0);
+        
+                        startPod(selectedRun);
+        
+                        if (!prioritisedQueuedRuns.isEmpty()) {
+                            // Slight delay to allow Kubernetes to catch up....
+                            //
+                            // Why do this ? 
+                            //
+                            // If we don't do this, then all the tests get scheduled on the same node, and the 
+                            // node will run out of memory.
+                            //
+                            // We assume that's because the usage statistics on a pod are not synchronized totally at
+                            // real-time, but have a lag in which they catch up. Hopefully this delay is greater
+                            // than the lag and when we actually schedule the next pod it gets evenly distributed over
+                            // the nodes which are available.
+                            //
+                            // This may or may not be necessary if the scheduling policies in the cluster are changed. Not sure.
+                            long launchIntervalMilliseconds = settings.getKubeLaunchIntervalMillisecs();
+                            timeService.sleepMillis(launchIntervalMilliseconds); 
+                        }
+
+                        if (isMaximumEngineLimitReached()) {
+                            logger.info("Not scheduling any more runs, currently at maximum engines (" + settings.getMaxEngines() + ")");
+                            break;
+                        }
                     }
-                }
-    
-                while (!queuedRuns.isEmpty()) {
-                    // *** Check we are not at max engines
-                    List<V1Pod> pods = this.kubeEngineFacade.getTestPods();
-                    kubeEngineFacade.getActivePods(pods);
-    
-                    logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
-    
-                    int currentActive = pods.size();
-                    if (currentActive >= settings.getMaxEngines()) {
-                        logger.info(
-                                "Not looking for runs, currently at maximim engines (" + settings.getMaxEngines() + ")");
-                        break;
-                    }
-    
-                    // List<IRun> activeRuns = this.runs.getActiveRuns();
-    
-                    // TODO Create the group algorithim same as the galasa scheduler
-    
-                    // *** Build pool lists
-                    // HashMap<String, Pool> queuePools = getPools(queuedRuns);
-                    // HashMap<String, Pool> activePools = getPools(activeRuns);
-    
-                    // *** cheat for the moment
-                    Collections.sort(queuedRuns, queuedComparator);
-    
-                    IRun selectedRun = queuedRuns.remove(0);
-    
-                    startPod(selectedRun);
-    
-                    if (!queuedRuns.isEmpty()) {
-                        // Slight delay to allow Kubernetes to catch up....
-                        //
-                        // Why do this ? 
-                        //
-                        // If we don't do this, then all the tests get scheduled on the same node, and the 
-                        // node will run out of memory.
-                        //
-                        // We assume that's because the usage statistics on a pod are not synchronized totally at
-                        // real-time, but have a lag in which they catch up. Hopefully this delay is greater
-                        // than the lag and when we actually schedule the next pod it gets evenly distributed over
-                        // the nodes which are available.
-                        //
-                        // This may or may not be necessary if the scheduling policies in the cluster are changed. Not sure.
-                        long launchIntervalMilliseconds = settings.getKubeLaunchIntervalMillisecs();
-                        timeService.sleepMillis(launchIntervalMilliseconds); 
-                    } 
                 }
             } catch (Exception e) {
                 logger.error("Unable to poll for new runs", e);
             }
         }
+    }
+
+    private boolean isMaximumEngineLimitReached() throws K8sControllerException {
+        List<V1Pod> pods = this.kubeEngineFacade.getTestPods();
+        pods = kubeEngineFacade.getActivePods(pods);
+
+        logger.info("Active runs=" + pods.size() + ",max=" + settings.getMaxEngines());
+
+        int currentActive = pods.size();
+        return currentActive >= settings.getMaxEngines();
     }
 
 
@@ -533,15 +513,6 @@ public class TestPodScheduler implements Runnable {
         if (envValue != null && !envValue.isBlank()) {
             envVarsToAddTo.add(createValueEnv(envVar, envValue));
         }
-    }
-
-    private class QueuedComparator implements Comparator<IRun> {
-
-        @Override
-        public int compare(IRun o1, IRun o2) {
-            return o1.getQueued().compareTo(o2.getQueued());
-        }
-
     }
 
     private V1EnvVar createValueEnv(String name, String value) {
