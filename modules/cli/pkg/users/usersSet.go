@@ -9,6 +9,7 @@ package users
 import (
 	"context"
 	"log"
+	"math"
 	"net/http"
 
 	"encoding/json"
@@ -19,7 +20,18 @@ import (
 	"github.com/galasa-dev/cli/pkg/spi"
 )
 
-func SetUsers(loginId string, roleName string, apiClient *galasaapi.APIClient, console spi.Console, byteReader spi.ByteReader) error {
+const (
+	DEFAULT_EMPTY_PRIORITY = math.MinInt
+)
+
+func SetUsers(
+	loginId string,
+	roleName string,
+	priority int,
+	apiClient *galasaapi.APIClient,
+	console spi.Console,
+	byteReader spi.ByteReader,
+) error {
 
 	// We have the role name, but we need the role ID.
 	roleWithThatName, err := getRoleFromRestApi(roleName, apiClient)
@@ -35,7 +47,7 @@ func SetUsers(loginId string, roleName string, apiClient *galasaapi.APIClient, c
 			roleId := *roleWithThatName.GetMetadata().Id
 
 			// Send the update to the rest API
-			_, err = sendUserUpdateToRestApi(userId, roleId, apiClient, loginId, byteReader)
+			_, err = sendUserUpdateToRestApi(userId, roleId, priority, apiClient, loginId, byteReader)
 		}
 	}
 	return err
@@ -60,6 +72,7 @@ func getUserByLoginId(loginId string, apiClient *galasaapi.APIClient) (*galasaap
 func sendUserUpdateToRestApi(
 	userNumber string,
 	roleId string,
+	priority int,
 	apiClient *galasaapi.APIClient,
 	loginId string,
 	byteReader spi.ByteReader,
@@ -74,6 +87,10 @@ func sendUserUpdateToRestApi(
 
 	var userUpdateData *galasaapi.UserUpdateData = galasaapi.NewUserUpdateData()
 	userUpdateData.SetRole(roleId)
+
+	if priority != DEFAULT_EMPTY_PRIORITY {
+		userUpdateData.SetPriority(int32(priority))
+	}
 
 	apiCall := apiClient.UsersAPIApi.UpdateUser(context, userNumber).UserUpdateData(*userUpdateData).ClientApiVersion(restApiVersion)
 	if err == nil {

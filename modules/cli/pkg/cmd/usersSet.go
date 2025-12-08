@@ -21,6 +21,7 @@ import (
 type UsersSetCmdValues struct {
 	// The role field on the servers' user record is mutable.
 	role string
+	priority int
 }
 
 type UsersSetCommand struct {
@@ -94,6 +95,7 @@ func (cmd *UsersSetCommand) createCobraCmd(
 
 	addLoginIdFlag(usersSetCobraCmd, MANDATORY_FLAG, userCommandValues)
 	addRoleFlag(usersSetCobraCmd, cmd.values)
+	addPriorityFlag(usersSetCobraCmd, cmd.values)
 
 	usersCommand.CobraCommand().AddCommand(usersSetCobraCmd)
 
@@ -104,6 +106,12 @@ func addRoleFlag(cmd *cobra.Command, userSetCmdValues *UsersSetCmdValues) {
 	flagName := "role"
 	description := "An optional field indicating the new role of the specified user."
 	cmd.Flags().StringVar(&userSetCmdValues.role, flagName, "", description)
+}
+
+func addPriorityFlag(cmd *cobra.Command, userSetCmdValues *UsersSetCmdValues) {
+	flagName := "priority"
+	description := "An optional field indicating the new priority of the specified user."
+	cmd.Flags().IntVar(&userSetCmdValues.priority, flagName, 0, description)
 }
 
 func (cmd *UsersSetCommand) executeUsersSet(
@@ -143,9 +151,21 @@ func (cmd *UsersSetCommand) executeUsersSet(
 				var console = factory.GetStdOutConsole()				
 				byteReader := factory.GetByteReader()
 
+				// if the user did not explicitly pass --priority, treat it as "empty"
+				if !cmd.cobraCommand.Flags().Changed("priority") {
+					cmd.values.priority = users.DEFAULT_EMPTY_PRIORITY
+				}
+
 				setUsersFunc := func(apiClient *galasaapi.APIClient) error {
 					// Call to process the command in a unit-testable way.
-					return users.SetUsers(userCmdValues.name, cmd.values.role, apiClient, console, byteReader)
+					return users.SetUsers(
+						userCmdValues.name,
+						cmd.values.role,
+						cmd.values.priority,
+						apiClient,
+						console,
+						byteReader,
+					)
 				}
 				err = commsClient.RunAuthenticatedCommandWithRateLimitRetries(setUsersFunc)
 			}

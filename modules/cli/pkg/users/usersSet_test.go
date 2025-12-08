@@ -28,6 +28,7 @@ func TestSendUpdateOfUserGoodPath(t *testing.T) {
 		err := json.NewDecoder(req.Body).Decode(&userUpdateData)
 		assert.Nil(t, err)
 		assert.Equal(t, *userUpdateData.Role, "2")
+		assert.Equal(t, *userUpdateData.Priority, int32(100))
 
 		body := `
 			{
@@ -68,7 +69,68 @@ func TestSendUpdateOfUserGoodPath(t *testing.T) {
 	mockByteReader := utils.NewMockByteReader()
 
 	//When
-	updatedUser, err := sendUserUpdateToRestApi("usernumber201", "2", apiClient, "user201loginId", mockByteReader)
+	updatedUser, err := sendUserUpdateToRestApi("usernumber201", "2", 100, apiClient, "user201loginId", mockByteReader)
+
+	//Then
+	assert.Nil(t, err)
+	assert.NotNil(t, updatedUser)
+	assert.Equal(t, *updatedUser.LoginId, "test-user")
+}
+
+func TestSendUpdateWithoutPriorityIsAccepted(t *testing.T) {
+	//Given...
+	getNamedUsersInteraction := utils.NewHttpInteraction("/users/usernumber201", http.MethodPut)
+	getNamedUsersInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		loginId := req.URL.Query().Get("login-id")
+		assert.NotNil(t, loginId)
+		var userUpdateData galasaapi.UserUpdateData
+
+		// We expect the code to send an update user structure with the role of 2 inside.
+		err := json.NewDecoder(req.Body).Decode(&userUpdateData)
+		assert.Nil(t, err)
+		assert.Equal(t, *userUpdateData.Role, "2")
+		assert.Nil(t, userUpdateData.Priority)
+
+		body := `
+			{
+				"url": "http://localhost:8080/users/d2055afbc0ae6e513fa9b23c1a000d9f",
+				"login-id": "test-user",
+				"role" : "2",
+				"id": "usernumber201",
+				"clients": [
+					{
+						"last-login": "2024-10-28T14:54:49.546029Z",
+						"client-name": "web-ui"
+					}
+				],
+				"synthetic" : {
+					"role": {
+						"metadata" : {
+							"name" : "admin"
+						}
+					}
+				}
+			}    
+		`
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Header().Set("ClientApiVersion", "myVersion")
+		writer.WriteHeader(http.StatusOK)
+		writer.Write([]byte(body))
+	}
+
+	interactions := []utils.HttpInteraction{
+		getNamedUsersInteraction,
+	}
+
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	apiClient := api.InitialiseAPI(server.Server.URL)
+
+	mockByteReader := utils.NewMockByteReader()
+
+	//When
+	updatedUser, err := sendUserUpdateToRestApi("usernumber201", "2", DEFAULT_EMPTY_PRIORITY, apiClient, "user201loginId", mockByteReader)
 
 	//Then
 	assert.Nil(t, err)
