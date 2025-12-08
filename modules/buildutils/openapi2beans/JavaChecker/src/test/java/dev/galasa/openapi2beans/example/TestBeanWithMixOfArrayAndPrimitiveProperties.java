@@ -24,7 +24,7 @@ public class TestBeanWithMixOfArrayAndPrimitiveProperties {
         beanUnderTest.setAStringVariable("hello");
         beanUnderTest.setAnIntVariable(11);
         beanUnderTest.setAnArrayVariable(new String[]{"string0", "string1"});
-        beanUnderTest.setAnIntArray(new int[]{1, 2});
+        beanUnderTest.setAnIntArray(new Integer[]{1, 2});
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String serialisedForm = gson.toJson(beanUnderTest);
         assertThat(serialisedForm).contains("\"aStringVariable\": \"hello\"");
