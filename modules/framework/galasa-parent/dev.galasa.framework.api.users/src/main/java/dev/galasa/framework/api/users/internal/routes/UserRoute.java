@@ -167,6 +167,14 @@ public class UserRoute extends AbstractUsersRoute {
             }
         }
 
+        Integer desiredPriority = updatePayload.getpriority();
+        if (desiredPriority != null && desiredPriority != user.getPriority()) {
+            validateUserIsNotUpdatingTheirOwnPriority(requestingUserLoginId, user);
+
+            user.setPriority(desiredPriority);
+            isStoreUpdateRequired = true;
+        }
+
         if (isStoreUpdateRequired) {
             authStoreService.updateUser(user);
             rbacService.invalidateUser(user.getLoginId());
@@ -192,6 +200,17 @@ public class UserRoute extends AbstractUsersRoute {
         String loginIdBeingUpdated = userRecordBeingUpdated.getLoginId();
         if (requestingUserLoginId.equals(loginIdBeingUpdated)) {
             ServletError msg = new ServletError(GAL5413_USER_CANNOT_UPDATE_OWN_USER_ROLE);
+            throw new InternalServletException(msg, HttpStatus.SC_FORBIDDEN);
+        }
+    }
+
+    void validateUserIsNotUpdatingTheirOwnPriority(
+        String requestingUserLoginId, 
+        IUser userRecordBeingUpdated
+    ) throws InternalServletException {
+        String loginIdBeingUpdated = userRecordBeingUpdated.getLoginId();
+        if (requestingUserLoginId.equals(loginIdBeingUpdated)) {
+            ServletError msg = new ServletError(GAL5119_USER_CANNOT_UPDATE_OWN_PRIORITY);
             throw new InternalServletException(msg, HttpStatus.SC_FORBIDDEN);
         }
     }
