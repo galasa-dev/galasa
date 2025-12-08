@@ -97,7 +97,7 @@ public class TestUserImpl {
         private String userNumber;
         private String loginId;
         private String roleId;
-        private long priority;
+        private int priority;
 
         private List<IFrontEndClient> clients;
 
@@ -148,12 +148,12 @@ public class TestUserImpl {
         }
 
         @Override
-        public long getPriority() {
+        public int getPriority() {
             return this.priority;
         }
 
         @Override
-        public void setPriority(long newPriority) {
+        public void setPriority(int newPriority) {
             this.priority = newPriority;
         }
     }

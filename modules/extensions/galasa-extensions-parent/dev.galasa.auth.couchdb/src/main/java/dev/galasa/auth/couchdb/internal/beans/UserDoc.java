@@ -31,7 +31,7 @@ public class UserDoc {
     private List<FrontEndClient> clients;
 
     @SerializedName("priority")
-    private long priority;
+    private int priority;
 
 
     public UserDoc() {
@@ -84,11 +84,11 @@ public class UserDoc {
         this.clients = clients;
     }
 
-    public long getPriority() {
+    public int getPriority() {
         return this.priority;
     }
 
-    public void setPriority(long priority) {
+    public void setPriority(int priority) {
         this.priority = priority;
     }
 }

@@ -55,6 +55,7 @@ public class BeanTransformer {
         userOut.setLoginId(userIn.getLoginId());
         userOut.setid(userIn.getUserNumber());
         userOut.seturl(calculateUrl(userIn.getUserNumber()));
+        userOut.setpriority(userIn.getPriority());
         
         List<FrontEndClient> clientsOutList = new ArrayList<FrontEndClient>();
 

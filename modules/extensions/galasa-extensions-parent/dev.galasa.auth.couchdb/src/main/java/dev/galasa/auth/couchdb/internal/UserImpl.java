@@ -75,12 +75,12 @@ public class UserImpl implements IUser {
     }
 
     @Override
-    public @NotNull long getPriority() {
+    public @NotNull int getPriority() {
         return this.userDocBean.getPriority();
     }
 
     @Override
-    public void setPriority(long newPriority) {
+    public void setPriority(int newPriority) {
         this.userDocBean.setPriority(newPriority);
     }
 
