@@ -16,6 +16,7 @@ import dev.galasa.framework.k8s.controller.api.IKubernetesApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1PodStatus;
 
 public class MockKubernetesApiClient implements IKubernetesApiClient {
 
@@ -70,21 +71,33 @@ public class MockKubernetesApiClient implements IKubernetesApiClient {
         }
 
         for (V1Pod pod : mockPods) {
-            Map<String, String> podLabels = pod.getMetadata().getLabels();
-            boolean isMatchingLabelSelectors = true;
-
-            for (Entry<String, String> selector : labelSelectorMap.entrySet()) {
-                String podLabelValue = podLabels.get(selector.getKey());
-                if (podLabelValue == null || !podLabelValue.equals(selector.getValue())) {
-                    isMatchingLabelSelectors = false;
-                    break;
-                }
+            boolean isMatchingLabelSelectors = isPodMatchingLabelSelectors(labelSelectorMap, pod);
+            if (isMatchingLabelSelectors) {
+                matchingPods.add(pod);
             }
+        }
+
+        for (V1Pod pod : podsLaunched) {
+            boolean isMatchingLabelSelectors = isPodMatchingLabelSelectors(labelSelectorMap, pod);
             if (isMatchingLabelSelectors) {
                 matchingPods.add(pod);
             }
         }
         return matchingPods;
+    }
+
+    private boolean isPodMatchingLabelSelectors(Map<String, String> labelSelectorMap, V1Pod pod) {
+        Map<String, String> podLabels = pod.getMetadata().getLabels();
+        boolean isMatchingLabelSelectors = true;
+
+        for (Entry<String, String> selector : labelSelectorMap.entrySet()) {
+            String podLabelValue = podLabels.get(selector.getKey());
+            if (podLabelValue == null || !podLabelValue.equals(selector.getValue())) {
+                isMatchingLabelSelectors = false;
+                break;
+            }
+        }
+        return isMatchingLabelSelectors;
     }
 
 
@@ -107,6 +120,7 @@ public class MockKubernetesApiClient implements IKubernetesApiClient {
             String responseBody = "AlreadyExists";
             throw new ApiException(1234, responseHeaders, responseBody);
         }
+        newPodDefinition.setStatus(new V1PodStatus().phase("running"));
         podsLaunched.add(newPodDefinition);
         return newPodDefinition;
     }
