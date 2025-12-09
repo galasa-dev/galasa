@@ -128,7 +128,7 @@ func (cmd *UsersSetCommand) executeUsersSet(
 	if err == nil {
 		commsFlagSetValues.isCapturingLogs = true
 	
-		log.Println("Galasa CLI - Sets properties on an existibg user in the ecosystem")
+		log.Println("Galasa CLI - Sets properties on an existing user in the ecosystem")
 	
 		// Get the ability to query environment variables.
 		env := factory.GetEnvironment()
@@ -147,8 +147,6 @@ func (cmd *UsersSetCommand) executeUsersSet(
 			)
 
 			if err == nil {
-	
-				var console = factory.GetStdOutConsole()				
 				byteReader := factory.GetByteReader()
 
 				// if the user did not explicitly pass --priority, treat it as "empty"
@@ -163,7 +161,6 @@ func (cmd *UsersSetCommand) executeUsersSet(
 						cmd.values.role,
 						cmd.values.priority,
 						apiClient,
-						console,
 						byteReader,
 					)
 				}
