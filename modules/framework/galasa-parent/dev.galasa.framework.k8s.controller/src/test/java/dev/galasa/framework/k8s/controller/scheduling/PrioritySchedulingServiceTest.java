@@ -112,7 +112,7 @@ public class PrioritySchedulingServiceTest {
         
         MockRun run2 = new MockRun(null, null, "run2", null, null, null, null, false);
 
-        // Set the queued time to be 4 minutes before now
+        // Set the queued time to be 7 minutes before now
         run2.setQueued(now.minus(7, ChronoUnit.MINUTES));
         run2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
@@ -150,7 +150,7 @@ public class PrioritySchedulingServiceTest {
         
         MockRun run2 = new MockRun(null, null, "run2", null, null, null, null, false);
 
-        // Set the queued time to be 4 minutes before now
+        // Set the queued time to be 7 minutes before now
         run2.setQueued(now.minus(7, ChronoUnit.MINUTES));
         run2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
