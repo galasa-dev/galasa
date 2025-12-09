@@ -78,7 +78,7 @@ public class MockIConfigurationPropertyStoreService implements IConfigurationPro
 
     @Override
     public Map<String, String> getAllProperties() throws ConfigurationPropertyStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'getAllProperties'");
+        return this.properties;
     }
 
     @Override
