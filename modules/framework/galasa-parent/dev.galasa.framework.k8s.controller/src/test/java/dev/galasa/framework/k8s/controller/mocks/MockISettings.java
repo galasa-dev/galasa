@@ -10,6 +10,7 @@ public class MockISettings implements ISettings {
     public int interruptedTestRunCleanupGracePeriodSecs = 10;
     public int allocatedTestRunTimeoutMins = 30;
     public static final String ENGINE_LABEL = "myEngineLabel";
+    private int maxEngines = 5;
 
     @Override
     public String getEngineLabel() {
@@ -53,7 +54,11 @@ public class MockISettings implements ISettings {
 
     @Override
     public int getMaxEngines() {
-        return 5;
+        return maxEngines;
+    }
+
+    public void setMaxEngines(int maxEngines) {
+        this.maxEngines = maxEngines;
     }
 
     @Override
