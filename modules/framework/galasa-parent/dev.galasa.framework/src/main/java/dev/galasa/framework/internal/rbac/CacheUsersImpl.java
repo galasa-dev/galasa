@@ -142,8 +142,8 @@ public class CacheUsersImpl implements CacheUsers {
     }
 
     @Override
-    public long getUserPriority(String loginId) throws RBACException {
-        long priority = 0;
+    public int getUserPriority(String loginId) throws RBACException {
+        int priority = 0;
         try {
             String userPriorityKey = getSuffixedUserPropertyKey(loginId, PRIORITY_PROPERTY_SUFFIX);
             String userPriorityStr = dssService.get(userPriorityKey);
@@ -158,7 +158,7 @@ public class CacheUsersImpl implements CacheUsers {
                 }
 
             } else {
-                priority = Long.parseLong(userPriorityStr);
+                priority = Integer.parseInt(userPriorityStr);
             }
         } catch (DynamicStatusStoreException e) {
             logger.warn("Failed to access DSS to get user priority, using priority " + priority);

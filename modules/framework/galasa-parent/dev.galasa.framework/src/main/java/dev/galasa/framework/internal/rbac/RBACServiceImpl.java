@@ -226,7 +226,7 @@ public class RBACServiceImpl implements RBACService {
     }
 
     @Override
-    public long getUserPriority(String loginId) throws RBACException {
+    public int getUserPriority(String loginId) throws RBACException {
         return usersCache.getUserPriority(loginId);
     }
 }

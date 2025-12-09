@@ -48,8 +48,8 @@ public class MockCacheUsers implements CacheUsers {
     }
 
     @Override
-    public long getUserPriority(String loginId) throws RBACException {
-        long priority = 0;
+    public int getUserPriority(String loginId) throws RBACException {
+        int priority = 0;
         IUser user = getUserByLoginId(loginId);
 
         if (user != null) {

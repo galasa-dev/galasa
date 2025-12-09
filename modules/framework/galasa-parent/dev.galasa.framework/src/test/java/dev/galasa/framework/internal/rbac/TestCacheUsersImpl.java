@@ -164,4 +164,82 @@ public class TestCacheUsersImpl {
         // Then...
         assertThat(dssData).isEmpty();
     }
+
+    @Test
+    public void testGetUserPriorityUpdatesCacheWhenUserIsNotCached() throws Exception {
+        // Given...
+        MockTimeService timeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        String loginId = "bob";
+        MockUser mockUser = new MockUser();
+        mockUser.setLoginId(loginId);
+        mockUser.setRoleId("2");
+        mockUser.setPriority(100);
+
+        mockAuthStoreService.addUser(mockUser);
+
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), CPS_PROPERTIES_SET.getAction());
+
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(loginId, permittedActions);
+        CacheUsers cache = new CacheUsersImpl(mockDssService, mockAuthStoreService, mockRbacService);
+
+        Map<String, String> dssData = mockDssService.data;
+        assertThat(dssData).isEmpty();
+
+        // When...
+        int priorityGotBack = cache.getUserPriority(loginId);
+
+        // Then...
+        assertThat(priorityGotBack).isEqualTo(100);
+        assertThat(dssData.get("user." + loginId + ".priority")).isEqualTo("100");
+    }
+
+    @Test
+    public void testGetUserPriorityReadsFromCacheWhenUserIsCached() throws Exception {
+        // Given...
+        MockTimeService timeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        String loginId = "bob";
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), CPS_PROPERTIES_SET.getAction());
+
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(loginId, permittedActions);
+        CacheUsers cache = new CacheUsersImpl(mockDssService, mockAuthStoreService, mockRbacService);
+
+        Map<String, String> dssData = mockDssService.data;
+        dssData.put("user." + loginId + ".priority", "100");
+
+        // When...
+        int priorityGotBack = cache.getUserPriority(loginId);
+
+        // Then...
+        assertThat(priorityGotBack).isEqualTo(100);
+        assertThat(dssData.get("user." + loginId + ".priority")).isEqualTo("100");
+    }
+
+    @Test
+    public void testGetUserPriorityWithInvalidPriorityReturnsDefaultPriority() throws Exception {
+        // Given...
+        MockTimeService timeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
+        MockIDynamicStatusStoreService mockDssService = new MockIDynamicStatusStoreService();
+
+        String loginId = "bob";
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), CPS_PROPERTIES_SET.getAction());
+
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(loginId, permittedActions);
+        CacheUsers cache = new CacheUsersImpl(mockDssService, mockAuthStoreService, mockRbacService);
+
+        Map<String, String> dssData = mockDssService.data;
+        dssData.put("user." + loginId + ".priority", "not a valid priority value!");
+
+        // When...
+        int priorityGotBack = cache.getUserPriority(loginId);
+
+        // Then...
+        assertThat(priorityGotBack).isEqualTo(0);
+    }
 }

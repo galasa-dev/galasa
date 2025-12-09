@@ -77,5 +77,5 @@ public interface RBACService {
 
     void invalidateUser(String loginId) throws RBACException;
 
-    long getUserPriority(String loginId) throws RBACException;
+    int getUserPriority(String loginId) throws RBACException;
 }

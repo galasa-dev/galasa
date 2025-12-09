@@ -14,7 +14,7 @@ public interface CacheUsers {
 
     boolean isActionPermitted(String loginId, String actionId) throws RBACException;
 
-    long getUserPriority(String loginId) throws RBACException;
+    int getUserPriority(String loginId) throws RBACException;
 
     void invalidateUser(String loginId) throws RBACException;
 }

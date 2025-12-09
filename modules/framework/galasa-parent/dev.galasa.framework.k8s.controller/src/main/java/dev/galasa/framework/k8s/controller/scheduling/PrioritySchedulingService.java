@@ -104,8 +104,8 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         return Duration.between(startTime, endTime).toMillis() / (60 * 1000.0);
     }
 
-    private long getRequestorPriorityPoints(String requestor) {
-        long requestorPriority = 0;
+    private int getRequestorPriorityPoints(String requestor) {
+        int requestorPriority = 0;
         try {
             requestorPriority = rbacService.getUserPriority(requestor);
         } catch (RBACException e) {
