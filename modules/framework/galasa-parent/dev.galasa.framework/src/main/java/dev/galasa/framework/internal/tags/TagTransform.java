@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.spi.tags.Tag;
+
 public class TagTransform {
 
     private final Log logger = LogFactory.getLog(getClass());

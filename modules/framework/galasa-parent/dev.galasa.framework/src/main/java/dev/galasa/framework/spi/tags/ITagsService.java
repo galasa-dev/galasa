@@ -7,8 +7,6 @@ package dev.galasa.framework.spi.tags;
 
 import java.util.List;
 
-import dev.galasa.framework.internal.tags.Tag;
-
 public interface ITagsService {
 
     /**

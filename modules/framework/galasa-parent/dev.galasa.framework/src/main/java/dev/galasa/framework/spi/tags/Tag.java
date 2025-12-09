@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.internal.tags;
+package dev.galasa.framework.spi.tags;
 
 public class Tag {
 

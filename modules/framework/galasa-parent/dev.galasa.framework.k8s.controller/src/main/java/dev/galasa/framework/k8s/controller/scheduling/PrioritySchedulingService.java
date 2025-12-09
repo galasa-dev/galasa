@@ -7,9 +7,11 @@ package dev.galasa.framework.k8s.controller.scheduling;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,6 +22,8 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
+import dev.galasa.framework.spi.tags.ITagsService;
+import dev.galasa.framework.spi.tags.Tag;
 import dev.galasa.framework.spi.utils.ITimeService;
 
 /**
@@ -48,17 +52,20 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
     private IConfigurationPropertyStoreService cps;
     private ITimeService timeService;
     private RBACService rbacService;
+    private ITagsService tagsService;
     
     public PrioritySchedulingService(
         IFrameworkRuns frameworkRuns,
         IConfigurationPropertyStoreService cps,
         RBACService rbacService,
-        ITimeService timeService
+        ITimeService timeService,
+        ITagsService tagsService
     ) {
         this.frameworkRuns = frameworkRuns;
         this.rbacService = rbacService;
         this.cps = cps;
         this.timeService = timeService;
+        this.tagsService = tagsService;
     }
 
     @Override
@@ -88,6 +95,7 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
     double getQueuedRunTotalPriorityPoints(IRun run) {
         double totalPriorityPoints = getPriorityPointsFromQueuedTime(run.getQueued());
         totalPriorityPoints += getRequestorPriorityPoints(run.getRequestor());
+        totalPriorityPoints += getPriorityPointsFromTags(run.getTags());
 
         return totalPriorityPoints;
     }
@@ -98,6 +106,27 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
 
         double minutesElapsedSinceQueued = getMinutesBetween(queuedTime, currentTime);
         return minutesElapsedSinceQueued * priorityGrowthRatePerMin;
+    }
+
+    private double getPriorityPointsFromTags(Set<String> runTags) {
+        double priorityPointsFromTags = 0;
+        List<Tag> tagsFromCps = new ArrayList<>();
+
+        for (String tagName : runTags) {
+            try {
+                Tag tag = tagsService.getTagByName(tagName);
+                if (tag != null) {
+                    tagsFromCps.add(tag);
+                }
+            } catch (Exception e) {
+                logger.warn("Could not get tag " + tagName + ", ignoring tag priority");
+            }
+        }
+
+        for (Tag tag : tagsFromCps) {
+            priorityPointsFromTags += tag.getPriority();
+        }
+        return priorityPointsFromTags;
     }
 
     private double getMinutesBetween(Instant startTime, Instant endTime) {

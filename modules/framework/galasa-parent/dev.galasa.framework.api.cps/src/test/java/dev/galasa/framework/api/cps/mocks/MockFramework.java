@@ -13,6 +13,8 @@ import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.streams.IStreamsService;
+import dev.galasa.framework.spi.tags.ITagsService;
+import dev.galasa.framework.spi.tags.TagsException;
 
 import java.net.URL;
 import java.util.*;
@@ -124,5 +126,10 @@ public class MockFramework implements IFramework {
     @Override
     public @NotNull IStreamsService getStreamsService() {
         throw new UnsupportedOperationException("Unimplemented method 'getStreamsService'");
+    }
+
+    @Override
+    public @NotNull ITagsService getTagsService() throws TagsException {
+        throw new UnsupportedOperationException("Unimplemented method 'getTagsService'");
     }
 }

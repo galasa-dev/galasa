@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import dev.galasa.framework.spi.tags.Tag;
+
 public class TestTagTransform {
 
     @Test

@@ -13,6 +13,7 @@ import java.util.Map;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.tags.ITagsService;
+import dev.galasa.framework.spi.tags.Tag;
 import dev.galasa.framework.spi.tags.TagsException;
 
 public class TagsService implements ITagsService {

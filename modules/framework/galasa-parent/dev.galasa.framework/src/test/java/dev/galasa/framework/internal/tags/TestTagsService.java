@@ -14,6 +14,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import dev.galasa.framework.mocks.MockIConfigurationPropertyStoreService;
+import dev.galasa.framework.spi.tags.Tag;
 
 public class TestTagsService {
 
