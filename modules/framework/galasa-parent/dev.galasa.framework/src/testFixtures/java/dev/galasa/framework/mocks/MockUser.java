@@ -18,6 +18,7 @@ public class MockUser implements IUser {
     public String roleId;
     public String loginId;
     public Collection<IFrontEndClient> clients = new ArrayList<IFrontEndClient>();
+    public int priority;
 
     @Override
     public String getUserNumber() {
@@ -70,4 +71,13 @@ public class MockUser implements IUser {
         this.loginId = loginId;
     }
 
+    @Override
+    public int getPriority() {
+        return priority;
+    }
+
+    @Override
+    public void setPriority(int newPriority) {
+        this.priority = newPriority;
+    }
 };

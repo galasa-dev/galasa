@@ -15,6 +15,7 @@ public class CouchdbUser implements IInternalUser {
     private String loginId;
     private String dexUserId;
     private String roleId;
+    private int priority;
 
     public CouchdbUser(String loginId, String dexUserId) {
         this.loginId = loginId;
@@ -39,5 +40,10 @@ public class CouchdbUser implements IInternalUser {
     @Override
     public String getRoleId() {
         return roleId;
+    }
+
+    @Override
+    public int getPriority() {
+        return priority;
     }
 }
