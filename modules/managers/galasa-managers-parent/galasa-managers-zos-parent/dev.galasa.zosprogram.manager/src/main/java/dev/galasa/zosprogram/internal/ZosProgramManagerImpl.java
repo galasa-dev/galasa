@@ -198,13 +198,18 @@ public class ZosProgramManagerImpl extends AbstractManager implements IZosProgra
     public IZosProgram generateZosProgram(Field field, List<Annotation> annotations) throws ZosProgramManagerException {
         ZosProgram annotationZosProgram = field.getAnnotation(ZosProgram.class);
 
-        String name = nulled(annotationZosProgram.name());
+        String name = nulled(annotationZosProgram.name()).toUpperCase();
         String location = nulled(annotationZosProgram.location());
         String tag = defaultString(annotationZosProgram.imageTag(), "PRIMARY").toUpperCase();;
         Language language = annotationZosProgram.language();
         boolean cics = annotationZosProgram.cics();
         String loadlib = nulled(annotationZosProgram.loadlib());
         boolean compile = annotationZosProgram.compile();
+
+        //Ensure program name does not exceed 8 characters
+        if (name.length() > 8) {    
+            throw new ZosProgramManagerException("Program name '" + name + "' exceeds 8 characters."); 
+        }
         
         ZosProgramImpl zosProgram = new ZosProgramImpl(this, field, tag, name, location, language, cics, loadlib, compile);
         zosPrograms.put(field.getName(), zosProgram);
