@@ -110,7 +110,7 @@ func addRoleFlag(cmd *cobra.Command, userSetCmdValues *UsersSetCmdValues) {
 
 func addPriorityFlag(cmd *cobra.Command, userSetCmdValues *UsersSetCmdValues) {
 	flagName := "priority"
-	description := "An optional field indicating the new priority of the specified user."
+	description := "An optional field indicating the new priority of the specified user. The higher the number, the higher the priority."
 	cmd.Flags().IntVar(&userSetCmdValues.priority, flagName, 0, description)
 }
 
