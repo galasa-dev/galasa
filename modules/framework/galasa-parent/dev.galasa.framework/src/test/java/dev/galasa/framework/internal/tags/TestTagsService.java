@@ -7,9 +7,12 @@ package dev.galasa.framework.internal.tags;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Base64.Encoder;
 
 import org.junit.Test;
 
@@ -23,13 +26,18 @@ public class TestTagsService {
         // Given...
         MockIConfigurationPropertyStoreService mockCpsService = new MockIConfigurationPropertyStoreService();
 
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        String tag1Name = encoder.encodeToString("TAG1".getBytes(StandardCharsets.UTF_8));
+        String tag2Name = encoder.encodeToString("TAG2".getBytes(StandardCharsets.UTF_8));
+        String tag3Name = encoder.encodeToString("TAG3".getBytes(StandardCharsets.UTF_8));
+
         Map<String, String> propertiesToSet = new HashMap<>();
-        propertiesToSet.put("TAG1.description", "this is a test tag");
-        propertiesToSet.put("TAG1.priority", "100");
-        propertiesToSet.put("TAG2.description", "this is another test tag");
-        propertiesToSet.put("TAG2.priority", "5");
-        propertiesToSet.put("TAG3.description", "new tag");
-        propertiesToSet.put("TAG3.priority", "1");
+        propertiesToSet.put(tag1Name + ".description", "this is a test tag");
+        propertiesToSet.put(tag1Name + ".priority", "100");
+        propertiesToSet.put(tag2Name + ".description", "this is another test tag");
+        propertiesToSet.put(tag2Name + ".priority", "5");
+        propertiesToSet.put(tag3Name + ".description", "new tag");
+        propertiesToSet.put(tag3Name + ".priority", "1");
 
         mockCpsService.setProperties(propertiesToSet);
 
@@ -49,17 +57,56 @@ public class TestTagsService {
     }
 
     @Test
+    public void testGetAllTagsSkipsTagWithBadName() throws Exception {
+        // Given...
+        MockIConfigurationPropertyStoreService mockCpsService = new MockIConfigurationPropertyStoreService();
+
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        String tag1Name = encoder.encodeToString("TAG1".getBytes(StandardCharsets.UTF_8));
+        String tag2Name = encoder.encodeToString("TAG2".getBytes(StandardCharsets.UTF_8));
+
+        Map<String, String> propertiesToSet = new HashMap<>();
+        propertiesToSet.put(tag1Name + ".description", "this is a test tag");
+        propertiesToSet.put(tag1Name + ".priority", "100");
+        propertiesToSet.put(tag2Name + ".description", "this is another test tag");
+        propertiesToSet.put(tag2Name + ".priority", "5");
+        propertiesToSet.put("not a valid base64 tag!.description", "new tag");
+        propertiesToSet.put("not a valid base64 tag!.priority", "1");
+
+        mockCpsService.setProperties(propertiesToSet);
+
+        TagsService tagsService = new TagsService(mockCpsService);
+
+        // When...
+        List<Tag> tagsGotBack = tagsService.getTags();
+
+        // Then...
+        assertThat(tagsGotBack).hasSize(2);
+        assertThat(tagsGotBack).extracting(Tag::getName)
+            .containsExactlyInAnyOrder("TAG1", "TAG2");
+        assertThat(tagsGotBack).extracting(Tag::getDescription)
+            .containsExactlyInAnyOrder("this is a test tag", "this is another test tag");
+        assertThat(tagsGotBack).extracting(Tag::getPriority)
+            .containsExactlyInAnyOrder(100, 5);
+    }
+
+    @Test
     public void testCanGetTagByName() throws Exception {
         // Given...
         MockIConfigurationPropertyStoreService mockCpsService = new MockIConfigurationPropertyStoreService();
 
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        String tag1Name = encoder.encodeToString("TAG1".getBytes(StandardCharsets.UTF_8));
+        String tag2Name = encoder.encodeToString("TAG2".getBytes(StandardCharsets.UTF_8));
+        String tag3Name = encoder.encodeToString("TAG3".getBytes(StandardCharsets.UTF_8));
+
         Map<String, String> propertiesToSet = new HashMap<>();
-        propertiesToSet.put("TAG1.description", "this is a test tag");
-        propertiesToSet.put("TAG1.priority", "100");
-        propertiesToSet.put("TAG2.description", "this is another test tag");
-        propertiesToSet.put("TAG2.priority", "5");
-        propertiesToSet.put("TAG3.description", "new tag");
-        propertiesToSet.put("TAG3.priority", "1");
+        propertiesToSet.put(tag1Name + ".description", "this is a test tag");
+        propertiesToSet.put(tag1Name + ".priority", "100");
+        propertiesToSet.put(tag2Name + ".description", "this is another test tag");
+        propertiesToSet.put(tag2Name + ".priority", "5");
+        propertiesToSet.put(tag3Name + ".description", "new tag");
+        propertiesToSet.put(tag3Name + ".priority", "1");
 
         mockCpsService.setProperties(propertiesToSet);
 
@@ -79,13 +126,18 @@ public class TestTagsService {
         // Given...
         MockIConfigurationPropertyStoreService mockCpsService = new MockIConfigurationPropertyStoreService();
 
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        String tag1Name = encoder.encodeToString("TAG1".getBytes(StandardCharsets.UTF_8));
+        String tag2Name = encoder.encodeToString("TAG2".getBytes(StandardCharsets.UTF_8));
+        String tag3Name = encoder.encodeToString("TAG3".getBytes(StandardCharsets.UTF_8));
+
         Map<String, String> propertiesToSet = new HashMap<>();
-        propertiesToSet.put("TAG1.description", "this is a test tag");
-        propertiesToSet.put("TAG1.priority", "100");
-        propertiesToSet.put("TAG2.description", "this is another test tag");
-        propertiesToSet.put("TAG2.priority", "5");
-        propertiesToSet.put("TAG3.description", "new tag");
-        propertiesToSet.put("TAG3.priority", "1");
+        propertiesToSet.put(tag1Name + ".description", "this is a test tag");
+        propertiesToSet.put(tag1Name + ".priority", "100");
+        propertiesToSet.put(tag2Name + ".description", "this is another test tag");
+        propertiesToSet.put(tag2Name + ".priority", "5");
+        propertiesToSet.put(tag3Name + ".description", "new tag");
+        propertiesToSet.put(tag3Name + ".priority", "1");
 
         mockCpsService.setProperties(propertiesToSet);
 
@@ -103,13 +155,18 @@ public class TestTagsService {
         // Given...
         MockIConfigurationPropertyStoreService mockCpsService = new MockIConfigurationPropertyStoreService();
 
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        String tag1Name = encoder.encodeToString("TAG1".getBytes(StandardCharsets.UTF_8));
+        String tag2Name = encoder.encodeToString("TAG2".getBytes(StandardCharsets.UTF_8));
+        String tag3Name = encoder.encodeToString("TAG3".getBytes(StandardCharsets.UTF_8));
+
         Map<String, String> propertiesToSet = new HashMap<>();
-        propertiesToSet.put("TAG1.description", "this is a test tag");
-        propertiesToSet.put("TAG1.priority", "100");
-        propertiesToSet.put("TAG2.description", "this is another test tag");
-        propertiesToSet.put("TAG2.priority", "5");
-        propertiesToSet.put("TAG3.description", "new tag");
-        propertiesToSet.put("TAG3.priority", "1");
+        propertiesToSet.put(tag1Name + ".description", "this is a test tag");
+        propertiesToSet.put(tag1Name + ".priority", "100");
+        propertiesToSet.put(tag2Name + ".description", "this is another test tag");
+        propertiesToSet.put(tag2Name + ".priority", "5");
+        propertiesToSet.put(tag3Name + ".description", "new tag");
+        propertiesToSet.put(tag3Name + ".priority", "1");
 
         mockCpsService.setProperties(propertiesToSet);
 
@@ -119,7 +176,7 @@ public class TestTagsService {
         tagsService.deleteTag("TAG2");
 
         // Then...
-        assertThat(mockCpsService.getAllProperties().keySet()).doesNotContain("TAG2.description", "TAG2.priority");
+        assertThat(mockCpsService.getAllProperties().keySet()).doesNotContain(tag2Name + ".description", tag2Name + ".priority");
     }
 
     @Test
@@ -127,13 +184,18 @@ public class TestTagsService {
         // Given...
         MockIConfigurationPropertyStoreService mockCpsService = new MockIConfigurationPropertyStoreService();
 
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        String tag1Name = encoder.encodeToString("TAG1".getBytes(StandardCharsets.UTF_8));
+        String tag2Name = encoder.encodeToString("TAG2".getBytes(StandardCharsets.UTF_8));
+        String tag3Name = encoder.encodeToString("TAG3".getBytes(StandardCharsets.UTF_8));
+
         Map<String, String> propertiesToSet = new HashMap<>();
-        propertiesToSet.put("TAG1.description", "this is a test tag");
-        propertiesToSet.put("TAG1.priority", "100");
-        propertiesToSet.put("TAG2.description", "this is another test tag");
-        propertiesToSet.put("TAG2.priority", "5");
-        propertiesToSet.put("TAG3.description", "new tag");
-        propertiesToSet.put("TAG3.priority", "1");
+        propertiesToSet.put(tag1Name + ".description", "this is a test tag");
+        propertiesToSet.put(tag1Name + ".priority", "100");
+        propertiesToSet.put(tag2Name + ".description", "this is another test tag");
+        propertiesToSet.put(tag2Name + ".priority", "5");
+        propertiesToSet.put(tag3Name + ".description", "new tag");
+        propertiesToSet.put(tag3Name + ".priority", "1");
 
         mockCpsService.setProperties(propertiesToSet);
 
@@ -147,9 +209,47 @@ public class TestTagsService {
         tagsService.setTag(tag);
 
         // Then...
-        assertThat(mockCpsService.getAllProperties().keySet()).contains("NEWTAG.description", "NEWTAG.priority");
-        assertThat(mockCpsService.getProperty("NEWTAG", "description")).isEqualTo("Create me!");
-        assertThat(mockCpsService.getProperty("NEWTAG", "priority")).isEqualTo("42");
+        String encodedNewTagName = encoder.encodeToString("NEWTAG".getBytes(StandardCharsets.UTF_8));
+        assertThat(mockCpsService.getAllProperties().keySet()).contains(encodedNewTagName + ".description", encodedNewTagName + ".priority");
+        assertThat(mockCpsService.getProperty(encodedNewTagName, "description")).isEqualTo("Create me!");
+        assertThat(mockCpsService.getProperty(encodedNewTagName, "priority")).isEqualTo("42");
+    }
+
+    @Test
+    public void testCanCreateTagWithSpecialCharactersInItsName() throws Exception {
+        // Given...
+        MockIConfigurationPropertyStoreService mockCpsService = new MockIConfigurationPropertyStoreService();
+
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        String tag1Name = encoder.encodeToString("TAG1".getBytes(StandardCharsets.UTF_8));
+        String tag2Name = encoder.encodeToString("TAG2".getBytes(StandardCharsets.UTF_8));
+        String tag3Name = encoder.encodeToString("TAG3".getBytes(StandardCharsets.UTF_8));
+
+        Map<String, String> propertiesToSet = new HashMap<>();
+        propertiesToSet.put(tag1Name + ".description", "this is a test tag");
+        propertiesToSet.put(tag1Name + ".priority", "100");
+        propertiesToSet.put(tag2Name + ".description", "this is another test tag");
+        propertiesToSet.put(tag2Name + ".priority", "5");
+        propertiesToSet.put(tag3Name + ".description", "new tag");
+        propertiesToSet.put(tag3Name + ".priority", "1");
+
+        mockCpsService.setProperties(propertiesToSet);
+
+        TagsService tagsService = new TagsService(mockCpsService);
+
+        String tagName = "this is a new tag!@#$%^&*()_+";
+        Tag tag = new Tag(tagName);
+        tag.setDescription("Create me!");
+        tag.setPriority(42);
+
+        // When...
+        tagsService.setTag(tag);
+
+        // Then...
+        String encodedNewTagName = encoder.encodeToString(tagName.getBytes(StandardCharsets.UTF_8));
+        assertThat(mockCpsService.getAllProperties().keySet()).contains(encodedNewTagName + ".description", encodedNewTagName + ".priority");
+        assertThat(mockCpsService.getProperty(encodedNewTagName, "description")).isEqualTo("Create me!");
+        assertThat(mockCpsService.getProperty(encodedNewTagName, "priority")).isEqualTo("42");
     }
 
     @Test
@@ -157,13 +257,18 @@ public class TestTagsService {
         // Given...
         MockIConfigurationPropertyStoreService mockCpsService = new MockIConfigurationPropertyStoreService();
 
+        Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        String tag1Name = encoder.encodeToString("TAG1".getBytes(StandardCharsets.UTF_8));
+        String tag2Name = encoder.encodeToString("TAG2".getBytes(StandardCharsets.UTF_8));
+        String tag3Name = encoder.encodeToString("TAG3".getBytes(StandardCharsets.UTF_8));
+
         Map<String, String> propertiesToSet = new HashMap<>();
-        propertiesToSet.put("TAG1.description", "this is a test tag");
-        propertiesToSet.put("TAG1.priority", "100");
-        propertiesToSet.put("TAG2.description", "this is another test tag");
-        propertiesToSet.put("TAG2.priority", "5");
-        propertiesToSet.put("TAG3.description", "new tag");
-        propertiesToSet.put("TAG3.priority", "1");
+        propertiesToSet.put(tag1Name + ".description", "this is a test tag");
+        propertiesToSet.put(tag1Name + ".priority", "100");
+        propertiesToSet.put(tag2Name + ".description", "this is another test tag");
+        propertiesToSet.put(tag2Name + ".priority", "5");
+        propertiesToSet.put(tag3Name + ".description", "new tag");
+        propertiesToSet.put(tag3Name + ".priority", "1");
 
         mockCpsService.setProperties(propertiesToSet);
 
@@ -177,7 +282,7 @@ public class TestTagsService {
         tagsService.setTag(tag);
 
         // Then...
-        assertThat(mockCpsService.getProperty("TAG1", "description")).isEqualTo("Updated!");
-        assertThat(mockCpsService.getProperty("TAG1", "priority")).isEqualTo("42");
+        assertThat(mockCpsService.getProperty(tag1Name, "description")).isEqualTo("Updated!");
+        assertThat(mockCpsService.getProperty(tag1Name, "priority")).isEqualTo("42");
     }
 }

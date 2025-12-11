@@ -42,7 +42,8 @@ public class TagsService implements ITagsService {
     public Tag getTagByName(String tagName) throws TagsException {
         Tag tag = null;
         try {
-            Map<String, String> tagProperties = cpsService.getPrefixedProperties(tagName);
+            String encodedTagName = tagTransform.encodeTagName(tagName);
+            Map<String, String> tagProperties = cpsService.getPrefixedProperties(encodedTagName + ".");
             List<Tag> tags = getTagsFromCpsProperties(tagProperties);
 
             if (!tags.isEmpty()) {
@@ -60,7 +61,7 @@ public class TagsService implements ITagsService {
         Map<String, Map<String, String>> groupedTagProperties = new HashMap<>();
 
         // Tag properties are returned from the CPS with the format:
-        // TAGNAME.suffix
+        // base64URLEncodedTagName.suffix
         for (Map.Entry<String, String> entry : tagProperties.entrySet()) {
             String fullKey = entry.getKey();
             String value = entry.getValue();
@@ -78,11 +79,13 @@ public class TagsService implements ITagsService {
         }
 
         for (Map.Entry<String, Map<String, String>> entry : groupedTagProperties.entrySet()) {
-            String tagName = entry.getKey();
+            String encodedTagName = entry.getKey();
             Map<String, String> properties = entry.getValue();
 
-            Tag tag = tagTransform.getTagFromProperties(properties, tagName);
-            tags.add(tag);
+            Tag tag = tagTransform.getTagFromProperties(properties, encodedTagName);
+            if (tag != null) {
+                tags.add(tag);
+            }
         }
 
         return tags;
@@ -102,7 +105,8 @@ public class TagsService implements ITagsService {
     @Override
     public void deleteTag(String tagName) throws TagsException {
         try {
-            cpsService.deletePrefixedProperties(tagName + ".");
+            String encodedTagName = tagTransform.encodeTagName(tagName);
+            cpsService.deletePrefixedProperties(encodedTagName + ".");
         } catch (ConfigurationPropertyStoreException e) {
             throw new TagsException("Failed to delete tag " + tagName + " from the CPS", e);
         }

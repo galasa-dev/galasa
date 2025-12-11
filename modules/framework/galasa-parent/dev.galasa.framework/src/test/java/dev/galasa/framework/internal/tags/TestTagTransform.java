@@ -7,6 +7,8 @@ package dev.galasa.framework.internal.tags;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Map;
 
 import org.junit.Test;
@@ -14,6 +16,23 @@ import org.junit.Test;
 import dev.galasa.framework.spi.tags.Tag;
 
 public class TestTagTransform {
+
+    @Test
+    public void testCanEncodeTagNameIntoBase64() throws Exception {
+        // Given...
+        String tagName = "sampleTag";
+        TagTransform transform = new TagTransform();
+
+        // When...
+        String encodedTagName = transform.encodeTagName(tagName);
+
+        // Then...
+        String expectedTagName = Base64.getUrlEncoder().withoutPadding().encodeToString(tagName.getBytes(StandardCharsets.UTF_8));
+        assertThat(encodedTagName).isEqualTo(expectedTagName);
+
+        String decodedTagName = new String(Base64.getUrlDecoder().decode(encodedTagName), StandardCharsets.UTF_8);
+        assertThat(decodedTagName).isEqualTo(tagName);
+    }
 
     @Test
     public void testCanConvertTagToProperties() throws Exception {
@@ -27,9 +46,10 @@ public class TestTagTransform {
         Map<String, String> properties = transform.getPropertiesFromTag(tag);
 
         // Then...
+        String encodedTagName = transform.encodeTagName("sampleTag");
         assertThat(properties).hasSize(2);
-        assertThat(properties).containsEntry("sampleTag.description", "This is a sample tag");
-        assertThat(properties).containsEntry("sampleTag.priority", "5");
+        assertThat(properties).containsEntry(encodedTagName + ".description", "This is a sample tag");
+        assertThat(properties).containsEntry(encodedTagName + ".priority", "5");
     }
 
     @Test
@@ -43,9 +63,10 @@ public class TestTagTransform {
         Map<String, String> properties = transform.getPropertiesFromTag(tag);
 
         // Then...
+        String encodedTagName = transform.encodeTagName("sampleTag");
         assertThat(properties).hasSize(1);
-        assertThat(properties).doesNotContainKey("sampleTag.description");
-        assertThat(properties).containsEntry("sampleTag.priority", "5");
+        assertThat(properties).doesNotContainKey(encodedTagName + ".description");
+        assertThat(properties).containsEntry(encodedTagName + ".priority", "5");
     }
 
     @Test
@@ -57,8 +78,10 @@ public class TestTagTransform {
             "priority", "5"
         );
 
+        String encodedTagName = transform.encodeTagName("sampleTag");
+
         // When...
-        Tag tagGotBack = transform.getTagFromProperties(properties, "sampleTag");
+        Tag tagGotBack = transform.getTagFromProperties(properties, encodedTagName);
 
         // Then...
         assertThat(tagGotBack.getName()).isEqualTo("sampleTag");
@@ -74,8 +97,10 @@ public class TestTagTransform {
             "priority", "5"
         );
 
+        String encodedTagName = transform.encodeTagName("sampleTag");
+
         // When...
-        Tag tagGotBack = transform.getTagFromProperties(properties, "sampleTag");
+        Tag tagGotBack = transform.getTagFromProperties(properties, encodedTagName);
 
         // Then...
         assertThat(tagGotBack.getName()).isEqualTo("sampleTag");
@@ -92,12 +117,30 @@ public class TestTagTransform {
             "priority", "not a valid priority!"
         );
 
+        String encodedTagName = transform.encodeTagName("sampleTag");
+
         // When...
-        Tag tagGotBack = transform.getTagFromProperties(properties, "sampleTag");
+        Tag tagGotBack = transform.getTagFromProperties(properties, encodedTagName);
 
         // Then...
         assertThat(tagGotBack.getName()).isEqualTo("sampleTag");
         assertThat(tagGotBack.getDescription()).isEqualTo("This is a sample tag");
         assertThat(tagGotBack.getPriority()).isEqualTo(0);
+    }
+
+    @Test
+    public void testDecodingBadTagNameReturnsNull() throws Exception {
+        // Given...
+        TagTransform transform = new TagTransform();
+        Map<String, String> properties = Map.of(
+            "description", "This is a sample tag",
+            "priority", "not a valid priority!"
+        );
+
+        // When...
+        Tag tagGotBack = transform.getTagFromProperties(properties, "not a valid base64 string!!!");
+
+        // Then...
+        assertThat(tagGotBack).isNull();
     }
 }
