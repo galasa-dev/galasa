@@ -104,7 +104,8 @@ public class TestCacheUsersImpl {
         mockUser.setRoleId("2");
 
         mockAuthStoreService.addUser(mockUser);
-        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(loginId);
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), SECRETS_GET_UNREDACTED_VALUES.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(loginId, permittedActions);
 
         CacheUsers cache = new CacheUsersImpl(mockDssService, mockAuthStoreService, mockRbacService);
 
