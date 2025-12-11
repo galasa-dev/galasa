@@ -73,7 +73,11 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
     @Override
     public List<IRun> getPrioritisedTestRunsToSchedule() throws FrameworkException {
         List<IRun> queuedRuns = getQueuedRemoteRuns();
+
+        // Collect all tags for queued runs from the CPS now so that we don't need to
+        // repeatedly query the CPS when sorting the queued runs.
         Map<String, Tag> queuedRunTags = getAllQueuedRunTagsFromCps(queuedRuns);
+
         queuedRuns.sort(getPriorityComparator(queuedRunTags));
         return queuedRuns;
     }

@@ -30,7 +30,10 @@ public class TagTransform {
     public Map<String, String> getPropertiesFromTag(Tag tag) {
         Map<String, String> properties = new HashMap<>();
         
-        // Encode the tag name into Base64 URL format to ensure safe storage as a property key
+        // Tag names could contain special characters like spaces and dots, so the property keys
+        // need to be able to handle these special characters.
+        // Encode the tag name into Base64 URL format to ensure safe storage as a property key since
+        // Base64 URL encoding uses alphanumeric characters, hyphens (-), and underscores (_) only.
         String tagName = tag.getName();
         String encodedTagName = encodeTagName(tagName);
 
