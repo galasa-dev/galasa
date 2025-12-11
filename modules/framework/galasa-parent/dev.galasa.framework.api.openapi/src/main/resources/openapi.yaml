@@ -2372,6 +2372,126 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 ##################################################################################
+# Tags API
+##################################################################################
+  /tags:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getTags
+      summary: Gets all tags in the system
+      description: |
+        Gets all tags in the system that are stored in the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      responses:
+        '200':
+          description: The list of tags in the system
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GalasaTag'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /tags/{tagName}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+      - name: tagName
+        in: path
+        description: The name of the tag to retrieve
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getTagByName
+      summary: Gets a specific tag by name
+      description: |
+        Gets a specific tag by name that is stored in the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      responses:
+        '200':
+          description: The tag with the specified name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaTag'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      operationId: updateTagByName
+      summary: Creates or updates a tag by name
+      description: |
+        Creates or updates a tag by name in the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalasaTag'
+      responses:
+        '200':
+          description: The existing tag was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaTag'
+        '201':
+          description: A new tag was created successfully
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteTagByName
+      summary: Deletes a tag by name
+      description: |
+        Deletes a tag by name from the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      responses:
+        '204':
+          description: No content response indicating that the given tag has been deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+##################################################################################
 # Bootstrap API
 ##################################################################################
   /bootstrap:
@@ -2829,6 +2949,37 @@ components:
       type: string
       description: The type of a Galasa Secret
       enum: [UsernamePassword, Username, UsernameToken, Token]
+    
+    GalasaTag:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+          enum: [GalasaTag]
+        metadata:
+          type: object
+          properties:
+            name:
+              type: string
+              description: |
+                The name that identifies the Galasa Tag.
+            description:
+              type: string
+              description: |
+                The description to be associated with the Galasa Tag.
+            url:
+              type: string
+              description: |
+                The REST API URL to the Galasa Tag's details endpoint.
+        data:
+          type: object
+          properties:
+            priority:
+              type: integer
+              description: |
+                The priority value associated with the Galasa Tag. Higher values indicate a higher priority.
     APIErrorArray:
       type: array
       description: An array of API Errors relating to the resources that failed to complete as expected
