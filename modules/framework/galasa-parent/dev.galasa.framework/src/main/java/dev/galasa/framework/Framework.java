@@ -71,7 +71,6 @@ public class Framework implements IFramework, IShuttableFramework {
     private IAuthStore                         authStore;
     private RBACService                        rbacService;
     private IStreamsService                    streamsService;
-    private CacheUsers                         usersCache;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
