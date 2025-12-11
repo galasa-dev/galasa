@@ -192,18 +192,18 @@ func isDataMemberLessThanComparison(dataMember *DataMember, comparisonMember *Da
 		default:
 			less = true
 		}
-	case strings.Contains(memberType, "int"):
+	case strings.Contains(memberType, "Integer"):
 		switch comparisonMember.MemberType {
 		case "boolean":
 			less = false
-		case "int":
+		case "Integer":
 			less = dataMember.Name > comparisonMember.Name
 		default:
 			less = true
 		}
 	case strings.Contains(memberType, "double"):
 		switch comparisonMemberType := comparisonMember.MemberType; {
-		case strings.Contains(comparisonMemberType, "boolean"), strings.Contains(comparisonMemberType, "int"):
+		case strings.Contains(comparisonMemberType, "boolean"), strings.Contains(comparisonMemberType, "Integer"):
 			less = false
 		case strings.Contains(comparisonMemberType, "double"):
 			less = dataMember.Name > comparisonMember.Name
@@ -212,7 +212,7 @@ func isDataMemberLessThanComparison(dataMember *DataMember, comparisonMember *Da
 		}
 	case strings.Contains(memberType, "String"):
 		switch comparisonMemberType := comparisonMember.MemberType; {
-		case strings.Contains(comparisonMemberType, "boolean"), strings.Contains(comparisonMemberType, "int"), strings.Contains(comparisonMemberType, "double"):
+		case strings.Contains(comparisonMemberType, "boolean"), strings.Contains(comparisonMemberType, "Integer"), strings.Contains(comparisonMemberType, "double"):
 			less = false
 		case strings.Contains(comparisonMemberType, "String"):
 			less = dataMember.Name > comparisonMember.Name

@@ -163,6 +163,7 @@ public enum ServletErrorMessage {
 
 
     // RBAC APIs...
+    GAL5119_USER_CANNOT_UPDATE_OWN_PRIORITY           (5119, "E: A user is not allowed to update their own priority. Ask a Galasa service administrator to change your priority instead."),
     GAL5120_INVALID_ACTION_NAME_PROVIDED              (5120, "E: Invalid action name provided."),
     GAL5121_INVALID_ROLE_ID_PROVIDED                  (5121, "E: Invalid role id provided."),
     GAL5122_ACTION_NAMED_NOT_FOUND                    (5122, "E: Action with that name not found."),

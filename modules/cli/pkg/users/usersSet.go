@@ -9,6 +9,7 @@ package users
 import (
 	"context"
 	"log"
+	"math"
 	"net/http"
 
 	"encoding/json"
@@ -19,25 +20,41 @@ import (
 	"github.com/galasa-dev/cli/pkg/spi"
 )
 
-func SetUsers(loginId string, roleName string, apiClient *galasaapi.APIClient, console spi.Console, byteReader spi.ByteReader) error {
+const (
+	DEFAULT_EMPTY_PRIORITY = math.MinInt
+)
 
-	// We have the role name, but we need the role ID.
-	roleWithThatName, err := getRoleFromRestApi(roleName, apiClient)
+func SetUsers(
+	loginId string,
+	roleName string,
+	priority int,
+	apiClient *galasaapi.APIClient,
+	byteReader spi.ByteReader,
+) error {
+	var err error
 
+	// We have the user login id, but we need the user number
+	var user *galasaapi.UserData
+	user, err = getUserByLoginId(loginId, apiClient)
 	if err == nil {
+		var roleId string
+		userId := *user.Id
 
-		// We have the user login id, but we need the user number
-		var user *galasaapi.UserData
-		user, err = getUserByLoginId(loginId, apiClient)
+		if roleName != "" {
+			// We have the role name, but we need the role ID.
+			var roleWithThatName *galasaapi.RBACRole
+			roleWithThatName, err = getRoleFromRestApi(roleName, apiClient)
+			if err == nil {
+				roleId = *roleWithThatName.GetMetadata().Id
+			}
+		}
+
 		if err == nil {
-
-			userId := *user.Id
-			roleId := *roleWithThatName.GetMetadata().Id
-
 			// Send the update to the rest API
-			_, err = sendUserUpdateToRestApi(userId, roleId, apiClient, loginId, byteReader)
+			_, err = sendUserUpdateToRestApi(userId, roleId, priority, apiClient, loginId, byteReader)
 		}
 	}
+
 	return err
 }
 
@@ -60,6 +77,7 @@ func getUserByLoginId(loginId string, apiClient *galasaapi.APIClient) (*galasaap
 func sendUserUpdateToRestApi(
 	userNumber string,
 	roleId string,
+	priority int,
 	apiClient *galasaapi.APIClient,
 	loginId string,
 	byteReader spi.ByteReader,
@@ -73,7 +91,15 @@ func sendUserUpdateToRestApi(
 	restApiVersion, err = embedded.GetGalasactlRestApiVersion()
 
 	var userUpdateData *galasaapi.UserUpdateData = galasaapi.NewUserUpdateData()
-	userUpdateData.SetRole(roleId)
+
+	if roleId != "" {
+		userUpdateData.SetRole(roleId)
+	}
+
+	if priority != DEFAULT_EMPTY_PRIORITY {
+		log.Printf("sendUserUpdateToRestApi - Setting priority to %d\n", priority)
+		userUpdateData.SetPriority(int32(priority))
+	}
 
 	apiCall := apiClient.UsersAPIApi.UpdateUser(context, userNumber).UserUpdateData(*userUpdateData).ClientApiVersion(restApiVersion)
 	if err == nil {

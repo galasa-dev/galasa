@@ -3073,7 +3073,7 @@ components:
           type: integer
           description: |-
             A numeric priority modifier that the user has in the system.
-            Used to determine the priority the user has when performing certain actions.
+            This value is used to determine the priority the user has when the system schedules tests.
         clients:
           type: array
           description: The list of client activities, containing client names and last login times.
@@ -3097,6 +3097,11 @@ components:
             The role that the user has in the system. This is not generally a readable name. 
             It must be less than 128 characters and a consist of alphanumeric characters, '-' (hyphen) or '_' (underscore)
           type: string
+        priority:
+          description: |-
+            A numeric priority modifier that the user has in the system.
+            This value is used to determine the priority the user has when the system schedules tests.
+          type: integer
           
     RBACRole:
       type: object

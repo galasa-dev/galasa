@@ -70,7 +70,7 @@ func propertyToJavaType(property *Property) string {
 		if property.typeName == "string" {
 			javaType = "String"
 		} else if property.typeName == "integer" {
-			javaType = "int"
+			javaType = "Integer"
 		} else if property.typeName == "number" {
 			javaType = "double"
 		} else if property.typeName == "" {

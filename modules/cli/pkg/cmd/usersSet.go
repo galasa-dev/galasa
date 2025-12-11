@@ -21,6 +21,7 @@ import (
 type UsersSetCmdValues struct {
 	// The role field on the servers' user record is mutable.
 	role string
+	priority int
 }
 
 type UsersSetCommand struct {
@@ -94,6 +95,7 @@ func (cmd *UsersSetCommand) createCobraCmd(
 
 	addLoginIdFlag(usersSetCobraCmd, MANDATORY_FLAG, userCommandValues)
 	addRoleFlag(usersSetCobraCmd, cmd.values)
+	addPriorityFlag(usersSetCobraCmd, cmd.values)
 
 	usersCommand.CobraCommand().AddCommand(usersSetCobraCmd)
 
@@ -104,6 +106,12 @@ func addRoleFlag(cmd *cobra.Command, userSetCmdValues *UsersSetCmdValues) {
 	flagName := "role"
 	description := "An optional field indicating the new role of the specified user."
 	cmd.Flags().StringVar(&userSetCmdValues.role, flagName, "", description)
+}
+
+func addPriorityFlag(cmd *cobra.Command, userSetCmdValues *UsersSetCmdValues) {
+	flagName := "priority"
+	description := "An optional field indicating the new priority of the specified user. The higher the number, the higher the priority."
+	cmd.Flags().IntVar(&userSetCmdValues.priority, flagName, 0, description)
 }
 
 func (cmd *UsersSetCommand) executeUsersSet(
@@ -120,7 +128,7 @@ func (cmd *UsersSetCommand) executeUsersSet(
 	if err == nil {
 		commsFlagSetValues.isCapturingLogs = true
 	
-		log.Println("Galasa CLI - Sets properties on an existibg user in the ecosystem")
+		log.Println("Galasa CLI - Sets properties on an existing user in the ecosystem")
 	
 		// Get the ability to query environment variables.
 		env := factory.GetEnvironment()
@@ -139,13 +147,24 @@ func (cmd *UsersSetCommand) executeUsersSet(
 			)
 
 			if err == nil {
-	
-				var console = factory.GetStdOutConsole()				
 				byteReader := factory.GetByteReader()
+
+				// If the user did not explicitly pass --priority, treat it as "empty"
+				// We can't use 0 as the "empty" value because 0 is a valid value and
+				// we want to allow users to set priority to 0.
+				if !cmd.cobraCommand.Flags().Changed("priority") {
+					cmd.values.priority = users.DEFAULT_EMPTY_PRIORITY
+				}
 
 				setUsersFunc := func(apiClient *galasaapi.APIClient) error {
 					// Call to process the command in a unit-testable way.
-					return users.SetUsers(userCmdValues.name, cmd.values.role, apiClient, console, byteReader)
+					return users.SetUsers(
+						userCmdValues.name,
+						cmd.values.role,
+						cmd.values.priority,
+						apiClient,
+						byteReader,
+					)
 				}
 				err = commsClient.RunAuthenticatedCommandWithRateLimitRetries(setUsersFunc)
 			}

@@ -277,11 +277,11 @@ components:
 	intGetter := `public String getMyStringVar() {
         return this.myStringVar;
     }`
-	intSetter := `public void setMyIntVar(int myIntVar) {
+	intSetter := `public void setMyIntVar(Integer myIntVar) {
         this.myIntVar = myIntVar;
     }`
 	intVarCreation := `// a test integer
-    private int myIntVar;`
+    private Integer myIntVar;`
 	assert.Contains(t, generatedClassFile, intGetter)
 	assert.Contains(t, generatedClassFile, intSetter)
 	assert.Contains(t, generatedClassFile, intVarCreation)
@@ -335,14 +335,14 @@ components:
 	assert.Contains(t, generatedClassFile, getter)
 	assert.Contains(t, generatedClassFile, setter)
 	assert.Contains(t, generatedClassFile, varCreation)
-	getter = `public int getMyIntVar() {
+	getter = `public Integer getMyIntVar() {
         return this.myIntVar;
     }`
-	setter = `public void setMyIntVar(int myIntVar) {
+	setter = `public void setMyIntVar(Integer myIntVar) {
         this.myIntVar = myIntVar;
     }`
 	varCreation = `// a test integer
-    private int myIntVar;`
+    private Integer myIntVar;`
 	assert.Contains(t, generatedClassFile, getter)
 	assert.Contains(t, generatedClassFile, setter)
 	assert.Contains(t, generatedClassFile, varCreation)
@@ -458,18 +458,18 @@ components:
 	assert.Contains(t, generatedClassFile, getter)
 	assert.Contains(t, generatedClassFile, setter)
 	assert.Contains(t, generatedClassFile, varCreation)
-	getter = `public int getMyIntVar() {
+	getter = `public Integer getMyIntVar() {
         return this.myIntVar;
     }`
-	setter = `public void setMyIntVar(int myIntVar) {
+	setter = `public void setMyIntVar(Integer myIntVar) {
         this.myIntVar = myIntVar;
     }`
 	varCreation = `// a test integer
-    private int myIntVar;`
+    private Integer myIntVar;`
 	assert.Contains(t, generatedClassFile, getter)
 	assert.Contains(t, generatedClassFile, setter)
 	assert.Contains(t, generatedClassFile, varCreation)
-	assert.Contains(t, generatedClassFile, `    public MyBeanName(int myIntVar, String myStringVar) {
+	assert.Contains(t, generatedClassFile, `    public MyBeanName(Integer myIntVar, String myStringVar) {
         this.myIntVar = myIntVar;
         this.myStringVar = myStringVar;
     }`)
@@ -518,14 +518,14 @@ components:
 	assert.Contains(t, generatedClassFile, getter)
 	assert.Contains(t, generatedClassFile, setter)
 	assert.Contains(t, generatedClassFile, varCreation)
-	getter = `public int getMyIntVar() {
+	getter = `public Integer getMyIntVar() {
         return this.myIntVar;
     }`
-	setter = `public void setMyIntVar(int myIntVar) {
+	setter = `public void setMyIntVar(Integer myIntVar) {
         this.myIntVar = myIntVar;
     }`
 	varCreation = `// a test integer
-    private int myIntVar;`
+    private Integer myIntVar;`
 	assert.Contains(t, generatedClassFile, getter)
 	assert.Contains(t, generatedClassFile, setter)
 	assert.Contains(t, generatedClassFile, varCreation)

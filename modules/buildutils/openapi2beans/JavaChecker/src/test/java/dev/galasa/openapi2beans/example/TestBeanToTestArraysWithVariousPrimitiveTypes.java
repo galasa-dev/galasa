@@ -21,7 +21,7 @@ public class TestBeanToTestArraysWithVariousPrimitiveTypes {
         BeanToTestArraysWithVariousPrimitiveTypes beanUnderTest = new BeanToTestArraysWithVariousPrimitiveTypes();
         beanUnderTest.setAStringArray(new String[]{"randString0", "randString1"});
         beanUnderTest.setABooleanArray(new boolean[]{true, false});
-        beanUnderTest.setAnIntArray(new int[]{2,3});
+        beanUnderTest.setAnIntArray(new Integer[]{2,3});
         beanUnderTest.setANumberArray(new double[]{1.23, 4.56});
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String serialisedForm = gson.toJson(beanUnderTest);
