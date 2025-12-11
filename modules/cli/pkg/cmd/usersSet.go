@@ -149,7 +149,9 @@ func (cmd *UsersSetCommand) executeUsersSet(
 			if err == nil {
 				byteReader := factory.GetByteReader()
 
-				// if the user did not explicitly pass --priority, treat it as "empty"
+				// If the user did not explicitly pass --priority, treat it as "empty"
+				// We can't use 0 as the "empty" value because 0 is a valid value and
+				// we want to allow users to set priority to 0.
 				if !cmd.cobraCommand.Flags().Changed("priority") {
 					cmd.values.priority = users.DEFAULT_EMPTY_PRIORITY
 				}

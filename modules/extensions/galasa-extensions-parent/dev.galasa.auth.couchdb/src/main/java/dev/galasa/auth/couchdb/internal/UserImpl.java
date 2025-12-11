@@ -53,6 +53,7 @@ public class UserImpl implements IUser {
         this.userDocBean = new UserDoc( user.getLoginId() , trustedClients, user.getRoleId());
         this.userDocBean.setVersion( user.getVersion() );
         this.userDocBean.setUserNumber( user.getUserNumber() );
+        this.userDocBean.setPriority(user.getPriority());
     }
 
     public String toJson( GalasaGson gson) {
