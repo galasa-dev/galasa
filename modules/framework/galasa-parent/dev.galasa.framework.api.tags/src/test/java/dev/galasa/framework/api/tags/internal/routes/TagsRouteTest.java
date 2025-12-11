@@ -206,4 +206,118 @@ public class TagsRouteTest extends BaseServletTest {
 
         assertThat(output).isEqualTo(gson.toJson(expectedJsonArray));
     }
+
+    @Test
+    public void testGetTagsWithNameQueryParameterReturnsMatchingTag() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        List<Tag> tags = new ArrayList<>();
+
+        String tagName = "tag1";
+        String description = "My first tag!";
+        Tag tag1 = new Tag(tagName);
+        tag1.setDescription(description);
+        tag1.setPriority(100);
+        tags.add(tag1);
+
+        String tagName2 = "tag2";
+        String description2 = "My second tag!";
+        Tag tag2 = new Tag(tagName2);
+        tag2.setDescription(description2);
+        tag2.setPriority(12);
+        tags.add(tag2);
+
+        String tagName3 = "tag3";
+        String description3 = "My third tag!";
+        Tag tag3 = new Tag(tagName3);
+        tag3.setDescription(description3);
+        tag3.setPriority(456);
+        tags.add(tag3);
+
+        MockTagsService mockTagsService = new MockTagsService(tags);
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, headerMap);
+        mockRequest.setQueryParameter("name", tagName3);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doGet(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+    
+        JsonArray expectedJsonArray = new JsonArray();
+        expectedJsonArray.add(generateExpectedTagJson(tagName3, description3, 456));
+
+        assertThat(output).isEqualTo(gson.toJson(expectedJsonArray));
+    }
+
+    @Test
+    public void testGetTagsWithNameQueryParameterEmptyListWhenNoneMatch() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        List<Tag> tags = new ArrayList<>();
+
+        String tagName = "tag1";
+        String description = "My first tag!";
+        Tag tag1 = new Tag(tagName);
+        tag1.setDescription(description);
+        tag1.setPriority(100);
+        tags.add(tag1);
+
+        String tagName2 = "tag2";
+        String description2 = "My second tag!";
+        Tag tag2 = new Tag(tagName2);
+        tag2.setDescription(description2);
+        tag2.setPriority(12);
+        tags.add(tag2);
+
+        String tagName3 = "tag3";
+        String description3 = "My third tag!";
+        Tag tag3 = new Tag(tagName3);
+        tag3.setDescription(description3);
+        tag3.setPriority(456);
+        tags.add(tag3);
+
+        MockTagsService mockTagsService = new MockTagsService(tags);
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, headerMap);
+        mockRequest.setQueryParameter("name", "this is an unknown tag!");
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doGet(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+    
+        JsonArray expectedJsonArray = new JsonArray();
+        assertThat(output).isEqualTo(gson.toJson(expectedJsonArray));
+    }
 }

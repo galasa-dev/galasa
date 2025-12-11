@@ -2377,6 +2377,16 @@ paths:
   /tags:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
+      - name: name
+        in: query
+        description: |
+          Filters the query so that only the tag with the given name is returned.
+        required: false
+        schema:
+          type: string
+        examples:
+          single:
+            value: myTag
     get:
       operationId: getTags
       summary: Gets all tags in the system
