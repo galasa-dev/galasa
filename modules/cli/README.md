@@ -858,6 +858,11 @@ An administrator can change the role of a user:
 > galasactl users set --login-id user.one@mydomain.com --role tester
 ```
 
+An administrator can also change the priority of a user:
+```
+> galasactl users set --login-id user.one@mydomain.com --priority 100
+```
+
 ## Reference Material
 
 ### Syntax
