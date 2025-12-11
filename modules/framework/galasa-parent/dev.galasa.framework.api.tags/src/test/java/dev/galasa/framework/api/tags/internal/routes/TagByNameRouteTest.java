@@ -21,6 +21,7 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -184,8 +185,102 @@ public class TagByNameRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(200);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-    
+
         String expectedJson = gson.toJson(generateExpectedTagJson(tagName2, description2, 12));
         assertThat(output).isEqualTo(expectedJson);
+    }
+
+    @Test
+    public void testCanDeleteTagByName() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        String tagName = "tag1";
+        String description = "My first tag!";
+        List<Tag> tags = new ArrayList<>();
+        Tag tag1 = new Tag(tagName);
+        tag1.setDescription(description);
+        tag1.setPriority(100);
+        tags.add(tag1);
+
+        String tagName2 = "tag2";
+        String description2 = "My second tag!";
+        Tag tag2 = new Tag(tagName2);
+        tag2.setDescription(description2);
+        tag2.setPriority(12);
+        tags.add(tag2);
+
+        MockTagsService mockTagsService = new MockTagsService(tags);
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        String encodedTagName = Base64.getUrlEncoder().withoutPadding().encodeToString(tagName2.getBytes(StandardCharsets.UTF_8));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + encodedTagName, headerMap);
+        mockRequest.setMethod(HttpMethod.DELETE.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doDelete(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(output).isEmpty();
+    }
+
+    @Test
+    public void testDeleteUnknownTagByNameReturnsError() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        String tagName = "tag1";
+        String description = "My first tag!";
+        List<Tag> tags = new ArrayList<>();
+        Tag tag1 = new Tag(tagName);
+        tag1.setDescription(description);
+        tag1.setPriority(100);
+        tags.add(tag1);
+
+        String tagName2 = "tag2";
+        String description2 = "My second tag!";
+        Tag tag2 = new Tag(tagName2);
+        tag2.setDescription(description2);
+        tag2.setPriority(12);
+        tags.add(tag2);
+
+        MockTagsService mockTagsService = new MockTagsService(tags);
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        String encodedTagName = Base64.getUrlEncoder().withoutPadding().encodeToString("unknown".getBytes(StandardCharsets.UTF_8));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + encodedTagName, headerMap);
+        mockRequest.setMethod(HttpMethod.DELETE.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doDelete(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(404);
+        checkErrorStructure(output, 5441, "GAL5441E", "Failed to find a tag with the given name");
     }
 }

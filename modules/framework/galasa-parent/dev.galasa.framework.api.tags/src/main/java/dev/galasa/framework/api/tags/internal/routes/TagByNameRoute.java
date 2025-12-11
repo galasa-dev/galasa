@@ -70,6 +70,35 @@ public class TagByNameRoute extends ProtectedRoute {
                 HttpServletResponse.SC_OK);
     }
 
+    @Override
+    public HttpServletResponse handleDeleteRequest(
+        String pathInfo,
+        HttpRequestContext requestContext,
+        HttpServletResponse response
+    ) throws FrameworkException {
+
+        logger.info("handleDeleteRequest() entered");
+        HttpServletRequest request = requestContext.getRequest();
+
+        String tagName = getTagNameFromPath(pathInfo);
+
+        Tag tagToDelete = getTagByName(tagName);
+        if (tagToDelete == null) {
+            ServletError error = new ServletError(GAL5441_ERROR_TAG_NOT_FOUND, tagName);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+        }
+
+        try {
+            tagsService.deleteTag(tagName);
+        } catch (TagsException e) {
+            ServletError error = new ServletError(GAL5442_ERROR_DELETING_TAG, tagName);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
+        logger.info("handleDeleteRequest() exiting");
+        return getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_NO_CONTENT);
+    }
+
     private Tag getTagByName(String tagName) throws InternalServletException {
         Tag tag = null;
         try {
@@ -80,7 +109,6 @@ public class TagByNameRoute extends ProtectedRoute {
         }
         return tag;
     }
-
 
     private String getTagNameFromPath(String urlPath) throws InternalServletException {
         Matcher matcher = getPathRegex().matcher(urlPath);

@@ -2446,39 +2446,6 @@ paths:
           $ref: "#/components/responses/Forbidden"
         '500':
           $ref: '#/components/responses/InternalServerError'
-    put:
-      operationId: updateTagByName
-      summary: Creates or updates a tag by name
-      description: |
-        Creates or updates a tag by name in the Configuration Property Store (CPS).
-
-        Requests to this endpoint require a valid bearer token in JWT format to be provided
-        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
-      tags:
-        - Tags API
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GalasaTag'
-      responses:
-        '200':
-          description: The existing tag was updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GalasaTag'
-        '201':
-          description: A new tag was created successfully
-        '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '400':
-          $ref: "#/components/responses/BadRequest"
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     delete:
       operationId: deleteTagByName
       summary: Deletes a tag by name
