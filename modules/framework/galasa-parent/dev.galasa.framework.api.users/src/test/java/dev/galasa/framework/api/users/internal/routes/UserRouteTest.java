@@ -844,4 +844,74 @@ public class UserRouteTest extends BaseServletTest {
         assertThat(userGotBackInPayload.getrole()).isEqualTo(desiredUpdatedRoleId);
         assertThat(userGotBackInPayload.getpriority()).isEqualTo(originalPriority);
     }
+
+    @Test
+    public void testOwnerCanUpdateTheirOwnPriority() throws Exception {
+        // Given...
+        MockEnvironment env = new MockEnvironment();
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
+
+        MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
+
+        String baseUrl = "http://my.server/api";
+        String userNumber = "user-1-number";
+
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+        env.setenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL,baseUrl);
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        AuthService authService = new AuthService(authStoreService, mockDexGrpcClient,rbacService);
+        MockUsersServlet servlet = new MockUsersServlet(authService, env, rbacService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + userNumber, headerMap);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+        mockRequest.setContentType("application/json");
+
+        // Now set up some value data.
+        UserUpdateData putData = new UserUpdateData();
+        int desiredPriority = 100;
+        putData.setpriority(desiredPriority);
+        GalasaGsonBuilder builder = new GalasaGsonBuilder();
+        Gson gson = builder.getGson();
+        String jsonPayload = gson.toJson(putData);
+        mockRequest.setPayload(jsonPayload);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        MockUser mockUser1 = createMockUser("user-1", "user-1-number", "web-ui");
+
+        String originalRole = "0";
+        mockUser1.setRoleId(originalRole);
+
+        int originalPriority = 50;
+        mockUser1.setPriority(originalPriority);
+
+        authStoreService.addUser(mockUser1);
+
+        // Make it so that when user-1 gets checked, the rbac service says it's one of the galasa service owners.
+        rbacService.setOwner(true);
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+
+        // Check that the user has been updated in the auth Store.
+        IUser updatedUserFromStore = authStoreService.getUser(userNumber);
+        assertThat(updatedUserFromStore).isNotNull();
+        assertThat(updatedUserFromStore.getPriority()).isEqualTo(desiredPriority);
+
+        // Now check a few things about the payload which was returned. 
+        // It should contain the rendered json of the updated user record.
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+        String payloadGotBack = outStream.toString();
+        UserData userGotBackInPayload = gson.fromJson(payloadGotBack, UserData.class);
+
+        assertThat(userGotBackInPayload).isNotNull();
+        assertThat(userGotBackInPayload.getLoginId()).isEqualTo("user-1");
+        assertThat(userGotBackInPayload.getid()).isEqualTo("user-1-number");
+        assertThat(userGotBackInPayload.getrole()).isEqualTo(originalRole);
+        assertThat(userGotBackInPayload.getpriority()).isEqualTo(desiredPriority);
+    }
 }

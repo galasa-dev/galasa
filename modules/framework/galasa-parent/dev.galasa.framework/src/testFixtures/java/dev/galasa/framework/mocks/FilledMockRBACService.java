@@ -65,9 +65,11 @@ public class FilledMockRBACService {
         List<String> actionIDsList = actions.stream().map(action -> action.getId()).collect(Collectors.toList());
 
         MockRole role1 = new MockRole("role1","2","role1 description",actionIDsList,true);
+        MockRole ownerRole = new MockRole("owner","0","owner description",actionIDsList,true);
         
         List<Role> roles = new ArrayList<Role>();
         roles.add(role1);
+        roles.add(ownerRole);
 
         user.setRoleId(role1.getId());
 

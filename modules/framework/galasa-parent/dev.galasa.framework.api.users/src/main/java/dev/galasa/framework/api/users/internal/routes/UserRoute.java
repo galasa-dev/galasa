@@ -151,12 +151,13 @@ public class UserRoute extends AbstractUsersRoute {
     ) throws AuthStoreException, InternalServletException, RBACException{
 
         boolean isStoreUpdateRequired = false ;
+        String userLoginId = user.getLoginId();
 
         // Only apply the update to the user if it's different to the original values.
         String desiredRoleId = updatePayload.getrole();
         if (desiredRoleId != null ) {
 
-            validateUserIsNotUpdatingRoleOfAServiceOwner(rbacService, user.getLoginId());
+            validateUserIsNotUpdatingRoleOfAServiceOwner(rbacService, userLoginId);
 
             if (! desiredRoleId.equals(user.getRoleId() )) {
 
@@ -169,7 +170,10 @@ public class UserRoute extends AbstractUsersRoute {
 
         Integer desiredPriority = updatePayload.getpriority();
         if (desiredPriority != null && desiredPriority != user.getPriority()) {
-            validateUserIsNotUpdatingTheirOwnPriority(requestingUserLoginId, user);
+
+            if (!rbacService.isOwner(userLoginId)) {
+                validateUserIsNotUpdatingTheirOwnPriority(requestingUserLoginId, user);
+            }
 
             user.setPriority(desiredPriority);
             isStoreUpdateRequired = true;
@@ -177,7 +181,7 @@ public class UserRoute extends AbstractUsersRoute {
 
         if (isStoreUpdateRequired) {
             authStoreService.updateUser(user);
-            rbacService.invalidateUser(user.getLoginId());
+            rbacService.invalidateUser(userLoginId);
         }
 
         return user;
@@ -204,7 +208,7 @@ public class UserRoute extends AbstractUsersRoute {
         }
     }
 
-    void validateUserIsNotUpdatingTheirOwnPriority(
+    private void validateUserIsNotUpdatingTheirOwnPriority(
         String requestingUserLoginId, 
         IUser userRecordBeingUpdated
     ) throws InternalServletException {
