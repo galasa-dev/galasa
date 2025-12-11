@@ -127,14 +127,44 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
      */
     @Override
     public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {
-        Txn txn = kvClient.txn();
         PutOption options = PutOption.DEFAULT;
+        setPropertiesIntoDSS(keyValues, options);
+    }
+
+    /**
+     * Put multiple key-value pairs into the DSS that expire after a given amount of time in seconds
+     * 
+     * @param keyValues the key-value pairs to be stored
+     * @param timeToLiveSecs the amount of time in seconds for the key-value pairs to be available for before expiring
+     * @throws DynamicStatusStoreException if there was an error accessing etcd
+     */
+    @Override
+    public void put(@NotNull Map<String, String> keyValues, @NotNull long timeToLiveSecs)
+            throws DynamicStatusStoreException {
+
+        // Create a new lease with the given time-to-live (TTL)
+        CompletableFuture<LeaseGrantResponse> leaseResponse = leaseClient.grant(timeToLiveSecs);
+        try {
+            LeaseGrantResponse lease = leaseResponse.get();
+            PutOption putOption = PutOption.builder()
+                .withLeaseId(lease.getID())
+                .build();
+
+            setPropertiesIntoDSS(keyValues, putOption);
+        } catch (InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
+            throw new DynamicStatusStoreException("Could not set key-value pair with time-to-live", e);
+        }
+    }
+
+    private void setPropertiesIntoDSS(@NotNull Map<String, String> keyValues, @NotNull PutOption putOption) throws DynamicStatusStoreException {
+        Txn txn = kvClient.txn();
 
         ArrayList<Op> ops = new ArrayList<>();
         for (String key : keyValues.keySet()) {
             ByteSequence obsKey = ByteSequence.from(key, UTF_8);
             ByteSequence obsValue = ByteSequence.from(keyValues.get(key), UTF_8);
-            ops.add(Op.put(obsKey, obsValue, options));
+            ops.add(Op.put(obsKey, obsValue, putOption));
         }
         Txn request = txn.Then(ops.toArray(new Op[ops.size()]));
         CompletableFuture<TxnResponse> response = request.commit();
@@ -142,9 +172,8 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
             response.get();
         } catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
-            throw new DynamicStatusStoreException("", e);
+            throw new DynamicStatusStoreException("Could not put key-value pairs into the DSS", e);
         }
-
     }
 
     /**

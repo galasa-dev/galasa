@@ -19,7 +19,7 @@ import dev.galasa.extensions.common.impl.HttpClientFactoryImpl;
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
 import dev.galasa.extensions.common.api.HttpRequestFactory;
 import dev.galasa.extensions.common.impl.LogFactoryImpl;
-import dev.galasa.framework.spi.IApiServerInitialisation;
+import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.SystemEnvironment;
 import dev.galasa.framework.spi.auth.IAuthStoreRegistration;
 import dev.galasa.framework.spi.utils.SystemTimeService;
@@ -58,13 +58,13 @@ public class CouchdbAuthStoreRegistration implements IAuthStoreRegistration {
      * @throws AuthStoreException if there was a problem accessing the auth store.
      */
     @Override
-    public void initialise(IApiServerInitialisation apiServerInitialisation) throws AuthStoreException {
+    public void initialise(IFrameworkInitialisation frameworkInitialisation) throws AuthStoreException {
 
-        URI authStoreUri = apiServerInitialisation.getAuthStoreUri();
+        URI authStoreUri = frameworkInitialisation.getAuthStoreUri();
 
         if (isUriReferringToThisExtension(authStoreUri)) {
             try {
-                apiServerInitialisation.registerAuthStore(
+                frameworkInitialisation.registerAuthStore(
                     new CouchdbAuthStore(
                         authStoreUri,
                         httpClientFactory,

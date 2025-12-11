@@ -5,15 +5,16 @@
  */
 package dev.galasa.framework.internal.rbac;
 
-import java.util.Set;
-
+import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.rbac.RBACException;
 
-public interface CacheRBAC {
+public interface CacheUsers {
 
-    void addUser(String loginId, Set<String> actionIds) throws RBACException;
+    void addUser(IUser user) throws RBACException;
 
     boolean isActionPermitted(String loginId, String actionId) throws RBACException;
+
+    int getUserPriority(String loginId) throws RBACException;
 
     void invalidateUser(String loginId) throws RBACException;
 }

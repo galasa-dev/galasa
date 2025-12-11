@@ -6,12 +6,11 @@
 package dev.galasa.framework.mocks;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
+import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.Role;
@@ -54,6 +53,14 @@ public class FilledMockRBACService {
     }
 
     public static MockRBACService createTestRBACServiceWithTestUser(String loginId, List<Action> actions) {
+        MockUser user = new MockUser();
+        user.setLoginId(loginId);
+        user.setPriority(1);
+
+        return createTestRBACServiceWithTestUser(user, actions);
+    }
+
+    public static MockRBACService createTestRBACServiceWithTestUser(MockUser user, List<Action> actions) {
         
         List<String> actionIDsList = actions.stream().map(action -> action.getId()).collect(Collectors.toList());
 
@@ -62,12 +69,14 @@ public class FilledMockRBACService {
         List<Role> roles = new ArrayList<Role>();
         roles.add(role1);
 
+        user.setRoleId(role1.getId());
+
         MockRBACService service = new MockRBACService(roles,actions,role1);
 
-        Map<String, List<String>> usersToActions = new HashMap<>();
-        usersToActions.put(loginId, actionIDsList);
+        List<IUser> users = new ArrayList<>();
+        users.add(user);
 
-        service.setUsersActionsCache(new MockCacheRBAC(usersToActions));
+        service.setUsersCache(new MockCacheUsers(service, users));
 
         return service;
     }

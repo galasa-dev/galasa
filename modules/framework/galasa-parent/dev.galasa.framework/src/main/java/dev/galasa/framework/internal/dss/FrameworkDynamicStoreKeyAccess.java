@@ -70,6 +70,19 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
      */
     @Override
     public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {
+        final HashMap<String, String> newKeyValues = getPrefixedKeyValues(keyValues);
+
+        this.dssStore.put(newKeyValues);
+    }
+
+    @Override
+    public void put(@NotNull Map<String, String> keyValues, @NotNull long timeToLiveSecs) throws DynamicStatusStoreException {
+        final HashMap<String, String> newKeyValues = getPrefixedKeyValues(keyValues);
+
+        this.dssStore.put(newKeyValues, timeToLiveSecs);
+    }
+
+    private HashMap<String, String> getPrefixedKeyValues(Map<String, String> keyValues) {
         Objects.requireNonNull(keyValues);
 
         // *** Copy all the keys and prefix them
@@ -83,8 +96,7 @@ public class FrameworkDynamicStoreKeyAccess implements IDynamicStatusStoreKeyAcc
 
             newKeyValues.put(prefixKey(oKey), oValue);
         }
-
-        this.dssStore.put(newKeyValues);
+        return newKeyValues;
     }
 
     @Override

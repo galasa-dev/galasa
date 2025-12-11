@@ -5,7 +5,9 @@
  */
 package dev.galasa.framework.internal.rbac;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.LogFactory;
@@ -21,20 +23,21 @@ import dev.galasa.framework.spi.rbac.Role;
 
 import org.apache.commons.logging.*;
 
-public class CacheRBACImpl implements CacheRBAC {
+public class CacheUsersImpl implements CacheUsers {
 
-    // Only keep users-to-actions entries in the cache for 24 hours
-    private static final long CACHED_ACTIONS_TIME_TO_LIVE_SECS = 24 * 60 * 60;
+    // Only keep users property entries in the cache for 24 hours
+    private static final long CACHED_USER_TIME_TO_LIVE_SECS = 24 * 60 * 60;
 
     private static final String USER_PROPERTY_PREFIX = "user.";
     private static final String ACTIONS_PROPERTY_SUFFIX = ".actions";
+    private static final String PRIORITY_PROPERTY_SUFFIX = ".priority";
 
     private IDynamicStatusStoreService dssService;
     private IAuthStoreService authStoreService;
     private RBACService rbacService;
     private final Log logger = LogFactory.getLog(getClass());
 
-    public CacheRBACImpl(
+    public CacheUsersImpl(
         IDynamicStatusStoreService dssService,
         IAuthStoreService authStoreService,
         RBACService rbacService
@@ -45,13 +48,27 @@ public class CacheRBACImpl implements CacheRBAC {
     }
 
     @Override
-    public synchronized void addUser(String loginId, Set<String> actionIds) throws RBACException {
+    public synchronized void addUser(IUser user) throws RBACException {
         try {
+            String loginId = user.getLoginId();
+            Set<String> actionIds = getUserActionsFromAuthStore(user);
+
+            // The users-to-actions DSS property is in the form:
+            // dss.rbac.user.<loginId>.actions = <comma-separated action IDs>
+            String actionsKey = getSuffixedUserPropertyKey(loginId, ACTIONS_PROPERTY_SUFFIX);
             String commaSeparatedActionIds = String.join(",", actionIds);
-            String actionsKey = getUserActionsPropertyKey(loginId);
-            dssService.put(actionsKey, commaSeparatedActionIds, CACHED_ACTIONS_TIME_TO_LIVE_SECS);
+
+            // Add the user's priority value to the cache
+            String priorityKey = getSuffixedUserPropertyKey(loginId, PRIORITY_PROPERTY_SUFFIX);
+            String userPriority = Long.toString(user.getPriority());
+
+            Map<String, String> propertiesToSet = new HashMap<>();
+            propertiesToSet.put(actionsKey, commaSeparatedActionIds);
+            propertiesToSet.put(priorityKey, userPriority);
+
+            dssService.put(propertiesToSet, CACHED_USER_TIME_TO_LIVE_SECS);
         } catch (DynamicStatusStoreException e) {
-            throw new RBACException("Failed to cache user actions", e);
+            throw new RBACException("Failed to cache user properties", e);
         }
     }
 
@@ -60,7 +77,7 @@ public class CacheRBACImpl implements CacheRBAC {
 
         boolean isActionPermitted = false;
         try {
-            String userActionsKey = getUserActionsPropertyKey(loginId);
+            String userActionsKey = getSuffixedUserPropertyKey(loginId, ACTIONS_PROPERTY_SUFFIX);
             String commaSeparatedUserActions = dssService.get(userActionsKey);
 
             Set<String> userActions = new HashSet<>();
@@ -77,7 +94,7 @@ public class CacheRBACImpl implements CacheRBAC {
                     userActions = getUserActionsFromAuthStore(user);
 
                     // Add this user to the cache
-                    addUser(loginId, userActions);
+                    addUser(user);
                 }
             } else {
                 userActions = Set.of(commaSeparatedUserActions.split(","));
@@ -94,10 +111,12 @@ public class CacheRBACImpl implements CacheRBAC {
     @Override
     public synchronized void invalidateUser(String loginId) throws RBACException {
         try {
-            String userActionsKey = getUserActionsPropertyKey(loginId);
-            dssService.delete(userActionsKey);
+            // Delete all cached properties related to this user using a property prefix in the form:
+            // user.<login ID>.
+            String userPropertiesPrefix = USER_PROPERTY_PREFIX + loginId + ".";
+            dssService.deletePrefix(userPropertiesPrefix);
         } catch (DynamicStatusStoreException e) {
-            throw new RBACException("Failed to delete cached user actions", e);
+            throw new RBACException("Failed to delete cached user properties", e);
         }
     }
 
@@ -118,9 +137,34 @@ public class CacheRBACImpl implements CacheRBAC {
         return new HashSet<>(userRole.getActionIds());
     }
 
-    private String getUserActionsPropertyKey(String loginId) {
-        // The users-to-actions DSS property is in the form:
-        // dss.rbac.user.<loginId>.actions = <comma-separated action IDs>
-        return USER_PROPERTY_PREFIX + loginId + ACTIONS_PROPERTY_SUFFIX;
+    private String getSuffixedUserPropertyKey(String loginId, String suffix) {
+        return USER_PROPERTY_PREFIX + loginId + suffix;
+    }
+
+    @Override
+    public int getUserPriority(String loginId) throws RBACException {
+        int priority = 0;
+        try {
+            String userPriorityKey = getSuffixedUserPropertyKey(loginId, PRIORITY_PROPERTY_SUFFIX);
+            String userPriorityStr = dssService.get(userPriorityKey);
+
+            if (userPriorityStr == null || userPriorityStr.isBlank()) {
+                // Cache miss, so get the user's priority points from the auth store
+                IUser user = getUserFromAuthStore(loginId);
+                if (user != null) {
+                    // Add this user to the cache
+                    priority = user.getPriority();
+                    addUser(user);
+                }
+
+            } else {
+                priority = Integer.parseInt(userPriorityStr);
+            }
+        } catch (DynamicStatusStoreException e) {
+            logger.warn("Failed to access DSS to get user priority, using priority " + priority);
+        } catch (NumberFormatException e ) {
+            logger.warn("Invalid priority set for user, using priority " + priority);
+        }
+        return priority;
     }
 }

@@ -32,6 +32,7 @@ import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.SystemEnvironment;
+import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.utils.SystemTimeService;
 import io.kubernetes.client.ProtoClient;
@@ -99,6 +100,7 @@ public class K8sController {
             FrameworkInitialisation frameworkInitialisation = null;
             try {
                 frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+                frameworkInitialisation.initialiseAuthStore(logger, overrideProperties);
             } catch (Exception e) {
                 throw new FrameworkException("Unable to initialise the Framework Services", e);
             }
@@ -167,7 +169,8 @@ public class K8sController {
             // *** Start the run polling
             IFrameworkRuns frameworkRuns = framework.getFrameworkRuns();
             IResultArchiveStore ras = framework.getResultArchiveStore();
-            startRunPollingThreads(frameworkRuns, cps, dss, ras, kubeEngineFacade, settings);
+            RBACService rbacService = framework.getRBACService();
+            startRunPollingThreads(frameworkRuns, cps, dss, ras, rbacService, kubeEngineFacade, settings);
             
             
             logger.info("Kubernetes controller has started");
@@ -214,6 +217,7 @@ public class K8sController {
         IConfigurationPropertyStoreService cps,
         IDynamicStatusStoreService dss,
         IResultArchiveStore ras,
+        RBACService rbacService,
         KubernetesEngineFacade kubeEngineFacade,
         Settings settings
     ) throws FrameworkException {
@@ -221,7 +225,7 @@ public class K8sController {
         runCleanup = new RunPodCleanup(kubeEngineFacade, frameworkRuns);
         schedulePodCleanup();
 
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(frameworkRuns, cps, timeService);
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(frameworkRuns, cps, rbacService, timeService);
 
         podScheduler = new TestPodScheduler(env, dss, settings, kubeEngineFacade, timeService, prioritySchedulingService);
         schedulePoll();

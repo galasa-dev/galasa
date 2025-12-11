@@ -14,6 +14,9 @@ import org.apache.commons.logging.*;
 import org.osgi.framework.*;
 
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.auth.AuthStoreException;
+import dev.galasa.framework.spi.auth.IAuthStore;
+import dev.galasa.framework.spi.auth.IAuthStoreRegistration;
 import dev.galasa.framework.spi.creds.*;
 
 public class FrameworkInitialisation implements IFrameworkInitialisation {
@@ -21,6 +24,9 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
     private static final String                      USER_HOME = "user.home";
     protected Framework                              framework;
 
+    private BundleContext                            bundleContext;
+
+    private       URI                                uriAuthStore;
     private final URI                                uriConfigurationPropertyStore;
     private final URI                                uriDynamicStatusStore;
     private final URI                                uriCredentialsStore;
@@ -130,6 +136,7 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
         IFrameworkInitialisationStrategy initStrategy
     ) throws URISyntaxException, InvalidSyntaxException, FrameworkException {
 
+        this.bundleContext = bundleContext;
         this.fileSystem = fileSystem;
 
         // Allows unit tests to inject the logger.
@@ -784,5 +791,62 @@ public class FrameworkInitialisation implements IFrameworkInitialisation {
             + this.framework.getEventsService().getClass().getName());
 
         }
+    }
+
+    @Override
+    public URI getAuthStoreUri() {
+        return this.uriAuthStore;
+    }
+
+    @Override
+    public void registerAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException {
+        this.framework.setAuthStore(authStore);
+    }
+
+    /**
+     * Find where the auth store is located, or return null if one has not been set.
+     */
+    private URI locateAuthStore(Log logger, Properties overrideProperties) throws URISyntaxException {
+        URI storeUri = null;
+        String propUri = overrideProperties.getProperty("framework.auth.store");
+
+        if (propUri != null && !propUri.isEmpty()) {
+            logger.debug("Bootstrap property framework.auth.store used to determine Auth Store location");
+            storeUri = new URI(propUri);
+            logger.debug("Auth Store is " + storeUri.toString());
+        }
+        return storeUri;
+    }
+
+    @Override
+    public void initialiseAuthStore(Log logger, Properties overrideProperties) throws FrameworkException {
+
+        try {
+            this.uriAuthStore = locateAuthStore(logger, overrideProperties);
+
+            logger.trace("Searching for Auth Store providers");
+            final ServiceReference<?>[] authStoreServiceReference = bundleContext
+                    .getAllServiceReferences(IAuthStoreRegistration.class.getName(), null);
+            if ((authStoreServiceReference == null) || (authStoreServiceReference.length == 0)) {
+                throw new FrameworkException("No Auth Store Services have been found");
+            }
+            for (final ServiceReference<?> authStoreReference : authStoreServiceReference) {
+                final IAuthStoreRegistration authStoreRegistration = (IAuthStoreRegistration) bundleContext
+                        .getService(authStoreReference);
+                logger.trace("Found Auth Store Provider " + authStoreRegistration.getClass().getName());
+    
+                // The registration code calls back to registerAuthStore to set the auth
+                // store object in this.framework, so it can be retrieved by the
+                // this.framework.getAuthStore() call...
+                authStoreRegistration.initialise(this);
+            }
+            if (this.framework.getAuthStore() == null) {
+                throw new FrameworkException("Failed to initialise an Auth Store, unable to continue");
+            }
+            logger.debug("Selected Auth Store Service is " + this.framework.getAuthStore().getClass().getName());
+        } catch (InvalidSyntaxException | URISyntaxException e) {
+            throw new FrameworkException("Failed to initialise an Auth Store", e);
+        }
+
     }
 }

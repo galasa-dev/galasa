@@ -32,6 +32,8 @@ import dev.galasa.framework.internal.cps.FrameworkConfigurationPropertyService;
 import dev.galasa.framework.internal.creds.FrameworkCredentialsService;
 import dev.galasa.framework.internal.dss.FrameworkDynamicStatusStoreService;
 import dev.galasa.framework.internal.ras.FrameworkMultipleResultArchiveStore;
+import dev.galasa.framework.internal.rbac.CacheUsers;
+import dev.galasa.framework.internal.rbac.CacheUsersImpl;
 import dev.galasa.framework.internal.rbac.RBACServiceImpl;
 import dev.galasa.framework.internal.streams.StreamsServiceImpl;
 import dev.galasa.framework.spi.creds.CredentialsException;

@@ -5,7 +5,9 @@
  */
 package dev.galasa.framework.api.internal;
 
+import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.FrameworkInitialisationTestBase;
+import dev.galasa.framework.GalasaFactory;
 import dev.galasa.framework.api.mocks.MockAuthStore;
 import dev.galasa.framework.api.mocks.MockAuthStoreRegistration;
 import dev.galasa.framework.mocks.MockBundleContext;
@@ -28,11 +30,11 @@ import java.util.*;
 
 public class TestApiServerInitialisation extends FrameworkInitialisationTestBase {
 
-    private ApiServerInitialisation createApiServerInit(Properties bootstrapProps) throws Exception {
+    private FrameworkInitialisation createApiServerInit(Properties bootstrapProps) throws Exception {
         return createApiServerInit(bootstrapProps, new MockEnvironment());
     }
 
-    private ApiServerInitialisation createApiServerInit(Properties bootstrapProps, MockEnvironment mockEnv)
+    private FrameworkInitialisation createApiServerInit(Properties bootstrapProps, MockEnvironment mockEnv)
             throws Exception {
         // Given...
         Map<String, String> cpsProperties = new HashMap<String, String>();
@@ -51,15 +53,16 @@ public class TestApiServerInitialisation extends FrameworkInitialisationTestBase
         addMockRASToMockServiceRegistry(services, bundle);
         addMockCredentialsStoreToMockServiceRegistry(services, bundle);
         addMockEventsServiceToMockServiceRegistry(services, bundle);
+        MockBundleContext bundleContext = new MockBundleContext(services);
 
         MockAuthStore mockAuthStore = addMockAuthStoreToMockServiceRegistry(services, bundle);
 
-        MockBundleContext bundleContext = new MockBundleContext(services);
         MockFileSystem mockFileSystem = new MockFileSystem();
 
         // When...
-        ApiServerInitialisation frameworkInitUnderTest = new ApiServerInitialisation(bootstrapProps,
-                overrideProperties, logger, bundleContext, mockFileSystem, mockEnv);
+        FrameworkInitialisation frameworkInitUnderTest = new FrameworkInitialisation(bootstrapProps,
+                overrideProperties, logger, bundleContext, mockFileSystem, mockEnv, GalasaFactory.getInstance().newDefaultInitStrategy());
+        frameworkInitUnderTest.initialiseAuthStore(logger, overrideProperties);
 
         // Then...
         assertThat(mockFramework.getAuthStore()).isEqualTo(mockAuthStore);
@@ -81,16 +84,12 @@ public class TestApiServerInitialisation extends FrameworkInitialisationTestBase
         // Given...
         Properties bootstrap = new Properties();
 
-        // The framework.auth.store property hasn't been set, so there is no auth store to use.
-        ApiServerInitialisation frameworkInit = createApiServerInit(bootstrap);
-
-        Log logger = new MockLog();
-
         // When...
-        URI uri = frameworkInit.locateAuthStore(logger, bootstrap);
+        // The framework.auth.store property hasn't been set, so there is no auth store to use.
+        FrameworkInitialisation frameworkInit = createApiServerInit(bootstrap);
 
         // Then...
-        assertThat(uri).isNull();
+        assertThat(frameworkInit.getAuthStoreUri()).isNull();
     }
 
     @Test
@@ -101,15 +100,12 @@ public class TestApiServerInitialisation extends FrameworkInitialisationTestBase
 
         URI authStoreUri = URI.create("couchdb:http://my-user-store");
 
-        bootstrap.setProperty("framework.auth.store", authStoreUri.toString());
-        ApiServerInitialisation frameworkInit = createApiServerInit(bootstrap);
-
-        Log logger = new MockLog();
-
         // When...
-        URI uri = frameworkInit.locateAuthStore(logger, bootstrap);
+        bootstrap.setProperty("framework.auth.store", authStoreUri.toString());
+        FrameworkInitialisation frameworkInit = createApiServerInit(bootstrap);
 
         // Then...
+        URI uri = frameworkInit.getAuthStoreUri();
         assertThat(uri).isNotNull();
         assertThat(uri).isEqualTo(authStoreUri);
     }
@@ -123,7 +119,7 @@ public class TestApiServerInitialisation extends FrameworkInitialisationTestBase
         URI authStoreUri = URI.create("couchdb:http://my-user-store");
 
         bootstrap.setProperty("framework.auth.store", authStoreUri.toString());
-        ApiServerInitialisation frameworkInit = createApiServerInit(bootstrap);
+        FrameworkInitialisation frameworkInit = createApiServerInit(bootstrap);
 
         // When...
         IAuthStore authStore = frameworkInit.getFramework().getAuthStore();

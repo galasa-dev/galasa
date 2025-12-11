@@ -7,9 +7,14 @@ package dev.galasa.framework.spi;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.logging.Log;
+
+import dev.galasa.framework.spi.auth.AuthStoreException;
+import dev.galasa.framework.spi.auth.IAuthStore;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
@@ -35,6 +40,8 @@ public interface IFrameworkInitialisation {
     URI getDynamicStatusStoreUri();
 
     URI getCredentialsStoreUri();
+
+    URI getAuthStoreUri();
 
     /**
      * Retrieves a list of Result Archive URIs that need to be initialised
@@ -75,6 +82,15 @@ public interface IFrameworkInitialisation {
      */
     void registerResultArchiveStoreService(@NotNull IResultArchiveStoreService resultArchiveStoreService)
             throws ResultArchiveStoreException;
+
+    /**
+     * Register an Auth Store Service, which allows the framework to retrieve user
+     * and token information.
+     *
+     * @param authStore the auth store service to be registered
+     * @throws AuthStoreException if there is a problem registering the service
+     */
+    void registerAuthStore(@NotNull IAuthStore authStore) throws AuthStoreException;
     
     /**
      * <p>
@@ -108,4 +124,5 @@ public interface IFrameworkInitialisation {
     @NotNull
     IFramework getFramework();
 
+    void initialiseAuthStore(Log logger, Properties overrideProperties) throws FrameworkException;
 }

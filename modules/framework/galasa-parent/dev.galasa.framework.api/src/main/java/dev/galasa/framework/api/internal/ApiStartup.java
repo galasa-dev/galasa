@@ -28,6 +28,7 @@ import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resource;
 
 import dev.galasa.framework.BundleManagement;
+import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 
@@ -97,7 +98,8 @@ public class ApiStartup {
         // *** Initialise the framework
         IFrameworkInitialisation frameworkInitialisation = null;
         try {
-            frameworkInitialisation = new ApiServerInitialisation(bootstrapProperties, overrideProperties);
+            frameworkInitialisation = new FrameworkInitialisation(bootstrapProperties, overrideProperties);
+            frameworkInitialisation.initialiseAuthStore(logger, overrideProperties);
         } catch (Exception e) {
             throw new FrameworkException("Unable to initialise the Framework Services", e);
         }

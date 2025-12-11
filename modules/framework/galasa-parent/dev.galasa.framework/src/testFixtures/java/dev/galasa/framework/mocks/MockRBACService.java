@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dev.galasa.framework.internal.rbac.CacheRBAC;
+import dev.galasa.framework.internal.rbac.CacheUsers;
 import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
@@ -27,11 +27,11 @@ public class MockRBACService implements RBACService {
     private List<Action> actionsSortedByName;
     private List<Role> rolesSortedByName;
     private Role defaultRole;
-    private CacheRBAC usersToActionsCache;
+    private CacheUsers usersCache;
     private boolean isOwner = false;
 
     public MockRBACService( List<Role> roles, List<Action> actions, Role defaultRole ) {
-        this.usersToActionsCache = new MockCacheRBAC();
+        this.usersCache = new MockCacheUsers(this);
         this.defaultRole = defaultRole;
 
         roleMapById = new HashMap<String,Role>();
@@ -98,18 +98,18 @@ public class MockRBACService implements RBACService {
         return this.roleMapByName.get(roleNameWanted);
     }
 
-    public void setUsersActionsCache(MockCacheRBAC cache) {
-        this.usersToActionsCache = cache;
+    public void setUsersCache(MockCacheUsers cache) {
+        this.usersCache = cache;
     }
 
     @Override
     public boolean isActionPermitted(String loginId, String actionId) throws RBACException {
-        return usersToActionsCache.isActionPermitted(loginId, actionId);
+        return usersCache.isActionPermitted(loginId, actionId);
     }
 
     @Override
     public void invalidateUser(String loginId) throws RBACException {
-        usersToActionsCache.invalidateUser(loginId);
+        usersCache.invalidateUser(loginId);
     }
 
     @Override
@@ -119,5 +119,10 @@ public class MockRBACService implements RBACService {
 
     public void setOwner(boolean isOwnerNewValue) {
         this.isOwner = isOwnerNewValue;
+    }
+
+    @Override
+    public int getUserPriority(String loginId) throws RBACException {
+        return usersCache.getUserPriority(loginId);
     }
 }

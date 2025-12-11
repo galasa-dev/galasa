@@ -217,5 +217,11 @@ public class InMemoryDss implements IDynamicStatusStore {
         throw new UnsupportedOperationException("Unimplemented method 'getPrefixKeysOnly'");
     }
 
+    @Override
+    public void put(@NotNull Map<String, String> keyValues, @NotNull long timeToLiveSecs)
+            throws DynamicStatusStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'put'");
+    }
+
 
 }

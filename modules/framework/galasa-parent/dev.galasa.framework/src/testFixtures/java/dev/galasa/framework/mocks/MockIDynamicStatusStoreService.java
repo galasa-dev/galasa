@@ -83,6 +83,16 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
     }
 
     @Override
+    public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {
+        data.putAll(keyValues);
+    }
+
+    @Override
+    public void put(@NotNull Map<String, String> keyValues, @NotNull long timeToLiveSecs) throws DynamicStatusStoreException {
+        put(keyValues);
+    }
+
+    @Override
     public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue,
             @NotNull Map<String, String> others) throws DynamicStatusStoreException {
         String currentValue = get(key);
@@ -94,12 +104,22 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
         return isOk ;
     }
 
-    // ------------------- un-implemented methods follow --------------------
-
     @Override
-    public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'put'");
+    public void deletePrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
+        List<String> keysToDelete = new ArrayList<>();
+
+        for (String key : data.keySet()) {
+            if (key.startsWith(keyPrefix)) {
+                keysToDelete.add(key);
+            }
+        }
+
+        for (String keyToDelete : keysToDelete) {
+            delete(keyToDelete);
+        }
     }
+
+    // ------------------- un-implemented methods follow --------------------
 
     @Override
     public @NotNull Map<String, String> getPrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
@@ -114,11 +134,6 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
     @Override
     public void delete(@NotNull Set<String> keys) throws DynamicStatusStoreException {
                throw new UnsupportedOperationException("Unimplemented method 'delete'");
-    }
-
-    @Override
-    public void deletePrefix(@NotNull String keyPrefix) throws DynamicStatusStoreException {
-               throw new UnsupportedOperationException("Unimplemented method 'deletePrefix'");
     }
 
     @Override

@@ -8,6 +8,8 @@ Import-Package: com.google.gson,\
                 com.sun.net.httpserver,\
                 dev.galasa.framework,\
                 dev.galasa.framework.spi,\
+                dev.galasa.framework.spi.auth,\
+                dev.galasa.framework.spi.rbac,\
                 dev.galasa.framework.spi.utils,\
                 dev.galasa.framework.spi.teststructure,\
                 dev.galasa.framework.k8s.controller,\
