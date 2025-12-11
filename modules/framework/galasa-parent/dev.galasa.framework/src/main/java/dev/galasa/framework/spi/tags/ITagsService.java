@@ -12,6 +12,7 @@ public interface ITagsService {
     /**
      * Get all tags from the CPS.
      * @return List of Tag objects
+     * @throws TagsException if there is an error retrieving the tags
      */
     List<Tag> getTags() throws TagsException;
 
@@ -20,6 +21,7 @@ public interface ITagsService {
      *
      * @param tagName The name of the tag to retrieve
      * @return The Tag object, or null if not found
+     * @throws TagsException if there is an error retrieving the tag
      */
     Tag getTagByName(String tagName) throws TagsException;
 
@@ -27,6 +29,7 @@ public interface ITagsService {
      * Create or update a tag.
      *
      * @param tag The Tag object to set
+     * @throws TagsException if there is an error setting the tag
      */
     void setTag(Tag tag) throws TagsException;
 
@@ -34,6 +37,7 @@ public interface ITagsService {
      * Delete a tag with the given name.
      *
      * @param tagName The name of the tag to delete
+     * @throws TagsException if there is an error deleting the tag
      */
     void deleteTag(String tagName) throws TagsException;
 }
