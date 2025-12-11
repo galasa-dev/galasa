@@ -9,6 +9,7 @@ import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.SystemEnvironment;
+import dev.galasa.framework.api.tags.internal.routes.TagByNameRoute;
 import dev.galasa.framework.api.tags.internal.routes.TagsRoute;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.rbac.RBACException;
@@ -58,6 +59,7 @@ public class TagsServlet extends BaseServlet {
             String externalApiServerUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
 
             addRoute(new TagsRoute(getResponseBuilder(), externalApiServerUrl, tagsService, rbacService));
+            addRoute(new TagByNameRoute(getResponseBuilder(), externalApiServerUrl, tagsService, rbacService));
             
         } catch (RBACException | TagsException ex) {
             throw new ServletException("Failed to initialise Tags service",ex);

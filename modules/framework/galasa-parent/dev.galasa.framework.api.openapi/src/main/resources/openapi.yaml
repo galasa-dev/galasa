@@ -2402,12 +2402,12 @@ paths:
           $ref: "#/components/responses/Forbidden"
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /tags/{tagName}:
+  /tags/{encodedTagName}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
-      - name: tagName
+      - name: encodedTagName
         in: path
-        description: The name of the tag to retrieve
+        description: The Base64 URL encoded name of the tag to retrieve
         required: true
         schema:
           type: string
