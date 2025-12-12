@@ -130,7 +130,7 @@ public class FrameworkConfigurationPropertyService implements IConfigurationProp
 
     @Override
     public void deletePrefixedProperties(@NotNull String prefix) throws ConfigurationPropertyStoreException {
-        cpsStore.deletePrefixedProperties(prefix);
+        cpsStore.deletePrefixedProperties(namespace + "." + prefix);
     }
 
     /**
