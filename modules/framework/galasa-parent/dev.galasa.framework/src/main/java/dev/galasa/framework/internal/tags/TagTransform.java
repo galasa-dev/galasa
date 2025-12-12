@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.tags.Tag;
+import dev.galasa.framework.spi.utils.StringValidator;
 
 public class TagTransform {
 
@@ -26,6 +27,8 @@ public class TagTransform {
 
     private Encoder base64UrlEncoder = Base64.getUrlEncoder().withoutPadding();
     private Decoder base64UrlDecoder = Base64.getUrlDecoder();
+
+    private StringValidator stringValidator = new StringValidator();
 
     public Map<String, String> getPropertiesFromTag(Tag tag) {
         Map<String, String> properties = new HashMap<>();
@@ -52,23 +55,26 @@ public class TagTransform {
         Tag tag = null;
         try {
             String tagName = decodeTagName(encodedTagName);
-            tag = new Tag(tagName);
-
-            String description = properties.get(TAG_DESCRIPTION_SUFFIX);
-            tag.setDescription(description);
-            String priorityString = properties.get(TAG_PRIORITY_SUFFIX);
-            int priority = 0;
-            if (priorityString != null) {
-                try {
-                    priority = Integer.parseInt(priorityString);
-                } catch (NumberFormatException e) {
-                    logger.warn("Invalid priority value for tag " + tagName + ". Defaulting to " + priority);
+            if (!stringValidator.isLatin1(tagName)) {
+                logger.warn("Decoded tag name contains characters that are not in the Latin-1 character set, returning null tag");
+            } else {
+                tag = new Tag(tagName);
+    
+                String description = properties.get(TAG_DESCRIPTION_SUFFIX);
+                tag.setDescription(description);
+                String priorityString = properties.get(TAG_PRIORITY_SUFFIX);
+                int priority = 0;
+                if (priorityString != null) {
+                    try {
+                        priority = Integer.parseInt(priorityString);
+                    } catch (NumberFormatException e) {
+                        logger.warn("Invalid priority value for tag " + tagName + ". Defaulting to " + priority);
+                    }
                 }
+                tag.setPriority(priority);
             }
-            tag.setPriority(priority);
-
         } catch (IllegalArgumentException e) {
-            logger.error("Failed to decode tag name, returning null tag");
+            logger.warn("Failed to decode tag name, returning null tag");
         }
         return tag;
     }

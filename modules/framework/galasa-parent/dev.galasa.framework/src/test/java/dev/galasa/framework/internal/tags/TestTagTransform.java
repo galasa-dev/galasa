@@ -143,4 +143,20 @@ public class TestTagTransform {
         // Then...
         assertThat(tagGotBack).isNull();
     }
+
+    @Test
+    public void testDecodingUnencodedTagNameReturnsNull() throws Exception {
+        // Given...
+        TagTransform transform = new TagTransform();
+        Map<String, String> properties = Map.of(
+            "description", "This is a sample tag",
+            "priority", "not a valid priority!"
+        );
+
+        // When...
+        Tag tagGotBack = transform.getTagFromProperties(properties, "tag1");
+
+        // Then...
+        assertThat(tagGotBack).isNull();
+    }
 }
