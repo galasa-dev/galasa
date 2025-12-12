@@ -114,7 +114,7 @@ public class TagByNameRoute extends ProtectedRoute {
         Matcher matcher = getPathRegex().matcher(urlPath);
 
         if (!matcher.matches()) {
-            ServletError error = new ServletError(GAL5440_INVALID_TAG_NAME_PROVIDED);
+            ServletError error = new ServletError(GAL5440_INVALID_TAG_ID_PROVIDED);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
@@ -124,7 +124,7 @@ public class TagByNameRoute extends ProtectedRoute {
             tagName = new String(Base64.getUrlDecoder().decode(encodedTagName), StandardCharsets.UTF_8);
 
         } catch (IllegalArgumentException e) {
-            ServletError error = new ServletError(GAL5440_INVALID_TAG_NAME_PROVIDED);
+            ServletError error = new ServletError(GAL5440_INVALID_TAG_ID_PROVIDED);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
         return tagName;

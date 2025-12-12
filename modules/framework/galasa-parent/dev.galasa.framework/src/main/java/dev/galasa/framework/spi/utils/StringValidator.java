@@ -25,6 +25,23 @@ public class StringValidator {
     }
 
     /**
+     * Checks whether a given string contains only alphanumeric characters, '-', and '_'
+     * 
+     * @param str the string to validate
+     * @return true if the string contains only alphanumeric characters, '-', and '_', or false otherwise
+     */
+    public boolean isAlphanumWithDashes(String str) {
+        boolean isValid = true;
+        for (char c : str.toCharArray()) {
+            if (!Character.isLetterOrDigit(c) && c != '-' && c != '_') {
+                isValid = false;
+                break;
+            }
+        }
+        return isValid;
+    }
+
+    /**
      * Checks whether a given string is in valid Latin-1 format (e.g. characters in the range 0 - 255)
      * 
      * @param str the string to validate

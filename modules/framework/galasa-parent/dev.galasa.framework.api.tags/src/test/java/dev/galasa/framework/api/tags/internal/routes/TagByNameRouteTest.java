@@ -133,7 +133,7 @@ public class TagByNameRouteTest extends BaseServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
-        checkErrorStructure(output, 5440, "GAL5440E", "Invalid tag name provided");
+        checkErrorStructure(output, 5440, "GAL5440E", "Invalid tag ID provided");
     }
 
     @Test

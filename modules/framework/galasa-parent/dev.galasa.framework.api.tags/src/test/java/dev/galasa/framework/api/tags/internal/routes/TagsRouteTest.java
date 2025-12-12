@@ -22,7 +22,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.beans.generated.GalasaTag;
+import dev.galasa.framework.api.beans.generated.TagCreateRequest;
 import dev.galasa.framework.api.common.BaseServletTest;
+import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -61,6 +63,15 @@ public class TagsRouteTest extends BaseServletTest {
         tagObject.addProperty("kind", "GalasaTag");
 
         return tagObject;
+    }
+
+    private String getTagCreateRequestJsonString(String tagName, String tagDescription, int tagPriority) {
+        TagCreateRequest requestPayload = new TagCreateRequest();
+        requestPayload.setname(tagName);
+        requestPayload.setdescription(tagDescription);
+        requestPayload.setpriority(tagPriority);
+
+        return gson.toJson(requestPayload);
     }
 
     @Test
@@ -320,5 +331,164 @@ public class TagsRouteTest extends BaseServletTest {
     
         JsonArray expectedJsonArray = new JsonArray();
         assertThat(output).isEqualTo(gson.toJson(expectedJsonArray));
+    }
+
+    @Test
+    public void testCanCreateTag() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        MockTagsService mockTagsService = new MockTagsService();
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        String tagName = "tag1";
+        String tagDescription = "my first tag!";
+        int tagPriority = 150;
+        String tagRequestJson = getTagCreateRequestJsonString(tagName, tagDescription, tagPriority);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, headerMap);
+        mockRequest.setMethod(HttpMethod.POST.toString());
+        mockRequest.setPayload(tagRequestJson);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doPost(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(201);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+    
+        assertThat(output).isEqualTo(gson.toJson(generateExpectedTagJson(tagName, tagDescription, tagPriority)));
+    }
+
+    @Test
+    public void testCreateTagWithBadDescriptionReturnsError() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        MockTagsService mockTagsService = new MockTagsService();
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        String tagName = "tag1";
+        String tagDescription = "     ";
+        int tagPriority = 150;
+        String tagRequestJson = getTagCreateRequestJsonString(tagName, tagDescription, tagPriority);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, headerMap);
+        mockRequest.setMethod(HttpMethod.POST.toString());
+        mockRequest.setPayload(tagRequestJson);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doPost(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        checkErrorStructure(output, 5444, "GAL5444E", "Invalid tag description provided");
+    }
+
+    @Test
+    public void testCreateTagWithNoNameReturnsError() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        MockTagsService mockTagsService = new MockTagsService();
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        String tagName = null;
+        String tagDescription = "my first tag!";
+        int tagPriority = 150;
+        String tagRequestJson = getTagCreateRequestJsonString(tagName, tagDescription, tagPriority);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, headerMap);
+        mockRequest.setMethod(HttpMethod.POST.toString());
+        mockRequest.setPayload(tagRequestJson);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doPost(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        checkErrorStructure(output, 5443, "GAL5443E", "Invalid tag name provided");
+    }
+
+    @Test
+    public void testCreateExistingTagReturnsError() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        List<Tag> tags = new ArrayList<>();
+
+        String tagName = "tag1";
+        String tagDescription = "my first tag!";
+        int tagPriority = 150;
+        Tag tag1 = new Tag(tagName);
+        tag1.setDescription(tagDescription);
+        tag1.setPriority(tagPriority);
+        tags.add(tag1);
+
+        MockTagsService mockTagsService = new MockTagsService(tags);
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        String tagRequestJson = getTagCreateRequestJsonString(tagName, tagDescription, tagPriority);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, headerMap);
+        mockRequest.setMethod(HttpMethod.POST.toString());
+        mockRequest.setPayload(tagRequestJson);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doPost(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(409);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        checkErrorStructure(output, 5445, "GAL5445E", "A tag with the provided name already exists");
     }
 }
