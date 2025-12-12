@@ -10,7 +10,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -20,10 +23,12 @@ import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockRun;
+import dev.galasa.framework.mocks.MockTagsService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.mocks.MockUser;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
+import dev.galasa.framework.spi.tags.Tag;
 
 public class PrioritySchedulingServiceTest {
 
@@ -52,8 +57,9 @@ public class PrioritySchedulingServiceTest {
         MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
         MockTimeService mockTimeService = new MockTimeService(now);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
 
-        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService);
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
 
         // When...
         List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
@@ -90,8 +96,9 @@ public class PrioritySchedulingServiceTest {
         MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
         MockTimeService mockTimeService = new MockTimeService(now);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
 
-        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService);
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
 
         // When...
         List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
@@ -131,12 +138,13 @@ public class PrioritySchedulingServiceTest {
 
         MockTimeService mockTimeService = new MockTimeService(now);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
 
-        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService);
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
 
         // When...
-        double run1Priority = schedulingService.getQueuedRunTotalPriorityPoints(run1);
-        double run2Priority = schedulingService.getQueuedRunTotalPriorityPoints(run2);
+        double run1Priority = schedulingService.getQueuedRunTotalPriorityPoints(run1, new HashMap<>());
+        double run2Priority = schedulingService.getQueuedRunTotalPriorityPoints(run2, new HashMap<>());
 
         // Then...
         assertThat(run1Priority).isEqualTo(2 * priorityGrowthRatePerMin);
@@ -172,12 +180,13 @@ public class PrioritySchedulingServiceTest {
 
         MockTimeService mockTimeService = new MockTimeService(now);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
 
-        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService);
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
 
         // When...
-        double run1Priority = schedulingService.getQueuedRunTotalPriorityPoints(run1);
-        double run2Priority = schedulingService.getQueuedRunTotalPriorityPoints(run2);
+        double run1Priority = schedulingService.getQueuedRunTotalPriorityPoints(run1, new HashMap<>());
+        double run2Priority = schedulingService.getQueuedRunTotalPriorityPoints(run2, new HashMap<>());
 
         // Then...
         assertThat(run1Priority).isEqualTo(2 * PrioritySchedulingService.DEFAULT_TEST_RUN_PRIORITY_POINTS_GROWTH_RATE_PER_MIN);
@@ -209,8 +218,9 @@ public class PrioritySchedulingServiceTest {
         MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
         MockTimeService mockTimeService = new MockTimeService(now);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
 
-        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService);
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
 
         // When...
         List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
@@ -247,8 +257,9 @@ public class PrioritySchedulingServiceTest {
         MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
         MockTimeService mockTimeService = new MockTimeService(now);
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
 
-        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService);
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
 
         // When...
         List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
@@ -287,8 +298,9 @@ public class PrioritySchedulingServiceTest {
         MockTimeService mockTimeService = new MockTimeService(now);
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
 
-        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService);
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
 
         // When...
         List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
@@ -330,8 +342,9 @@ public class PrioritySchedulingServiceTest {
         MockTimeService mockTimeService = new MockTimeService(now);
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(user1, BuiltInAction.getActions());
+        MockTagsService mockTagsService = new MockTagsService();
 
-        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService);
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
 
         // When...
         List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
@@ -341,5 +354,103 @@ public class PrioritySchedulingServiceTest {
         assertThat(runsGotBack.get(0)).isEqualTo(run3);
         assertThat(runsGotBack.get(1)).isEqualTo(run1);
         assertThat(runsGotBack.get(2)).isEqualTo(run2);
+    }
+
+    @Test
+    public void testTagPriorityAffectsRunPriorityOrder() throws Exception {
+        // Given...
+        List<Tag> tags = new ArrayList<>();
+        Tag tag1 = new Tag("high-priority-tag");
+        tag1.setPriority(200);
+        tags.add(tag1);
+
+        Tag tag2 = new Tag("another-tag");
+        tag2.setPriority(20);
+        tags.add(tag2);
+
+        Map<String, Tag> tagsMap = new HashMap<>();
+        tagsMap.put(tag1.getName(), tag1);
+        tagsMap.put(tag2.getName(), tag2);
+
+        Instant now = Instant.now();
+        List<IRun> runs = new ArrayList<>();
+        MockRun run1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        run1.setQueued(now);
+        run1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+
+        MockRun run2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        run2.setQueued(now);
+        run2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+
+        // The only difference here is that run3 has tags with priority values set, so this one should get scheduled first
+        MockRun run3 = new MockRun(null, null, "run3", null, null, null, null, false);
+        run3.setQueued(now);
+        run3.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+        run3.setTags(Set.of("high-priority-tag", "another-tag"));
+
+        runs.add(run1);
+        runs.add(run2);
+        runs.add(run3);
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(runs);
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockTimeService mockTimeService = new MockTimeService(now);
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService(tags);
+
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
+
+        // When...
+        List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
+        double run3Priority = schedulingService.getQueuedRunTotalPriorityPoints(run3, tagsMap);
+
+        // Then...
+        assertThat(runsGotBack).hasSize(3);
+        assertThat(runsGotBack.get(0)).isEqualTo(run3);
+        assertThat(runsGotBack.get(1)).isEqualTo(run1);
+        assertThat(runsGotBack.get(2)).isEqualTo(run2);
+
+        // Check that both tag priorities have been added to the run's total priority
+        assertThat(run3Priority).isEqualTo(220);
+    }
+
+    @Test
+    public void testTagPriorityIsAddedToRunPriorityCorrectly() throws Exception {
+        // Given...
+        Tag tag1 = new Tag("high-priority-tag");
+        tag1.setPriority(200);
+
+        Tag tag2 = new Tag("another-tag");
+        tag2.setPriority(20);
+
+        Map<String, Tag> tagsMap = new HashMap<>();
+        tagsMap.put(tag1.getName(), tag1);
+        tagsMap.put(tag2.getName(), tag2);
+
+        Instant now = Instant.now();
+        List<IRun> runs = new ArrayList<>();
+        MockRun run = new MockRun(null, null, "run3", null, null, null, null, false);
+        run.setQueued(now);
+        run.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+        run.setTags(Set.of("high-priority-tag", "another-tag"));
+
+        runs.add(run);
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(runs);
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockTimeService mockTimeService = new MockTimeService(now);
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
+
+        // When...
+        double runPriority = schedulingService.getQueuedRunTotalPriorityPoints(run, tagsMap);
+
+        // Then...
+        // Check that both tag priorities have been added to the run's total priority
+        assertThat(runPriority).isEqualTo(220);
     }
 }

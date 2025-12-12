@@ -8,8 +8,12 @@ package dev.galasa.framework.k8s.controller.scheduling;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,6 +24,8 @@ import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
+import dev.galasa.framework.spi.tags.ITagsService;
+import dev.galasa.framework.spi.tags.Tag;
 import dev.galasa.framework.spi.utils.ITimeService;
 
 /**
@@ -48,28 +54,56 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
     private IConfigurationPropertyStoreService cps;
     private ITimeService timeService;
     private RBACService rbacService;
+    private ITagsService tagsService;
     
     public PrioritySchedulingService(
         IFrameworkRuns frameworkRuns,
         IConfigurationPropertyStoreService cps,
         RBACService rbacService,
-        ITimeService timeService
+        ITimeService timeService,
+        ITagsService tagsService
     ) {
         this.frameworkRuns = frameworkRuns;
         this.rbacService = rbacService;
         this.cps = cps;
         this.timeService = timeService;
+        this.tagsService = tagsService;
     }
 
     @Override
     public List<IRun> getPrioritisedTestRunsToSchedule() throws FrameworkException {
         List<IRun> queuedRuns = getQueuedRemoteRuns();
-        queuedRuns.sort(getPriorityComparator());
+
+        // Collect all tags for queued runs from the CPS now so that we don't need to
+        // repeatedly query the CPS when sorting the queued runs.
+        Map<String, Tag> queuedRunTags = getAllQueuedRunTagsFromCps(queuedRuns);
+
+        queuedRuns.sort(getPriorityComparator(queuedRunTags));
         return queuedRuns;
     }
 
-    private Comparator<IRun> getPriorityComparator() {
-        return (a, b) -> Double.compare(getQueuedRunTotalPriorityPoints(b), getQueuedRunTotalPriorityPoints(a));
+    private Map<String, Tag> getAllQueuedRunTagsFromCps(List<IRun> queuedRuns) {
+        Set<String> tagNamesSet = new HashSet<>();
+        for (IRun run : queuedRuns) {
+            tagNamesSet.addAll(run.getTags());
+        }
+
+        Map<String, Tag> tagsFromCps = new HashMap<>();
+        for (String tagName : tagNamesSet) {
+            try {
+                Tag tag = tagsService.getTagByName(tagName);
+                if (tag != null) {
+                    tagsFromCps.put(tagName, tag);
+                }
+            } catch (Exception e) {
+                logger.warn("Could not get tag " + tagName + ", ignoring tag priority");
+            }
+        }
+        return tagsFromCps;
+    }
+
+    private Comparator<IRun> getPriorityComparator(Map<String, Tag> queuedRunTags) {
+        return (a, b) -> Double.compare(getQueuedRunTotalPriorityPoints(b, queuedRunTags), getQueuedRunTotalPriorityPoints(a, queuedRunTags));
     }
 
     private List<IRun> getQueuedRemoteRuns() throws FrameworkException {
@@ -85,9 +119,10 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         return queuedRuns;
     }
 
-    double getQueuedRunTotalPriorityPoints(IRun run) {
+    double getQueuedRunTotalPriorityPoints(IRun run, Map<String, Tag> queuedRunTags) {
         double totalPriorityPoints = getPriorityPointsFromQueuedTime(run.getQueued());
         totalPriorityPoints += getRequestorPriorityPoints(run.getRequestor());
+        totalPriorityPoints += getPriorityPointsFromTags(run.getTags(), queuedRunTags);
 
         return totalPriorityPoints;
     }
@@ -98,6 +133,19 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
 
         double minutesElapsedSinceQueued = getMinutesBetween(queuedTime, currentTime);
         return minutesElapsedSinceQueued * priorityGrowthRatePerMin;
+    }
+
+    private double getPriorityPointsFromTags(Set<String> runTags, Map<String, Tag> collectedQueuedRunTags) {
+        double priorityPointsFromTags = 0;
+
+        for (String tagName : runTags) {
+            Tag tag = collectedQueuedRunTags.get(tagName);
+            if (tag != null) {
+                priorityPointsFromTags += tag.getPriority();
+            }
+        }
+
+        return priorityPointsFromTags;
     }
 
     private double getMinutesBetween(Instant startTime, Instant endTime) {

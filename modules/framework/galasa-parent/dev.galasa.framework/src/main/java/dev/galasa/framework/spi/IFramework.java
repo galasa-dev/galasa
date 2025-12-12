@@ -19,6 +19,8 @@ import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.streams.IStreamsService;
 import dev.galasa.framework.spi.streams.StreamsException;
+import dev.galasa.framework.spi.tags.ITagsService;
+import dev.galasa.framework.spi.tags.TagsException;
 
 /**
  * <p>
@@ -175,6 +177,9 @@ public interface IFramework {
 
     @NotNull
     IStreamsService getStreamsService() throws StreamsException;
+
+    @NotNull
+    ITagsService getTagsService() throws TagsException;
 
     /**
      * Retrieve the test run name. Will be null for non test runs

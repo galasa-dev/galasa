@@ -36,6 +36,7 @@ import dev.galasa.framework.internal.rbac.CacheUsers;
 import dev.galasa.framework.internal.rbac.CacheUsersImpl;
 import dev.galasa.framework.internal.rbac.RBACServiceImpl;
 import dev.galasa.framework.internal.streams.StreamsServiceImpl;
+import dev.galasa.framework.internal.tags.TagsService;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
@@ -43,6 +44,8 @@ import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.streams.IStreamsService;
 import dev.galasa.framework.spi.streams.StreamsException;
+import dev.galasa.framework.spi.tags.ITagsService;
+import dev.galasa.framework.spi.tags.TagsException;
 
 // I know that the IFramework class isn't strictly necessary, but it does seem to make a
 // difference to whether the OSGi framework can load it or not.
@@ -71,6 +74,7 @@ public class Framework implements IFramework, IShuttableFramework {
     private IAuthStore                         authStore;
     private RBACService                        rbacService;
     private IStreamsService                    streamsService;
+    private ITagsService                       tagsService;
 
     private IConfigurationPropertyStoreService cpsFramework;
     @SuppressWarnings("unused")
@@ -593,4 +597,18 @@ public class Framework implements IFramework, IShuttableFramework {
         return this.streamsService;
     }
 
+    @Override
+    public @NotNull ITagsService getTagsService() throws TagsException {
+
+        if (this.tagsService == null) {
+            try {
+                IConfigurationPropertyStoreService cpsService = getConfigurationPropertyService("tags");
+                this.tagsService = new TagsService(cpsService);
+            } catch (ConfigurationPropertyStoreException e) {
+                throw new TagsException("Failed to initialise Tags service", e);
+            }
+        }
+
+        return this.tagsService;
+    }
 }
