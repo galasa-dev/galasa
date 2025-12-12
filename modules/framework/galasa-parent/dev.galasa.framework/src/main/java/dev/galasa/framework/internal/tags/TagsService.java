@@ -29,7 +29,8 @@ public class TagsService implements ITagsService {
     public List<Tag> getTags() throws TagsException {
         List<Tag> tags = new ArrayList<>();
         try {
-            Map<String, String> allTagProperties = cpsService.getAllProperties();
+            Map<String, String> allTagProperties = cpsService.getPrefixedProperties("");
+
             tags = getTagsFromCpsProperties(allTagProperties);
 
         } catch (ConfigurationPropertyStoreException e) {
@@ -69,11 +70,11 @@ public class TagsService implements ITagsService {
             // Get the index of the first dot to separate tag name and suffix
             int dotIndex = fullKey.indexOf('.');
             if (dotIndex > 0) {
-                String tagName = fullKey.substring(0, dotIndex);
+                String encodedTagName = fullKey.substring(0, dotIndex);
                 String suffix = fullKey.substring(dotIndex + 1);
 
                 groupedTagProperties
-                    .computeIfAbsent(tagName, k -> new HashMap<>())
+                    .computeIfAbsent(encodedTagName, k -> new HashMap<>())
                     .put(suffix, value);
             }
         }
