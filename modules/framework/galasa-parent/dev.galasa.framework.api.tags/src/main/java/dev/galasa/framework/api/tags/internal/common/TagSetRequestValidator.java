@@ -5,18 +5,16 @@
  */
 package dev.galasa.framework.api.tags.internal.common;
 
-import dev.galasa.framework.api.beans.generated.TagCreateRequest;
+import dev.galasa.framework.api.beans.generated.TagSetRequest;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
 
-public class TagCreateRequestValidator extends GalasaResourceValidator<TagCreateRequest> {
+public class TagSetRequestValidator extends GalasaResourceValidator<TagSetRequest> {
 
     private TagValidator tagValidator = new TagValidator();
 
     @Override
-    public void validate(TagCreateRequest request) throws InternalServletException {
-        // Check that the tag has been given a name
-        tagValidator.validateTagName(request.getname());
+    public void validate(TagSetRequest request) throws InternalServletException {
         tagValidator.validateDescription(request.getdescription());
     }
 }

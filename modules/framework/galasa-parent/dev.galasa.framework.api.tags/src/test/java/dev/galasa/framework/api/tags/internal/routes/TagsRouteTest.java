@@ -7,9 +7,7 @@ package dev.galasa.framework.api.tags.internal.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -19,7 +17,6 @@ import javax.servlet.ServletOutputStream;
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.beans.generated.GalasaTag;
 import dev.galasa.framework.api.beans.generated.TagCreateRequest;
@@ -30,40 +27,13 @@ import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
-import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
 import dev.galasa.framework.api.tags.mocks.MockTagsServlet;
 import dev.galasa.framework.mocks.FilledMockRBACService;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockTagsService;
 import dev.galasa.framework.spi.tags.Tag;
 
-public class TagsRouteTest extends BaseServletTest {
-
-    private JsonObject generateExpectedTagJson(String tagName, String description, int priority) {
-        JsonObject tagObject = new JsonObject();
-        tagObject.addProperty("apiVersion", GalasaResourceValidator.DEFAULT_API_VERSION);
-
-        JsonObject metadata = new JsonObject();
-        tagObject.add("metadata", metadata);
-
-        String encodedName = Base64.getUrlEncoder().withoutPadding().encodeToString(tagName.getBytes(StandardCharsets.UTF_8));
-        metadata.addProperty("url", "http://my-api.server/api/tags/" + encodedName);
-
-        metadata.addProperty("name", tagName);
-        metadata.addProperty("id", encodedName);
-
-        if (description != null) {
-            metadata.addProperty("description", description);
-        }
-
-        JsonObject data = new JsonObject();
-        tagObject.add("data", data);
-        data.addProperty("priority", priority);
-
-        tagObject.addProperty("kind", "GalasaTag");
-
-        return tagObject;
-    }
+public class TagsRouteTest extends TagsServletTest {
 
     private String getTagCreateRequestJsonString(String tagName, String tagDescription, int tagPriority) {
         TagCreateRequest requestPayload = new TagCreateRequest();

@@ -18,30 +18,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.beans.generated.GalasaTag;
+import dev.galasa.framework.api.beans.generated.TagSetRequest;
 import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.ProtectedRoute;
+import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.tags.internal.common.TagSetRequestValidator;
 import dev.galasa.framework.api.tags.internal.common.TagsBeanTransform;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.tags.ITagsService;
 import dev.galasa.framework.spi.tags.Tag;
 import dev.galasa.framework.spi.tags.TagsException;
 
-public class TagByNameRoute extends ProtectedRoute {
+public class TagByNameRoute extends AbstractTagRoute {
 
     // Regex to match endpoint /tags/{encoded-tag-name}
     private static final String PATH_PATTERN = "\\/([a-zA-Z0-9-_]+)\\/?";
 
-    private ITagsService tagsService;
     private String externalApiServerUrl;
 
     public TagByNameRoute(ResponseBuilder responseBuilder, String externalApiServerUrl, ITagsService tagsService, RBACService rbacService) {
-        super(responseBuilder, PATH_PATTERN, rbacService);
-        this.tagsService = tagsService;
+        super(responseBuilder, PATH_PATTERN, tagsService, rbacService);
         this.externalApiServerUrl = externalApiServerUrl;
     }
 
@@ -99,6 +100,77 @@ public class TagByNameRoute extends ProtectedRoute {
         return getResponseBuilder().buildResponse(request, response, HttpServletResponse.SC_NO_CONTENT);
     }
 
+    @Override
+    public HttpServletResponse handlePutRequest(
+        String pathInfo,
+        HttpRequestContext requestContext,
+        HttpServletResponse response
+    ) throws FrameworkException, IOException {
+
+        logger.info("handlePutRequest() entered. Validating request");
+        HttpServletRequest request = requestContext.getRequest();
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, requestContext.getUsername());
+
+        TagSetRequest payload = parseRequestBody(request, TagSetRequest.class);
+        TagSetRequestValidator validator = new TagSetRequestValidator();
+        validator.validate(payload);
+        logger.info("Request payload validated");
+
+        String tagName = getTagNameFromPath(pathInfo);
+
+        String tagJson = null;
+        int responseCode = 0;
+        try {
+            Tag possiblyExistingTag = getTagByName(tagName);
+            if (possiblyExistingTag != null) {
+                // We're updating an existing tag, so we should return a 200 response
+                responseCode = HttpServletResponse.SC_OK;
+            } else {
+                // We're creating a new tag, so we should return a 201 response
+                responseCode = HttpServletResponse.SC_CREATED;
+            }
+
+            Tag tagToSet = buildTagToSet(tagName, payload, possiblyExistingTag);
+            setTagIntoCPS(tagToSet);
+
+            TagsBeanTransform transform = new TagsBeanTransform();
+            GalasaTag createdTag = transform.createTagBean(tagToSet, externalApiServerUrl);
+            tagJson = gson.toJson(createdTag);
+        } catch (TagsException e) {
+            ServletError error = new ServletError(GAL5446_ERROR_SETTING_TAG);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        
+        logger.info("handlePostRequest() exiting");
+        return getResponseBuilder().buildResponse(request, response, MimeType.APPLICATION_JSON.toString(), tagJson, responseCode);
+    }
+
+    private Tag buildTagToSet(String tagName, TagSetRequest requestPayload, Tag possiblyExistingTag) throws TagsException {
+        Tag tagToSet = new Tag(tagName);
+
+        String newDescription = null;
+        int newPriority = 0;
+        if (possiblyExistingTag != null) {
+            // Use the existing tag's details as a baseline
+            newDescription = possiblyExistingTag.getDescription();
+            newPriority = possiblyExistingTag.getPriority();
+        }
+
+        String requestDescription = requestPayload.getdescription();
+        if (requestDescription != null) {
+            newDescription = requestDescription;
+        }
+
+        Integer requestPriority = requestPayload.getpriority();
+        if (requestPriority != null) {
+            newPriority = requestPriority;
+        }
+
+        tagToSet.setDescription(newDescription);
+        tagToSet.setPriority(newPriority);
+        return tagToSet;
+    }
+
     private Tag getTagByName(String tagName) throws InternalServletException {
         Tag tag = null;
         try {
@@ -120,6 +192,7 @@ public class TagByNameRoute extends ProtectedRoute {
 
         String tagName = null;
         try {
+            // The name in the path is Base64 URL encoded, so we should decode the tag name here
             String encodedTagName = matcher.group(1);
             tagName = new String(Base64.getUrlDecoder().decode(encodedTagName), StandardCharsets.UTF_8);
 

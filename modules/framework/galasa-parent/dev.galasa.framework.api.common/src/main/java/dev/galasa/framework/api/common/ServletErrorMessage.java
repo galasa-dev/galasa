@@ -204,7 +204,7 @@ public enum ServletErrorMessage {
     GAL5443_INVALID_TAG_NAME_PROVIDED                 (5443, "E: Invalid tag name provided. The name of a tag cannot be empty, contain only spaces or tabs, and must only contain characters in the Latin-1 character set. Check your request payload and try again."),
     GAL5444_INVALID_TAG_DESCRIPTION_PROVIDED          (5444, "E: Invalid tag description provided. The description should not only contain spaces or tabs. When provided, it must contain characters in the Latin-1 character set. Check your request payload and try again."),
     GAL5445_ERROR_TAG_ALREADY_EXISTS                  (5445, "E: Error occurred when trying to create a tag with the given name. A tag with the provided name already exists. Check your request payload and try again."),
-    GAL5446_ERROR_SETTING_TAG                         (5446, "E: Internal server error occurred when trying to store the tag with the given name. Report the problem to your Galasa service administrator"),
+    GAL5446_ERROR_SETTING_TAG                         (5446, "E: Internal server error occurred when trying to set the tag with the given name. Report the problem to your Galasa service administrator"),
     ;
 
     // >>>

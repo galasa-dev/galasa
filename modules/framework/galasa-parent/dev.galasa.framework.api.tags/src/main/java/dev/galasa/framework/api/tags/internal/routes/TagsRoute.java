@@ -21,7 +21,6 @@ import dev.galasa.framework.api.beans.generated.TagCreateRequest;
 import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.MimeType;
-import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
@@ -36,7 +35,7 @@ import dev.galasa.framework.spi.tags.Tag;
 import dev.galasa.framework.spi.tags.TagsException;
 import dev.galasa.framework.spi.utils.StringValidator;
 
-public class TagsRoute extends ProtectedRoute {
+public class TagsRoute extends AbstractTagRoute {
 
     // Query parameters
     public static final String QUERY_PARAMETER_NAME = "name";
@@ -47,12 +46,10 @@ public class TagsRoute extends ProtectedRoute {
     // Regex to match endpoint /tags and /tags/
     private static final String PATH_PATTERN = "\\/?";
 
-    private ITagsService tagsService;
     private String externalApiServerUrl;
 
     public TagsRoute(ResponseBuilder responseBuilder, String externalApiServerUrl, ITagsService tagsService, RBACService rbacService) {
-        super(responseBuilder, PATH_PATTERN, rbacService);
-        this.tagsService = tagsService;
+        super(responseBuilder, PATH_PATTERN, tagsService, rbacService);
         this.externalApiServerUrl = externalApiServerUrl;
     }
 
@@ -124,17 +121,6 @@ public class TagsRoute extends ProtectedRoute {
         
         logger.info("handlePostRequest() exiting");
         return getResponseBuilder().buildResponse(request, response, MimeType.APPLICATION_JSON.toString(), tagJson, HttpServletResponse.SC_CREATED);
-    }
-
-    private void setTagIntoCPS(Tag tagToSet) throws InternalServletException {
-        logger.info("Setting tag in CPS");
-        try {
-            tagsService.setTag(tagToSet);
-        } catch (TagsException e) {
-            ServletError error = new ServletError(GAL5446_ERROR_SETTING_TAG);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-        logger.info("Tag set in CPS OK");
     }
 
     private Tag buildTagFromRequestPayload(TagCreateRequest requestPayload) {
