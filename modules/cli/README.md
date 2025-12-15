@@ -812,6 +812,20 @@ galasactl tags delete --name mytag
 
 For a complete list of supported parameters see [here](./docs/generated/galasactl_tags_delete.md).
 
+## tags set
+
+This command creates or updates a tag with the given name from the Galasa service. The name of the tag to be created or updated must be provided using the `--name` flag.
+
+### Examples
+
+To create a tag named `mytag` with a description of `my first tag` and a priority of 15, run the following command:
+
+```
+galasactl tags set --name mytag --description "my first tag" --priority 15
+```
+
+For a complete list of supported parameters see [here](./docs/generated/galasactl_tags_set.md).
+
 ## roles get
 To list the roles which are available on a Galasa service.
 
