@@ -23,4 +23,21 @@ public class StringValidator {
         }
         return isValid;
     }
+
+    /**
+     * Checks whether a given string is in valid Latin-1 format (e.g. characters in the range 0 - 255)
+     * 
+     * @param str the string to validate
+     * @return true if the string is in valid Latin-1 format, or false otherwise
+     */
+    public boolean isLatin1(String str) {
+        boolean isValidLatin1 = true;
+        for (char i = 0; i < str.length(); i++) {
+            if (str.charAt(i) > 255) {
+                isValidLatin1 = false;
+                break;
+            }
+        }
+        return isValidLatin1;
+    }
 }

@@ -271,6 +271,10 @@ public class MockRun implements IRun {
         return this.tags;
     }
 
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
+    }
+
     @Override
     public boolean isTrace() {
         return true;
