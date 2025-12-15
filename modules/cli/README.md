@@ -807,7 +807,7 @@ This command deletes a tag with the given name from the Galasa service. The name
 To delete a tag named `mytag`, run the following command:
 
 ```
-galasactl secrets delete --name mytag
+galasactl tags delete --name mytag
 ```
 
 For a complete list of supported parameters see [here](./docs/generated/galasactl_tags_delete.md).

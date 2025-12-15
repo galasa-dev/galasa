@@ -40,7 +40,7 @@ func TestTagsDeleteHelpFlagSetCorrectly(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestTagsDeleteNamespaceNameFlagsReturnsOk(t *testing.T) {
+func TestTagsDeleteNameFlagsReturnsOk(t *testing.T) {
 	// Given...
 	factory := utils.NewMockFactory()
 	commandCollection, _ := setupTestCommandCollection(COMMAND_NAME_TAGS_DELETE, factory, t)
@@ -59,7 +59,7 @@ func TestTagsDeleteNamespaceNameFlagsReturnsOk(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestTagsDeleteNamespaceRequiresNameFlag(t *testing.T) {
+func TestTagsDeleteRequiresNameFlag(t *testing.T) {
 	// Given...
 	factory := utils.NewMockFactory()
 	commandCollection, _ := setupTestCommandCollection(COMMAND_NAME_TAGS_DELETE, factory, t)

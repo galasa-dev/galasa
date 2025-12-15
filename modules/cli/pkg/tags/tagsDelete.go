@@ -103,7 +103,7 @@ func getTagsFromRestApi(
 			if err != nil {
 				if httpResponse == nil {
 					// We never got a response, error sending it or something?
-					err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_FAILED_TO_DELETE_TAG)
+					err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_DELETE_TAG_REQUEST_FAILED, tagName, err.Error())
 				} else {
 					err = galasaErrors.HttpResponseToGalasaError(
 						httpResponse,

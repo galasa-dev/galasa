@@ -463,13 +463,14 @@ var (
 
 	// Tags delete errors
 	GALASA_ERROR_FAILED_TO_DELETE_TAG                = NewMessageType("GAL1249E: Failed to delete the tag with the given name from the Galasa service", 1249, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_DELETE_TAG_NO_RESPONSE_CONTENT      = NewMessageType("GAL1250E: Failed to delete tag %s. Unexpected http status code %v received from the server.", 1250, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_DELETE_TAG_RESPONSE_BODY_UNREADABLE = NewMessageType("GAL1251E: Failed to delete tag %s. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1251, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_DELETE_TAG_UNPARSEABLE_CONTENT      = NewMessageType("GAL1252E: Failed to delete tag %s. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1252, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_DELETE_TAG_SERVER_REPORTED_ERROR    = NewMessageType("GAL1253E: Failed to delete tag %s. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1253, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_DELETE_TAG_EXPLANATION_NOT_JSON     = NewMessageType("GAL1254E: Failed to delete tag %s. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1254, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_INVALID_TAG_NAME                    = NewMessageType("GAL1255E: Invalid tag name provided. The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1255, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_TAG_NOT_FOUND                       = NewMessageType("GAL1256E: No such tag named '%v' exists within the Galasa service.", 1256, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_NO_RESPONSE_CONTENT      = NewMessageType("GAL1250E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server.", 1250, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_RESPONSE_BODY_UNREADABLE = NewMessageType("GAL1251E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1251, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_UNPARSEABLE_CONTENT      = NewMessageType("GAL1252E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1252, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_SERVER_REPORTED_ERROR    = NewMessageType("GAL1253E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1253, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_EXPLANATION_NOT_JSON     = NewMessageType("GAL1254E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1254, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_REQUEST_FAILED           = NewMessageType("GAL1255E: Failed to delete a tag named '%s'. Failed to send a request to the Galasa service. Cause is %v", 1255, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_TAG_NAME                    = NewMessageType("GAL1256E: Invalid tag name provided. The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1256, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_TAG_NOT_FOUND                       = NewMessageType("GAL1257E: No such tag named '%v' exists within the Galasa service.", 1257, STACK_TRACE_NOT_WANTED)
 
 	// Warnings...
 	GALASA_WARNING_MAVEN_NO_GALASA_OBR_REPO = NewMessageType("GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '%s', and 'pre-release' repository is '%s'", 2000, STACK_TRACE_WANTED)
@@ -488,5 +489,5 @@ var (
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please increment this value.
     // >>>
-    GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1257;
+    GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1266;
 )
