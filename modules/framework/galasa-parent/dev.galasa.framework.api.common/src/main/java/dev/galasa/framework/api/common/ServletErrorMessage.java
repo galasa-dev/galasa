@@ -194,6 +194,13 @@ public enum ServletErrorMessage {
     GAL5423_INVALID_MONITOR_NAME_PROVIDED             (5423, "E: Invalid monitor name provided. Check that the name provided only contains characters in the ranges 'a'-'z', 'A'-'Z', 0-9, '-' (hyphens), '_' (underscores), and '.' (dots)."),
     GAL5424_FAILED_TO_UPDATE_MONITOR                  (5424, "E: Error occurred when attempting to update the Galasa monitor deployment in Kubernetes. Report the problem to your Galasa systems administrator."),
     GAL5425_ERROR_MONITOR_UPDATE_MISSING_DATA         (5425, "E: Invalid request payload. The request body is missing the ''data'' field. Check your request parameters and try again."),
+
+    // Tags APIs...
+    GAL5438_ERROR_GETTING_TAGS                        (5438, "E: Error occurred when getting tags from the Galasa service. Report the problem to your Galasa service administrator."),
+    GAL5439_ERROR_GETTING_TAG_BY_NAME                 (5439, "E: Unable to get a tag with the given name from the Galasa service. Report the problem to your Galasa service administrator."),
+    GAL5440_INVALID_TAG_NAME_PROVIDED                 (5440, "E: Invalid tag name provided. Check that the name provided is a valid Base64 URL encoded string that only contains characters in the ranges 'a'-'z', 'A'-'Z', 0-9, '-' (hyphens), and '_' (underscores)."),
+    GAL5441_ERROR_TAG_NOT_FOUND                       (5441, "E: Failed to find a tag with the given name. No such tag exists. Check that you have provided the correct tag name and try again."),
+    GAL5442_ERROR_DELETING_TAG                        (5442, "E: Error occurred when deleting the tag with the given name. Report the problem to your Galasa service administrator."),
     ;
 
     // >>>
@@ -202,7 +209,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5438;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5443;
 
 
     private String template ;

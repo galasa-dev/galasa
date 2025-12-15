@@ -20,7 +20,6 @@ import dev.galasa.framework.spi.streams.StreamsException;
 public class StreamsServiceImpl implements IStreamsService {
     
     private static final String TEST_STREAM_PREFIX = "test.stream.";
-    private static final String TEST_STREAM_PREFIX_WITH_NAMESPACE = "framework.test.stream.";
 
     private StreamPropertiesTransform streamTransform = new StreamPropertiesTransform();
     private IConfigurationPropertyStoreService cpsService;
@@ -130,7 +129,7 @@ public class StreamsServiceImpl implements IStreamsService {
     @Override
     public void deleteStream(String streamName) throws StreamsException {
         
-        String testStreamPrefix = TEST_STREAM_PREFIX_WITH_NAMESPACE + streamName + ".";
+        String testStreamPrefix = TEST_STREAM_PREFIX + streamName + ".";
 
         try {
             // Delete all properties associated with the stream

@@ -47,6 +47,7 @@ public class MockFramework implements IFramework {
     private RBACService rbacService;
     private IDynamicStatusStoreService dssService;
     private IStreamsService streamsService;
+    private ITagsService tagsService;
     
     public MockFramework() {
         this.rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(BaseServletTest.JWT_USERNAME);
@@ -164,6 +165,15 @@ public class MockFramework implements IFramework {
     }
 
     @Override
+    public @NotNull ITagsService getTagsService() throws TagsException {
+        return this.tagsService;
+    }
+
+    public void setTagsService(ITagsService tagsService) {
+        this.tagsService = tagsService;
+    }
+
+    @Override
     public void setFrameworkProperties(Properties overrideProperties) {
         throw new UnsupportedOperationException("Unimplemented method 'setFrameworkProperties'");
     }
@@ -227,11 +237,4 @@ public class MockFramework implements IFramework {
     public @NotNull IEventsService getEventsService() {
         throw new UnsupportedOperationException("Unimplemented method 'getEventsService'");
     }
-
-    @Override
-    public @NotNull ITagsService getTagsService() throws TagsException {
-        throw new UnsupportedOperationException("Unimplemented method 'getTagsService'");
-    }
-
-
 }
