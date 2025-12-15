@@ -48,6 +48,7 @@ public class TagsRouteTest extends BaseServletTest {
         metadata.addProperty("url", "http://my-api.server/api/tags/" + encodedName);
 
         metadata.addProperty("name", tagName);
+        metadata.addProperty("id", encodedName);
 
         if (description != null) {
             metadata.addProperty("description", description);

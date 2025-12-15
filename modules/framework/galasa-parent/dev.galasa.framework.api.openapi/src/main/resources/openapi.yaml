@@ -2412,10 +2412,10 @@ paths:
           $ref: "#/components/responses/Forbidden"
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /tags/{encodedTagName}:
+  /tags/{tagId}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
-      - name: encodedTagName
+      - name: tagId
         in: path
         description: The Base64 URL encoded name of the tag to retrieve
         required: true
@@ -2938,6 +2938,10 @@ components:
         metadata:
           type: object
           properties:
+            id:
+              type: string
+              description: |
+                The ID of the Galasa Tag.
             name:
               type: string
               description: |

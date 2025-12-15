@@ -55,6 +55,7 @@ public class TagsBeanTransform {
         }
 
         String encodedTagName = Base64.getUrlEncoder().withoutPadding().encodeToString(tagName.getBytes(StandardCharsets.UTF_8));
+        metadata.setid(encodedTagName);
         metadata.seturl(apiServerUrl + "/tags/" + encodedTagName);
 
         return metadata;
