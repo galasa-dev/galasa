@@ -40,4 +40,14 @@ public class StringValidator {
         }
         return isValidLatin1;
     }
+
+    public String sanitizeString(String paramValue) {
+        String cleanValue = null;
+        if (paramValue != null) {
+            cleanValue = paramValue.trim()
+                .replaceAll("\n", "")
+                .replaceAll("\r", "");
+        }
+        return cleanValue;
+    }
 }
