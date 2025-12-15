@@ -38,7 +38,7 @@ public interface IFrameworkRuns {
     Set<String> getActiveRunNames() throws FrameworkException;
 
     @NotNull
-    IRun submitRun(String type, String requestor, String bundleName, String testName, String groupName,
+    IRun submitRun(String type, String requestor, String user, String bundleName, String testName, String groupName,
             String mavenRepository, String obr, String stream, boolean local, boolean trace, Set<String> tags, Properties overrides,
             SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language, String submissionId) throws FrameworkException;
 

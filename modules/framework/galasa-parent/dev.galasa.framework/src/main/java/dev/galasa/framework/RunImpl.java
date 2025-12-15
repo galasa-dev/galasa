@@ -47,6 +47,7 @@ public class RunImpl implements IRun {
     private final Instant finished;
     private final Instant waitUntil;
     private final String  requestor;
+    private final String  user;
     private final String  stream;
     private final String  repo;
     private final String  obr;
@@ -82,6 +83,7 @@ public class RunImpl implements IRun {
         status = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.STATUS);
         result = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.RESULT);
         requestor = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.REQUESTOR);
+        user = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.USER);
         stream = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.STREAM);
         repo = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.REPOSITORY);
         obr = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.OBR);
@@ -222,6 +224,11 @@ public class RunImpl implements IRun {
     }
 
     @Override
+    public String getUser() {
+        return user;
+    }
+
+    @Override
     public String getStream() {
         return stream;
     }
@@ -289,7 +296,7 @@ public class RunImpl implements IRun {
     @Override
     public Run getSerializedRun() {
         return new Run(name, heartbeat, type, group, test, bundleName, testName, status, result, queued,
-                finished, waitUntil, requestor, stream, repo, obr, local, trace, rasRunId, submissionId, tags);
+                finished, waitUntil, requestor, user, stream, repo, obr, local, trace, rasRunId, submissionId, tags);
     }
 
     @Override
@@ -387,6 +394,7 @@ public class RunImpl implements IRun {
 
         buff.append(" interruptReason: "+interruptReason);
         buff.append(" requestor: "+requestor);
+        buff.append(" user: "+user);
         buff.append(" stream: "+stream);
         buff.append(" repo: "+repo);
         buff.append(" obr: "+obr);
@@ -427,6 +435,7 @@ public class RunImpl implements IRun {
         String submissionId = getSubmissionId();
         Instant queuedAt = getQueued();
         String requestor = AbstractManager.defaultString(getRequestor(), "unknown");
+        String user = AbstractManager.defaultString(getUser(), "unknown");
 
         if (testName != null) {
             // The test name is in the form "package.class", so get the class after the last "."
@@ -443,6 +452,7 @@ public class RunImpl implements IRun {
         testStructure.setQueued(queuedAt);
         testStructure.setRunName(runName);
         testStructure.setRequestor(requestor);
+        testStructure.setUser(user);
         testStructure.setGroup(group);
         testStructure.setSubmissionId(submissionId);
         testStructure.setLogRecordIds(new ArrayList<>());

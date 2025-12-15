@@ -187,13 +187,14 @@ public class FrameworkRuns implements IFrameworkRuns {
 
     @Override
     @NotNull
-    public @NotNull IRun submitRun(String runType, String requestor, String bundleName,
+    public @NotNull IRun submitRun(String runType, String requestor, String user, String bundleName,
             @NotNull String testName, String groupName, String mavenRepository, String obr, String stream,
             boolean local, boolean trace, Set<String> tags, Properties overrides, SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName,
             String language, String submissionId) throws FrameworkException {
         SubmitRunRequest runRequest = new SubmitRunRequest(
             runType,
             requestor,
+            user,
             bundleName,
             testName,
             groupName,
@@ -578,6 +579,7 @@ public class FrameworkRuns implements IFrameworkRuns {
         runRequest.setRunType(runType.toUpperCase());
 
         setRunRequestRequestorDefault(runRequest);
+        setRunRequestUserDefault(runRequest);
 
         runRequest.setStream(AbstractManager.nulled(runRequest.getStream()));
 
@@ -615,6 +617,17 @@ public class FrameworkRuns implements IFrameworkRuns {
                 requestor = "unknown";
             }
             runRequest.setRequestor(requestor);
+        }
+    }
+
+    private void setRunRequestUserDefault(SubmitRunRequest runRequest) throws FrameworkException {
+        String user = AbstractManager.nulled(runRequest.getUser());
+        if (user == null) {
+            user = AbstractManager.nulled(cps.getProperty("run", "user"));
+            if (user == null) {
+                user = "unknown";
+            }
+            runRequest.setUser(user);
         }
     }
 

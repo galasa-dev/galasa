@@ -78,6 +78,7 @@ public class RunResultUtility {
 		String testName = struc.getTestName();
 		String testShortName = struc.getTestShortName();
 		String requestor = struc.getRequestor();
+		String user = struc.getUser();
 		String status = struc.getStatus();
 		String result = struc.getResult();
 		Instant queued = struc.getQueued();
@@ -88,8 +89,8 @@ public class RunResultUtility {
 		List<RasTestMethod> rasMethods = convertMethods(methods);
 		Set<String> tags = struc.getTags();
 
-		return new RasTestStructure(runName, bundle, testName, testShortName, requestor, status, result, queued, startTime,
-				endTime, rasMethods, group, submissionId, tags);
+		return new RasTestStructure(runName, bundle, testName, testShortName, requestor, user, status, result, 
+				queued, startTime, endTime, rasMethods, group, submissionId, tags);
 	}
 
 	private List<RasTestMethod> convertMethods(List<TestMethod> methods) {

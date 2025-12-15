@@ -1514,10 +1514,20 @@ paths:
           example: dev.galasa.inttests
         - name: requestor
           in: query
-          description: Name of the test requestor / submitter
+          description: |-
+            Name of the JWT requestor.
+            This is the user associated with the JWT that submitted the test.
           schema:
             type: string
           example: MyAutomationJobName
+        - name: user
+          in: query
+          description: |-
+            Name of the test submitter.
+            This can be different to the requestor if the test was submitted via an automation user.
+          schema:
+            type: string
+          example: JoeTester
         - name: from
           in: query
           description: |
@@ -2942,6 +2952,11 @@ components:
           description: |-
             The name of the user who submitted this test, in that it represents the owner 
             of the Galasa personal access token used by the test submission REST call.
+        user:
+          type: string
+          description: |-
+            The name of the user who submitted this test, in that it represents the actual 
+            person who submitted the test, which may have been through an automation tool or bot.
         stream:
           type: string
         repo:
@@ -2985,6 +3000,13 @@ components:
             taken from the signed JWT token rather than trusting what the REST caller sends
             in this field. 
             This means launching tests attributed to the wrong person are not now possible.
+        user:
+          type: string
+          description: |-
+            This field exists so that users can associate a user ID with any tests that were
+            kicked off by an automation tool using the automation's JWT, which will be set into
+            the requestor field. This means the user can then query and find tests that were
+            launched on their behalf by an automation tool.
         testStream:
           type: string
           description: |-
@@ -3200,7 +3222,13 @@ components:
           description: A uuid created to identify this test run. Useful until this run has been allocated a test name, which is allocated once the test is launched.
         requestor:
           type: string
-          description: The Galasa user who requested this test to be executed.
+          description:  |-
+            The Galasa user associated with the JWT used to submit the test.
+        user:
+          type: string
+          description:  |-
+            The Galasa user who requested this test to be executed.
+            This may or may not be the same as the requestor.
         status:
           type: string
         result:

@@ -232,6 +232,38 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
     }
 
     @Override
+    public @NotNull List<String> getUsers() throws ResultArchiveStoreException {
+        ArrayList<String> users = new ArrayList<>();
+
+        HttpGet httpGet = requestFactory.getHttpGetRequest(
+                store.getCouchdbUri() + "/" + RUNS_DB + "/_design/docs/_view/" + USERS_VIEW_NAME + "?group=true");
+
+        try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
+            StatusLine statusLine = response.getStatusLine();
+            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                throw new CouchdbRasException("Unable to find runs - " + statusLine.toString());
+            }
+
+            HttpEntity entity = response.getEntity();
+            String responseEntity = EntityUtils.toString(entity);
+            ViewResponse view = gson.fromJson(responseEntity, ViewResponse.class);
+            if (view.rows == null) {
+                throw new CouchdbRasException("Unable to find users - Invalid JSON response");
+            }
+
+            for (ViewRow row : view.rows) {
+                users.add(row.key);
+            }
+        } catch (CouchdbRasException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResultArchiveStoreException("Unable to find users", e);
+        }
+
+        return users;
+    }
+
+    @Override
     public @NotNull List<String> getResultNames() throws ResultArchiveStoreException {
         ArrayList<String> results = new ArrayList<>();
 

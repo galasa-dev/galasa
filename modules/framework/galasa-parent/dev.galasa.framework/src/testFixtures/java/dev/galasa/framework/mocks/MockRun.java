@@ -24,7 +24,8 @@ public class MockRun implements IRun {
     private String testStream;
     private String testStreamOBR;
     private String testStreamRepoUrl;
-    private String requestorName ;
+    private String requestorName;
+    private String user;
     private boolean isRunLocal;
     private String gherkinUrl;
     private Instant heartbeat;
@@ -41,25 +42,73 @@ public class MockRun implements IRun {
     private Set<String> tags = new HashSet<String>();
 
     public MockRun(
-        String testBundleName, 
-        String testClassName, String testRunName , 
-        String testStream, String testStreamOBR, 
-        String testStreamRepoUrl, String requestorName, 
+        String testBundleName,
+        String testClassName,
+        String testRunName,
+        String testStream,
+        String testStreamOBR,
+        String testStreamRepoUrl,
+        String requestorName,
         boolean isRunLocal
     ) {
-        this( testBundleName, 
-            testClassName, testRunName , 
-            testStream, testStreamOBR, 
-            testStreamRepoUrl, requestorName, 
-            isRunLocal ,null, null, UUID.randomUUID().toString(), new HashSet<String>());
+        this(testBundleName,
+            testClassName,
+            testRunName,
+            testStream,
+            testStreamOBR,
+            testStreamRepoUrl,
+            requestorName, 
+            isRunLocal,
+            null,
+            null,
+            UUID.randomUUID().toString(),
+            new HashSet<String>());
     }
+
     public MockRun(
-        String testBundleName, 
-        String testClassName, String testRunName , 
-        String testStream, String testStreamOBR, 
-        String testStreamRepoUrl, String requestorName, 
-        boolean isRunLocal , 
-        String gherkinUrl, String group, String submissionId, Set<String>tags
+        String testBundleName,
+        String testClassName,
+        String testRunName ,
+        String testStream,
+        String testStreamOBR,
+        String testStreamRepoUrl,
+        String requestorName,
+        boolean isRunLocal, 
+        String gherkinUrl,
+        String group,
+        String submissionId,
+        Set<String> tags
+    ) {
+        this(testBundleName,
+            testClassName,
+            testRunName,
+            testStream,
+            testStreamOBR,
+            testStreamRepoUrl,
+            requestorName,
+            requestorName, // user defaults to requestor if not provided.
+            isRunLocal,
+            gherkinUrl,
+            group,
+            submissionId,
+            tags
+        );
+    }
+
+    public MockRun(
+        String testBundleName,
+        String testClassName,
+        String testRunName,
+        String testStream,
+        String testStreamOBR,
+        String testStreamRepoUrl,
+        String requestorName,
+        String user,
+        boolean isRunLocal,
+        String gherkinUrl,
+        String group,
+        String submissionId,
+        Set<String> tags
     ) {
         this.testBundleName = testBundleName;
         this.testClassName = testClassName ;
@@ -68,6 +117,7 @@ public class MockRun implements IRun {
         this.testStreamOBR = testStreamOBR;
         this.testStreamRepoUrl = testStreamRepoUrl;
         this.requestorName = requestorName;
+        this.user = user;
         this.isRunLocal = isRunLocal;
         this.gherkinUrl = gherkinUrl;
         this.submissionId = submissionId;
@@ -117,6 +167,12 @@ public class MockRun implements IRun {
 
     @Override
     public String getRequestor() {
+        return this.requestorName;
+    }
+
+    @Override
+    public String getUser() {
+        // Use same user as requestor for unit testing.
         return this.requestorName;
     }
 
@@ -228,6 +284,7 @@ public class MockRun implements IRun {
         testStructure.setTestName(testClassName);
         testStructure.setRunName(testRunName);
         testStructure.setRequestor(requestorName);
+        testStructure.setUser(user);
         testStructure.setSubmissionId(submissionId);
 
         for (String tag : tags) {
@@ -274,4 +331,5 @@ public class MockRun implements IRun {
     public Run getSerializedRun() {
         throw new UnsupportedOperationException("Unimplemented method 'getSerializedRun'");
     }
+
 }
