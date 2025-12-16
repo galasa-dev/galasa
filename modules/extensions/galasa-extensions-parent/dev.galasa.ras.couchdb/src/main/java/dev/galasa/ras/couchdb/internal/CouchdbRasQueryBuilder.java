@@ -12,6 +12,8 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedFrom;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaUser;
 
 public class CouchdbRasQueryBuilder {
 
@@ -37,11 +39,46 @@ public class CouchdbRasQueryBuilder {
                 jTo.addProperty("$lt", sTo.getTo().toString());
                 criteria.add("queued", jTo);
                 and.add(criteria);
-            } else {
+            } else if (!(searchCriteria instanceof RasSearchCriteriaUser) && !(searchCriteria instanceof RasSearchCriteriaRequestor)) {
                 addInArrayConditionToQuery(and, searchCriteria.getCriteriaName(), searchCriteria.getCriteriaContent());
             }
         }
+
+        // Add requestor/user criteria to the query builder separately as the behaviour
+        // depends on whether requestor, user, or both are provided as query parameters.
+        applyRequestorUserCriteria(and, searchCriterias);
+
         return selector;
+    }
+
+    private void applyRequestorUserCriteria(JsonArray existingQuery, IRasSearchCriteria... searchCriterias) {
+        RasSearchCriteriaUser userCriteria = null;
+        RasSearchCriteriaRequestor requestorCriteria = null;
+
+        for (IRasSearchCriteria criteria : searchCriterias) {
+            if (criteria instanceof RasSearchCriteriaUser) {
+                userCriteria = (RasSearchCriteriaUser) criteria;
+            } else if (criteria instanceof RasSearchCriteriaRequestor) {
+                requestorCriteria = (RasSearchCriteriaRequestor) criteria;
+            }
+        }
+
+        if (userCriteria != null && requestorCriteria != null) {
+            // Both provided - strict match on both.
+            addInArrayConditionToQuery(existingQuery, "user", userCriteria.getCriteriaContent());
+            addInArrayConditionToQuery(existingQuery, "requestor", requestorCriteria.getCriteriaContent());
+        } else if (userCriteria != null) {
+            // Only user provided - match on either, so create an $or part of the query.
+            JsonArray orArray = new JsonArray();
+            JsonObject orObject = new JsonObject();
+            orObject.add("$or", orArray);
+            existingQuery.add(orObject);
+            addInArrayConditionToQuery(orArray, "user", userCriteria.getCriteriaContent());
+            addInArrayConditionToQuery(orArray, "requestor", userCriteria.getCriteriaContent());
+        } else if (requestorCriteria != null) {
+            // Only requestor provided - strict match.
+            addInArrayConditionToQuery(existingQuery, "requestor", requestorCriteria.getCriteriaContent());
+        }
     }
 
     private void addInArrayConditionToQuery(JsonArray existingQuery, String field, String[] inArray) {
