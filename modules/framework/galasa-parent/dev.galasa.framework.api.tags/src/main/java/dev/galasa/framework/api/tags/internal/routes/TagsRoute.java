@@ -125,7 +125,11 @@ public class TagsRoute extends AbstractTagRoute {
 
     private Tag buildTagFromRequestPayload(TagCreateRequest requestPayload) {
         Tag tag = new Tag(requestPayload.getname());
-        tag.setDescription(requestPayload.getdescription());
+
+        String description = requestPayload.getdescription();
+        if (description != null) {
+            tag.setDescription(description);
+        }
 
         Integer priority = requestPayload.getpriority();
         if (priority != null) {

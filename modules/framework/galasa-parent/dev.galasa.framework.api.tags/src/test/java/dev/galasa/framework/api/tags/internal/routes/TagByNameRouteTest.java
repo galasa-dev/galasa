@@ -303,7 +303,7 @@ public class TagByNameRouteTest extends TagsServletTest {
 
         // When...
         mockServlet.init();
-        mockServlet.doGet(mockRequest, servletResponse);
+        mockServlet.doPut(mockRequest, servletResponse);
 
         String output = outStream.toString();
 
@@ -351,7 +351,7 @@ public class TagByNameRouteTest extends TagsServletTest {
 
         // When...
         mockServlet.init();
-        mockServlet.doGet(mockRequest, servletResponse);
+        mockServlet.doPut(mockRequest, servletResponse);
 
         String output = outStream.toString();
 
@@ -399,7 +399,7 @@ public class TagByNameRouteTest extends TagsServletTest {
 
         // When...
         mockServlet.init();
-        mockServlet.doGet(mockRequest, servletResponse);
+        mockServlet.doPut(mockRequest, servletResponse);
 
         String output = outStream.toString();
 
@@ -440,7 +440,7 @@ public class TagByNameRouteTest extends TagsServletTest {
 
         // When...
         mockServlet.init();
-        mockServlet.doGet(mockRequest, servletResponse);
+        mockServlet.doPut(mockRequest, servletResponse);
 
         String output = outStream.toString();
 
