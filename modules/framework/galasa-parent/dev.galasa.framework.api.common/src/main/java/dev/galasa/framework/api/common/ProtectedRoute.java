@@ -32,11 +32,6 @@ public abstract class ProtectedRoute extends BaseRoute {
         rbacValidator.validateActionPermitted(action, loginId);
     }
 
-    protected boolean validateNonBlockingActionPermitted(BuiltInAction action, String loginId) throws InternalServletException {
-        logger.info("Checking to make sure user "+loginId+" has action "+action.getAction().getId());
-        return rbacValidator.isActionPermitted(action, loginId);
-    }
-
     @Override
     public boolean isActionPermitted(BuiltInAction action, String loginId) throws InternalServletException {
         return rbacValidator.isActionPermitted(action, loginId);

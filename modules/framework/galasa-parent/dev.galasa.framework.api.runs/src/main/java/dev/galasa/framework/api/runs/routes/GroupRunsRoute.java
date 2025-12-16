@@ -87,7 +87,7 @@ public class GroupRunsRoute extends GroupRuns{
 
         String user = scheduleRequest.getUser();
         if (user != null && !user.isBlank()) {
-            boolean isRequestorPermittedToSetUser = validateNonBlockingActionPermitted(BuiltInAction.TEST_RUN_SET_USER, requestor);
+            boolean isRequestorPermittedToSetUser = isActionPermitted(BuiltInAction.TEST_RUN_SET_USER, requestor);
             if (isRequestorPermittedToSetUser) {
                 validateActionPermitted(BuiltInAction.TEST_RUN_LAUNCH, user);
             } else {
