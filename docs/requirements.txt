@@ -38,7 +38,7 @@ pre_commit==4.2.0
 pycparser==2.22
 Pygments==2.19.1
 PyJWT==2.10.1
-pymdown-extensions==10.15
+pymdown-extensions==10.16.1
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
 PyYAML==6.0.2
