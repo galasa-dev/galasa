@@ -143,16 +143,6 @@ public abstract class RunsRoute extends ProtectedRoute {
 		return requestors;
 	}
 
-    protected List<String> getUsers() throws ResultArchiveStoreException {
-		HashSet<String> usersSet = new HashSet<>();
-		for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {
-			usersSet.addAll(directoryService.getUsers());
-		}
-		//convert to list of strings
-		List<String> users = new ArrayList<>(usersSet);
-		return users;
-	}
-
     protected List<RasTestClass> getTestClasses() throws ResultArchiveStoreException, ServletException{
         List<RasTestClass> testClasses = new ArrayList<>();
         for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore().getDirectoryServices()) {

@@ -119,22 +119,6 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
     }
 
     @Override
-    public @NotNull List<String> getUsers() throws ResultArchiveStoreException {
-        HashSet<String> users = new HashSet<>();
-
-        for (DirectoryRASRunResult result : getAllRuns()) {
-            if (result != null) {
-                TestStructure testStructure = result.getTestStructure();
-                if (testStructure != null && testStructure.getTestName() != null) {
-                    users.add(testStructure.getUser());
-                }
-            }
-        }
-
-        return new ArrayList<>(users);
-    }
-
-    @Override
     public @NotNull List<RasTestClass> getTests() throws ResultArchiveStoreException {
         HashMap<String,RasTestClass> tests = new HashMap<>();
         String key;

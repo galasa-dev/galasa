@@ -42,16 +42,6 @@ public interface IResultArchiveStoreDirectoryService {
     @NotNull
     List<String> getRequestors() throws ResultArchiveStoreException;
 
-    /**
-     * Get users. These are the login names of the person who submits runs. This may or may not be the same as the requestor.
-     * 
-     * @return 
-     * @throws ResultArchiveStoreException if there are errors accessing the RAS
-     */
-
-    @NotNull
-    List<String> getUsers() throws ResultArchiveStoreException;
-
     @NotNull
     List<RasTestClass> getTests() throws ResultArchiveStoreException;
     

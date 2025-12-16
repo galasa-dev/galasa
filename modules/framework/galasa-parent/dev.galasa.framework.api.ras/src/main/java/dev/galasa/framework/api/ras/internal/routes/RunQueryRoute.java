@@ -177,7 +177,7 @@ public class RunQueryRoute extends RunsRoute {
 				// If querying by requestor and user, search for runs that match both the requestor and user.
 				if (queryingRequestor && queryingUser) {
 					matchedRequestor = findMatchingRequestor(requestor);
-					matchedUser = findMatchingUser(user);
+					matchedUser = findMatchingRequestor(user);
 
 					// We weren't able to match against both a known requestor and user,
 					// so there should be no runs for the given requestor/user combination.
@@ -199,10 +199,7 @@ public class RunQueryRoute extends RunsRoute {
 
 				// If querying by user, search for runs that match that user OR requestor.
 				else if (queryingUser) {
-					matchedUser = findMatchingUser(user);
-					if (matchedUser == null) {
-						matchedUser = findMatchingRequestor(user);
-					}
+					matchedUser = findMatchingRequestor(user);
 
 					// We weren't able to match against either a known user or requestor,
 					// so there should be no runs for the given user.
@@ -382,7 +379,7 @@ public class RunQueryRoute extends RunsRoute {
 		return gson.toJson(runsPage);
 	}
 
-	private String findMatchingRequestor(String requestor) throws InternalServletException {
+	private String findMatchingRequestor(String loginId) throws InternalServletException {
 		String matchedRequestor = null;
 
 		try {
@@ -390,7 +387,7 @@ public class RunQueryRoute extends RunsRoute {
 			List<String> requestorsList = getRequestors();
 			if (requestorsList != null && !requestorsList.isEmpty()) {
 				for (String req : requestorsList) {
-					if (req.equalsIgnoreCase(requestor)) {
+					if (req.equalsIgnoreCase(loginId)) {
 						matchedRequestor = req;
 						break;
 					}
@@ -402,28 +399,6 @@ public class RunQueryRoute extends RunsRoute {
 		}
 
 		return matchedRequestor;
-	}
-
-	private String findMatchingUser(String user) throws InternalServletException {
-		String matchedUser = null;
-
-		try {
-			// Get all users in the service
-			List<String> usersList = getUsers();
-			if (usersList != null && !usersList.isEmpty()) {
-				for (String usr : usersList) {
-					if (usr.equalsIgnoreCase(user)) {
-						matchedUser = usr;
-						break;
-					}
-				}
-			}
-		} catch (ResultArchiveStoreException e) {
-			ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
-			throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
-		}
-
-		return matchedUser;
 	}
 
 	private String buildResponseBody(RasRunResultPage runsPage, int pageSize, boolean isMethodDetailsExcluded)

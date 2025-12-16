@@ -61,15 +61,6 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
 	}
 
 	@Override
-	public @NotNull List<String> getUsers() throws ResultArchiveStoreException {
-		List<String> users = new ArrayList<>();
-		for (IRunResult run : this.runResults) {
-			users.add(run.getTestStructure().getUser().toString());
-		}
-		return users;
-	}
-
-	@Override
 	public @NotNull List<RasTestClass> getTests() throws ResultArchiveStoreException {
 		HashMap<String,RasTestClass> tests = new HashMap<>();
         String key;

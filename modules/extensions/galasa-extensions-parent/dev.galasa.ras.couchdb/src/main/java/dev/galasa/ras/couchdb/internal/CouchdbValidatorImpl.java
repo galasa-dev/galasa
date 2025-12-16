@@ -42,7 +42,6 @@ import dev.galasa.framework.spi.utils.ITimeService;
 public class CouchdbValidatorImpl implements CouchdbValidator {
 
     private static final String REQUESTORS_VIEW_FUNCTION       = "function (doc) { emit(doc.requestor, 1); }";
-    private static final String USERS_VIEW_FUNCTION            = "function (doc) { emit(doc.user, 1); }";
     private static final String RESULT_VIEW_FUNCTION           = "function (doc) { emit(doc.result, 1); }";
     private static final String TEST_NAMES_VIEW_FUNCTION       = "function (doc) { emit(doc.testName, 1); }";
     private static final String BUNDLE_TESTNAMES_VIEW_FUNCTION = "function (doc) { emit(doc.bundle + '/' + doc.testName, 1); }";
@@ -199,10 +198,6 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
         }
 
         if (checkForViewUpdates(views, REQUESTORS_VIEW_NAME, REQUESTORS_VIEW_FUNCTION, COUNT_REDUCE)) {
-            updated = true;
-        }
-
-        if (checkForViewUpdates(views, USERS_VIEW_NAME, USERS_VIEW_FUNCTION, COUNT_REDUCE)) {
             updated = true;
         }
 
