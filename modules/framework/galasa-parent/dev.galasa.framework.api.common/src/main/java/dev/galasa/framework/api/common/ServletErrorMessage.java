@@ -198,9 +198,13 @@ public enum ServletErrorMessage {
     // Tags APIs...
     GAL5438_ERROR_GETTING_TAGS                        (5438, "E: Error occurred when getting tags from the Galasa service. Report the problem to your Galasa service administrator."),
     GAL5439_ERROR_GETTING_TAG_BY_NAME                 (5439, "E: Unable to get a tag with the given name from the Galasa service. Report the problem to your Galasa service administrator."),
-    GAL5440_INVALID_TAG_NAME_PROVIDED                 (5440, "E: Invalid tag name provided. Check that the name provided is a valid Base64 URL encoded string that only contains characters in the ranges 'a'-'z', 'A'-'Z', 0-9, '-' (hyphens), and '_' (underscores)."),
+    GAL5440_INVALID_TAG_ID_PROVIDED                   (5440, "E: Invalid tag ID provided. Check that the ID provided is a valid Base64 URL encoded string that only contains characters in the ranges 'a'-'z', 'A'-'Z', 0-9, '-' (hyphens), and '_' (underscores)."),
     GAL5441_ERROR_TAG_NOT_FOUND                       (5441, "E: Failed to find a tag with the given name. No such tag exists. Check that you have provided the correct tag name and try again."),
     GAL5442_ERROR_DELETING_TAG                        (5442, "E: Error occurred when deleting the tag with the given name. Report the problem to your Galasa service administrator."),
+    GAL5443_INVALID_TAG_NAME_PROVIDED                 (5443, "E: Invalid tag name provided. The name of a tag cannot be empty, contain only spaces or tabs, and must only contain characters in the Latin-1 character set. Check your request payload and try again."),
+    GAL5444_INVALID_TAG_DESCRIPTION_PROVIDED          (5444, "E: Invalid tag description provided. The description should not only contain spaces or tabs. When provided, it must contain characters in the Latin-1 character set. Check your request payload and try again."),
+    GAL5445_ERROR_TAG_ALREADY_EXISTS                  (5445, "E: Error occurred when trying to create a tag with the given name. A tag with the provided name already exists. Check your request payload and try again."),
+    GAL5446_ERROR_SETTING_TAG                         (5446, "E: Internal server error occurred when trying to set the tag with the given name. Report the problem to your Galasa service administrator"),
     ;
 
     // >>>
@@ -209,7 +213,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5443;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5447;
 
 
     private String template ;
