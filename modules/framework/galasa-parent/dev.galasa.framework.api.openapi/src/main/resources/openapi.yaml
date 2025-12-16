@@ -2422,6 +2422,39 @@ paths:
           $ref: "#/components/responses/Forbidden"
         '500':
           $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createTag
+      summary: Creates a new Tag in the system
+      description: |
+        Creates a new tag in the system which is stored in the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreateRequest'
+      responses:
+        '201':
+          description: A new tag was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaTag'
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /tags/{tagId}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
@@ -2454,6 +2487,43 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         '403':
           $ref: "#/components/responses/Forbidden"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      operationId: setTag
+      summary: Creates or updates a Tag in the system
+      description: |
+        Creates or updates a tag in the system which is stored in the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagSetRequest'
+      responses:
+        '200':
+          description: A new tag was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaTag'
+        '201':
+          description: A new tag was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaTag'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '400':
+          $ref: "#/components/responses/BadRequest"
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:
@@ -3046,6 +3116,27 @@ components:
               description: |
                 The character encoding scheme that has been applied to the token.
                 Currently, base64 is the only supported encoding scheme
+    TagCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the tag to create
+        description:
+          type: string
+          description: The description to associate with the tag to create
+        priority:
+          type: integer
+          description: The priority of the tag to create
+    TagSetRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          description: The description to associate with the tag to create or update
+        priority:
+          type: integer
+          description: The priority of the tag to create or update
     TestRuns:
       type: object
       properties:

@@ -16,23 +16,26 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dev.galasa.framework.api.beans.generated.GalasaTag;
+import dev.galasa.framework.api.beans.generated.TagCreateRequest;
 import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.MimeType;
-import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.SupportedQueryParameterNames;
+import dev.galasa.framework.api.tags.internal.common.TagCreateRequestValidator;
 import dev.galasa.framework.api.tags.internal.common.TagsBeanTransform;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.tags.ITagsService;
 import dev.galasa.framework.spi.tags.Tag;
 import dev.galasa.framework.spi.tags.TagsException;
 import dev.galasa.framework.spi.utils.StringValidator;
 
-public class TagsRoute extends ProtectedRoute {
+public class TagsRoute extends AbstractTagRoute {
 
     // Query parameters
     public static final String QUERY_PARAMETER_NAME = "name";
@@ -43,12 +46,10 @@ public class TagsRoute extends ProtectedRoute {
     // Regex to match endpoint /tags and /tags/
     private static final String PATH_PATTERN = "\\/?";
 
-    private ITagsService tagsService;
     private String externalApiServerUrl;
 
     public TagsRoute(ResponseBuilder responseBuilder, String externalApiServerUrl, ITagsService tagsService, RBACService rbacService) {
-        super(responseBuilder, PATH_PATTERN, rbacService);
-        this.tagsService = tagsService;
+        super(responseBuilder, PATH_PATTERN, tagsService, rbacService);
         this.externalApiServerUrl = externalApiServerUrl;
     }
 
@@ -68,7 +69,7 @@ public class TagsRoute extends ProtectedRoute {
         try {
             if (tagNameQuery != null) {
                 logger.info("Getting tag with the given name from the tags service");
-                
+
                 Tag tag = tagsService.getTagByName(tagNameQuery);
                 if (tag != null) {
                     tags.add(tag);
@@ -88,6 +89,53 @@ public class TagsRoute extends ProtectedRoute {
 
         logger.info("handleGetRequest() exiting.");
         return getResponseBuilder().buildResponse(request, response, MimeType.APPLICATION_JSON.toString(), tagsJson, HttpServletResponse.SC_OK);
+    }
+
+    @Override
+    public HttpServletResponse handlePostRequest(String pathInfo,
+            HttpRequestContext requestContext, HttpServletResponse response)
+            throws  IOException, FrameworkException {
+
+        logger.info("handlePostRequest() entered. Validating request");
+        HttpServletRequest request = requestContext.getRequest();
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_SET, requestContext.getUsername());
+
+        TagCreateRequest payload = parseRequestBody(request, TagCreateRequest.class);
+        TagCreateRequestValidator validator = new TagCreateRequestValidator();
+        validator.validate(payload);
+        logger.info("Request payload validated");
+
+        // Check if a tag with the given name already exists, throwing an error if so
+        String tagName = payload.getname();
+        if (tagsService.getTagByName(tagName) != null) {
+            ServletError error = new ServletError(GAL5445_ERROR_TAG_ALREADY_EXISTS);
+            throw new InternalServletException(error, HttpServletResponse.SC_CONFLICT);
+        }
+
+        Tag tagToSet = buildTagFromRequestPayload(payload);
+        setTagIntoCPS(tagToSet);
+
+        TagsBeanTransform transform = new TagsBeanTransform();
+        GalasaTag createdTag = transform.createTagBean(tagToSet, externalApiServerUrl);
+        String tagJson = gson.toJson(createdTag);
+        
+        logger.info("handlePostRequest() exiting");
+        return getResponseBuilder().buildResponse(request, response, MimeType.APPLICATION_JSON.toString(), tagJson, HttpServletResponse.SC_CREATED);
+    }
+
+    private Tag buildTagFromRequestPayload(TagCreateRequest requestPayload) {
+        Tag tag = new Tag(requestPayload.getname());
+
+        String description = requestPayload.getdescription();
+        if (description != null) {
+            tag.setDescription(description);
+        }
+
+        Integer priority = requestPayload.getpriority();
+        if (priority != null) {
+            tag.setPriority(priority);
+        }
+        return tag;
     }
 
     @Override
