@@ -9,6 +9,8 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 
 import javax.servlet.ServletException;
@@ -31,11 +33,14 @@ import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.teststructure.TestStructure;
 
 /*
  * Implementation to return details for a given run based on its runId.
@@ -84,8 +89,33 @@ public class RunDetailsRoute extends RunsRoute {
       RunStatusUpdate runStatusUpdate = new RunStatusUpdate(framework);
       RunActionJson runAction = getUpdatedRunActionFromRequestBody(request);
 
+      String status = runAction.getStatus();
+      String[] tags = runAction.getTags();
+      String result = runAction.getResult();
+
+      String responseBody = "";
+
+      if (status != null && tags != null) {
+         // If user is attempting to update the status and tags simulaneously.
+         ServletError error = new ServletError(GAL5109_INVALID_TAGS_AND_STATUS_UPDATE_REQUEST, runAction.getStatus());
+         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+      } else if (status != null && tags == null) {
+         responseBody = updateRunStatus(runName, runAction, runStatusUpdate, result);
+      } else if (status == null && result == null && tags != null) {
+         try {
+            responseBody = updateRunTags(runAction, runId, tags);
+         } catch (FrameworkException e){
+            ServletError error = new ServletError(GAL5108_UNABLE_TO_RETRIEVE_RUN_FROM_RAS, runName);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+         }
+      } else {
+         // Tags and result have been attempted to be updated simulatneously.
+         ServletError error = new ServletError(GAL5107_INVALID_TAGS_UPDATE_REQUEST, runAction.getStatus());
+         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+      }
+
       return getResponseBuilder().buildResponse(request, response, "text/plain",
-            updateRunStatus(runName, runAction, runStatusUpdate), HttpServletResponse.SC_ACCEPTED);
+            responseBody, HttpServletResponse.SC_ACCEPTED);
    }
 
    @Override
@@ -112,11 +142,10 @@ public class RunDetailsRoute extends RunsRoute {
       return response;
    }
 
-   private String updateRunStatus(String runName, RunActionJson runAction, RunStatusUpdate runStatusUpdate)
+   private String updateRunStatus(String runName, RunActionJson runAction, RunStatusUpdate runStatusUpdate, String result)
          throws InternalServletException, ResultArchiveStoreException {
       String responseBody = "";
       RunActionStatus status = RunActionStatus.getfromString(runAction.getStatus());
-      String result = runAction.getResult();
 
       if (status == null) {
          ServletError error = new ServletError(GAL5045_INVALID_STATUS_UPDATE_REQUEST, runAction.getStatus());
@@ -131,6 +160,16 @@ public class RunDetailsRoute extends RunsRoute {
          responseBody = String.format("The request to cancel run %s has been received.", runName);
       }
       return responseBody;
+   }
+
+   private String updateRunTags(RunActionJson runAction, String runId, String[] tags) throws ResultArchiveStoreException, InternalServletException { 
+      TestStructure testStructure = getRunByRunId(runId).getTestStructure();
+      testStructure.setTags(new HashSet<>(Arrays.asList(tags)));
+
+      IResultArchiveStore rasStore = getFramework().getResultArchiveStore();
+      rasStore.updateTestStructure(runId, testStructure);
+
+      return "The request to update tags to %s has been recieved.";
    }
 
    private @NotNull RasRunResult getRunFromFramework(@NotNull String id)

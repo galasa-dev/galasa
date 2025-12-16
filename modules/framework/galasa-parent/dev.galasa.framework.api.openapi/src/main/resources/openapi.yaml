@@ -3034,7 +3034,11 @@ components:
             isEnabled:
               type: boolean
               description: A boolean value that represents whether the Galasa monitor should be enabled or disabled.
+    # UpdateRunStatusRequest now depricated in favour of UpdateRunRequest to improve naming and include tags.
     UpdateRunStatusRequest:
+      deprecated: true
+      description: |
+        Deprecated. Use 'UpdateRunRequest' instead, which allows tag operations.
       type: object
       properties:
         status:
@@ -3043,6 +3047,19 @@ components:
         result:
           type: string
           enum: [nil,"cancelled"]
+    UpdateRunRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: ["queued","finished"]
+        result:
+          type: string
+          enum: [nil,"cancelled"]
+        tags:
+          type: array
+          items:
+            type: string
     UpdateGroupStatusRequest:
       type: object
       properties:

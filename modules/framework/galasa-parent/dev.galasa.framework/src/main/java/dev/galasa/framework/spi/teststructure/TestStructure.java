@@ -98,11 +98,17 @@ public class TestStructure {
         tagsToReturn.addAll(tags);
         return tagsToReturn;
     }
+
     public void addTag(String additionalTag) {
         this.tags.add(additionalTag);
     }
+
     public void removeTag(String tagToRemove) {
         this.tags.remove(tagToRemove);
+    }
+    
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
     }
 
     public String getSubmissionId() {
