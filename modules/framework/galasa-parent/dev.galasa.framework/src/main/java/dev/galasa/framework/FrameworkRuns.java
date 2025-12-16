@@ -225,6 +225,7 @@ public class FrameworkRuns implements IFrameworkRuns {
         String groupName = runRequest.getGroupName();
         String submissionId = runRequest.getSubmissionId();
         String requestor = runRequest.getRequestor();
+        String user = runRequest.getUser();
         SharedEnvironmentPhase sharedEnvironmentPhase = runRequest.getSharedEnvironmentPhase();
         Properties overrides = runRequest.getOverrides();
         boolean local = runRequest.isLocalRun();
@@ -268,6 +269,8 @@ public class FrameworkRuns implements IFrameworkRuns {
         }
 
         otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.REQUESTOR), requestor);
+
+        otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.USER), user);
 
         if (sharedEnvironmentPhase != null) {
             otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.SHARED_ENVIRONMENT), "true");

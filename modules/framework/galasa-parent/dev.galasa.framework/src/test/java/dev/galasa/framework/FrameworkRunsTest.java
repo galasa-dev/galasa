@@ -126,6 +126,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.OBR)).isEqualTo(obr);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.GROUP)).isEqualTo(groupName);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.REQUESTOR)).isEqualTo(requestor);
+        assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.USER)).isEqualTo(user);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.TEST_BUNDLE)).isEqualTo(bundleName);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.REPOSITORY)).isEqualTo(mavenRepo);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.STREAM)).isEqualTo(stream);
@@ -207,6 +208,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.OBR)).isEqualTo(obr);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.GROUP)).isEqualTo(groupName);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.REQUESTOR)).isEqualTo(requestor);
+        assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.USER)).isEqualTo(user);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.TEST_BUNDLE)).isEqualTo(bundleName);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.REPOSITORY)).isEqualTo(mavenRepo);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.STREAM)).isEqualTo(stream);
@@ -582,6 +584,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.OBR)).isEqualTo(obr);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.GROUP)).isEqualTo(groupName);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.REQUESTOR)).isEqualTo(requestor);
+        assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.USER)).isEqualTo(user);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.REPOSITORY)).isEqualTo(mavenRepo);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.STREAM)).isEqualTo(stream);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.LOCAL)).isEqualTo(Boolean.toString(local));
@@ -653,6 +656,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.OBR)).isEqualTo(obr);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.GROUP)).isEqualTo(groupName);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.REQUESTOR)).isEqualTo(requestor);
+        assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.USER)).isEqualTo(user);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.TEST_BUNDLE)).isEqualTo(bundleName);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.REPOSITORY)).isEqualTo(mavenRepo);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.STREAM)).isEqualTo(stream);

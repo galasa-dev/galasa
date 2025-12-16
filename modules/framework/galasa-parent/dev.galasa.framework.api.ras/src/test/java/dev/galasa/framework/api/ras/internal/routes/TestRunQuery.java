@@ -3102,9 +3102,16 @@ public class TestRunQuery extends RasServletTest {
 	public void testQueryWithUserAndRequestorNotSortedWithDBServiceTenRecordsPageSizeFiveReturnsMatchingUserAndRequestorOK() throws Exception {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10, 5, 1);
-		// Change first result to have requestor: "galasa" and user: "jadetester"
+
+		// Change first result to have requestor: "galasa" and user: "joetester" - this is the run we expect to be returned.
+		mockInputRunResults.get(0).getTestStructure().setUser("joetester");
+
+		// Change the last result to have requestor: "joetester" or "joetester" will not be in the list of known requestors.
+		// You can only override a test's user to a known requestor value.
+		mockInputRunResults.get(mockInputRunResults.size() - 1).getTestStructure().setRequestor("joetester");
+
 		// All other results have requestor: "galasa" and user "galasa"
-		mockInputRunResults.get(0).getTestStructure().setUser("jadetester");
+
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
 		String user = mockInputRunResults.get(0).getTestStructure().getUser();
@@ -3123,6 +3130,7 @@ public class TestRunQuery extends RasServletTest {
 		servlet.doGet(req,resp);
 
 		//Then...
+		// When querying by requestor and user, we expect only runs that match both the requestor and the user.
 		// Expecting:
 		//  {
 		//   "pageNum": 1,
@@ -3135,7 +3143,7 @@ public class TestRunQuery extends RasServletTest {
 		//       "testStructure": {
 		//         "runName": "A1234",
 		//         "requestor": "galasa",
-		//         "user": "jadetester"
+		//         "user": "joetester"
 		//       }
 		//     }
 		// 	]
@@ -3152,9 +3160,12 @@ public class TestRunQuery extends RasServletTest {
 	public void testQueryWithRequestorNotSortedWithDBServiceTenRecordsPageSizeFiveReturnsMatchingRequestorOK() throws Exception {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10, 5, 1);
-		// Change first result to have requestor: "automationtool" and user: "galasa"
-		// All other results have requestor: "galasa" and user "galasa"
+
+		// Change first result to have requestor: "automationtool" and user: "galasa" - this is the run we expect to be returned.
 		mockInputRunResults.get(0).getTestStructure().setRequestor("automationtool");
+
+		// All other results have requestor: "galasa" and user "galasa"
+
 		//Build Http query parameters
 		String requestor = mockInputRunResults.get(0).getTestStructure().getRequestor();
 		Map<String, String[]> parameterMap = setQueryParameter(1, 100, null, null, requestor, null, 72, null, null, null);
@@ -3201,11 +3212,15 @@ public class TestRunQuery extends RasServletTest {
 	public void testQueryWithUserNotSortedWithDBServiceTenRecordsPageSizeFiveReturnsMatchingRequestorOrUserOK() throws Exception {
 		//Given..
 		List<IRunResult> mockInputRunResults = generateTestDataAscendingTime(10, 5, 1);
-		// Change first result to have requestor: "joetester" and user: "galasa"
+
+		// Change first result to have requestor: "joetester" and user: "galasa" - we expect this run to be returned.
 		mockInputRunResults.get(0).getTestStructure().setRequestor("joetester");
-		// Change first result to have requestor: "galasa" and user: "joetester"
+
+		// Change second result to have requestor: "galasa" and user: "joetester" - we also expect this run to be returned.
 		mockInputRunResults.get(1).getTestStructure().setUser("joetester");
+
 		// All other results have requestor: "galasa" and user "galasa"
+
 		//Build Http query parameters
 		Map<String, String[]> parameterMap = setQueryParameter(1, 100, null, null, null, "joetester", 72, null, null, null);
 
