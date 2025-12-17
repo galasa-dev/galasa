@@ -798,6 +798,20 @@ galasactl secrets delete --name SYSTEM1
 
 For a complete list of supported parameters see [here](./docs/generated/galasactl_secrets_delete.md).
 
+## tags delete
+
+This command deletes a tag with the given name from the Galasa service. The name of the tag to be deleted must be provided using the `--name` flag.
+
+### Examples
+
+To delete a tag named `mytag`, run the following command:
+
+```
+galasactl tags delete --name mytag
+```
+
+For a complete list of supported parameters see [here](./docs/generated/galasactl_tags_delete.md).
+
 ## roles get
 To list the roles which are available on a Galasa service.
 
