@@ -21,7 +21,8 @@ public enum BuiltInAction {
     CPS_PROPERTIES_SET            (new ActionImpl("CPS_PROPERTIES_SET", "CPS properties set", "Able to set CPS properties")),
     CPS_PROPERTIES_DELETE         (new ActionImpl("CPS_PROPERTIES_DELETE", "CPS properties delete", "Able to delete CPS properties")),
     RUNS_DELETE_OTHER_USERS       (new ActionImpl("RUNS_DELETE_OTHER_USERS", "Runs delete other users", "Able to delete runs submitted by other users")),
-    TEST_RUN_LAUNCH               (new ActionImpl("TEST_RUN_LAUNCH", "Launch a test run", "Able to launch test runs"));
+    TEST_RUN_LAUNCH               (new ActionImpl("TEST_RUN_LAUNCH", "Launch a test run", "Able to launch test runs")),
+    TEST_RUN_SET_USER             (new ActionImpl("TEST_RUN_SET_USER", "Set a user when submitting test runs", "Able to associate a user that is different to the requestor when submitting test runs"));
 
     private Action action;
     private static List<Action> allActions = Stream.of(values())

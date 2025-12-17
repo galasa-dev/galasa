@@ -84,6 +84,19 @@ public class GroupRunsRoute extends GroupRuns{
 
         checkRequestHasContent(request);
         ScheduleRequest scheduleRequest = getScheduleRequestfromRequest(request);
+
+        String user = scheduleRequest.getUser();
+        if (user != null && !user.isBlank()) {
+            boolean isRequestorPermittedToSetUser = isActionPermitted(BuiltInAction.TEST_RUN_SET_USER, requestor);
+            if (isRequestorPermittedToSetUser) {
+                validateActionPermitted(BuiltInAction.TEST_RUN_LAUNCH, user);
+            } else {
+                // If the requestor login ID does not have the TEST_RUN_SET_USER action,
+                // don't block them from launching the test, but don't let them override the user.
+                scheduleRequest.setUser(requestor);
+            }
+        }
+
         ScheduleStatus scheduleStatus = scheduleRun(scheduleRequest, groupName.substring(1), requestor, env);
         return getResponseBuilder().buildResponse(request, response, "application/json", gson.toJson(scheduleStatus), HttpServletResponse.SC_CREATED);
     }

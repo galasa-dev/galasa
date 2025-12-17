@@ -32,6 +32,7 @@ public enum DssPropertyKeyRunNameSuffix{
     RESULT("result"),
     REQUEST_TYPE("request.type"),
     REQUESTOR("requestor"),
+    USER("user"),
     QUEUED("queued"),
     SHARED_ENVIRONMENT("shared.environment"),
     STATUS("status"),

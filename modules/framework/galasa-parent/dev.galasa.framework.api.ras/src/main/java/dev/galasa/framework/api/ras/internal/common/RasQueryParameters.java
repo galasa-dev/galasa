@@ -89,6 +89,10 @@ public class RasQueryParameters {
         return generalQueryParams.getSingleString("requestor", null);
     }
 
+    public String getUser() throws InternalServletException {
+        return generalQueryParams.getSingleString("user", null);
+    }
+
     public String getGroup() throws InternalServletException {
         return generalQueryParams.getSingleString("group", null);
     }

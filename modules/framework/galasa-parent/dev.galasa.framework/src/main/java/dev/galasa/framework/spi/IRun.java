@@ -26,6 +26,8 @@ public interface IRun {
 
     String getRequestor();
 
+    String getUser();
+
     String getStream();
 
     String getTestBundleName();

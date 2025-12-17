@@ -16,6 +16,7 @@ public class ScheduleRequest implements Serializable {
     private List<String>            classNames;
     private String                  requestorType;
     private String                  requestor;
+    private String                  user;
     private String                  testStream;
     private String                  obr;
     private String                  mavenRepository;
@@ -42,6 +43,10 @@ public class ScheduleRequest implements Serializable {
         return requestor;
     }
 
+    public String getUser() {
+        return user;
+    }
+
     public String getTestStream() {
         return testStream;
     }
@@ -64,6 +69,10 @@ public class ScheduleRequest implements Serializable {
 
     public void setRequestor(String requestor) {
         this.requestor = requestor;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public void setTestStream(String testStream) {

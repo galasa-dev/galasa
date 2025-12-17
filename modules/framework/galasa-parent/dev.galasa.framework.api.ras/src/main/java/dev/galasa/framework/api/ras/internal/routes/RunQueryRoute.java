@@ -17,7 +17,6 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.SupportedQueryParameterNames;
 import dev.galasa.framework.api.common.Environment;
-import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.api.ras.internal.common.RasDetailsQueryParams;
@@ -41,6 +40,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaSubmissionId;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTags;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaUser;
 import dev.galasa.framework.spi.ras.RasSortField;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -74,6 +74,7 @@ public class RunQueryRoute extends RunsRoute {
 	public static final String QUERY_PARAMETER_STATUS = "status";
 	public static final String QUERY_PARAMETER_BUNDLE = "bundle";
 	public static final String QUERY_PARAMETER_REQUESTOR = "requestor";
+	public static final String QUERY_PARAMETER_USER = "user";
 	public static final String QUERY_PARAMETER_FROM = "from";
 	public static final String QUERY_PARAMETER_TO = "to";
 	public static final String QUERY_PARAMETER_TESTNAME = "testname";
@@ -90,8 +91,8 @@ public class RunQueryRoute extends RunsRoute {
 
 	public static final SupportedQueryParameterNames SUPPORTED_QUERY_PARAMETER_NAMES = new SupportedQueryParameterNames(
 			QUERY_PARAMETER_SORT, QUERY_PARAMETER_RESULT, QUERY_PARAMETER_STATUS,
-			QUERY_PARAMETER_BUNDLE, QUERY_PARAMETER_DETAIL, QUERY_PARAMETER_REQUESTOR, QUERY_PARAMETER_FROM,
-			QUERY_PARAMETER_TO, QUERY_PARAMETER_TESTNAME, QUERY_PARAMETER_PAGE,
+			QUERY_PARAMETER_BUNDLE, QUERY_PARAMETER_DETAIL, QUERY_PARAMETER_REQUESTOR, QUERY_PARAMETER_USER,
+			QUERY_PARAMETER_FROM, QUERY_PARAMETER_TO, QUERY_PARAMETER_TESTNAME, QUERY_PARAMETER_PAGE,
 			QUERY_PARAMETER_SIZE, QUERY_PARAMETER_GROUP, QUERY_PARAMETER_SUBMISSION_ID,
 			QUERY_PARAMETER_INCLUDECURSOR, QUERY_PARAMETER_CURSOR, QUERY_PARAMETER_RUNNAME,
 			QUERY_PARAMETER_RUNID, QUERY_PARAMETER_TAGS);
@@ -165,20 +166,50 @@ public class RunQueryRoute extends RunsRoute {
 			} else {
 
 				String requestor  = queryParams.getRequestor();
-				String matchedRequestor = null;
+				String user = queryParams.getUser();
 
-				if (requestor != null && !requestor.isEmpty()) {
+				String matchedRequestor = null;
+				String matchedUser = null;
+
+				boolean queryingRequestor = requestor != null && !requestor.isEmpty();
+				boolean queryingUser = user != null && !user.isEmpty();
+
+				// If querying by requestor and user, search for runs that match both the requestor and user.
+				if (queryingRequestor && queryingUser) {
+					matchedRequestor = findMatchingRequestor(requestor);
+					matchedUser = findMatchingRequestor(user);
+
+					// We weren't able to match against both a known requestor and user,
+					// so there should be no runs for the given requestor/user combination.
+					if (matchedRequestor == null || matchedUser == null) {
+						runsPage = new RasRunResultPage(new ArrayList<>());
+					}
+				} 
+				
+				// If querying by requestor, search for runs that match that requestor.
+				else if (queryingRequestor) {
 					matchedRequestor = findMatchingRequestor(requestor);
 
-					// We weren't able to match against a known requestor, so there should be no runs
-					// for the given requestor
+					// We weren't able to match against a known requestor,
+					// so there should be no runs for the given requestor.
 					if (matchedRequestor == null) {
 						runsPage = new RasRunResultPage(new ArrayList<>());
 					}
 				}
 
+				// If querying by user, search for runs that match that user OR requestor.
+				else if (queryingUser) {
+					matchedUser = findMatchingRequestor(user);
+
+					// We weren't able to match against either a known user or requestor,
+					// so there should be no runs for the given user.
+					if (matchedUser == null) {
+						runsPage = new RasRunResultPage(new ArrayList<>());
+					}
+				}
+
 				if (runsPage == null) {
-					List<IRasSearchCriteria> criteria = getCriteria(queryParams, matchedRequestor);
+					List<IRasSearchCriteria> criteria = getCriteria(queryParams, matchedRequestor, matchedUser);
 
 					// Story https://github.com/galasa-dev/projectmanagement/issues/1978 will
 					// replace the old page-based pagination with the new cursor-based pagination
@@ -248,7 +279,7 @@ public class RunQueryRoute extends RunsRoute {
 		return runs;
 	}
 
-	private List<IRasSearchCriteria> getCriteria(RasQueryParameters queryParams, String matchedRequestor) throws InternalServletException {
+	private List<IRasSearchCriteria> getCriteria(RasQueryParameters queryParams, String matchedRequestor, String matchedUser) throws InternalServletException {
 
 		String testName = queryParams.getTestName();
 		String bundle = queryParams.getBundle();
@@ -280,6 +311,10 @@ public class RunQueryRoute extends RunsRoute {
 		if (matchedRequestor != null && !matchedRequestor.isEmpty()) {
 			RasSearchCriteriaRequestor requestorCriteria = new RasSearchCriteriaRequestor(matchedRequestor);
 			critList.add(requestorCriteria);
+		}
+		if (matchedUser != null && !matchedUser.isEmpty()) {
+			RasSearchCriteriaUser userCriteria = new RasSearchCriteriaUser(matchedUser);
+			critList.add(userCriteria);
 		}
 		if (testName != null && !testName.isEmpty()) {
 			RasSearchCriteriaTestName testNameCriteria = new RasSearchCriteriaTestName(testName);
@@ -344,7 +379,7 @@ public class RunQueryRoute extends RunsRoute {
 		return gson.toJson(runsPage);
 	}
 
-	private String findMatchingRequestor(String requestor) throws InternalServletException {
+	private String findMatchingRequestor(String loginId) throws InternalServletException {
 		String matchedRequestor = null;
 
 		try {
@@ -352,7 +387,7 @@ public class RunQueryRoute extends RunsRoute {
 			List<String> requestorsList = getRequestors();
 			if (requestorsList != null && !requestorsList.isEmpty()) {
 				for (String req : requestorsList) {
-					if (req.equalsIgnoreCase(requestor)) {
+					if (req.equalsIgnoreCase(loginId)) {
 						matchedRequestor = req;
 						break;
 					}
