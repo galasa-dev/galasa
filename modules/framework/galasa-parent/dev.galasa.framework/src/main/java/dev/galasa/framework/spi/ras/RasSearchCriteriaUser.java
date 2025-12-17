@@ -23,19 +23,19 @@ public class RasSearchCriteriaUser implements IRasSearchCriteria {
     public boolean criteriaMatched(@NotNull TestStructure structure) {
         
         if (structure == null) {
-            return Boolean.FALSE;
+            return false;
         }
 
         if (users != null) {
             for (String user : users) {
                 // When searching by user, match on either the test user or requestor.
                 if (user.equals(structure.getUser()) || user.equals(structure.getRequestor())) {
-                    return Boolean.TRUE;
+                    return true;
                 }
             }
         }
 
-        return Boolean.FALSE;
+        return false;
     }
 
     @Override
