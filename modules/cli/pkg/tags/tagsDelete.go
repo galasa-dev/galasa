@@ -16,7 +16,6 @@ import (
 	galasaErrors "github.com/galasa-dev/cli/pkg/errors"
 	"github.com/galasa-dev/cli/pkg/galasaapi"
 	"github.com/galasa-dev/cli/pkg/spi"
-	"github.com/galasa-dev/cli/pkg/utils"
 )
 
 func DeleteTag(tagName string, commsClient api.APICommsClient, byteReader spi.ByteReader) error {
@@ -27,20 +26,6 @@ func DeleteTag(tagName string, commsClient api.APICommsClient, byteReader spi.By
 
 	if err == nil {
 		err = deleteTagFromRestApi(tag, commsClient, byteReader)
-	}
-	return err
-}
-
-func validateTagName(tagName string) error {
-	var err error
-	log.Println("Validating the provided tag name")
-
-	if tagName == "" || !utils.IsLatin1(tagName) {
-		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_INVALID_TAG_NAME)
-	}
-
-	if err == nil {
-		log.Println("Tag name validated OK")
 	}
 	return err
 }

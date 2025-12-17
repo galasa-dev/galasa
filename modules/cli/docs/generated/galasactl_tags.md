@@ -26,4 +26,5 @@ The parent command for operations to manipulate tags in the Galasa service's con
 
 * [galasactl](galasactl.md)	 - CLI for Galasa
 * [galasactl tags delete](galasactl_tags_delete.md)	 - Deletes a tag from the Galasa service
+* [galasactl tags set](galasactl_tags_set.md)	 - Creates or updates a tag in the Galasa service
 

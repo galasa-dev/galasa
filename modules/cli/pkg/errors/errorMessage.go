@@ -472,6 +472,16 @@ var (
 	GALASA_ERROR_INVALID_TAG_NAME                    = NewMessageType("GAL1256E: Invalid tag name provided. The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1256, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_TAG_NOT_FOUND                       = NewMessageType("GAL1257E: No such tag named '%v' exists within the Galasa service.", 1257, STACK_TRACE_NOT_WANTED)
 
+	// Tags set errors
+	GALASA_ERROR_FAILED_TO_SET_TAG                   = NewMessageType("GAL1258E: Failed to set the tag with the given name on the Galasa service", 1258, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_NO_RESPONSE_CONTENT         = NewMessageType("GAL1259E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server.", 1259, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_RESPONSE_BODY_UNREADABLE    = NewMessageType("GAL1260E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1260, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_UNPARSEABLE_CONTENT         = NewMessageType("GAL1261E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1261, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_SERVER_REPORTED_ERROR       = NewMessageType("GAL1262E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1262, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_EXPLANATION_NOT_JSON        = NewMessageType("GAL1263E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1263, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_REQUEST_FAILED              = NewMessageType("GAL1264E: Failed to set a tag named '%s'. Sending the put request to the Galasa service failed. Cause is %v", 1264, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_TAG_DESCRIPTION			 = NewMessageType("GAL1265E: Invalid tag description provided. The description provided with the --description flag cannot only contain spaces or tabs, and must only contain characters in the Latin-1 character set.", 1265, STACK_TRACE_NOT_WANTED)
+
 	// Warnings...
 	GALASA_WARNING_MAVEN_NO_GALASA_OBR_REPO = NewMessageType("GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '%s', and 'pre-release' repository is '%s'", 2000, STACK_TRACE_WANTED)
 
