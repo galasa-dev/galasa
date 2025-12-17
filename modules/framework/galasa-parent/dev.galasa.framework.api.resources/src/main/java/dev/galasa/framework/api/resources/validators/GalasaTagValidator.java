@@ -56,7 +56,9 @@ public class GalasaTagValidator extends GalasaResourceValidator<JsonObject> {
         if (metadata.has("description")) {
             String description = metadata.get("description").getAsString();
             try {
-                tagValidator.validateDescription(description);
+                if (description != null && !description.isEmpty()) {
+                    tagValidator.validateDescription(description);
+                }
             } catch (InternalServletException e) {
                 validationErrors.add(e.getMessage());
             }

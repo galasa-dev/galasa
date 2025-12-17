@@ -158,6 +158,35 @@ public class GalasaTagValidatorTest {
     }
 
     @Test
+    public void testApplyTagWithEmptyDescriptionHasNoValidationErrors() throws Exception {
+        // Given...
+        ResourceAction action = ResourceAction.APPLY;
+        GalasaTagValidator validator = new GalasaTagValidator(action);
+
+        JsonObject tagJson = new JsonObject();
+        tagJson.addProperty("apiVersion", GalasaStreamValidator.DEFAULT_API_VERSION);
+        tagJson.addProperty("kind", GalasaResourceType.GALASA_TAG.toString());
+
+        JsonObject metadata = new JsonObject();
+        metadata.addProperty("name", "my tag");
+        metadata.addProperty("description", "");
+
+        JsonObject data = new JsonObject();
+        int priority = 100;
+        data.addProperty("priority", priority);
+
+        tagJson.add("metadata", metadata);
+        tagJson.add("data", data);
+
+        // When...
+        validator.validate(tagJson);
+
+        // Then...
+        List<String> validationErrors = validator.getValidationErrors();
+        assertThat(validationErrors).isEmpty();
+    }
+
+    @Test
     public void testApplyTagWithInvalidDescriptionHasValidationError() throws Exception {
         // Given...
         ResourceAction action = ResourceAction.APPLY;
