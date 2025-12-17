@@ -8,9 +8,8 @@ package dev.galasa.framework.api.tags.internal.routes;
 import static org.assertj.core.api.Assertions.*;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -123,25 +122,25 @@ public class TagByNameRouteTest extends TagsServletTest {
 
         String tagName = "tag1";
         String description = "My first tag!";
-        List<Tag> tags = new ArrayList<>();
+        Map<String, Tag> tags = new HashMap<>();
         Tag tag1 = new Tag(tagName);
         tag1.setDescription(description);
         tag1.setPriority(100);
-        tags.add(tag1);
+        tags.put(tag1.getName(), tag1);
 
         String tagName2 = "tag2";
         String description2 = "My second tag!";
         Tag tag2 = new Tag(tagName2);
         tag2.setDescription(description2);
         tag2.setPriority(12);
-        tags.add(tag2);
+        tags.put(tag2.getName(), tag2);
 
         String tagName3 = "tag3";
         String description3 = "My third tag!";
         Tag tag3 = new Tag(tagName3);
         tag3.setDescription(description3);
         tag3.setPriority(456);
-        tags.add(tag3);
+        tags.put(tag3.getName(), tag3);
 
         MockTagsService mockTagsService = new MockTagsService(tags);
 
@@ -178,18 +177,18 @@ public class TagByNameRouteTest extends TagsServletTest {
 
         String tagName = "tag1";
         String description = "My first tag!";
-        List<Tag> tags = new ArrayList<>();
+        Map<String, Tag> tags = new HashMap<>();
         Tag tag1 = new Tag(tagName);
         tag1.setDescription(description);
         tag1.setPriority(100);
-        tags.add(tag1);
+        tags.put(tag1.getName(), tag1);
 
         String tagName2 = "tag2";
         String description2 = "My second tag!";
         Tag tag2 = new Tag(tagName2);
         tag2.setDescription(description2);
         tag2.setPriority(12);
-        tags.add(tag2);
+        tags.put(tag2.getName(), tag2);
 
         MockTagsService mockTagsService = new MockTagsService(tags);
 
@@ -225,18 +224,18 @@ public class TagByNameRouteTest extends TagsServletTest {
 
         String tagName = "tag1";
         String description = "My first tag!";
-        List<Tag> tags = new ArrayList<>();
+        Map<String, Tag> tags = new HashMap<>();
         Tag tag1 = new Tag(tagName);
         tag1.setDescription(description);
         tag1.setPriority(100);
-        tags.add(tag1);
+        tags.put(tag1.getName(), tag1);
 
         String tagName2 = "tag2";
         String description2 = "My second tag!";
         Tag tag2 = new Tag(tagName2);
         tag2.setDescription(description2);
         tag2.setPriority(12);
-        tags.add(tag2);
+        tags.put(tag2.getName(), tag2);
 
         MockTagsService mockTagsService = new MockTagsService(tags);
 
@@ -273,11 +272,11 @@ public class TagByNameRouteTest extends TagsServletTest {
         String tagName = "mytag";
         String tagDescription = "my first tag!";
         int tagPriority = 123;
-        List<Tag> tags = new ArrayList<>();
+        Map<String, Tag> tags = new HashMap<>();
         Tag tag1 = new Tag(tagName);
         tag1.setDescription(tagDescription);
         tag1.setPriority(tagPriority);
-        tags.add(tag1);
+        tags.put(tag1.getName(), tag1);
 
         MockTagsService mockTagsService = new MockTagsService(tags);
 
@@ -322,11 +321,11 @@ public class TagByNameRouteTest extends TagsServletTest {
         String tagName = "mytag";
         String tagDescription = "my first tag!";
         int tagPriority = 123;
-        List<Tag> tags = new ArrayList<>();
+        Map<String, Tag> tags = new HashMap<>();
         Tag tag1 = new Tag(tagName);
         tag1.setDescription(tagDescription);
         tag1.setPriority(tagPriority);
-        tags.add(tag1);
+        tags.put(tag1.getName(), tag1);
 
         MockTagsService mockTagsService = new MockTagsService(tags);
 
@@ -370,11 +369,11 @@ public class TagByNameRouteTest extends TagsServletTest {
         String tagName = "mytag";
         String tagDescription = "my first tag!";
         int tagPriority = 123;
-        List<Tag> tags = new ArrayList<>();
+        Map<String, Tag> tags = new HashMap<>();
         Tag tag1 = new Tag(tagName);
         tag1.setDescription(tagDescription);
         tag1.setPriority(tagPriority);
-        tags.add(tag1);
+        tags.put(tag1.getName(), tag1);
 
         MockTagsService mockTagsService = new MockTagsService(tags);
 
