@@ -182,7 +182,7 @@ public class GalasaTagProcessorTest extends ResourcesServletTest {
 
         JsonObject tagJson = generateTagJson(tagName, description, priority);
 
-        // Check that we have a tag before processing
+        // Check that we have no existing tags before processing
         assertThat(tags).isEmpty();
 
         // When...
