@@ -70,6 +70,7 @@ const (
 	COMMAND_NAME_SECRETS_DELETE           = "secrets delete"
 	COMMAND_NAME_TAGS                     = "tags"
 	COMMAND_NAME_TAGS_DELETE              = "tags delete"
+	COMMAND_NAME_TAGS_GET                 = "tags get"
 	COMMAND_NAME_TAGS_SET                 = "tags set"
 	COMMAND_NAME_USERS                    = "users"
 	COMMAND_NAME_USERS_GET                = "users get"
@@ -469,6 +470,7 @@ func (commands *commandCollectionImpl) addTagsCommands(factory spi.Factory, root
 	var tagsCommand spi.GalasaCommand
 	var tagsDeleteCommand spi.GalasaCommand
 	var tagsSetCommand spi.GalasaCommand
+	var tagsGetCommand spi.GalasaCommand
 
 	tagsCommand, err = NewTagsCmd(rootCommand, commsFlagSet)
 
@@ -481,9 +483,14 @@ func (commands *commandCollectionImpl) addTagsCommands(factory spi.Factory, root
 	}
 
 	if err == nil {
+		tagsGetCommand, err = NewTagsGetCommand(factory, tagsCommand, commsFlagSet)
+	}
+
+	if err == nil {
 		commands.commandMap[tagsCommand.Name()] = tagsCommand
 		commands.commandMap[tagsDeleteCommand.Name()] = tagsDeleteCommand
 		commands.commandMap[tagsSetCommand.Name()] = tagsSetCommand
+		commands.commandMap[tagsGetCommand.Name()] = tagsGetCommand
 	}
 
 	return err

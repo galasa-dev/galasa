@@ -482,6 +482,15 @@ var (
 	GALASA_ERROR_SET_TAG_REQUEST_FAILED              = NewMessageType("GAL1264E: Failed to set a tag named '%s'. Sending the put request to the Galasa service failed. Cause is %v", 1264, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_INVALID_TAG_DESCRIPTION			 = NewMessageType("GAL1265E: Invalid tag description provided. The description provided with the --description flag cannot only contain spaces or tabs, and must only contain characters in the Latin-1 character set.", 1265, STACK_TRACE_NOT_WANTED)
 
+	// Tags get errors
+	GALASA_ERROR_FAILED_TO_GET_TAGS                  = NewMessageType("GAL1266E: Failed to get tags from the Galasa service", 1266, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_NO_RESPONSE_CONTENT        = NewMessageType("GAL1267E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server.", 1267, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_RESPONSE_BODY_UNREADABLE   = NewMessageType("GAL1268E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1268, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_UNPARSEABLE_CONTENT        = NewMessageType("GAL1269E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1269, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_SERVER_REPORTED_ERROR      = NewMessageType("GAL1270E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1270, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_EXPLANATION_NOT_JSON       = NewMessageType("GAL1271E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1271, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_REQUEST_FAILED             = NewMessageType("GAL1272E: Failed to get tags from the Galasa service. Sending the put request to the Galasa service failed. Cause is %v", 1272, STACK_TRACE_NOT_WANTED)
+
 	// Warnings...
 	GALASA_WARNING_MAVEN_NO_GALASA_OBR_REPO = NewMessageType("GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '%s', and 'pre-release' repository is '%s'", 2000, STACK_TRACE_WANTED)
 
@@ -499,5 +508,5 @@ var (
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please increment this value.
     // >>>
-    GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1266;
+    GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1273;
 )

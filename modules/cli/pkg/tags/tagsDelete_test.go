@@ -146,9 +146,8 @@ func TestDeleteTagWithServerFailureDuringGetGivesCorrectMessage(t *testing.T) {
 
 	// Then...
 	assert.NotNil(t, err)
-    assert.ErrorContains(t, err, tagName)
     assert.ErrorContains(t, err, strconv.Itoa(http.StatusInternalServerError))
-    assert.ErrorContains(t, err, "GAL1253E")
+    assert.ErrorContains(t, err, "GAL1270E")
     assert.ErrorContains(t, err, "Error details from the server are")
 }
 
