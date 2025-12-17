@@ -14,7 +14,15 @@ import (
 )
 
 // -----------------------------------------------------
-// Summary format.
+// Displays tags in the following summary format:
+//
+// name                  priority description          
+// core_regression_tests 100      Core regression tests
+// my-experimental-tag   5        Experimental tests   
+// anothertag 		     10       Dummy tag            
+//
+// Total:3
+
 const (
 	SUMMARY_FORMATTER_NAME = "summary"
 )

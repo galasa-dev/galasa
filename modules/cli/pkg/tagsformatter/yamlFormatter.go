@@ -12,6 +12,25 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// -----------------------------------------------------
+// Displays tags in the following YAML format:
+//
+// apiVersion: galasa-dev/v1alpha1
+// kind: GalasaTag
+// metadata:
+//     name: core-regression
+//     description: my core regression tag
+// data:
+//     priority: 100
+// ---
+// apiVersion: galasa-dev/v1alpha1
+// kind: GalasaTag
+// metadata:
+//     name: my-other-tag
+//     description: example test tag
+// data:
+//     priority: 1
+
 const (
 	YAML_FORMATTER_NAME = "yaml"
 )
