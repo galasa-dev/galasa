@@ -19,6 +19,7 @@ public class SubmitRunRequest {
 
     private String runType;
     private String requestor;
+    private String user;
     private String bundleName;
     private String testName;
     private String groupName;
@@ -39,6 +40,7 @@ public class SubmitRunRequest {
     public SubmitRunRequest(
         String runType,
         String requestor,
+        String user,
         String bundleName,
         String testName,
         String groupName,
@@ -58,6 +60,7 @@ public class SubmitRunRequest {
 
         this.runType = runType;
         this.requestor = requestor;
+        this.user = user;
         this.bundleName = bundleName;
         this.groupName = groupName;
         this.submissionId = submissionId;
@@ -89,6 +92,14 @@ public class SubmitRunRequest {
 
     public void setRequestor(String requestor) {
         this.requestor = requestor;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public String getBundleName() {

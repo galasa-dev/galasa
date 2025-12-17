@@ -26,6 +26,7 @@ public class TestStructure {
     private String           testShortName;
 
     private String           requestor;
+    private String           user;
 
     private String           status;
     private String           result;
@@ -53,8 +54,8 @@ public class TestStructure {
      * Deep clone the source Test stucture.
      * @param source
      */
-    public TestStructure( TestStructure source ) {
-        if (source!=null) {
+    public TestStructure(TestStructure source) {
+        if (source != null) {
             this.runName = source.runName;
             this.group = source.group;
             this.bundle = source.bundle;
@@ -62,6 +63,7 @@ public class TestStructure {
             this.submissionId = source.submissionId;
             this.testShortName = source.testShortName;
             this.requestor = source.requestor;
+            this.user = source.user;
             this.status = source.status;
             this.result = source.result;
             this.queued = source.queued;
@@ -175,6 +177,18 @@ public class TestStructure {
         }
 
         return this.requestor;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public @NotNull String getUser() {
+        if (this.user == null) {
+            return "unknown";
+        }
+
+        return this.user;
     }
 
     public void setQueued(Instant queued) {
@@ -293,6 +307,10 @@ public class TestStructure {
 
         if (this.requestor == null) {
             this.requestor = "unknown";
+        }
+
+        if (this.user == null) {
+            this.user = "unknown";
         }
 
         if (this.queued == null) {
