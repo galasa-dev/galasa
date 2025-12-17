@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static dev.galasa.framework.spi.rbac.BuiltInAction.GENERAL_API_ACCESS;
 import static org.assertj.core.api.Assertions.*;
 
 import javax.servlet.ServletOutputStream;
@@ -30,6 +31,7 @@ import dev.galasa.framework.mocks.MockOBR;
 import dev.galasa.framework.mocks.MockStreamsService;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockStream;
+import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.streams.IStream;
 
 public class StreamsByNameRouteTest extends BaseServletTest {
@@ -512,6 +514,46 @@ public class StreamsByNameRouteTest extends BaseServletTest {
             assertThat(stream.getName()).isNotEqualTo(streamName);
         }
 
+    }
+
+    @Test
+    public void testDeleteStreamWithMissingPermissionsThrowsError() throws Exception {
+
+        // Given...
+        String streamName = "fakeStream";
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        List<IStream> mockStreams = new ArrayList<>();
+
+        MockStreamsService mockStreamsService = new MockStreamsService(mockStreams);
+
+        List<Action> actions = List.of(GENERAL_API_ACCESS.getAction());
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, actions);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
+        MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService(
+                "framework");
+
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(EnvironmentVariables.GALASA_USERNAME_CLAIMS, "preferred_username");
+
+        MockStreamsServlet mockServlet = new MockStreamsServlet(mockFramework, env,
+                mockIConfigurationPropertyStoreService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + streamName, headerMap);
+        mockRequest.setMethod(HttpMethod.DELETE.toString());
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doDelete(mockRequest, servletResponse);
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(403);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        checkErrorStructure(output, 5125, "CPS_PROPERTIES_DELETE");
     }
 
     @Test

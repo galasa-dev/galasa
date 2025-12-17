@@ -25,6 +25,7 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.streams.IStream;
 import dev.galasa.framework.spi.streams.IStreamsService;
@@ -75,6 +76,8 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
     ) throws FrameworkException {
 
         logger.info("handleDeleteRequest() entered");
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_DELETE, requestContext.getUsername());
+
         HttpServletRequest request = requestContext.getRequest();
 
         String streamName = getStreamName(pathInfo);
