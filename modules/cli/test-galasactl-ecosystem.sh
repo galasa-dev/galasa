@@ -122,6 +122,9 @@ resources_tests
 source ${BASEDIR}/test-scripts/streams-tests.sh --bootstrap "${bootstrap}"
 streams_tests
 
+source ${BASEDIR}/test-scripts/tags-tests.sh --bootstrap "${bootstrap}"
+tags_tests
+
 # Test the hybrid configuration where the local test runs locally, but
 # draws it's CPS properties from a remote ecosystem via a REST extension.
 source ${BASEDIR}/test-scripts/test-local-run-remote-cps.sh 
