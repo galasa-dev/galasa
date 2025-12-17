@@ -31,6 +31,7 @@ func TestYamlReportWorks(t *testing.T) {
 		Status:         "myStatus",
 		QueuedTimeUTC:  "",
 		Requestor:      "me",
+		User:           "me",
 		Result:         "PASSED",
 		Overrides:      make(map[string]string, 1),
 		Tests:          []TestMethod{{Method: "method1", Result: "passed"}, {Method: "method2", Result: "passed"}},
@@ -71,6 +72,7 @@ func TestYamlReportWorks(t *testing.T) {
 	  status: myStatus
 	  queued: ""
 	  requestor: me
+	  user: me
 	  result: PASSED
 	  overrides: {}
 	  tests:

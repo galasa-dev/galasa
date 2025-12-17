@@ -14,6 +14,7 @@ type TestRun struct {
 	Status         string            `yaml:"status" json:"status"`
 	QueuedTimeUTC  string            `yaml:"queued" json:"queued"`
 	Requestor      string            `yaml:"requestor" json:"requestor"`
+	User           string            `yaml:"user" json:"user"`
 	Result         string            `yaml:"result" json:"result"`
 	Overrides      map[string]string `yaml:"overrides" json:"overrides"`
 	Tests          []TestMethod      `yaml:"tests" json:"tests"`
