@@ -30,6 +30,7 @@ const (
 			 "testName": "myTestPackage.MyTestName",
 			 "testShortName": "MyTestName",
 			 "requestor": "unitTesting",
+			 "user": "unitTesting",
 			 "status" : "Finished",
 			 "result" : "Passed",
 			 "queued" : "2023-05-10T06:00:13.043037Z",
@@ -62,6 +63,7 @@ const (
 			 "testName": "myTestPackage.MyTest27",
 			 "testShortName": "MyTestName27",
 			 "requestor": "unitTesting27",
+			 "user": "unitTesting27",
 			 "status" : "building",
 			 "queued" : "2023-05-10T06:00:13.043037Z",
 			 "startTime": "2023-05-10T06:00:36.159003Z",
@@ -92,6 +94,7 @@ const (
 			"testName": "myTestPackage.MyTest27",
 			"testShortName": "MyTestName27",
 			"requestor": "unitTesting27",
+			"user": "unitTesting27",
 			"status" : "finished",
 			"result" : "Passed",
 			"queued" : "2023-05-10T06:00:13.043037Z",
@@ -124,6 +127,7 @@ const (
 			"testName": "myTestPackage.MyTest27",
 			"testShortName": "MyTestName27",
 			"requestor": "unitTesting27",
+			"user": "unitTesting27",
 			"status" : "finished",
 			"result" : "EnvFail",
 			"queued" : "2022-05-10T04:00:13.043037Z",
@@ -155,6 +159,7 @@ const (
 			"testName": "myTestPackage.MyTest27",
 			"testShortName": "MyTestName27",
 			"requestor": "unitTesting27",
+			"user": "unitTesting27",
 			"status" : "finished",
 			"result" : "EnvFail",
 			"queued" : "2022-05-10T04:00:13.043037Z",
@@ -186,6 +191,7 @@ const (
 			"testName": "myTestPackage.MyTest27",
 			"testShortName": "MyTestName27",
 			"requestor": "unitTesting27",
+			"user": "unitTesting27",
 			"status" : "Building",
 			"queued" : "2022-05-10T04:00:13.043037Z",
 			"startTime": "2022-05-10T04:10:36.159003Z",
@@ -267,26 +273,26 @@ func TestRunsDownloadFailingFileWriteReturnsError(t *testing.T) {
 
 	dummyTxtArtifact := NewMockArtifact("/artifacts/dummy.txt", "text/plain", 1024)
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U27)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsJsonStr := fmt.Sprintf(`[
@@ -296,24 +302,24 @@ func TestRunsDownloadFailingFileWriteReturnsError(t *testing.T) {
 				"size": "%d"
 			}
 		]`, dummyTxtArtifact.Path, dummyTxtArtifact.ContentType, dummyTxtArtifact.Size)
-	
-		writer.Write([]byte(artifactsJsonStr))
-    }
 
-	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyTxtArtifact.Path, http.MethodGet)
-    goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Write([]byte(artifactsJsonStr))
+	}
+
+	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyTxtArtifact.Path, http.MethodGet)
+	goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifact.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		goodDownloadInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewOverridableMockFileSystem()
@@ -329,7 +335,7 @@ func TestRunsDownloadFailingFileWriteReturnsError(t *testing.T) {
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, ".")
@@ -346,26 +352,26 @@ func TestRunsDownloadFailingFileCreationReturnsError(t *testing.T) {
 
 	dummyTxtArtifact := NewMockArtifact("/artifacts/dummy.txt", "text/plain", 1024)
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U27)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsJsonStr := fmt.Sprintf(`[
@@ -375,24 +381,24 @@ func TestRunsDownloadFailingFileCreationReturnsError(t *testing.T) {
 				"size": "%d"
 			}
 		]`, dummyTxtArtifact.Path, dummyTxtArtifact.ContentType, dummyTxtArtifact.Size)
-	
-		writer.Write([]byte(artifactsJsonStr))
-    }
 
-	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyTxtArtifact.Path, http.MethodGet)
-    goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Write([]byte(artifactsJsonStr))
+	}
+
+	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyTxtArtifact.Path, http.MethodGet)
+	goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifact.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		goodDownloadInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewOverridableMockFileSystem()
@@ -403,7 +409,7 @@ func TestRunsDownloadFailingFileCreationReturnsError(t *testing.T) {
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, ".")
@@ -420,26 +426,26 @@ func TestRunsDownloadFailingFolderCreationReturnsError(t *testing.T) {
 
 	dummyTxtArtifact := NewMockArtifact("/artifacts/dummy.txt", "text/plain", 1024)
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U27)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsJsonStr := fmt.Sprintf(`[
@@ -449,24 +455,24 @@ func TestRunsDownloadFailingFolderCreationReturnsError(t *testing.T) {
 				"size": "%d"
 			}
 		]`, dummyTxtArtifact.Path, dummyTxtArtifact.ContentType, dummyTxtArtifact.Size)
-	
-		writer.Write([]byte(artifactsJsonStr))
-    }
 
-	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyTxtArtifact.Path, http.MethodGet)
-    goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Write([]byte(artifactsJsonStr))
+	}
+
+	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyTxtArtifact.Path, http.MethodGet)
+	goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifact.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		goodDownloadInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewOverridableMockFileSystem()
@@ -477,7 +483,7 @@ func TestRunsDownloadFailingFolderCreationReturnsError(t *testing.T) {
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, ".")
@@ -499,57 +505,57 @@ func TestRunsDownloadExistingFileForceOverwritesMultipleArtifactsToFileSystem(t 
 		*dummyRunLog,
 	}
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U27V2)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifacts)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	downloadTxtArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyTxtArtifact.Path, http.MethodGet)
-    downloadTxtArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadTxtArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyTxtArtifact.Path, http.MethodGet)
+	downloadTxtArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifact.Path))
-    }
+	}
 
-	downloadRunLogArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyRunLog.Path, http.MethodGet)
-    downloadRunLogArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadRunLogArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyRunLog.Path, http.MethodGet)
+	downloadRunLogArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyRunLog.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		downloadTxtArtifactInteraction,
 		downloadRunLogArtifactInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 	mockConsole := utils.NewMockConsole()
 
 	mockFileSystem := files.NewMockFileSystem()
@@ -589,58 +595,58 @@ func TestRunsDownloadExistingFileNoForceReturnsError(t *testing.T) {
 		*dummyRunLog,
 	}
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U27V2)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifacts)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	downloadTxtArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyTxtArtifact.Path, http.MethodGet)
-    downloadTxtArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadTxtArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyTxtArtifact.Path, http.MethodGet)
+	downloadTxtArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifact.Path))
-    }
+	}
 
-	downloadRunLogArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyRunLog.Path, http.MethodGet)
-    downloadRunLogArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadRunLogArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyRunLog.Path, http.MethodGet)
+	downloadRunLogArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyRunLog.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		downloadTxtArtifactInteraction,
 		downloadRunLogArtifactInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	apiServerUrl := server.Server.URL
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	mockFileSystem := files.NewMockFileSystem()
 	separator := string(os.PathSeparator)
@@ -670,67 +676,67 @@ func TestRunsDownloadWritesMultipleArtifactsToFileSystem(t *testing.T) {
 		*dummyRunLogArtifact,
 	}
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U27V2)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifacts)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	downloadTxtArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyTxtArtifact.Path, http.MethodGet)
-    downloadTxtArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadTxtArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyTxtArtifact.Path, http.MethodGet)
+	downloadTxtArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifact.Path))
-    }
+	}
 
-	downloadGzipArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyGzArtifact.Path, http.MethodGet)
-    downloadGzipArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadGzipArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyGzArtifact.Path, http.MethodGet)
+	downloadGzipArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyGzArtifact.Path))
-    }
+	}
 
-	downloadRunLogArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyRunLogArtifact.Path, http.MethodGet)
-    downloadRunLogArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadRunLogArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyRunLogArtifact.Path, http.MethodGet)
+	downloadRunLogArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyRunLogArtifact.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		downloadTxtArtifactInteraction,
 		downloadGzipArtifactInteraction,
 		downloadRunLogArtifactInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewMockFileSystem()
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, ".")
@@ -757,26 +763,26 @@ func TestRunsDownloadWritesSingleArtifactToFileSystem(t *testing.T) {
 
 	dummyArtifact := NewMockArtifact("/artifacts/dummy.txt", "text/plain", 1024)
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U27V2)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsJsonStr := fmt.Sprintf(`[
@@ -786,31 +792,31 @@ func TestRunsDownloadWritesSingleArtifactToFileSystem(t *testing.T) {
 				"size": "%d"
 			}
 		]`, dummyArtifact.Path, dummyArtifact.ContentType, dummyArtifact.Size)
-	
-		writer.Write([]byte(artifactsJsonStr))
-    }
 
-	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyArtifact.Path, http.MethodGet)
-    goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Write([]byte(artifactsJsonStr))
+	}
+
+	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyArtifact.Path, http.MethodGet)
+	goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyArtifact.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		goodDownloadInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewMockFileSystem()
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, ".")
@@ -833,26 +839,26 @@ func TestFailingGetFileRequestReturnsError(t *testing.T) {
 	runId := "xxx876xxx"
 	dummyArtifact := NewMockArtifact("/artifacts/dummy.gz", "application/x-gzip", 30)
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U1)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsJsonStr := fmt.Sprintf(`[
@@ -862,29 +868,29 @@ func TestFailingGetFileRequestReturnsError(t *testing.T) {
 				"size": "%d"
 			}
 		]`, dummyArtifact.Path, dummyArtifact.ContentType, dummyArtifact.Size)
-	
-		writer.Write([]byte(artifactsJsonStr))
-    }
 
-	failingDownloadInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyArtifact.Path, http.MethodGet)
-    failingDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Write([]byte(artifactsJsonStr))
+	}
+
+	failingDownloadInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyArtifact.Path, http.MethodGet)
+	failingDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		// Make the request to download an artifact fail
 		writer.WriteHeader(http.StatusInternalServerError)
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		failingDownloadInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 	mockFileSystem := files.NewMockFileSystem()
 	forceDownload := false
 
@@ -902,26 +908,26 @@ func TestUnauthorizedGetFileRequestReauthenticatesOk(t *testing.T) {
 	runId := "xxx876xxx"
 	dummyArtifact := NewMockArtifact("/artifacts/dummy.txt", "text/plain", 1024)
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U1)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsJsonStr := fmt.Sprintf(`[
@@ -931,36 +937,36 @@ func TestUnauthorizedGetFileRequestReauthenticatesOk(t *testing.T) {
 				"size": "%d"
 			}
 		]`, dummyArtifact.Path, dummyArtifact.ContentType, dummyArtifact.Size)
-	
-		writer.Write([]byte(artifactsJsonStr))
-    }
 
-	unauthorizedDownloadInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyArtifact.Path, http.MethodGet)
-    unauthorizedDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Write([]byte(artifactsJsonStr))
+	}
+
+	unauthorizedDownloadInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyArtifact.Path, http.MethodGet)
+	unauthorizedDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		// Make the request to download an artifact fail
 		writer.WriteHeader(http.StatusUnauthorized)
-    }
+	}
 
-	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyArtifact.Path, http.MethodGet)
-    goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyArtifact.Path, http.MethodGet)
+	goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyArtifact.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		unauthorizedDownloadInteraction,
 		goodDownloadInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 	mockFileSystem := files.NewMockFileSystem()
 	forceDownload := false
 
@@ -985,42 +991,42 @@ func TestFailingGetArtifactsRequestReturnsError(t *testing.T) {
 	runName := "U1"
 	runId := "xxx876xxx"
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U1)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		// Make the request to get artifacts fail
 		writer.WriteHeader(http.StatusInternalServerError)
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 	mockFileSystem := files.NewMockFileSystem()
 	forceDownload := false
 
@@ -1048,69 +1054,69 @@ func TestRunsDownloadMultipleReRunsWithCorrectOrderFolders(t *testing.T) {
 		*dummyTxtArtifactRunId2,
 	}
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 2,
 			"runs":[ %s, %s ]
 		}`, RUN_U27, RUN_U27V2)))
-    }
+	}
 
-	getArtifacts1Interaction := utils.NewHttpInteraction("/ras/runs/" + runId1 + "/artifacts", http.MethodGet)
-    getArtifacts1Interaction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifacts1Interaction := utils.NewHttpInteraction("/ras/runs/"+runId1+"/artifacts", http.MethodGet)
+	getArtifacts1Interaction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifactsRunId1)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	downloadTxt1ArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId1 + "/files" + dummyTxtArtifactRunId1.Path, http.MethodGet)
-    downloadTxt1ArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadTxt1ArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId1+"/files"+dummyTxtArtifactRunId1.Path, http.MethodGet)
+	downloadTxt1ArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifactRunId1.Path))
-    }
+	}
 
-	getArtifacts2Interaction := utils.NewHttpInteraction("/ras/runs/" + runId2 + "/artifacts", http.MethodGet)
-    getArtifacts2Interaction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifacts2Interaction := utils.NewHttpInteraction("/ras/runs/"+runId2+"/artifacts", http.MethodGet)
+	getArtifacts2Interaction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifactsRunId2)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	downloadTxt2ArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId2 + "/files" + dummyTxtArtifactRunId2.Path, http.MethodGet)
-    downloadTxt2ArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadTxt2ArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId2+"/files"+dummyTxtArtifactRunId2.Path, http.MethodGet)
+	downloadTxt2ArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifactRunId2.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifacts1Interaction,
 		downloadTxt1ArtifactInteraction,
 		getArtifacts2Interaction,
 		downloadTxt2ArtifactInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServerWithUnorderedInteractions(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServerWithUnorderedInteractions(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewMockFileSystem()
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, ".")
@@ -1164,82 +1170,82 @@ func TestRunsDownloadMultipleSetsOfUnrelatedReRunsWithCorrectOrderFolders(t *tes
 		*dummyTxtArtifactRunId2b,
 	}
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 4,
 			"runs":[ %s, %s, %s, %s ]
 		}`, RUN_U27, RUN_U27V2, RUN_U27V3, RUN_U27V4)))
-    }
+	}
 
-	getArtifacts1aInteraction := utils.NewHttpInteraction("/ras/runs/" + runId1a + "/artifacts", http.MethodGet)
-    getArtifacts1aInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifacts1aInteraction := utils.NewHttpInteraction("/ras/runs/"+runId1a+"/artifacts", http.MethodGet)
+	getArtifacts1aInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifactsRunId1a)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	downloadTxt1aArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId1a + "/files" + dummyTxtArtifactRunId1a.Path, http.MethodGet)
-    downloadTxt1aArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadTxt1aArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId1a+"/files"+dummyTxtArtifactRunId1a.Path, http.MethodGet)
+	downloadTxt1aArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifactRunId1a.Path))
-    }
+	}
 
-	getArtifacts1bInteraction := utils.NewHttpInteraction("/ras/runs/" + runId1b + "/artifacts", http.MethodGet)
-    getArtifacts1bInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifacts1bInteraction := utils.NewHttpInteraction("/ras/runs/"+runId1b+"/artifacts", http.MethodGet)
+	getArtifacts1bInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifactsRunId1b)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	downloadTxt1bArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId1b + "/files" + dummyTxtArtifactRunId1b.Path, http.MethodGet)
-    downloadTxt1bArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadTxt1bArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId1b+"/files"+dummyTxtArtifactRunId1b.Path, http.MethodGet)
+	downloadTxt1bArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifactRunId1b.Path))
-    }
+	}
 
-	getArtifacts2aInteraction := utils.NewHttpInteraction("/ras/runs/" + runId2a + "/artifacts", http.MethodGet)
-    getArtifacts2aInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifacts2aInteraction := utils.NewHttpInteraction("/ras/runs/"+runId2a+"/artifacts", http.MethodGet)
+	getArtifacts2aInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifactsRunId2a)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	downloadTxt2aArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId2a + "/files" + dummyTxtArtifactRunId2a.Path, http.MethodGet)
-    downloadTxt2aArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadTxt2aArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId2a+"/files"+dummyTxtArtifactRunId2a.Path, http.MethodGet)
+	downloadTxt2aArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifactRunId2a.Path))
-    }
+	}
 
-	getArtifacts2bInteraction := utils.NewHttpInteraction("/ras/runs/" + runId2b + "/artifacts", http.MethodGet)
-    getArtifacts2bInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifacts2bInteraction := utils.NewHttpInteraction("/ras/runs/"+runId2b+"/artifacts", http.MethodGet)
+	getArtifacts2bInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifactsRunId2b)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	downloadTxt2bArtifactInteraction := utils.NewHttpInteraction("/ras/runs/" + runId2b + "/files" + dummyTxtArtifactRunId2b.Path, http.MethodGet)
-    downloadTxt2bArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	downloadTxt2bArtifactInteraction := utils.NewHttpInteraction("/ras/runs/"+runId2b+"/files"+dummyTxtArtifactRunId2b.Path, http.MethodGet)
+	downloadTxt2bArtifactInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifactRunId2b.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifacts1aInteraction,
 		downloadTxt1aArtifactInteraction,
 		getArtifacts1bInteraction,
@@ -1248,17 +1254,17 @@ func TestRunsDownloadMultipleSetsOfUnrelatedReRunsWithCorrectOrderFolders(t *tes
 		downloadTxt2aArtifactInteraction,
 		getArtifacts2bInteraction,
 		downloadTxt2bArtifactInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServerWithUnorderedInteractions(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServerWithUnorderedInteractions(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewMockFileSystem()
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 	mockTimeService.AdvanceClock(time.Second)
 
 	// When...
@@ -1300,37 +1306,37 @@ func TestRunsDownloadWithValidRunNameNoArtifacts(t *testing.T) {
 
 	forceDownload := true
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 0,
 			"runs": []
 		}`))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
-    }
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewMockFileSystem()
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, ".")
@@ -1352,7 +1358,7 @@ func TestRunsDownloadWithInvalidRunName(t *testing.T) {
 	mockFileSystem := files.NewMockFileSystem()
 
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient("api-server-url")
+	commsClient := api.NewMockAPICommsClient("api-server-url")
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, ".")
@@ -1375,53 +1381,53 @@ func TestRunsDownloadAddsTimestampToFolderIfRunNotFinished(t *testing.T) {
 		*dummyTxtArtifact,
 	}
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U27V5)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsBytes, _ := json.Marshal(mockArtifactsRunId)
 		writer.Write(artifactsBytes)
-    }
+	}
 
-	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyTxtArtifact.Path, http.MethodGet)
-    goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyTxtArtifact.Path, http.MethodGet)
+	goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyTxtArtifact.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		goodDownloadInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewMockFileSystem()
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, ".")
@@ -1447,26 +1453,26 @@ func TestRunsDownloadWritesSingleArtifactToDestinationFolder(t *testing.T) {
 
 	dummyArtifact := NewMockArtifact("/artifacts/dummy.txt", "text/plain", 1024)
 
-    // Create the expected HTTP interactions with the API server
-    getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
-    getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	// Create the expected HTTP interactions with the API server
+	getRunsInteraction := utils.NewHttpInteraction("/ras/runs", http.MethodGet)
+	getRunsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		values := req.URL.Query()
 		runNameQueryParameter := values.Get("runname")
-	
+
 		assert.Equal(t, runNameQueryParameter, runName)
-		
+
 		writer.Write([]byte(fmt.Sprintf(`
 		{
 			"pageSize": 1,
 			"amountOfRuns": 1,
 			"runs":[ %s ]
 		}`, RUN_U27V2)))
-    }
+	}
 
-	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/artifacts", http.MethodGet)
-    getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+	getArtifactsInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/artifacts", http.MethodGet)
+	getArtifactsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		artifactsJsonStr := fmt.Sprintf(`[
@@ -1476,31 +1482,31 @@ func TestRunsDownloadWritesSingleArtifactToDestinationFolder(t *testing.T) {
 				"size": "%d"
 			}
 		]`, dummyArtifact.Path, dummyArtifact.ContentType, dummyArtifact.Size)
-	
-		writer.Write([]byte(artifactsJsonStr))
-    }
 
-	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/" + runId + "/files" + dummyArtifact.Path, http.MethodGet)
-    goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Write([]byte(artifactsJsonStr))
+	}
+
+	goodDownloadInteraction := utils.NewHttpInteraction("/ras/runs/"+runId+"/files"+dummyArtifact.Path, http.MethodGet)
+	goodDownloadInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Disposition", "attachment")
 		writer.Write([]byte(dummyArtifact.Path))
-    }
+	}
 
-    interactions := []utils.HttpInteraction{
-        getRunsInteraction,
+	interactions := []utils.HttpInteraction{
+		getRunsInteraction,
 		getArtifactsInteraction,
 		goodDownloadInteraction,
-    }
+	}
 
-    server := utils.NewMockHttpServer(t, interactions)
-    defer server.Server.Close()
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockConsole := utils.NewMockConsole()
 	mockFileSystem := files.NewMockFileSystem()
 
 	apiServerUrl := server.Server.URL
 	mockTimeService := utils.NewMockTimeService()
-    commsClient := api.NewMockAPICommsClient(apiServerUrl)
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
 	err := DownloadArtifacts(runName, forceDownload, mockFileSystem, mockTimeService, mockConsole, commsClient, "/myfolder")
