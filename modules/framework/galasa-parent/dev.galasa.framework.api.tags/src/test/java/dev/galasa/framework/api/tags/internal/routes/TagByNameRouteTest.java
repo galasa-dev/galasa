@@ -5,11 +5,13 @@
  */
 package dev.galasa.framework.api.tags.internal.routes;
 
+import static dev.galasa.framework.spi.rbac.BuiltInAction.GENERAL_API_ACCESS;
 import static org.assertj.core.api.Assertions.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -29,6 +31,7 @@ import dev.galasa.framework.api.tags.mocks.MockTagsServlet;
 import dev.galasa.framework.mocks.FilledMockRBACService;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockTagsService;
+import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.tags.Tag;
 
 public class TagByNameRouteTest extends TagsServletTest {
@@ -171,6 +174,55 @@ public class TagByNameRouteTest extends TagsServletTest {
     }
 
     @Test
+    public void testDeleteTagByNameWithMissingPermissionsReturnsError() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        String tagName = "tag1";
+        String description = "My first tag!";
+        Map<String, Tag> tags = new HashMap<>();
+        Tag tag1 = new Tag(tagName);
+        tag1.setDescription(description);
+        tag1.setPriority(100);
+        tags.put(tag1.getName(), tag1);
+
+        String tagName2 = "tag2";
+        String description2 = "My second tag!";
+        Tag tag2 = new Tag(tagName2);
+        tag2.setDescription(description2);
+        tag2.setPriority(12);
+        tags.put(tag2.getName(), tag2);
+
+        MockTagsService mockTagsService = new MockTagsService(tags);
+
+        List<Action> actions = List.of(GENERAL_API_ACCESS.getAction());
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, actions);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        String encodedTagName = Base64.getUrlEncoder().withoutPadding().encodeToString(tagName2.getBytes(StandardCharsets.UTF_8));
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + encodedTagName, headerMap);
+        mockRequest.setMethod(HttpMethod.DELETE.toString());
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doDelete(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(403);
+        checkErrorStructure(output, 5125, "CPS_PROPERTIES_DELETE");
+    }
+
+    @Test
     public void testCanDeleteTagByName() throws Exception {
         // Given...
         Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
@@ -262,6 +314,56 @@ public class TagByNameRouteTest extends TagsServletTest {
 
         assertThat(servletResponse.getStatus()).isEqualTo(404);
         checkErrorStructure(output, 5441, "GAL5441E", "Failed to find a tag with the given name");
+    }
+
+    @Test
+    public void testSetTagRouteWithMissingPermissionsReturnsError() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        String tagName = "mytag";
+        String tagDescription = "my first tag!";
+        int tagPriority = 123;
+        Map<String, Tag> tags = new HashMap<>();
+        Tag tag1 = new Tag(tagName);
+        tag1.setDescription(tagDescription);
+        tag1.setPriority(tagPriority);
+        tags.put(tag1.getName(), tag1);
+
+        MockTagsService mockTagsService = new MockTagsService(tags);
+
+        List<Action> actions = List.of(GENERAL_API_ACCESS.getAction());
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, actions);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+        mockFramework.setTagsService(mockTagsService);
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+        MockTagsServlet mockServlet = new MockTagsServlet(mockFramework, env);
+
+        String newDescription = "my updated tag!";
+        int newPriority = 456;
+        String encodedTagName = Base64.getUrlEncoder().withoutPadding().encodeToString(tagName.getBytes(StandardCharsets.UTF_8));
+
+        String requestPayload = getTagSetRequestJsonString(newDescription, newPriority);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + encodedTagName, headerMap);
+        mockRequest.setMethod(HttpMethod.PUT.toString());
+        mockRequest.setPayload(requestPayload);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doPut(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        assertThat(servletResponse.getStatus()).isEqualTo(403);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        checkErrorStructure(output, 5125, "CPS_PROPERTIES_SET");
     }
 
     @Test
