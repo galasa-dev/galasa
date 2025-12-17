@@ -626,10 +626,7 @@ public class FrameworkRuns implements IFrameworkRuns {
     private void setRunRequestUserDefault(SubmitRunRequest runRequest) throws FrameworkException {
         String user = AbstractManager.nulled(runRequest.getUser());
         if (user == null) {
-            user = AbstractManager.nulled(cps.getProperty("run", "user"));
-            if (user == null) {
-                user = "unknown";
-            }
+            user = "unknown";
             runRequest.setUser(user);
         }
     }
