@@ -14,6 +14,7 @@ import dev.galasa.framework.internal.rbac.ActionImpl;
 
 public enum BuiltInAction {
     GENERAL_API_ACCESS            (new ActionImpl("GENERAL_API_ACCESS", "General API access", "Able to access the REST API" )),
+    MONITORS_SET                  (new ActionImpl("MONITORS_SET", "Set monitors", "Able to create or edit monitors" )),
     USER_EDIT_OTHER               (new ActionImpl("USER_EDIT_OTHER", "Edit or delete a user other than you", "Edit or delete a user other than you, including role and access tokens")),
     SECRETS_GET_UNREDACTED_VALUES (new ActionImpl("SECRETS_GET_UNREDACTED_VALUES", "Get secret values", "Able to get unredacted secret values")),
     SECRETS_SET                   (new ActionImpl("SECRETS_SET", "Secrets set", "Able to set secrets")),

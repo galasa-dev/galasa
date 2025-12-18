@@ -103,6 +103,7 @@ func tabulateCoreRunDetails(run FormattableTest) [][]string {
 		{HEADER_DURATION, ": " + duration},
 		{HEADER_TEST_NAME, ": " + run.TestName},
 		{HEADER_REQUESTOR, ": " + run.Requestor},
+		{HEADER_USER, ": " + run.User},
 		{HEADER_BUNDLE, ": " + run.Bundle},
 		{HEADER_GROUP, ": " + run.Group},
 		{HEADER_TAGS, ": " + strings.Join(run.Tags[:], ",")},

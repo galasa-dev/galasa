@@ -66,6 +66,7 @@ func TestJsonReportWorks(t *testing.T) {
 				"status": "myStatus",
 				"queued":"",
 				"requestor":"",
+				"user":"",
 				"result": "PASSED",
 				"overrides": {},
 				"tests": [

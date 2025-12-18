@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.api.monitors.internal.routes;
 
+import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -26,6 +27,9 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.monitors.internal.MonitorsServletTest;
 import dev.galasa.framework.api.monitors.mocks.MockKubernetesApiClient;
 import dev.galasa.framework.api.monitors.mocks.MockMonitorsServlet;
+import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockRBACService;
+import dev.galasa.framework.spi.rbac.Action;
 import io.kubernetes.client.openapi.models.V1Deployment;
 
 public class MonitorsDetailsRouteTest extends MonitorsServletTest {
@@ -106,7 +110,7 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
     }
 
     @Test
-    public void testGetNonExistantMonitorByNameReturnsCorrectError() throws Exception {
+    public void testGetNonExistentMonitorByNameReturnsCorrectError() throws Exception {
         // Given...
         MockFramework mockFramework = new MockFramework();
 
@@ -123,8 +127,8 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
 
         MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
 
-        String nonExistantMonitorName = "NON_EXISTANT_MONITOR";
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + nonExistantMonitorName, REQUEST_HEADERS);
+        String nonExistentMonitorName = "NON_EXISTENT_MONITOR";
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + nonExistentMonitorName, REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -177,6 +181,45 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
         assertThat(deployment.getSpec().getReplicas()).isEqualTo(1);
         assertThat(outStream.toString()).isEqualTo(expectedJsonString);
+    }
+
+    @Test
+    public void testUpdateMonitorWithMissingPermissionsThrowsError() throws Exception {
+        // Given...
+        List<Action> actions = List.of(GENERAL_API_ACCESS.getAction());
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, actions);
+        MockFramework mockFramework = new MockFramework(mockRBACService);
+
+        MockKubernetesApiClient mockApiClient = new MockKubernetesApiClient();
+
+        String monitorName = "system";
+        String stream = "myStream";
+        int replicas = 0;
+        List<String> includes = List.of("*");
+        List<String> excludes = new ArrayList<>();
+
+        V1Deployment deployment = createMockDeployment(monitorName, stream, replicas, includes, excludes);
+        mockApiClient.addMockDeployment(deployment);
+
+        MockMonitorsServlet servlet = new MockMonitorsServlet(mockFramework, mockApiClient);
+
+        boolean isEnabled = true;
+        String requestBodyJson = createUpdateRequestJson(isEnabled);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + monitorName, requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(403);
+        assertThat(servletResponse.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
+        checkErrorStructure(outStream.toString(), 5125, "MONITORS_SET");
     }
 
     @Test
@@ -318,7 +361,7 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
     }
 
     @Test
-    public void testEnableNonExistantMonitorReturnsCorrectError() throws Exception {
+    public void testEnableNonExistentMonitorReturnsCorrectError() throws Exception {
         // Given...
         MockFramework mockFramework = new MockFramework();
 
@@ -338,7 +381,7 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         boolean isEnabled = true;
         String requestBodyJson = createUpdateRequestJson(isEnabled);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/non-existant-monitor", requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/non-existent-monitor", requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -374,7 +417,7 @@ public class MonitorsDetailsRouteTest extends MonitorsServletTest {
         // Pass in an empty request body
         String requestBodyJson = "{}";
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/non-existant-monitor", requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/non-existent-monitor", requestBodyJson, HttpMethod.PUT.toString(), REQUEST_HEADERS);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();

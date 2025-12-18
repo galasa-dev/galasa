@@ -40,6 +40,7 @@ func RunsDelete(
 	if err == nil {
 
 		requestorParameter := ""
+		userParameter := ""
 		resultParameter := ""
 		fromAgeHours := 0
 		toAgeHours := 0
@@ -51,6 +52,7 @@ func RunsDelete(
 		runsQuery := NewRunsQuery(
 			runName,
 			requestorParameter,
+			userParameter,
 			resultParameter,
 			group,
 			fromAgeHours,

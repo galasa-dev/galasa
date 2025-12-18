@@ -25,6 +25,7 @@ func getRunIdFromRunName(runName string,
 	var runId string
 
 	requestorParameter := ""
+	userParameter := ""
 	resultParameter := ""
 	group := ""
 	fromAgeHours := 0
@@ -36,6 +37,7 @@ func getRunIdFromRunName(runName string,
 	runsQuery := NewRunsQuery(
 		runName,
 		requestorParameter,
+		userParameter,
 		resultParameter,
 		group,
 		fromAgeHours,

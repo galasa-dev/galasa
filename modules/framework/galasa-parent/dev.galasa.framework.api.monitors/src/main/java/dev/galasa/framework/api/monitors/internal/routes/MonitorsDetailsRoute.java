@@ -31,6 +31,7 @@ import dev.galasa.framework.api.monitors.internal.IKubernetesApiClient;
 import dev.galasa.framework.api.monitors.internal.MonitorTransform;
 import dev.galasa.framework.api.monitors.internal.UpdateMonitorRequestValidator;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACService;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1Deployment;
@@ -101,6 +102,7 @@ public class MonitorsDetailsRoute extends ProtectedRoute {
     ) throws FrameworkException, IOException {
 
         logger.info("handlePutRequest() entered");
+        validateActionPermitted(BuiltInAction.MONITORS_SET, requestContext.getUsername());
 
         HttpServletRequest request = requestContext.getRequest();
 
