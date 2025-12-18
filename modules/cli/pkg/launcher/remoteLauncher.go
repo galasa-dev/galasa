@@ -70,6 +70,7 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 	className string,
 	requestType string,
 	systemUser string,
+	user string,
 	stream string,
 	obrFromPortfolio string,
 	isTraceEnabled bool,
@@ -89,6 +90,12 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 	testRunRequest.SetTrace(isTraceEnabled)
 	testRunRequest.SetOverrides(overrides)
 	testRunRequest.SetTags(tags)
+
+	// If a `--user` was not specified, the API will default
+	// it to the requestor, so no need to set it here.
+	if len(user) != 0 {
+		testRunRequest.SetUser(user)
+	}
 
 	var resultGroup *galasaapi.TestRuns
 	var err error

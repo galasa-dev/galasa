@@ -394,7 +394,7 @@ func TestRunsSubmitPollStringParamFlagReturnsError(t *testing.T) {
 
 }
 
-func TestRunsSubmitProtfolioFlagReturnsOk(t *testing.T) {
+func TestRunsSubmitPortfolioFlagReturnsOk(t *testing.T) {
 	// Given...
 	factory := utils.NewMockFactory()
 	commandCollection, cmd := setupTestCommandCollection(COMMAND_NAME_RUNS_SUBMIT, factory, t)
@@ -602,6 +602,53 @@ func TestRunsSubmitTraceFlagReturnsOk(t *testing.T) {
 	assert.Equal(t, cmd.Values().(*utils.RunsSubmitCmdValues).Trace, true)
 }
 
+func TestRunsSubmitUserFlagReturnsOk(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	commandCollection, cmd := setupTestCommandCollection(COMMAND_NAME_RUNS_SUBMIT, factory, t)
+
+	var args []string = []string{"runs", "submit", "--user", "mytestuser"}
+
+	// When...
+	err := commandCollection.Execute(args)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// Check what the user saw is reasonable.
+	checkOutput("", "", factory, t)
+
+	assert.Contains(t, cmd.Values().(*utils.RunsSubmitCmdValues).User, "mytestuser")
+}
+
+func TestRunsSubmitUserFlagMultipleUsersReturnsError(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	commandCollection, _ := setupTestCommandCollection(COMMAND_NAME_RUNS_SUBMIT, factory, t)
+
+	var args []string = []string{"runs", "submit", "--user", "mytestuser", "anothertestuser"}
+
+	// When...
+	err := commandCollection.Execute(args)
+
+	// Then...
+	assert.NotNil(t, err)
+}
+
+func TestRunsSubmitUserFlagNoUserProvidedReturnsError(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	commandCollection, _ := setupTestCommandCollection(COMMAND_NAME_RUNS_SUBMIT, factory, t)
+
+	var args []string = []string{"runs", "submit", "--user"}
+
+	// When...
+	err := commandCollection.Execute(args)
+
+	// Then...
+	assert.NotNil(t, err)
+}
+
 func TestRunsSubmitAllFlagsReturnsOk(t *testing.T) {
 	// Given...
 	factory := utils.NewMockFactory()
@@ -627,7 +674,8 @@ func TestRunsSubmitAllFlagsReturnsOk(t *testing.T) {
 		"--throttle", "6",
 		"--noexitcodeontestfailures",
 		"--regex",
-		"--trace"}
+		"--trace",
+		"--user", "mytestuser"}
 
 	// When...
 	err := commandCollection.Execute(args)
@@ -658,6 +706,7 @@ func TestRunsSubmitAllFlagsReturnsOk(t *testing.T) {
 	assert.Equal(t, cmd.Values().(*utils.RunsSubmitCmdValues).NoExitCodeOnTestFailures, true)
 	assert.Equal(t, *cmd.Values().(*utils.RunsSubmitCmdValues).TestSelectionFlagValues.RegexSelect, true)
 	assert.Equal(t, cmd.Values().(*utils.RunsSubmitCmdValues).Trace, true)
+	assert.Contains(t, cmd.Values().(*utils.RunsSubmitCmdValues).User, "mytestuser")
 }
 
 // Flags
