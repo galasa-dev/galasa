@@ -8,6 +8,7 @@ package dev.galasa.framework.api.tags.internal.common;
 import dev.galasa.framework.api.beans.generated.TagSetRequest;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
+import dev.galasa.framework.api.common.resources.TagValidator;
 
 public class TagSetRequestValidator extends GalasaResourceValidator<TagSetRequest> {
 

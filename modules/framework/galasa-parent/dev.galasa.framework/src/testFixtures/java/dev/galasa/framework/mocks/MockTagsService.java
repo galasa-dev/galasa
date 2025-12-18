@@ -5,8 +5,9 @@
  */
 package dev.galasa.framework.mocks;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import dev.galasa.framework.spi.tags.ITagsService;
 import dev.galasa.framework.spi.tags.Tag;
@@ -14,51 +15,34 @@ import dev.galasa.framework.spi.tags.TagsException;
 
 public class MockTagsService implements ITagsService {
 
-    private List<Tag> tags;
+    private Map<String, Tag> tags;
 
     public MockTagsService() {
-        this(new ArrayList<>());
+        this(new HashMap<>());
     }
 
-    public MockTagsService(List<Tag> tags) {
+    public MockTagsService(Map<String, Tag> tags) {
         this.tags = tags;
     }
 
     @Override
     public List<Tag> getTags() throws TagsException {
-        return tags;
+        return tags.values().stream().toList();
     }
 
     @Override
     public Tag getTagByName(String tagName) throws TagsException {
-        Tag tagToReturn = null;
-        for (Tag tag : tags) {
-            if (tag.getName().equals(tagName)) {
-                tagToReturn = tag;
-                break;
-            }
-        }
-        return tagToReturn;
+        return tags.get(tagName);
     }
 
     @Override
     public void setTag(Tag tag) throws TagsException {
-        tags.remove(tag);
-        tags.add(tag);
+        tags.put(tag.getName(), tag);
     }
 
     @Override
     public void deleteTag(String tagName) throws TagsException {
-        Tag tagToDelete = null;
-        for (Tag tag : tags) {
-            if (tag.getName().equals(tagName)) {
-                tagToDelete = tag;
-                break;
-            }
-        }
-        if (tagToDelete != null) {
-            tags.remove(tagToDelete);
-        }
+        tags.remove(tagName);
     }
-    
+
 }
