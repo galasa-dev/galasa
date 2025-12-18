@@ -365,9 +365,9 @@ public class TestZosProgramManagerImpl {
     // Setup
     static class Dummy {
         @ZosProgram(
-            name = "myprog",             // lower-case; should be capitalised to "MYPROG"
+            name = "myprog",             // lower-case; should be throw error
             location = "source",
-            imageTag = "A",              // will be upper-cased anyway
+            imageTag = "A",              
             language = Language.COBOL,
             cics = false,
             loadlib = "",
@@ -437,14 +437,24 @@ public class TestZosProgramManagerImpl {
 
     // Tests
 
+    
     @Test
-    public void testCapitalisation_withRealAnnotatedField() throws Exception {
+    public void testCapitalisation_withRealAnnotatedField_throwsWhenLowercase() throws Exception {
         Field realField = Dummy.class.getDeclaredField("myProgField");
-        IZosProgram program = zosProgramManagerSpy.generateZosProgram(realField, Collections.emptyList());
 
-        assertNotNull(program);
-        assertEquals("MYPROG", program.getName()); 
+        ZosProgramManagerException ex = assertThrows(
+            ZosProgramManagerException.class,
+            () -> zosProgramManagerSpy.generateZosProgram(realField, Collections.emptyList())
+        );
+
+        //optional check of error message content
+        assertTrue(
+            "Expected error message to indicate non-capitalized program name",
+            ex.getMessage() != null && ex.getMessage().contains("not capitalized")
+        );
+
     }
+
 
     @Test
     public void testValidLength_withRealAnnotatedField() throws Exception {
