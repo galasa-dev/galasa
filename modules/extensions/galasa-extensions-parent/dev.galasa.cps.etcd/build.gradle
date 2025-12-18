@@ -14,7 +14,7 @@ dependencies {
     implementation ('com.google.code.gson:gson')
     
     // Not required for compile,  but required to force the download of the jars to embed by bnd
-    implementation('com.fasterxml.jackson.core:jackson-core:2.16.1')
+    implementation('com.fasterxml.jackson.core:jackson-core')
     implementation('com.google.api.grpc:proto-google-common-protos:2.41.0')
     implementation('com.google.guava:failureaccess')
     implementation('com.google.guava:guava')
