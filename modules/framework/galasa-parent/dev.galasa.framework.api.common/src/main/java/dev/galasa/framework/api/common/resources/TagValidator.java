@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package dev.galasa.framework.api.tags.internal.common;
+package dev.galasa.framework.api.common.resources;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 

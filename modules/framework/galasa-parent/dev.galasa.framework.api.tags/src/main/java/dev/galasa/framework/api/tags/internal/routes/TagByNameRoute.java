@@ -80,6 +80,7 @@ public class TagByNameRoute extends AbstractTagRoute {
 
         logger.info("handleDeleteRequest() entered");
         HttpServletRequest request = requestContext.getRequest();
+        validateActionPermitted(BuiltInAction.CPS_PROPERTIES_DELETE, requestContext.getUsername());
 
         String tagName = getTagNameFromPath(pathInfo);
 

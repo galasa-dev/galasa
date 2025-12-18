@@ -214,6 +214,55 @@ where:
 
 You can save the file with a `.yaml` or `.yml` file extension.
 
+## Test Tags as GalasaTag resources
+
+Test tags stored in a Galasa service can be retrieved in YAML format using the `galasactl tags get --format yaml` command. See [the command reference](../reference/cli-syntax/galasactl_tags_get.md) for more details on the `galasactl tags get` command.
+
+If more than one tag is returned, each tag is separated in the file by three dashes, `---`, as shown in the following example: 
+
+```yaml
+apiVersion: galasa-dev/v1alpha1
+kind: GalasaTag
+metadata:
+  name: my-tag
+  description: an example test tag
+data:
+  priority: 5
+---
+apiVersion: galasa-dev/v1alpha1
+kind: GalasaTag
+metadata:
+  name: my-second-tag
+  description: another example test tag
+data:
+  priority: 123
+```
+
+You can update the values in a YAML file and then create, update, or apply those updates by using the galasactl command line tool, as described in the [Creating and updating resources using a YAML file](#creating-and-updating-resources-using-a-yaml-file) section. 
+
+The YAML format for a GalasaTag resource is as follows:
+
+```yaml
+apiVersion: galasa-dev/v1alpha1
+kind: GalasaTag
+metadata:
+  name: <tag-name>
+  description: <tag-description>
+data:
+  priority: <tag-priority>
+```
+
+where:
+
+- `apiVersion` is the version of the API that you are using
+- `tag-name` is the name of the tag that you want to create or update
+- `tag-description` is an optional field that allows you to supply a description associated with the tag being created or updated
+- `tag-priority` is an optional field that allows you to associate a priority modifier with the tag being created or updated. This priority modifier is used to determine the order in which tests with this tag are scheduled on the Galasa service. Tests with tags that hold higher priority values will be scheduled before tests that hold lower priority values.
+
+You can define multiple tags in the same YAML file by separating them using three dashes, `---`, as shown in the first example.
+
+You can save the file with a `.yaml` or `.yml` file extension.
+
 
 ## Creating and updating resources using a YAML file
 

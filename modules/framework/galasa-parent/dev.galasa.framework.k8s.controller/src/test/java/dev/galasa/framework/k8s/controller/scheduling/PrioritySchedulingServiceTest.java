@@ -359,14 +359,14 @@ public class PrioritySchedulingServiceTest {
     @Test
     public void testTagPriorityAffectsRunPriorityOrder() throws Exception {
         // Given...
-        List<Tag> tags = new ArrayList<>();
+        Map<String, Tag> tags = new HashMap<>();
         Tag tag1 = new Tag("high-priority-tag");
         tag1.setPriority(200);
-        tags.add(tag1);
+        tags.put(tag1.getName(), tag1);
 
         Tag tag2 = new Tag("another-tag");
         tag2.setPriority(20);
-        tags.add(tag2);
+        tags.put(tag2.getName(), tag2);
 
         Map<String, Tag> tagsMap = new HashMap<>();
         tagsMap.put(tag1.getName(), tag1);
