@@ -19,7 +19,7 @@ _Note:_ The Galasa Ecosystem Helm chart currently supports only x86-64 systems. 
 
 - The Kubernetes command-line tool *kubectl* must be installed on the machine that is used to run the commands and must be configured to point at your Kubernetes cluster. To find out more about Kubernetes, see the [Kubernetes Documentation](https://kubernetes.io/docs/home/){target="_blank"}.
 
-- You must have a Kubernetes cluster at version 1.16 or higher. You can check the version number by running the `kubectl version` command. See the [Supported Kubernetes Versions](#supported-kubernetes-versions) section for a table of Kubernetes versions that are compatible with recent Galasa releases.
+- You must have a Kubernetes cluster at version 1.28 or higher. You can check the version number by running the `kubectl version` command. See the [Supported Kubernetes Versions](#supported-kubernetes-versions) section for a table of Kubernetes versions that are compatible with recent Galasa releases.
 
 - If you want to install the chart into minikube, ensure you have minikube installed and that it is running with `minikube status`. If minikube is not running, start it by running `minikube start`. Once minikube is running, follow the instructions in the following sections to install the Galasa Ecosystem Helm chart.
 
@@ -29,13 +29,13 @@ The following table shows the minimum and maximum Kubernetes versions supported 
 
 | **Galasa Version** | **Minimum Kubernetes Version** | **Maximum Kubernetes Version** |
 |--------|------|------|
-| 0.46.0 | 1.16 | 1.34 |
-| 0.45.0 | 1.16 | 1.34 |
-| 0.44.0 | 1.16 | 1.34 |
-| 0.43.0 | 1.16 | 1.33 |
-| 0.42.0 | 1.16 | 1.33 |
-| 0.41.0 | 1.16 | 1.33 |
-| 0.40.0 | 1.16 | 1.33 |
+| 0.46.0 | 1.28 | 1.34 |
+| 0.45.0 | 1.28 | 1.34 |
+| 0.44.0 | 1.28 | 1.34 |
+| 0.43.0 | 1.28 | 1.33 |
+| 0.42.0 | 1.28 | 1.33 |
+| 0.41.0 | 1.28 | 1.33 |
+| 0.40.0 | 1.28 | 1.33 |
 
 ### Notes:
 - Kubernetes versions outside these ranges may work but are **not officially supported**.
