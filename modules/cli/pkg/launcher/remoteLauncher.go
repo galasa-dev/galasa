@@ -94,8 +94,8 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 	// If a `--user` was not specified, the API will default
 	// it to the requestor, so no need to set it here.
 	if len(user) != 0 {
-		log.Printf("RemoteLauncher.SubmitTestRun : attempting to set the run user to %s\n"+
-			" user will default to the authenticated requestor if the authenticated requestor does not have admin rights.", user)
+		log.Printf("RemoteLauncher.SubmitTestRun : attempting to set the run user to %s."+
+			" User will default to the authenticated requestor if the authenticated requestor does not have admin rights.", user)
 		testRunRequest.SetUser(user)
 	}
 
@@ -107,10 +107,30 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 
 	if err == nil {
 		err = launcher.commsClient.RunAuthenticatedCommandWithRateLimitRetries(func(apiClient *galasaapi.APIClient) error {
-			var httpResponse *http.Response
-			resultGroup, httpResponse, err = apiClient.RunsAPIApi.PostSubmitTestRuns(context.TODO(), groupName).TestRunRequest(*testRunRequest).ClientApiVersion(restApiVersion).Execute()
+			apiCall := apiClient.RunsAPIApi.PostSubmitTestRuns(context.TODO(), groupName).TestRunRequest(*testRunRequest).ClientApiVersion(restApiVersion)
 
-			return galasaErrors.GetGalasaErrorFromCommsResponse(httpResponse, err)
+			if err == nil {
+
+				var httpResponse *http.Response
+
+				resultGroup, httpResponse, err = apiCall.Execute()
+
+				if httpResponse != nil {
+					defer httpResponse.Body.Close()
+				}
+
+				if err != nil {
+					log.Println("SubmitTestRun - Failed to submit runs to the Galasa service")
+
+					if httpResponse.StatusCode == 403 {
+						err = galasaErrors.NewGalasaError(galasaErrors.GALASA_USER_MISSING_TEST_LAUNCH_PERMISSION, user)
+					} else {
+						err = galasaErrors.GetGalasaErrorFromCommsResponse(httpResponse, err)
+					}
+				}
+			}
+
+			return err
 		})
 	}
 
