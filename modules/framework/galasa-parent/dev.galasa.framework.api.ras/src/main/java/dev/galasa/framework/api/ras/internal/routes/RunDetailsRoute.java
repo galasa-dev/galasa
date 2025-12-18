@@ -102,12 +102,7 @@ public class RunDetailsRoute extends RunsRoute {
       } else if (status != null && tags == null) {
          responseBody = updateRunStatus(runName, runAction, runStatusUpdate, result);
       } else if (status == null && result == null && tags != null) {
-         try {
-            responseBody = updateRunTags(runAction, runId, tags);
-         } catch (FrameworkException e){
-            ServletError error = new ServletError(GAL5108_UNABLE_TO_RETRIEVE_RUN_FROM_RAS, runName);
-            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
-         }
+         responseBody = updateRunTags(runName, runAction, runId, tags);
       } else {
          // Tags and result have been attempted to be updated simulatneously.
          ServletError error = new ServletError(GAL5107_INVALID_TAGS_UPDATE_REQUEST, runAction.getStatus());
@@ -162,8 +157,14 @@ public class RunDetailsRoute extends RunsRoute {
       return responseBody;
    }
 
-   private String updateRunTags(RunActionJson runAction, String runId, String[] tags) throws ResultArchiveStoreException, InternalServletException { 
+   private String updateRunTags(String runName, RunActionJson runAction, String runId, String[] tags) throws ResultArchiveStoreException, InternalServletException { 
       TestStructure testStructure = getRunByRunId(runId).getTestStructure();
+      
+      if (testStructure.getStatus() != "finished") {
+         ServletError error = new ServletError(GAL5108_CANNOT_UPDATE_TAGS_ON_RUNNING_TEST, runName);
+         throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      }
+
       testStructure.setTags(new HashSet<>(Arrays.asList(tags)));
 
       IResultArchiveStore rasStore = getFramework().getResultArchiveStore();

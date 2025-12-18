@@ -3037,8 +3037,7 @@ components:
     # UpdateRunStatusRequest now depricated in favour of UpdateRunRequest to improve naming and include tags.
     UpdateRunStatusRequest:
       deprecated: true
-      description: |
-        Deprecated. Use 'UpdateRunRequest' instead, which allows tag operations.
+      description: Deprecated. Use 'UpdateRunRequest' instead, which allows tag operations.
       type: object
       properties:
         status:

@@ -71,9 +71,35 @@ public class TestRunDetailsRoute extends RasServletTest {
 	public String generateStatusUpdateJson(String status, String result) {
 		return
 		"{\n" +
-	    "  \"status\": \"" +  status + "\",\n" +
-		"  \"result\": \"" + result + "\"\n" +
+	    "  \"status\": \"" + status + "\",\n" +
+			"  \"result\": \"" + result + "\"\n" +
 		"}";
+	}
+
+	public String generateTagsUpdateJson(String status, String result, String[] tags) {
+		String jsonToReturn = "{\n";
+
+		if (status != null) {
+			jsonToReturn += "  \"status\": \"" + status + "\",\n";
+		}
+		if (result != null) {
+			jsonToReturn += "  \"result\": \"" + result + "\",\n";
+		} 
+
+		if (tags == null) {
+			throw new Error("tags must not be null");
+		}
+		
+		jsonToReturn += "  \"tags\": [";
+    for (int i = 0; i < tags.length; i++) {
+        jsonToReturn += "\"" + tags[i] + "\"";
+        if (i < tags.length - 1) {
+            jsonToReturn += ","; // Add comma between tags, except the last one
+        }
+    }
+    jsonToReturn += "\n]\n}";
+
+		return jsonToReturn;
 	}
 
 	/*
@@ -794,6 +820,202 @@ public class TestRunDetailsRoute extends RasServletTest {
 			5046, 
 			"E: Error occurred when trying to cancel the run 'U123'. The 'result' 'deleted' supplied is not supported. Supported values are: 'cancelled'.");
 	}
+
+	@Test
+	public void testRequestToChangeStatusAndTagsThrowsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String[] newTags = {"tag1", "tag2"};
+		String content = generateTagsUpdateJson("finished", null, newTags);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+		List<IRun> runs = new ArrayList<IRun>();
+		Set<String> tags = new HashSet<>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		checkErrorStructure(outStream.toString(), 
+			5109, 
+			"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
+	}
+
+	// @Test
+	// public void testRequestToChangeOnlyTagsOnRunningTestThrowsError() throws Exception {
+	// 	// Given...
+	// 	String runId = "xx12345xx";
+	// 	String runName = "U123";
+
+	// 	List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+	// 	String[] newTags = {"tag1", "tag2"};
+	// 	String content = generateTagsUpdateJson("finished", null, newTags);
+	// 	MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+	// 	List<IRun> runs = new ArrayList<IRun>();
+	// 	Set<String> tags = new HashSet<>();
+	// 	runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
+	// 	IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+	// 	MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+	// 	List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+	// 	directoryServices.add(mockrasService);
+	// 	MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+	// 	MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+	// 	RasServlet servlet = mockServletEnvironment.getRasServlet();
+	// 	HttpServletRequest req = mockServletEnvironment.getRequest();
+	// 	HttpServletResponse resp = mockServletEnvironment.getResponse();
+	// 	ServletOutputStream outStream = resp.getOutputStream();
+
+	// 	// When...
+	// 	servlet.init();
+	// 	servlet.doPut(req, resp);
+
+	// 	// Then...
+	// 	assertThat(true).isEqualTo(false);
+	// 	assertThat(resp.getStatus()).isEqualTo(400);
+	// 	checkErrorStructure(outStream.toString(), 
+	// 		5109, 
+	// 		"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
+	// }
+
+	// @Test
+	// public void testRequestToChangeOnlyTagsOnFinishedTestReturnsOK() throws Exception {
+	// 	// Given...
+	// 	String runId = "xx12345xx";
+	// 	String runName = "U123";
+
+	// 	List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+	// 	String[] newTags = {"tag1", "tag2"};
+	// 	String content = generateTagsUpdateJson("finished", null, newTags);
+	// 	MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+	// 	List<IRun> runs = new ArrayList<IRun>();
+	// 	Set<String> tags = new HashSet<>();
+	// 	runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
+	// 	IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+	// 	MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+	// 	List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+	// 	directoryServices.add(mockrasService);
+	// 	MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+	// 	MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+	// 	RasServlet servlet = mockServletEnvironment.getRasServlet();
+	// 	HttpServletRequest req = mockServletEnvironment.getRequest();
+	// 	HttpServletResponse resp = mockServletEnvironment.getResponse();
+	// 	ServletOutputStream outStream = resp.getOutputStream();
+
+	// 	// When...
+	// 	servlet.init();
+	// 	servlet.doPut(req, resp);
+
+	// 	// Then...
+	// 	assertThat(true).isEqualTo(false);
+	// 	assertThat(resp.getStatus()).isEqualTo(400);
+	// 	checkErrorStructure(outStream.toString(), 
+	// 		5109, 
+	// 		"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
+	// }
+
+	// // Test when status == null && result == null && tags != null GAL5108_UNABLE_TO_RETRIEVE_RUN_FROM_RAS thrown
+	// @Test
+	// public void testRequestToChangeOnlyTagsOnNonExistantTestThrowsError() throws Exception {
+	// 	// Given...
+	// 	String runId = "xx12345xx";
+	// 	String runName = "U123";
+
+	// 	List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+	// 	String[] newTags = {"tag1", "tag2"};
+	// 	String content = generateTagsUpdateJson("finished", null, newTags);
+	// 	MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+	// 	List<IRun> runs = new ArrayList<IRun>();
+	// 	Set<String> tags = new HashSet<>();
+	// 	runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
+	// 	IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+	// 	MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+	// 	List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+	// 	directoryServices.add(mockrasService);
+	// 	MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+	// 	MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+	// 	RasServlet servlet = mockServletEnvironment.getRasServlet();
+	// 	HttpServletRequest req = mockServletEnvironment.getRequest();
+	// 	HttpServletResponse resp = mockServletEnvironment.getResponse();
+	// 	ServletOutputStream outStream = resp.getOutputStream();
+
+	// 	// When...
+	// 	servlet.init();
+	// 	servlet.doPut(req, resp);
+
+	// 	// Then...
+	// 	assertThat(true).isEqualTo(false);
+	// 	assertThat(resp.getStatus()).isEqualTo(400);
+	// 	checkErrorStructure(outStream.toString(), 
+	// 		5109, 
+	// 		"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
+	// }
+
+	// // Test when Tags and result have been attempted to be updated simulatneously GAL5107_INVALID_TAGS_UPDATE_REQUEST
+	// @Test
+	// public void testRequestToChangeTagsAndResultThrowsError() throws Exception {
+	// 	// Given...
+	// 	String runId = "xx12345xx";
+	// 	String runName = "U123";
+
+	// 	List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+	// 	String[] newTags = {"tag1", "tag2"};
+	// 	String content = generateTagsUpdateJson(null, "finished", newTags);
+	// 	MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		
+	// 	List<IRun> runs = new ArrayList<IRun>();
+	// 	Set<String> tags = new HashSet<>();
+	// 	runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
+	// 	IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+	// 	MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+	// 	List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+	// 	directoryServices.add(mockrasService);
+	// 	MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+	// 	MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+	// 	RasServlet servlet = mockServletEnvironment.getRasServlet();
+	// 	HttpServletRequest req = mockServletEnvironment.getRequest();
+	// 	HttpServletResponse resp = mockServletEnvironment.getResponse();
+	// 	ServletOutputStream outStream = resp.getOutputStream();
+
+	// 	// When...
+	// 	servlet.init();
+	// 	servlet.doPut(req, resp);
+
+	// 	// Then...
+	// 	assertThat(true).isEqualTo(false);
+	// 	assertThat(resp.getStatus()).isEqualTo(400);
+	// 	checkErrorStructure(outStream.toString(), 
+	// 		5109, 
+	// 		"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
+	// }
 
 
 	//
