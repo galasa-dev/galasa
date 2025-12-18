@@ -205,6 +205,8 @@ public enum ServletErrorMessage {
     GAL5444_INVALID_TAG_DESCRIPTION_PROVIDED          (5444, "E: Invalid tag description provided. The description should not only contain spaces or tabs. When provided, it must contain characters in the Latin-1 character set. Check your request payload and try again."),
     GAL5445_ERROR_TAG_ALREADY_EXISTS                  (5445, "E: Error occurred when trying to create a tag with the given name. A tag with the provided name already exists. Check your request payload and try again."),
     GAL5446_ERROR_SETTING_TAG                         (5446, "E: Internal server error occurred when trying to set the tag with the given name. Report the problem to your Galasa service administrator"),
+    GAL5447_MISSING_REQUIRED_TAG_FIELD                (5447, "E: Invalid GalasaTag provided. The required field ''{0}'' was missing from the request payload. Check your request payload and try again."),
+    GAL5448_INVALID_TAG_PRIORITY_PROVIDED             (5448, "E: Invalid tag priority provided. The tag priority must be a whole number. Check your request payload and try again."),
     ;
 
     // >>>
@@ -213,7 +215,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5447;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5449;
 
 
     private String template ;

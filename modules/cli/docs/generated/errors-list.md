@@ -265,6 +265,13 @@ The `galasactl` tool can generate the following errors:
 - GAL1263E: Failed to set a tag named '{}'. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
 - GAL1264E: Failed to set a tag named '{}'. Sending the put request to the Galasa service failed. Cause is {}
 - GAL1265E: Invalid tag description provided. The description provided with the --description flag cannot only contain spaces or tabs, and must only contain characters in the Latin-1 character set.
+- GAL1266E: Failed to get tags from the Galasa service
+- GAL1267E: Failed to get tags from the Galasa service. Unexpected http status code {} received from the server.
+- GAL1268E: Failed to get tags from the Galasa service. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1269E: Failed to get tags from the Galasa service. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1270E: Failed to get tags from the Galasa service. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1271E: Failed to get tags from the Galasa service. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1272E: Failed to get tags from the Galasa service. Sending the put request to the Galasa service failed. Cause is {}
 - GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'
 - GAL2501I: Downloaded {} artifacts to folder '{}'
 
