@@ -94,6 +94,8 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 	// If a `--user` was not specified, the API will default
 	// it to the requestor, so no need to set it here.
 	if len(user) != 0 {
+		log.Printf("RemoteLauncher.SubmitTestRun : attempting to set the run user to %s\n"+
+			" user will default to the authenticated requestor if the authenticated requestor does not have admin rights.", user)
 		testRunRequest.SetUser(user)
 	}
 
@@ -112,18 +114,20 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 		})
 	}
 
-	//
-	// The current system user may not match the username in the
-	// JWT that was used to authenticate to the Galasa API Server
-	//
-	submittedRun := resultGroup.GetRuns()[0]
-	if submittedRun.Requestor != nil {
-		runRequestor := *submittedRun.Requestor
+	if len(resultGroup.GetRuns()) > 0 {
+		//
+		// The current system user may not match the username in the
+		// JWT that was used to authenticate to the Galasa API Server
+		//
+		submittedRun := resultGroup.GetRuns()[0]
+		if submittedRun.Requestor != nil {
+			runRequestor := *submittedRun.Requestor
 
-		if systemUser == runRequestor {
-			log.Printf("RemoteLauncher.SubmitTestRun : using requestor %s\n", runRequestor)
-		} else {
-			log.Printf("RemoteLauncher.SubmitTestRun : current system user is %s, but the user authenticated to the Galasa Service is %s, so using requestor %s\n", systemUser, runRequestor, runRequestor)
+			if systemUser == runRequestor {
+				log.Printf("RemoteLauncher.SubmitTestRun : the run requestor will be set to %s\n", runRequestor)
+			} else {
+				log.Printf("RemoteLauncher.SubmitTestRun : current system user is %s, but the user authenticated to the Galasa Service is %s, so the run requestor will be set to %s\n", systemUser, runRequestor, runRequestor)
+			}
 		}
 	}
 
