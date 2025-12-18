@@ -41,6 +41,7 @@ const (
 	HEADER_DURATION       = "duration(ms)"
 	HEADER_BUNDLE         = "bundle"
 	HEADER_REQUESTOR      = "requestor"
+	HEADER_USER           = "user"
 	HEADER_RUN_LOG        = "run-log"
 	HEADER_METHOD_NAME    = "method"
 	HEADER_METHOD_TYPE    = "type"
@@ -64,6 +65,7 @@ type FormattableTest struct {
 	EndTimeUTC    string
 	QueuedTimeUTC string
 	Requestor     string
+	User          string
 	Bundle        string
 	ApiServerUrl  string
 	Group         string

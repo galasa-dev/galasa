@@ -22,6 +22,7 @@ import (
 // 	"testName": "dev.galasa.example.banking.account.TestAccount",
 // 	"testShortName": "TestAccount",
 // 	"requestor": "mcobbett",
+//  "user": "mcobbett",
 // 	"status": "finished",
 // 	"result": "Passed",
 // 	"queued": "2023-02-14T14:16:42.854396Z",
@@ -97,6 +98,7 @@ func readTestRunFromJsonFile(
 							testRunData.Result = getStringField(fields, "result")
 							testRunData.Queued = getStringField(fields, "queued")
 							testRunData.Requestor = getStringField(fields, "requestor")
+							testRunData.User = getStringField(fields, "user")
 							testRunData.RasRunId = getStringField(fields, "runName")
 
 							log.Printf("readTestRunFromJsonFile Test %s status %s result %s\n", *testRunData.Name, *testRunData.Status, *testRunData.Result)
