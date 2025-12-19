@@ -55,6 +55,7 @@ public class Settings implements Runnable, ISettings {
     private int               engineCPULimitM             = 1000;
     private String            nodeArch                    = "";
     private String            nodePreferredAffinity       = "";
+    private String            nodeRequiredAffinity        = "";
     private String            nodeTolerations             = "";
 
     // A fail-safe to make sure we never try to re-launch/re-create a pod for a testcase more than 
@@ -346,6 +347,11 @@ public class Settings implements Runnable, ISettings {
 
     public String getNodePreferredAffinity() {
         return this.nodePreferredAffinity;
+    }
+
+    @Override
+    public String getNodeRequiredAffinity() {
+        return this.nodeRequiredAffinity;
     }
 
     public String getNodeTolerations() {

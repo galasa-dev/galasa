@@ -30,6 +30,7 @@ import io.kubernetes.client.openapi.models.V1ConfigMapVolumeSource;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1NodeAffinity;
+import io.kubernetes.client.openapi.models.V1NodeSelector;
 import io.kubernetes.client.openapi.models.V1NodeSelectorRequirement;
 import io.kubernetes.client.openapi.models.V1NodeSelectorTerm;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
@@ -270,32 +271,7 @@ public class TestPodScheduler implements Runnable {
             podSpec.setNodeSelector(nodeSelector);
         }
 
-        String nodePreferredAffinity = this.settings.getNodePreferredAffinity();
-        if (!nodePreferredAffinity.isEmpty()) {
-            String[] selection = nodePreferredAffinity.split("=");
-            if (selection.length == 2) {
-                V1Affinity affinity = new V1Affinity();
-                podSpec.setAffinity(affinity);
-
-                V1NodeAffinity nodeAffinity = new V1NodeAffinity();
-                affinity.setNodeAffinity(nodeAffinity);
-
-                V1PreferredSchedulingTerm preferred = new V1PreferredSchedulingTerm();
-                nodeAffinity.addPreferredDuringSchedulingIgnoredDuringExecutionItem(preferred);
-                preferred.setWeight(1);
-
-                V1NodeSelectorTerm selectorTerm = new V1NodeSelectorTerm();
-                preferred.setPreference(selectorTerm);
-
-                V1NodeSelectorRequirement requirement = new V1NodeSelectorRequirement();
-                selectorTerm.addMatchExpressionsItem(requirement);
-                requirement.setKey(selection[0]);
-                requirement.setOperator("In");
-                requirement.addValuesItem(selection[1]);
-
-
-            }
-        }
+        addNodeAffinityIfRequested(podSpec);
 
         String nodeTolerations = this.settings.getNodeTolerations();
         if(!nodeTolerations.isEmpty()) {
@@ -308,6 +284,66 @@ public class TestPodScheduler implements Runnable {
         podSpec.setVolumes(createTestPodVolumes());
         podSpec.addContainersItem(createTestContainerDefinition(runName, engineName, isTraceEnabled));
         return newPod;
+    }
+
+    private void addNodeAffinityIfRequested(V1PodSpec podSpec) {
+        String nodePreferredAffinity = this.settings.getNodePreferredAffinity();
+        String nodeRequiredAffinity = this.settings.getNodeRequiredAffinity();
+
+        if (nodePreferredAffinity != null || nodeRequiredAffinity != null) {
+            V1Affinity affinity = new V1Affinity();
+            podSpec.setAffinity(affinity);
+
+            V1NodeAffinity nodeAffinity = new V1NodeAffinity();
+            affinity.setNodeAffinity(nodeAffinity);
+
+            if (nodeRequiredAffinity != null && !nodeRequiredAffinity.isEmpty()) {
+                addNodeRequiredAffinity(nodeRequiredAffinity, nodeAffinity);
+            }
+
+            if (nodePreferredAffinity != null && !nodePreferredAffinity.isEmpty()) {
+                addNodePreferredAffinity(nodePreferredAffinity, nodeAffinity);
+            }
+        }
+    }
+
+    private void addNodePreferredAffinity(String nodePreferredAffinity, V1NodeAffinity nodeAffinity) {
+
+        // Node preferred affinity is provided in the form <label key>=<label value>
+        String[] selection = nodePreferredAffinity.split("=");
+        if (selection.length == 2) {
+            V1PreferredSchedulingTerm preferred = new V1PreferredSchedulingTerm();
+            nodeAffinity.addPreferredDuringSchedulingIgnoredDuringExecutionItem(preferred);
+            preferred.setWeight(1);
+
+            V1NodeSelectorTerm selectorTerm = buildNodeSelectorTerm(selection[0], selection[1]);
+            preferred.setPreference(selectorTerm);
+        }
+    }
+
+    private void addNodeRequiredAffinity(String nodeRequiredAffinity, V1NodeAffinity nodeAffinity) {
+
+        // Node required affinity is provided in the form <label key>=<label value>
+        String[] selection = nodeRequiredAffinity.split("=");
+        if (selection.length == 2) {
+            V1NodeSelector nodeSelector = new V1NodeSelector();
+            nodeAffinity.setRequiredDuringSchedulingIgnoredDuringExecution(nodeSelector);
+
+            V1NodeSelectorTerm selectorTerm = buildNodeSelectorTerm(selection[0], selection[1]);
+            nodeSelector.addNodeSelectorTermsItem(selectorTerm);
+        }
+    }
+
+    private V1NodeSelectorTerm buildNodeSelectorTerm(String key, String value) {
+        V1NodeSelectorTerm selectorTerm = new V1NodeSelectorTerm();
+
+        V1NodeSelectorRequirement requirement = new V1NodeSelectorRequirement();
+        selectorTerm.addMatchExpressionsItem(requirement);
+        requirement.setKey(key);
+        requirement.setOperator("In");
+        requirement.addValuesItem(value);
+
+        return selectorTerm;
     }
 
     /*
