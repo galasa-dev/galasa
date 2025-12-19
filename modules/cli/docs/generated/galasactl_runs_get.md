@@ -18,10 +18,11 @@ galasactl runs get [flags]
       --format string      output format for the data returned. Supported formats are: 'details', 'raw', 'summary'. (default "summary")
       --group string       the name of the group to return tests under that group. Cannot be used in conjunction with --name
   -h, --help               Displays the options for the 'runs get' command.
-      --name string        the name of the test run we want information about. Cannot be used in conjunction with --requestor, --result or --active flags
-      --requestor string   the requestor of the test run we want information about. Cannot be used in conjunction with --name flag.
+      --name string        the name of the test run we want information about. Cannot be used in conjunction with --requestor, --user, --result or --active flags
+      --requestor string   the requestor of the test run we want information about. This is the owner of the personal access token that was used to submit the test. This may be an actual user or a functional ID or bot account for an automation tool. Cannot be used in conjunction with --name flag.
       --result string      A filter on the test runs we want information about. Optional. Default is to display test runs with any result. Case insensitive. Value can be a single value or a comma-separated list. For example "--result Failed,Ignored,EnvFail". Cannot be used in conjunction with --name or --active flag.
       --tags strings       the tags associated with test runs to be retrieved. Tags can be supplied in a comma-separated list (e.g. --tags tag1,tag2,tag3) or as separate '--tags' flags (e.g. --tags tag1 --tags tag2).
+      --user string        the user of the test run we want information about. This is the actual user who submitted the tests either with galasactl or through an automation tool. This may or may not be the same as the requestor. Cannot be used in conjunction with --name flag.
 ```
 
 ### Options inherited from parent commands

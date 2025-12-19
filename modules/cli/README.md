@@ -798,6 +798,60 @@ galasactl secrets delete --name SYSTEM1
 
 For a complete list of supported parameters see [here](./docs/generated/galasactl_secrets_delete.md).
 
+## tags get
+
+This command retrieves a list of tags stored in a Galasa service's configuration property store. The retrieved tags can be displayed in different formats, including `summary` and `yaml` formats, based on the value provided by the `--format` flag. If `--format` is not provided, tags will be displayed in the `summary` format by default.
+
+### Examples
+
+All tags stored in a Galasa service can be retrieved using the following command:
+
+```
+galasactl tags get
+```
+
+To get a specific tag named `core-regression`, the `--name` flag can be provided as follows:
+
+```
+galasactl tags get --name core-regression
+```
+
+To display a tag in a different format, like YAML, the `--format` flag can be provided:
+
+```
+galasactl tags get --name core-regression --format yaml
+```
+
+For a complete list of supported parameters see [here](./docs/generated/galasactl_tags_get.md).
+
+## tags delete
+
+This command deletes a tag with the given name from the Galasa service. The name of the tag to be deleted must be provided using the `--name` flag.
+
+### Examples
+
+To delete a tag named `mytag`, run the following command:
+
+```
+galasactl tags delete --name mytag
+```
+
+For a complete list of supported parameters see [here](./docs/generated/galasactl_tags_delete.md).
+
+## tags set
+
+This command creates or updates a tag with the given name from the Galasa service. The name of the tag to be created or updated must be provided using the `--name` flag.
+
+### Examples
+
+To create a tag named `mytag` with a description of `my first tag` and a priority of 15, run the following command:
+
+```
+galasactl tags set --name mytag --description "my first tag" --priority 15
+```
+
+For a complete list of supported parameters see [here](./docs/generated/galasactl_tags_set.md).
+
 ## roles get
 To list the roles which are available on a Galasa service.
 

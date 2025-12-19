@@ -33,7 +33,7 @@ public interface IResultArchiveStoreDirectoryService {
     RasRunResultPage getRunsPage(int maxResults, RasSortField primarySort, String pageCursor, @NotNull IRasSearchCriteria... searchCriteria) throws ResultArchiveStoreException;
 
     /**
-     * Get requestors
+     * Get requestors. These are the login names associated with personal access tokens used to submit runs.
      * 
      * @return 
      * @throws ResultArchiveStoreException if there are errors accessing the RAS

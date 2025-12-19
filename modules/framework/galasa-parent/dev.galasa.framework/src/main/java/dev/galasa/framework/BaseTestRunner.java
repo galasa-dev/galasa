@@ -213,12 +213,14 @@ public class BaseTestRunner {
         String group = run.getGroup();
         String submissionId = run.getSubmissionId();
         Instant queuedAt = run.getQueued();
-        String requestor = AbstractManager.defaultString(run.getRequestor(), "unknown");         
+        String requestor = AbstractManager.defaultString(run.getRequestor(), "unknown");
+        String user = AbstractManager.defaultString(run.getUser(), "unknown");          
 
         testStructure.setQueued(queuedAt);
         testStructure.setStartTime(Instant.now());
         testStructure.setRunName(runName);
         testStructure.setRequestor(requestor);
+        testStructure.setUser(user);
         testStructure.setGroup(group);
         testStructure.setSubmissionId(submissionId);
         

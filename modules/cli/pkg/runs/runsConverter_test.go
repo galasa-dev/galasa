@@ -35,6 +35,7 @@ func createRunForConverter(
 	runName string,
 	testName string,
 	requestor string,
+	user string,
 	status string,
 	result string,
 	queued string,
@@ -51,6 +52,7 @@ func createRunForConverter(
 		Bundle:    &bundle,
 		TestName:  &testName,
 		Requestor: &requestor,
+		User:      &user,
 		Status:    &status,
 		Result:    &result,
 		Queued:    &queued,
@@ -85,9 +87,9 @@ func TestGalasaapiRunHasRecordsReturnsSameAmountOfRecordsWithNoMethods(t *testin
 	methods := make([]galasaapi.TestMethod, 0)
 
 	runs := make([]galasaapi.Run, 0)
-	//runName, testName, requestor, status, result, queued, methods
-	run1 := createRunForConverter("LongRunName", "TestName", "requestor", "LongStatus", "Passed", "2023-05-04T10:45:29.545323Z", methods)
-	run2 := createRunForConverter("U456", "MyTestName", "myRequestorString", "Status", "Failed", "2023-05-04T10:55:29.545323Z", methods)
+	//runName, testName, requestor, user, status, result, queued, methods
+	run1 := createRunForConverter("LongRunName", "TestName", "requestor", "user", "LongStatus", "Passed", "2023-05-04T10:45:29.545323Z", methods)
+	run2 := createRunForConverter("U456", "MyTestName", "myRequestorString", "myUserString", "Status", "Failed", "2023-05-04T10:55:29.545323Z", methods)
 	runs = append(runs, run1, run2)
 	apiServerUrl := ""
 
@@ -107,13 +109,13 @@ func TestRunConvertsTags(t *testing.T) {
 	methods := make([]galasaapi.TestMethod, 0)
 
 	runs := make([]galasaapi.Run, 0)
-	//runName, testName, requestor, status, result, queued, methods
-	run1 := createRunForConverter("LongRunName", "TestName", "requestor", "LongStatus", "Passed", "2023-05-04T10:45:29.545323Z", methods)
+	//runName, testName, requestor, user, status, result, queued, methods
+	run1 := createRunForConverter("LongRunName", "TestName", "requestor", "user", "LongStatus", "Passed", "2023-05-04T10:45:29.545323Z", methods)
 
 	// run1 has tags
 	run1.TestStructure.Tags = tags
 
-	run2 := createRunForConverter("U456", "MyTestName", "myRequestorString", "Status", "Failed", "2023-05-04T10:55:29.545323Z", methods)
+	run2 := createRunForConverter("U456", "MyTestName", "myRequestorString", "myUserString", "Status", "Failed", "2023-05-04T10:55:29.545323Z", methods)
 	// run2 does not have any tags
 
 	runs = append(runs, run1, run2)
@@ -141,13 +143,13 @@ func TestRunConvertsTagsOutOfOrderGetSorted(t *testing.T) {
 	methods := make([]galasaapi.TestMethod, 0)
 
 	runs := make([]galasaapi.Run, 0)
-	//runName, testName, requestor, status, result, queued, methods
-	run1 := createRunForConverter("LongRunName", "TestName", "requestor", "LongStatus", "Passed", "2023-05-04T10:45:29.545323Z", methods)
+	//runName, testName, requestor, user, status, result, queued, methods
+	run1 := createRunForConverter("LongRunName", "TestName", "requestor", "user", "LongStatus", "Passed", "2023-05-04T10:45:29.545323Z", methods)
 
 	// run1 has tags
 	run1.TestStructure.Tags = tags
 
-	run2 := createRunForConverter("U456", "MyTestName", "myRequestorString", "Status", "Failed", "2023-05-04T10:55:29.545323Z", methods)
+	run2 := createRunForConverter("U456", "MyTestName", "myRequestorString", "myUserString", "Status", "Failed", "2023-05-04T10:55:29.545323Z", methods)
 	// run2 does not have any tags
 
 	runs = append(runs, run1, run2)
@@ -177,8 +179,8 @@ func TestGalasaapiRunHasRecordsReturnsSameAmountOfRecordsWithMethods(t *testing.
 	methods = append(methods, method1, method2)
 
 	runs := make([]galasaapi.Run, 0)
-	run1 := createRunForConverter("LongRunName", "TestName", "requestor", "LongStatus", "Passed", "2023-05-04T10:45:29.545323Z", methods)
-	run2 := createRunForConverter("U456", "MyTestName", "myRequestorString", "Status", "Failed", "2023-05-04T10:55:29.545323Z", methods)
+	run1 := createRunForConverter("LongRunName", "TestName", "requestor", "user", "LongStatus", "Passed", "2023-05-04T10:45:29.545323Z", methods)
+	run2 := createRunForConverter("U456", "MyTestName", "myRequestorString", "myUserString", "Status", "Failed", "2023-05-04T10:55:29.545323Z", methods)
 	runs = append(runs, run1, run2)
 	apiServerUrl := ""
 

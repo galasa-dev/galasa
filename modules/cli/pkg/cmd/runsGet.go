@@ -25,6 +25,7 @@ type RunsGetCmdValues struct {
 	age                string
 	outputFormatString string
 	requestor          string
+	user               string
 	result             string
 	isActiveRuns       bool
 	group              string
@@ -90,7 +91,7 @@ func (cmd *RunsGetCommand) createCobraCommand(
 	units := runs.GetTimeUnitsForErrorMessage()
 	formatters := runs.GetFormatterNamesString(runs.CreateFormatters())
 	runsGetCobraCmd.PersistentFlags().StringVar(&cmd.values.runName, "name", "", "the name of the test run we want information about."+
-		" Cannot be used in conjunction with --requestor, --result or --active flags")
+		" Cannot be used in conjunction with --requestor, --user, --result or --active flags")
 	runsGetCobraCmd.PersistentFlags().StringVar(&cmd.values.group, "group", "", "the name of the group to return tests under that group."+
 		" Cannot be used in conjunction with --name")
 	runsGetCobraCmd.PersistentFlags().StringVar(&cmd.values.age, "age", "", "the age of the test run(s) we want information about. Supported formats are: 'FROM' or 'FROM:TO', where FROM and TO are each ages,"+
@@ -99,6 +100,12 @@ func (cmd *RunsGetCommand) createCobraCommand(
 		" The TO part must be a smaller time-span than the FROM part.")
 	runsGetCobraCmd.PersistentFlags().StringVar(&cmd.values.outputFormatString, "format", "summary", "output format for the data returned. Supported formats are: "+formatters+".")
 	runsGetCobraCmd.PersistentFlags().StringVar(&cmd.values.requestor, "requestor", "", "the requestor of the test run we want information about."+
+		" This is the owner of the personal access token that was used to submit the test."+
+		" This may be an actual user or a functional ID or bot account for an automation tool."+
+		" Cannot be used in conjunction with --name flag.")
+	runsGetCobraCmd.PersistentFlags().StringVar(&cmd.values.user, "user", "", "the user of the test run we want information about."+
+		" This is the actual user who submitted the tests either with galasactl or through an automation tool."+
+		" This may or may not be the same as the requestor."+
 		" Cannot be used in conjunction with --name flag.")
 	runsGetCobraCmd.PersistentFlags().StringVar(&cmd.values.result, "result", "", "A filter on the test runs we want information about. Optional. Default is to display test runs with any result. Case insensitive. Value can be a single value or a comma-separated list. For example \"--result Failed,Ignored,EnvFail\"."+
 		" Cannot be used in conjunction with --name or --active flag.")
@@ -108,6 +115,7 @@ func (cmd *RunsGetCommand) createCobraCommand(
 		" Tags can be supplied in a comma-separated list (e.g. --tags tag1,tag2,tag3) or as separate '--tags' flags (e.g. --tags tag1 --tags tag2).")
 
 	runsGetCobraCmd.MarkFlagsMutuallyExclusive("name", "requestor")
+	runsGetCobraCmd.MarkFlagsMutuallyExclusive("name", "user")
 	runsGetCobraCmd.MarkFlagsMutuallyExclusive("name", "result")
 	runsGetCobraCmd.MarkFlagsMutuallyExclusive("name", "active")
 	runsGetCobraCmd.MarkFlagsMutuallyExclusive("result", "active")
@@ -131,12 +139,12 @@ func (cmd *RunsGetCommand) executeRunsGet(
 	err = utils.CaptureLog(fileSystem, commsFlagSetValues.logFileName)
 	if err == nil {
 		commsFlagSetValues.isCapturingLogs = true
-	
+
 		log.Println("Galasa CLI - Get info about a run")
-	
+
 		// Get the ability to query environment variables.
 		env := factory.GetEnvironment()
-	
+
 		var galasaHome spi.GalasaHome
 		galasaHome, err = utils.NewGalasaHome(fileSystem, env, commsFlagSetValues.CmdParamGalasaHomePath)
 		if err == nil {
@@ -149,7 +157,7 @@ func (cmd *RunsGetCommand) executeRunsGet(
 				factory,
 				galasaHome,
 			)
-			
+
 			if err == nil {
 
 				var console = factory.GetStdOutConsole()
@@ -160,6 +168,7 @@ func (cmd *RunsGetCommand) executeRunsGet(
 					cmd.values.runName,
 					cmd.values.age,
 					cmd.values.requestor,
+					cmd.values.user,
 					cmd.values.result,
 					cmd.values.isActiveRuns,
 					cmd.values.outputFormatString,
@@ -172,7 +181,6 @@ func (cmd *RunsGetCommand) executeRunsGet(
 			}
 		}
 	}
-
 
 	log.Printf("executeRunsGet returning %v", err)
 	return err

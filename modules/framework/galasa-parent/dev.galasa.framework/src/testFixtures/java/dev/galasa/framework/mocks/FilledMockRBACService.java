@@ -53,16 +53,12 @@ public class FilledMockRBACService {
     }
 
     public static MockRBACService createTestRBACServiceWithTestUser(String loginId, List<Action> actions) {
-        MockUser user = new MockUser();
-        user.setLoginId(loginId);
-        user.setPriority(1);
-
+        MockUser user = createUser(loginId, 1);
         return createTestRBACServiceWithTestUser(user, actions);
     }
 
     public static MockRBACService createTestRBACServiceWithTestUser(MockUser user, List<Action> actions) {
-        
-        List<String> actionIDsList = actions.stream().map(action -> action.getId()).collect(Collectors.toList());
+        List<String> actionIDsList = getActionIds(actions);
 
         MockRole role1 = new MockRole("role1","2","role1 description",actionIDsList,true);
         MockRole ownerRole = new MockRole("owner","0","owner description",actionIDsList,true);
@@ -72,14 +68,53 @@ public class FilledMockRBACService {
         roles.add(ownerRole);
 
         user.setRoleId(role1.getId());
-
-        MockRBACService service = new MockRBACService(roles,actions,role1);
-
         List<IUser> users = new ArrayList<>();
         users.add(user);
 
-        service.setUsersCache(new MockCacheUsers(service, users));
+        return buildRBACService(roles, actions, role1, users);
+    }
 
+    public static MockRBACService createTestRBACServiceWithAdminAndTestUser(String adminLoginId, String testerLoginId, List<Action> testerActions) {
+        MockUser adminUser = createUser(adminLoginId, 1);
+        MockUser testerUser = createUser(testerLoginId, 10);
+        return createTestRBACServiceWithAdminAndTestUser(adminUser, testerUser, testerActions);
+    }
+
+    public static MockRBACService createTestRBACServiceWithAdminAndTestUser(MockUser adminUser, MockUser testerUser, List<Action> testerActions) {
+        List<String> adminActionsIDList = getActionIds(BuiltInAction.getActions());
+        List<String> testerActionsIDList = getActionIds(testerActions);
+
+        MockRole ownerRole = new MockRole("owner","0","owner description",adminActionsIDList,true);
+        MockRole role1 = new MockRole("role1","2","role1 description",testerActionsIDList,true);
+        
+        List<Role> roles = new ArrayList<Role>();
+        roles.add(ownerRole);
+        roles.add(role1);
+
+        adminUser.setRoleId(ownerRole.getId());
+        testerUser.setRoleId(role1.getId());
+
+        List<IUser> users = new ArrayList<>();
+        users.add(adminUser);
+        users.add(testerUser);
+
+        return buildRBACService(roles, BuiltInAction.getActions(), role1, users);
+    }
+
+    private static MockUser createUser(String loginId, int priority) {
+        MockUser user = new MockUser();
+        user.setLoginId(loginId);
+        user.setPriority(priority);
+        return user;
+    }
+
+    private static List<String> getActionIds(List<Action> actions) {
+        return actions.stream().map(action -> action.getId()).collect(Collectors.toList());
+    }
+
+    private static MockRBACService buildRBACService(List<Role> roles, List<Action> actions, Role defaultRole, List<IUser> users) {
+        MockRBACService service = new MockRBACService(roles, actions, defaultRole);
+        service.setUsersCache(new MockCacheUsers(service, users));
         return service;
     }
 }

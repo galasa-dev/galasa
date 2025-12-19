@@ -461,6 +461,36 @@ var (
 	// Runs cleanup local errors
 	GALASA_ERROR_INVALID_GLOB_PATTERN_PROVIDED = NewMessageType("GAL1248E: Unsupported glob pattern character provided. Only alphanumeric (A-Z, a-z, 0-9), '.', '?', and '*' characters can be provided in the '--includes-pattern' and '--excludes-pattern' flags.", 1248, STACK_TRACE_NOT_WANTED)
 
+	// Tags delete errors
+	GALASA_ERROR_FAILED_TO_DELETE_TAG                = NewMessageType("GAL1249E: Failed to delete the tag with the given name from the Galasa service", 1249, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_NO_RESPONSE_CONTENT      = NewMessageType("GAL1250E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server.", 1250, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_RESPONSE_BODY_UNREADABLE = NewMessageType("GAL1251E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1251, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_UNPARSEABLE_CONTENT      = NewMessageType("GAL1252E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1252, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_SERVER_REPORTED_ERROR    = NewMessageType("GAL1253E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1253, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_EXPLANATION_NOT_JSON     = NewMessageType("GAL1254E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1254, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_REQUEST_FAILED           = NewMessageType("GAL1255E: Failed to delete a tag named '%s'. Failed to send a request to the Galasa service. Cause is %v", 1255, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_TAG_NAME                    = NewMessageType("GAL1256E: Invalid tag name provided. The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1256, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_TAG_NOT_FOUND                       = NewMessageType("GAL1257E: No such tag named '%v' exists within the Galasa service.", 1257, STACK_TRACE_NOT_WANTED)
+
+	// Tags set errors
+	GALASA_ERROR_FAILED_TO_SET_TAG                   = NewMessageType("GAL1258E: Failed to set the tag with the given name on the Galasa service", 1258, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_NO_RESPONSE_CONTENT         = NewMessageType("GAL1259E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server.", 1259, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_RESPONSE_BODY_UNREADABLE    = NewMessageType("GAL1260E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1260, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_UNPARSEABLE_CONTENT         = NewMessageType("GAL1261E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1261, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_SERVER_REPORTED_ERROR       = NewMessageType("GAL1262E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1262, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_EXPLANATION_NOT_JSON        = NewMessageType("GAL1263E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1263, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_TAG_REQUEST_FAILED              = NewMessageType("GAL1264E: Failed to set a tag named '%s'. Sending the put request to the Galasa service failed. Cause is %v", 1264, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_TAG_DESCRIPTION			 = NewMessageType("GAL1265E: Invalid tag description provided. The description provided with the --description flag cannot only contain spaces or tabs, and must only contain characters in the Latin-1 character set.", 1265, STACK_TRACE_NOT_WANTED)
+
+	// Tags get errors
+	GALASA_ERROR_FAILED_TO_GET_TAGS                  = NewMessageType("GAL1266E: Failed to get tags from the Galasa service", 1266, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_NO_RESPONSE_CONTENT        = NewMessageType("GAL1267E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server.", 1267, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_RESPONSE_BODY_UNREADABLE   = NewMessageType("GAL1268E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1268, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_UNPARSEABLE_CONTENT        = NewMessageType("GAL1269E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1269, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_SERVER_REPORTED_ERROR      = NewMessageType("GAL1270E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1270, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_EXPLANATION_NOT_JSON       = NewMessageType("GAL1271E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1271, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_REQUEST_FAILED             = NewMessageType("GAL1272E: Failed to get tags from the Galasa service. Sending the put request to the Galasa service failed. Cause is %v", 1272, STACK_TRACE_NOT_WANTED)
+
 	// Warnings...
 	GALASA_WARNING_MAVEN_NO_GALASA_OBR_REPO = NewMessageType("GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '%s', and 'pre-release' repository is '%s'", 2000, STACK_TRACE_WANTED)
 
@@ -471,4 +501,12 @@ var (
 
 	GALASA_INFO_GROUP_RUNS_CANCEL_SUCCESS   = NewMessageType("GAL2505I: The request to cancel runs with group name '%s' has been accepted by the server.\n", 2505, STACK_TRACE_NOT_WANTED)
 	GALASA_INFO_GROUP_RUNS_ALREADY_FINISHED = NewMessageType("GAL2506I: The request to cancel runs with group name '%s' has been handled successfully. However, no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store.\n", 2506, STACK_TRACE_NOT_WANTED)
+
+    // >>>
+    // >>> Note: Please keep this up to date, to save us wondering what to allocate next... 
+    // >>>       otherwise you have to find a 'gap' in the range.
+    // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
+    // >>>       If you do use this number for a new error template, please increment this value.
+    // >>>
+    GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1273;
 )

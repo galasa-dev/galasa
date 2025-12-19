@@ -30,6 +30,7 @@ import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockRun;
+import dev.galasa.framework.mocks.MockTagsService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.mocks.MockFrameworkRuns;
 import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
@@ -209,7 +210,8 @@ public class TestPodSchedulerTest {
 
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
@@ -246,7 +248,8 @@ public class TestPodSchedulerTest {
 
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
@@ -288,7 +291,8 @@ public class TestPodSchedulerTest {
 
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
@@ -331,7 +335,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
@@ -373,7 +378,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
@@ -417,7 +423,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
@@ -476,7 +483,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
@@ -517,7 +525,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
@@ -564,7 +573,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
@@ -610,7 +620,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
@@ -657,7 +668,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
@@ -709,7 +721,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
@@ -747,7 +760,8 @@ public class TestPodSchedulerTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
 
@@ -842,7 +856,8 @@ public class TestPodSchedulerTest {
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         
@@ -895,7 +910,8 @@ public class TestPodSchedulerTest {
         MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService);
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
 
         TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
         

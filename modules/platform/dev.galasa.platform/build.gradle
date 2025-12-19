@@ -36,9 +36,9 @@ dependencies {
 
         api 'com.auth0:java-jwt:4.4.0' // used by wrapper.
         
-        api 'com.fasterxml.jackson.core:jackson-annotations:2.16.0' // used by wrapper.
-        api 'com.fasterxml.jackson.core:jackson-core:2.16.0' // used by wrapper.
-        api 'com.fasterxml.jackson.core:jackson-databind:2.16.0' // used by wrapper.
+        api 'com.fasterxml.jackson.core:jackson-annotations:2.20' // used by wrapper.
+        api 'com.fasterxml.jackson.core:jackson-core:2.20.0' // used by wrapper.
+        api 'com.fasterxml.jackson.core:jackson-databind:2.20.0' // used by wrapper.
 
         api 'com.github.docker-java:docker-java-api:3.2.14' // bnd.bnd only
         api 'com.github.docker-java:docker-java-core:3.2.14'
@@ -73,10 +73,12 @@ dependencies {
 
         api 'com.sun.xml.bind:jaxb-osgi:4.0.5'
 
-        api 'com.squareup.okhttp3:okhttp:4.9.2'
-        api 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+        api 'com.squareup.okhttp3:okhttp:5.1.0'
+        api 'com.squareup.okhttp3:okhttp-jvm:5.1.0'
+        api 'com.squareup.okhttp3:logging-interceptor:5.1.0'
 
-        api 'com.squareup.okio:okio-jvm:3.6.0'
+        api 'com.squareup.okio:okio:3.15.0'
+        api 'com.squareup.okio:okio-jvm:3.15.0'
 
         api 'commons-cli:commons-cli:1.4' // If updating, also update in galasa-boot build.gradle.
 
@@ -117,9 +119,9 @@ dependencies {
 
         api 'io.gsonfire:gson-fire:1.9.0'
 
-        api 'io.kubernetes:client-java:24.0.0'
-        api 'io.kubernetes:client-java-api:24.0.0'
-        api 'io.kubernetes:client-java-proto:24.0.0'
+        api 'io.kubernetes:client-java:25.0.0'
+        api 'io.kubernetes:client-java-api:25.0.0'
+        api 'io.kubernetes:client-java-proto:25.0.0'
 
         api 'io.netty:netty-buffer:4.1.111.Final'
         api 'io.netty:netty-codec:4.1.111.Final'
@@ -160,7 +162,7 @@ dependencies {
         api 'io.prometheus:simpleclient_tracer_otel:0.16.0'
         api 'io.prometheus:simpleclient_tracer_otel_agent:0.16.0'
 
-        api 'io.swagger:swagger-annotations:1.6.14'
+        api 'io.swagger:swagger-annotations:1.6.16'
 
         api 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
 
@@ -195,7 +197,7 @@ dependencies {
 
         api 'org.apache.bcel:bcel:6.11.0'
 
-        api 'org.apache.commons:commons-collections4:4.4'
+        api 'org.apache.commons:commons-collections4:4.5.0'
         api 'org.apache.commons:commons-compress:1.28.0'
         api 'org.apache.commons:commons-exec:1.3'
         api 'org.apache.commons:commons-lang3:3.19.0' // If updating, also update in obr/release.yaml.
@@ -252,16 +254,16 @@ dependencies {
 
         api 'org.bitbucket.b_c:jose4j:0.9.6'
 
-        api 'org.bouncycastle:bcpkix-jdk18on:1.79'
-        api 'org.bouncycastle:bcprov-jdk18on:1.79'
-        api 'org.bouncycastle:bcutil-jdk18on:1.79'
+        api 'org.bouncycastle:bcpkix-jdk18on:1.82'
+        api 'org.bouncycastle:bcprov-jdk18on:1.82'
+        api 'org.bouncycastle:bcutil-jdk18on:1.82'
 
         api 'org.checkerframework:checker-qual:3.43.0'
         api 'org.codehaus.mojo:animal-sniffer-annotations:1.23'
 
         api 'org.codehaus.plexus:plexus-utils:3.0.24'
 
-        api 'org.jetbrains.kotlin:kotlin-osgi-bundle:1.4.0'
+        api 'org.jetbrains.kotlin:kotlin-osgi-bundle:2.2.0'
 
         api 'org.junit.jupiter:junit-jupiter:5.10.2'
 
@@ -301,7 +303,7 @@ dependencies {
 
         api 'org.slf4j:slf4j-api:1.7.36'
 
-        api 'org.yaml:snakeyaml:2.0'
+        api 'org.yaml:snakeyaml:2.5'
 
     }
 }

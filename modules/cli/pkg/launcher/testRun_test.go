@@ -20,6 +20,7 @@ const (
 		"testName": "dev.galasa.example.banking.account.TestAccount",
 		"testShortName": "TestAccount",
 		"requestor": "mcobbett",
+		"user": "mcobbett",
 		"status": "finished",
 		"result": "Passed",
 		"queued": "2023-02-14T14:16:42.854396Z",

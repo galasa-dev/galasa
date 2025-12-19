@@ -40,7 +40,7 @@ public class TestRBACServiceImpl {
         assertThat(roleGot.getDescription()).contains("Administrator access");
 
         assertThat(roleGot.getActionIds())
-            .hasSize(9)
+            .hasSize(11)
             .contains("USER_EDIT_OTHER")
             .contains("SECRETS_GET_UNREDACTED_VALUES")
             .contains("GENERAL_API_ACCESS")
@@ -49,7 +49,9 @@ public class TestRBACServiceImpl {
             .contains("SECRETS_SET")
             .contains("SECRETS_DELETE")
             .contains("RUNS_DELETE_OTHER_USERS")
-            .contains("TEST_RUN_LAUNCH");
+            .contains("TEST_RUN_LAUNCH")
+            .contains("TEST_RUN_SET_USER")
+            .contains("MONITORS_SET");
     }
 
     @Test

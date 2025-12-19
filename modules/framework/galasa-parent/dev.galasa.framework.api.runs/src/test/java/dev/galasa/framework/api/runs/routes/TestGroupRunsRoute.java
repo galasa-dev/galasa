@@ -48,6 +48,8 @@ public class TestGroupRunsRoute extends BaseServletTest {
 
     private static final Map<String, String> REQUIRED_HEADERS = new HashMap<>(Map.of("Authorization", "Bearer " + DUMMY_JWT));
 
+    public static final String NON_ADMIN_JWT_USERNAME = "joeTester";
+
     private String generateStatusUpdateJson(String result) {
 		JsonObject statusUpdateJson = new JsonObject();
         statusUpdateJson.addProperty("result", result);
@@ -83,6 +85,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
             runJson.addProperty("finished", "2023-10-12T12:16:49.832925Z");
             runJson.addProperty("waitUntil", "2023-10-12T12:16:49.832925Z");
             runJson.addProperty("requestor", run.getRequestor());
+            runJson.addProperty("user", run.getUser());
             runJson.addProperty("isLocal", false);
             runJson.addProperty("isTraceEnabled", false);
             runJson.addProperty("rasRunId", "cdb-" + run.getName());
@@ -107,7 +110,17 @@ public class TestGroupRunsRoute extends BaseServletTest {
     }
 
 
-    private String generatePayload(String[] classNames, String requestorType, String requestor, String testStream, String groupName, String overrideExpectedRequestor, String submissionId, Set<String>tags) {
+    private String generatePayload(
+        String[] classNames,
+        String requestorType,
+        String requestor,
+        String user,
+        String testStream,
+        String groupName,
+        String overrideExpectedRequestor,
+        String submissionId,
+        Set<String>tags
+    ) {
         if (overrideExpectedRequestor != null) {
             requestor = overrideExpectedRequestor;
         }
@@ -121,6 +134,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         payloadJson.add("classNames", classNamesArray);
         payloadJson.addProperty("requestorType", requestorType);
         payloadJson.addProperty("requestor", requestor);
+        payloadJson.addProperty("user", user);
 
         payloadJson.addProperty("testStream", testStream);
 
@@ -704,7 +718,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         MockIRun run = new MockIRun("runname", "requestorType", JWT_USERNAME, class1, "submitted", class1.split("/")[0], testName1, groupName, submissionId, tags);
         runs.add(run);
 
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, null, submissionId,tags);
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, "this.test.stream", groupName, null, submissionId,tags);
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
@@ -752,7 +766,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
 
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, "name", "submitted", class1.split("/")[0], "java", groupName, submissionId, tags));
 
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "null", groupName, null, submissionId,tags);
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, "null", groupName, null, submissionId,tags);
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
@@ -793,7 +807,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class1, "submitted", class1.split("/")[0], "name", groupName, submissionId, tags));
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class2, "submitted", class2.split("/")[0], "name", groupName, submissionId, tags));
 
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, null, submissionId,tags);
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, "this.test.stream", groupName, null, submissionId,tags);
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
@@ -832,7 +846,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class1, "submitted", class1.split("/")[0], "name", groupName, submissionId, tags));
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class2, "submitted", class2.split("/")[0], "name", groupName, submissionId, tags));
 
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, null, submissionId, tags);
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, "this.test.stream", groupName, null, submissionId, tags);
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
@@ -918,7 +932,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
 
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class1, "submitted", class1.split("/")[0], "name", groupName, submissionId, tags));
 
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor", submissionId, tags);
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, "this.test.stream", groupName, "testRequestor", submissionId, tags);
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
@@ -957,7 +971,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class1, "submitted", class1.split("/")[0], "name", groupName, submissionId, tags));
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class2, "submitted", class2.split("/")[0], "name", groupName, submissionId, tags));
 
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor", submissionId,tags);
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, "this.test.stream", groupName, "testRequestor", submissionId,tags);
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
@@ -996,7 +1010,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class1, "submitted", class1.split("/")[0], "name", groupName, submissionId, tags));
         runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class2, "submitted", class2.split("/")[0], "name", groupName, submissionId, tags));
 
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor", submissionId,tags);
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, "this.test.stream", groupName, "testRequestor", submissionId,tags);
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
@@ -1020,6 +1034,163 @@ public class TestGroupRunsRoute extends BaseServletTest {
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
+
+    @Test
+    public void testPostRunsWithValidBodyAdminRequestorCanSetUserOK() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String testName1 = "package.class";
+        String class1 = "bundle/" + testName1;
+        String[] classes = new String[]{class1};
+        String submissionId = "submission1";
+        Set<String> tags = new HashSet<>();
+        List<IRun> runs = new ArrayList<IRun>();
+
+        MockIRun run = new MockIRun("runname", "requestorType", JWT_USERNAME, NON_ADMIN_JWT_USERNAME, class1, "submitted", class1.split("/")[0], testName1, groupName, submissionId, tags);
+        runs.add(run);
+
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, NON_ADMIN_JWT_USERNAME, "this.test.stream", groupName, null, submissionId,tags);
+
+        // Set up permissions - 
+        // The JWT_USERNAME has all actions including TEST_RUN_SET_USER.
+        // The NON_ADMIN_JWT_USERNAME has GENERAL_API_ACCESS and TEST_RUN_LAUNCH.
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), TEST_RUN_LAUNCH.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithAdminAndTestUser(JWT_USERNAME, NON_ADMIN_JWT_USERNAME, permittedActions);
+
+        MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
+        MockIResultArchiveStore mockRasStore = new MockIResultArchiveStore();
+
+        MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
+        mockFramework.setResultArchiveStore(mockRasStore);
+        mockFramework.setRBACService(mockRbacService);
+
+		MockRunsServlet servlet = new MockRunsServlet(mockEnv, mockFramework);
+
+		HttpServletRequest req = new MockHttpServletRequest("/"+groupName, payload, HttpMethod.POST.toString(), REQUIRED_HEADERS);
+		HttpServletResponse resp = new MockHttpServletResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        String expectedJson = generateExpectedJson(runs, false);
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+
+        List<TestStructure> testStructureHistory = mockRasStore.getTestStructureHistory();
+        assertThat(testStructureHistory).hasSize(1);
+
+        TestStructure testStructure = testStructureHistory.get(0);
+        assertThat(testStructure.getRequestor()).isEqualTo(run.getRequestor());
+        assertThat(testStructure.getUser()).isEqualTo(run.getUser());
+        assertThat(testStructure.getRunName()).isEqualTo(run.getName());
+        assertThat(testStructure.getBundle()).isEqualTo(run.getTestBundleName());
+        assertThat(testStructure.getTestName()).isEqualTo(run.getTestClassName());
+        assertThat(testStructure.getSubmissionId()).isEqualTo(run.getSubmissionId());
+        assertThat(testStructure.getGroup()).isEqualTo(run.getGroup());
+    }
+
+    @Test
+    public void testPostRunsWithValidBodyNonAdminRequestorCannotSetUserButUserDefaultsToRequestorOK() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String testName1 = "package.class";
+        String class1 = "bundle/" + testName1;
+        String[] classes = new String[]{class1};
+        String submissionId = "submission1";
+        Set<String> tags = new HashSet<>();
+        List<IRun> runs = new ArrayList<IRun>();
+
+        MockIRun run = new MockIRun("runname", "requestorType", JWT_USERNAME, JWT_USERNAME, class1, "submitted", class1.split("/")[0], testName1, groupName, submissionId, tags);
+        runs.add(run);
+
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "overrideuser", "this.test.stream", groupName, null, submissionId,tags);
+
+        // Set up permissions without the TEST_RUN_LAUNCH action
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), TEST_RUN_LAUNCH.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, permittedActions);
+
+        MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
+        MockIResultArchiveStore mockRasStore = new MockIResultArchiveStore();
+
+        MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
+        mockFramework.setResultArchiveStore(mockRasStore);
+        mockFramework.setRBACService(mockRbacService);
+
+		MockRunsServlet servlet = new MockRunsServlet(mockEnv, mockFramework);
+
+		HttpServletRequest req = new MockHttpServletRequest("/"+groupName, payload, HttpMethod.POST.toString(), REQUIRED_HEADERS);
+		HttpServletResponse resp = new MockHttpServletResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        String expectedJson = generateExpectedJson(runs, false);
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+
+        List<TestStructure> testStructureHistory = mockRasStore.getTestStructureHistory();
+        assertThat(testStructureHistory).hasSize(1);
+
+        TestStructure testStructure = testStructureHistory.get(0);
+        assertThat(testStructure.getRequestor()).isEqualTo(run.getRequestor());
+        assertThat(testStructure.getUser()).isEqualTo(run.getUser());
+        assertThat(testStructure.getRunName()).isEqualTo(run.getName());
+        assertThat(testStructure.getBundle()).isEqualTo(run.getTestBundleName());
+        assertThat(testStructure.getTestName()).isEqualTo(run.getTestClassName());
+        assertThat(testStructure.getSubmissionId()).isEqualTo(run.getSubmissionId());
+        assertThat(testStructure.getGroup()).isEqualTo(run.getGroup());
+    }
+
+    @Test
+    public void testPostRunsWithValidBodyAdminRequestorCanSetUserButUserCantLaunchTestsReturnsError() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String testName1 = "package.class";
+        String class1 = "bundle/" + testName1;
+        String[] classes = new String[]{class1};
+        String submissionId = "submission1";
+        Set<String> tags = new HashSet<>();
+
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, NON_ADMIN_JWT_USERNAME, "this.test.stream", groupName, null, submissionId,tags);
+
+        // Set up permissions - 
+        // The JWT_USERNAME has all actions including TEST_RUN_SET_USER.
+        // The NON_ADMIN_JWT_USERNAME has GENERAL_API_ACCESS but does not have TEST_RUN_LAUNCH.
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithAdminAndTestUser(JWT_USERNAME, NON_ADMIN_JWT_USERNAME, permittedActions);
+
+        MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
+
+        MockFramework mockFramework = new MockFramework();
+        mockFramework.setRBACService(mockRbacService);
+
+		MockRunsServlet servlet = new MockRunsServlet(mockEnv, mockFramework);
+
+		HttpServletRequest req = new MockHttpServletRequest("/"+groupName, payload, HttpMethod.POST.toString(), REQUIRED_HEADERS);
+		HttpServletResponse resp = new MockHttpServletResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(403);
+        assertThat(resp.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
+        checkErrorStructure(outStream.toString(), 5125, "GAL5125E", "TEST_RUN_LAUNCH");
+    }
+
+    /*
+     * PUT requests
+     */
 
     @Test
     public void testUpdateRunStatusByGroupIdWhenNoActiveRunsExistReturnsOK() throws Exception {
@@ -1157,7 +1328,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         String submissionId = "submission1";
         Set<String> tags = new HashSet<>();
 
-        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "this.test.stream", groupName, "testRequestor", submissionId, tags);
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, null, "this.test.stream", groupName, "testRequestor", submissionId, tags);
 
         // Set up permissions without the TEST_RUN_LAUNCH action
         List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction());

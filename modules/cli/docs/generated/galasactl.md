@@ -26,5 +26,6 @@ A tool for controlling Galasa resources using the command-line.
 * [galasactl runs](galasactl_runs.md)	 - Manage test runs in the ecosystem
 * [galasactl secrets](galasactl_secrets.md)	 - Manage secrets stored in the Galasa service's credentials store
 * [galasactl streams](galasactl_streams.md)	 - Manages test streams in a Galasa service
+* [galasactl tags](galasactl_tags.md)	 - Manage tags stored in the Galasa service's configuration property store
 * [galasactl users](galasactl_users.md)	 - Manages users in an ecosystem
 

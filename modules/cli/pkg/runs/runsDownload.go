@@ -45,6 +45,7 @@ func DownloadArtifacts(
 	}
 	if err == nil {
 		requestorParameter := ""
+		userParameter := ""
 		resultParameter := ""
 		group := ""
 		fromAgeHours := 0
@@ -56,6 +57,7 @@ func DownloadArtifacts(
 		runsQuery := NewRunsQuery(
 			runName,
 			requestorParameter,
+			userParameter,
 			resultParameter,
 			group,
 			fromAgeHours,

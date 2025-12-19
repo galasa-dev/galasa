@@ -129,6 +129,7 @@ public class ValidateEcosystem {
         
         IRun testRun = frameworkRuns.submitRun(null, 
                 "validateeco", 
+                "validateeco", 
                 "dev.galasa.core.manager.ivt", 
                 "dev.galasa.core.manager.ivt.CoreManagerIVT", 
                 null, 

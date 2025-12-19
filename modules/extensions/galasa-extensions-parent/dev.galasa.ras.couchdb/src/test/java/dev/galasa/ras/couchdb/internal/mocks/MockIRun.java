@@ -63,6 +63,11 @@ public class MockIRun implements IRun {
     }
 
     @Override
+    public String getUser() {
+        throw new UnsupportedOperationException("Unimplemented method 'getUser'");
+    }
+
+    @Override
     public String getStream() {
         throw new UnsupportedOperationException("Unimplemented method 'getStream'");
     }

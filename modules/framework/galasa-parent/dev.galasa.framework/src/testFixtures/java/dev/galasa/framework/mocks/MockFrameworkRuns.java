@@ -87,7 +87,7 @@ public class MockFrameworkRuns implements IFrameworkRuns {
     }
 
     @Override
-    public @NotNull IRun submitRun(String type, String requestor, String bundleName, String testName, String groupName,
+    public @NotNull IRun submitRun(String type, String requestor, String user, String bundleName, String testName, String groupName,
             String mavenRepository, String obr, String stream, boolean local, boolean trace, Set<String> tags,Properties overrides,
             SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language, String submissionId)
             throws FrameworkException {
