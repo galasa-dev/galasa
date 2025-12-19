@@ -105,7 +105,7 @@ public class RunDetailsRoute extends RunsRoute {
          responseBody = updateRunTags(runName, runAction, runId, tags);
       } else {
          // Tags and result have been attempted to be updated simulatneously.
-         ServletError error = new ServletError(GAL5107_INVALID_TAGS_UPDATE_REQUEST, runAction.getStatus());
+         ServletError error = new ServletError(GAL5107_INVALID_TAGS_AND_RESULT_UPDATE_REQUEST, runAction.getStatus());
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
 
@@ -160,9 +160,9 @@ public class RunDetailsRoute extends RunsRoute {
    private String updateRunTags(String runName, RunActionJson runAction, String runId, String[] tags) throws ResultArchiveStoreException, InternalServletException { 
       TestStructure testStructure = getRunByRunId(runId).getTestStructure();
       
-      if (testStructure.getStatus() != "finished") {
+      if (!testStructure.getStatus().toLowerCase().equals("finished")) {
          ServletError error = new ServletError(GAL5108_CANNOT_UPDATE_TAGS_ON_RUNNING_TEST, runName);
-         throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
 
       testStructure.setTags(new HashSet<>(Arrays.asList(tags)));
@@ -170,7 +170,7 @@ public class RunDetailsRoute extends RunsRoute {
       IResultArchiveStore rasStore = getFramework().getResultArchiveStore();
       rasStore.updateTestStructure(runId, testStructure);
 
-      return "The request to update tags to %s has been recieved.";
+      return String.format("The request to update tags to %s has been recieved.", runName);
    }
 
    private @NotNull RasRunResult getRunFromFramework(@NotNull String id)

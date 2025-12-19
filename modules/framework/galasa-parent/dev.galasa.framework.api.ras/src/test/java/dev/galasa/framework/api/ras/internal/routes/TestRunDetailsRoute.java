@@ -12,6 +12,7 @@ import dev.galasa.framework.api.ras.internal.RasServletTest;
 import dev.galasa.framework.api.ras.internal.mocks.MockArchiveStore;
 import dev.galasa.framework.api.ras.internal.mocks.MockRasServletEnvironment;
 import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockPath;
 import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockResultArchiveStoreDirectoryService;
 import dev.galasa.framework.mocks.MockRunResult;
@@ -36,6 +37,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import static org.assertj.core.api.Assertions.*;
 import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -856,166 +858,163 @@ public class TestRunDetailsRoute extends RasServletTest {
 		assertThat(resp.getStatus()).isEqualTo(400);
 		checkErrorStructure(outStream.toString(), 
 			5109, 
-			"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
+			"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that has finished.");
 	}
 
-	// @Test
-	// public void testRequestToChangeOnlyTagsOnRunningTestThrowsError() throws Exception {
-	// 	// Given...
-	// 	String runId = "xx12345xx";
-	// 	String runName = "U123";
+	@Test
+	public void testRequestToChangeOnlyTagsOnRunningTestThrowsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
 
-	// 	List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
+		TestStructure testStructure = new TestStructure();
+		testStructure.setRunName(runName);
+		testStructure.setStatus("running");
+		Path artifactRoot = new MockPath("/" + runName, this.mockFileSystem);
+		IRunResult result = new MockRunResult( runId, testStructure, artifactRoot, "");
+		mockInputRunResults.add(result);
 
-	// 	String[] newTags = {"tag1", "tag2"};
-	// 	String content = generateTagsUpdateJson("finished", null, newTags);
-	// 	MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		String[] newTags = {"tag1", "tag2"};
+		String content = generateTagsUpdateJson(null, null, newTags);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
-	// 	List<IRun> runs = new ArrayList<IRun>();
-	// 	Set<String> tags = new HashSet<>();
-	// 	runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
-	// 	IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
-	// 	MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
-	// 	List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
-	// 	directoryServices.add(mockrasService);
-	// 	MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
-	// 	MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+		List<IRun> runs = new ArrayList<IRun>();
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
 
-	// 	RasServlet servlet = mockServletEnvironment.getRasServlet();
-	// 	HttpServletRequest req = mockServletEnvironment.getRequest();
-	// 	HttpServletResponse resp = mockServletEnvironment.getResponse();
-	// 	ServletOutputStream outStream = resp.getOutputStream();
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
 
-	// 	// When...
-	// 	servlet.init();
-	// 	servlet.doPut(req, resp);
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 
-	// 	// Then...
-	// 	assertThat(true).isEqualTo(false);
-	// 	assertThat(resp.getStatus()).isEqualTo(400);
-	// 	checkErrorStructure(outStream.toString(), 
-	// 		5109, 
-	// 		"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
-	// }
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
 
-	// @Test
-	// public void testRequestToChangeOnlyTagsOnFinishedTestReturnsOK() throws Exception {
-	// 	// Given...
-	// 	String runId = "xx12345xx";
-	// 	String runName = "U123";
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		checkErrorStructure(outStream.toString(), 
+		5108, 
+		"E: Error occurred when trying to alter the tags on the run 'U123'. Ensure the run has finished running before attempting to alter the tags.");
+	}
 
-	// 	List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+	@Test
+	public void testRequestToChangeOnlyTagsOnFinishedTestReturnsOK() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
 
-	// 	String[] newTags = {"tag1", "tag2"};
-	// 	String content = generateTagsUpdateJson("finished", null, newTags);
-	// 	MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		List<IRunResult> mockInputRunResults = new ArrayList<IRunResult>();
+		TestStructure testStructure = new TestStructure();
+		testStructure.setRunName(runName);
+		testStructure.setStatus("finished");
+		Path artifactRoot = new MockPath("/" + runName, this.mockFileSystem);
+		IRunResult result = new MockRunResult( runId, testStructure, artifactRoot, "");
+		mockInputRunResults.add(result);
+
+		String[] newTags = {"tag1", "tag2"};
+		String content = generateTagsUpdateJson(null, null, newTags);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
-	// 	List<IRun> runs = new ArrayList<IRun>();
-	// 	Set<String> tags = new HashSet<>();
-	// 	runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
-	// 	IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
-	// 	MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
-	// 	List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
-	// 	directoryServices.add(mockrasService);
-	// 	MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
-	// 	MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+		List<IRun> runs = new ArrayList<IRun>();
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
 
-	// 	RasServlet servlet = mockServletEnvironment.getRasServlet();
-	// 	HttpServletRequest req = mockServletEnvironment.getRequest();
-	// 	HttpServletResponse resp = mockServletEnvironment.getResponse();
-	// 	ServletOutputStream outStream = resp.getOutputStream();
+		MockArchiveStore newMockArchiveStore = new MockArchiveStore(directoryServices);
+		MockFramework mockFramework = new MockFramework(newMockArchiveStore, frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
 
-	// 	// When...
-	// 	servlet.init();
-	// 	servlet.doPut(req, resp);
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 
-	// 	// Then...
-	// 	assertThat(true).isEqualTo(false);
-	// 	assertThat(resp.getStatus()).isEqualTo(400);
-	// 	checkErrorStructure(outStream.toString(), 
-	// 		5109, 
-	// 		"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
-	// }
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
 
-	// // Test when status == null && result == null && tags != null GAL5108_UNABLE_TO_RETRIEVE_RUN_FROM_RAS thrown
-	// @Test
-	// public void testRequestToChangeOnlyTagsOnNonExistantTestThrowsError() throws Exception {
-	// 	// Given...
-	// 	String runId = "xx12345xx";
-	// 	String runName = "U123";
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(202);
+		assertThat(newMockArchiveStore.getUpdateTestStructureCount() == 1);
+	}
 
-	// 	List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+	@Test
+	public void testRequestToChangeOnlyTagsOnNonExistantTestThrowsError() throws Exception {
+		// Given...
+		String realTestRunId = "xx12345xx";
+		String fakeTestRunId = "x";
+		String runName = "U123";
 
-	// 	String[] newTags = {"tag1", "tag2"};
-	// 	String content = generateTagsUpdateJson("finished", null, newTags);
-	// 	MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
+		List<IRunResult> mockInputRunResults = generateTestData(realTestRunId, runName, null);
+
+		String[] newTags = {"tag1", "tag2"};
+		String content = generateTagsUpdateJson(null, null, newTags);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + fakeTestRunId, content, "PUT");
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices));
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
+
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
+
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(404);
+		checkErrorStructure(outStream.toString(), 
+		5091, 
+		"GAL5091E: Error occurred when seaching for a run with identifier 'x'.");
+	}
+
+	@Test
+	public void testRequestToChangeTagsAndResultThrowsError() throws Exception {
+		// Given...
+		String runId = "xx12345xx";
+		String runName = "U123";
+
+		List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
+
+		String[] newTags = {"tag1", "tag2"};
+		String content = generateTagsUpdateJson(null, "finished", newTags);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
 		
-	// 	List<IRun> runs = new ArrayList<IRun>();
-	// 	Set<String> tags = new HashSet<>();
-	// 	runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
-	// 	IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
-	// 	MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
-	// 	List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
-	// 	directoryServices.add(mockrasService);
-	// 	MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
-	// 	MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
+		List<IRun> runs = new ArrayList<IRun>();
+		Set<String> tags = new HashSet<>();
+		runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
+		IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
+		MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
+		List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
+		directoryServices.add(mockrasService);
+		MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
+		MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
 
-	// 	RasServlet servlet = mockServletEnvironment.getRasServlet();
-	// 	HttpServletRequest req = mockServletEnvironment.getRequest();
-	// 	HttpServletResponse resp = mockServletEnvironment.getResponse();
-	// 	ServletOutputStream outStream = resp.getOutputStream();
+		RasServlet servlet = mockServletEnvironment.getRasServlet();
+		HttpServletRequest req = mockServletEnvironment.getRequest();
+		HttpServletResponse resp = mockServletEnvironment.getResponse();
+		ServletOutputStream outStream = resp.getOutputStream();
 
-	// 	// When...
-	// 	servlet.init();
-	// 	servlet.doPut(req, resp);
+		// When...
+		servlet.init();
+		servlet.doPut(req, resp);
 
-	// 	// Then...
-	// 	assertThat(true).isEqualTo(false);
-	// 	assertThat(resp.getStatus()).isEqualTo(400);
-	// 	checkErrorStructure(outStream.toString(), 
-	// 		5109, 
-	// 		"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
-	// }
-
-	// // Test when Tags and result have been attempted to be updated simulatneously GAL5107_INVALID_TAGS_UPDATE_REQUEST
-	// @Test
-	// public void testRequestToChangeTagsAndResultThrowsError() throws Exception {
-	// 	// Given...
-	// 	String runId = "xx12345xx";
-	// 	String runName = "U123";
-
-	// 	List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
-
-	// 	String[] newTags = {"tag1", "tag2"};
-	// 	String content = generateTagsUpdateJson(null, "finished", newTags);
-	// 	MockHttpServletRequest mockRequest = new MockHttpServletRequest("/runs/" + runId, content, "PUT");
-		
-	// 	List<IRun> runs = new ArrayList<IRun>();
-	// 	Set<String> tags = new HashSet<>();
-	// 	runs.add(new MockIRun(runName, "type1", "requestor1", "test1", "BUILDING", "bundle1", "testClass1", "group1", "submission1",tags));
-	// 	IFrameworkRuns frameworkRuns = new MockIFrameworkRuns(runs);
-	// 	MockResultArchiveStoreDirectoryService mockrasService = new MockResultArchiveStoreDirectoryService(mockInputRunResults);
-	// 	List<IResultArchiveStoreDirectoryService> directoryServices = new ArrayList<IResultArchiveStoreDirectoryService>();
-	// 	directoryServices.add(mockrasService);
-	// 	MockFramework mockFramework = new MockFramework(new MockArchiveStore(directoryServices), frameworkRuns);
-	// 	MockRasServletEnvironment mockServletEnvironment = new MockRasServletEnvironment(mockFramework, mockInputRunResults, mockRequest);
-
-	// 	RasServlet servlet = mockServletEnvironment.getRasServlet();
-	// 	HttpServletRequest req = mockServletEnvironment.getRequest();
-	// 	HttpServletResponse resp = mockServletEnvironment.getResponse();
-	// 	ServletOutputStream outStream = resp.getOutputStream();
-
-	// 	// When...
-	// 	servlet.init();
-	// 	servlet.doPut(req, resp);
-
-	// 	// Then...
-	// 	assertThat(true).isEqualTo(false);
-	// 	assertThat(resp.getStatus()).isEqualTo(400);
-	// 	checkErrorStructure(outStream.toString(), 
-	// 		5109, 
-	// 		"GAL5109E: Error occurred. Updating both the fields 'tags' and 'status' is invalid. The 'tags' value should only be changed on a test that is finished.");
-	// }
+		// Then...
+		assertThat(resp.getStatus()).isEqualTo(400);
+		checkErrorStructure(outStream.toString(), 
+			5107, 
+			"GAL5107E: Error occurred. Updating both the fields 'tags' and 'result' is invalid. The 'tags' value should only be changed on a test that has finished.");
+	}
 
 
 	//
