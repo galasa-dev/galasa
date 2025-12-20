@@ -33,6 +33,7 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.teststructure.TestStructure;
+import dev.galasa.framework.api.ras.internal.common.RunActionJson;
 
 import static org.assertj.core.api.Assertions.*;
 import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
@@ -79,29 +80,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 	}
 
 	public String generateTagsUpdateJson(String status, String result, String[] tags) {
-		String jsonToReturn = "{\n";
-
-		if (status != null) {
-			jsonToReturn += "  \"status\": \"" + status + "\",\n";
-		}
-		if (result != null) {
-			jsonToReturn += "  \"result\": \"" + result + "\",\n";
-		} 
-
-		if (tags == null) {
-			throw new Error("tags must not be null");
-		}
-		
-		jsonToReturn += "  \"tags\": [";
-    for (int i = 0; i < tags.length; i++) {
-        jsonToReturn += "\"" + tags[i] + "\"";
-        if (i < tags.length - 1) {
-            jsonToReturn += ","; // Add comma between tags, except the last one
-        }
-    }
-    jsonToReturn += "\n]\n}";
-
-		return jsonToReturn;
+		return gson.toJson(new RunActionJson(status, result, tags));
 	}
 
 	/*
@@ -943,7 +922,8 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(202);
-		assertThat(newMockArchiveStore.getUpdateTestStructureCount() == 1);
+		assertThat(newMockArchiveStore.getUpdateTestStructureCount()).isEqualTo(1);
+		assertThat(outStream.toString()).isEqualTo("The request to update tags to U123 has been received.");
 	}
 
 	@Test

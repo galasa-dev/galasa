@@ -1806,7 +1806,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateRunStatusRequest'
+              $ref: '#/components/schemas/UpdateRunRequest'
       responses:
         '202':
           description: Run status updated
@@ -3034,7 +3034,7 @@ components:
             isEnabled:
               type: boolean
               description: A boolean value that represents whether the Galasa monitor should be enabled or disabled.
-    # UpdateRunStatusRequest now depricated in favour of UpdateRunRequest to improve naming and include tags.
+    # UpdateRunStatusRequest now deprecated in favour of UpdateRunRequest to improve naming and include tags.
     UpdateRunStatusRequest:
       deprecated: true
       description: Deprecated. Use 'UpdateRunRequest' instead, which allows tag operations.

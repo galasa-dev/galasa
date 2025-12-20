@@ -28,6 +28,7 @@ import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.RunStatusUpdate;
 import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.api.ras.RasRunResult;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
@@ -35,7 +36,6 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRunResult;
-import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
@@ -95,18 +95,26 @@ public class RunDetailsRoute extends RunsRoute {
 
       String responseBody = "";
 
-      if (status != null && tags != null) {
-         // If user is attempting to update the status and tags simulaneously.
-         ServletError error = new ServletError(GAL5109_INVALID_TAGS_AND_STATUS_UPDATE_REQUEST, runAction.getStatus());
-         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-      } else if (status != null && tags == null) {
-         responseBody = updateRunStatus(runName, runAction, runStatusUpdate, result);
-      } else if (status == null && result == null && tags != null) {
+      if (tags != null) {
+         // We have tags, so check if either status or result are also provided.
+         if (status != null) {
+            // Throw error as user is attempting to update the status and tags simulaneously.
+            ServletError error = new ServletError(GAL5109_INVALID_TAGS_AND_STATUS_UPDATE_REQUEST, runAction.getStatus());
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+         }
+
+         if (result != null) {
+            // Throw error as user is attempting to update tags and result simulatneously.
+            ServletError error = new ServletError(GAL5107_INVALID_TAGS_AND_RESULT_UPDATE_REQUEST, runAction.getStatus());
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+         }
+
+         // Update tags.
          responseBody = updateRunTags(runName, runAction, runId, tags);
-      } else {
-         // Tags and result have been attempted to be updated simulatneously.
-         ServletError error = new ServletError(GAL5107_INVALID_TAGS_AND_RESULT_UPDATE_REQUEST, runAction.getStatus());
-         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+
+      } else if (status != null) {
+         // Update run status.
+         responseBody = updateRunStatus(runName, runAction, runStatusUpdate, result);
       }
 
       return getResponseBuilder().buildResponse(request, response, "text/plain",
@@ -160,7 +168,7 @@ public class RunDetailsRoute extends RunsRoute {
    private String updateRunTags(String runName, RunActionJson runAction, String runId, String[] tags) throws ResultArchiveStoreException, InternalServletException { 
       TestStructure testStructure = getRunByRunId(runId).getTestStructure();
       
-      if (!testStructure.getStatus().toLowerCase().equals("finished")) {
+      if (!testStructure.getStatus().equals(TestRunLifecycleStatus.FINISHED.toString())) {
          ServletError error = new ServletError(GAL5108_CANNOT_UPDATE_TAGS_ON_RUNNING_TEST, runName);
          throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
       }
@@ -170,7 +178,7 @@ public class RunDetailsRoute extends RunsRoute {
       IResultArchiveStore rasStore = getFramework().getResultArchiveStore();
       rasStore.updateTestStructure(runId, testStructure);
 
-      return String.format("The request to update tags to %s has been recieved.", runName);
+      return String.format("The request to update tags to %s has been received.", runName);
    }
 
    private @NotNull RasRunResult getRunFromFramework(@NotNull String id)
