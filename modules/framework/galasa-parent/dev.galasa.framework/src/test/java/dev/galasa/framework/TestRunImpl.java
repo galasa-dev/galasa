@@ -68,6 +68,7 @@ public class TestRunImpl {
         dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.SUBMISSION_ID, "my-submission-id");
         dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.QUEUED, queuedTimeAsString);
         dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.REQUESTOR, "duck");
+        dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.USER, "duck");
 
         IDynamicStatusStoreService dss = new MockDSSStore(dssProps);
         RunImpl run = new RunImpl(name,dss);
@@ -108,6 +109,7 @@ public class TestRunImpl {
         dssProps.put("run.U1234"+".submissionId", "my-submission-id");
         dssProps.put("run.U1234"+".queued", queuedTimeAsString);
         dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.REQUESTOR, "duck");
+        dssProps.put("run.U1234"+"."+DssPropertyKeyRunNameSuffix.USER, "duck");
 
         IDynamicStatusStoreService dss = new MockDSSStore(dssProps);
         RunImpl run = new RunImpl(name,dss);

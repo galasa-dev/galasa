@@ -44,6 +44,7 @@ func GetRuns(
 	runName string,
 	age string,
 	requestorParameter string,
+	userParameter string,
 	resultParameter string,
 	shouldGetActive bool,
 	outputFormatString string,
@@ -95,6 +96,7 @@ func GetRuns(
 			runsQuery := NewRunsQuery(
 				runName,
 				requestorParameter,
+				userParameter,
 				resultParameter,
 				group,
 				fromAge,

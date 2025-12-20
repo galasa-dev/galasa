@@ -8,7 +8,8 @@ package dev.galasa.framework.api.common.resources;
 public enum GalasaResourceType {
     GALASA_PROPERTY("GalasaProperty"),
     GALASA_SECRET("GalasaSecret"),
-    GALASA_STREAM("GalasaStream");
+    GALASA_STREAM("GalasaStream"),
+    GALASA_TAG("GalasaTag");
 
     private String name;
 

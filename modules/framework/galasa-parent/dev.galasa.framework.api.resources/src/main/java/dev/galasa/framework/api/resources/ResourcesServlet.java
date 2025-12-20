@@ -20,14 +20,12 @@ import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.common.resources.CPSFacade;
 import dev.galasa.framework.api.resources.routes.ResourcesRoute;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsService;
-import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.streams.IStreamsService;
-import dev.galasa.framework.spi.streams.StreamsException;
+import dev.galasa.framework.spi.tags.ITagsService;
 import dev.galasa.framework.spi.utils.ITimeService;
 import dev.galasa.framework.spi.utils.SystemTimeService;
 /*
@@ -74,9 +72,18 @@ public class ResourcesServlet extends BaseServlet {
 			ICredentialsService credsService = framework.getCredentialsService();
 			RBACService rbacService = framework.getRBACService();
 			IStreamsService streamsService = framework.getStreamsService();
+			ITagsService tagsService = framework.getTagsService();
 
-            addRoute(new ResourcesRoute(getResponseBuilder(), cpsFacade, credsService, timeService, rbacService,streamsService));
-        } catch (ConfigurationPropertyStoreException | CredentialsException | RBACException | StreamsException e) {
+            addRoute(new ResourcesRoute(
+				getResponseBuilder(),
+				cpsFacade,
+				credsService,
+				timeService,
+				rbacService,
+				streamsService,
+				tagsService
+			));
+        } catch (FrameworkException e) {
             logger.error("Failed to initialise the Resources servlet", e);
             throw new ServletException("Failed to initialise the Resources servlet", e);
         }

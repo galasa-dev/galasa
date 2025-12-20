@@ -1514,10 +1514,20 @@ paths:
           example: dev.galasa.inttests
         - name: requestor
           in: query
-          description: Name of the test requestor / submitter
+          description: |-
+            Name of the JWT requestor.
+            This is the user associated with the JWT that submitted the test.
           schema:
             type: string
           example: MyAutomationJobName
+        - name: user
+          in: query
+          description: |-
+            Name of the test submitter.
+            This can be different to the requestor if the test was submitted via an automation user.
+          schema:
+            type: string
+          example: JoeTester
         - name: from
           in: query
           description: |
@@ -2372,6 +2382,173 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 ##################################################################################
+# Tags API
+##################################################################################
+  /tags:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+      - name: name
+        in: query
+        description: |
+          Filters the query so that only the tag with the given name is returned.
+        required: false
+        schema:
+          type: string
+        examples:
+          single:
+            value: myTag
+    get:
+      operationId: getTags
+      summary: Gets all tags in the system
+      description: |
+        Gets all tags in the system that are stored in the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      responses:
+        '200':
+          description: The list of tags in the system
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GalasaTag'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createTag
+      summary: Creates a new Tag in the system
+      description: |
+        Creates a new tag in the system which is stored in the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreateRequest'
+      responses:
+        '201':
+          description: A new tag was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaTag'
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /tags/{tagId}:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+      - name: tagId
+        in: path
+        description: The Base64 URL encoded name of the tag to retrieve
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getTagByName
+      summary: Gets a specific tag by name
+      description: |
+        Gets a specific tag by name that is stored in the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      responses:
+        '200':
+          description: The tag with the specified name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaTag'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      operationId: setTag
+      summary: Creates or updates a Tag in the system
+      description: |
+        Creates or updates a tag in the system which is stored in the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagSetRequest'
+      responses:
+        '200':
+          description: A new tag was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaTag'
+        '201':
+          description: A new tag was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalasaTag'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteTagByName
+      summary: Deletes a tag by name
+      description: |
+        Deletes a tag by name from the Configuration Property Store (CPS).
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+        - Tags API
+      responses:
+        '204':
+          description: No content response indicating that the given tag has been deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+##################################################################################
 # Bootstrap API
 ##################################################################################
   /bootstrap:
@@ -2829,6 +3006,41 @@ components:
       type: string
       description: The type of a Galasa Secret
       enum: [UsernamePassword, Username, UsernameToken, Token]
+    
+    GalasaTag:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+          enum: [GalasaTag]
+        metadata:
+          type: object
+          properties:
+            id:
+              type: string
+              description: |
+                The ID of the Galasa Tag.
+            name:
+              type: string
+              description: |
+                The name that identifies the Galasa Tag.
+            description:
+              type: string
+              description: |
+                The description to be associated with the Galasa Tag.
+            url:
+              type: string
+              description: |
+                The REST API URL to the Galasa Tag's details endpoint.
+        data:
+          type: object
+          properties:
+            priority:
+              type: integer
+              description: |
+                The priority value associated with the Galasa Tag. Higher values indicate a higher priority.
     APIErrorArray:
       type: array
       description: An array of API Errors relating to the resources that failed to complete as expected
@@ -2854,6 +3066,7 @@ components:
             anyOf:
               - $ref: '#/components/schemas/GalasaProperty'
               - $ref: '#/components/schemas/GalasaSecret'
+              - $ref: '#/components/schemas/GalasaTag'
               - $ref: '#/components/schemas/Stream'
     SecretRequest:
       type: object
@@ -2904,6 +3117,27 @@ components:
               description: |
                 The character encoding scheme that has been applied to the token.
                 Currently, base64 is the only supported encoding scheme
+    TagCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the tag to create
+        description:
+          type: string
+          description: The description to associate with the tag to create
+        priority:
+          type: integer
+          description: The priority of the tag to create
+    TagSetRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          description: The description to associate with the tag to create or update
+        priority:
+          type: integer
+          description: The priority of the tag to create or update
     TestRuns:
       type: object
       properties:
@@ -2942,6 +3176,11 @@ components:
           description: |-
             The name of the user who submitted this test, in that it represents the owner 
             of the Galasa personal access token used by the test submission REST call.
+        user:
+          type: string
+          description: |-
+            The name of the user who submitted this test, in that it represents the actual 
+            person who submitted the test, which may have been through an automation tool or bot.
         stream:
           type: string
         repo:
@@ -2985,6 +3224,13 @@ components:
             taken from the signed JWT token rather than trusting what the REST caller sends
             in this field. 
             This means launching tests attributed to the wrong person are not now possible.
+        user:
+          type: string
+          description: |-
+            This field exists so that users can associate a user ID with any tests that were
+            kicked off by an automation tool using the automation's JWT, which will be set into
+            the requestor field. This means the user can then query and find tests that were
+            launched on their behalf by an automation tool.
         testStream:
           type: string
           description: |-
@@ -3216,7 +3462,13 @@ components:
           description: A uuid created to identify this test run. Useful until this run has been allocated a test name, which is allocated once the test is launched.
         requestor:
           type: string
-          description: The Galasa user who requested this test to be executed.
+          description:  |-
+            The Galasa user associated with the JWT used to submit the test.
+        user:
+          type: string
+          description:  |-
+            The Galasa user who requested this test to be executed.
+            This may or may not be the same as the requestor.
         status:
           type: string
         result:

@@ -173,6 +173,24 @@ function upgrade_ecosystem_installing {
     > $temp_file
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace version in file $temp_file" ; exit 1 ; fi
 
+    # Get the minimum and maximum kube versions from most recent release in the "Supported Kubernetes Versions" table
+    min_kube_version=$(cat $source_path \
+        | grep -E -m 1 "[|] [0-9.]+ [|] [0-9.]+ [|] [0-9.]+ [|]" \
+        | awk '{print $4}'
+    )
+
+    max_kube_version=$(cat $source_path \
+        | grep -E -m 1 "[|] [0-9.]+ [|] [0-9.]+ [|] [0-9.]+ [|]" \
+        | awk '{print $6}'
+    )
+
+    # Now add a new row to the Supported Kubernetes Versions table for this new version based on the min and max kube versions from above
+    cat $source_path \
+    | sed "s/|--------|------|------|/|--------|------|------|\n| $component_version | $min_kube_version | $max_kube_version |/1" \
+    > $temp_file
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace kube versions in file $temp_file" ; exit 1 ; fi
+
+
     cp $temp_file $source_path
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace master version file with the modified one." ; exit 1 ; fi
 

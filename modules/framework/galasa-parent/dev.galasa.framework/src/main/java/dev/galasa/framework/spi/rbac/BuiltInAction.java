@@ -14,6 +14,7 @@ import dev.galasa.framework.internal.rbac.ActionImpl;
 
 public enum BuiltInAction {
     GENERAL_API_ACCESS            (new ActionImpl("GENERAL_API_ACCESS", "General API access", "Able to access the REST API" )),
+    MONITORS_SET                  (new ActionImpl("MONITORS_SET", "Set monitors", "Able to create or edit monitors" )),
     USER_EDIT_OTHER               (new ActionImpl("USER_EDIT_OTHER", "Edit or delete a user other than you", "Edit or delete a user other than you, including role and access tokens")),
     SECRETS_GET_UNREDACTED_VALUES (new ActionImpl("SECRETS_GET_UNREDACTED_VALUES", "Get secret values", "Able to get unredacted secret values")),
     SECRETS_SET                   (new ActionImpl("SECRETS_SET", "Secrets set", "Able to set secrets")),
@@ -21,7 +22,8 @@ public enum BuiltInAction {
     CPS_PROPERTIES_SET            (new ActionImpl("CPS_PROPERTIES_SET", "CPS properties set", "Able to set CPS properties")),
     CPS_PROPERTIES_DELETE         (new ActionImpl("CPS_PROPERTIES_DELETE", "CPS properties delete", "Able to delete CPS properties")),
     RUNS_DELETE_OTHER_USERS       (new ActionImpl("RUNS_DELETE_OTHER_USERS", "Runs delete other users", "Able to delete runs submitted by other users")),
-    TEST_RUN_LAUNCH               (new ActionImpl("TEST_RUN_LAUNCH", "Launch a test run", "Able to launch test runs"));
+    TEST_RUN_LAUNCH               (new ActionImpl("TEST_RUN_LAUNCH", "Launch a test run", "Able to launch test runs")),
+    TEST_RUN_SET_USER             (new ActionImpl("TEST_RUN_SET_USER", "Set a user when submitting test runs", "Able to associate a user that is different to the requestor when submitting test runs"));
 
     private Action action;
     private static List<Action> allActions = Stream.of(values())

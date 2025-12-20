@@ -53,13 +53,14 @@ public class TestRunDetailsRoute extends RasServletTest {
 
 	public String generateExpectedJson (String runId, String runName, String submissionId) {
 
-		RasTestStructure testStructure = new RasTestStructure(runName, null, null, null, "galasa", null, "Passed", null, null, null, Collections.emptyList(), "none", submissionId, new HashSet<String>());
+		RasTestStructure testStructure = new RasTestStructure(runName, null, null, null, "galasa", "galasaTeamMember", null, "Passed", null, null, null, Collections.emptyList(), "none", submissionId, new HashSet<String>());
 		String baseWebUiUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_WEBUI_URL);
 		String baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
 		RasRunResult rasRunResult = new RasRunResult(runId, Collections.emptyList(), testStructure, baseWebUiUrl, baseServletUrl);
 
 		testStructure.setRunName(runName);
 		testStructure.setRequestor("galasa");
+		testStructure.setUser("galasaTeamMember");
 		testStructure.setResult("Passed");
 		testStructure.setGroup("none");
 		testStructure.setMethods(Collections.emptyList());
@@ -284,6 +285,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		TestStructure testStructure = new TestStructure();
 		testStructure.setRunName(runName);
 		testStructure.setRequestor("galasa");
+		testStructure.setUser("galasaTeamMember");
 		testStructure.setResult("Passed");
 		testStructure.setSubmissionId(submissionId);
 
@@ -319,6 +321,7 @@ public class TestRunDetailsRoute extends RasServletTest {
 		TestStructure testStructure = new TestStructure();
 		testStructure.setRunName(runName);
 		testStructure.setRequestor("galasa");
+		testStructure.setUser("galasaTeamMember");
 		testStructure.setResult("Passed");
 		testStructure.setSubmissionId(submissionId);
 		

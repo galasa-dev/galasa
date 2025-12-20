@@ -140,6 +140,11 @@ public class GroupRuns extends ProtectedRoute {
                 jwtRequestor = request.getRequestor();
             }
 
+            String user = request.getUser();
+            if (user == null || user.isEmpty()) {
+                user = jwtRequestor;
+            } 
+
             try {
 
                 String submissionId = UUID.randomUUID().toString();
@@ -147,6 +152,7 @@ public class GroupRuns extends ProtectedRoute {
                 IRun newRun = framework.getFrameworkRuns().submitRun(
                         request.getRequestorType(),
                         jwtRequestor,
+                        user,
                         classNameSplit[0],
                         classNameSplit[1],
                         groupName,

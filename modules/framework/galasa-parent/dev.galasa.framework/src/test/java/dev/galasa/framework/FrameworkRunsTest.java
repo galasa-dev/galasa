@@ -72,6 +72,7 @@ public class FrameworkRunsTest {
         String submissionId = "submission1";
         String runType = "unknown";
         String requestor = "me";
+        String user = "me";
         String bundleName = "mybundle";
         String testName = "mytest";
         String groupName = "my.group";
@@ -98,6 +99,7 @@ public class FrameworkRunsTest {
         IRun run = frameworkRuns.submitRun(
             runType,
             requestor,
+            user,
             bundleName,
             testName,
             groupName,
@@ -124,6 +126,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.OBR)).isEqualTo(obr);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.GROUP)).isEqualTo(groupName);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.REQUESTOR)).isEqualTo(requestor);
+        assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.USER)).isEqualTo(user);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.TEST_BUNDLE)).isEqualTo(bundleName);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.REPOSITORY)).isEqualTo(mavenRepo);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.STREAM)).isEqualTo(stream);
@@ -151,6 +154,7 @@ public class FrameworkRunsTest {
         String submissionId = "submission1";
         String runType = "unknown";
         String requestor = "me";
+        String user = "me";
         String bundleName = "mybundle";
         String testName = "mytest";
         String groupName = "my.group";
@@ -177,6 +181,7 @@ public class FrameworkRunsTest {
         IRun run = frameworkRuns.submitRun(
             runType,
             requestor,
+            user,
             bundleName,
             testName,
             groupName,
@@ -203,6 +208,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.OBR)).isEqualTo(obr);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.GROUP)).isEqualTo(groupName);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.REQUESTOR)).isEqualTo(requestor);
+        assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.USER)).isEqualTo(user);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.TEST_BUNDLE)).isEqualTo(bundleName);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.REPOSITORY)).isEqualTo(mavenRepo);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.STREAM)).isEqualTo(stream);
@@ -232,6 +238,7 @@ public class FrameworkRunsTest {
         String submissionId = "submission1";
         String runType = "unknown";
         String requestor = "me";
+        String user = "me";
         String bundleName = "mybundle";
         String testName = "mytest";
         String groupName = "my.group";
@@ -259,6 +266,7 @@ public class FrameworkRunsTest {
             frameworkRuns.submitRun(
                 runType,
                 requestor,
+                user,
                 bundleName,
                 testName,
                 groupName,
@@ -295,6 +303,7 @@ public class FrameworkRunsTest {
         String submissionId = "submission1";
         String runType = "unknown";
         String requestor = "me";
+        String user = "me";
         String bundleName = "mybundle";
         String groupName = "my.group";
         String mavenRepo = "https://my.maven.repo";
@@ -315,6 +324,7 @@ public class FrameworkRunsTest {
             frameworkRuns.submitRun(
                 runType,
                 requestor,
+                user,
                 bundleName,
                 testName,
                 groupName,
@@ -352,6 +362,7 @@ public class FrameworkRunsTest {
         String submissionId = "submission1";
         String runType = "unknown";
         String requestor = "me";
+        String user = "me";
         String groupName = "my.group";
         String mavenRepo = "https://my.maven.repo";
         String obr = "mvn:my.group/my.group.obr/0.38.0/obr";
@@ -371,6 +382,7 @@ public class FrameworkRunsTest {
             frameworkRuns.submitRun(
                 runType,
                 requestor,
+                user,
                 bundleName,
                 testName,
                 groupName,
@@ -409,6 +421,7 @@ public class FrameworkRunsTest {
         String submissionId = "submission1";
         String runType = "unknown";
         String requestor = "me";
+        String user = "me";
         String groupName = "my.group";
         String mavenRepo = "https://my.maven.repo";
         String obr = "mvn:my.group/my.group.obr/0.38.0/obr";
@@ -426,6 +439,7 @@ public class FrameworkRunsTest {
         IRun run = frameworkRuns.submitRun(
             runType,
             requestor,
+            user,
             bundleName,
             testName,
             groupName,
@@ -464,6 +478,7 @@ public class FrameworkRunsTest {
         String bundleName = "mybundle";
         String testName = "mytest";
         String requestor = "me";
+        String user = "me";
         String groupName = "my.group";
         String mavenRepo = "https://my.maven.repo";
         String obr = "mvn:my.group/my.group.obr/0.38.0/obr";
@@ -481,6 +496,7 @@ public class FrameworkRunsTest {
         IRun run = frameworkRuns.submitRun(
             runType,
             requestor,
+            user,
             bundleName,
             testName,
             groupName,
@@ -519,6 +535,7 @@ public class FrameworkRunsTest {
         String bundleName = "mybundle";
         String testName = "mygherkintest";
         String requestor = "me";
+        String user = "me";
         String groupName = "my.group";
         String mavenRepo = "https://my.maven.repo";
         String obr = "mvn:my.group/my.group.obr/0.38.0/obr";
@@ -536,6 +553,7 @@ public class FrameworkRunsTest {
         IRun run = frameworkRuns.submitRun(
             runType,
             requestor,
+            user,
             bundleName,
             testName,
             groupName,
@@ -566,6 +584,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.OBR)).isEqualTo(obr);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.GROUP)).isEqualTo(groupName);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.REQUESTOR)).isEqualTo(requestor);
+        assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.USER)).isEqualTo(user);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.REPOSITORY)).isEqualTo(mavenRepo);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.STREAM)).isEqualTo(stream);
         assertThat(mockDss.get("run.L1."+DssPropertyKeyRunNameSuffix.LOCAL)).isEqualTo(Boolean.toString(local));
@@ -592,6 +611,7 @@ public class FrameworkRunsTest {
         String bundleName = "mybundle";
         String testName = "mysharedenvtest";
         String requestor = "me";
+        String user = "me";
         String groupName = "my.group";
         String mavenRepo = "https://my.maven.repo";
         String obr = "mvn:my.group/my.group.obr/0.38.0/obr";
@@ -606,6 +626,7 @@ public class FrameworkRunsTest {
         IRun run = frameworkRuns.submitRun(
             runType,
             requestor,
+            user,
             bundleName,
             testName,
             groupName,
@@ -635,6 +656,7 @@ public class FrameworkRunsTest {
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.OBR)).isEqualTo(obr);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.GROUP)).isEqualTo(groupName);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.REQUESTOR)).isEqualTo(requestor);
+        assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.USER)).isEqualTo(user);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.TEST_BUNDLE)).isEqualTo(bundleName);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.REPOSITORY)).isEqualTo(mavenRepo);
         assertThat(mockDss.get("run.SHARED-RUN1."+DssPropertyKeyRunNameSuffix.STREAM)).isEqualTo(stream);
@@ -663,6 +685,7 @@ public class FrameworkRunsTest {
         String bundleName = "mybundle";
         String testName = "mysharedenvtest";
         String requestor = "me";
+        String user = "me";
         String groupName = "my.group";
         String mavenRepo = "https://my.maven.repo";
         String obr = "mvn:my.group/my.group.obr/0.38.0/obr";
@@ -678,6 +701,7 @@ public class FrameworkRunsTest {
             frameworkRuns.submitRun(
                 runType,
                 requestor,
+                user,
                 bundleName,
                 testName,
                 groupName,
@@ -722,6 +746,7 @@ public class FrameworkRunsTest {
         String bundleName = "mybundle";
         String testName = "mysharedenvtest";
         String requestor = "me";
+        String user = "me";
         String groupName = "my.group";
         String mavenRepo = "https://my.maven.repo";
         String obr = "mvn:my.group/my.group.obr/0.38.0/obr";
@@ -736,6 +761,7 @@ public class FrameworkRunsTest {
         IRun run = frameworkRuns.submitRun(
             runType,
             requestor,
+            user,
             bundleName,
             testName,
             groupName,
@@ -785,6 +811,7 @@ public class FrameworkRunsTest {
         String bundleName = "mybundle";
         String testName = "mysharedenvtest";
         String requestor = "me";
+        String user = "me";
         String groupName = "my.group";
         String mavenRepo = "https://my.maven.repo";
         String obr = "mvn:my.group/my.group.obr/0.38.0/obr";
@@ -800,6 +827,7 @@ public class FrameworkRunsTest {
             frameworkRuns.submitRun(
                 runType,
                 requestor,
+                user,
                 bundleName,
                 testName,
                 groupName,
