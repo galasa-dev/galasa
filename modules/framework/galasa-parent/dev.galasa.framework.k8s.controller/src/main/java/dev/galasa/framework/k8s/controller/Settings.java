@@ -55,6 +55,7 @@ public class Settings implements Runnable, ISettings {
     private int               engineCPULimitM             = 1000;
     private String            nodeArch                    = "";
     private String            nodePreferredAffinity       = "";
+    private String            nodeRequiredAffinity        = "";
     private String            nodeTolerations             = "";
 
     // A fail-safe to make sure we never try to re-launch/re-create a pod for a testcase more than 
@@ -215,6 +216,7 @@ public class Settings implements Runnable, ISettings {
 
         this.nodeArch = updateProperty(configMapData, "node_arch", "", this.nodeArch);
         this.nodePreferredAffinity = updateProperty(configMapData, "galasa_node_preferred_affinity", "", this.nodePreferredAffinity);
+        this.nodeRequiredAffinity = updateProperty(configMapData, "galasa_node_required_affinity", "", this.nodeRequiredAffinity);
         this.nodeTolerations = updateProperty(configMapData, "galasa_node_tolerations", "", this.nodeTolerations);
 
         this.encryptionKeysSecretName = updateProperty(configMapData, "encryption_keys_secret_name", "", this.encryptionKeysSecretName);
@@ -346,6 +348,11 @@ public class Settings implements Runnable, ISettings {
 
     public String getNodePreferredAffinity() {
         return this.nodePreferredAffinity;
+    }
+
+    @Override
+    public String getNodeRequiredAffinity() {
+        return this.nodeRequiredAffinity;
     }
 
     public String getNodeTolerations() {

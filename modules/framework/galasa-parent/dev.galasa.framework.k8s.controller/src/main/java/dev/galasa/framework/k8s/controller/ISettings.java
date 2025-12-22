@@ -28,6 +28,7 @@ public interface ISettings {
     public String getNodeArch() ;
 
     public String getNodePreferredAffinity();    
+    public String getNodeRequiredAffinity();    
     public String getNodeTolerations();
 
 

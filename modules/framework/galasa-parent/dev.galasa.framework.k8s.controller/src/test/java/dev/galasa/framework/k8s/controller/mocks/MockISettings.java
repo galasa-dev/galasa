@@ -11,6 +11,8 @@ public class MockISettings implements ISettings {
     public int allocatedTestRunTimeoutMins = 30;
     public static final String ENGINE_LABEL = "myEngineLabel";
     private int maxEngines = 5;
+    private String nodeRequiredAffinity = "MyNodeRequiredAffinity=MyNodeRequiredAffinityValue:23";
+    private String nodePreferredAffinity = "MyNodePreferredAffinity=MyNodePreferredAffinityValue:23";
 
     @Override
     public String getEngineLabel() {
@@ -34,7 +36,20 @@ public class MockISettings implements ISettings {
 
     @Override
     public String getNodePreferredAffinity() {
-        return "MyNodePreferredAffinity=MyNodePreferredAffinityValue:23";
+        return nodePreferredAffinity;
+    }
+
+    public void setNodePreferredAffinity(String nodePreferredAffinity) {
+        this.nodePreferredAffinity = nodePreferredAffinity;
+    }
+
+    @Override
+    public String getNodeRequiredAffinity() {
+        return nodeRequiredAffinity;
+    }
+
+    public void setNodeRequiredAffinity(String nodeRequiredAffinity) {
+        this.nodeRequiredAffinity = nodeRequiredAffinity;
     }
 
     @Override
