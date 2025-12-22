@@ -59,7 +59,7 @@ func CancelRun(
 
 func cancelRun(runName string,
 	runId string,
-	runStatusUpdateRequest *galasaapi.UpdateRunStatusRequest,
+	runStatusUpdateRequest *galasaapi.UpdateRunRequest,
 	commsClient api.APICommsClient,
 ) error {
 	var err error
@@ -76,7 +76,7 @@ func cancelRun(runName string,
 			var context context.Context = nil
 
 			_, resp, err = apiClient.ResultArchiveStoreAPIApi.PutRasRunStatusById(context, runId).
-				UpdateRunStatusRequest(*runStatusUpdateRequest).
+				UpdateRunRequest(*runStatusUpdateRequest).
 				ClientApiVersion(restApiVersion).Execute()
 
 			if resp != nil {
@@ -175,8 +175,8 @@ func cancelByRunName(runName string, timeService spi.TimeService, commsClient ap
 
 	if err == nil {
 
-		updateRunStatusRequest := createUpdateRunStatusRequest(CANCEL_STATUS, CANCEL_RESULT)
-		err = cancelRun(runName, runId, updateRunStatusRequest, commsClient)
+		UpdateRunRequest := createUpdateRunRequest(CANCEL_STATUS, CANCEL_RESULT)
+		err = cancelRun(runName, runId, UpdateRunRequest, commsClient)
 
 		if err == nil {
 			err = writeConsoleMessage(console, *galasaErrors.GALASA_INFO_RUNS_CANCEL_SUCCESS, runName)
