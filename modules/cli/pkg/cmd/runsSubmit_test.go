@@ -633,6 +633,10 @@ func TestRunsSubmitUserFlagMultipleUsersReturnsError(t *testing.T) {
 
 	// Then...
 	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "unknown command \"anothertestuser\" for \"galasactl runs submit\"")
+
+	// Check what the user saw is reasonable.
+	checkOutput("", "Error: unknown command \"anothertestuser\" for \"galasactl runs submit\"", factory, t)
 }
 
 func TestRunsSubmitUserFlagNoUserProvidedReturnsError(t *testing.T) {
@@ -647,6 +651,10 @@ func TestRunsSubmitUserFlagNoUserProvidedReturnsError(t *testing.T) {
 
 	// Then...
 	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "flag needs an argument: --user")
+
+	// Check what the user saw is reasonable.
+	checkOutput("", "Error: flag needs an argument: --user", factory, t)
 }
 
 func TestRunsSubmitAllFlagsReturnsOk(t *testing.T) {
