@@ -93,7 +93,7 @@ func (launcher *RemoteLauncher) SubmitTestRun(
 
 	// If a `--user` was not specified, the API will default
 	// it to the requestor, so no need to set it here.
-	if len(user) != 0 {
+	if user != "" {
 		log.Printf("RemoteLauncher.SubmitTestRun : attempting to set the run user to %s."+
 			" User will default to the authenticated requestor if the authenticated requestor does not have admin rights.", user)
 		testRunRequest.SetUser(user)
