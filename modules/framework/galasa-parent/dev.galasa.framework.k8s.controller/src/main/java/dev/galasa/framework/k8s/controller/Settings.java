@@ -216,6 +216,7 @@ public class Settings implements Runnable, ISettings {
 
         this.nodeArch = updateProperty(configMapData, "node_arch", "", this.nodeArch);
         this.nodePreferredAffinity = updateProperty(configMapData, "galasa_node_preferred_affinity", "", this.nodePreferredAffinity);
+        this.nodeRequiredAffinity = updateProperty(configMapData, "galasa_node_required_affinity", "", this.nodeRequiredAffinity);
         this.nodeTolerations = updateProperty(configMapData, "galasa_node_tolerations", "", this.nodeTolerations);
 
         this.encryptionKeysSecretName = updateProperty(configMapData, "encryption_keys_secret_name", "", this.encryptionKeysSecretName);
