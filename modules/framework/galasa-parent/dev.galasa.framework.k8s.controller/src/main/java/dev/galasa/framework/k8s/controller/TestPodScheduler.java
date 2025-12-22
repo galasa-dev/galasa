@@ -290,20 +290,22 @@ public class TestPodScheduler implements Runnable {
         String nodePreferredAffinity = this.settings.getNodePreferredAffinity();
         String nodeRequiredAffinity = this.settings.getNodeRequiredAffinity();
 
-        if (nodePreferredAffinity != null || nodeRequiredAffinity != null) {
+        V1NodeAffinity nodeAffinity = new V1NodeAffinity();
+
+        if (nodeRequiredAffinity != null && !nodeRequiredAffinity.isEmpty()) {
+            addNodeRequiredAffinity(nodeRequiredAffinity, nodeAffinity);
+        }
+
+        if (nodePreferredAffinity != null && !nodePreferredAffinity.isEmpty()) {
+            addNodePreferredAffinity(nodePreferredAffinity, nodeAffinity);
+        }
+
+        if (!nodeAffinity.getPreferredDuringSchedulingIgnoredDuringExecution().isEmpty() ||
+            nodeAffinity.getRequiredDuringSchedulingIgnoredDuringExecution() != null
+        ) {
             V1Affinity affinity = new V1Affinity();
-            podSpec.setAffinity(affinity);
-
-            V1NodeAffinity nodeAffinity = new V1NodeAffinity();
             affinity.setNodeAffinity(nodeAffinity);
-
-            if (nodeRequiredAffinity != null && !nodeRequiredAffinity.isEmpty()) {
-                addNodeRequiredAffinity(nodeRequiredAffinity, nodeAffinity);
-            }
-
-            if (nodePreferredAffinity != null && !nodePreferredAffinity.isEmpty()) {
-                addNodePreferredAffinity(nodePreferredAffinity, nodeAffinity);
-            }
+            podSpec.setAffinity(affinity);
         }
     }
 
