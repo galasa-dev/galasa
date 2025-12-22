@@ -20,6 +20,7 @@ type RunsSubmitCmdValues struct {
 	Overrides                     []string
 	Trace                         bool
 	Requestor                     string
+	User                          string
 	RequestType                   string
 	ThrottleFileName              string
 	PortfolioFileName             string
