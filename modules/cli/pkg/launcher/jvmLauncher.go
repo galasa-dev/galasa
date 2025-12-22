@@ -194,6 +194,7 @@ func (launcher *JvmLauncher) SubmitTestRun(
 	className string,
 	requestType string,
 	requestor string,
+	user string,
 	stream string,
 	obrFromPortfolio string,
 	isTraceEnabled bool,
@@ -659,7 +660,6 @@ func getCommandSyntax(
 
 	return cmd, args, err
 }
-
 
 // User input is expected of the form osgiBundleName/qualifiedJavaClassName
 // So split the two pieces apart to help validate them.

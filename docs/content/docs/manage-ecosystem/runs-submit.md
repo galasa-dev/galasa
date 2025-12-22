@@ -103,3 +103,36 @@ galasactl runs submit `
     --override zos.default.cluster=MYPLEX `
     --log -
 ```
+
+
+### Overriding the test run 'user'
+
+When submitting runs to a Galasa ecosystem with `runs submit`, the run `requestor` will be set to the user who owns the personal access token that was used to authenticate to the Galasa ecosystem. If you wish to associate a different user with this batch of runs as the run `user`, you can use the `--user` flag. This is useful if you submit runs to a Galasa ecosystem in an automation tool or workflow and the `requestor` is a functional ID or bot account in the tool, but you wish to specify the actual user who triggered the automation, so they can query their runs later with the `runs get` command.
+
+Only users with the `admin` or `owner` role can use the `--user` flag in their `runs submit` command, or the `user` will default to the authenticated requestor. The `user` specified in the command must be an existing system user, i.e., they must have access to the Galasa service and be a `requestor` of some existing test runs in the service. They must also have permission to submit test runs, i.e., have the `tester` role or more in the system.
+
+The following example assumes that you have created a `my_portfolio.yaml` portfolio by using the [runs prepare](./runs-prepare.md) command. The command submits tests from the `my_portfolio.yaml` portfolio, and specifies the following settings.
+
+```shell
+galasactl runs submit \
+    --bootstrap http://example.com:30960/bootstrap \
+    --portfolio my_portfolio.yaml \
+    --poll 5 \
+    --progress 1 \
+    --throttle 5 \
+    --log - \
+    --user my-tester-user
+```
+
+On Windows (Powershell):
+
+```powershell
+galasactl runs submit `
+    --bootstrap http://example.com:30960/bootstrap `
+    --portfolio my_portfolio.yaml `
+    --poll 5 `
+    --progress 1 `
+    --throttle 5 `
+    --log - \
+    --user my-tester-user
+```
