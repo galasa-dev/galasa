@@ -30,9 +30,9 @@ public enum ServletErrorMessage {
     GAL5048_UNABLE_TO_CANCEL_RUN                      (5048, "E: Error occurred when trying to cancel the run ''{0}''. Report the problem to your Galasa Ecosystem owner."),
     GAL5049_UNABLE_TO_RESET_COMPLETED_RUN             (5049, "E: Error occurred when trying to reset the run ''{0}''. The run has already completed."),
     GAL5050_UNABLE_TO_CANCEL_COMPLETED_RUN            (5050, "E: Error occurred when trying to cancel the run ''{0}''. The run has already completed."),
-    GAL5109_INVALID_TAGS_AND_STATUS_UPDATE_REQUEST    (5109, "E: Error occurred. Updating both the fields ''tags'' and ''status'' is invalid. The ''tags'' value should only be changed on a test that has finished."),
     GAL5107_INVALID_TAGS_AND_RESULT_UPDATE_REQUEST    (5107, "E: Error occurred. Updating both the fields ''tags'' and ''result'' is invalid. The ''tags'' value should only be changed on a test that has finished."),
     GAL5108_CANNOT_UPDATE_TAGS_ON_RUNNING_TEST        (5108, "E: Error occurred when trying to alter the tags on the run ''{0}''. Ensure the run has finished running before attempting to alter the tags."),
+    GAL5109_INVALID_TAGS_AND_STATUS_UPDATE_REQUEST    (5109, "E: Error occurred. Updating both the fields ''tags'' and ''status'' is invalid. The ''tags'' value should only be changed on a test that has finished."),
     GAL5430_GROUP_RUNS_ALREADY_FINISHED               (5430, "I: When trying to cancel the run group ''{0}'', no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store."),
     GAL5431_INVALID_CANCEL_UPDATE_REQUEST             (5431, "E: Error occurred. The field ''result'' in the request body is invalid. The ''result'' value ''{0}'' supplied is not supported. Supported values are: ''cancelled''."),
 
