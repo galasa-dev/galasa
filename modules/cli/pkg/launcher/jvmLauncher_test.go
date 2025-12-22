@@ -240,6 +240,7 @@ func TestCanLaunchLocalJvmTest(t *testing.T) {
 		"galasa.dev.example.banking.account/galasa.dev.example.banking.account.TestAccount",
 		"myRequestType-UnitTest",
 		"myRequestor",
+		"myRequestor",
 		"unitTestStream",
 		"mvn:myGroup/myArtifact/myClassifier/obr",
 		isTraceEnabled,
@@ -300,6 +301,7 @@ func TestCanGetRunGroupStatus(t *testing.T) {
 		"myGroup",
 		"galasa.dev.example.banking.account/galasa.dev.example.banking.account.TestAccount",
 		"myRequestType-UnitTest",
+		"myRequestor",
 		"myRequestor",
 		"unitTestStream",
 		"mvn:myGroup/myArtifact/myClassifier/obr",
@@ -439,6 +441,7 @@ func TestBadlyFormedObrFromProfileInfoCausesError(t *testing.T) {
 		"galasa.dev.example.banking.account/galasa.dev.example.banking.account.TestAccount",
 		"myRequestType-UnitTest",
 		"myRequestor",
+		"myRequestor",
 		"unitTestStream",
 		"notmaven://group/artifact/version/classifier",
 		isTraceEnabled,
@@ -485,6 +488,7 @@ func TestNoObrsFromParameterOrProfileCausesError(t *testing.T) {
 		"myGroup",
 		"galasa.dev.example.banking.account/galasa.dev.example.banking.account.TestAccount",
 		"myRequestType-UnitTest",
+		"myRequestor",
 		"myRequestor",
 		"unitTestStream",
 		"", // No Obr from the profile record.
@@ -1406,6 +1410,7 @@ func TestCanLaunchLocalJvmGherkinTest(t *testing.T) {
 		"", // No Java Class as this is a gherkin test
 		"", // No RequestType as this is a gherkin test
 		"myRequestor",
+		"myRequestor",
 		"", // No Stream as this is a gherkin test
 		"", // No OBR as this is a gherkin test
 		isTraceEnabled,
@@ -1455,6 +1460,7 @@ func TestBadGherkinURLSuffixReturnsError(t *testing.T) {
 		"", // No Java Class as this is a gherkin test
 		"", // No RequestType as this is a gherkin test
 		"myRequestor",
+		"myRequestor",
 		"", // No Stream as this is a gherkin test
 		"", // No OBR as this is a gherkin test
 		isTraceEnabled,
@@ -1498,6 +1504,7 @@ func TestBadGherkinURLPrefixReutrnsError(t *testing.T) {
 		"myGroup",
 		"", // No Java Class as this is a gherkin test
 		"", // No RequestType as this is a gherkin test
+		"myRequestor",
 		"myRequestor",
 		"", // No Stream as this is a gherkin test
 		"", // No OBR as this is a gherkin test
@@ -1690,6 +1697,7 @@ func TestGetRunsByIdReturnsOk(t *testing.T) {
 		"myGroup",
 		"galasa.dev.examples.banking.account/galasa.dev.examples.banking.account.TestAccount",
 		"CLI",
+		"unknown",
 		"unknown",
 		"unitTestStream",
 		"mvn:myGroup/myArtifact/myClassifier/obr",

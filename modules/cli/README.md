@@ -263,6 +263,8 @@ Note: The `--log -` directs logging information to the stderr console.
 Omit this option if you do not want to see logging, or specify `--log myFileName.txt` if you wish 
 to capture log information in a file.
 
+When submitting runs to a Galasa ecosystem with `runs submit`, the run `requestor` will be set to the user who owns the personal access token that was used to authenticate to the Galasa ecosystem. If you wish to associate a different user with this batch of runs as the run `user`, you can use the `--user` flag. This is useful if you submit runs to a Galasa ecosystem in an automation tool or workflow and the `requestor` is a functional ID or bot account in the tool, but you wish to specify the actual user who triggered the automation, so they can query their runs later with the `runs get` command.
+
 ### Examples
 
 Getting help:-

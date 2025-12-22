@@ -86,6 +86,10 @@ func (cmd *RunsSubmitCommand) createRunsSubmitCobraCmd(factory spi.Factory,
 
 	runsSubmitCmd.Flags().StringVarP(&cmd.values.PortfolioFileName, "portfolio", "p", "", "portfolio containing the tests to run")
 
+	runsSubmitCmd.Flags().StringVarP(&cmd.values.User, "user", "u", "", "an optional user to associate with the test runs that is different from the requestor"+
+		" (the owner of the personal access token that is authenticated to the system)."+
+		" The user must be an existing system user and must have permission to launch tests.")
+
 	runsSubmitCmd.PersistentFlags().StringVar(&cmd.values.ReportYamlFilename, "reportyaml", "", "yaml file to record the final results in")
 	runsSubmitCmd.PersistentFlags().StringVar(&cmd.values.ReportJsonFilename, "reportjson", "", "json file to record the final results in")
 	runsSubmitCmd.PersistentFlags().StringVar(&cmd.values.ReportJunitFilename, "reportjunit", "", "junit xml file to record the final results in")

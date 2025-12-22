@@ -37,6 +37,7 @@ galasactl runs submit [flags]
       --throttle int               how many test runs can be submitted in parallel, 0 or less will disable throttling. 1 causes tests to be run sequentially. (default 3)
       --throttlefile string        a file where the current throttle is stored. Periodically the throttle value is read from the file used. Someone with edit access to the file can change it which dynamically takes effect. Long-running large portfolios can be throttled back to nothing (paused) using this mechanism (if throttle is set to 0). And they can be resumed (un-paused) if the value is set back. This facility can allow the tests to not show a failure when the system under test is taken out of service for maintainence.Optional. If not specified, no throttle file is used.
       --trace                      Trace to be enabled on the test runs
+  -u, --user string                an optional user to associate with the test runs that is different from the requestor (the owner of the personal access token that is authenticated to the system). The user must be an existing system user and must have permission to launch tests.
 ```
 
 ### Options inherited from parent commands

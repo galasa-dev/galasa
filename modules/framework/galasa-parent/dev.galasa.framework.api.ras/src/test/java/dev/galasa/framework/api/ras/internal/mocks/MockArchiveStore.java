@@ -17,7 +17,11 @@ import javax.validation.constraints.NotNull;
 public class MockArchiveStore implements IResultArchiveStore {
 
     private List<IResultArchiveStoreDirectoryService> directoryServices;
+    private int updateTestStructureCount = 0;
 
+    public int getUpdateTestStructureCount() {
+        return this.updateTestStructureCount;
+    }
 
     public MockArchiveStore(List<IResultArchiveStoreDirectoryService> directoryServices) {
         this.directoryServices = directoryServices;
@@ -70,7 +74,7 @@ public class MockArchiveStore implements IResultArchiveStore {
     @Override
     public void updateTestStructure(@NotNull String runId, @NotNull TestStructure testStructure)
             throws ResultArchiveStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'updateTestStructure'");
+        this.updateTestStructureCount++;
     }
 
     @Override
