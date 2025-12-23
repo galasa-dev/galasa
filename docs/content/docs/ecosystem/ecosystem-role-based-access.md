@@ -58,9 +58,11 @@ This table shows the list of built-in roles:
 | Role name | Description | Actions someone with this role can perform |
 |-----------|-------------|--------------------------------------------|
 | deactivated | A user who has no permissions at all, and is able to do nothing on the Galasa service | none |
-| tester | A user who writes and runs tests, looks at the test results and diagnoses errors in the system under test | GENERAL_API_ACCESS |
+| viewer | A user who can query and read test results from the CLI or webui | GENERAL_API_ACCESS |
+| tester | A user who writes and runs tests, looks at the test results and diagnoses errors in the system under test | GENERAL_API_ACCESS, TEST_RUN_LAUNCH and USER_EDIT_OTHER |
 | admin     | A Galasa service administrator. Able to do any operation supported by the Galasa service | all |
 | owner       | The owner of the Galasa service. Such users have all the rights of an administrator, but nobody can delete their id or change their role without changing the kubernetes configuration | all |
+
 
 
 
