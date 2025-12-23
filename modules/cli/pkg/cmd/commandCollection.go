@@ -55,6 +55,7 @@ const (
 	COMMAND_NAME_RUNS_SUBMIT              = "runs submit"
 	COMMAND_NAME_RUNS_SUBMIT_LOCAL        = "runs submit local"
 	COMMAND_NAME_RUNS_RESET               = "runs reset"
+	COMMAND_NAME_RUNS_UPDATE              = "runs update"
 	COMMAND_NAME_RUNS_CANCEL              = "runs cancel"
 	COMMAND_NAME_RUNS_CLEANUP             = "runs cleanup"
 	COMMAND_NAME_RUNS_CLEANUP_LOCAL       = "runs cleanup local"
