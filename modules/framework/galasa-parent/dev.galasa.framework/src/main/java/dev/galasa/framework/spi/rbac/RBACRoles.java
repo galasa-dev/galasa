@@ -16,9 +16,10 @@ public enum RBACRoles {
 
     DEACTIVATED(new RoleImpl("deactivated", "0", "User has no access", new ArrayList<>(), true)),
     TESTER(new RoleImpl("tester", "1", "Test developer and runner",
-            List.of(TEST_RUN_LAUNCH.getAction().getId(), USER_EDIT_OTHER.getAction().getId(), GENERAL_API_ACCESS.getAction().getId()), true)),
+    List.of(TEST_RUN_LAUNCH.getAction().getId(), USER_EDIT_OTHER.getAction().getId(), GENERAL_API_ACCESS.getAction().getId()), true)),
     ADMIN(new RoleImpl("admin", "2", "Administrator access", getAllActionIds(), true)),
-    OWNER(new RoleImpl("owner", "3", "Galasa service owner", getAllActionIds(), false));
+    OWNER(new RoleImpl("owner", "3", "Galasa service owner", getAllActionIds(), false)),
+    VIEWER(new RoleImpl("viewer", "4", "User can view Galasa test results", List.of(GENERAL_API_ACCESS.getAction().getId()), true));
 
     private final Role role;
 
