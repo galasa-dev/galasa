@@ -1,6 +1,6 @@
 # Contributing
 
-Welcome to Galasa! To learn more about contributing to this repository, please read this Contributor's Guide.
+Welcome to Galasa! To learn more about contributing to [this repository](#how-to-make-a-contribution-to-the-main-galasa-repository), or [Galasa's webui](#how-to-make-a-contribution-to-galasas-webui), please read this Contributor's Guide.
 
 ## How can you contribute?
 
@@ -19,7 +19,8 @@ Welcome to Galasa! To learn more about contributing to this repository, please r
 ### Contributing code
 
 - Ensure your contribution aligns with the project's roadmap.
-- Check out open issues with the label `good first issue`.
+- Check out open issues on [our Kanban](https://github.com/orgs/galasa-dev/projects/3), especially ones with the label `good first issue`.
+- Other common labels include `webui`, `cli` or `REST API`. Typically, stories without one of these three tags will imply it's a change needing to be made to the main galasa repository.
 
 ### Abide by the contributions legal guidance
 To ship, all developer contributions must abide by the legal guidance detailed in the [Developer Certificate of Origin](./CONTRIBUTIONS.md)
@@ -28,7 +29,7 @@ To ship, all developer contributions must abide by the legal guidance detailed i
 
 - Fix typos, improve examples, or enhance explanations.
 
-## How to make a contribution?
+## How to make a contribution to the main Galasa Repository
 
 ### Sign your commits
 
@@ -40,7 +41,7 @@ This allows us to prove who made each change to the codebase.
 Each PR build has "Developer Certificate of Origin" [DCO](./CONTRIBUTIONS.md) checking turned on, so nothing will get
 delivered without signed commits.
 
-If you forgot to sign one or all of your commits, you can squash your PR changes and force-push your branch.
+If you forgot to sign one or all of your commits, you can squash your PR changes, sign them, then force-push your branch.
 
 ### Set up a fork of a repository
 
@@ -230,3 +231,11 @@ git commit -s -S -m "Add a meaningful commit message"
 git push origin issue-number/contribution-description
 ```
 6. Open a pull request from your forked repository branch to the main branch of the 'galasa repository', and explain your changes. Refer to any stories which are relevent and explain why the change was made, what the change is, and anything else which reviewers would find helpful to understand the context of the change.
+
+## How to make a contribution to Galasa's webui
+
+1. Similarly to the main Galasa repository, commits [must be signed](#sign-your-commits).
+
+2. If you do not have access to your own Galasa service, either production or Minikube, development will be aided by access to one. To get access please [sign up](https://github.com/orgs/galasa-dev/teams/galasa-service1-users) to be a part of the galasa-service1-users team on Github. On that page there should be a request to join button, which will send a request to one of the maintainers, so please reach out on one of the us otherwise your request will be denied. For example, this could be done in the comments of a ticket you would like to do on [our Kanban](https://github.com/orgs/galasa-dev/projects/3). Next, go to https://galasa-service1.galasa.dev/ which will get you to authenticate via Dex, then you'll be added to the system with the 'viewer' role. 
+
+3. After you've confirmed you have access to a Galasa service, please refer back to the [webui's readme.md](https://github.com/galasa-dev/webui/blob/main/README.md) to setup environment variables such as `GALASA_DEV_TOKEN`, `GALASA_API_SERVER_URL` and `NODE_EXTRA_CA_CERTS` or `NODE_USE_SYSTEM_CA`, then run the project as chosen.
