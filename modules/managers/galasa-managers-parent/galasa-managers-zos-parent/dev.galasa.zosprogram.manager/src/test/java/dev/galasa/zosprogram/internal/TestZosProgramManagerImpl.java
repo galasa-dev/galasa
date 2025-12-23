@@ -7,6 +7,8 @@ package dev.galasa.zosprogram.internal;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.Collections;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,12 +16,17 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.junit.Assert;
+
 import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+
 //import org.powermock.api.mockito.PowerMockito;
 //import org.powermock.core.classloader.annotations.PrepareForTest;
 //import org.powermock.modules.junit4.PowerMockRunner;
@@ -47,6 +54,7 @@ import dev.galasa.zosfile.ZosFileManagerException;
 import dev.galasa.zosfile.spi.IZosFileSpi;
 import dev.galasa.zosprogram.IZosProgram;
 import dev.galasa.zosprogram.ZosProgram.Language;
+import dev.galasa.zosprogram.ZosProgram;
 import dev.galasa.zosprogram.ZosProgramException;
 import dev.galasa.zosprogram.ZosProgramManagerException;
 import dev.galasa.zosprogram.internal.properties.CICSDatasetPrefix;
@@ -54,29 +62,24 @@ import dev.galasa.zosprogram.internal.properties.LanguageEnvironmentDatasetPrefi
 import dev.galasa.zosprogram.internal.properties.ProgramLanguageCompileSyslibs;
 import dev.galasa.zosprogram.internal.properties.ProgramLanguageDatasetPrefix;
 import dev.galasa.zosprogram.internal.properties.ProgramLanguageLinkSyslibs;
+import dev.galasa.zosprogram.internal.ZosProgramManagerImpl;
 import dev.galasa.zosprogram.internal.properties.ZosProgramPropertiesSingleton;
 
 //@RunWith(PowerMockRunner.class)
 //@PrepareForTest({ProgramLanguageDatasetPrefix.class, LanguageEnvironmentDatasetPrefix.class, ProgramLanguageCompileSyslibs.class, ProgramLanguageLinkSyslibs.class, CICSDatasetPrefix.class})
 public class TestZosProgramManagerImpl {
-//    
-//    private ZosProgramManagerImpl zosProgramManager;
-//    
-//    private ZosProgramManagerImpl zosProgramManagerSpy;
-//    
-//    private ZosProgramPropertiesSingleton zosProgramZosProgramPropertiesSingleton;
+    
+    private ZosProgramManagerImpl zosProgramManager;
+    private ZosProgramManagerImpl zosProgramManagerSpy;
+    private ZosProgramPropertiesSingleton zosProgramZosProgramPropertiesSingleton;
 //
-//    private List<IManager> allManagers;
+    private List<IManager> allManagers;
 //    
-//    private List<IManager> activeManagers;
-//    
-//    @Mock
-//    private IFramework frameworkMock;
-//    
-//    @Mock
-//    private IResultArchiveStore resultArchiveStoreMock;
-//    
-//    @Mock
+    private List<IManager> activeManagers;
+    @Mock
+    private IFramework frameworkMock;
+    @Mock
+    private IResultArchiveStore resultArchiveStoreMock;
 //    public IManager managerMock;
 //    
 //    @Mock
@@ -87,29 +90,29 @@ public class TestZosProgramManagerImpl {
 //    
 //    @Mock
 //    private IZosFileSpi zosFileSpiMock;
-//    
-//    @Mock
-//    private ArtifactManagerImpl artifactManagerMock;
-//    
-//    @Mock
-//    private IBundleResources bundleResourcesMock;
-//    
-//    @Mock
-//    private IZosBatch zosBatchMock;
+    @Mock
+    private ArtifactManagerImpl artifactManagerMock;
+    @Mock
+    private IBundleResources bundleResourcesMock;
+    @Mock
+    private IZosBatch zosBatchMock;
 //
 //    @Mock
 //    private IZosBatchJob zosBatchJobMock;
-//
-//    @Mock
-//    private IZosImage zosImageMock;
-//
+    @Mock
+    private IZosFileSpi zosFileSpiMock;
+
+    @Mock
+    private ZosManagerImpl zosManagerMock;
+
+    @Mock
+    private IZosImage zosImageMock;
 //    @Mock
 //    private ZosProgramImpl zosProgramMock;
 //
-//    @Mock
-//    private IZosDataset loadlibMock;
-//
-//    private static final String IMAGE = "image";
+    @Mock
+    private IZosDataset loadlibMock;
+    private static final String IMAGE = "image";
 //
 //    private static final String NAME = "NAME";
 //
@@ -358,4 +361,151 @@ public class TestZosProgramManagerImpl {
 //            return null;
 //        }        
 //    }
+
+    // Setup
+    static class Dummy {
+        @ZosProgram(
+            name = "myprog",             // lower-case; should be throw error
+            location = "source",
+            imageTag = "A",              
+            language = Language.COBOL,
+            cics = false,
+            loadlib = "",
+            compile = true
+        )
+        public IZosProgram myProgField;
+
+        @ZosProgram(
+            name = "MYPROG01",           // exactly 8 characters
+            location = "source",
+            imageTag = "primary",        // will become "PRIMARY"
+            language = Language.COBOL,
+            cics = false,
+            loadlib = "",
+            compile = true
+        )
+        public IZosProgram eightCharField;
+
+        @ZosProgram(
+            name = "MYPROG",             // <= 8 characters
+            location = "source",
+            imageTag = "A",
+            language = Language.COBOL,
+            cics = false,
+            loadlib = "",
+            compile = true
+        )
+        public IZosProgram validField;
+    }
+
+
+    @Before
+    public void setup() throws Exception {
+        // Using Mockito instead of PowerMockito for simpler, faster unit tests (just a design choice)
+        MockitoAnnotations.openMocks(this);
+
+        zosProgramZosProgramPropertiesSingleton = new ZosProgramPropertiesSingleton();
+        zosProgramZosProgramPropertiesSingleton.activate();
+
+        zosProgramManager = new ZosProgramManagerImpl();
+        zosProgramManagerSpy = spy(zosProgramManager);
+
+        when(artifactManagerMock.getBundleResources(any())).thenReturn(bundleResourcesMock);
+        when(zosImageMock.getImageID()).thenReturn(IMAGE);
+        when(frameworkMock.getResultArchiveStore()).thenReturn(resultArchiveStoreMock);
+        when(resultArchiveStoreMock.getStoredArtifactsRoot()).thenReturn(new File("/").toPath());
+        when(zosManagerMock.getImageForTag(any())).thenReturn(zosImageMock);
+
+        doReturn(frameworkMock).when(zosProgramManagerSpy).getFramework();
+        doReturn(zosManagerMock).when(zosProgramManagerSpy).getZosManager();
+        doReturn(zosFileSpiMock).when(zosProgramManagerSpy).getZosFile();
+        doReturn(artifactManagerMock).when(zosProgramManagerSpy).getArtifactManager();
+
+        allManagers = new ArrayList<>();
+        activeManagers = new ArrayList<>();
+    }
+
+
+
+    @After
+    public void teardown() throws Exception {
+        // Reset the singleton if it holds static state
+        Field f = ZosProgramPropertiesSingleton.class.getDeclaredField("singletonInstance");
+        f.setAccessible(true);
+        f.set(null, null);
+    }
+
+    // Tests
+
+    
+    @Test
+    public void testCapitalisation_withRealAnnotatedField_throwsWhenLowercase() throws Exception {
+        Field realField = Dummy.class.getDeclaredField("myProgField");
+
+        ZosProgramManagerException ex = assertThrows(
+            ZosProgramManagerException.class,
+            () -> zosProgramManagerSpy.generateZosProgram(realField, Collections.emptyList())
+        );
+
+        //optional check of error message content
+        assertTrue(
+            "Expected error message to indicate non-capitalized program name",
+            ex.getMessage() != null && ex.getMessage().contains("not capitalized")
+        );
+
+    }
+
+
+    @Test
+    public void testValidLength_withRealAnnotatedField() throws Exception {
+        Field realField = Dummy.class.getDeclaredField("validField");
+        IZosProgram program = zosProgramManagerSpy.generateZosProgram(realField, Collections.emptyList());
+
+        assertNotNull(program);
+        assertEquals("MYPROG", program.getName()); 
+    }
+
+    @Test
+    public void testNameExactlyEightCharsIsValid_withRealAnnotatedField() throws Exception {
+        Field realField = Dummy.class.getDeclaredField("eightCharField");
+        IZosProgram program = zosProgramManagerSpy.generateZosProgram(realField, Collections.emptyList());
+
+        assertNotNull(program);
+        assertEquals("MYPROG01", program.getName()); 
+
+    }
+
+    @Test
+    public void testInvalidLengthThrowsException_withMockedAnnotation() throws Exception {
+
+        ZosProgramManagerImpl manager = spy(new ZosProgramManagerImpl());
+
+        Field mockField = mock(Field.class);
+        when(mockField.getName()).thenReturn("tooLongField");
+
+        ZosProgram annotation = mock(ZosProgram.class);
+        when(mockField.getAnnotation(ZosProgram.class)).thenReturn(annotation);
+        when(annotation.name()).thenReturn("TOOLONGNAME"); // > 8 chars
+        when(annotation.location()).thenReturn("source");
+        when(annotation.imageTag()).thenReturn("A");
+        when(annotation.language()).thenReturn(Language.COBOL);
+        when(annotation.cics()).thenReturn(false);
+        when(annotation.loadlib()).thenReturn("");
+        when(annotation.compile()).thenReturn(true);
+
+        // Sanity checks
+        ZosProgram resolved = mockField.getAnnotation(ZosProgram.class);
+        assertNotNull("Expected field.getAnnotation(ZosProgram.class) to return a non-null annotation", resolved);
+        assertEquals("TOOLONGNAME", resolved.name());
+        assertTrue("Precondition: name should be longer than 8 characters", resolved.name().length() > 8);
+
+        assertThrows(
+            ZosProgramManagerException.class,
+            () -> manager.generateZosProgram(mockField, Collections.emptyList())
+        );
+    }
+
+
+   
+    
 }
