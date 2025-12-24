@@ -670,7 +670,7 @@ func getCommandSyntax(
 			args = append(args, "--test")
 			args = append(args, testLocation.OSGiBundleName+"/"+testLocation.QualifiedJavaClassName)
 
-			// --method ${TEST_METHOD}
+			// --methods ${TEST_METHOD}
 			for _, method := range testMethods {
 				args = append(args, "--methods")
 				args = append(args, method)
