@@ -198,6 +198,22 @@ func TestRunsSubmitLocalGalasaVersionFlagReturnsOk(t *testing.T) {
 	assert.Contains(t, cmd.Values().(*RunsSubmitLocalCmdValues).runsSubmitLocalCmdParams.TargetGalasaVersion, "0.1.0")
 }
 
+func TestRunsSubmitLocalWithGherkinAndMethodsFlagsErrors(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	commandCollection, cmd := setupTestCommandCollection(COMMAND_NAME_RUNS_SUBMIT_LOCAL, factory, t)
+
+	var args []string = []string{"runs", "submit", "local", "--gherkin", "my.gherkin.feature", "--methods", "mymethod"}
+
+	// When...
+	err := commandCollection.Execute(args)
+
+	// Then...
+	assert.NotNil(t, err)
+	assert.ErrorContains(t, err, "if any flags in the group [methods gherkin] are set none of the others can be")
+	assert.Contains(t, cmd.Values().(*RunsSubmitLocalCmdValues).runsSubmitLocalCmdParams.TestMethods, "mymethod")
+}
+
 func TestRunsSubmitLocalLocalMavenFlagReturnsOk(t *testing.T) {
 	// Given...
 	factory := utils.NewMockFactory()

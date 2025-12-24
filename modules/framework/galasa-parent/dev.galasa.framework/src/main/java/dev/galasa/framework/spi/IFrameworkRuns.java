@@ -40,7 +40,8 @@ public interface IFrameworkRuns {
     @NotNull
     IRun submitRun(String type, String requestor, String user, String bundleName, String testName, String groupName,
             String mavenRepository, String obr, String stream, boolean local, boolean trace, Set<String> tags, Properties overrides,
-            SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language, String submissionId) throws FrameworkException;
+            SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language, String submissionId,
+            List<String> requestedTestMethods) throws FrameworkException;
 
     boolean delete(String runname) throws DynamicStatusStoreException;
 

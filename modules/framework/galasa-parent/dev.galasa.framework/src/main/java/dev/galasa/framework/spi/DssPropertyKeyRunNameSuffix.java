@@ -42,6 +42,7 @@ public enum DssPropertyKeyRunNameSuffix{
     TEST("test"), 
     TEST_BUNDLE("testbundle"),
     TEST_CLASS("testclass"),
+    TEST_METHODS("testmethods"),
     TRACE("trace"),
     WAIT_UNTIL("wait.until"),
     ;

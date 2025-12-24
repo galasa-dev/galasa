@@ -74,7 +74,7 @@ public class TestMethodWrapper {
                         + TestClassWrapper.LOG_ASTERS);
                 logger.info("Ignoring " + executionMethod.getName() + " due to " + ignoredResult.getReason());
 
-                markTestAndLinkedMethodsIgnored(ignoredResult, testClassWrapper, managers);
+                markTestAndLinkedMethodsIgnored(ignoredResult);
             } else {
 
                 runBeforeMethods(managers, testClassObject, testClassWrapper);
@@ -192,7 +192,7 @@ public class TestMethodWrapper {
         return this.testMethod.getName();
     }
 
-    private void markTestAndLinkedMethodsIgnored(Result ignoredResult, TestClassWrapper testClassWrapper, ITestRunManagers managers) {
+    void markTestAndLinkedMethodsIgnored(Result ignoredResult) {
         // Mark test method as ignored
         testMethod.setResult(ignoredResult);
         this.result = ignoredResult;

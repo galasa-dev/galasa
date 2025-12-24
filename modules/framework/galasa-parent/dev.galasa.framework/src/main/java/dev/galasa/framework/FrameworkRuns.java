@@ -190,7 +190,7 @@ public class FrameworkRuns implements IFrameworkRuns {
     public @NotNull IRun submitRun(String runType, String requestor, String user, String bundleName,
             @NotNull String testName, String groupName, String mavenRepository, String obr, String stream,
             boolean local, boolean trace, Set<String> tags, Properties overrides, SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName,
-            String language, String submissionId) throws FrameworkException {
+            String language, String submissionId, List<String> requestedTestMethods) throws FrameworkException {
         SubmitRunRequest runRequest = new SubmitRunRequest(
             runType,
             requestor,
@@ -208,7 +208,8 @@ public class FrameworkRuns implements IFrameworkRuns {
             overrides,
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
-            language
+            language,
+            requestedTestMethods
         );
         return submitRun(runRequest);
     }
@@ -232,6 +233,7 @@ public class FrameworkRuns implements IFrameworkRuns {
         boolean trace = runRequest.isTraceEnabled();
         Set<String> tags = runRequest.getTags();
         String runId = generateRasRunId(runName);
+        List<String> requestedTestMethods = runRequest.getRequestedTestMethods();
 
         // *** Set up the otherRunProperties that will go with the Run number
         HashMap<String, String> otherRunProperties = new HashMap<>();
@@ -266,6 +268,11 @@ public class FrameworkRuns implements IFrameworkRuns {
         if (tags != null) {
             String tagsAsString = gson.toJson(tags);
             otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.TAGS) ,tagsAsString);
+        }
+
+        if (requestedTestMethods != null) {
+            String requestedTestMethodsAsString = gson.toJson(requestedTestMethods);
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.TEST_METHODS), requestedTestMethodsAsString);
         }
 
         otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.REQUESTOR), requestor);

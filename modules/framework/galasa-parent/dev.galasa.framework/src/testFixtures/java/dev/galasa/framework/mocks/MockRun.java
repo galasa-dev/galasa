@@ -40,6 +40,7 @@ public class MockRun implements IRun {
     private String runId;
     private List<RunRasAction> rasActions = new ArrayList<>();
     private Set<String> tags = new HashSet<String>();
+    private List<String> requestedTestMethods = new ArrayList<>();
 
     public MockRun(
         String testBundleName,
@@ -307,6 +308,15 @@ public class MockRun implements IRun {
         this.allocatedTimeout = allocatedTimeout;
     }
 
+    @Override
+    public List<String> getRequestedTestMethods() {
+        return this.requestedTestMethods;
+    }
+
+    public void setRequestedTestMethods(List<String> requestedTestMethods) {
+        this.requestedTestMethods = requestedTestMethods;
+    }
+
     // ------------- un-implemented methods follow ----------------
 
     @Override
@@ -335,5 +345,4 @@ public class MockRun implements IRun {
     public Run getSerializedRun() {
         throw new UnsupportedOperationException("Unimplemented method 'getSerializedRun'");
     }
-
 }

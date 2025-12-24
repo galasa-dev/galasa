@@ -20,6 +20,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.gson.reflect.TypeToken;
+
 import dev.galasa.api.run.Run;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
@@ -60,6 +62,7 @@ public class RunImpl implements IRun {
     private final Instant allocatedTimeout;
     private List<RunRasAction> rasActions = new ArrayList<>();
     private final Set<String> tags;
+    private final List<String> requestedTestMethods;
 
     private static final Log logger = LogFactory.getLog(RunImpl.class);
     private static final GalasaGson gson = new GalasaGson();
@@ -98,6 +101,7 @@ public class RunImpl implements IRun {
         tags = getTagsFromDss(runProperties, prefix);
         interruptedAt = getInterruptedAtTimeFromDss(runProperties, prefix);
         allocatedTimeout = getAllocatedTimeoutFromDss(runProperties, prefix);
+        requestedTestMethods = getRequestedTestMethodsFromDss(runProperties, prefix);
 
         String encodedRasActions = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.RAS_ACTIONS);
         if (encodedRasActions != null) {
@@ -184,6 +188,23 @@ public class RunImpl implements IRun {
         }
         logger.info("test tags retrieved from dss: "+tags.toString());
         return tags;
+    }
+
+    private List<String> getRequestedTestMethodsFromDss(Map<String, String> runProperties, String prefix) {
+        List<String> requestedTestMethods = new ArrayList<>();
+        String requestedTestMethodsAsString = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.TEST_METHODS);
+
+        if (requestedTestMethodsAsString != null && !requestedTestMethodsAsString.isBlank()) {
+            try {
+                TypeToken<List<String>> listTypeToken = new TypeToken<List<String>>(){};
+                List<String> testMethodsFromJson = gson.fromJson(requestedTestMethodsAsString, listTypeToken.getType());
+                requestedTestMethods.addAll(testMethodsFromJson);
+            } catch (Exception e) {
+                // Don't fail the test run, fall back to running all tests
+                logger.error("Failed to de-serialise test methods to run from dss. ", e);
+            }
+        }
+        return requestedTestMethods;
     }
 
     private List<RunRasAction> getRasActionsFromEncodedString(String encodedRasActions) {
@@ -337,6 +358,12 @@ public class RunImpl implements IRun {
     public List<RunRasAction> getRasActions() {
         return this.rasActions;
     }
+
+    @Override
+    public List<String> getRequestedTestMethods() {
+        return this.requestedTestMethods;
+    }
+
     public String toString() {
         ByteArrayOutputStream buffArray = new ByteArrayOutputStream();
         PrintWriter buff = new PrintWriter(buffArray);

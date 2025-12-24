@@ -57,6 +57,7 @@ public class Launcher {
     private static final String EXCLUDES_MONITOR_PATTERN_OPTION  = "excludes-monitor-pattern";
 
     private static final String     OBR_OPTION                = "obr";
+    private static final String     METHODS_OPTION            = "methods";
     private static final String     BOOTSTRAP_OPTION          = "bootstrap";
     private static final String     OVERRIDES_OPTION          = "overrides";
     private static final String     RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
@@ -118,6 +119,7 @@ public class Launcher {
 
     private List<String>            includeMonitorGlobPatterns = new ArrayList<>();
     private List<String>            excludeMonitorGlobPatterns = new ArrayList<>();
+    private List<String>            testMethodNames            = new ArrayList<>();
 
     public Environment              env;
 
@@ -179,6 +181,13 @@ public class Launcher {
                     logger.debug("Test Bundle: " + testBundleName);
                     logger.debug("Test Class: " + testClassName);
                     overridesProperties.setProperty("framework.run.testbundleclass", this.testName);
+                    
+                    // Add methods if specified
+                    if (!testMethodNames.isEmpty()) {
+                        String methodsString = String.join(",", testMethodNames);
+                        logger.debug("Test Methods: " + methodsString);
+                        overridesProperties.setProperty("framework.run.testmethods", methodsString);
+                    }
                 } else if (runName != null) {
                     logger.debug("Test Run: " + runName);
                     overridesProperties.setProperty("framework.run.name", this.runName);
@@ -298,6 +307,11 @@ public class Launcher {
                 "To use multiple patterns, this flag can be supplied multiple times or by providing a comma-separated list of patterns. "+
                 "If omitted, no resource monitors will be excluded."
         );
+        options.addOption(null, METHODS_OPTION, true, "Optional. Used alongside " + TEST_OPTION + ". " +
+                "A list of test method names to run. "+
+                "To use multiple methods, this flag can be supplied multiple times or by providing a comma-separated list of method names. "+
+                "If omitted, all test methods in the test class will be run."
+        );
         
 
         CommandLineParser parser = new DefaultParser();
@@ -338,6 +352,7 @@ public class Launcher {
         checkForLocalMaven(commandLine);
         checkForRemoteMaven(commandLine);
         checkForResourceMonitorIncludesAndExcludes(commandLine);
+        checkForTestMethods(commandLine);
 
         isTestRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION) || commandLine.hasOption(GHERKIN_OPTION);
         isResourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
@@ -567,6 +582,22 @@ public class Launcher {
         if (commandLine.hasOption(EXCLUDES_MONITOR_PATTERN_OPTION)) {
             String[] excludesPatterns = commandLine.getOptionValues(EXCLUDES_MONITOR_PATTERN_OPTION);
             this.excludeMonitorGlobPatterns = Arrays.asList(excludesPatterns);
+        }
+    }
+
+    private void checkForTestMethods(CommandLine commandLine) {
+        if (commandLine.hasOption(METHODS_OPTION)) {
+            String[] methodsOptions = commandLine.getOptionValues(METHODS_OPTION);
+            for (String methodsOption : methodsOptions) {
+                // Split by comma to support comma-separated values
+                String[] methods = methodsOption.split(",");
+                for (String method : methods) {
+                    String trimmedMethod = method.trim();
+                    if (!trimmedMethod.isEmpty()) {
+                        this.testMethodNames.add(trimmedMethod);
+                    }
+                }
+            }
         }
     }
 

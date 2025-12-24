@@ -89,11 +89,12 @@ public class MockFrameworkRuns implements IFrameworkRuns {
     @Override
     public @NotNull IRun submitRun(String type, String requestor, String user, String bundleName, String testName, String groupName,
             String mavenRepository, String obr, String stream, boolean local, boolean trace, Set<String> tags,Properties overrides,
-            SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language, String submissionId)
-            throws FrameworkException {
-            if (stream.equals("null")){
-                throw new FrameworkException(language);
-            }
+            SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language, String submissionId,
+            List<String> requestedTestMethods
+    ) throws FrameworkException {
+        if (stream.equals("null")){
+            throw new FrameworkException(language);
+        }
 
         throw new FrameworkException("Method not implemented in mock class.");
     }

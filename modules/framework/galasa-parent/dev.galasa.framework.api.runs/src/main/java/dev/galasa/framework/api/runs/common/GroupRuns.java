@@ -7,6 +7,7 @@ package dev.galasa.framework.api.runs.common;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +28,6 @@ import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
-import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
@@ -45,14 +45,12 @@ public class GroupRuns extends ProtectedRoute {
     private IResultArchiveStore rasStore;
     private final GalasaGson gson = new GalasaGson();
     private final ITimeService timeService;
-    private final Environment env;
 
     public GroupRuns(ResponseBuilder responseBuilder, String path, IFramework framework, ITimeService timeService) throws RBACException {
         super(responseBuilder, path, framework.getRBACService());
         this.framework = framework;
         this.rasStore = framework.getResultArchiveStore();
         this.timeService = timeService;
-        this.env = new SystemEnvironment();
     }
 
     protected List<IRun> getRuns(String groupName) throws InternalServletException {
@@ -148,6 +146,7 @@ public class GroupRuns extends ProtectedRoute {
             try {
 
                 String submissionId = UUID.randomUUID().toString();
+                List<String> requestedTestMethods = new ArrayList<>();
 
                 IRun newRun = framework.getFrameworkRuns().submitRun(
                         request.getRequestorType(),
@@ -166,7 +165,9 @@ public class GroupRuns extends ProtectedRoute {
                         senvPhase,
                         request.getSharedEnvironmentRunName(),
                         "java",
-                        submissionId);
+                        submissionId,
+                        requestedTestMethods
+                    );
                         
                 Run serializedRun = setwebUiAndRestApiUrls(newRun, env);
 

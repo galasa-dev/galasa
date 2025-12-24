@@ -5,7 +5,9 @@
  */
 package dev.galasa.framework.beans;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -36,6 +38,7 @@ public class SubmitRunRequest {
     private String language = "java";
     private String bundleTest;
     private String gherkinTest;
+    private List<String> requestedTestMethods = new ArrayList<>();
 
     public SubmitRunRequest(
         String runType,
@@ -54,7 +57,8 @@ public class SubmitRunRequest {
         Properties overrides,
         SharedEnvironmentPhase sharedEnvironmentPhase,
         String sharedEnvironmentRunName,
-        String language
+        String language,
+        List<String> requestedTestMethods
     ) throws FrameworkException {
         setTestName(testName);
 
@@ -72,6 +76,11 @@ public class SubmitRunRequest {
         if (tags!=null) {
             this.tags.addAll(tags);
         }
+
+        if (requestedTestMethods != null) {
+            this.requestedTestMethods.addAll(requestedTestMethods);
+        }
+
         this.overrides = overrides;
         this.sharedEnvironmentPhase = sharedEnvironmentPhase;
         this.sharedEnvironmentRunName = sharedEnvironmentRunName;
@@ -231,5 +240,9 @@ public class SubmitRunRequest {
 
     public Set<String> getTags() {
         return this.tags ;
+    }
+
+    public List<String> getRequestedTestMethods() {
+        return this.requestedTestMethods;
     }
 }

@@ -223,10 +223,19 @@ public class TestClassWrapper {
      * @param managers
      * @param dss 
      * @param runName 
+     * @param testMethodNamesToRun
      * 
      * @throws TestRunException
      */
-    public void runMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
+    public void runMethods(
+        @NotNull ITestRunManagers managers,
+        IDynamicStatusStoreService dss,
+        String runName,
+        List<String> testMethodNamesToRun
+    ) throws TestRunException {
+
+        // Get the filtered list of test methods to run
+        List<TestMethodWrapper> testMethodsToRun = getTestMethodsToRun(testMethodNamesToRun);
 
         logger.info(LOG_STARTING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** Start of test class "
                 + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
@@ -253,7 +262,7 @@ public class TestClassWrapper {
             TestRunException originalEx = null ;
             try {
                 try {
-                    runAllMethods(managers, dss, runName);
+                    runAllMethods(managers, dss, runName, testMethodsToRun);
                 } catch( TestRunException ex) {
                     originalEx = ex ;
                 }
@@ -292,6 +301,27 @@ public class TestClassWrapper {
 
     }
 
+    private List<TestMethodWrapper> getTestMethodsToRun(List<String> testMethodNames) {
+        List<TestMethodWrapper> testMethodsToRun = new ArrayList<>();
+
+        if (testMethodNames == null || testMethodNames.isEmpty()) {
+            testMethodsToRun = this.testMethods;
+        } else {
+            // Filter test methods to only include those with matching names
+            // This must be case-sensitive as Java method names are case-sensitive
+            for (TestMethodWrapper testMethod : this.testMethods) {
+                if (testMethodNames.contains(testMethod.getName())) {
+                    testMethodsToRun.add(testMethod);
+                }
+            }
+        }
+
+        if (testMethodsToRun.isEmpty()) {
+            logger.warn("No test methods matching the specified method names were found");
+        }
+        return testMethodsToRun;
+    }
+
     private void logEndTestLogLine() {
         logger.info(LOG_ENDING + LOG_START_LINE + LOG_ASTERS + LOG_START_LINE + "*** " + getResult().getName()
                 + " - Test class " + testClass.getName() + LOG_START_LINE + LOG_ASTERS);
@@ -306,7 +336,7 @@ public class TestClassWrapper {
         this.testStructure.setResult(getResult().getName());
     }
 
-    private void runAllMethods(ITestRunManagers managers, IDynamicStatusStoreService dss, String runName ) throws TestRunException {
+    private void runAllMethods(ITestRunManagers managers, IDynamicStatusStoreService dss, String runName, List<TestMethodWrapper> testMethodsToRun) throws TestRunException {
 
         runBeforeClassMethods(managers);
 
@@ -319,7 +349,7 @@ public class TestClassWrapper {
                 // the result is not a full stop (i.e. a failed or env failed result).
                 if (getResult() == null || !getResult().isFullStop()) {
                     // Run @Test methods
-                    runTestMethods(managers, dss, runName);
+                    runTestMethods(managers, dss, runName, testMethodsToRun);
                 }
             } catch( TestRunException ex ) {
                 // Save the original exception, so it can be re-thrown later.
@@ -370,12 +400,13 @@ public class TestClassWrapper {
      * @param runName
      * @throws TestRunException
      */
-    protected void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
+    protected void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName, List<TestMethodWrapper> testMethodsToRun) throws TestRunException {
         try {
             dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_TOTAL, Integer.toString(this.testMethods.size()));
 
             Set<String> testMethodResultNamesSoFar = new HashSet<>();
             int actualMethod = 0;
+
             for (TestMethodWrapper testMethod : this.testMethods) {
 
                 // Check to see if the run has been cancelled...
@@ -384,17 +415,24 @@ public class TestClassWrapper {
                     break;
                 } 
 
-                actualMethod++;
-                dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_CURRENT, Integer.toString(actualMethod));
-                dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_NAME, testMethod.getName());
-                // Run @Test method
-                testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure, this);
-                // Setting the result so far after every @Test 
-                // method happens inside the testMethod class.
-                testMethodResultNamesSoFar.add(testMethod.getResult().getName());
-                if (testMethod.fullStop()) {
-                    break;
+                // Check to see if the test method is in the list of test methods to run
+                if (testMethodsToRun.contains(testMethod)) {
+                    actualMethod++;
+                    dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_CURRENT, Integer.toString(actualMethod));
+                    dss.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.METHOD_NAME, testMethod.getName());
+                    // Run @Test method
+                    testMethod.invoke(managers, this.testClassObject, this.continueOnTestFailure, this);
+                    // Setting the result so far after every @Test 
+                    // method happens inside the testMethod class.
+                    testMethodResultNamesSoFar.add(testMethod.getResult().getName());
+                    if (testMethod.fullStop()) {
+                        break;
+                    }
+                } else {
+                    // The test method is not in the list of test methods to run, so mark it as ignored
+                    testMethod.markTestAndLinkedMethodsIgnored(Result.ignore("This method was not requested to be run"));
                 }
+
             }
 
             // If all of the test methods were ignored, then 'ignored' will be the only result recorded,

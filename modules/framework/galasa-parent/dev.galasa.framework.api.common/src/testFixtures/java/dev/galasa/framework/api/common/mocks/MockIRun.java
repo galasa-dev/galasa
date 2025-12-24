@@ -258,4 +258,9 @@ public class MockIRun implements IRun {
     public Instant getAllocatedTimeout() {
         throw new UnsupportedOperationException("Unimplemented method 'getAllocatedTimeout'");
     }
+
+    @Override
+    public List<String> getRequestedTestMethods() {
+        throw new UnsupportedOperationException("Unimplemented method 'getRequestedTestMethods'");
+    }
 }

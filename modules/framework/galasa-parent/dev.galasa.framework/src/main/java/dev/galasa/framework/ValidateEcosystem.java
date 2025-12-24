@@ -6,6 +6,7 @@
 package dev.galasa.framework;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -33,7 +34,8 @@ public class ValidateEcosystem {
 
     private Environment env;
 
-    private static final Set<String> NULL_TAGS = null ;
+    private static final Set<String> NULL_TAGS    = null;
+    private static final List<String> NULL_METHODS = null;
 
     public ValidateEcosystem() {
         this(new SystemEnvironment());
@@ -143,7 +145,8 @@ public class ValidateEcosystem {
                 null, 
                 null, 
                 null,
-                submissionId);
+                submissionId,
+                NULL_METHODS);
         
         logger.info("Test CoreManagerIVT submitted as run " + testRun.getName());
 

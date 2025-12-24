@@ -82,6 +82,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = List.of("testMethod1", "testMethod2", "testMethod3");
 
         Properties overrides = new Properties();
         String override1Key = "override1";
@@ -113,16 +114,19 @@ public class FrameworkRunsTest {
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
             language,
-            submissionId
+            submissionId,
+            requestedTestMethods
         );
 
         // Then...
         assertThat(run).isNotNull();
         assertThat(run.getName()).isEqualTo("U1");
         assertThat(run.getTest()).isEqualTo(bundleName + "/" + testName);
+        assertThat(run.getRequestedTestMethods()).containsExactlyElementsOf(requestedTestMethods);
 
         // Check that the DSS has been populated with the correct run-related properties
         assertThat(mockDss.get("request.prefix.U.lastused")).isEqualTo("1");
+        assertThat(mockDss.get("run.U1.testmethods")).isEqualTo(gson.toJson(requestedTestMethods));
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.OBR)).isEqualTo(obr);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.GROUP)).isEqualTo(groupName);
         assertThat(mockDss.get("run.U1."+DssPropertyKeyRunNameSuffix.REQUESTOR)).isEqualTo(requestor);
@@ -164,6 +168,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
         String override1Key = "override1";
@@ -195,7 +200,8 @@ public class FrameworkRunsTest {
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
             language,
-            submissionId
+            submissionId,
+            requestedTestMethods
         );
 
         // Then...
@@ -248,6 +254,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
         String override1Key = "override1";
@@ -280,7 +287,8 @@ public class FrameworkRunsTest {
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
                 language,
-                submissionId
+                submissionId,
+                requestedTestMethods
             );
         }, FrameworkException.class);
 
@@ -312,6 +320,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
 
@@ -338,7 +347,8 @@ public class FrameworkRunsTest {
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
                 language,
-                submissionId
+                submissionId,
+                requestedTestMethods
             );
         }, FrameworkException.class);
 
@@ -370,6 +380,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
 
@@ -396,7 +407,8 @@ public class FrameworkRunsTest {
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
                 language,
-                submissionId
+                submissionId,
+                requestedTestMethods
             );
         }, FrameworkException.class);
 
@@ -429,6 +441,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
 
@@ -453,7 +466,8 @@ public class FrameworkRunsTest {
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
             language,
-            submissionId
+            submissionId,
+            requestedTestMethods
         );
 
         // Then...
@@ -486,6 +500,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
 
@@ -510,7 +525,8 @@ public class FrameworkRunsTest {
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
             language,
-            submissionId
+            submissionId,
+            requestedTestMethods
         );
 
         // Then...
@@ -543,6 +559,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
 
@@ -567,7 +584,8 @@ public class FrameworkRunsTest {
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
             language,
-            submissionId
+            submissionId,
+            requestedTestMethods
         );
 
         // Then...
@@ -619,6 +637,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
 
@@ -640,7 +659,8 @@ public class FrameworkRunsTest {
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
             language,
-            submissionId
+            submissionId,
+            requestedTestMethods
         );
 
         // Then...
@@ -693,6 +713,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
 
@@ -715,7 +736,8 @@ public class FrameworkRunsTest {
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
                 language,
-                submissionId
+                submissionId,
+                requestedTestMethods
             );
         }, FrameworkException.class);
 
@@ -754,6 +776,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
 
@@ -775,7 +798,8 @@ public class FrameworkRunsTest {
             sharedEnvironmentPhase,
             sharedEnvironmentRunName,
             language,
-            submissionId
+            submissionId,
+            requestedTestMethods
         );
 
         // Then...
@@ -819,6 +843,7 @@ public class FrameworkRunsTest {
         boolean local = true;
         boolean trace = true;
         Set<String> tags = null ;
+        List<String> requestedTestMethods = null;
 
         Properties overrides = new Properties();
 
@@ -841,7 +866,8 @@ public class FrameworkRunsTest {
                 sharedEnvironmentPhase,
                 sharedEnvironmentRunName,
                 language,
-                submissionId
+                submissionId,
+                requestedTestMethods
             );
         }, FrameworkException.class);
 
