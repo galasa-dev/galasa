@@ -114,7 +114,7 @@ public class ZosTSOCommandManagerImpl extends AbstractManager implements IZosTSO
     /*
      * (non-Javadoc)
      * 
-     * @see io.ejat.framework.spi.IManager#areYouProvisionalDependentOn(io.ejat.framework.spi.IManager)
+     * @see dev.galasa.framework.spi.IManager#areYouProvisionalDependentOn(dev.galasa.framework.spi.IManager)
      */
     @Override
     public boolean areYouProvisionalDependentOn(@NotNull IManager otherManager) {
