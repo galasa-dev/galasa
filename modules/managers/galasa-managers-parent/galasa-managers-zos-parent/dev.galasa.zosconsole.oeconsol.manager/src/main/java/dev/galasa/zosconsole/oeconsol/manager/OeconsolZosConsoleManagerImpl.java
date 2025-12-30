@@ -124,8 +124,7 @@ public class OeconsolZosConsoleManagerImpl extends AbstractManager implements IZ
      * (non-Javadoc)
      * 
      * @see
-     * io.ejat.framework.spi.IManager#areYouProvisionalDependentOn(io.ejat.framework
-     * .spi.IManager)
+     * dev.galasa.framework.spi.IManager#areYouProvisionalDependentOn(dev.galasa.framework.spi.IManager)
      */
     @Override
     public boolean areYouProvisionalDependentOn(@NotNull IManager otherManager) {
