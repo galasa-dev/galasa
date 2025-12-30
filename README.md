@@ -29,7 +29,7 @@ When setting up galasa locally, you can either use [(1) our development containe
 ### (2) Manual set up
 
 Some tools will need to be installed in order to build this code locally.
-See our install instructions [here](./developer-docs/install-pre-req-tools.md)
+See our install instructions [here](./developer-docs/install-pre-req-tools.md).
 
 
 ### To build...
