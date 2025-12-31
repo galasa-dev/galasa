@@ -242,5 +242,3 @@ func TestRunsUpdateMultipleNameFlagsOverridesToLast(t *testing.T) {
 
 	assert.Equal(t, "C4091", cmd.Values().(*RunsUpdateCmdValues).runName)
 }
-
-// Made with Bob

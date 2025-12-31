@@ -646,5 +646,3 @@ func TestRunsUpdateRemoveAllTagsSucceeds(t *testing.T) {
 	// Then...
 	assert.Nil(t, err)
 }
-
-// Made with Bob
