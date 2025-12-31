@@ -272,6 +272,8 @@ The `galasactl` tool can generate the following errors:
 - GAL1270E: Failed to get tags from the Galasa service. Unexpected http status code {} received from the server. Error details from the server are: '{}'
 - GAL1271E: Failed to get tags from the Galasa service. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
 - GAL1272E: Failed to get tags from the Galasa service. Sending the put request to the Galasa service failed. Cause is {}
+- GAL1273E: Invalid update request. The tag '{}' cannot be added and deleted in the same command.
+- GAL1274E: Invalid update request. The flag '{}' must be used when attempting to update a run.
 - GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'
 - GAL2501I: Downloaded {} artifacts to folder '{}'
 

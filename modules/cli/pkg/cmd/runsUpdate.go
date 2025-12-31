@@ -99,36 +99,41 @@ func (cmd *RunsUpdateCommand) executeRunsUpdate(
 	// Operations on the file system will all be relative to the current folder.
 	fileSystem := factory.GetFileSystem()
 
-	// Get the ability to query environment variables.
-	env := factory.GetEnvironment()
-
-	var galasaHome spi.GalasaHome
-	galasaHome, err = utils.NewGalasaHome(fileSystem, env, commsFlagSetValues.CmdParamGalasaHomePath)
+	err = utils.CaptureLog(fileSystem, commsFlagSetValues.logFileName)
 	if err == nil {
+		commsFlagSetValues.isCapturingLogs = true
 
-		var commsClient api.APICommsClient
-		commsClient, err = api.NewAPICommsClient(
-			commsFlagSetValues.bootstrap,
-			commsFlagSetValues.maxRetries,
-			commsFlagSetValues.retryBackoffSeconds,
-			factory,
-			galasaHome,
-		)
+		// Get the ability to query environment variables.
+		env := factory.GetEnvironment()
 
+		var galasaHome spi.GalasaHome
+		galasaHome, err = utils.NewGalasaHome(fileSystem, env, commsFlagSetValues.CmdParamGalasaHomePath)
 		if err == nil {
 
-			var console = factory.GetStdOutConsole()
-			timeService := factory.GetTimeService()
-
-			// Call to process the command in a unit-testable way.
-			err = runs.RunsUpdate(
-				cmd.values.runName,
-				cmd.values.addTags,
-				cmd.values.removeTags,
-				console,
-				commsClient,
-				timeService,
+			var commsClient api.APICommsClient
+			commsClient, err = api.NewAPICommsClient(
+				commsFlagSetValues.bootstrap,
+				commsFlagSetValues.maxRetries,
+				commsFlagSetValues.retryBackoffSeconds,
+				factory,
+				galasaHome,
 			)
+
+			if err == nil {
+
+				var console = factory.GetStdOutConsole()
+				timeService := factory.GetTimeService()
+
+				// Call to process the command in a unit-testable way.
+				err = runs.RunsUpdate(
+					cmd.values.runName,
+					cmd.values.addTags,
+					cmd.values.removeTags,
+					console,
+					commsClient,
+					timeService,
+				)
+			}
 		}
 	}
 

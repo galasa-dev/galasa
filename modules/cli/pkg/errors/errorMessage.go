@@ -469,7 +469,7 @@ var (
 	GALASA_ERROR_DELETE_TAG_SERVER_REPORTED_ERROR    = NewMessageType("GAL1253E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1253, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_DELETE_TAG_EXPLANATION_NOT_JSON     = NewMessageType("GAL1254E: Failed to delete a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1254, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_DELETE_TAG_REQUEST_FAILED           = NewMessageType("GAL1255E: Failed to delete a tag named '%s'. Failed to send a request to the Galasa service. Cause is %v", 1255, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_DELETE_TAG_INVALID_NAME             = NewMessageType("GAL1256E: Invalid name field provided. The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1256, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_DELETE_TAG_INVALID_NAME             = NewMessageType("GAL1256E: Invalid tag name provided. The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1256, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_TAG_NOT_FOUND                       = NewMessageType("GAL1257E: No such tag named '%v' exists within the Galasa service.", 1257, STACK_TRACE_NOT_WANTED)
 
 	// Tags set errors
