@@ -81,7 +81,7 @@ function SubmitLocalSimpleGherkinTest {
 
     gherkin_feature_filename="simple.feature"
 
-    feature_file_path="$ORIGINAL_DIR/temp/${gherkin_feature_filename}"
+    feature_file_path="$BASEDIR/temp/${gherkin_feature_filename}"
 
     cat << EOF > $feature_file_path 
 Feature: GherkinSubmitTest
@@ -95,9 +95,9 @@ Feature: GherkinSubmitTest
 EOF
     success "OK"
 
-    log_output_file=$ORIGINAL_DIR/temp/$gherkin_feature_filename.log
+    log_output_file=$BASEDIR/temp/$gherkin_feature_filename.log
 
-    cmd="$ORIGINAL_DIR/bin/${binary} runs submit local \
+    cmd="$BASEDIR/bin/${binary} runs submit local \
     --remoteMaven https://development.galasa.dev/main/maven-repo/obr \
     --gherkin file://$feature_file_path \
     --log $log_output_file"
@@ -134,9 +134,9 @@ function SubmitTestWhichUsesACPSVariable {
 
     gherkin_feature_filename="scenario-cps-prop-use.feature"
 
-    feature_file_path="$ORIGINAL_DIR/temp/${gherkin_feature_filename}"
+    feature_file_path="$BASEDIR/temp/${gherkin_feature_filename}"
 
-    echo "test.fruit.name=peach" > $ORIGINAL_DIR/temp/home/cps.properties
+    echo "test.fruit.name=peach" > $BASEDIR/temp/home/cps.properties
 
     cat << EOF > $feature_file_path 
 Feature: GherkinSubmitTest
@@ -146,9 +146,9 @@ Feature: GherkinSubmitTest
 EOF
     success "OK"
 
-    log_output_file=$ORIGINAL_DIR/temp/$gherkin_feature_filename.log
+    log_output_file=$BASEDIR/temp/$gherkin_feature_filename.log
 
-    cmd="$ORIGINAL_DIR/bin/${binary} runs submit local \
+    cmd="$BASEDIR/bin/${binary} runs submit local \
     --remoteMaven https://development.galasa.dev/main/maven-repo/obr \
     --gherkin file://$feature_file_path \
     --log $log_output_file"
@@ -181,7 +181,7 @@ function SubmitLocalGherkinScenarioOutlineTest {
 
     gherkin_feature_filename="scenario-outline.feature"
 
-    feature_file_path="$ORIGINAL_DIR/temp/${gherkin_feature_filename}"
+    feature_file_path="$BASEDIR/temp/${gherkin_feature_filename}"
 
     cat << EOF > $feature_file_path 
 Feature: GherkinSubmitTest
@@ -200,9 +200,9 @@ Feature: GherkinSubmitTest
 EOF
     success "OK"
 
-    log_output_file=$ORIGINAL_DIR/temp/$gherkin_feature_filename.log
+    log_output_file=$BASEDIR/temp/$gherkin_feature_filename.log
 
-    cmd="$ORIGINAL_DIR/bin/${binary} runs submit local \
+    cmd="$BASEDIR/bin/${binary} runs submit local \
     --remoteMaven https://development.galasa.dev/main/maven-repo/obr \
     --gherkin file://$feature_file_path \
     --log $log_output_file"
@@ -237,7 +237,7 @@ EOF
 function SubmittingBadPrefixLocalGherkinTest {
     h1 "Submitting bad prefix gherkin feature"
 
-    cmd="$ORIGINAL_DIR/bin/${binary} runs submit local \
+    cmd="$BASEDIR/bin/${binary} runs submit local \
     --remoteMaven https://development.galasa.dev/main/maven-repo/obr \
     --gherkin $input_file \
     --log -"
@@ -258,7 +258,7 @@ function SubmittingBadPrefixLocalGherkinTest {
 function SubmittingBadSuffixLocalGherkinTest {
     h1 "Submitting bad suffix gherkin feature"
 
-    cmd="$ORIGINAL_DIR/bin/${binary} runs submit local \
+    cmd="$BASEDIR/bin/${binary} runs submit local \
     --remoteMaven https://development.galasa.dev/main/maven-repo/obr \
     --gherkin file:///gherkin \
     --log -"
