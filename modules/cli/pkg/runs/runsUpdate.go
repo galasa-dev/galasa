@@ -6,9 +6,10 @@
 package runs
 
 import (
+	"slices"
 	"context"
-	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/galasa-dev/cli/pkg/api"
 	"github.com/galasa-dev/cli/pkg/embedded"
@@ -28,26 +29,19 @@ func RunsUpdate(
 	console spi.Console,
 	commsClient api.APICommsClient,
 	timeService spi.TimeService,
-	byteReader spi.ByteReader,
 ) error {
 	var err error
 
 	log.Printf("RunsUpdate entered.")
 
 	if runName == "" {
-		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_MISSING_REQUIRED_PARAMETER, "name")
+		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_MISSING_NAME_FLAG, "--name")
 	}
 
-	if len(addTags) == 0 || len(removeTags) == 0 {
-		if len(addTags) == 0 {
-			return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_MISSING_REQUIRED_PARAMETER, "add-tags")
-		}
-		
-		if len(removeTags) == 0 {
-			return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_MISSING_REQUIRED_PARAMETER, "remove-tags")
-		}
+	if len(addTags) == 0 && len(removeTags) == 0 {
+		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_MISSING_FIELD, "--add-tags or --remove-tags")
+		return err
 	}
-
 
 	// Validate the runName as best we can without contacting the ecosystem.
 	err = ValidateRunName(runName)
@@ -55,53 +49,26 @@ func RunsUpdate(
 		return err
 	}
 
-	// Remove duplicates from addTags
-	uniqueAddTags := make(map[string]struct{}, len(addTags))
-	for _, tag := range addTags {
-		uniqueAddTags[tag] = struct{}{}
-	}
-	addTags = make([]string, 0, len(uniqueAddTags))
-	for tag := range uniqueAddTags {
-		addTags = append(addTags, tag)
-	}
-
-	// Remove duplicates from removeTags
-	uniqueRemoveTags := make(map[string]struct{}, len(removeTags))
-	for _, tag := range removeTags {
-		uniqueRemoveTags[tag] = struct{}{}
-	}
-	removeTags = make([]string, 0, len(uniqueRemoveTags))
-	for tag := range uniqueRemoveTags {
-		removeTags = append(removeTags, tag)
-	}
+	addTags = removeDuplicateTags(addTags)
+	removeTags = removeDuplicateTags(removeTags)
 
 	// Check for tags that are both added and removed.
 	for _, tag := range addTags {
-		if contains(removeTags, tag) {
-			console.WriteString(fmt.Sprintf("Error: Tag '%s' was both added and removed. This may be an unintentional error.\n", tag))
-			return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_TAG_ADDED_AND_REMOVED, tag)
+		if (slices.Contains(removeTags, tag)) {
+			return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_INVALID_TAG_UPDATE, tag)
 		}
 	}
 
-	requestorParameter := ""
-	userParameter := ""
-	resultParameter := ""
-	fromAgeHours := 0
-	toAgeHours := 0
-	group := ""
-	shouldGetActive := false
-	isNeedingMethodDetails := false
-
 	runsQuery := NewRunsQuery(
 		runName,
-		requestorParameter,
-		userParameter,
-		resultParameter,
-		group,
-		fromAgeHours,
-		toAgeHours,
-		shouldGetActive,
-		isNeedingMethodDetails,
+		"", 		// requestorParameter
+		"", 		// userParameter
+		"", 		// resultParameter
+		"", 		// group
+		0,  		// fromAgeHours
+		0,  		// toAgeHours
+		false, 	// shouldGetActive
+		false, 	// isNeedingMethodDetails
 		addTags,
 		timeService.Now(),
 	)
@@ -110,15 +77,12 @@ func RunsUpdate(
 	runs, err = GetRunsFromRestApi(runsQuery, commsClient)
 
 	if err == nil {
-
 		if len(runs) == 0 {
-			err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SERVER_UPDATE_RUN_NOT_FOUND, runName)
+			err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SERVER_DELETE_RUN_NOT_FOUND, runName)
 		} else {
-			err = updateRuns(runs, commsClient, byteReader)
+			err = updateRuns(runs, addTags, removeTags, commsClient)
 		}
-	}
-
-	if err != nil {
+	} else {
 		console.WriteString(err.Error())
 	}
 
@@ -128,8 +92,9 @@ func RunsUpdate(
 
 func updateRuns(
 	runs []galasaapi.Run,
+	addTags []string,
+	removeTags []string,
 	commsClient api.APICommsClient,
-	byteReader spi.ByteReader,
 ) error {
 	var err error
 	var restApiVersion string
@@ -137,7 +102,7 @@ func updateRuns(
 	restApiVersion, err = embedded.GetGalasactlRestApiVersion()
 	if err == nil {
 		for _, run := range runs {
-			err = updateRun(run, commsClient, byteReader, restApiVersion)
+			err = updateRun(run, addTags, removeTags, commsClient, restApiVersion)
 			if err != nil {
 				break
 			}
@@ -149,8 +114,9 @@ func updateRuns(
 
 func updateRun(
 	run galasaapi.Run,
+	addTags []string,
+	removeTags []string,
 	commsClient api.APICommsClient,
-	byteReader spi.ByteReader,
 	restApiVersion string,
 ) error {
 	var err error
@@ -158,48 +124,50 @@ func updateRun(
 	runId := run.GetRunId()
 	runName := *run.GetTestStructure().RunName
 
-	// Remove existing tags that are in removeTags
-	for _, tag := range removeTags {
-		if contains(run.GetTags(), tag) {
-			run.GetTags().Remove(tag)
+	// Get current tags from the run
+	currentTags := run.TestStructure.GetTags()
+	
+	// Create a new tag list by filtering out tags to remove
+	newTags := make([]string, 0)
+	for _, tag := range currentTags {
+		if !slices.Contains(removeTags, tag) {
+			newTags = append(newTags, tag)
 		}
 	}
 
-	// Add new tags from addTags
+	// Add new tags that aren't already present
 	for _, tag := range addTags {
-		if !contains(run.GetTags(), tag) {
-			run.GetTags().Add(tag)
+		if !slices.Contains(newTags, tag) {
+			newTags = append(newTags, tag)
 		}
 	}
+
+	// Create update request with new tags
+	updateRequest := createUpdateRunTagsRequest(newTags)
 
 	err = commsClient.RunAuthenticatedCommandWithRateLimitRetries(func(apiClient *galasaapi.APIClient) error {
 		var err error
 		var context context.Context = nil
 		var httpResponse *http.Response
 
-		apicall := apiClient.ResultArchiveStoreAPIApi.UpdateRasRunById(context, runId, run).ClientApiVersion(restApiVersion)
-		httpResponse, err = apicall.Execute()
+		_, httpResponse, err = apiClient.ResultArchiveStoreAPIApi.PutRasRunStatusById(context, runId).
+			UpdateRunRequest(*updateRequest).
+			ClientApiVersion(restApiVersion).Execute()
 
 		if httpResponse != nil {
 			defer httpResponse.Body.Close()
 		}
 
-		// 200-299 http status codes manifest in an error.
+		// Non 200-299 http status codes manifest as an error.
 		if err != nil {
 			if httpResponse == nil {
 				// We never got a response, error sending it or something ?
-				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SERVER_UPDATE_RUNS_FAILED, err.Error())
+				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_RESET_RUN_FAILED, runName, err.Error())
 			} else {
-				err = galasaErrors.HttpResponseToGalasaError(
-					httpResponse,
-					runName,
-					byteReader,
-					galasaErrors.GALASA_ERROR_UPDATE_RUNS_NO_RESPONSE_CONTENT,
-					galasaErrors.GALASA_ERROR_UPDATE_RUNS_RESPONSE_PAYLOAD_UNREADABLE,
-					galasaErrors.GALASA_ERROR_UPDATE_RUNS_UNPARSEABLE_CONTENT,
-					galasaErrors.GALASA_ERROR_UPDATE_RUNS_SERVER_REPORTED_ERROR,
-					galasaErrors.GALASA_ERROR_UPDATE_RUNS_EXPLANATION_NOT_JSON,
-				)
+				statusCode := httpResponse.StatusCode
+				if statusCode != http.StatusAccepted && statusCode != http.StatusOK {
+					err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_RESET_RUN_RESPONSE_PARSING)
+				}
 			}
 		}
 
@@ -211,15 +179,17 @@ func updateRun(
 	return err
 }
 
-func contains(slice []string, item string) bool {
-	for _, a := range slice {
-		if a == item {
-			return true
-		}
+func removeDuplicateTags(tags []string) []string {
+	uniqueTags := make(map[string]struct{}, len(tags))
+	for _, tag := range tags {
+		uniqueTags[tag] = struct{}{}
 	}
-	return false
+	result := make([]string, 0, len(uniqueTags))
+	for tag := range uniqueTags {
+		result = append(tags, tag)
+	}
+	return result
 }
-
 
 func createUpdateRunTagsRequest(tags []string) *galasaapi.UpdateRunRequest {
 	var UpdateRunRequest = galasaapi.NewUpdateRunRequest()

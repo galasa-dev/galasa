@@ -6,12 +6,10 @@
 package cmd
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/galasa-dev/cli/pkg/api"
 	"github.com/galasa-dev/cli/pkg/runs"
 	"github.com/galasa-dev/cli/pkg/spi"
+	"github.com/galasa-dev/cli/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -83,11 +81,8 @@ func (cmd *RunsUpdateCommand) createCobraCommand(
 	runsUpdateCobraCmd.Flags().StringVar(&cmd.values.runName, "name", "", "the name of the test run we want to update")
 	runsUpdateCobraCmd.MarkFlagRequired("name")
 
-	addTagsFlag := runsUpdateCobraCmd.Flags().StringSlice("add-tags", nil, "comma-separated list of tags to add")
-	removeTagsFlag := runsUpdateCobraCmd.Flags().StringSlice("remove-tags", nil, "comma-separated list of tags to remove")
-
-	runsUpdateCobraCmd.MarkFlagRequired("add-tags")
-	runsUpdateCobraCmd.MarkFlagRequired("remove-tags")
+	runsUpdateCobraCmd.Flags().StringSliceVar(&cmd.values.addTags, "add-tags", nil, "comma-separated list of tags to add")
+	runsUpdateCobraCmd.Flags().StringSliceVar(&cmd.values.removeTags, "remove-tags", nil, "comma-separated list of tags to remove")
 
 	runsCommand.CobraCommand().AddCommand(runsUpdateCobraCmd)
 
@@ -123,7 +118,6 @@ func (cmd *RunsUpdateCommand) executeRunsUpdate(
 		if err == nil {
 
 			var console = factory.GetStdOutConsole()
-			byteReader := factory.GetByteReader()
 			timeService := factory.GetTimeService()
 
 			// Call to process the command in a unit-testable way.
@@ -134,18 +128,7 @@ func (cmd *RunsUpdateCommand) executeRunsUpdate(
 				console,
 				commsClient,
 				timeService,
-				byteReader,
 			)
-		}
-	}
-
-	if err != nil {
-		if strings.Contains(err.Error(), "duplicate tag") {
-			console.WriteString(fmt.Sprintf("Warning: Duplicate tag(s) detected in --add-tags or --remove-tags. Only unique tags will be applied.\n"))
-		} else if strings.Contains(err.Error(), "tag added and then removed") {
-			console.WriteString("Error: You have added and then removed the same tag. This may be an unintentional error.\n")
-		} else {
-			console.WriteString(err.Error())
 		}
 	}
 
