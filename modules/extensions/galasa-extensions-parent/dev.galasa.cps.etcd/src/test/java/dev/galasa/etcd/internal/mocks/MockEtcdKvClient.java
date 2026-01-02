@@ -31,6 +31,7 @@ import io.etcd.jetcd.options.CompactOption;
 import io.etcd.jetcd.options.DeleteOption;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
+import io.etcd.jetcd.options.TxnOption;
 
 public class MockEtcdKvClient implements KV {
 
@@ -153,5 +154,10 @@ public class MockEtcdKvClient implements KV {
     @Override
     public CompletableFuture<DeleteResponse> delete(ByteSequence key) {
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    }
+
+    @Override
+    public Txn txn(TxnOption option) {
+        throw new UnsupportedOperationException("Unimplemented method 'txn'");
     }
 }
