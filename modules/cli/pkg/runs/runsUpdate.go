@@ -10,12 +10,14 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/galasa-dev/cli/pkg/api"
 	"github.com/galasa-dev/cli/pkg/embedded"
 	galasaErrors "github.com/galasa-dev/cli/pkg/errors"
 	"github.com/galasa-dev/cli/pkg/galasaapi"
 	"github.com/galasa-dev/cli/pkg/spi"
+	"github.com/galasa-dev/cli/pkg/utils"
 )
 
 // ---------------------------------------------------
@@ -36,6 +38,9 @@ func RunsUpdate(
 	log.Printf("RunsUpdate entered.")
 
 	err = validateRunNameAndTags(runName, addTags, removeTags)
+	if err != nil {
+		return err
+	}
 
 	addTags = removeDuplicateTags(addTags)
 	removeTags = removeDuplicateTags(removeTags)
@@ -181,14 +186,42 @@ func validateRunNameAndTags(runName string, addTags []string, removeTags []strin
 	}
 
 	if len(addTags) == 0 && len(removeTags) == 0 {
-		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_MISSING_FIELD, "--add-tags or --remove-tags")
-		return err
+		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_MISSING_FIELD, "--add-tags or --remove-tags")
 	}
 
 	// Validate the runName as best we can without contacting the ecosystem.
 	err = ValidateRunName(runName)
+	if err != nil {
+		return err
+	}
+
+	// Validate all tags in addTags
+	for _, tag := range addTags {
+		err = validateTagName(tag)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Validate all tags in removeTags
+	for _, tag := range removeTags {
+		err = validateTagName(tag)
+		if err != nil {
+			return err
+		}
+	}
 	
-	return err
+	return nil
+}
+
+func validateTagName(tagName string) error {
+	trimmedTag := strings.TrimSpace(tagName)
+	
+	if trimmedTag == "" || !utils.IsLatin1(tagName) {
+		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_INVALID_TAG_NAME, tagName)
+	}
+	
+	return nil
 }
 
 func removeDuplicateTags(tags []string) []string {

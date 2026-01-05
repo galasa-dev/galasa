@@ -661,3 +661,103 @@ func TestRunsUpdateRemoveAllTagsSucceeds(t *testing.T) {
 	// Then...
 	assert.Nil(t, err)
 }
+
+func TestRunsUpdateWithEmptyTagInAddTagsReturnsError(t *testing.T) {
+	// Given...
+	runName := "U123"
+	addTags := []string{""}
+	removeTags := []string{}
+
+	mockConsole := utils.NewMockConsole()
+	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
+	
+	interactions := []utils.HttpInteraction{}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	apiServerUrl := server.Server.URL
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
+
+	// When...
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
+
+	// Then...
+	assert.NotNil(t, err)
+	assert.ErrorContains(t, err, "GAL1282E")
+}
+
+func TestRunsUpdateWithEmptyTagInRemoveTagsReturnsError(t *testing.T) {
+	// Given...
+	runName := "U123"
+	addTags := []string{}
+	removeTags := []string{""}
+
+	mockConsole := utils.NewMockConsole()
+	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
+	
+	interactions := []utils.HttpInteraction{}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	apiServerUrl := server.Server.URL
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
+
+	// When...
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
+
+	// Then...
+	assert.NotNil(t, err)
+	assert.ErrorContains(t, err, "GAL1282E")
+}
+
+func TestRunsUpdateWithWhitespaceOnlyTagReturnsError(t *testing.T) {
+	// Given...
+	runName := "U123"
+	addTags := []string{"   "}
+	removeTags := []string{}
+
+	mockConsole := utils.NewMockConsole()
+	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
+	
+	interactions := []utils.HttpInteraction{}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	apiServerUrl := server.Server.URL
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
+
+	// When...
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
+
+	// Then...
+	assert.NotNil(t, err)
+	assert.ErrorContains(t, err, "GAL1282E")
+}
+
+func TestRunsUpdateWithNonLatin1TagReturnsError(t *testing.T) {
+	// Given...
+	runName := "U123"
+	addTags := []string{"tag-with-emoji-😀"}
+	removeTags := []string{}
+
+	mockConsole := utils.NewMockConsole()
+	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
+	
+	interactions := []utils.HttpInteraction{}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	apiServerUrl := server.Server.URL
+	commsClient := api.NewMockAPICommsClient(apiServerUrl)
+
+	// When...
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
+
+	// Then...
+	assert.NotNil(t, err)
+	assert.ErrorContains(t, err, "GAL1282E")
+}
