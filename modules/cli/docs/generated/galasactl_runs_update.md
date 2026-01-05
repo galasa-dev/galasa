@@ -13,10 +13,10 @@ galasactl runs update [flags]
 ### Options
 
 ```
-      --add-tags strings      comma-separated list of tags to add
+      --add-tags strings      Comma-separated list of tags to add. Multiple uses of this flag are permitted.
   -h, --help                  Displays the options for the 'runs update' command.
       --name string           the name of the test run we want to update
-      --remove-tags strings   comma-separated list of tags to remove
+      --remove-tags strings   Comma-separated list of tags to remove. Multiple uses of this flag are permitted.
 ```
 
 ### Options inherited from parent commands

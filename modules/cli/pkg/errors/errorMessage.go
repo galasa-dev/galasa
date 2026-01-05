@@ -459,7 +459,10 @@ var (
 	GALASA_ERROR_UPDATE_MONITOR_EXPLANATION_NOT_JSON     = NewMessageType("GAL1232E: Failed to update a monitor named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1232, STACK_TRACE_NOT_WANTED)
 
 	// Runs cleanup local errors
-	GALASA_ERROR_INVALID_GLOB_PATTERN_PROVIDED = NewMessageType("GAL1248E: Unsupported glob pattern character provided. Only alphanumeric (A-Z, a-z, 0-9), '.', '?', and '*' characters can be provided in the '--includes-pattern' and '--excludes-pattern' flags.", 1248, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_GLOB_PATTERN_PROVIDED 			 = NewMessageType("GAL1248E: Unsupported glob pattern character provided. Only alphanumeric (A-Z, a-z, 0-9), '.', '?', and '*' characters can be provided in the '--includes-pattern' and '--excludes-pattern' flags.", 1248, STACK_TRACE_NOT_WANTED)
+
+	// General Tag errors
+	GALASA_ERROR_TAGS_INVALID_NAME             	 		 = NewMessageType("GAL1256E: The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1256, STACK_TRACE_NOT_WANTED)
 
 	// Tags delete errors
 	GALASA_ERROR_FAILED_TO_DELETE_TAG                = NewMessageType("GAL1249E: Failed to delete the tag with the given name from the Galasa service", 1249, STACK_TRACE_NOT_WANTED)
@@ -479,7 +482,6 @@ var (
 	GALASA_ERROR_SET_TAG_SERVER_REPORTED_ERROR       = NewMessageType("GAL1262E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1262, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_SET_TAG_EXPLANATION_NOT_JSON        = NewMessageType("GAL1263E: Failed to set a tag named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1263, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_SET_TAG_REQUEST_FAILED              = NewMessageType("GAL1264E: Failed to set a tag named '%s'. Sending the put request to the Galasa service failed. Cause is %v", 1264, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_SET_TAG_INVALID_NAME             	 = NewMessageType("GAL1256E: Invalid tag name provided. The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1256, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_INVALID_TAG_DESCRIPTION			 			 = NewMessageType("GAL1265E: Invalid tag description provided. The description provided with the --description flag cannot only contain spaces or tabs, and must only contain characters in the Latin-1 character set.", 1265, STACK_TRACE_NOT_WANTED)
 
 	// Tags get errors
@@ -492,9 +494,9 @@ var (
 	GALASA_ERROR_GET_TAGS_REQUEST_FAILED             = NewMessageType("GAL1272E: Failed to get tags from the Galasa service. Sending the put request to the Galasa service failed. Cause is %v", 1272, STACK_TRACE_NOT_WANTED)
 
 	// Runs update errors
-	GALASA_ERROR_UPDATE_RUN_INVALID_TAG_UPDATE       = NewMessageType("GAL1273E: Invalid update request. The tag '%s' cannot be added and deleted in the same command.", 1273, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_UPDATE_RUN_MISSING_FIELD			       = NewMessageType("GAL1274E: Invalid update request. The flag '%s' must be used when attempting to update a run.", 1274, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_UPDATE_RUN_NOT_FOUND								 = NewMessageType("GAL1275E: The run named '%s' could not be updated because it was not found by the Galasa service. Try listing runs using 'galasactl runs get' to identify the one you wish to update.", 1275, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_UPDATE_RUN_INVALID_TAG_UPDATE       		= NewMessageType("GAL1273E: Invalid update request. The tag '%s' cannot be added and deleted in the same command.", 1273, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_UPDATE_RUN_MISSING_FIELD			       		= NewMessageType("GAL1274E: Invalid update request. The flag '%s' must be used when attempting to update a run.", 1274, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_UPDATE_RUN_NOT_FOUND								 		= NewMessageType("GAL1275E: The run named '%s' could not be updated because it was not found by the Galasa service. Try listing runs using 'galasactl runs get' to identify the one you wish to update.", 1275, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_UPDATE_RUN_REQUEST_FAILED           		= NewMessageType("GAL1276E: Failed to update run. Did not recieve an HTTP response. Cause is %v", 1276, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_UPDATE_RUN_NO_RESPONSE_CONTENT         = NewMessageType("GAL1277E: An attempt to update a run named '%s' failed. Unexpected http status code %v received from the server.", 1277, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_UPDATE_RUN_RESPONSE_PAYLOAD_UNREADABLE = NewMessageType("GAL1278E: An attempt to update a run named '%s' failed. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1278, STACK_TRACE_NOT_WANTED)
