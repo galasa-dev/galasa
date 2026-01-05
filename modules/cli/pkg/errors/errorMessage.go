@@ -463,7 +463,7 @@ var (
 	GALASA_ERROR_INVALID_GLOB_PATTERN_PROVIDED 			 = NewMessageType("GAL1248E: Unsupported glob pattern character provided. Only alphanumeric (A-Z, a-z, 0-9), '.', '?', and '*' characters can be provided in the '--includes-pattern' and '--excludes-pattern' flags.", 1248, STACK_TRACE_NOT_WANTED)
 
 	// General Tag errors
-	GALASA_ERROR_TAGS_INVALID_NAME             	 		 = NewMessageType("GAL1256E: The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1256, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_TAGS_INVALID_NAME             	 		 = NewMessageType("GAL1256E: Invalid tag name provided. The name provided with the --name flag cannot be empty and must only contain characters in the Latin-1 character set.", 1256, STACK_TRACE_NOT_WANTED)
 
 	// Tags delete errors
 	GALASA_ERROR_FAILED_TO_DELETE_TAG                = NewMessageType("GAL1249E: Failed to delete the tag with the given name from the Galasa service", 1249, STACK_TRACE_NOT_WANTED)
