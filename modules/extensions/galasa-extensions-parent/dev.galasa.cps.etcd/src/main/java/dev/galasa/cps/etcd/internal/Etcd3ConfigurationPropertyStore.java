@@ -5,7 +5,7 @@
  */
 package dev.galasa.cps.etcd.internal;
 
-import static com.google.common.base.Charsets.UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -136,7 +136,7 @@ public class Etcd3ConfigurationPropertyStore extends Etcd3Store implements IConf
     public void deletePrefixedProperties(@NotNull String prefix) throws ConfigurationPropertyStoreException {
         
         try {
-            deletePrefix(prefix);
+            deletePropertiesWithPrefix(prefix);
         } catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
             throw new ConfigurationPropertyStoreException("Failed to delete properties", e);

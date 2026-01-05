@@ -106,12 +106,12 @@ public class TestResourceMonitorBundleLoader {
 
         MockResource mockResource1 = createMockBundleWithServiceCapability(BUNDLE_NAME_1);
         MockResource mockResource2 = createMockBundleWithServiceCapability(BUNDLE_NAME_2);
-        mockRepo.addResource(mockResource1);
-        mockRepo.addResource(mockResource2);
 
         boolean IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE = true;
         Resolver mockResolver = new MockResolver(IS_RESOLVER_GOING_TO_RESOLVE_TEST_BUNDLE);
         MockRepositoryAdmin mockRepositoryAdmin = new MockRepositoryAdmin(mockRepositories, mockResolver);
+        mockRepositoryAdmin.setResourcesToAddToRepositories(List.of(mockResource1, mockResource2));
+
         MockMavenRepository mockMavenRepository = new MockMavenRepository();
 
         String stream = "myStream";

@@ -5,7 +5,7 @@
  */
 package dev.galasa.cps.etcd.internal;
 
-import static com.google.common.base.Charsets.UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,7 +37,6 @@ import dev.galasa.framework.spi.IDynamicStatusStoreWatcher;
 import dev.galasa.framework.spi.IDynamicStatusStoreWatcher.Event;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
-import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.Lease;
 import io.etcd.jetcd.Txn;
@@ -67,9 +66,7 @@ import io.etcd.jetcd.watch.WatchResponse;
  * 
  * @author James Davies
  */
-public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
-    private final Client                            client;
-    private final KV                                kvClient;
+public class Etcd3DynamicStatusStore extends Etcd3Store implements IDynamicStatusStore {
     private final Watch                             watchClient;
     private final Lease                             leaseClient;
     private Log logger = LogFactory.getLog(Etcd3DynamicStatusStore.class);
@@ -88,12 +85,13 @@ public class Etcd3DynamicStatusStore implements IDynamicStatusStore {
      * @param dssUri - http:// uri for th etcd cluster.
      */
     public Etcd3DynamicStatusStore(URI dssUri) {
-        this(Client.builder().endpoints(dssUri).build());
+        super(dssUri);
+        this.watchClient = client.getWatchClient();
+        this.leaseClient = client.getLeaseClient();
     }
 
     public Etcd3DynamicStatusStore(Client client) {
-        this.client = client;
-        this.kvClient = client.getKVClient();
+        super(client);
         this.watchClient = client.getWatchClient();
         this.leaseClient = client.getLeaseClient();
     }

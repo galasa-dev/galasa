@@ -90,7 +90,7 @@ public class Etcd3CredentialsStore extends Etcd3Store implements ICredentialsSto
     public ICredentials getCredentials(String credentialsId) throws CredentialsException {
         ICredentials credentials = null;
         try {
-            Map<String, String> credentialsProperties = getPrefix(CREDS_PROPERTY_PREFIX + credentialsId);
+            Map<String, String> credentialsProperties = getPropertiesWithPrefix(CREDS_PROPERTY_PREFIX + credentialsId);
             credentials = convertPropertiesIntoCredentials(credentialsProperties, credentialsId);
 
         } catch (InterruptedException | ExecutionException e) {
@@ -133,7 +133,7 @@ public class Etcd3CredentialsStore extends Etcd3Store implements ICredentialsSto
     @Override
     public void deleteCredentials(String credentialsId) throws CredentialsException {
         try {
-            deletePrefix(CREDS_PROPERTY_PREFIX + credentialsId);
+            deletePropertiesWithPrefix(CREDS_PROPERTY_PREFIX + credentialsId);
         } catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
             throw new CredentialsException("Failed to delete credentials", e);
@@ -144,7 +144,7 @@ public class Etcd3CredentialsStore extends Etcd3Store implements ICredentialsSto
     public Map<String, ICredentials> getAllCredentials() throws CredentialsException {
         Map<String, ICredentials> credentials = new HashMap<>();
         try {
-            Map<String, String> credentialsKeyValues = getPrefix(CREDS_PROPERTY_PREFIX);
+            Map<String, String> credentialsKeyValues = getPropertiesWithPrefix(CREDS_PROPERTY_PREFIX);
 
             // Build a set of all credential IDs stored in etcd
             Set<Entry<String, String>> credentialsEntries = credentialsKeyValues.entrySet();
@@ -229,7 +229,7 @@ public class Etcd3CredentialsStore extends Etcd3Store implements ICredentialsSto
             if (encryptValues) {
                 value = encryptionService.encrypt(value);
             }
-            put(key, value);
+            putProperty(key, value);
         }
     }
 }
