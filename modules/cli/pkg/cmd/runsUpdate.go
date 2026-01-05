@@ -69,8 +69,8 @@ func (cmd *RunsUpdateCommand) createCobraCommand(
 
 	runsUpdateCobraCmd := &cobra.Command{
 		Use:     "update",
-		Short:   "Update tags for a named test run.",
-		Long:    "Update tags for a named test run.",
+		Short:   "Update the record of an existing test run on a Galasa service.",
+		Long:    "Update the record of an existing test run on a Galasa service.",
 		Args:    cobra.NoArgs,
 		Aliases: []string{"runs update"},
 		RunE: func(cobraCmd *cobra.Command, args []string) error {
@@ -81,8 +81,8 @@ func (cmd *RunsUpdateCommand) createCobraCommand(
 	runsUpdateCobraCmd.Flags().StringVar(&cmd.values.runName, "name", "", "the name of the test run we want to update")
 	runsUpdateCobraCmd.MarkFlagRequired("name")
 
-	runsUpdateCobraCmd.Flags().StringSliceVar(&cmd.values.addTags, "add-tags", nil, "comma-separated list of tags to add")
-	runsUpdateCobraCmd.Flags().StringSliceVar(&cmd.values.removeTags, "remove-tags", nil, "comma-separated list of tags to remove")
+	runsUpdateCobraCmd.Flags().StringSliceVar(&cmd.values.addTags, "add-tags", nil, "Comma-separated list of tags to add. Multiple uses of this flag are permitted.")
+	runsUpdateCobraCmd.Flags().StringSliceVar(&cmd.values.removeTags, "remove-tags", nil, "Comma-separated list of tags to remove. Multiple uses of this flag are permitted.")
 
 	runsCommand.CobraCommand().AddCommand(runsUpdateCobraCmd)
 
@@ -122,6 +122,7 @@ func (cmd *RunsUpdateCommand) executeRunsUpdate(
 			if err == nil {
 
 				var console = factory.GetStdOutConsole()
+				byteReader := factory.GetByteReader()
 				timeService := factory.GetTimeService()
 
 				// Call to process the command in a unit-testable way.
@@ -132,6 +133,7 @@ func (cmd *RunsUpdateCommand) executeRunsUpdate(
 					console,
 					commsClient,
 					timeService,
+					byteReader,
 				)
 			}
 		}

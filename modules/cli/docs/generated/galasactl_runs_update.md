@@ -1,10 +1,10 @@
 ## galasactl runs update
 
-Update tags for a named test run.
+Update the record of an existing test run on a Galasa service.
 
 ### Synopsis
 
-Update tags for a named test run.
+Update the record of an existing test run on a Galasa service.
 
 ```
 galasactl runs update [flags]

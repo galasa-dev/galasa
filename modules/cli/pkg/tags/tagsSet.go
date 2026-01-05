@@ -114,7 +114,7 @@ func validateTagName(tagName string) error {
 	var err error
 	log.Println("Validating the provided tag name")
 
-	err = validateStringIsLatin1AndNotBlank(tagName, galasaErrors.GALASA_ERROR_DELETE_TAG_INVALID_NAME)
+	err = validateStringIsLatin1AndNotBlank(tagName, galasaErrors.GALASA_ERROR_SET_TAG_INVALID_NAME)
 
 	if err == nil {
 		log.Println("Tag name validated OK")

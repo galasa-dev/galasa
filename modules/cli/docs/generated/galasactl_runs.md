@@ -33,5 +33,5 @@ Assembles, submits and monitors test runs in Galasa Ecosystem
 * [galasactl runs prepare](galasactl_runs_prepare.md)	 - prepares a list of tests
 * [galasactl runs reset](galasactl_runs_reset.md)	 - reset an active run in the ecosystem
 * [galasactl runs submit](galasactl_runs_submit.md)	 - submit a list of tests to the ecosystem
-* [galasactl runs update](galasactl_runs_update.md)	 - Update tags for a named test run.
+* [galasactl runs update](galasactl_runs_update.md)	 - Update the record of an existing test run on a Galasa service.
 

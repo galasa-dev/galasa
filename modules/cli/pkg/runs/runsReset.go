@@ -49,9 +49,9 @@ func ResetRun(
 
 		if err == nil {
 
-			UpdateRunStatusRequest := createUpdateRunStatusRequest(RESET_STATUS, RESET_RESULT)
+			updateRunStatusRequest := createUpdateRunStatusRequest(RESET_STATUS, RESET_RESULT)
 
-			err = resetRun(runName, runId, UpdateRunStatusRequest, commsClient)
+			err = resetRun(runName, runId, updateRunStatusRequest, commsClient)
 
 			if err == nil {
 				consoleErr := console.WriteString(fmt.Sprintf(galasaErrors.GALASA_INFO_RUNS_RESET_SUCCESS.Template, runName))

@@ -90,12 +90,12 @@ func getRunIdFromRunName(runName string,
 }
 
 func createUpdateRunStatusRequest(status string, result string) *galasaapi.UpdateRunRequest {
-	var UpdateRunStatusRequest = galasaapi.NewUpdateRunRequest()
+	var updateRunStatusRequest = galasaapi.NewUpdateRunRequest()
 
-	UpdateRunStatusRequest.SetStatus(status)
-	UpdateRunStatusRequest.SetResult(result)
+	updateRunStatusRequest.SetStatus(status)
+	updateRunStatusRequest.SetResult(result)
 
-	return UpdateRunStatusRequest
+	return updateRunStatusRequest
 }
 
 func createGroupUpdateStatusRequest() *galasaapi.UpdateGroupStatusRequest {

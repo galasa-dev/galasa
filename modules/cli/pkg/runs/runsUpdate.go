@@ -29,6 +29,7 @@ func RunsUpdate(
 	console spi.Console,
 	commsClient api.APICommsClient,
 	timeService spi.TimeService,
+	byteReader spi.ByteReader,
 ) error {
 	var err error
 
@@ -78,12 +79,10 @@ func RunsUpdate(
 
 	if err == nil {
 		if len(runs) == 0 {
-			err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SERVER_DELETE_RUN_NOT_FOUND, runName)
+			err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_NOT_FOUND, runName)
 		} else {
-			err = updateRuns(runs, addTags, removeTags, commsClient)
+			err = updateRuns(runs, addTags, removeTags, commsClient, byteReader)
 		}
-	} else {
-		console.WriteString(err.Error())
 	}
 
 	log.Printf("RunsUpdate exiting. err is %v\n", err)
@@ -95,6 +94,7 @@ func updateRuns(
 	addTags []string,
 	removeTags []string,
 	commsClient api.APICommsClient,
+	byteReader spi.ByteReader,
 ) error {
 	var err error
 	var restApiVersion string
@@ -102,7 +102,7 @@ func updateRuns(
 	restApiVersion, err = embedded.GetGalasactlRestApiVersion()
 	if err == nil {
 		for _, run := range runs {
-			err = updateRun(run, addTags, removeTags, commsClient, restApiVersion)
+			err = updateRun(run, addTags, removeTags, commsClient, byteReader, restApiVersion)
 			if err != nil {
 				break
 			}
@@ -117,6 +117,7 @@ func updateRun(
 	addTags []string,
 	removeTags []string,
 	commsClient api.APICommsClient,
+	byteReader spi.ByteReader,
 	restApiVersion string,
 ) error {
 	var err error
@@ -161,13 +162,19 @@ func updateRun(
 		// Non 200-299 http status codes manifest as an error.
 		if err != nil {
 			if httpResponse == nil {
-				// We never got a response, error sending it or something ?
-				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_RESET_RUN_FAILED, runName, err.Error())
+				// We never got a response, error sending it?
+				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_REQUEST_FAILED, runName, err.Error())
 			} else {
-				statusCode := httpResponse.StatusCode
-				if statusCode != http.StatusAccepted && statusCode != http.StatusOK {
-					err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_RESET_RUN_RESPONSE_PARSING)
-				}
+				err = galasaErrors.HttpResponseToGalasaError(
+					httpResponse,
+					runName,
+					byteReader,
+					galasaErrors.GALASA_ERROR_UPDATE_RUN_NO_RESPONSE_CONTENT,
+					galasaErrors.GALASA_ERROR_UPDATE_RUN_RESPONSE_PAYLOAD_UNREADABLE,
+					galasaErrors.GALASA_ERROR_UPDATE_RUN_UNPARSEABLE_CONTENT,
+					galasaErrors.GALASA_ERROR_UPDATE_RUN_SERVER_REPORTED_ERROR,
+					galasaErrors.GALASA_ERROR_UPDATE_RUN_EXPLANATION_NOT_JSON,
+				)
 			}
 		}
 

@@ -69,6 +69,7 @@ func TestRunsUpdateWithEmptyRunNameReturnsError(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	
 	interactions := []utils.HttpInteraction{}
 	server := utils.NewMockHttpServer(t, interactions)
@@ -78,7 +79,7 @@ func TestRunsUpdateWithEmptyRunNameReturnsError(t *testing.T) {
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -94,6 +95,7 @@ func TestRunsUpdateWithNoTagsReturnsError(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	
 	interactions := []utils.HttpInteraction{}
 	server := utils.NewMockHttpServer(t, interactions)
@@ -103,7 +105,7 @@ func TestRunsUpdateWithNoTagsReturnsError(t *testing.T) {
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -119,6 +121,7 @@ func TestRunsUpdateWithInvalidRunNameReturnsError(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	
 	interactions := []utils.HttpInteraction{}
 	server := utils.NewMockHttpServer(t, interactions)
@@ -128,7 +131,7 @@ func TestRunsUpdateWithInvalidRunNameReturnsError(t *testing.T) {
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -144,6 +147,7 @@ func TestRunsUpdateWithSameTagInAddAndRemoveReturnsError(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	
 	interactions := []utils.HttpInteraction{}
 	server := utils.NewMockHttpServer(t, interactions)
@@ -153,7 +157,7 @@ func TestRunsUpdateWithSameTagInAddAndRemoveReturnsError(t *testing.T) {
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -183,15 +187,16 @@ func TestRunsUpdateWithNonExistentRunReturnsError(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
-	assert.ErrorContains(t, err, "GAL1163E")
+	assert.ErrorContains(t, err, "GAL1275E")
 	assert.ErrorContains(t, err, runName)
 }
 
@@ -230,11 +235,12 @@ func TestRunsUpdateAddTagsToRunWithExistingTagsSucceeds(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -275,11 +281,12 @@ func TestRunsUpdateRemoveTagsFromRunSucceeds(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -320,11 +327,12 @@ func TestRunsUpdateAddAndRemoveTagsSucceeds(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -365,11 +373,12 @@ func TestRunsUpdateAddTagsToRunWithNoExistingTagsSucceeds(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -410,11 +419,12 @@ func TestRunsUpdateWithDuplicateAddTagsRemovesDuplicates(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -455,11 +465,12 @@ func TestRunsUpdateWithDuplicateRemoveTagsRemovesDuplicates(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -501,15 +512,16 @@ func TestRunsUpdateWithUpdateFailureReturnsError(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
-	assert.ErrorContains(t, err, "GAL1134E")
+	assert.ErrorContains(t, err, "GAL1280E")
 }
 
 func TestRunsUpdateAddingExistingTagDoesNotDuplicate(t *testing.T) {
@@ -547,11 +559,12 @@ func TestRunsUpdateAddingExistingTagDoesNotDuplicate(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -592,11 +605,12 @@ func TestRunsUpdateRemovingNonExistentTagSucceeds(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -637,11 +651,12 @@ func TestRunsUpdateRemoveAllTagsSucceeds(t *testing.T) {
 
 	mockConsole := utils.NewMockConsole()
 	mockTimeService := utils.NewMockTimeService()
+	mockByteReader := utils.NewMockByteReader()
 	apiServerUrl := server.Server.URL
 	commsClient := api.NewMockAPICommsClient(apiServerUrl)
 
 	// When...
-	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService)
+	err := RunsUpdate(runName, addTags, removeTags, mockConsole, commsClient, mockTimeService, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)

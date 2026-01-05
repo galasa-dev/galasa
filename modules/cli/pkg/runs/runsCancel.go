@@ -175,8 +175,8 @@ func cancelByRunName(runName string, timeService spi.TimeService, commsClient ap
 
 	if err == nil {
 
-		UpdateRunStatusRequest := createUpdateRunStatusRequest(CANCEL_STATUS, CANCEL_RESULT)
-		err = cancelRun(runName, runId, UpdateRunStatusRequest, commsClient)
+		updateRunStatusRequest := createUpdateRunStatusRequest(CANCEL_STATUS, CANCEL_RESULT)
+		err = cancelRun(runName, runId, updateRunStatusRequest, commsClient)
 
 		if err == nil {
 			err = writeConsoleMessage(console, *galasaErrors.GALASA_INFO_RUNS_CANCEL_SUCCESS, runName)
