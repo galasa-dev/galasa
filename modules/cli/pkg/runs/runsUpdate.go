@@ -35,20 +35,7 @@ func RunsUpdate(
 
 	log.Printf("RunsUpdate entered.")
 
-	if runName == "" {
-		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_MISSING_NAME_FLAG, "--name")
-	}
-
-	if len(addTags) == 0 && len(removeTags) == 0 {
-		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_MISSING_FIELD, "--add-tags or --remove-tags")
-		return err
-	}
-
-	// Validate the runName as best we can without contacting the ecosystem.
-	err = ValidateRunName(runName)
-	if err != nil {
-		return err
-	}
+	err = validateRunNameAndTags(runName, addTags, removeTags)
 
 	addTags = removeDuplicateTags(addTags)
 	removeTags = removeDuplicateTags(removeTags)
@@ -183,6 +170,24 @@ func updateRun(
 		}
 		return err
 	})
+	return err
+}
+
+func validateRunNameAndTags(runName string, addTags []string, removeTags []string) error {
+	var err error
+
+	if runName == "" {
+		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_MISSING_NAME_FLAG, "--name")
+	}
+
+	if len(addTags) == 0 && len(removeTags) == 0 {
+		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_MISSING_FIELD, "--add-tags or --remove-tags")
+		return err
+	}
+
+	// Validate the runName as best we can without contacting the ecosystem.
+	err = ValidateRunName(runName)
+	
 	return err
 }
 
