@@ -247,6 +247,48 @@ function submit_local_test {
     success "Test ran OK"
 }
 
+# Run a given test method using the galasactl locally in a JVM
+function run_local_test_method {
+
+    h2 "Running a specific test method locally using galasactl"
+
+    cd ${BASEDIR}/temp/*banking
+
+    BUNDLE=$1
+    JAVA_CLASS=$2
+    TEST_METHOD_TO_RUN=$3
+    OBR_GROUP_ID=$4
+    OBR_ARTIFACT_ID=$5
+    OBR_VERSION=$6
+
+    REMOTE_MAVEN=https://development.galasa.dev/main/maven-repo/obr/
+
+    GALASACTL="${BASEDIR}/bin/${binary}"
+
+    ${GALASACTL} runs submit local \
+    --obr mvn:${OBR_GROUP_ID}/${OBR_ARTIFACT_ID}/${OBR_VERSION}/obr \
+    --remoteMaven ${REMOTE_MAVEN} \
+    --class ${BUNDLE}/${JAVA_CLASS} \
+    --methods ${TEST_METHOD_TO_RUN} \
+    --throttle 1 \
+    --requesttype automated-test \
+    --poll 10 \
+    --progress 1 \
+    --log - \
+    --reportjunit testMethodRunJunitReport.xml \
+    --reportjson testMethodRunJsonReport.json
+
+    # Uncomment this if testing that a test that should fail, fails
+    # --noexitcodeontestfailures \
+
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then 
+        error "Failed to run the test"
+        exit 1
+    fi
+    success "Test ran OK"
+}
+
 function run_test_locally_using_galasactl {
     
     # Run the Payee tests.
@@ -262,8 +304,30 @@ function run_test_locally_using_galasactl {
     export testResult="Passed"
 
     submit_local_test $TEST_BUNDLE $TEST_JAVA_CLASS $TEST_OBR_GROUP_ID $TEST_OBR_ARTIFACT_ID $TEST_OBR_VERSION
-    check_junit_report $totalTests $failedTests
-    check_json_report $testName $testResult
+    check_junit_report $totalTests $failedTests "junitReport.xml"
+    check_json_report $testName $testResult "jsonReport.json"
+}
+
+function run_selected_test_method_locally_using_galasactl {
+    
+    # Run a given sample test method.
+    TEST_BUNDLE=dev.galasa.example.banking.payee
+    TEST_JAVA_CLASS=dev.galasa.example.banking.payee.TestPayeeExtended
+    TEST_OBR_GROUP_ID=dev.galasa.example.banking
+    TEST_OBR_ARTIFACT_ID=dev.galasa.example.banking.obr
+    TEST_OBR_VERSION=0.0.1-SNAPSHOT
+    TEST_METHOD_NAME="simpleSampleTest"
+
+    totalTests=3
+    failedTests=0
+    testResult="Passed"
+
+    run_local_test_method $TEST_BUNDLE $TEST_JAVA_CLASS $TEST_METHOD_NAME $TEST_OBR_GROUP_ID $TEST_OBR_ARTIFACT_ID $TEST_OBR_VERSION
+    check_junit_report $totalTests $failedTests "testMethodRunJunitReport.xml"
+    check_json_report $TEST_METHOD_NAME $testResult "testMethodRunJsonReport.json"
+    
+    # Verify that all test methods except simpleSampleTest are marked as Ignored
+    check_ignored_tests_in_json_report $TEST_METHOD_NAME "testMethodRunJsonReport.json"
 }
 
 function check_junit_report {
@@ -272,8 +336,8 @@ function check_junit_report {
 
     totalTests=$1
     failedTests=$2
+    junitReportFile=$3
     
-    junitReportFile="junitReport.xml"
     stringToFind="name=\"Galasa test run\" tests=\"${totalTests}\" failures=\"${failedTests}\""
     
     echo "string to find: "${stringToFind}
@@ -291,8 +355,8 @@ function check_json_report {
 
     testName=$1
     testResult=$2
-    
-    jsonReportFile="jsonReport.json"
+    jsonReportFile=$3
+
     stringToFind="      \"tests\": \\[
         {
           \"name\": \"${testName}\",
@@ -307,6 +371,42 @@ function check_json_report {
         exit 1
     fi
     success "Json report was created successfully"  
+}
+
+function check_ignored_tests_in_json_report {
+
+    cd ${BASEDIR}/temp/*banking
+
+    runTestMethodName=$1
+    jsonReportFile=$2
+    
+    h2 "Checking that all test methods except '${runTestMethodName}' are marked as Ignored in JSON report"
+
+    # Check that the JSON report contains ignored tests
+    # We need to verify that all test methods except the one we ran have result "Ignored"
+    
+    # Count total tests in the JSON report
+    totalTests=$(grep -A 2 '"name":' ${jsonReportFile} | grep -c '"result":')
+    info "Total test methods found in JSON report: ${totalTests}"
+    
+    if [[ "${totalTests}" -lt "2" ]]; then
+        error "Expected at least 2 test methods in the JSON report (1 run + at least 1 ignored) - see $(pwd)/${jsonReportFile}"
+        exit 1
+    fi
+    
+    # Count ignored tests
+    ignoredTests=$(grep -c '"result": "Ignored"' ${jsonReportFile} || echo "0")
+    info "Ignored test methods found in JSON report: ${ignoredTests}"
+    
+    # Expected ignored tests = total tests - 1 (the one we ran)
+    expectedIgnoredTests=$(($totalTests - 1))
+    
+    if [[ "${ignoredTests}" != "${expectedIgnoredTests}" ]]; then
+        error "Expected ${expectedIgnoredTests} ignored tests but found ${ignoredTests} - see $(pwd)/${jsonReportFile}"
+        exit 1
+    fi
+    
+    success "The correct number of test methods were marked as Ignored in JSON report"
 }
 
 function cleanup_local_maven_repo {
@@ -325,6 +425,7 @@ cleanup_local_maven_repo
 build_generated_source
 
 run_test_locally_using_galasactl
+run_selected_test_method_locally_using_galasactl
 
 CALLED_BY_MAIN="true"
 source ${BASEDIR}/test-scripts/gherkin-runs-tests.sh

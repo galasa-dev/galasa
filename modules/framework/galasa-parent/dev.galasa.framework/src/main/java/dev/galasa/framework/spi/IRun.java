@@ -34,6 +34,8 @@ public interface IRun {
 
     String getTestClassName();
 
+    List<String> getRequestedTestMethods();
+
     boolean isLocal();
 
     String getGroup();

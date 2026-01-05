@@ -6,6 +6,7 @@
 package dev.galasa.framework.mocks;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,8 @@ public class MockRepositoryAdmin implements RepositoryAdmin {
 
     private Map<String,Repository> repositoryURLMap = new HashMap<String,Repository>();
 
+    private List<MockResource> resourcesToAddToRepositories = new ArrayList<>();
+
     public MockRepositoryAdmin(List<Repository> repositories, Resolver resolver) {
         for( Repository repo : repositories) {
             String key = repo.getURI().toString();
@@ -40,6 +43,11 @@ public class MockRepositoryAdmin implements RepositoryAdmin {
     @Override
     public Repository addRepository(String repository) throws Exception {
         MockRepository mockRepository = new MockRepository(repository);
+
+        for (MockResource resourceToAdd : resourcesToAddToRepositories) {
+            mockRepository.addResource(resourceToAdd);
+        }
+
         this.repositoryURLMap.put(repository, mockRepository);
         return repositoryURLMap.get(repository);
     }
@@ -55,6 +63,10 @@ public class MockRepositoryAdmin implements RepositoryAdmin {
     @Override
     public Resolver resolver() {
         return resolver;
+    }
+
+    public void setResourcesToAddToRepositories(List<MockResource> resourcesToAddToRepositories) {
+        this.resourcesToAddToRepositories = resourcesToAddToRepositories;
     }
 
     // ----------------- un-implemented methdos follow --------------------

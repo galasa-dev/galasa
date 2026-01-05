@@ -21,6 +21,7 @@ galasactl runs submit local [flags]
       --gherkin strings        Gherkin feature file URL. Should start with 'file://'. 
   -h, --help                   Displays the options for the 'runs submit local' command.
       --localMaven string      The url of a local maven repository are where galasa bundles can be loaded from on your local file system. Defaults to your home .m2/repository file. Please note that this should be in a URL form e.g. 'file:///Users/myuserid/.m2/repository', or 'file://C:/Users/myuserid/.m2/repository'
+      --methods strings        Optional. The names of the Java test methods from the test class provided via the --class option that you wish to run. Method names must start with a letter (a-z, A-Z), can contain letters, numbers, and underscores, and must not be a Java reserved keyword. If not specified, all methods in the given class are run. Method names are case sensitive. This option can only be used alongside --class and cannot be used with --gherkin.
       --obr strings            The maven coordinates of the obr bundle(s) which refer to your test bundles. The format of this parameter is 'mvn:${TEST_OBR_GROUP_ID}/${TEST_OBR_ARTIFACT_ID}/${TEST_OBR_VERSION}/obr' Multiple instances of this flag can be used to describe multiple obr bundles.
       --remoteMaven string     the url of the remote maven where galasa bundles can be loaded from. Defaults to maven central. (default "https://repo.maven.apache.org/maven2")
 ```

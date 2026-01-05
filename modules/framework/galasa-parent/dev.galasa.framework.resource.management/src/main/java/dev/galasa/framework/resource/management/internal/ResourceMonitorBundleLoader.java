@@ -6,10 +6,10 @@
 package dev.galasa.framework.resource.management.internal;
 
 import java.net.URL;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,11 +52,14 @@ public class ResourceMonitorBundleLoader implements IResourceMonitorBundleLoader
     }
 
     public void loadMonitorBundles(IBundleManager bundleManager, String stream) throws FrameworkException {
+        List<Repository> obrsToSearch = null;
         if (stream != null && !stream.isBlank()) {
-            loadRepositoriesFromStream(stream.trim(), streamsService);
+            obrsToSearch = loadRepositoriesFromStream(stream.trim(), streamsService);
+        } else {
+            obrsToSearch = Arrays.asList(repositoryAdmin.listRepositories());
         }
 
-        Set<String> bundlesToLoad = getResourceMonitorBundles();
+        List<String> bundlesToLoad = getResourceMonitorBundles(obrsToSearch);
 
         // Load the resulting bundles that have the IResourceManagementProvider service
         for (String bundle : bundlesToLoad) {
@@ -70,23 +73,35 @@ public class ResourceMonitorBundleLoader implements IResourceMonitorBundleLoader
         }
     }
 
-    private void loadRepositoriesFromStream(String streamName, IStreamsService streamsService) throws FrameworkException {
+    private List<Repository> loadRepositoriesFromStream(String streamName, IStreamsService streamsService) throws FrameworkException {
+        List<Repository> streamObrs = new ArrayList<>();
         IStream stream = streamsService.getStreamByName(streamName);
         stream.validate();
 
         // Add the stream's maven repo to the maven repositories
         URL mavenRepo = stream.getMavenRepositoryUrl();
+        logger.info("Registering test stream Maven repository: " + mavenRepo.toString());
+
         mavenRepository.addRemoteRepository(mavenRepo);
+
+        logger.info("Registered test stream Maven repository OK");
 
         // Add the stream's OBR to the repository admin
         List<IOBR> obrs = stream.getObrs();
         for (IOBR obr : obrs) {
             try {
-                repositoryAdmin.addRepository(obr.toString());
+                String obrAsString = obr.toString();
+                logger.info("Loading OBR " + obrAsString);
+
+                Repository addedObr = repositoryAdmin.addRepository(obrAsString);
+                streamObrs.add(addedObr);
+
+                logger.info("Loaded OBR " + obrAsString + " OK");
             } catch (Exception e) {
                 throw new FrameworkException("Unable to load repository " + obr, e);
             }
         }
+        return streamObrs;
     }
 
     private boolean isResourceMonitorCapability(Capability capability) {
@@ -110,9 +125,9 @@ public class ResourceMonitorBundleLoader implements IResourceMonitorBundleLoader
         return isResourceMonitor;
     }
 
-    private Set<String> getResourceMonitorBundles() {
-        Set<String> bundlesToLoad = new HashSet<>();
-        for (Repository repository : repositoryAdmin.listRepositories()) {
+    private List<String> getResourceMonitorBundles(List<Repository> obrsToSearch) {
+        List<String> bundlesToLoad = new ArrayList<>();
+        for (Repository repository : obrsToSearch) {
             if (repository.getResources() != null) {
                 bundlesToLoad.addAll(getResourceMonitorsFromRepository(repository));
             }
@@ -120,8 +135,8 @@ public class ResourceMonitorBundleLoader implements IResourceMonitorBundleLoader
         return bundlesToLoad;
     }
 
-    private Set<String> getResourceMonitorsFromRepository(Repository repository) {
-        Set<String> resourceMonitorBundles = new HashSet<>();
+    private List<String> getResourceMonitorsFromRepository(Repository repository) {
+        List<String> resourceMonitorBundles = new ArrayList<>();
         for (Resource resource : repository.getResources()) {
             if (isResourceContainingAResourceMonitor(resource)) {
                 resourceMonitorBundles.add(resource.getSymbolicName());
