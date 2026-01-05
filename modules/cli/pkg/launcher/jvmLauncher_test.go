@@ -259,6 +259,56 @@ func TestCanLaunchLocalJvmTest(t *testing.T) {
 	}
 }
 
+func TestLaunchLocalJvmTestWithInvalidMethodNameThrowsError(t *testing.T) {
+	// Given...
+	bootstrapProps, env, fs, embeddedReadOnlyFS,
+		jvmLaunchParams, timeService, timedSleeper, mockProcessFactory, galasaHome := NewMockLauncherParams()
+
+	jvmLaunchParams.TestMethods = []string{"invalid method name!"}
+
+	mockFactory := &utils.MockFactory{
+		Env:         env,
+		FileSystem:  fs,
+		TimeService: timeService,
+	}
+
+	launcher, err := NewJVMLauncher(
+		mockFactory,
+		bootstrapProps, embeddedReadOnlyFS,
+		jvmLaunchParams, mockProcessFactory, galasaHome, timedSleeper,
+	)
+
+	if err != nil {
+		assert.Fail(t, "JVM launcher should have been creatable.")
+	}
+	assert.NotNil(t, launcher, "Launcher returned is nil!")
+
+	isTraceEnabled := true
+	var overrides map[string]interface{} = make(map[string]interface{})
+
+	var tags []string
+
+	// When...
+	_, err = launcher.SubmitTestRun(
+		"myGroup",
+		"galasa.dev.example.banking.account/galasa.dev.example.banking.account.TestAccount",
+		"myRequestType-UnitTest",
+		"myRequestor",
+		"myRequestor",
+		"unitTestStream",
+		"mvn:myGroup/myArtifact/myClassifier/obr",
+		isTraceEnabled,
+		"", // No Gherkin URL supplied
+		"", // No Gherkin Feature supplied
+		overrides,
+		tags,
+	)
+
+	// Then...
+	assert.ErrorContains(t, err, "GAL1276E")
+	assert.ErrorContains(t, err, "Invalid Java method name")
+}
+
 func TestCanGetRunGroupStatus(t *testing.T) {
 	// Given...
 	env := utils.NewMockEnv()
@@ -519,6 +569,7 @@ func getDefaultCommandSyntaxTestParameters() (
 	string,
 	string,
 	bool,
+	[]string,
 ) {
 	bootstrapProps := getBasicBootstrapProperties()
 	fs := files.NewOverridableMockFileSystem()
@@ -546,8 +597,10 @@ func getDefaultCommandSyntaxTestParameters() (
 	env := utils.NewMockEnv()
 	galasaHome, _ := utils.NewGalasaHome(fs, env, "")
 
+	testMethods := make([]string, 0)
+
 	return bootstrapProps, env, galasaHome, fs, javaHome, testObrs, testLocation,
-		remoteMaven, localMaven, galasaVersionToRun, overridesFilePath, isTraceEnabled
+		remoteMaven, localMaven, galasaVersionToRun, overridesFilePath, isTraceEnabled, testMethods
 }
 
 func TestCommandIncludesTraceWhenTraceIsEnabled(t *testing.T) {
@@ -560,7 +613,8 @@ func TestCommandIncludesTraceWhenTraceIsEnabled(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := true
 	isDebugEnabled := false
@@ -573,6 +627,7 @@ func TestCommandIncludesTraceWhenTraceIsEnabled(t *testing.T) {
 		fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -599,7 +654,8 @@ func TestCommandDoesNotIncludeTraceWhenTraceIsDisabled(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := false
@@ -610,6 +666,7 @@ func TestCommandDoesNotIncludeTraceWhenTraceIsDisabled(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -635,7 +692,8 @@ func TestCommandSyntaxContainsJavaHomeUnixSlashes(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		isTraceEnabled := getDefaultCommandSyntaxTestParameters()
+		isTraceEnabled,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	javaHome := "myJavaHome"
 	fs.SetFilePathSeparator("/")
@@ -647,6 +705,7 @@ func TestCommandSyntaxContainsJavaHomeUnixSlashes(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -673,7 +732,8 @@ func TestCommandSyntaxContainsJavaHomeWindowsSlashes(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		isTraceEnabled := getDefaultCommandSyntaxTestParameters()
+		isTraceEnabled,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	javaHome := "myJavaHome"
 	fs.SetFilePathSeparator("\\")
@@ -687,6 +747,7 @@ func TestCommandSyntaxContainsJavaHomeWindowsSlashes(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -747,7 +808,8 @@ func TestCommandIncludesGALASA_HOMESystemProperty(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := true
 	isDebugEnabled := false
@@ -760,6 +822,7 @@ func TestCommandIncludesGALASA_HOMESystemProperty(t *testing.T) {
 		fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -789,7 +852,8 @@ func TestCommandAllDashDSystemPropertiesPassedAppearBeforeTheDashJar(t *testing.
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := true
 	isDebugEnabled := false
@@ -802,6 +866,7 @@ func TestCommandAllDashDSystemPropertiesPassedAppearBeforeTheDashJar(t *testing.
 		fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -870,7 +935,8 @@ func TestCommandIncludesFlagsFromBootstrapProperties(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := false
@@ -881,6 +947,7 @@ func TestCommandIncludesFlagsFromBootstrapProperties(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -908,7 +975,8 @@ func TestCommandIncludesTwoFlagsFromBootstrapProperties(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	bootstrapProps[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_OPTIONS] = "-Xmx40m -Xms20m"
 	isTraceEnabled := false
@@ -920,6 +988,7 @@ func TestCommandIncludesTwoFlagsFromBootstrapProperties(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -948,7 +1017,8 @@ func TestCommandIncludesDefaultDebugPortAndMode(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -959,6 +1029,7 @@ func TestCommandIncludesDefaultDebugPortAndMode(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -986,7 +1057,8 @@ func TestCommandDrawsValidDebugPortFromBootstrap(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -999,6 +1071,7 @@ func TestCommandDrawsValidDebugPortFromBootstrap(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -1026,7 +1099,8 @@ func TestCommandDrawsInvalidDebugPortFromBootstrap(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -1039,6 +1113,7 @@ func TestCommandDrawsInvalidDebugPortFromBootstrap(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -1066,7 +1141,8 @@ func TestCommandDrawsValidDebugModeFromBootstrap(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -1079,6 +1155,7 @@ func TestCommandDrawsValidDebugModeFromBootstrap(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -1112,7 +1189,8 @@ func TestCommandDrawsInvalidDebugModeFromBootstrap(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -1125,6 +1203,7 @@ func TestCommandDrawsInvalidDebugModeFromBootstrap(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -1152,7 +1231,8 @@ func TestCommandDrawsValidDebugModeListenFromCommandLine(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -1163,6 +1243,7 @@ func TestCommandDrawsValidDebugModeListenFromCommandLine(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -1196,7 +1277,8 @@ func TestCommandDrawsValidDebugModeAttachFromCommandLine(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -1207,6 +1289,7 @@ func TestCommandDrawsValidDebugModeAttachFromCommandLine(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -1240,7 +1323,8 @@ func TestCommandDrawsInvalidDebugModeFromCommandLine(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -1251,6 +1335,7 @@ func TestCommandDrawsInvalidDebugModeFromCommandLine(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -1279,7 +1364,8 @@ func TestLocalMavenNotSetDefaults(t *testing.T) {
 		localMaven,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := false // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -1291,6 +1377,7 @@ func TestLocalMavenNotSetDefaults(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -1319,7 +1406,8 @@ func TestLocalMavenSet(t *testing.T) {
 		_,
 		galasaVersionToRun,
 		overridesFilePath,
-		_ := getDefaultCommandSyntaxTestParameters()
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
 
 	isTraceEnabled := false
 	isDebugEnabled := false // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
@@ -1332,6 +1420,7 @@ func TestLocalMavenSet(t *testing.T) {
 		bootstrapProps, galasaHome, fs, javaHome,
 		testObrs,
 		testLocation,
+		testMethods,
 		remoteMaven,
 		localMaven,
 		galasaVersionToRun,
@@ -1347,6 +1436,50 @@ func TestLocalMavenSet(t *testing.T) {
 
 	assert.Contains(t, args, "--localmaven")
 	assert.Contains(t, args, "mavenRepo")
+}
+
+func TestMethodsAreSetWhenProvided(t *testing.T) {
+	// For...
+	bootstrapProps,
+		_, galasaHome, fs,
+		javaHome,
+		testObrs,
+		testLocation,
+		remoteMaven,
+		localMaven,
+		galasaVersionToRun,
+		overridesFilePath,
+		_,
+		_ := getDefaultCommandSyntaxTestParameters()
+		
+	testMethods := []string{"method1", "method2"}
+	isTraceEnabled := false
+	isDebugEnabled := false 
+	var debugPort uint32 = 0
+	debugMode := ""
+
+	// When...
+	_, args, err := getCommandSyntax(
+		bootstrapProps, galasaHome, fs, javaHome,
+		testObrs,
+		testLocation,
+		testMethods,
+		remoteMaven,
+		localMaven,
+		galasaVersionToRun,
+		overridesFilePath,
+		"", // No Gherkin URL supplied
+		isTraceEnabled,
+		isDebugEnabled, debugPort, debugMode,
+		BLANK_JWT,
+	)
+
+	// Then...
+	assert.Nil(t, err)
+
+	assert.Contains(t, args, "--methods")
+	assert.Contains(t, args, "method1")
+	assert.Contains(t, args, "method2")
 }
 
 func NewMockGherkinParams() (

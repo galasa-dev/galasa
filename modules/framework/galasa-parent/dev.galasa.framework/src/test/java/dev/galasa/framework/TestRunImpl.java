@@ -48,6 +48,26 @@ public class TestRunImpl {
     }
 
     @Test
+    public void testCanCreateARunImplWithRequestedTestMethods() throws Exception  {
+        String name = "U1234";
+        Map<String,String> dssProps = new HashMap<String,String>();
+
+        List<String> requestedTestMethods = new ArrayList<>();
+        requestedTestMethods.add("method1");
+        requestedTestMethods.add("method2");
+
+        GalasaGson gson = new GalasaGson();
+        String testMethodsAsJsonString = gson.toJson(requestedTestMethods);
+        dssProps.put("run.U1234"+".testmethods", testMethodsAsJsonString);
+        IDynamicStatusStoreService dss = new MockDSSStore(dssProps);
+
+        RunImpl run = new RunImpl(name,dss);
+        List<String> testMethodsGotBack = run.getRequestedTestMethods();
+
+        assertThat(testMethodsGotBack).containsExactly("method1","method2");
+    }
+
+    @Test
     public void testCanConvertARunImplToATestStructure() throws Exception  {
         // Given...
         String name = "U1234";
