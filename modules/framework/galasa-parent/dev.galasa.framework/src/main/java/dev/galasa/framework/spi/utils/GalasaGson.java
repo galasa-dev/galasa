@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.lang.reflect.Type;
 import java.io.Reader;
 
 import org.apache.commons.io.output.StringBuilderWriter;
@@ -46,6 +47,10 @@ public class GalasaGson {
 
     public <T> T fromJson(String json, Class<T> classOfT)  {
         return gson.fromJson(json,  classOfT);   
+    }
+
+    public <T> T fromJson(String json, Type typeOfT)  {
+        return gson.fromJson(json,  typeOfT);   
     }
     
     public <T> T fromJson(InputStreamReader inputStreamReader, Class<T> classOfT) throws IOException  {

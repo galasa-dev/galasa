@@ -492,6 +492,12 @@ var (
 	GALASA_ERROR_GET_TAGS_EXPLANATION_NOT_JSON     = NewMessageType("GAL1271E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1271, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_GET_TAGS_REQUEST_FAILED           = NewMessageType("GAL1272E: Failed to get tags from the Galasa service. Sending the put request to the Galasa service failed. Cause is %v", 1272, STACK_TRACE_NOT_WANTED)
 
+	// Java method name validation errors
+	GALASA_ERROR_METHOD_NAME_BLANK                 = NewMessageType("GAL1274E: Invalid Java method name. Method name should not be blank."+SEE_COMMAND_REFERENCE, 1274, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_FIRST_CHAR_IN_METHOD_NAME = NewMessageType("GAL1275E: Invalid Java method name '%s' should start with a letter (a-z, A-Z), not '%s'."+SEE_COMMAND_REFERENCE, 1275, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_CHAR_IN_METHOD_NAME       = NewMessageType("GAL1276E: Invalid Java method name '%s' should not contain the '%s' character."+SEE_COMMAND_REFERENCE, 1276, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_METHOD_RESERVED_WORD      = NewMessageType("GAL1277E: Invalid Java method name. Method name '%s' is a reserved Java keyword."+SEE_COMMAND_REFERENCE, 1277, STACK_TRACE_NOT_WANTED)
+
 	// Warnings...
 	GALASA_WARNING_MAVEN_NO_GALASA_OBR_REPO = NewMessageType("GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '%s', and 'pre-release' repository is '%s'", 2000, STACK_TRACE_WANTED)
 
@@ -509,5 +515,5 @@ var (
 	// >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
 	// >>>       If you do use this number for a new error template, please increment this value.
 	// >>>
-	GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1274
+	GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1278
 )
