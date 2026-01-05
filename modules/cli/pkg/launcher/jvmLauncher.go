@@ -111,6 +111,9 @@ type RunsSubmitLocalCmdParameters struct {
 
 	// A string containing the url of the gherkin test file to be exceuted
 	GherkinURL string
+
+	// A list of strings containing a selection of test methods to be run.
+	TestMethods []string
 }
 
 const (
@@ -194,6 +197,7 @@ func (launcher *JvmLauncher) SubmitTestRun(
 	className string,
 	requestType string,
 	requestor string,
+	user string,
 	stream string,
 	obrFromPortfolio string,
 	isTraceEnabled bool,
@@ -257,6 +261,16 @@ func (launcher *JvmLauncher) SubmitTestRun(
 				}
 
 				if err == nil {
+					// Validate test methods if provided
+					for _, method := range launcher.cmdParams.TestMethods {
+						err = utils.ValidateJavaMethodName(method)
+						if err != nil {
+							break
+						}
+					}
+				}
+
+				if err == nil {
 
 					var jwt = ""
 					if isCPSRemote(launcher.bootstrapProps) {
@@ -278,7 +292,7 @@ func (launcher *JvmLauncher) SubmitTestRun(
 							launcher.bootstrapProps,
 							launcher.galasaHome,
 							launcher.fileSystem, launcher.javaHome, obrs,
-							*testClassToLaunch, launcher.cmdParams.RemoteMaven, launcher.cmdParams.LocalMaven,
+							*testClassToLaunch, launcher.cmdParams.TestMethods, launcher.cmdParams.RemoteMaven, launcher.cmdParams.LocalMaven,
 							launcher.cmdParams.TargetGalasaVersion, overridesFilePath,
 							gherkinURL,
 							isTraceEnabled,
@@ -605,6 +619,7 @@ func getCommandSyntax(
 	javaHome string,
 	testObrs []utils.MavenCoordinates,
 	testLocation TestLocation,
+	testMethods []string,
 	remoteMaven string,
 	localMaven string,
 	galasaVersionToRun string,
@@ -654,12 +669,17 @@ func getCommandSyntax(
 			// --test ${TEST_BUNDLE}/${TEST_JAVA_CLASS}
 			args = append(args, "--test")
 			args = append(args, testLocation.OSGiBundleName+"/"+testLocation.QualifiedJavaClassName)
+
+			// --methods ${TEST_METHOD}
+			for _, method := range testMethods {
+				args = append(args, "--methods")
+				args = append(args, method)
+			}
 		}
 	}
 
 	return cmd, args, err
 }
-
 
 // User input is expected of the form osgiBundleName/qualifiedJavaClassName
 // So split the two pieces apart to help validate them.

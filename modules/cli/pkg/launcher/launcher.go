@@ -24,6 +24,7 @@ type Launcher interface {
 		className string,
 		requestType string,
 		requestor string,
+		user string,
 		stream string,
 		obrFromPortfolio string,
 		isTraceEnabled bool,

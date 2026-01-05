@@ -263,6 +263,8 @@ Note: The `--log -` directs logging information to the stderr console.
 Omit this option if you do not want to see logging, or specify `--log myFileName.txt` if you wish 
 to capture log information in a file.
 
+When submitting runs to a Galasa ecosystem with `runs submit`, the run `requestor` will be set to the user who owns the personal access token that was used to authenticate to the Galasa ecosystem. If you wish to associate a different user with this batch of runs as the run `user`, you can use the `--user` flag. This is useful if you submit runs to a Galasa ecosystem in an automation tool or workflow and the `requestor` is a functional ID or bot account in the tool, but you wish to specify the actual user who triggered the automation, so they can query their runs later with the `runs get` command.
+
 ### Examples
 
 Getting help:-
@@ -310,14 +312,27 @@ such as cleaning up resources when things fail and arbitrating contention for li
 between competing tests. It should only be used during test development to verify that the test is 
 behaving correctly.
 
-### Example : Run a single test in the local JVM.
+### Example: Run a single test class in the local JVM.
 ```
 galasactl runs submit local --log -
           --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr
           --class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
 ```
 
-### Example : Run a single Gherkin test in the local JVM.
+### Example: Run a single test method in the local JVM.
+
+To run a single test method within a test class, supply the `--methods` flag into the `galasactl runs submit local` command.
+
+For example, to run the `testCreateAccount` method within the `TestAccount` class, use the following command:
+
+```
+galasactl runs submit local --log -
+          --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr
+          --class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
+          --methods testCreateAccount
+```
+
+### Example: Run a single Gherkin test in the local JVM.
 ```
 galasactl runs submit local --log -
           --gherkin file:///path/to/gherkin/file.feature

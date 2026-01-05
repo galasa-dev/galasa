@@ -273,6 +273,7 @@ var (
 	GALASA_ERROR_TEST_NOT_IN_RUN_GROUP_LOST               = NewMessageType("GAL1092E: Galasa Ecosystem error: A test was submitted for launch. The galasa runtime is not reporting test progress. "+
 		"The test is lost and may execute but test progress cannot be monitored from this tool. (bundle: %s, class: %s).", 1092, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_FAILED_TO_SUBMIT_TEST                   = NewMessageType("GAL1093E: Failed to submit test (bundle: %s, class: %s). Reason is: %s", 1093, STACK_TRACE_NOT_WANTED)
+	GALASA_USER_MISSING_TEST_LAUNCH_PERMISSION           = NewMessageType("GAL1273E: User '%s' specified with the --user flag does not have permission to launch tests.", 1273, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_NO_OBR_SPECIFIED_ON_INPUTS              = NewMessageType("GAL1094E: User error: Cannot run test %s on a local JVM because no OBR information is available. Supply an OBR using the --obr parameter, or (if using a portfolio) ensure the portfolio contains an OBR for this test."+SEE_COMMAND_REFERENCE, 1094, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_INVALID_NAMESPACE                       = NewMessageType("GAL1095E: namespace '%s' is invalid. Expected it to be in a format starting with letters, and ending in a number with no non-alphanumeric characters."+SEE_COMMAND_REFERENCE, 1095, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_QUERY_NAMESPACE_FAILED                  = NewMessageType("GAL1096E: Could not query namespace results. Reason: '%s'", 1096, STACK_TRACE_WANTED)
@@ -485,13 +486,19 @@ var (
 	GALASA_ERROR_INVALID_TAG_DESCRIPTION			 			 = NewMessageType("GAL1265E: Invalid tag description provided. The description provided with the --description flag cannot only contain spaces or tabs, and must only contain characters in the Latin-1 character set.", 1265, STACK_TRACE_NOT_WANTED)
 
 	// Tags get errors
-	GALASA_ERROR_FAILED_TO_GET_TAGS                  = NewMessageType("GAL1266E: Failed to get tags from the Galasa service", 1266, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_GET_TAGS_NO_RESPONSE_CONTENT        = NewMessageType("GAL1267E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server.", 1267, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_GET_TAGS_RESPONSE_BODY_UNREADABLE   = NewMessageType("GAL1268E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1268, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_GET_TAGS_UNPARSEABLE_CONTENT        = NewMessageType("GAL1269E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1269, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_GET_TAGS_SERVER_REPORTED_ERROR      = NewMessageType("GAL1270E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1270, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_GET_TAGS_EXPLANATION_NOT_JSON       = NewMessageType("GAL1271E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1271, STACK_TRACE_NOT_WANTED)
-	GALASA_ERROR_GET_TAGS_REQUEST_FAILED             = NewMessageType("GAL1272E: Failed to get tags from the Galasa service. Sending the put request to the Galasa service failed. Cause is %v", 1272, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_FAILED_TO_GET_TAGS                = NewMessageType("GAL1266E: Failed to get tags from the Galasa service", 1266, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_NO_RESPONSE_CONTENT      = NewMessageType("GAL1267E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server.", 1267, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_RESPONSE_BODY_UNREADABLE = NewMessageType("GAL1268E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1268, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_UNPARSEABLE_CONTENT      = NewMessageType("GAL1269E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1269, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_SERVER_REPORTED_ERROR    = NewMessageType("GAL1270E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1270, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_EXPLANATION_NOT_JSON     = NewMessageType("GAL1271E: Failed to get tags from the Galasa service. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1271, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_GET_TAGS_REQUEST_FAILED           = NewMessageType("GAL1272E: Failed to get tags from the Galasa service. Sending the put request to the Galasa service failed. Cause is %v", 1272, STACK_TRACE_NOT_WANTED)
+
+	// Java method name validation errors
+	GALASA_ERROR_METHOD_NAME_BLANK                 = NewMessageType("GAL1274E: Invalid Java method name. Method name should not be blank."+SEE_COMMAND_REFERENCE, 1274, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_FIRST_CHAR_IN_METHOD_NAME = NewMessageType("GAL1275E: Invalid Java method name '%s' should start with a letter (a-z, A-Z), not '%s'."+SEE_COMMAND_REFERENCE, 1275, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_CHAR_IN_METHOD_NAME       = NewMessageType("GAL1276E: Invalid Java method name '%s' should not contain the '%s' character."+SEE_COMMAND_REFERENCE, 1276, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_METHOD_RESERVED_WORD      = NewMessageType("GAL1277E: Invalid Java method name. Method name '%s' is a reserved Java keyword."+SEE_COMMAND_REFERENCE, 1277, STACK_TRACE_NOT_WANTED)
 
 	// Runs update errors
 	GALASA_ERROR_UPDATE_RUN_INVALID_TAG_UPDATE       		= NewMessageType("GAL1273E: Invalid update request. The tag '%s' cannot be added and deleted in the same command.", 1273, STACK_TRACE_NOT_WANTED)

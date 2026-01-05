@@ -80,7 +80,7 @@ func ReportJunit(
 
 			testSuites.Tests = testSuites.Tests + 1
 			testSuite.Tests = testSuite.Tests + 1
-			if !strings.HasPrefix(method.Result, "Passed") {
+			if !strings.HasPrefix(method.Result, "Passed") && !strings.HasPrefix(method.Result, "Ignored") {
 				testSuites.Failures = testSuites.Failures + 1
 				testSuite.Failures = testSuite.Failures + 1
 

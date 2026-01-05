@@ -39,9 +39,10 @@ public class RBACServiceImpl implements RBACService {
 
     private static Map<String,Action> actionsMapById ;
 
-    private static Role roleAdmin ;
+    private static Role roleAdmin;
     private static Role roleTester;
-    private static Role roleOwner ;
+    private static Role roleOwner;
+    private static Role roleViewer;
 
     private static Role roleDeactivated;
 
@@ -66,14 +67,16 @@ public class RBACServiceImpl implements RBACService {
 
         roleAdmin= ADMIN.getRole();
 
-        //The role of "owner" can not be assigned. A user can be assigned owner by a kubernetes configuration action"
+        // The role of "owner" cannot be assigned. A user can be assigned owner by a kubernetes configuration action"
         roleOwner= OWNER.getRole();
 
         roleTester = TESTER.getRole();
 
+        roleViewer = VIEWER.getRole();
+
         roleDeactivated = DEACTIVATED.getRole();
 
-        List<Role> rolesUnsorted = List.of(roleAdmin, roleTester, roleDeactivated, roleOwner);
+        List<Role> rolesUnsorted = List.of(roleAdmin, roleTester, roleDeactivated, roleOwner, roleViewer);
 
 
         rolesSortedByName = new ArrayList<Role>(rolesUnsorted);

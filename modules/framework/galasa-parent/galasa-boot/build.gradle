@@ -56,13 +56,13 @@ dependencies {
     //
     // Without this, the framework would complain about not being able to find templates
     // on the classpath.
-    embedImplementation 'org.apache.logging.log4j:log4j-layout-template-json:2.25.1'
+    embedImplementation 'org.apache.logging.log4j:log4j-layout-template-json:2.25.3'
 
     bundleDependency 'org.apache.felix:org.apache.felix.bundlerepository:2.0.10'
     bundleDependency 'org.apache.felix:org.apache.felix.scr:2.1.14'
-    bundleDependency 'org.apache.logging.log4j:log4j-api:2.25.1'
-    bundleDependency 'org.apache.logging.log4j:log4j-core:2.25.1'
-    bundleDependency 'org.apache.logging.log4j:log4j-layout-template-json:2.25.1'
+    bundleDependency 'org.apache.logging.log4j:log4j-api:2.25.3'
+    bundleDependency 'org.apache.logging.log4j:log4j-core:2.25.3'
+    bundleDependency 'org.apache.logging.log4j:log4j-layout-template-json:2.25.3'
     bundleDependency project (':dev.galasa.framework.log4j2.bridge')
     bundleDependency project (':dev.galasa.framework.maven.repository')
     bundleDependency project (':dev.galasa.framework.maven.repository.spi')

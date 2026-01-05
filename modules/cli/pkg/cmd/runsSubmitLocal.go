@@ -139,6 +139,12 @@ func (cmd *RunsSubmitLocalCommand) createRunsSubmitLocalCobraCmd(
 			"The connection is established using the --debugMode and --debugPort values.",
 	)
 
+	runsSubmitLocalCobraCmd.Flags().StringSliceVar(&cmd.values.runsSubmitLocalCmdParams.TestMethods, "methods", make([]string, 0),
+		"Optional. The names of the Java test methods from the test class provided via the --class option that you wish to run."+
+		" Method names must start with a letter (a-z, A-Z), can contain letters, numbers, and underscores, and must not be a Java reserved keyword."+
+		" If not specified, all methods in the given class are run. Method names are case sensitive."+
+		" This option can only be used alongside --class and cannot be used with --gherkin.")
+
 	runs.AddClassFlag(runsSubmitLocalCobraCmd, cmd.values.submitLocalSelectionFlags, false, "test class names."+
 		" The format of each entry is osgi-bundle-name/java-class-name. Java class names are fully qualified. No .class suffix is needed.")
 
@@ -146,6 +152,7 @@ func (cmd *RunsSubmitLocalCommand) createRunsSubmitLocalCobraCmd(
 
 	runsSubmitLocalCobraCmd.MarkFlagsRequiredTogether("class", "obr")
 	runsSubmitLocalCobraCmd.MarkFlagsOneRequired("class", "gherkin")
+	runsSubmitLocalCobraCmd.MarkFlagsMutuallyExclusive("methods", "gherkin")
 
 	runsSubmitCmd.CobraCommand().AddCommand(runsSubmitLocalCobraCmd)
 

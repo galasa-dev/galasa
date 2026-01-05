@@ -116,16 +116,29 @@ public class TestPodSchedulerTest {
         V1PreferredSchedulingTerm preferred = new V1PreferredSchedulingTerm();
         preferred.setWeight(1);
 
-        V1NodeSelectorTerm selectorTerm = new V1NodeSelectorTerm();
+        V1NodeSelectorTerm selectorTerm = buildNodeSelectorTerm(nodePreferredAffinitySplit[0], nodePreferredAffinitySplit[1]);
         preferred.setPreference(selectorTerm);
+
+        return preferred;
+    }
+
+    private V1NodeSelectorTerm createNodeSelectorTerm(String nodeAffinity) {
+        String[] nodeAffinitySplit = nodeAffinity.split("=");
+        V1NodeSelectorTerm selectorTerm = buildNodeSelectorTerm(nodeAffinitySplit[0], nodeAffinitySplit[1]);
+
+        return selectorTerm;
+    }
+
+    private V1NodeSelectorTerm buildNodeSelectorTerm(String key, String value) {
+        V1NodeSelectorTerm selectorTerm = new V1NodeSelectorTerm();
 
         V1NodeSelectorRequirement requirement = new V1NodeSelectorRequirement();
         selectorTerm.addMatchExpressionsItem(requirement);
-        requirement.setKey(nodePreferredAffinitySplit[0]);
+        requirement.setKey(key);
         requirement.setOperator("In");
-        requirement.addValuesItem(nodePreferredAffinitySplit[1]);
+        requirement.addValuesItem(value);
 
-        return preferred;
+        return selectorTerm;
     }
 
     private void checkPodSpec(V1Pod pod, ISettings settings) {
@@ -135,10 +148,20 @@ public class TestPodSchedulerTest {
         assertThat(podSpec).isNotNull();
 
         // Check the podspec's node affinity is as expected
-        V1PreferredSchedulingTerm preferredSchedulingTerm = createSchedulingTerm(settings.getNodePreferredAffinity());
-        List<V1PreferredSchedulingTerm> terms = podSpec.getAffinity().getNodeAffinity().getPreferredDuringSchedulingIgnoredDuringExecution();
+        String nodePreferredAffinity = settings.getNodePreferredAffinity();
+        String nodeRequiredAffinity = settings.getNodeRequiredAffinity();
+        if (nodePreferredAffinity != null) {
+            V1PreferredSchedulingTerm preferredSchedulingTerm = createSchedulingTerm(settings.getNodePreferredAffinity());
+            List<V1PreferredSchedulingTerm> terms = podSpec.getAffinity().getNodeAffinity().getPreferredDuringSchedulingIgnoredDuringExecution();
+            assertThat(terms.contains(preferredSchedulingTerm));
+        }
 
-        assertThat(terms.contains(preferredSchedulingTerm));
+        if (nodeRequiredAffinity != null) {
+            V1NodeSelectorTerm requiredNodeSelectorTerm = createNodeSelectorTerm(settings.getNodeRequiredAffinity());
+            List<V1NodeSelectorTerm> requiredAffinityTerms = podSpec.getAffinity().getNodeAffinity().getRequiredDuringSchedulingIgnoredDuringExecution().getNodeSelectorTerms();
+            assertThat(requiredAffinityTerms.contains(requiredNodeSelectorTerm));
+        }
+
 
         // Check the podspec's node tolerances are as expected
         String[] nodeTolerationsStringList = settings.getNodeTolerations().split(",");
@@ -225,6 +248,124 @@ public class TestPodSchedulerTest {
         // Then...
         String expectedEncryptionKeysMountPath = "/encryption";
         assertPodDetailsAreCorrect(pod, galasaServiceInstallName, runName, podName, expectedEncryptionKeysMountPath, settings);
+    }
+
+    @Test
+    public void testCanCreateTestPodWithoutNodeRequiredAffinity() throws Exception {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String encryptionKeysMountPath = "/encryption/encryption-keys.yaml";
+        mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, encryptionKeysMountPath);
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        MockISettings settings = new MockISettings();
+        settings.setNodeRequiredAffinity(null);
+
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
+
+        // Then...
+        String expectedEncryptionKeysMountPath = "/encryption";
+        assertPodDetailsAreCorrect(pod, galasaServiceInstallName, runName, podName, expectedEncryptionKeysMountPath, settings);
+        assertThat(pod.getSpec().getAffinity().getNodeAffinity().getRequiredDuringSchedulingIgnoredDuringExecution()).isNull();
+    }
+
+    @Test
+    public void testCanCreateTestPodWithoutNodePreferredAffinity() throws Exception {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String encryptionKeysMountPath = "/encryption/encryption-keys.yaml";
+        mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, encryptionKeysMountPath);
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        MockISettings settings = new MockISettings();
+        settings.setNodePreferredAffinity(null);
+
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
+
+        // Then...
+        String expectedEncryptionKeysMountPath = "/encryption";
+        assertPodDetailsAreCorrect(pod, galasaServiceInstallName, runName, podName, expectedEncryptionKeysMountPath, settings);
+        assertThat(pod.getSpec().getAffinity().getNodeAffinity().getPreferredDuringSchedulingIgnoredDuringExecution()).isEmpty();
+    }
+
+    @Test
+    public void testCanCreateTestPodWithoutAffinity() throws Exception {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String encryptionKeysMountPath = "/encryption/encryption-keys.yaml";
+        mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, encryptionKeysMountPath);
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        MockISettings settings = new MockISettings();
+        settings.setNodePreferredAffinity(null);
+        settings.setNodeRequiredAffinity(null);
+
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
+
+        // Then...
+        String expectedEncryptionKeysMountPath = "/encryption";
+        assertPodDetailsAreCorrect(pod, galasaServiceInstallName, runName, podName, expectedEncryptionKeysMountPath, settings);
+        assertThat(pod.getSpec().getAffinity()).isNull();
     }
 
     @Test
