@@ -272,11 +272,16 @@ The `galasactl` tool can generate the following errors:
 - GAL1270E: Failed to get tags from the Galasa service. Unexpected http status code {} received from the server. Error details from the server are: '{}'
 - GAL1271E: Failed to get tags from the Galasa service. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
 - GAL1272E: Failed to get tags from the Galasa service. Sending the put request to the Galasa service failed. Cause is {}
-- GAL1273E: User '{}' specified with the --user flag does not have permission to launch tests.
-- GAL1274E: Invalid Java method name. Method name should not be blank. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference
-- GAL1275E: Invalid Java method name '{}' should start with a letter (a-z, A-Z), not '{}'. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference
-- GAL1276E: Invalid Java method name '{}' should not contain the '{}' character. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference
-- GAL1277E: Invalid Java method name. Method name '{}' is a reserved Java keyword. Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference
+- GAL1273E: Invalid update request. The tag '{}' cannot be added and deleted in the same command.
+- GAL1274E: Invalid update request. The flag '{}' must be used when attempting to update a run.
+- GAL1275E: The run named '{}' could not be updated because it was not found by the Galasa service. Try listing runs using 'galasactl runs get' to identify the one you wish to update.
+- GAL1276E: Failed to update run. Did not recieve an HTTP response. Cause is {}
+- GAL1277E: An attempt to update a run named '{}' failed. Unexpected http status code {} received from the server.
+- GAL1278E: An attempt to update a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1279E: An attempt to update a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1280E: An attempt to update a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1281E: An attempt to update a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
+- GAL1282E: Invalid tag name '{}' provided. Tag names cannot be empty and must only contain characters in the Latin-1 character set.
 - GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'
 - GAL2501I: Downloaded {} artifacts to folder '{}'
 
