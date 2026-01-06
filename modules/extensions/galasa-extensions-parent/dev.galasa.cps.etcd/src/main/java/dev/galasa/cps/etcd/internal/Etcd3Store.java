@@ -29,6 +29,9 @@ import io.etcd.jetcd.op.Op;
 import io.etcd.jetcd.options.DeleteOption;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
+import io.vertx.core.file.FileSystemOptions;
 
 /**
  * Abstract class containing common methods used to interact with etcd, like getting, setting,
@@ -45,10 +48,31 @@ public abstract class Etcd3Store {
     }
 
     public Etcd3Store(URI etcdUri) {
-        this(Client.builder().endpoints(etcdUri).build());
+        this(Client.builder()
+            .vertx(createVertx())
+            .endpoints(etcdUri).build());
     }
 
-    protected String get(String key) throws InterruptedException, ExecutionException {
+    /**
+     * Creates a Vertx instance to use when building the etcd client.
+     */
+    private static Vertx createVertx() {
+        FileSystemOptions fileSystemOptions = new FileSystemOptions();
+
+        // By default, Vertx creates a cache directory ".vertx" which is typically used
+        // in web applications to serve content from jar files. Galasa doesn't use this,
+        // and it's causing OSGi wiring errors when the framework shuts down, so we're
+        // disabling this Vertx functionality here
+        fileSystemOptions.setClassPathResolvingEnabled(false);
+        fileSystemOptions.setFileCachingEnabled(false);
+
+        VertxOptions vertxOptions = new VertxOptions();
+        vertxOptions.setFileSystemOptions(fileSystemOptions);
+
+        return Vertx.vertx(vertxOptions);
+    }
+
+    protected String getPropertyByKey(String key) throws InterruptedException, ExecutionException {
         ByteSequence bsKey = ByteSequence.from(key, UTF_8);
         CompletableFuture<GetResponse> getFuture = kvClient.get(bsKey);
         GetResponse response = getFuture.get();
@@ -61,7 +85,7 @@ public abstract class Etcd3Store {
         return retrievedKey;
     }
 
-    protected Map<String, String> getPrefix(String keyPrefix) throws InterruptedException, ExecutionException {
+    protected Map<String, String> getPropertiesWithPrefix(String keyPrefix) throws InterruptedException, ExecutionException {
         Map<String, String> keyValues = new HashMap<>();
 
         ByteSequence bsPrefix = ByteSequence.from(keyPrefix, UTF_8);
@@ -83,7 +107,7 @@ public abstract class Etcd3Store {
         return keyValues;
     }
 
-    protected void put(String key, String value) throws InterruptedException, ExecutionException {
+    protected void putProperty(String key, String value) throws InterruptedException, ExecutionException {
         ByteSequence bytesKey = ByteSequence.from(key, UTF_8);
         ByteSequence bytesValue = ByteSequence.from(value, UTF_8);
         kvClient.put(bytesKey, bytesValue).get();
@@ -107,12 +131,12 @@ public abstract class Etcd3Store {
         response.get();
     }
 
-    protected void delete(@NotNull String key) throws InterruptedException, ExecutionException {
+    protected void deletePropertyByKey(@NotNull String key) throws InterruptedException, ExecutionException {
         ByteSequence bytesKey = ByteSequence.from(key, StandardCharsets.UTF_8);
         kvClient.delete(bytesKey).get();
     }
 
-    protected void deletePrefix(@NotNull String keyPrefix) throws InterruptedException, ExecutionException {
+    protected void deletePropertiesWithPrefix(@NotNull String keyPrefix) throws InterruptedException, ExecutionException {
         ByteSequence bsKey = ByteSequence.from(keyPrefix, UTF_8);
         DeleteOption options = DeleteOption.builder().isPrefix(true).build();
         kvClient.delete(bsKey, options).get();

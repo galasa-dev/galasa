@@ -7,6 +7,8 @@ package dev.galasa.framework;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
@@ -74,14 +76,17 @@ public class TestTestClassWrapper {
         }
         
         // runTestMethods should throw a fake exception so we can check that other methods get called despite the exception.
-        protected void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
+        @Override
+        protected void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName, List<TestMethodWrapper> testMethodsToRun) throws TestRunException {
             // Do nothing.
         }
 
+        @Override
         protected void runBeforeClassMethods( @NotNull ITestRunManagers managers ) throws TestRunException {
             // Do nothing.
         }
 
+        @Override
         protected void runAfterClassMethods( @NotNull ITestRunManagers managers ) throws TestRunException {
             // Do nothing.
         }
@@ -100,10 +105,12 @@ public class TestTestClassWrapper {
         }
         
         // runTestMethods should throw a fake exception so we can check that other methods get called despite the exception.
-        protected void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName) throws TestRunException {
+        @Override
+        protected void runTestMethods(@NotNull ITestRunManagers managers, IDynamicStatusStoreService dss, String runName, List<TestMethodWrapper> testMethodsToRun) throws TestRunException {
             throw new TestRunException(fakeExceptionMessage);
         }
 
+        @Override
         protected void runAfterClassMethods( @NotNull ITestRunManagers managers ) throws TestRunException {
             isAfterMethodAlreadyCalled = true;
         }
@@ -299,9 +306,10 @@ public class TestTestClassWrapper {
         ITestRunManagers managers = new MockTestRunManagers(isContinueOnTestFailureFromCPS, null);
 
         String runName = null;
+        List<String> testMethodsToRun = null;
 
         // When...
-        TestRunException exGotBack = catchThrowableOfType( () -> wrapper.runMethods( managers, dss, runName), TestRunException.class );
+        TestRunException exGotBack = catchThrowableOfType( () -> wrapper.runMethods( managers, dss, runName, testMethodsToRun), TestRunException.class );
 
 
         // Then...
@@ -341,9 +349,10 @@ public class TestTestClassWrapper {
         MockTestRunManagers managers = new MockTestRunManagers(isContinueOnTestFailureFromCPS, null);
 
         String runName = null;
+        List<String> testMethodsToRun = null;
 
         // When...
-        TestRunException exGotBack = catchThrowableOfType( ()-> wrapper.runMethods( managers, dss, runName), TestRunException.class );
+        TestRunException exGotBack = catchThrowableOfType( ()-> wrapper.runMethods( managers, dss, runName, testMethodsToRun), TestRunException.class );
 
         // Then...
         assertThat(exGotBack).hasMessage(fakeExceptionMessage);
@@ -411,12 +420,13 @@ public class TestTestClassWrapper {
             testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS , ras , interruptedMonitor, (Log)logger);
 
         ITestRunManagers managers = new MockTestRunManagers(isContinueOnTestFailureFromCPS, null);
+        List<String> testMethodsToRun = null;
 
         wrapper.parseTestClass();
         wrapper.instantiateTestClass();
 
         // When...
-        wrapper.runMethods(managers, dss, runName);
+        wrapper.runMethods(managers, dss, runName, testMethodsToRun);
 
         // Then...
         assertThat(testStructure.getMethods().size()).isEqualTo(2);
@@ -443,6 +453,59 @@ public class TestTestClassWrapper {
 
     }
 
+    @Test
+    public void testRunMethodsCanRunRequestedMethodsAndIgnoresOtherMethods() throws Exception {
+
+        // Given...
+        String testBundle = null;
+        String runName = "U1";
+
+        Class<?> testClass = FakeTestThatCanBeRun.class;
+        TestStructure testStructure = new TestStructure();
+        boolean isContinueOnTestFailureFromCPS = true;
+
+        MockRASStoreService ras = new MockRASStoreService(null);
+   
+
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        
+        InterruptedMonitorImpl interruptedMonitor = new InterruptedMonitorImpl(dss,runName);
+        MockLog logger = new MockLog();
+        TestClassWrapper wrapper = new TestClassWrapper(
+            testBundle, testClass, testStructure, isContinueOnTestFailureFromCPS , ras , interruptedMonitor, (Log)logger);
+
+        ITestRunManagers managers = new MockTestRunManagers(isContinueOnTestFailureFromCPS, null);
+        List<String> testMethodsToRun = List.of("myTestMethod1");
+
+        wrapper.parseTestClass();
+        wrapper.instantiateTestClass();
+
+        // When...
+        wrapper.runMethods(managers, dss, runName, testMethodsToRun);
+
+        // Then...
+        assertThat(testStructure.getMethods().size()).isEqualTo(2);
+
+        // The Befores of the TestMethods should not be pointing to the same object...
+        assertThat(testStructure.getMethods().get(0).getBefores().get(0))
+        .isNotEqualTo(testStructure.getMethods().get(1).getBefores().get(0));
+
+        // The Afters of the TestMethods should not be pointing to the same object...
+        assertThat(testStructure.getMethods().get(0).getAfters().get(0))
+        .isNotEqualTo(testStructure.getMethods().get(1).getAfters().get(0));
+
+        // testMethod1 should have passed...
+        assertThat(testStructure.getMethods().get(0).getBefores().get(0).getResult()).isEqualTo("Passed");
+        assertThat(testStructure.getMethods().get(0).getBefores().get(0).getStatus()).isEqualTo("finished");
+        assertThat(testStructure.getMethods().get(0).getResult()).isEqualTo("Passed");
+        assertThat(testStructure.getMethods().get(0).getAfters().get(0).getResult()).isEqualTo("Passed");
+        assertThat(testStructure.getMethods().get(0).getAfters().get(0).getStatus()).isEqualTo("finished");
+
+        // testMethod2 should have been ignored...
+        assertThat(testStructure.getMethods().get(1).getBefores().get(0).getResult()).isEqualTo("Ignored");
+        assertThat(testStructure.getMethods().get(1).getResult()).isEqualTo("Ignored");
+        assertThat(testStructure.getMethods().get(1).getAfters().get(0).getResult()).isEqualTo("Ignored");
+    }
 
     // If the test is interrupted, it should cancel the test before it does anything with managers.
     @Test
@@ -471,9 +534,10 @@ public class TestTestClassWrapper {
         MockTestRunManagers managers = new MockTestRunManagers(isContinueOnTestFailureFromCPS, null);
 
         String runName = null;
+        List<String> testMethodsToRun = null;
 
         // When...
-        wrapper.runMethods( managers, dss, runName);
+        wrapper.runMethods( managers, dss, runName, testMethodsToRun);
 
         // Then...
         Result result = wrapper.getResult();
@@ -597,6 +661,7 @@ public class TestTestClassWrapper {
         MockTestRunManagers managers = new MockTestRunManagers(isContinueOnTestFailureFromCPS, null);
 
         String runName = null;
+        List<String> testMethodsToRun = null;
         
         // Initialize the testClass with our fake date...
         wrapper.parseTestClass();
@@ -605,7 +670,7 @@ public class TestTestClassWrapper {
         testClassInstance.init(dss, testRunName); 
 
         // When...
-        wrapper.runMethods( managers, dss, runName);
+        wrapper.runMethods( managers, dss, runName, testMethodsToRun);
 
         // Then...
         assertThat(testClassInstance.firstMethodCalledCounter).as("Expected the first test method to have been called").isEqualTo(1);
@@ -636,12 +701,13 @@ public class TestTestClassWrapper {
         MockTestRunManagers managers = new MockTestRunManagers(isTestClassToBeIgnored, Result.ignore("IGNORED!"));
 
         String runName = null;
+        List<String> testMethodsToRun = null;
 
         wrapper.parseTestClass();
         wrapper.instantiateTestClass();
 
         // When...
-        wrapper.runMethods(managers, dss, runName);
+        wrapper.runMethods(managers, dss, runName, testMethodsToRun);
 
         // Then...
         Result result = wrapper.getResult();
@@ -669,6 +735,7 @@ public class TestTestClassWrapper {
         MockTestRunManagers managers = new MockTestRunManagers(isTestClassToBeIgnored, null);
 
         String runName = null;
+        List<String> testMethodsToRun = null;
 
         wrapper.parseTestClass();
         wrapper.instantiateTestClass();
@@ -678,7 +745,7 @@ public class TestTestClassWrapper {
         testClassInstance.init(managers, isSimulatingTestFailure);
 
         // When...
-        wrapper.runMethods(managers, dss, runName);
+        wrapper.runMethods(managers, dss, runName, testMethodsToRun);
 
         // Then...
         Result result = wrapper.getResult();
@@ -709,6 +776,7 @@ public class TestTestClassWrapper {
         MockTestRunManagers managers = new MockTestRunManagers(isTestClassToBeIgnored, null);
 
         String runName = null;
+        List<String> testMethodsToRun = null;
 
         wrapper.parseTestClass();
         wrapper.instantiateTestClass();
@@ -718,7 +786,7 @@ public class TestTestClassWrapper {
         testClassInstance.init(managers, isSimulatingTestFailure);
 
         // When...
-        wrapper.runMethods(managers, dss, runName);
+        wrapper.runMethods(managers, dss, runName, testMethodsToRun);
 
         // Then...
         Result result = wrapper.getResult();

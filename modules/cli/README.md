@@ -312,14 +312,27 @@ such as cleaning up resources when things fail and arbitrating contention for li
 between competing tests. It should only be used during test development to verify that the test is 
 behaving correctly.
 
-### Example : Run a single test in the local JVM.
+### Example: Run a single test class in the local JVM.
 ```
 galasactl runs submit local --log -
           --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr
           --class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
 ```
 
-### Example : Run a single Gherkin test in the local JVM.
+### Example: Run a single test method in the local JVM.
+
+To run a single test method within a test class, supply the `--methods` flag into the `galasactl runs submit local` command.
+
+For example, to run the `testCreateAccount` method within the `TestAccount` class, use the following command:
+
+```
+galasactl runs submit local --log -
+          --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr
+          --class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
+          --methods testCreateAccount
+```
+
+### Example: Run a single Gherkin test in the local JVM.
 ```
 galasactl runs submit local --log -
           --gherkin file:///path/to/gherkin/file.feature

@@ -55,6 +55,7 @@ const (
 	COMMAND_NAME_RUNS_SUBMIT              = "runs submit"
 	COMMAND_NAME_RUNS_SUBMIT_LOCAL        = "runs submit local"
 	COMMAND_NAME_RUNS_RESET               = "runs reset"
+	COMMAND_NAME_RUNS_UPDATE              = "runs update"
 	COMMAND_NAME_RUNS_CANCEL              = "runs cancel"
 	COMMAND_NAME_RUNS_CLEANUP             = "runs cleanup"
 	COMMAND_NAME_RUNS_CLEANUP_LOCAL       = "runs cleanup local"
@@ -344,6 +345,7 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 	var runsSubmitCommand spi.GalasaCommand
 	var runsSubmitLocalCommand spi.GalasaCommand
 	var runsResetCommand spi.GalasaCommand
+	var runsUpdateCommand spi.GalasaCommand
 	var runsCancelCommand spi.GalasaCommand
 	var runsDeleteCommand spi.GalasaCommand
 	var runsCleanupCommand spi.GalasaCommand
@@ -363,9 +365,12 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 						if err == nil {
 							runsResetCommand, err = NewRunsResetCommand(factory, runsCommand, commsFlagSet)
 							if err == nil {
-								runsCancelCommand, err = NewRunsCancelCommand(factory, runsCommand, commsFlagSet)
+								runsUpdateCommand, err = NewRunsUpdateCommand(factory, runsCommand, commsFlagSet)
 								if err == nil {
-									runsDeleteCommand, err = NewRunsDeleteCommand(factory, runsCommand, commsFlagSet)
+									runsCancelCommand, err = NewRunsCancelCommand(factory, runsCommand, commsFlagSet)
+									if err == nil {
+										runsDeleteCommand, err = NewRunsDeleteCommand(factory, runsCommand, commsFlagSet)
+									}
 								}
 							}
 						}
@@ -389,6 +394,7 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 		commands.commandMap[runsSubmitCommand.Name()] = runsSubmitCommand
 		commands.commandMap[runsSubmitLocalCommand.Name()] = runsSubmitLocalCommand
 		commands.commandMap[runsResetCommand.Name()] = runsResetCommand
+		commands.commandMap[runsUpdateCommand.Name()] = runsUpdateCommand
 		commands.commandMap[runsCancelCommand.Name()] = runsCancelCommand
 		commands.commandMap[runsDeleteCommand.Name()] = runsDeleteCommand
 		commands.commandMap[runsCleanupCommand.Name()] = runsCleanupCommand
