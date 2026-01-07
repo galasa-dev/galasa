@@ -46,7 +46,7 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
     private static final String TEST_NAMES_VIEW_FUNCTION       = "function (doc) { emit(doc.testName, 1); }";
     private static final String BUNDLE_TESTNAMES_VIEW_FUNCTION = "function (doc) { emit(doc.bundle + '/' + doc.testName, 1); }";
     private static final String RUN_NAMES_VIEW_FUNCTION        = "function (doc) { emit(doc.runName, 1); }";
-    private static final String GROUP_VIEW_FUNCTION            = "function (doc) { if (doc.group !== undefined && doc.group !== null) { emit(doc.group, doc); } }";
+    private static final String GROUP_VIEW_FUNCTION            = "function (doc) { if (doc.group !== undefined && doc.group !== null) { emit(doc.group, 1); } }";
     private static final String COUNT_REDUCE                   = "_count";
     
     private final GalasaGson                         gson               = new GalasaGson();
