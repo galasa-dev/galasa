@@ -87,18 +87,26 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
 
             checkRunDesignDocument(httpClient, rasUri,1, timeService);
 
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "runName",timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "requestor",timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "queued",timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "startTime", timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "endTime", timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "testName", timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "bundle", timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "result", timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "group", timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "submissionId", timeService);
-            checkIndex(httpClient, rasUri, 1, "galasa_run", "tags", timeService);
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "runName");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "requestor");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "queued");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "startTime");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "endTime");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "testName");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "bundle");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "result");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "group");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "submissionId");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "tags");
 
+            // Indexes with multiple fields
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "requestor", "queued");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "user", "requestor", "queued");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "result", "queued");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "status", "queued");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "group", "result");
+            checkIndex(httpClient, rasUri, 1, "galasa_run", timeService, "group", "status");
+            
             logger.debug("RAS CouchDB at " + rasUri.toString() + " validated");
         } catch (CouchdbException e) {
             throw e;
@@ -340,7 +348,7 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
 
 
 
-    private void checkIndex(CloseableHttpClient httpClient, URI rasUri , int attempts, String dbName, String field, ITimeService timeService) throws CouchdbException {
+    private void checkIndex(CloseableHttpClient httpClient, URI rasUri , int attempts, String dbName, ITimeService timeService, String... fieldsToAdd) throws CouchdbException {
         HttpGet httpGet = requestFactory.getHttpGetRequest(rasUri + "/galasa_run/_index");
 
         String idxJson = null;
@@ -363,7 +371,7 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
         JsonObject idx = gson.fromJson(idxJson, JsonObject.class);
         boolean create = true;
 
-        String idxName = field + "-index";
+        String idxName = String.join("-", fieldsToAdd) + "-index";
 
         JsonArray idxs = idx.getAsJsonArray("indexes");
         if (idxs != null) {
@@ -397,9 +405,11 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
             JsonArray fields = new JsonArray();
             index.add("fields", fields);
 
-            JsonObject field1 = new JsonObject();
-            fields.add(field1);
-            field1.addProperty(field, "asc");
+            for (String fieldToAdd : fieldsToAdd) {
+                JsonObject fieldObj = new JsonObject();
+                fields.add(fieldObj);
+                fieldObj.addProperty(fieldToAdd, "asc");
+            }
 
             HttpEntity entity = new StringEntity(gson.toJson(doc), ContentType.APPLICATION_JSON);
 
@@ -418,7 +428,7 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
                                 "Update of galasa_run index failed on CouchDB server due to conflicts, attempted 10 times");
                     }
                     timeService.sleepMillis(1000 + new Random().nextInt(3000));
-                    checkIndex(httpClient, rasUri, attempts, dbName, field, timeService);
+                    checkIndex(httpClient, rasUri, attempts, dbName, timeService, fieldsToAdd);
                     return;
                 }
 
