@@ -85,7 +85,7 @@ func (query *RunsQuery) GetRunsPageFromRestApi(
 		var httpResponse *http.Response
 		var context context.Context = nil
 
-		apicall := apiClient.ResultArchiveStoreAPIApi.GetRasSearchRuns(context).ClientApiVersion(restApiVersion).IncludeCursor("true")
+		apicall := apiClient.ResultArchiveStoreAPIApi.GetRasSearchRuns(context).ClientApiVersion(restApiVersion)
 		if !query.fromTime.IsZero() {
 			apicall = apicall.From(query.fromTime)
 		}

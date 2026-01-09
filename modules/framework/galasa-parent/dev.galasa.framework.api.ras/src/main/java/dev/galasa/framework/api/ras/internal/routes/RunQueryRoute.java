@@ -5,8 +5,6 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
-import org.apache.commons.collections4.ListUtils;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -22,6 +20,7 @@ import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.api.ras.internal.common.RasDetailsQueryParams;
 import dev.galasa.framework.api.ras.internal.common.RasQueryParameters;
 import dev.galasa.framework.api.ras.internal.common.RunResultUtility;
+import dev.galasa.framework.api.ras.internal.common.UserQueryContext;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
@@ -69,6 +68,9 @@ public class RunQueryRoute extends RunsRoute {
 			"to", "endTime",
 			"testclass", "testName");
 
+	// No longer used, but keep it for now to avoid breaking existing clients
+	public static final String QUERY_PARAMETER_INCLUDECURSOR = "includecursor";
+
 	public static final String QUERY_PARAMETER_SORT = "sort";
 	public static final String QUERY_PARAMETER_RESULT = "result";
 	public static final String QUERY_PARAMETER_STATUS = "status";
@@ -78,11 +80,9 @@ public class RunQueryRoute extends RunsRoute {
 	public static final String QUERY_PARAMETER_FROM = "from";
 	public static final String QUERY_PARAMETER_TO = "to";
 	public static final String QUERY_PARAMETER_TESTNAME = "testname";
-	public static final String QUERY_PARAMETER_PAGE = "page";
 	public static final String QUERY_PARAMETER_SIZE = "size";
 	public static final String QUERY_PARAMETER_GROUP = "group";
 	public static final String QUERY_PARAMETER_SUBMISSION_ID = "submissionId";
-	public static final String QUERY_PARAMETER_INCLUDECURSOR = "includecursor";
 	public static final String QUERY_PARAMETER_CURSOR = "cursor";
 	public static final String QUERY_PARAMETER_RUNNAME = "runname";
 	public static final String QUERY_PARAMETER_RUNID = "runid";
@@ -92,14 +92,13 @@ public class RunQueryRoute extends RunsRoute {
 	public static final SupportedQueryParameterNames SUPPORTED_QUERY_PARAMETER_NAMES = new SupportedQueryParameterNames(
 			QUERY_PARAMETER_SORT, QUERY_PARAMETER_RESULT, QUERY_PARAMETER_STATUS,
 			QUERY_PARAMETER_BUNDLE, QUERY_PARAMETER_DETAIL, QUERY_PARAMETER_REQUESTOR, QUERY_PARAMETER_USER,
-			QUERY_PARAMETER_FROM, QUERY_PARAMETER_TO, QUERY_PARAMETER_TESTNAME, QUERY_PARAMETER_PAGE,
+			QUERY_PARAMETER_FROM, QUERY_PARAMETER_TO, QUERY_PARAMETER_TESTNAME,
 			QUERY_PARAMETER_SIZE, QUERY_PARAMETER_GROUP, QUERY_PARAMETER_SUBMISSION_ID,
 			QUERY_PARAMETER_INCLUDECURSOR, QUERY_PARAMETER_CURSOR, QUERY_PARAMETER_RUNNAME,
 			QUERY_PARAMETER_RUNID, QUERY_PARAMETER_TAGS);
 
 	private static final GalasaGson gson = new GalasaGson();
 
-	private final Environment env;
 	private final RunResultUtility runResultUtility;
 
 	public RunQueryRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
@@ -111,7 +110,6 @@ public class RunQueryRoute extends RunsRoute {
 		 */
 		super(responseBuilder, path, framework);
 
-		this.env = env;
 		this.runResultUtility = new RunResultUtility(env);
 	}
 
@@ -138,14 +136,6 @@ public class RunQueryRoute extends RunsRoute {
 	private String retrieveResults(RasQueryParameters queryParams, boolean isMethodDetailsExcluded)
 			throws InternalServletException {
 
-		int pageNum = queryParams.getPageNumber();
-		int pageSize = queryParams.getPageSize();
-
-		boolean includeCursor = queryParams.getIncludeCursor();
-		String pageCursor = queryParams.getPageCursor();
-
-		List<RasRunResult> runs = new ArrayList<>();
-
 		/*
 		 * Get list of Run Ids from the URL -
 		 * If a Run ID parameter list is present in the URL then only return that run /
@@ -156,82 +146,24 @@ public class RunQueryRoute extends RunsRoute {
 
 		// Default to sorting in descending order based on the "queued time" of runs
 		RasSortField sortValue = queryParams.getSortValue("from:desc");
-
-		RasRunResultPage runsPage = null;
 		String responseJson = null;
-
 		try {
-			if (runIds != null && runIds.size() > 0) {
-				runs = getRunsByIds(runIds, isMethodDetailsExcluded);
+			if (runIds != null && !runIds.isEmpty()) {
+				responseJson = getRunsJsonByRunIds(runIds, isMethodDetailsExcluded, queryParams, sortValue);
 			} else {
-
-				String requestor  = queryParams.getRequestor();
-				String user = queryParams.getUser();
-
-				String matchedRequestor = null;
-				String matchedUser = null;
-
-				boolean queryingRequestor = requestor != null && !requestor.isEmpty();
-				boolean queryingUser = user != null && !user.isEmpty();
-
-				// If querying by requestor and user, search for runs that match both the requestor and user.
-				if (queryingRequestor && queryingUser) {
-					matchedRequestor = findMatchingRequestor(requestor);
-					matchedUser = findMatchingRequestor(user);
-
-					// We weren't able to match against both a known requestor and user,
-					// so there should be no runs for the given requestor/user combination.
-					if (matchedRequestor == null || matchedUser == null) {
-						runsPage = new RasRunResultPage(new ArrayList<>());
-					}
-				} 
-				
-				// If querying by requestor, search for runs that match that requestor.
-				else if (queryingRequestor) {
-					matchedRequestor = findMatchingRequestor(requestor);
-
-					// We weren't able to match against a known requestor,
-					// so there should be no runs for the given requestor.
-					if (matchedRequestor == null) {
-						runsPage = new RasRunResultPage(new ArrayList<>());
-					}
+				UserQueryContext userQueryContext = matchRequestorAndUser(
+					queryParams.getRequestor(),
+					queryParams.getUser()
+				);
+	
+				// Return empty results page if no matching requestor/user was found
+				if (userQueryContext.shouldReturnEmptyResultsPage()) {
+					RasRunResultPage emptyPage = new RasRunResultPage(new ArrayList<>());
+					responseJson = buildResponseBody(emptyPage, queryParams.getPageSize(), isMethodDetailsExcluded);
+				} else {
+					// Handle criteria-based queries
+					responseJson = getRunsJsonByCriteria(queryParams, userQueryContext, isMethodDetailsExcluded, sortValue);
 				}
-
-				// If querying by user, search for runs that match that user OR requestor.
-				else if (queryingUser) {
-					matchedUser = findMatchingRequestor(user);
-
-					// We weren't able to match against either a known user or requestor,
-					// so there should be no runs for the given user.
-					if (matchedUser == null) {
-						runsPage = new RasRunResultPage(new ArrayList<>());
-					}
-				}
-
-				if (runsPage == null) {
-					List<IRasSearchCriteria> criteria = getCriteria(queryParams, matchedRequestor, matchedUser);
-
-					// Story https://github.com/galasa-dev/projectmanagement/issues/1978 will
-					// replace the old page-based pagination with the new cursor-based pagination
-					if (includeCursor || pageCursor != null) {
-						String runName = queryParams.getRunName();
-						if (runName != null) {
-							runsPage = new RasRunResultPage(getRunsByRunName(runName));
-						} else {
-							runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), criteria);
-						}
-					} else {
-						runs = getRuns(criteria, isMethodDetailsExcluded);
-					}
-				}
-
-			}
-
-			if (runsPage == null) {
-				runs = sortResults(runs, queryParams, sortValue);
-				responseJson = buildResponseBody(runs, pageNum, pageSize);
-			} else {
-				responseJson = buildResponseBody(runsPage, pageSize, isMethodDetailsExcluded);
 			}
 		} catch (ResultArchiveStoreException e) {
 			ServletError error = new ServletError(GAL5003_ERROR_RETRIEVING_RUNS);
@@ -352,33 +284,6 @@ public class RunQueryRoute extends RunsRoute {
 		return critList;
 	}
 
-	private String buildResponseBody(List<RasRunResult> runs, int pageNum, int pageSize)
-			throws InternalServletException {
-
-		// Splits up the pages based on the page size
-		List<List<RasRunResult>> paginatedResults = ListUtils.partition(runs, pageSize);
-
-		// Building the object to be returned by the API and splitting
-		JsonObject runsPage = null;
-		try {
-			if ((pageNum == 1) && paginatedResults.isEmpty()) {
-				// No results at all, so return one page saying that.
-				runsPage = pageToJson(runs, runs.size(), 1, pageSize, 1);
-			} else {
-				runsPage = pageToJson(
-						paginatedResults.get(pageNum - 1),
-						runs.size(),
-						pageNum,
-						pageSize,
-						paginatedResults.size());
-			}
-		} catch (IndexOutOfBoundsException e) {
-			ServletError error = new ServletError(GAL5004_ERROR_RETRIEVING_PAGE);
-			throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
-		}
-		return gson.toJson(runsPage);
-	}
-
 	private String findMatchingRequestor(String loginId) throws InternalServletException {
 		String matchedRequestor = null;
 
@@ -401,53 +306,21 @@ public class RunQueryRoute extends RunsRoute {
 		return matchedRequestor;
 	}
 
-	private String buildResponseBody(RasRunResultPage runsPage, int pageSize, boolean isMethodDetailsExcluded)
-			throws ResultArchiveStoreException {
+	private String buildResponseBody(List<RasRunResult> runs, int pageSize, String nextPageCursor) {
+        JsonObject pageJson = new JsonObject();
 
-		// Building the object to be returned by the API and splitting
-		JsonObject pageJson = new JsonObject();
+        JsonElement tree = gson.toJsonTree(runs);
+        pageJson.addProperty("pageSize", pageSize);
+        pageJson.addProperty("amountOfRuns", runs.size());
+        pageJson.addProperty("nextCursor", nextPageCursor);
+        pageJson.add("runs", tree);
 
-		List<RasRunResult> runs = convertRunsToRunResults(runsPage.getRuns(), isMethodDetailsExcluded);
-		JsonElement tree = gson.toJsonTree(runs);
-		pageJson.addProperty("pageSize", pageSize);
-		pageJson.addProperty("amountOfRuns", runs.size());
-		pageJson.addProperty("nextCursor", runsPage.getNextCursor());
-		pageJson.add("runs", tree);
-
-		return gson.toJson(pageJson);
+        return gson.toJson(pageJson);
 	}
 
-	private JsonObject pageToJson(List<RasRunResult> resultsInPage, int totalRuns, int pageNum, int pageSize,
-			int numPages) {
-		JsonObject obj = new JsonObject();
-
-		obj.addProperty("pageNum", pageNum);
-		obj.addProperty("pageSize", pageSize);
-		obj.addProperty("numPages", numPages);
-		obj.addProperty("amountOfRuns", totalRuns);
-
-		JsonElement tree = gson.toJsonTree(resultsInPage);
-
-		obj.add("runs", tree);
-		return obj;
-	}
-
-	private List<RasRunResult> getRuns(List<IRasSearchCriteria> critList, boolean isMethodDetailsExcluded)
-			throws ResultArchiveStoreException, InternalServletException {
-
-		IRasSearchCriteria[] criteria = new IRasSearchCriteria[critList.size()];
-
-		critList.toArray(criteria);
-		// Collect all the runs from all the RAS stores into a single list
-		List<IRunResult> runs = new ArrayList<>();
-		for (IResultArchiveStoreDirectoryService directoryService : getFramework().getResultArchiveStore()
-				.getDirectoryServices()) {
-			runs.addAll(directoryService.getRuns(criteria));
-		}
-
-		List<RasRunResult> runResults = convertRunsToRunResults(runs, isMethodDetailsExcluded);
-
-		return runResults;
+	private String buildResponseBody(RasRunResultPage runsPage, int pageSize, boolean isMethodDetailsExcluded) throws ResultArchiveStoreException {
+        List<RasRunResult> runs = convertRunsToRunResults(runsPage.getRuns(), isMethodDetailsExcluded);
+        return buildResponseBody(runs, pageSize, runsPage.getNextCursor());
 	}
 
 	private RasRunResultPage getRunsPage(String pageCursor, int maxResults, RasSortField primarySort,
@@ -494,6 +367,83 @@ public class RunQueryRoute extends RunsRoute {
 			runResults.add(runResultUtility.toRunResult(run, isMethodDetailsExcluded));
 		}
 		return runResults;
+	}
+
+	private String getRunsJsonByRunIds(List<String> runIds, boolean isMethodDetailsExcluded,
+			RasQueryParameters queryParams, RasSortField sortValue)
+			throws InternalServletException, ResultArchiveStoreException {
+		List<RasRunResult> runs = sortResults(getRunsByIds(runIds, isMethodDetailsExcluded), queryParams, sortValue);
+		return buildResponseBody(runs, queryParams.getPageSize(), null);
+	}
+
+	private UserQueryContext matchRequestorAndUser(String requestor, String user)
+			throws InternalServletException {
+		boolean isQueryingRequestor = (requestor != null && !requestor.isEmpty());
+		boolean isQueryingUser = (user != null && !user.isEmpty());
+
+		String matchedRequestor = null;
+		String matchedUser = null;
+		boolean shouldReturnEmptyResultsPage = false;
+
+		// If querying by requestor and user, search for runs that match both the requestor and user.
+		if (isQueryingRequestor && isQueryingUser) {
+			matchedRequestor = findMatchingRequestor(requestor);
+			matchedUser = findMatchingRequestor(user);
+
+			// We weren't able to match against both a known requestor and user,
+			// so there should be no runs for the given requestor/user combination.
+			if (matchedRequestor == null || matchedUser == null) {
+				shouldReturnEmptyResultsPage = true;
+			}
+		}
+		// If querying by requestor, search for runs that match that requestor.
+		else if (isQueryingRequestor) {
+			matchedRequestor = findMatchingRequestor(requestor);
+
+			// We weren't able to match against a known requestor,
+			// so there should be no runs for the given requestor.
+			if (matchedRequestor == null) {
+				shouldReturnEmptyResultsPage = true;
+			}
+		}
+		// If querying by user, search for runs that match that user OR requestor.
+		else if (isQueryingUser) {
+			matchedUser = findMatchingRequestor(user);
+
+			// We weren't able to match against either a known user or requestor,
+			// so there should be no runs for the given user.
+			if (matchedUser == null) {
+				shouldReturnEmptyResultsPage = true;
+			}
+		}
+
+		return new UserQueryContext(matchedRequestor, matchedUser, shouldReturnEmptyResultsPage);
+	}
+
+	private String getRunsJsonByCriteria(RasQueryParameters queryParams,
+			UserQueryContext userQueryContext, boolean isMethodDetailsExcluded,
+			RasSortField sortValue)
+			throws InternalServletException, ResultArchiveStoreException {
+		
+		String runName = queryParams.getRunName();
+		int pageSize = queryParams.getPageSize();
+		String pageCursor = queryParams.getPageCursor();
+
+		String responseJson = null;
+
+		// Handle runName as a special case
+		if (runName != null) {
+			List<RasRunResult> runs = convertRunsToRunResults(getRunsByRunName(runName), isMethodDetailsExcluded);
+			runs = sortResults(runs, queryParams, sortValue);
+			responseJson = buildResponseBody(runs, pageSize, null);
+		} else {
+			// Handle general criteria-based queries
+			List<IRasSearchCriteria> criteria = getCriteria(queryParams, userQueryContext.getMatchedRequestor(), userQueryContext.getMatchedUser());
+			RasRunResultPage runsPage = getRunsPage(pageCursor, pageSize, formatSortField(sortValue), criteria);
+			responseJson = buildResponseBody(runsPage, pageSize, isMethodDetailsExcluded);
+		}
+
+		return responseJson;
 	}
 
 	class SortByQueuedTime implements Comparator<RasRunResult> {
