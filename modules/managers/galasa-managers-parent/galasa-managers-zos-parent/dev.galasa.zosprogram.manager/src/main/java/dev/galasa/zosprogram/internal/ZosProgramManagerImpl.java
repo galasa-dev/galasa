@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Locale;
 
 import javax.validation.constraints.NotNull;
 
@@ -205,6 +206,21 @@ public class ZosProgramManagerImpl extends AbstractManager implements IZosProgra
         boolean cics = annotationZosProgram.cics();
         String loadlib = nulled(annotationZosProgram.loadlib());
         boolean compile = annotationZosProgram.compile();
+
+        //Ensure program name does not exceed 8 characters
+        if (name.length() > 8) {    
+            throw new ZosProgramManagerException("Program name '" + name + "' exceeds 8 characters."); 
+        }
+
+
+        if (!name.equals(name.toUpperCase(Locale.ROOT))) {
+            throw new ZosProgramManagerException(
+                "Program name '" + name + "' is not capitalized. Ensure names in the annotation and file names must be uppercase."
+            );
+        }
+        
+
+        
         
         ZosProgramImpl zosProgram = new ZosProgramImpl(this, field, tag, name, location, language, cics, loadlib, compile);
         zosPrograms.put(field.getName(), zosProgram);
