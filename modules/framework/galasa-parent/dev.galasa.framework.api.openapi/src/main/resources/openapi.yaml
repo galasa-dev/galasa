@@ -1616,6 +1616,19 @@ paths:
           schema:
             type: string
           example: my-zos-tests
+
+        # Temporary feature flag to enable cursor-based pagination
+        - name: includeCursor
+          in: query
+          deprecated: true
+          description: |
+            Deprecated: Cursor-based pagination is enabled by default as of 0.46.0, so this query parameter is no longer used.
+
+            A boolean flag to enable cursor-based pagination and return the next page cursor
+            in the response. If omitted, it will default to false.
+          schema:
+            type: string
+          example: 'true'
         - name: cursor
           in: query
           description: |

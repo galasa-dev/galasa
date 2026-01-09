@@ -68,6 +68,9 @@ public class RunQueryRoute extends RunsRoute {
 			"to", "endTime",
 			"testclass", "testName");
 
+	// No longer used, but keep it for now to avoid breaking existing clients
+	public static final String QUERY_PARAMETER_INCLUDECURSOR = "includecursor";
+
 	public static final String QUERY_PARAMETER_SORT = "sort";
 	public static final String QUERY_PARAMETER_RESULT = "result";
 	public static final String QUERY_PARAMETER_STATUS = "status";
@@ -80,7 +83,6 @@ public class RunQueryRoute extends RunsRoute {
 	public static final String QUERY_PARAMETER_SIZE = "size";
 	public static final String QUERY_PARAMETER_GROUP = "group";
 	public static final String QUERY_PARAMETER_SUBMISSION_ID = "submissionId";
-	public static final String QUERY_PARAMETER_INCLUDECURSOR = "includecursor";
 	public static final String QUERY_PARAMETER_CURSOR = "cursor";
 	public static final String QUERY_PARAMETER_RUNNAME = "runname";
 	public static final String QUERY_PARAMETER_RUNID = "runid";
