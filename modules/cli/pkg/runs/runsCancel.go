@@ -75,7 +75,7 @@ func cancelRun(runName string,
 			var resp *http.Response
 			var context context.Context = nil
 
-			_, resp, err = apiClient.ResultArchiveStoreAPIApi.PutRasRunStatusById(context, runId).
+			_, resp, err = apiClient.ResultArchiveStoreAPIApi.PutRasRunTagsOrStatusById(context, runId).
 				UpdateRunRequest(*runStatusUpdateRequest).
 				ClientApiVersion(restApiVersion).Execute()
 
