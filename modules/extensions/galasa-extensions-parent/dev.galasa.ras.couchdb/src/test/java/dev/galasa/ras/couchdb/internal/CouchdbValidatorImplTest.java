@@ -333,9 +333,11 @@ public class CouchdbValidatorImplTest {
         interactions.add( new CheckDatabaseHasDocumentInteraction());
         interactions.add( new CheckIndexPOSTInteraction("status", "queued"));
         interactions.add( new CheckDatabaseHasDocumentInteraction());
-        interactions.add( new CheckIndexPOSTInteraction("group", "result"));
+        interactions.add( new CheckIndexPOSTInteraction("group", "queued"));
         interactions.add( new CheckDatabaseHasDocumentInteraction());
-        interactions.add( new CheckIndexPOSTInteraction("group", "status"));
+        interactions.add( new CheckIndexPOSTInteraction("group", "result", "queued"));
+        interactions.add( new CheckDatabaseHasDocumentInteraction());
+        interactions.add( new CheckIndexPOSTInteraction("group", "status", "queued"));
 
         MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
