@@ -1796,7 +1796,7 @@ paths:
 
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
-      operationId: putRasRunStatusById
+      operationId: putRasRunTagsOrStatusById
       tags:
       - Result Archive Store API
       parameters:
