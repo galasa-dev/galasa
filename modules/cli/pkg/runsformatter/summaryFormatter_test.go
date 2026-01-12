@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	EXAMPLE_URL  = "https://my-api-server.com/"
-	RUN_ID       = "cdb-ba06e2a6-U123"
-	WEB_UI_URL   = EXAMPLE_URL + "test-runs/" + RUN_ID
+	EXAMPLE_URL = "https://my-api-server.com/"
+	RUN_ID      = "cdb-ba06e2a6-U123"
+	WEB_UI_URL  = EXAMPLE_URL + "test-runs/" + RUN_ID
 )
 
 func TestSummaryFormatterNoDataReturnsTotalCountAllZeros(t *testing.T) {
@@ -133,7 +133,8 @@ func TestSummaryFormatterWithMultipleRunsPrintsOnlyFinishedRuns(t *testing.T) {
 	formattableTest7 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C111", "MyTestName6", "Finished", "Failed", "myUserId1", false, "none", tags)
 	formattableTest8 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C222", "MyTestName7", "Finished", "UNKNOWN", "myUserId2", false, "none", tags)
 	formattableTest9 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C333", "MyTestName8", "Finished", "Ignored", "myUserId1", false, "none", tags)
-	formattableTest = append(formattableTest, formattableTest1, formattableTest2, formattableTest3, formattableTest4, formattableTest5, formattableTest6, formattableTest7, formattableTest8, formattableTest9)
+	formattableTest10 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C567", "MyTestName9", "Running", "", "myUserId1", false, "none", tags)
+	formattableTest = append(formattableTest, formattableTest1, formattableTest2, formattableTest3, formattableTest4, formattableTest5, formattableTest6, formattableTest7, formattableTest8, formattableTest9, formattableTest10)
 
 	// When...
 	actualFormattedOutput, err := formatter.FormatRuns(formattableTest)
@@ -150,8 +151,9 @@ func TestSummaryFormatterWithMultipleRunsPrintsOnlyFinishedRuns(t *testing.T) {
 			"2023-05-04 10:55:29 C111 myUserId1 Finished Failed              MyTestName6 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"2023-05-04 10:55:29 C222 myUserId2 Finished UNKNOWN             MyTestName7 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"2023-05-04 10:55:29 C333 myUserId1 Finished Ignored             MyTestName8 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 C567 myUserId1 Running                      MyTestName9 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
-			"Total:9 Passed:1 PassedWithDefects:1 Failed:2 EnvFail:2 UNKNOWN:1 Active:1 Ignored:1\n"
+			"Total:10 Passed:1 PassedWithDefects:1 Failed:2 EnvFail:2 UNKNOWN:2 Active:1 Ignored:1\n"
 	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
 }
 
@@ -169,8 +171,8 @@ func TestSummaryFormatterMultipleRunsWithLostRunsDoesNotDisplayLostRunsAndCounts
 	formattableTest7 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C111", "MyTestName6", "Finished", "Failed", "myUserId1", false, "none", tags)
 	formattableTest8 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C222", "MyTestName7", "Finished", "UNKNOWN", "myUserId2", false, "none", tags)
 	formattableTest9 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C333", "MyTestName8", "Finished", "Ignored", "myUserId1", true, "none", tags)
-	//formattableTest10 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "L321", "MyTestName9", "UNKNOWN", "", "myUserId2", true)
-	formattableTest = append(formattableTest, formattableTest1, formattableTest2, formattableTest3, formattableTest4, formattableTest5, formattableTest6, formattableTest7, formattableTest8, formattableTest9)
+	formattableTest10 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C567", "MyTestName9", "Running", "", "myUserId1", false, "none", tags)
+	formattableTest = append(formattableTest, formattableTest1, formattableTest2, formattableTest3, formattableTest4, formattableTest5, formattableTest6, formattableTest7, formattableTest8, formattableTest9, formattableTest10)
 
 	// When...
 	actualFormattedOutput, err := formatter.FormatRuns(formattableTest)
@@ -184,8 +186,9 @@ func TestSummaryFormatterMultipleRunsWithLostRunsDoesNotDisplayLostRunsAndCounts
 			"2023-05-04 10:55:29 L789 myUserId2 Finished Passed With Defects MyTestName5 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"2023-05-04 10:55:29 C111 myUserId1 Finished Failed              MyTestName6 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"2023-05-04 10:55:29 C222 myUserId2 Finished UNKNOWN             MyTestName7 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 C567 myUserId1 Running                      MyTestName9 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
-			"Total:9 Passed:1 PassedWithDefects:1 Failed:1 Lost:3 EnvFail:1 UNKNOWN:1 Active:1\n"
+			"Total:10 Passed:1 PassedWithDefects:1 Failed:1 Lost:3 EnvFail:1 UNKNOWN:2 Active:1\n"
 
 	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
 }
@@ -205,7 +208,8 @@ func TestSummaryFormatterMultipleRunsWithUnknownStatusOfLostRunsDoesNotDisplayLo
 	formattableTest8 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C222", "MyTestName7", "Finished", "UNKNOWN", "myUserId2", false, "none", tags)
 	formattableTest9 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "C333", "MyTestName8", "Finished", "Ignored", "myUserId1", true, "none", tags)
 	formattableTest10 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "L321", "MyTestName9", "UNKNOWN", "", "myUserId2", true, "none", tags)
-	formattableTest = append(formattableTest, formattableTest1, formattableTest2, formattableTest3, formattableTest4, formattableTest5, formattableTest6, formattableTest7, formattableTest8, formattableTest9, formattableTest10)
+	formattableTest11 := createFormattableTestForSummary("2023-05-04T10:55:29.545323Z", "L567", "MyTestNameX", "Running", "", "myUserId2", false, "none", tags)
+	formattableTest = append(formattableTest, formattableTest1, formattableTest2, formattableTest3, formattableTest4, formattableTest5, formattableTest6, formattableTest7, formattableTest8, formattableTest9, formattableTest10, formattableTest11)
 
 	// When...
 	actualFormattedOutput, err := formatter.FormatRuns(formattableTest)
@@ -219,8 +223,9 @@ func TestSummaryFormatterMultipleRunsWithUnknownStatusOfLostRunsDoesNotDisplayLo
 			"2023-05-04 10:55:29 L789 myUserId2 Finished Passed With Defects MyTestName5 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"2023-05-04 10:55:29 C111 myUserId1 Finished Failed              MyTestName6 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"2023-05-04 10:55:29 C222 myUserId2 Finished UNKNOWN             MyTestName7 none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"2023-05-04 10:55:29 L567 myUserId2 Running                      MyTestNameX none       https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
 			"\n" +
-			"Total:10 Passed:1 PassedWithDefects:1 Failed:1 Lost:4 EnvFail:1 UNKNOWN:1 Active:1\n"
+			"Total:11 Passed:1 PassedWithDefects:1 Failed:1 Lost:4 EnvFail:1 UNKNOWN:2 Active:1\n"
 
 	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
 }

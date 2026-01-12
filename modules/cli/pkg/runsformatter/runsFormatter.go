@@ -163,17 +163,17 @@ func generateResultTotalsReport(totalResults int, resultsCount map[string]int) s
 }
 
 func accumulateResults(resultCounts map[string]int, run FormattableTest) {
-	runResult := run.Result
-	if len(runResult) > 0 {
-		resultTotal, isPresent := resultCounts[runResult]
-		if isPresent {
-			resultTotal++
-			resultCounts[runResult] = resultTotal
-		}
+	var resultKey string
+
+	if len(run.Result) > 0 {
+		resultKey = run.Result
+	} else if strings.ToUpper(run.Status) == RUN_RESULT_UNKNOWN {
+		resultKey = RUN_RESULT_UNKNOWN
 	} else {
-		resultCounts[RUN_RESULT_ACTIVE]++
+		resultKey = RUN_RESULT_ACTIVE
 	}
 
+	resultCounts[resultKey]++
 }
 
 func initialiseResultMap() map[string]int {
