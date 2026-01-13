@@ -6,10 +6,10 @@
 package runs
 
 import (
-	"slices"
 	"context"
 	"log"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/galasa-dev/cli/pkg/api"
@@ -47,21 +47,21 @@ func RunsUpdate(
 
 	// Check for tags that are both added and removed.
 	for _, tag := range addTags {
-		if (slices.Contains(removeTags, tag)) {
+		if slices.Contains(removeTags, tag) {
 			return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_INVALID_TAG_UPDATE, tag)
 		}
 	}
 
 	runsQuery := NewRunsQuery(
 		runName,
-		"", 		// requestorParameter
-		"", 		// userParameter
-		"", 		// resultParameter
-		"", 		// group
-		0,  		// fromAgeHours
-		0,  		// toAgeHours
-		false, 	// shouldGetActive
-		false, 	// isNeedingMethodDetails
+		"",    // requestorParameter
+		"",    // userParameter
+		"",    // resultParameter
+		"",    // group
+		0,     // fromAgeHours
+		0,     // toAgeHours
+		false, // shouldGetActive
+		false, // isNeedingMethodDetails
 		addTags,
 		timeService.Now(),
 	)
@@ -119,7 +119,7 @@ func updateRun(
 
 	// Get current tags from the run
 	currentTags := run.TestStructure.GetTags()
-	
+
 	// Create a new tag list by filtering out tags to remove
 	newTags := make([]string, 0)
 	for _, tag := range currentTags {
@@ -143,7 +143,7 @@ func updateRun(
 		var context context.Context = nil
 		var httpResponse *http.Response
 
-		_, httpResponse, err = apiClient.ResultArchiveStoreAPIApi.PutRasRunStatusById(context, runId).
+		_, httpResponse, err = apiClient.ResultArchiveStoreAPIApi.PutRasRunTagsOrStatusById(context, runId).
 			UpdateRunRequest(*updateRequest).
 			ClientApiVersion(restApiVersion).Execute()
 
@@ -210,17 +210,17 @@ func validateRunNameAndTags(runName string, addTags []string, removeTags []strin
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
 func validateTagName(tagName string) error {
 	trimmedTag := strings.TrimSpace(tagName)
-	
+
 	if trimmedTag == "" || !utils.IsLatin1(tagName) {
 		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_UPDATE_RUN_INVALID_TAG_NAME, tagName)
 	}
-	
+
 	return nil
 }
 
