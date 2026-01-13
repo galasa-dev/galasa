@@ -55,6 +55,8 @@ import dev.galasa.ras.couchdb.internal.pojos.TestStructureCouchdb;
 
 public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryService {
 
+    public static final int COUCHDB_RESULTS_LIMIT_PER_QUERY = 100;
+
     private final Log logger;
     private final LogFactory logFactory;
     private final HttpRequestFactory requestFactory;
@@ -64,7 +66,6 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
     private final CouchdbRasStore store;
     private final GalasaGson gson;
 
-    private static final int COUCHDB_RESULTS_LIMIT_PER_QUERY = 100;
     private final CouchdbRasQueryBuilder rasQueryBuilder = new CouchdbRasQueryBuilder();
 
     public CouchdbDirectoryService(CouchdbRasStore store, LogFactory logFactory, HttpRequestFactory requestFactory) {
@@ -337,18 +338,25 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
             @NotNull IRasSearchCriteria... searchCriterias)
             throws ResultArchiveStoreException {
 
-        HttpPost httpPost = requestFactory.getHttpPostRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/_find");
-
-        Find find = new Find();
-        find.selector = rasQueryBuilder.buildGetRunsQuery(searchCriterias);
-        find.execution_stats = true;
-        find.limit = maxResults;
-        find.bookmark = pageToken;
-        if (primarySort != null) {
-            find.sort = buildQuerySortJson(primarySort);
+        RasRunResultPage runsPage = null;
+        if (maxResults == 0) {
+            // The user has requested for all matching runs to be returned (infinite page size)
+            runsPage = getMatchingRunsAsSinglePage(Integer.MAX_VALUE, searchCriterias);
+        } else {
+            HttpPost httpPost = requestFactory.getHttpPostRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/_find");
+    
+            Find find = new Find();
+            find.selector = rasQueryBuilder.buildGetRunsQuery(searchCriterias);
+            find.execution_stats = true;
+            find.limit = maxResults;
+            find.bookmark = pageToken;
+            if (primarySort != null) {
+                find.sort = buildQuerySortJson(primarySort);
+            }
+    
+            runsPage = getRunsPageFromCouchdb(httpPost, find);
         }
-
-        return getRunsPageFromCouchdb(httpPost, find);
+        return runsPage;
     }
 
     private RasRunResultPage getRunsPageFromCouchdb(HttpPost httpPost, Find query) throws ResultArchiveStoreException {
@@ -418,19 +426,24 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
             return getAllRuns();
         }
 
-        ArrayList<IRunResult> runs = new ArrayList<>();
+        return getMatchingRunsAsSinglePage(COUCHDB_RESULTS_LIMIT_PER_QUERY, searchCriterias).getRuns();
+    }
+
+    private RasRunResultPage getMatchingRunsAsSinglePage(int queryPageSize, IRasSearchCriteria... searchCriterias) throws ResultArchiveStoreException {
+        List<IRunResult> runs = new ArrayList<>();
 
         HttpPost httpPost = requestFactory.getHttpPostRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/_find");
 
         Find find = new Find();
         find.selector = rasQueryBuilder.buildGetRunsQuery(searchCriterias);
         find.execution_stats = true;
-        find.limit = COUCHDB_RESULTS_LIMIT_PER_QUERY;
+        find.limit = queryPageSize;
 
-        while (true) {
+        // Get the first page of runs, then check if we need to request for more
+        List<IRunResult> returnedRuns = new ArrayList<>();
+        do {
             RasRunResultPage runsPage = getRunsPageFromCouchdb(httpPost, find);
-
-            List<IRunResult> returnedRuns = runsPage.getRuns();
+            returnedRuns = runsPage.getRuns();
             if (!returnedRuns.isEmpty()) {
                 runs.addAll(returnedRuns);
             } else {
@@ -439,9 +452,9 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
             }
 
             find.bookmark = runsPage.getNextCursor();
-        }
+        } while (returnedRuns.size() >= queryPageSize && find.bookmark != null);
 
-        return runs;
+        return new RasRunResultPage(runs, find.bookmark);
     }
 
     @Override
