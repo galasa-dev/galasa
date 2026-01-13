@@ -35,6 +35,7 @@ public class RasQueryParameters {
         "to",
         "testclass",
         "result",
+        "results",
         "requestor",
         "resultnames",
         "runname"
