@@ -141,19 +141,24 @@ public class CouchdbDirectoryServiceTest extends BaseCouchdbOperationTest {
     @Test
     public void testGetRunsMultiplePagesReturnsRunsOk() throws Exception {
         // Given...
-        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", "run1", "none");
-        TestStructureCouchdb mockRun2 = createRunTestStructure("run2-id", "run2", "none");
-        TestStructureCouchdb mockRun3 = createRunTestStructure("run3-id", "run3", "none");
+        List<TestStructureCouchdb> firstPageRuns = new ArrayList<>();
+        List<TestStructureCouchdb> secondPageRuns = new ArrayList<>();
+        for (int i = 0; i < CouchdbDirectoryService.COUCHDB_RESULTS_LIMIT_PER_QUERY; i++) {
+            firstPageRuns.add(createRunTestStructure("run" + i + "-id", "run" + i, "none"));
+
+            int secondPageMockRunIndex = i + 1000;
+            secondPageRuns.add(createRunTestStructure("run" + secondPageMockRunIndex + "-id", "run" + secondPageMockRunIndex, "none"));
+        }
 
         Instant queuedFromTime = Instant.EPOCH;
         RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(queuedFromTime);
 
         FoundRuns findRunsResponsePage1 = new FoundRuns();
-        findRunsResponsePage1.docs = List.of(mockRun1, mockRun2);
+        findRunsResponsePage1.docs = firstPageRuns;
         findRunsResponsePage1.bookmark = "bookmark1";
 
         FoundRuns findRunsResponsePage2 = new FoundRuns();
-        findRunsResponsePage2.docs = List.of(mockRun3);
+        findRunsResponsePage2.docs = secondPageRuns;
         findRunsResponsePage2.bookmark = "bookmark2";
 
         FoundRuns emptyRunsResponse = new FoundRuns();
@@ -174,10 +179,10 @@ public class CouchdbDirectoryServiceTest extends BaseCouchdbOperationTest {
         List<IRunResult> runs = directoryService.getRuns(queuedFrom);
 
         // Then...
-        assertThat(runs).hasSize(3);
-        assertThat(runs.get(0).getTestStructure().getRunName()).isEqualTo(mockRun1.getRunName());
-        assertThat(runs.get(1).getTestStructure().getRunName()).isEqualTo(mockRun2.getRunName());
-        assertThat(runs.get(2).getTestStructure().getRunName()).isEqualTo(mockRun3.getRunName());
+        assertThat(runs).hasSize(200);
+        assertThat(runs.get(0).getTestStructure().getRunName()).isEqualTo("run0");
+        assertThat(runs.get(1).getTestStructure().getRunName()).isEqualTo("run1");
+        assertThat(runs.get(2).getTestStructure().getRunName()).isEqualTo("run2");
     }
 
     @Test
@@ -488,6 +493,45 @@ public class CouchdbDirectoryServiceTest extends BaseCouchdbOperationTest {
 
         // Then...
         assertThat(runsPage.getNextCursor()).isNull();
+    }
+
+    @Test
+    public void testGetRunsPageWithMaxResultsZeroSetsLimitToIntMaxValue() throws Exception {
+        // Given...
+        TestStructureCouchdb mockRun1 = createRunTestStructure("run1-id", "run1", "none");
+
+        Instant queuedFromTime = Instant.EPOCH;
+        RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(queuedFromTime);
+
+        FoundRuns findRunsResponse = new FoundRuns();
+        findRunsResponse.docs = List.of(mockRun1);
+        findRunsResponse.bookmark = "bookmark!";
+
+        String expectedUri = "http://my.uri/galasa_run/_find";
+        
+        // The key assertion here is that the request body should contain Integer.MAX_VALUE as the limit
+        String expectedLimitValue = String.valueOf(Integer.MAX_VALUE);
+        List<HttpInteraction> interactions = List.of(
+            new PostCouchdbFindRunsInteraction(expectedUri, findRunsResponse, "queued", "$gte", queuedFromTime.toString(), "limit", expectedLimitValue)
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        int maxResults = 0;
+
+        // When...
+        RasRunResultPage runsPage = directoryService.getRunsPage(maxResults, null, null, queuedFrom);
+
+        // Then...
+        // The assertions in the PostCouchdbFindRunsInteraction should verify that the limit
+        // parameter in the request body is set to Integer.MAX_VALUE
+        assertThat(runsPage.getNextCursor()).isEqualTo(findRunsResponse.bookmark);
+
+        List<IRunResult> runs = runsPage.getRuns();
+        assertThat(runs).hasSize(1);
+        assertThat(runs.get(0).getTestStructure().getRunName()).isEqualTo(mockRun1.getRunName());
     }
 
     //------------------------------------------

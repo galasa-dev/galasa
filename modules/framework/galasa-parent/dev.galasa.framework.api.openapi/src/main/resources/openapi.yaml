@@ -1558,6 +1558,8 @@ paths:
           in: query
           description: |
             The number of test results returned within each page.
+            Setting 'size' to 0 will return all matching test results in a single page.
+
             If omitted, the default value is 100.
           schema:
             type: integer
