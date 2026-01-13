@@ -1780,13 +1780,15 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
   #--------------------------------------
-  # Update the status of an active test
-  # run to reset or cancel it.
+  # Update the tags associated with a test run, 
+  # or update the status to reset or cancel it.
   #--------------------------------------
     put:
-      summary: Update the status of a test run
+      summary: Update the tags, status or result of a test run
       description: |
-        Updates the status of a test run in order to either reset or cancel it.
+        Update the tags associated with a test run, or update the status to reset or cancel it.
+
+        To set the tags, pass in a comma separated list of tags. This will replace all the tags with the ones provided.
 
         To cancel the run, put a value such that the status is "finished" and the result is "cancelled".
 
@@ -1794,7 +1796,7 @@ paths:
 
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
-      operationId: putRasRunStatusById
+      operationId: putRasRunTagsOrStatusById
       tags:
       - Result Archive Store API
       parameters:

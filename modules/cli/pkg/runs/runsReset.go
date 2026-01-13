@@ -87,7 +87,7 @@ func resetRun(runName string,
 			var resp *http.Response
 			var context context.Context = nil
 
-			_, resp, err = apiClient.ResultArchiveStoreAPIApi.PutRasRunStatusById(context, runId).
+			_, resp, err = apiClient.ResultArchiveStoreAPIApi.PutRasRunTagsOrStatusById(context, runId).
 				UpdateRunRequest(*runStatusUpdateRequest).
 				ClientApiVersion(restApiVersion).Execute()
 
@@ -97,7 +97,7 @@ func resetRun(runName string,
 				if statusCode != http.StatusAccepted {
 
 					responseBody, err = io.ReadAll(resp.Body)
-					log.Printf("putRasRunStatusById Failed - HTTP Response - Status Code: '%v' Payload: '%v'\n", statusCode, string(responseBody))
+					log.Printf("PutRasRunTagsOrStatusById Failed - HTTP Response - Status Code: '%v' Payload: '%v'\n", statusCode, string(responseBody))
 
 					if err == nil {
 						var errorFromServer *galasaErrors.GalasaAPIError
