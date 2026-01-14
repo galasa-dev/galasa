@@ -885,9 +885,15 @@ jobs:
 
       - name: Triggering simplatform build
         env:
-            GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
         run: |
           gh workflow run build.yaml --repo https://github.com/galasa-dev/simplatform --ref ${{ env.BRANCH }}
+
+      - name: Triggering webui build
+        env:
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/webui --ref ${{ env.BRANCH }}
 
   report-failure:
     # Skip this job for forks
