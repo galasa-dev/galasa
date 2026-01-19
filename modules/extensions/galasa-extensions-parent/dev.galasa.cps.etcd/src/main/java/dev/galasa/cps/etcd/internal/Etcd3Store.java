@@ -39,6 +39,8 @@ import io.vertx.core.file.FileSystemOptions;
  */
 public abstract class Etcd3Store {
 
+    private static final int DEFAULT_MAX_GRPC_MESSAGE_SIZE = 4194304;
+
     protected final Client client;
     protected final KV kvClient;
 
@@ -47,10 +49,15 @@ public abstract class Etcd3Store {
         this.kvClient = client.getKVClient();
     }
 
-    public Etcd3Store(URI etcdUri) {
+    public Etcd3Store(URI etcdUri, int maxgRPCMessageSize) {
         this(Client.builder()
             .vertx(createVertx())
-            .endpoints(etcdUri).build());
+            .endpoints(etcdUri)
+            .maxInboundMessageSize(maxgRPCMessageSize).build());
+    }
+
+    public Etcd3Store(URI etcdUri) {
+        this(etcdUri, DEFAULT_MAX_GRPC_MESSAGE_SIZE);
     }
 
     /**

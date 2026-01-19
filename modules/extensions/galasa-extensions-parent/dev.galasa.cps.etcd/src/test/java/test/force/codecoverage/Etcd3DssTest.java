@@ -75,11 +75,13 @@ public class Etcd3DssTest {
     @Mock
     KV                      mockKvCLient;
 
+    private static final int DEFAULT_MAX_GRPC_MESSAGE_SIZE = 4194304;
+
     /**
      * Creates a dss for the etcd and injects the mock above.
      */
     @InjectMocks
-    Etcd3DynamicStatusStore mockDss = new Etcd3DynamicStatusStore(createDssUri());
+    Etcd3DynamicStatusStore mockDss = new Etcd3DynamicStatusStore(createDssUri(), DEFAULT_MAX_GRPC_MESSAGE_SIZE);
 
     /**
      * This test method tests the put method for a simple example.
