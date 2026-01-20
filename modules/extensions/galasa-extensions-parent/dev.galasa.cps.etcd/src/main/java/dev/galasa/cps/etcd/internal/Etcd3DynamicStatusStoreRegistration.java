@@ -66,7 +66,7 @@ public class Etcd3DynamicStatusStoreRegistration implements IDynamicStatusStoreR
         if (isEtcdUri(dss)) {
             try {
                 URI uri = new URI(dss.toString().substring(5));
-                setMaxgRPCMessageSizeFromEnvironmentOrDefault(MAX_GRPC_MESSAGE_SIZE_ENV_VAR, DEFAULT_MAX_GRPC_MESSAGE_SIZE);
+                setMaxgRPCMessageSizeFromEnvironmentOrDefault();
                 frameworkInitialisation.registerDynamicStatusStore(new Etcd3DynamicStatusStore(uri, this.maxgRPCMessageSize));
             } catch (URISyntaxException e) {
                 throw new DynamicStatusStoreException("Could not create URI", e);
@@ -84,8 +84,8 @@ public class Etcd3DynamicStatusStoreRegistration implements IDynamicStatusStoreR
         return "etcd".equals(uri.getScheme());
     }
 
-    private void setMaxgRPCMessageSizeFromEnvironmentOrDefault(String envVar, int defaultValue) {
-        String value = this.env.getenv(envVar);
+    private void setMaxgRPCMessageSizeFromEnvironmentOrDefault() {
+        String value = this.env.getenv(MAX_GRPC_MESSAGE_SIZE_ENV_VAR);
         if (value != null && !value.isBlank()) {
             try {
                 int parsed = Integer.parseInt(value.trim());
@@ -94,7 +94,7 @@ public class Etcd3DynamicStatusStoreRegistration implements IDynamicStatusStoreR
                 }
             } catch (IllegalArgumentException e) {
                 logger.warn("Invalid value was set in the environment for maximum gRPC message size in bytes," +
-                " setting to default value " + defaultValue);
+                " setting to default value " + DEFAULT_MAX_GRPC_MESSAGE_SIZE);
             }
         }
     }
