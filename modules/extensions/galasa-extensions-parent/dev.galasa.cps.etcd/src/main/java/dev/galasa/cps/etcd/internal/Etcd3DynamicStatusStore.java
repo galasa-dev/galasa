@@ -9,6 +9,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -373,23 +374,51 @@ public class Etcd3DynamicStatusStore extends Etcd3Store implements IDynamicStatu
     private List<KeyValue> getPropertiesFromETCDWithPrefix(String keyPrefix, boolean keysOnly) throws DynamicStatusStoreException {
 
         logger.debug("Etcd extension getting all keys with a prefix of " + keyPrefix);
+
+        List<KeyValue> allKvs = new ArrayList<>();
+        
         ByteSequence bsPrefix = ByteSequence.from(keyPrefix, UTF_8);
-
         ByteSequence prefixEnd = OptionsUtil.prefixEndOf(bsPrefix);
-        GetOption options = GetOption.builder().withRange(prefixEnd).withKeysOnly(keysOnly).build();
 
-        CompletableFuture<GetResponse> getFuture = kvClient.get(bsPrefix, options);
+        // Process 10,000 keys at a time to avoid hitting the gRPC maximum message size.
+        int pageSize = 10000;
 
-        List<KeyValue> kvs = new ArrayList<>();
-        try {
-            GetResponse response = getFuture.get();
-            kvs = response.getKvs();
-        } catch (InterruptedException | ExecutionException e) {
-            Thread.currentThread().interrupt();
-            throw new DynamicStatusStoreException("Could not retrieve key.", e);
+        GetOption options = GetOption.builder()
+            .withRange(prefixEnd)
+            .withKeysOnly(keysOnly)
+            .withLimit(pageSize)
+            .build();
+
+        ByteSequence startKey = bsPrefix;
+        while (true) {
+            CompletableFuture<GetResponse> getFuture = kvClient.get(startKey, options);
+
+            List<KeyValue> kvs = new ArrayList<>();
+            try {
+                GetResponse response = getFuture.get();
+                kvs = response.getKvs();
+            } catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                throw new DynamicStatusStoreException("Could not retrieve keys.", e);
+            }
+
+            allKvs.addAll(kvs);
+
+            if (kvs.size() < pageSize) {
+                break;
+            }
+
+            ByteSequence lastKeyProcessed = kvs.get(kvs.size() - 1).getKey();
+            byte[] lastKeyBytes = lastKeyProcessed.getBytes();
+            byte[] nextKeyBytes = Arrays.copyOf(lastKeyBytes, lastKeyBytes.length + 1);
+            // Append 0x00 to get the next lexographical key after the last processed key
+            nextKeyBytes[nextKeyBytes.length - 1] = 0x00;
+
+            // Update start key for next page
+            startKey = ByteSequence.from(nextKeyBytes);
         }
 
-        return kvs;
+        return allKvs;
     }
 
     /**
