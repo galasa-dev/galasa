@@ -7,6 +7,8 @@ package dev.galasa.cps.etcd.internal;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import static dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStoreRegistration.DEFAULT_MAX_GRPC_MESSAGE_SIZE;
+
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -47,10 +49,15 @@ public abstract class Etcd3Store {
         this.kvClient = client.getKVClient();
     }
 
-    public Etcd3Store(URI etcdUri) {
+    public Etcd3Store(URI etcdUri, int maxgRPCMessageSize) {
         this(Client.builder()
             .vertx(createVertx())
-            .endpoints(etcdUri).build());
+            .endpoints(etcdUri)
+            .maxInboundMessageSize(maxgRPCMessageSize).build());
+    }
+
+    public Etcd3Store(URI etcdUri) {
+        this(etcdUri, DEFAULT_MAX_GRPC_MESSAGE_SIZE);
     }
 
     /**

@@ -85,8 +85,8 @@ public class Etcd3DynamicStatusStore extends Etcd3Store implements IDynamicStatu
      * 
      * @param dssUri - http:// uri for th etcd cluster.
      */
-    public Etcd3DynamicStatusStore(URI dssUri) {
-        super(dssUri);
+    public Etcd3DynamicStatusStore(URI dssUri, int maxgRPCMessageSize) {
+        super(dssUri, maxgRPCMessageSize);
         this.watchClient = client.getWatchClient();
         this.leaseClient = client.getLeaseClient();
     }

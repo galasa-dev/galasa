@@ -5,6 +5,7 @@
  */
 package dev.galasa.etcd.internal;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,4 +87,55 @@ public class Etcd3DynamicStatusStoreTest {
         assertThat(thenOperations).hasSize(2);
         assertThat(thenOperations).hasOnlyElementsOfType(PutOp.class);
     }
+
+    @Test
+    public void testCreateAnEtcd3DynamicStatusStoreWithDefaultgRPCMessageSizeIsOK() throws Exception {
+        // Given...
+        URI uri = new URI("http://mydss.com");
+        int defaultMaxgRPCMessageSize = 4194304;
+
+        // When...
+        new Etcd3DynamicStatusStore(uri, defaultMaxgRPCMessageSize);
+
+        // Then...
+        // We should have been able to create a DSS okay.
+    }
+
+    @Test
+    public void testCreateAnEtcd3DynamicStatusStoreWithIntegerMaxValueIsOK() throws Exception {
+        // Given...
+        URI uri = new URI("http://mydss.com");
+
+        // When...
+        new Etcd3DynamicStatusStore(uri, Integer.MAX_VALUE);
+
+        // Then...
+        // We should have been able to create a DSS okay.
+    }
+
+    @Test
+    public void testCreateAnEtcd3DynamicStatusStoreWithZeroValueIsOK() throws Exception {
+        // Given...
+        URI uri = new URI("http://mydss.com");
+
+        // When...
+        new Etcd3DynamicStatusStore(uri, 0);
+
+        // Then...
+        // We should have been able to create a DSS okay.
+    }
+
+    @Test
+    public void testCreateAnEtcd3DynamicStatusStoreWithNegativeValueThrowsException() throws Exception {
+        // Given...
+        URI uri = new URI("http://mydss.com");
+
+        // When...
+        Exception thrown = catchThrowableOfType(() -> new Etcd3DynamicStatusStore(uri, -1), Exception.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("negative max");
+    }
+
 }

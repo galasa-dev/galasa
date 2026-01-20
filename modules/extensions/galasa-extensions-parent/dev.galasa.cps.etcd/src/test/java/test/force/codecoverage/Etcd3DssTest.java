@@ -12,6 +12,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import static dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStoreRegistration.DEFAULT_MAX_GRPC_MESSAGE_SIZE;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -79,7 +81,7 @@ public class Etcd3DssTest {
      * Creates a dss for the etcd and injects the mock above.
      */
     @InjectMocks
-    Etcd3DynamicStatusStore mockDss = new Etcd3DynamicStatusStore(createDssUri());
+    Etcd3DynamicStatusStore mockDss = new Etcd3DynamicStatusStore(createDssUri(), DEFAULT_MAX_GRPC_MESSAGE_SIZE);
 
     /**
      * This test method tests the put method for a simple example.

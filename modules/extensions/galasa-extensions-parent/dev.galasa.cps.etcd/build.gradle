@@ -59,6 +59,8 @@ dependencies {
     //  implementation('org.apache.logging.log4j:log4j-slf4j-impl:2.17.1')
     implementation('org.checkerframework:checker-qual')
     implementation('org.slf4j:slf4j-api:2.0.17')
+
+    testImplementation(testFixtures(project(':dev.galasa.extensions.common')))
 }
 
 // Note: These values are consumed by the parent build process
