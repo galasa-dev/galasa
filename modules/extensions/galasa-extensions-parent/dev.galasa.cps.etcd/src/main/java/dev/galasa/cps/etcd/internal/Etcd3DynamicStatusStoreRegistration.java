@@ -30,8 +30,8 @@ import dev.galasa.framework.spi.SystemEnvironment;
 @Component(service = { IDynamicStatusStoreRegistration.class })
 public class Etcd3DynamicStatusStoreRegistration implements IDynamicStatusStoreRegistration {
 
-    private static final String MAX_GRPC_MESSAGE_SIZE_ENV_VAR = "MAX_GRPC_MESSAGE_SIZE";
-    private static final int DEFAULT_MAX_GRPC_MESSAGE_SIZE = 4194304;
+    public static final String MAX_GRPC_MESSAGE_SIZE_ENV_VAR = "MAX_GRPC_MESSAGE_SIZE";
+    public static final int DEFAULT_MAX_GRPC_MESSAGE_SIZE = 4194304;
 
     private final Log logger = LogFactory.getLog(Etcd3DynamicStatusStoreRegistration.class);
 

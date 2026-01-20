@@ -7,6 +7,8 @@ package dev.galasa.cps.etcd.internal;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import static dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStoreRegistration.DEFAULT_MAX_GRPC_MESSAGE_SIZE;
+
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -38,8 +40,6 @@ import io.vertx.core.file.FileSystemOptions;
  * and deleting properties.
  */
 public abstract class Etcd3Store {
-
-    private static final int DEFAULT_MAX_GRPC_MESSAGE_SIZE = 4194304;
 
     protected final Client client;
     protected final KV kvClient;

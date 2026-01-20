@@ -12,6 +12,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import static dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStoreRegistration.DEFAULT_MAX_GRPC_MESSAGE_SIZE;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -74,8 +76,6 @@ public class Etcd3DssTest {
      */
     @Mock
     KV                      mockKvCLient;
-
-    private static final int DEFAULT_MAX_GRPC_MESSAGE_SIZE = 4194304;
 
     /**
      * Creates a dss for the etcd and injects the mock above.

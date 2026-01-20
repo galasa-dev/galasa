@@ -7,6 +7,9 @@ package dev.galasa.etcd.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import static dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStoreRegistration.DEFAULT_MAX_GRPC_MESSAGE_SIZE;
+import static dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStoreRegistration.MAX_GRPC_MESSAGE_SIZE_ENV_VAR;
+
 import java.net.URI;
 
 import org.junit.Test;
@@ -16,9 +19,6 @@ import dev.galasa.extensions.common.mocks.MockEnvironment;
 import dev.galasa.extensions.common.mocks.MockFrameworkInitialisation;
 
 public class Etcd3DynamicStatusStoreRegistrationTest {
-
-    private static final String MAX_GRPC_MESSAGE_SIZE_ENV_VAR = "MAX_GRPC_MESSAGE_SIZE";
-    private static final int DEFAULT_MAX_GRPC_MESSAGE_SIZE = 4194304;
 
     @Test
     public void testCanCreateARegistrationOK() {
