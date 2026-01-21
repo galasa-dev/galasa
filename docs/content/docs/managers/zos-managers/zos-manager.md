@@ -2,7 +2,7 @@
 title: "z/OS Manager"
 ---
 
-This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/index.html?overview-summary.html){target="_blank"}.
+This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/zos/package-summary.html){target="_blank"}.
 
 
 ## Overview
@@ -21,7 +21,7 @@ Additionally, the z/OS Manager provides tests with interfaces to the following z
 
 - `z/OS UNIX Command` which enables tests and Managers to issue and retrieve the responses from z/OS UNIX commands.
 
-You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/zos/package-summary.html){target="_blank"}.
+You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/zos/package-summary.html){target="_blank"}.
 
 
 ## Including the Manager in a test
@@ -525,7 +525,7 @@ The following annotations are available with the z/OS Manager
 | Description: | The `@ZosBatch` annotation requests the z/OS Manager to provide a z/OS Batch instance associated with a z/OS image.  The test can request multiple z/OS Batch instances, with the default being associated with the **primary** z/OS image.<br> At test end, the Manager stores the job output with the test results archive and removes jobs from the JES queue. |
 | Attribute: `imageTag` |  The `imageTag` is used to identify the z/OS image. |
 | Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@ZosBatch(imageTag="A")<br>public IZosBatch zosBatchA;<br></pre> |
-| Notes: | The `IZosBatch` interface has a single method, {@link IZosBatch#submitJob(String, IZosBatchJobname)} to submit a JCL  as a `String` and returns a `IZosBatchJob` instance.<br><br> See [ZosBatch](https://javadoc.galasa.dev/dev/galasa/zosbatch/ZosBatch.html){target="_blank"}, [IZosBatch](https://javadoc.galasa.dev/dev/galasa/zosbatch/IZosBatch.html){target="_blank"} and [IZosBatchJob](https://javadoc.galasa.dev/dev/galasa/zosbatch/IZosBatchJob.html){target="_blank"} to find out more. |
+| Notes: | The `IZosBatch` interface has a single method, {@link IZosBatch#submitJob(String, IZosBatchJobname)} to submit a JCL  as a `String` and returns a `IZosBatchJob` instance.<br><br> See [ZosBatch](../../reference/javadoc/dev/galasa/zosbatch/ZosBatch.html){target="_blank"}, [IZosBatch](../../reference/javadoc/dev/galasa/zosbatch/IZosBatch.html){target="_blank"} and [IZosBatchJob](../../reference/javadoc/dev/galasa/zosbatch/IZosBatchJob.html){target="_blank"} to find out more. |
 
 
 ### z/OS Console
@@ -536,7 +536,7 @@ The following annotations are available with the z/OS Manager
 | Description: | The `@ZosConsole` annotation requests the z/OS Manager to provide a z/OS Console instance associated with a z/OS image.  The test can request multiple z/OS Console instances, with the default being associated with the **primary** z/OS image.<br> |
 | Attribute: `imageTag` |  The tag of the z/OS Image this variable is to be populated with |
 | Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@ZosConsole(imageTag="A")<br> public IZosConsole zosConsoleA;<br></pre> |
-| Notes: | The `IZosConsole` interface has two methods, {@link IZosConsole#issueCommand(String)} and {@link IZosConsole#issueCommand(String, String)} to issue a command to the z/OS console and returns a `IZosConsoleCommand` instance.<br><br> See [ZosConsole](https://javadoc.galasa.dev/dev/galasa/zosconsole/ZosConsole.html){target="_blank"}, [IZosConsole](https://javadoc.galasa.dev/dev/galasa/zosconsole/IZosConsole.html){target="_blank"} and [IZosConsoleCommand](https://javadoc.galasa.dev/dev/galasa/zosconsole/IZosConsoleCommand.html){target="_blank"} to find out more. |
+| Notes: | The `IZosConsole` interface has two methods, {@link IZosConsole#issueCommand(String)} and {@link IZosConsole#issueCommand(String, String)} to issue a command to the z/OS console and returns a `IZosConsoleCommand` instance.<br><br> See [ZosConsole](../../reference/javadoc/dev/galasa/zosconsole/ZosConsole.html){target="_blank"}, [IZosConsole](../../reference/javadoc/dev/galasa/zosconsole/IZosConsole.html){target="_blank"} and [IZosConsoleCommand](../../reference/javadoc/dev/galasa/zosconsole/IZosConsoleCommand.html){target="_blank"} to find out more. |
 
 
 ### z/OS File
@@ -546,7 +546,7 @@ The following annotations are available with the z/OS Manager
 | Name: | @ZosFileHandler |
 | Description: | The `@ZosFileHandler` annotation requests the z/OS Manager to provide a handler instance to manage data sets and UNIX files on a z/OS image.  A single z/OS File Handler instance can manage multiple z/OS data sets and UNIX files on multiple z/OS images.<br> |
 | Syntax: | <pre lang="java">@ZosFileHandler<br>public IZosFileHandler zosFileHandler;<br></pre> |
-| Notes: | The `IZosFileHandler` interface has three methods supplying file name and z/OS image:<br> {@link IZosFileHandler#newDataset(String, dev.galasa.zos.IZosImage)}<br>  {@link IZosFileHandler#newVSAMDataset(String, dev.galasa.zos.IZosImage)}<br> {@link IZosFileHandler#newUNIXFile(String, dev.galasa.zos.IZosImage)}<br> returning an object representing the type of file requested. This can be an existing file or can be created via a method on the file object.<br><br> See [ZosFileHandler](https://javadoc.galasa.dev/dev/galasa/zosfile/ZosFileHandler.html){target="_blank"}, [IZosFileHandler](https://javadoc.galasa.dev/dev/galasa/zosfile/IZosFileHandler.html){target="_blank"}, [IZosDataset](https://javadoc.galasa.dev/dev/galasa/zosfile/IZosDataset.html){target="_blank"}, [IZosVSAMDataset](https://javadoc.galasa.dev/dev/galasa/zosfile/IZosVSAMDataset.html){target="_blank"} and [IZosUNIXFile](https://javadoc.galasa.dev/dev/galasa/zosfile/IZosUNIXFile.html){target="_blank"} to find out more. |
+| Notes: | The `IZosFileHandler` interface has three methods supplying file name and z/OS image:<br> {@link IZosFileHandler#newDataset(String, dev.galasa.zos.IZosImage)}<br>  {@link IZosFileHandler#newVSAMDataset(String, dev.galasa.zos.IZosImage)}<br> {@link IZosFileHandler#newUNIXFile(String, dev.galasa.zos.IZosImage)}<br> returning an object representing the type of file requested. This can be an existing file or can be created via a method on the file object.<br><br> See [ZosFileHandler](../../reference/javadoc/dev/galasa/zosfile/ZosFileHandler.html){target="_blank"}, [IZosFileHandler](../../reference/javadoc/dev/galasa/zosfile/IZosFileHandler.html){target="_blank"}, [IZosDataset](../../reference/javadoc/dev/galasa/zosfile/IZosDataset.html){target="_blank"}, [IZosVSAMDataset](../../reference/javadoc/dev/galasa/zosfile/IZosVSAMDataset.html){target="_blank"} and [IZosUNIXFile](../../reference/javadoc/dev/galasa/zosfile/IZosUNIXFile.html){target="_blank"} to find out more. |
 
 
 ### z/OS TSO Command
@@ -557,7 +557,7 @@ The following annotations are available with the z/OS Manager
 | Description: | The `@ZosTSOCommand` annotation requests the z/OS Manager to provide a z/OS TSO Command instance associated with a z/OS image.  The test can request multiple z/OS TSO Command instances, with the default being associated with the **primary** z/OS image.<br> |
 | Attribute: `imageTag` |  The tag of the z/OS Image this variable is to be populated with |
 | Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@ZosTSOCommand(imageTag="A")<br> public IZosTSOCpmmand zosTSOA;<br></pre> |
-| Notes: | The `IZosTSOCommand` interface provides the methods {@link IZosTSOCommand#issueCommand(String)} and {@link IZosTSOCommand#issueCommand(String, long)} to issue a command to z/OS TSO Command and returns a `String`.<br><br> See [IZosTSOCommand](https://javadoc.galasa.dev/dev/galasa/zostsocommand/IZosTSOCommand.html){target="_blank"} to find out more. |
+| Notes: | The `IZosTSOCommand` interface provides the methods {@link IZosTSOCommand#issueCommand(String)} and {@link IZosTSOCommand#issueCommand(String, long)} to issue a command to z/OS TSO Command and returns a `String`.<br><br> See [IZosTSOCommand](../../reference/javadoc/dev/galasa/zostsocommand/IZosTSOCommand.html){target="_blank"} to find out more. |
 
 
 ### z/OS UNIX Command
@@ -568,7 +568,7 @@ The following annotations are available with the z/OS Manager
 | Description: | The `@ZosUNIXCommand` annotation requests the z/OS Manager to provide a z/OS UNIX instance associated with a z/OS image.  The test can request multiple z/OS UNIX Command instances, with the default being associated with the **primary** z/OS image.<br> |
 | Attribute: `imageTag` |  The tag of the z/OS Image this variable is to be populated with |
 | Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@ZosUNIXCommand(imageTag="A")<br> public IZosUNIXCommand zosUNIXCommandA;<br></pre> |
-| Notes: | The `IZosUNIXCommand` interface provides the methods {@link IZosUNIXCommand#issueCommand(String)} and {@link IZosUNIXCommand#issueCommand(String, long)} to issue a command to z/OS UNIX and returns a [String](https://javadoc.galasa.dev/dev/galasa/zosunixcommand/String.html){target="_blank"} response.<br><br> See [IZosUNIXCommand](https://javadoc.galasa.dev/dev/galasa/zosunixcommand/IZosUNIXCommand.html){target="_blank"} to find out more. |
+| Notes: | The `IZosUNIXCommand` interface provides the methods {@link IZosUNIXCommand#issueCommand(String)} and {@link IZosUNIXCommand#issueCommand(String, long)} to issue a command to z/OS UNIX and returns a String response.<br><br> See [IZosUNIXCommand](../../reference/javadoc/dev/galasa/zosunixcommand/IZosUNIXCommand.html){target="_blank"} to find out more. |
 
 
 ## Code snippets and examples

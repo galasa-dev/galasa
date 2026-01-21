@@ -2,7 +2,7 @@
 title: "z/OS Batch RSE API Manager"
 ---
 
-This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/index.html){target="_blank"}.
+This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/zosbatch/package-summary.html){target="_blank"}.
 
 
 ## Overview

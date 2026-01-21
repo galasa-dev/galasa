@@ -2,7 +2,7 @@
 title: "RSE API Manager"
 ---
 
-This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/zosrseapi/package-summary.html){target="_blank"}.
+This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/zosrseapi/package-summary.html){target="_blank"}.
 
 
 ## Overview
@@ -23,7 +23,7 @@ The following annotations are available with the RSE API Manager
 | Description: | The `@Rseapi` annotation requests the RSE API Manager to provide a RSE API server instance associated with a z/OS image.  The test can request multiple RSE API instances, with the default being associated with the **primary** zOS image. |
 | Attribute: `imageTag` |  The tag of the zOS Image this variable is to be populated with |
 | Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br>@Rseapi(imageTag="A")<br>public IRseapi rseapiA;<br></pre> |
-| Notes: | The `IRseapi` interface has a number of methods to issue requests to the RSE API REST API. See [Rseapi](https://javadoc.galasa.dev/dev/galasa/zosrseapi/Rseapi.html){target="_blank"} and [IRseapi](https://javadoc.galasa.dev/dev/galasa/zosrseapi/IRseapi.html){target="_blank"} to find out more. |
+| Notes: | The `IRseapi` interface has a number of methods to issue requests to the RSE API REST API. See [Rseapi](../../reference/javadoc/dev/galasa/zosrseapi/Rseapi.html){target="_blank"} and [IRseapi](../../reference/javadoc/dev/galasa/zosrseapi/IRseapi.html){target="_blank"} to find out more. |
 
 
 ## Configuration Properties

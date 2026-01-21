@@ -16,7 +16,7 @@ If your terminal object is of type `ICicsTerminal` you can use the method `reset
 
 Yes, you can view the [installation verification tests (IVTs)](https://github.com/galasa-dev/managers/tree/main/galasa-managers-parent){target="_blank"} for the Managers in GitHub.
 
-You can find the links to the Javadoc API documentation for all the Galasa Managers on the [overview page](https://javadoc.galasa.dev/){target="_blank"}.
+You can find the links to the Javadoc API documentation for all the Galasa Managers on the [overview page](../reference/javadoc/overview-summary.html){target="_blank"}.
 
 
 ## Can I generate run reports with logs whist running Galasa tests? 
@@ -108,7 +108,7 @@ but with the values customized to match the name and location of your z/OS syste
 
 ## What is the connection between z/OS terminal and application?
 
-The `ITerminal` object allows communication to the remote z/OS system. See the [Javadoc for ITerminal](https://javadoc.galasa.dev/dev/galasa/zos3270/ITerminal.html){target="_blank"} for more information. 
+The `ITerminal` object allows communication to the remote z/OS system. See the [Javadoc for ITerminal](../../docs/reference/javadoc/dev/galasa/zos3270/ITerminal.html){target="_blank"} for more information. 
 
 
 ## Why is my test (which is running on a local LPAR) failing at the Provision Generate phase with the error "Caused by: dev.galasa.zos.ZosManagerException: Insufficent capacity for images in cluster..."?

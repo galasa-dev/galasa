@@ -2,7 +2,7 @@
 title: "zOS MF Manager"
 ---
 
-This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/overview-summary.html){target="_blank"}.
+This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/zosmf/package-summary.html){target="_blank"}.
 
 
 
@@ -24,7 +24,7 @@ The following annotations are available with the zOS MF Manager
 | Description: | The `@Zosmf` annotation requests the z/OSMF Manager to provide a z/OSMF instance associated with a z/OS image.  The test can request multiple z/OSMF instances, with the default being associated with the **primary** zOS image. |
 | Attribute: `imageTag` |  The tag of the zOS Image this variable is to be populated with |
 | Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@Zosmf(imageTag="A")<br>public IZosmf zosmfA;<br></pre> |
-| Notes: | The `IZosmf` interface has a number of methods to issue requests to the zOSMF REST API. See [Zosmf](https://javadoc.galasa.dev/dev/galasa/zosmf/Zosmf.html){target="_blank"} and [IZosmf](https://javadoc.galasa.dev/dev/galasa/zosmf/IZosmf.html){target="_blank"} to find out more. |
+| Notes: | The `IZosmf` interface has a number of methods to issue requests to the zOSMF REST API. See [Zosmf](../../reference/javadoc/dev/galasa/zosmf/Zosmf.html){target="_blank"} and [IZosmf](../../reference/javadoc/dev/galasa/zosmf/IZosmf.html){target="_blank"} to find out more. |
 
 
 ## Configuration Properties

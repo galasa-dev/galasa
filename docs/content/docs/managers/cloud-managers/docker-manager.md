@@ -2,7 +2,7 @@
 title: "Docker Manager"
 ---
 
-This Manager is at Release level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/docker/package-summary.html){target="_blank"}.
+This Manager is at Release level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/docker/package-summary.html){target="_blank"}.
 
 
 ## Overview
@@ -39,7 +39,7 @@ The following annotations are available with the Docker Manager.
 | Attribute: `start` |  The `start` attribute indicates whether the Docker Container should be started automatically. If the  test needs to perform some work before the container is started, then `start=false` should be used, after which `IDockerContainer.start()` can be called to start the container. |
 | Attribute: `dockerEngineTag` |  The `dockerEngineTag` will be used in the future so that a container can be run on a specific Docker Engine type. You would not normally need to provide a Docker Engine tag. |
 | Syntax: | <pre lang="java">@DockerContainer(image="library/httpd:latest")<br>public IDockerContainer httpdContainer;<br><br>@DockerContainer(image="privateimage", start=false)<br>public IDockerContainer container1;<br> </pre> |
-| Notes: | The `IDockerContainer` interface gives the test access to the IPv4/6 address and the exposed port numbers of the Docker Container.  The interface also enables the test to execute commands and retrieve the log and transfer files that are sent to  and from the container.<br><br> See [DockerContainer](https://javadoc.galasa.dev/dev/galasa/docker/DockerContainer.html){target="_blank"} and [IDockerContainer](https://javadoc.galasa.dev/dev/galasa/docker/IDockerContainer.html){target="_blank"} to find out more. |
+| Notes: | The `IDockerContainer` interface gives the test access to the IPv4/6 address and the exposed port numbers of the Docker Container.  The interface also enables the test to execute commands and retrieve the log and transfer files that are sent to  and from the container.<br><br> See [DockerContainer](../../reference/javadoc/dev/galasa/docker/DockerContainer.html){target="_blank"} and [IDockerContainer](../../reference/javadoc/dev/galasa/docker/IDockerContainer.html){target="_blank"} to find out more. |
 
 
 ### Docker Container Configuation

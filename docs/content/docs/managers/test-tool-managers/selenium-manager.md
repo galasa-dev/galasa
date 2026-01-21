@@ -2,7 +2,7 @@
 title: "Selenium Manager"
 ---
 
-This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/selenium/package-summary.html){target="_blank"}.
+This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/selenium/package-summary.html){target="_blank"}.
 
 
 ## Overview

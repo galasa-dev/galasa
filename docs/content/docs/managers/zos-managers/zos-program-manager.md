@@ -15,7 +15,7 @@ The source for the program is stored as a resource, along with the test. The z/O
 
 The Manager retrieves the source from the test bundle, builds and submits the relevant compile and link JCL based on  the programs attributes and CPS properties. The batch job is saved with the test run archive. The  program can be executed in the test by retrieving the library containing the load module by using  the `getLoadLibrary()` method.  
 
-You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/index.html?overview-summary.html){target="_blank"}.
+You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/zosprogram/package-summary.html){target="_blank"}.
 
 
 ## Including the Manager in a test
@@ -125,13 +125,13 @@ The following annotations are available with the z/OS Program Manager
 | Description: | The `@ZosProgram` annotation requests the z/OS Program Manager to Compile and Bind a program on a z/OS image.  The test can request multiple z/OS Program instances |
 | Attribute: `name` |  The program name. Required. |
 | Attribute: `location` |  Path to the location of the program source in the Galasa test bundle. This can be either the full path including the file name or the directory containing the source with the name specified in the name attribute with the extension specified in the language attribute. Optional. The default value is "resources". |
-| Attribute: `language` |  The programming language. Required. See [ZosProgram.Language](https://javadoc.galasa.dev/dev/galasa/zosprogram/ZosProgram.Language.html){target="_blank"}. <br><br>  |
+| Attribute: `language` |  The programming language. Required. See [ZosProgram.Language](../../reference/javadoc/dev/galasa/zosprogram/ZosProgram.Language.html){target="_blank"}. <br><br>  |
 | Attribute: `cics` |  Is a CICS program and requires the CICS translator. Optional. The default value is false.|
 | Attribute: `loadlib` |  The load module data set name. Optional. The default value is "".|
 | Attribute: `imageTag` |  The `imageTag` is used to identify the z/OS image. Optional. The default value is "primary".|
 | Attribute: `compile` |  Compile this zOS program. Optional. The default value is true.|
 | Syntax: | <pre lang="java">@ZosImage(imageTag="A")<br>public IZosImage zosImageA;<br><br>@ZosProgram(imageTag="A")<br>public IZosProgram zosProgramA;<br></pre> |
-| Notes: | The `IZosProgram` interface has a number of methods to manage the z/OS Program. See [ZosProgram](https://javadoc.galasa.dev/dev/galasa/zosprogram/ZosProgram.html){target="_blank"} and [IZosProgram](https://javadoc.galasa.dev/dev/galasa/zosprogram/IZosProgram.html){target="_blank"} to find out more. |
+| Notes: | The `IZosProgram` interface has a number of methods to manage the z/OS Program. See [ZosProgram](../../reference/javadoc/dev/galasa/zosprogram/ZosProgram.html){target="_blank"} and [IZosProgram](../../reference/javadoc/dev/galasa/zosprogram/IZosProgram.html){target="_blank"} to find out more. |
 
 
 ## Code snippets and examples

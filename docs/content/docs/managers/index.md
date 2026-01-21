@@ -2,7 +2,7 @@
 title: "Managers"
 ---
 
-You can find the links to the Javadoc API documentation for all the Galasa Managers on the [overview page](https://javadoc.galasa.dev/){target="_blank"}.
+You can find the links to the Javadoc API documentation for all the Galasa Managers on the [overview page](../reference/javadoc/overview-summary.html){target="_blank"}.
 
 
 ## Managers provided with the current Galasa distribution
