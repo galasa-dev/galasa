@@ -2,7 +2,7 @@
 title: "Core Manager"
 ---
 
-This Manager is at Release level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/core/manager/package-summary.html){target="_blank"}.
+This Manager is at Release level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/core/manager/package-summary.html){target="_blank"}.
 
 
 ## Overview

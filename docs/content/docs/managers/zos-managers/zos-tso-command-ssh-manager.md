@@ -2,7 +2,7 @@
 title: "zOS TSO Command SSH Manager"
 ---
 
-This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/overview-summary.html){target="_blank"}.
+This Manager is at Beta level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/zostsocommand/package-summary.html){target="_blank"}.
 
 
 ## Overview

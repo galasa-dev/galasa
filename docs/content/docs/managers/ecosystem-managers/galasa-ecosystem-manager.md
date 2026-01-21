@@ -2,7 +2,7 @@
 title: "Galasa Ecosystem Manager"
 ---
 
-This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/galasaecosystem/package-summary.html){target="_blank"}.
+This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/galasaecosystem/package-summary.html){target="_blank"}.
 
 
 ## Overview

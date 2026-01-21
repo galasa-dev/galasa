@@ -2,7 +2,7 @@
 title: "GitHub Manager"
 ---
 
-This Manager is at Release level. You can view the <a href="">[Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/githubissue/package-summary.html){target="_blank"}.
+This Manager is at Release level. You can view the <a href="">[Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/githubissue/package-summary.html){target="_blank"}.
 
 
 ## Overview

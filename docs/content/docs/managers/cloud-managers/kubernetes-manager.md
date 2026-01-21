@@ -2,7 +2,7 @@
 title: "Kubernetes Manager"
 ---
 
-This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/kubernetes/package-summary.html){target="_blank"}.
+This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/kubernetes/package-summary.html){target="_blank"}.
 
 
 ## Overview
@@ -40,7 +40,7 @@ The following annotations are available with the Kubernetes Manager
 | Description: | The `@KubernetesNamespace` annotation requests the Kubernetes Manager to allocate a namespace on the infrastructure Kubernetes clusters.  The test can request as many namespaces as required so long as they  can be supported simultaneously by the Kubernetes Manager configuration. |
 | Attribute: `kubernetesNamespaceTag` |  The `kubernetesNamespaceTag` identifies the Kubernetes names to other Managers or Shared Environments.  If a test is using multiple  Kubernetes namespace, each separate Kubernetes namespace must have a unique tag.  If more than one Kubernetes namespace use the same tag, they will refer to the  same Kubernetes namespace. |
 | Syntax: | <pre lang="java">@KubernetesNamespace<br>public IKubernetesNamesapce namespace;<br> </pre> |
-| Notes: | The `IKubernetesNamespace` interface gives the test access to create and manage resources on the Kubernetes cluster.  See [KubernetesNamespace](https://javadoc.galasa.dev/dev/galasa/kubernetes/KubernetesNamespace.html){target="_blank"} and [IKubernetesNamespace](https://javadoc.galasa.dev/dev/galasa/kubernetes/IKubernetesNamespace.html){target="_blank"} to find out more. |
+| Notes: | The `IKubernetesNamespace` interface gives the test access to create and manage resources on the Kubernetes cluster.  See [KubernetesNamespace](../../reference/javadoc/dev/galasa/kubernetes/KubernetesNamespace.html){target="_blank"} and [IKubernetesNamespace](../../reference/javadoc/dev/galasa/kubernetes/IKubernetesNamespace.html){target="_blank"} to find out more. |
 
 
 ## Code snippets

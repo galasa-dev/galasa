@@ -2,7 +2,7 @@
 title: "HTTP Client Manager"
 ---
 
-This Manager is at Release level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/http/package-summary.html){target="_blank"}.
+This Manager is at Release level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/http/package-summary.html){target="_blank"}.
 
 
 ## Overview

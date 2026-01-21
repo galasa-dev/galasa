@@ -2,7 +2,7 @@
 title: "CICS TS Manager"
 ---
 
-This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](https://javadoc.galasa.dev/dev/galasa/cicsts/package-summary.html){target="_blank"}.
+This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/cicsts/package-summary.html){target="_blank"}.
 
 
 ## Overview
