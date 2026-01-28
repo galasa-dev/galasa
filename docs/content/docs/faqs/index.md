@@ -14,7 +14,7 @@ If your terminal object is of type `ICicsTerminal` you can use the method `reset
 
 ## Are there any IVT test cases or Javadoc that I can look at for samples of test code / methods?
 
-Yes, you can view the [installation verification tests (IVTs)](https://github.com/galasa-dev/managers/tree/main/galasa-managers-parent){target="_blank"} for the Managers in GitHub.
+Yes, you can view the [installation verification tests (IVTs)](https://github.com/galasa-dev/galasa/tree/main/modules/managers/galasa-managers-parent){target="_blank"} for the Managers in GitHub.
 
 You can find the links to the Javadoc API documentation for all the Galasa Managers on the [overview page](../reference/javadoc/overview-summary.html){target="_blank"}.
 
