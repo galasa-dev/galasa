@@ -339,8 +339,8 @@ external:
 
   - group: org.apache.httpcomponents
     artifact: httpclient
-    mvp: true
-    isolated: true
+    mvp: false
+    isolated: false
 
   - group: org.apache.httpcomponents
     artifact: httpcore-osgi
@@ -357,8 +357,8 @@ external:
 
   - group: org.apache.httpcomponents
     artifact: httpmime
-    mvp: true
-    isolated: true
+    mvp: false
+    isolated: false
 
   - group: org.apache.logging.log4j
     artifact: log4j-api

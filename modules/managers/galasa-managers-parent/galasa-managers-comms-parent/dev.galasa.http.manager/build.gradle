@@ -7,8 +7,6 @@ description = 'HTTP Manager'
 dependencies {
     api             'dev.galasa:dev.galasa.wrapping.httpclient-osgi'
     implementation  project (':galasa-managers-common-parent:dev.galasa.common')
-    implementation  'org.apache.httpcomponents:httpcore-osgi'
-    implementation  'org.apache.httpcomponents:httpmime'
     implementation  'commons-io:commons-io'
     implementation  'com.google.code.gson:gson'
     implementation  'jakarta.xml.bind:jakarta.xml.bind-api'
