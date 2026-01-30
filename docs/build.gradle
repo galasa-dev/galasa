@@ -9,7 +9,7 @@ plugins {
 // into the code, so the code knows what versions of galasa it should be 
 // dealing with. Do not mess with the `def {variableName}` part of the following 
 // lines, only change the versions we rely upon.
-version="0.46.0"
+version="0.47.0"
 
 repositories {
     gradlePluginPortal()
