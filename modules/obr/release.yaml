@@ -386,7 +386,7 @@ external:
 
   - group: org.assertj
     artifact: assertj-core
-    version: 3.25.3
+    version: 3.27.7 # Same version as the Platform but here to ensure stability for galasa-bom.
     obr: true
     bom: true
     mvp: true
