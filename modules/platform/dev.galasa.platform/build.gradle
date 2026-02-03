@@ -189,9 +189,9 @@ dependencies {
 
         api 'javax.validation:validation-api:2.0.1.Final' // If updating, also update in obr/release.yaml.
 
-        api 'junit:junit:4.13.1'
+        api 'junit:junit:4.13.2'
 
-        api 'net.bytebuddy:byte-buddy:1.15.10'
+        api 'net.bytebuddy:byte-buddy:1.18.3'
 
         api 'net.java.dev.jna:jna:5.12.1' // bnd.bnd only
 
@@ -248,7 +248,7 @@ dependencies {
 
         api 'org.apache.velocity:velocity-engine-core:2.4.1'
 
-        api 'org.assertj:assertj-core:3.25.3'
+        api 'org.assertj:assertj-core:3.27.7'
 
         api 'org.awaitility:awaitility:3.0.0'
 

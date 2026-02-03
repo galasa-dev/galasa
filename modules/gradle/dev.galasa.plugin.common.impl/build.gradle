@@ -23,8 +23,6 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpcore'
     implementation 'org.apache.httpcomponents:httpclient'
     testImplementation 'junit:junit'
-    // Overriding version 3.16.1 suggested by the Platform - as upgrading the other projects
-    // to higher versions caused unit test failures. Fixes for this to be completed in a future story.
 	testImplementation 'org.assertj:assertj-core'
     implementation project(':dev.galasa.plugin.common')
     testImplementation project(':dev.galasa.plugin.common.test')
