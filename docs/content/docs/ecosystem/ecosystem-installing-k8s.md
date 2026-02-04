@@ -29,7 +29,7 @@ The following table shows the minimum and maximum Kubernetes versions supported 
 
 | **Galasa Version** | **Minimum Kubernetes Version** | **Maximum Kubernetes Version** |
 |--------|------|------|
-| 0.47.0 | 1.28 | 1.34 |
+| 0.46.1 | 1.28 | 1.34 |
 | 0.46.0 | 1.28 | 1.34 |
 | 0.45.0 | 1.28 | 1.34 |
 | 0.44.0 | 1.28 | 1.34 |
@@ -339,14 +339,14 @@ Once you have successfully installed the Ecosystem, you can then deploy your Gal
 
 ## Upgrading the Galasa Ecosystem
 
-Get the latest version of the Ecosystem chart and upgrade the Galasa Ecosystem to use the newer version of Galasa - for example version 0.47.0 - by running the following command:
+Get the latest version of the Ecosystem chart and upgrade the Galasa Ecosystem to use the newer version of Galasa - for example version 0.46.1 - by running the following command:
 
 On Mac or Unix:
 
 ```shell
 helm repo update \
 helm upgrade <release-name> galasa/ecosystem --reuse-values \
---set galasaVersion=0.47.0 --wait
+--set galasaVersion=0.46.1 --wait
 ```
 
 On Windows (Powershell):
@@ -354,7 +354,7 @@ On Windows (Powershell):
 ```powershell
 helm repo update `
 helm upgrade <release-name> galasa/ecosystem --reuse-values `
---set galasaVersion=0.47.0 --wait
+--set galasaVersion=0.46.1 --wait
 ```
 
 where:

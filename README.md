@@ -45,7 +45,7 @@ The `set-version.sh` script allows you to set the version of the Galasa througho
 
 Use the `--help` flag to see what options are supported.
 
-Basic usage: `set-version.sh --version 0.47.0`
+Basic usage: `set-version.sh --version 0.46.1`
 
 
 ## Using vscode

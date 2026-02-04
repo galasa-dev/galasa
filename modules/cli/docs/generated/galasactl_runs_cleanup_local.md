@@ -24,7 +24,7 @@ galasactl runs cleanup local [flags]
                                    '*' (wildcard) Matches zero or more characters.
                                    '?' matches exactly one character
                                    For example, the pattern '*MyResourceCleanupClass' will match any provider that ends with 'MyResourceCleanupClass' such as 'my.company.resources.MyResourceCleanupClass' and so that provider will not be loaded.
-      --galasaVersion string       the version of galasa you want to use. This should match the version of the galasa obr you built your resource cleanup providers against. (default "0.47.0")
+      --galasaVersion string       the version of galasa you want to use. This should match the version of the galasa obr you built your resource cleanup providers against. (default "0.46.1")
   -h, --help                       Displays the options for the 'runs cleanup local' command.
       --includes-pattern strings   The glob pattern(s) representing the resource cleanup providers that should be loaded. Supported glob patterns include the following special characters:
                                    '*' (wildcard) Matches zero or more characters.
