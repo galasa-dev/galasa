@@ -29,6 +29,7 @@ The following table shows the minimum and maximum Kubernetes versions supported 
 
 | **Galasa Version** | **Minimum Kubernetes Version** | **Maximum Kubernetes Version** |
 |--------|------|------|
+| 0.47.0 | 1.28 | 1.34 |
 | 0.46.1 | 1.28 | 1.34 |
 | 0.46.0 | 1.28 | 1.34 |
 | 0.45.0 | 1.28 | 1.34 |
