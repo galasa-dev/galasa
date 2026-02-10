@@ -62,7 +62,7 @@ jobs:
             echo "✅ Version is up to date: $CURRENT"
           fi
 
-      - name: Create issue if update needed
+      - name: Create or update issue if update needed
         if: steps.compare.outputs.needs_update == 'true'
         uses: actions/github-script@v7
         with:
@@ -78,21 +78,55 @@ jobs:
               labels: ['dependency-update', 'kubernetes-client']
             });
 
-            const existingIssue = issues.data.find(issue => 
+            const existingIssue = issues.data.find(issue =>
               issue.title.includes('io.kubernetes:client-java')
             );
 
-            if (!existingIssue) {
+            const issueBody = `A new version of the Kubernetes Java client is available.\n\n` +
+                  `**Current version:** ${current}\n` +
+                  `**Latest version:** ${latest}\n\n` +
+                  `**Maven Central:** https://search.maven.org/artifact/io.kubernetes/client-java/${latest}/jar\n\n` +
+                  `Please review and update the dependency in:\n` +
+                  `- \`modules/platform/dev.galasa.platform/build.gradle\``;
+
+            if (existingIssue) {
+              // Extract the version from the existing issue title
+              const titleMatch = existingIssue.title.match(/to (\d+\.\d+\.\d+)/);
+              const issueVersion = titleMatch ? titleMatch[1] : null;
+
+              // Check if the issue's target version is outdated
+              if (issueVersion && issueVersion !== latest) {
+                console.log(`Existing issue #${existingIssue.number} targets version ${issueVersion}, but latest is ${latest}`);
+                
+                // Update the existing issue
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existingIssue.number,
+                  title: `Update io.kubernetes:client-java from ${current} to ${latest}`,
+                  body: issueBody
+                });
+                
+                // Add a comment to notify about the update
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existingIssue.number,
+                  body: `🔄 **Issue updated**: A newer version (${latest}) is now available. The issue has been updated to reflect the latest version.`
+                });
+                
+                console.log(`Updated issue #${existingIssue.number} to target version ${latest}`);
+              } else {
+                console.log(`Existing issue #${existingIssue.number} is already up to date with version ${latest}`);
+              }
+            } else {
+              // Create new issue
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: `Update io.kubernetes:client-java from ${current} to ${latest}`,
-                body: `A new version of the Kubernetes Java client is available.\n\n` +
-                      `**Current version:** ${current}\n` +
-                      `**Latest version:** ${latest}\n\n` +
-                      `**Maven Central:** https://search.maven.org/artifact/io.kubernetes/client-java/${latest}/jar\n\n` +
-                      `Please review and update the dependency in:\n` +
-                      `- \`modules/wrapping/dev.galasa.wrapping.io.kubernetes.client-java/pom.xml\``,
+                body: issueBody,
                 labels: ['dependency-update', 'kubernetes-client']
               });
+              console.log(`Created new issue for version ${latest}`);
             }
