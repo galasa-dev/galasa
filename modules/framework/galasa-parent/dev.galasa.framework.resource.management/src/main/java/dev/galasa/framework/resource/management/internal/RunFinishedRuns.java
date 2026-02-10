@@ -76,7 +76,7 @@ public class RunFinishedRuns implements Runnable {
                     this.frameworkRuns.delete(runName);
                 }
             }
-        } catch (FrameworkException e) {
+        } catch (Exception e) {
             logger.error("Scan of runs failed", e);
         }
 
