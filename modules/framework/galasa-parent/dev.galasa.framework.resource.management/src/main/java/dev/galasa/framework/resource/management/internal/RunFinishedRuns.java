@@ -44,6 +44,7 @@ public class RunFinishedRuns implements Runnable {
 
     @Override
     public void run() {
+        logger.info("Entering run() method");
         int defaultFinishedDelete = 300; // ** 5 minutes
         try { // TODO do we need a different timeout for automation run reset?
             String overrideTime = AbstractManager.nulled(cps.getProperty("resource.management", "finished.timeout"));
@@ -54,26 +55,35 @@ public class RunFinishedRuns implements Runnable {
             logger.error("Problem with resource.management.finished.timeout, using default " + defaultFinishedDelete,
                     e);
         }
+        logger.info("Finished fetching defaultFinishedDelete value: " + defaultFinishedDelete);
 
         logger.info("Starting Finished Run search");
         try {
+            logger.info("About to call getAllRuns()");
             List<IRun> runs = frameworkRuns.getAllRuns();
+            logger.info("Finished calling getAllRuns()");
             for (IRun run : runs) {
                 String runName = run.getName();
+                logger.info("Found run with run name: " + runName);
 
                 String status = run.getStatus();
+                logger.info("The runs status is: " + status);
                 if (!"finished".equals(status)) {
                     continue;
                 }
 
                 Instant finished = run.getFinished();
+                logger.info("The runs finished time is: " + finished);
                 Instant expires = finished.plusSeconds(defaultFinishedDelete);
+                logger.info("The runs expired time is: " + expires);
                 Instant now = Instant.now();
                 if (expires.compareTo(now) <= 0) {
+                    logger.info("The run has expired so we will attempt to delete it");
                     String sFinished = dtf.format(LocalDateTime.ofInstant(finished, ZoneId.systemDefault()));
                     /// TODO put time management into the framework
                     logger.info("Deleting run " + runName + ", finished at " + sFinished);
                     this.frameworkRuns.delete(runName);
+                    logger.info("We have been able to delete the run in the delete() method");
                 }
             }
         } catch (Exception e) {
@@ -81,7 +91,7 @@ public class RunFinishedRuns implements Runnable {
         }
 
         this.resourceManagement.resourceManagementRunSuccessful();
-        logger.info("Finished Finished search");
+        logger.info("Finished Finished Run search");
     }
 
 }
