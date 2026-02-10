@@ -91,7 +91,10 @@ function get_module_names() {
         for dir in "${PROJECT_DIR}/modules"/*/ ; do
             if [[ -d "$dir" ]]; then
                 module_name=$(basename "$dir")
-                modules+=("$module_name")
+                # Skip hidden directories (starting with '.')
+                if [[ ! "$module_name" =~ ^\. ]]; then
+                    modules+=("$module_name")
+                fi
             fi
         done
     fi
@@ -237,6 +240,14 @@ function build_single_module() {
     local build_args=$(get_build_args "$module")
     
     h2 "Building $module"
+    
+    # Check if build script exists before attempting to execute it
+    if [[ ! -f "${module_path}/build-locally.sh" ]]; then
+        error "Build script not found for module '$module' at ${module_path}/build-locally.sh"
+        error "Please ensure the module has a build-locally.sh script before building."
+        exit 1
+    fi
+    
     cd "$module_path"
     ${module_path}/build-locally.sh ${build_args}
     rc=$?
