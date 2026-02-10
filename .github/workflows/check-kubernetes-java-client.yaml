@@ -32,7 +32,7 @@ jobs:
           #   | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
           #   | sort -V \
           #   | tail -1)
-          LATEST_VERSION=25.0.0
+          LATEST_VERSION=24.0.0
 
           echo "Latest version: $LATEST_VERSION"
           echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
@@ -43,7 +43,7 @@ jobs:
           # CURRENT_VERSION=$(grep "io.kubernetes:client-java:" \
           #   modules/platform/dev.galasa.platform/build.gradle \
           #   | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
-          CURRENT_VERSION=24.0.0
+          CURRENT_VERSION=22.0.0
 
           echo "Current version: $CURRENT_VERSION"
           echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
@@ -87,10 +87,10 @@ jobs:
             const issueBody = `A new version of the Kubernetes client-java is available.\n\n` +
                   `**Current version:** ${current}\n` +
                   `**Latest version:** ${latest}\n\n` +
-                  `**Maven Central:** https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}/versions\n\n` +
+                  `**Maven Central:** https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}\n\n` +
                   `## Tasks\n` +
-                  `- [ ] Ensure [client-java ${latest}](https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}/versions) exists on Maven Central` +
-                  `- [ ] Review and update the dependency in \`modules/platform/dev.galasa.platform/build.gradle\`` +
+                  `- [ ] Ensure [client-java ${latest}](https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}) exists on Maven Central\n` +
+                  `- [ ] Review and update the dependency in \`modules/platform/dev.galasa.platform/build.gradle\`\n` +
                   `- [ ] Create a new row in the documentation table with the new min and max supported Kubernetes versions for this version of Galasa, found [here](https://galasa.dev/docs/ecosystem/ecosystem-installing-k8s/#supported-kubernetes-versions).`;
 
 
