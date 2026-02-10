@@ -26,12 +26,13 @@ jobs:
         run: |
           # Fetch maven-metadata.xml and extract the latest stable version
           # (versions containing only numbers and dots, excluding -legacy, -alpha, -beta, etc.)
-          LATEST_VERSION=$(curl -s 'https://repo1.maven.org/maven2/io/kubernetes/client-java/maven-metadata.xml' \
-            | grep '<version>' \
-            | sed 's/.*<version>\(.*\)<\/version>.*/\1/' \
-            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
-            | sort -V \
-            | tail -1)
+          # LATEST_VERSION=$(curl -s 'https://repo1.maven.org/maven2/io/kubernetes/client-java/maven-metadata.xml' \
+          #   | grep '<version>' \
+          #   | sed 's/.*<version>\(.*\)<\/version>.*/\1/' \
+          #   | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+          #   | sort -V \
+          #   | tail -1)
+          LATEST_VERSION=24.0.0
 
           echo "Latest version: $LATEST_VERSION"
           echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
@@ -39,9 +40,10 @@ jobs:
       - name: Get current version from build.gradle
         id: current-version
         run: |
-          CURRENT_VERSION=$(grep "io.kubernetes:client-java:" \
-            modules/platform/dev.galasa.platform/build.gradle \
-            | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+          # CURRENT_VERSION=$(grep "io.kubernetes:client-java:" \
+          #   modules/platform/dev.galasa.platform/build.gradle \
+          #   | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+          CURRENT_VERSION=23.0.0
 
           echo "Current version: $CURRENT_VERSION"
           echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
