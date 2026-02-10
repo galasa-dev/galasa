@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-name: Check Kubernetes Java Client Version
+name: Check Kubernetes client-java Version
 
 on:
   # TODO: Change from on-push back to cron
@@ -14,7 +14,7 @@ on:
 
 jobs:
   check-version:
-    name: Check latest Kubernetes Java client version from Maven Central
+    name: Check latest Kubernetes client-java version from Maven Central
     runs-on: ubuntu-latest
 
     steps:
@@ -84,12 +84,15 @@ jobs:
               issue.title.includes('io.kubernetes:client-java')
             );
 
-            const issueBody = `A new version of the Kubernetes Java client is available.\n\n` +
+            const issueBody = `A new version of the Kubernetes client-java is available.\n\n` +
                   `**Current version:** ${current}\n` +
                   `**Latest version:** ${latest}\n\n` +
-                  `**Maven Central:** https://search.maven.org/artifact/io.kubernetes/client-java/${latest}/jar\n\n` +
-                  `Please review and update the dependency in:\n` +
-                  `- \`modules/platform/dev.galasa.platform/build.gradle\``;
+                  `**Maven Central:** https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}/versions\n\n` +
+                  `## Tasks\n` +
+                  `- [ ] Ensure [client-java ${latest}](https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}/versions) exists on Maven Central` +
+                  `- [ ] Review and update the dependency in \`modules/platform/dev.galasa.platform/build.gradle\`` +
+                  `- [ ] Create a new row in the documentation table with the new min and max supported Kubernetes versions for this version of Galasa, found [here](https://galasa.dev/docs/ecosystem/ecosystem-installing-k8s/#supported-kubernetes-versions).`;
+
 
             if (existingIssue) {
               // Extract the version from the existing issue title
