@@ -82,30 +82,44 @@ function check_chain_is_true_or_false() {
     success "--chain option is value. $chain"
 }
 
-module_names=(\
-    "platform" \
-    "wrapping" \
-    "buildutils" \
-    "gradle" \
-    "maven" \
-    "framework" \
-    "extensions" \
-    "managers" \
-    "obr" \
-    "ivts" \
-    "cli" \
-    "docs" \
-)
+function get_module_names() {
+    # Dynamically discover modules from the modules/ directory
+    local modules=()
+    
+    # Get all directories in modules/ folder
+    if [[ -d "${PROJECT_DIR}/modules" ]]; then
+        for dir in "${PROJECT_DIR}/modules"/*/ ; do
+            if [[ -d "$dir" ]]; then
+                module_name=$(basename "$dir")
+                # Skip hidden directories (starting with '.')
+                if [[ ! "$module_name" =~ ^\. ]]; then
+                    modules+=("$module_name")
+                fi
+            fi
+        done
+    fi
+    
+    # Add docs if it exists at the root level
+    if [[ -d "${PROJECT_DIR}/docs" ]]; then
+        modules+=("docs")
+    fi
+    
+    echo "${modules[@]}"
+}
 
 function check_module_name_is_supported() {
     module_input=$1
+    
+    # Get the list of valid module names dynamically
+    module_names=($(get_module_names))
+    
     is_valid="false"
     # Loop through all the keys of our command
     if [[ " ${module_names[*]} " =~ " ${module_input} " ]]; then
         is_valid="true"
     fi
 
-    if [[ "$is_valid" != "true" ]]; then 
+    if [[ "$is_valid" != "true" ]]; then
         msg="'$module_input' is an invalid module name. Valid module names are: [ ${module_names[*]} ]"
         error "$msg"
         exit 1
@@ -175,151 +189,89 @@ function run_minikube_setup() {
     success "Docker registry for minikube set up OK"
 }
 
+function get_next_module() {
+    local current=$1
+    case "$current" in
+        platform   ) echo "buildutils" ;;
+        buildutils ) echo "wrapping"   ;;
+        wrapping   ) echo "gradle"     ;;
+        gradle     ) echo "maven"      ;;
+        maven      ) echo "framework"  ;;
+        framework  ) echo "extensions" ;;
+        extensions ) echo "managers"   ;;
+        managers   ) echo "obr"        ;;
+        obr        ) echo "ivts"       ;;
+        ivts       ) echo "cli"        ;;
+        cli        ) echo "docs"       ;;
+        *          ) echo ""           ;;
+    esac
+}
+
+function get_build_args() {
+    local module=$1
+    case "$module" in
+        framework | extensions | managers | cli)
+            echo "--clean --detectsecrets false"
+            ;;
+        obr)
+            echo "--detectsecrets false ${build_docker_flag}"
+            ;;
+        docs)
+            echo "${build_docker_flag}"
+            ;;
+        *)
+            echo "--detectsecrets false"
+            ;;
+    esac
+}
+
+function get_module_path() {
+    local module=$1
+    if [[ "$module" == "docs" ]]; then
+        echo "${PROJECT_DIR}/$module"
+    else
+        echo "${PROJECT_DIR}/modules/$module"
+    fi
+}
+
+function build_single_module() {
+    local module=$1
+    local module_path=$(get_module_path "$module")
+    local build_args=$(get_build_args "$module")
+    
+    h2 "Building $module"
+    
+    # Check if build script exists before attempting to execute it
+    if [[ ! -f "${module_path}/build-locally.sh" ]]; then
+        error "Build script not found for module '$module' at ${module_path}/build-locally.sh"
+        error "Please ensure the module has a build-locally.sh script before building."
+        exit 1
+    fi
+    
+    cd "$module_path"
+    ${module_path}/build-locally.sh ${build_args}
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then
+        error "Failed to build module $module. rc=$rc"
+        exit 1
+    fi
+    success "Built module $module OK"
+}
+
 function build_module() {
-    module=$1
-    chain=$2
+    local module=$1
+    local chain=$2
     h1 "Building... module:'$module' chain:'$chain'"
 
-    # platform
-    if [[ "$module" == "platform" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
+    while [[ -n "$module" ]]; do
+        build_single_module "$module"
+        
         if [[ "$chain" == "true" ]]; then
-            module="buildutils"
+            module=$(get_next_module "$module")
+        else
+            module=""
         fi
-    fi
-
-    # buildutils
-    if [[ "$module" == "buildutils" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then
-            module="wrapping"
-        fi
-    fi
-
-    # wrapping
-    if [[ "$module" == "wrapping" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then 
-            module="gradle"
-        fi
-    fi
-
-    # gradle
-    if [[ "$module" == "gradle" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then 
-            module="maven"
-        fi
-    fi
-
-    # maven
-    if [[ "$module" == "maven" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then 
-            module="framework"
-        fi
-    fi
-
-    # framework
-    if [[ "$module" == "framework" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --clean --detectsecrets false
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then 
-            module="extensions"
-        fi
-    fi
-
-    # extensions
-    if [[ "$module" == "extensions" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --clean --detectsecrets false
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then 
-            module="managers"
-        fi
-    fi
-
-    # managers
-    if [[ "$module" == "managers" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --clean --detectsecrets false
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then 
-            module="obr"
-        fi
-    fi
-
-    # obr
-    if [[ "$module" == "obr" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false ${build_docker_flag}
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then 
-            module="ivts"
-        fi
-    fi
-
-    # ivts
-    if [[ "$module" == "ivts" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --detectsecrets false
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then 
-            module="cli"
-        fi
-    fi
-
-    # cli
-    if [[ "$module" == "cli" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/modules/$module
-        ${PROJECT_DIR}/modules/$module/build-locally.sh --clean --detectsecrets false 
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-        if [[ "$chain" == "true" ]]; then 
-            module="docs"
-        fi
-    fi
-
-    # docs
-    if [[ "$module" == "docs" ]]; then
-        h2 "Building $module"
-        cd ${PROJECT_DIR}/$module
-        ${PROJECT_DIR}/$module/build-locally.sh ${build_docker_flag}
-        rc=$? ;  if [[ "${rc}" != "0" ]]; then error "Failed to build module $module. rc=$rc" ; exit 1 ; fi
-        success "Built module $module OK"
-    fi
+    done
 }
 
 clean_local_m2
