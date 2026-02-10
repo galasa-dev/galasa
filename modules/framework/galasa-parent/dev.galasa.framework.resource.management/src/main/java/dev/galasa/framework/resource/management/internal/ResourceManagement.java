@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,7 +24,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
-import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -88,7 +86,11 @@ public class ResourceManagement extends AbstractResourceManagement {
         try {
             super.init(bootstrapProperties, overrideProperties, stream, bundleIncludes, bundleExcludes);
 
+            // A heartbeat for the resource monitor was previously set and updated but wasn't used anywhere,
+            // so any heartbeat-related properties that may still exist in the DSS from previous versions of
+            // Galasa should be removed from the DSS to avoid taking up space.
             IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
+            clearHeartbeatProperties(dss);
 
             // Load the requested monitor bundles
             super.loadMonitorBundles(bundleContext, stream, repositoryAdmin, mavenRepository);
@@ -124,13 +126,7 @@ public class ResourceManagement extends AbstractResourceManagement {
             logger.info("Resource Manager has started");
 
             // *** Loop until we are asked to shutdown
-            long heartbeatExpire = 0;
             while (!shutdown) {
-                if (System.currentTimeMillis() >= heartbeatExpire) {
-                    updateHeartbeat(dss);
-                    heartbeatExpire = System.currentTimeMillis() + 20000;
-                }
-
                 try {
                     Thread.sleep(500);
                 } catch (Exception e) {
@@ -250,19 +246,11 @@ public class ResourceManagement extends AbstractResourceManagement {
         return serverName;
     }
 
-    
-
-    private void updateHeartbeat(IDynamicStatusStoreService dss) {
-        Instant time = Instant.now();
-
-        HashMap<String, String> props = new HashMap<>();
-        props.put("servers.resourcemonitor." + serverName + "."+DssPropertyKeyRunNameSuffix.HEARTBEAT, time.toString());
-        props.put("servers.resourcemonitor." + serverName + ".hostname", hostname);
-
+    private void clearHeartbeatProperties(IDynamicStatusStoreService dss) {
         try {
-            dss.put(props);
+            dss.deletePrefix("servers.resourcemonitor.");
         } catch (DynamicStatusStoreException e) {
-            logger.error("Problem logging heartbeat", e);
+            logger.error("Problem clearing heartbeat properties", e);
         }
     }
 

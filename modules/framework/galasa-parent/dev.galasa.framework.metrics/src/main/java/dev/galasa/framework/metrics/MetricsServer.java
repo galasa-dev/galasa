@@ -8,9 +8,7 @@ package dev.galasa.framework.metrics;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -25,7 +23,6 @@ import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.FrameworkInitialisation;
 import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
@@ -83,7 +80,12 @@ public class MetricsServer implements IMetricsServer {
             IFramework framework = frameworkInitialisation.getFramework();
 
             IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService("framework");
+
+            // A heartbeat for the metrics server was previously set and updated but wasn't used anywhere,
+            // so any heartbeat-related properties that may still exist in the DSS from previous versions of
+            // Galasa should be removed from the DSS to avoid taking up space.
             IDynamicStatusStoreService dss = framework.getDynamicStatusStoreService("framework");
+            clearHeartbeatProperties(dss);
 
             // *** Now start the Metrics Server framework
 
@@ -201,13 +203,7 @@ public class MetricsServer implements IMetricsServer {
             logger.info("Metrics Server has started");
 
             // *** Loop until we are asked to shutdown
-            long heartbeatExpire = 0;
             while (!shutdown) {
-                if (System.currentTimeMillis() >= heartbeatExpire) {
-                    updateHeartbeat(dss);
-                    heartbeatExpire = System.currentTimeMillis() + 20000;
-                }
-
                 try {
                     Thread.sleep(500);
                 } catch (Exception e) {
@@ -268,17 +264,11 @@ public class MetricsServer implements IMetricsServer {
         return lastCount;
     }
 
-    private void updateHeartbeat(IDynamicStatusStoreService dss) {
-        Instant time = Instant.now();
-
-        HashMap<String, String> props = new HashMap<>();
-        props.put("servers.metricsserver." + serverName + "."+DssPropertyKeyRunNameSuffix.HEARTBEAT, time.toString());
-        props.put("servers.metricsserver." + serverName + ".hostname", hostname);
-
+    private void clearHeartbeatProperties(IDynamicStatusStoreService dss) {
         try {
-            dss.put(props);
+            dss.deletePrefix("servers.metricsserver.");
         } catch (DynamicStatusStoreException e) {
-            logger.error("Problem logging heartbeat", e);
+            logger.error("Problem clearing heartbeat properties", e);
         }
     }
 
