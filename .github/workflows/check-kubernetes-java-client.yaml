@@ -6,7 +6,7 @@
 name: Check Kubernetes Java Client Version
 
 on:
-# TODO: Change from on-push back to cron
+  # TODO: Change from on-push back to cron
   # schedule:
   #   # Run daily at 9 AM UTC
   #   - cron: '0 9 * * *'
@@ -16,38 +16,42 @@ jobs:
   check-version:
     name: Check latest Kubernetes Java client version from Maven Central
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Get latest version from Maven Central
         id: maven-version
         run: |
-          # Query Maven Central API for latest version
-          LATEST_VERSION=$(curl -s \
-            'https://search.maven.org/solrsearch/select?q=g:io.kubernetes+AND+a:client-java&rows=1&wt=json' \
-            | jq -r '.response.docs[0].latestVersion')
-          
+          # Fetch maven-metadata.xml and extract the latest stable version
+          # (versions containing only numbers and dots, excluding -legacy, -alpha, -beta, etc.)
+          LATEST_VERSION=$(curl -s 'https://repo1.maven.org/maven2/io/kubernetes/client-java/maven-metadata.xml' \
+            | grep '<version>' \
+            | sed 's/.*<version>\(.*\)<\/version>.*/\1/' \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V \
+            | tail -1)
+
           echo "Latest version: $LATEST_VERSION"
           echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
-      
-      - name: Get current version from pom.xml
+
+      - name: Get current version from build.gradle
         id: current-version
         run: |
-          CURRENT_VERSION=$(grep -A 1 'io.kubernetes' \
-            modules/wrapping/dev.galasa.wrapping.io.kubernetes.client-java/pom.xml \
-            | grep '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
-          
+          CURRENT_VERSION=$(grep "io.kubernetes:client-java:" \
+            modules/platform/dev.galasa.platform/build.gradle \
+            | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+
           echo "Current version: $CURRENT_VERSION"
           echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-      
+
       - name: Compare versions
         id: compare
         run: |
           LATEST="${{ steps.maven-version.outputs.version }}"
           CURRENT="${{ steps.current-version.outputs.version }}"
-          
+
           if [ "$LATEST" != "$CURRENT" ]; then
             echo "needs_update=true" >> $GITHUB_OUTPUT
             echo "⚠️ Version mismatch detected!"
@@ -57,7 +61,7 @@ jobs:
             echo "needs_update=false" >> $GITHUB_OUTPUT
             echo "✅ Version is up to date: $CURRENT"
           fi
-      
+
       - name: Create issue if update needed
         if: steps.compare.outputs.needs_update == 'true'
         uses: actions/github-script@v7
@@ -65,7 +69,7 @@ jobs:
           script: |
             const latest = '${{ steps.maven-version.outputs.version }}';
             const current = '${{ steps.current-version.outputs.version }}';
-            
+
             // Check if issue already exists
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -73,11 +77,11 @@ jobs:
               state: 'open',
               labels: ['dependency-update', 'kubernetes-client']
             });
-            
+
             const existingIssue = issues.data.find(issue => 
               issue.title.includes('io.kubernetes:client-java')
             );
-            
+
             if (!existingIssue) {
               await github.rest.issues.create({
                 owner: context.repo.owner,
