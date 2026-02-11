@@ -8,7 +8,6 @@
  * 
  * @galasa.manager Zos3270Terminal
  * 
- * @galasa.release.state Alpha
  * 
  * @galasa.description
  *

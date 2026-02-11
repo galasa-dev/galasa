@@ -8,7 +8,6 @@
  * 
  * @galasa.manager CICS TS
  * 
- * @galasa.release.state Alpha - This Manager is being actively developed. It is subject to change and has not been extensively tested.
  * 
  * @galasa.description
  * 

@@ -2,9 +2,6 @@
 title: "ElasticLog Manager"
 ---
 
-This Manager is at Alpha level.
-
-
 ## Overview
 
 This Manager exports test results to an elastic search endpoint, where the data can be visualized on a Kibana dashboard.  Other Managers can contribute to the information that is exported to Elastic.

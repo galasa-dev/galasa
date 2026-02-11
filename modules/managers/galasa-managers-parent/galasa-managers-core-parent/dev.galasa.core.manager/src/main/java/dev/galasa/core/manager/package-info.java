@@ -8,7 +8,6 @@
  * 
  * @galasa.manager Core
  * 
- * @galasa.release.state Release
  * 
  * @galasa.description
  * 

@@ -2,7 +2,7 @@
 title: "z/OS File RSE API Manager"
 ---
 
-This Manager is at Alpha level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/zosfile/package-summary.html){target="_blank"}.
+You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/zosfile/package-summary.html){target="_blank"}.
 
 
 ## Overview

@@ -8,7 +8,6 @@
  * 
  * @galasa.manager Linux
  * 
- * @galasa.release.state Alpha
  * 
  * @galasa.description
  * 
