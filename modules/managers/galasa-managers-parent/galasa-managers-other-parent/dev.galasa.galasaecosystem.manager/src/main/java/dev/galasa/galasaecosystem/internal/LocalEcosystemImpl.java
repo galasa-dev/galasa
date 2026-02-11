@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -34,9 +34,12 @@ import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SetContentType;
@@ -47,6 +50,7 @@ import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.InsufficientResourcesAvailableException;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.ras.ArtifactMetadata;
 import dev.galasa.galasaecosystem.EcosystemEndpoint;
 import dev.galasa.galasaecosystem.GalasaEcosystemManagerException;
 import dev.galasa.galasaecosystem.ILocalEcosystem;
@@ -590,12 +594,25 @@ public abstract class LocalEcosystemImpl extends AbstractEcosystemImpl implement
     /**
      * The artifacts are described by a metadata file.
      * 
-     * This is a properties file which has the form
-     * key=value
+     * This is a JSON file with the following structure:
      * 
-     * Where key is the path into the RAS folder of the artifact.
-     * And value is the content type used to create the folder
-     * in the target RAS folder.
+     * [
+     *  {
+     *      "path": "/artifacts/framework/cps_record.properties",
+     *      "contentType": "application/octet-stream",
+     *      "size": 903
+     *  },
+     *  {
+     *      "path": "/artifacts/framework/overrides.properties",
+     *      "contentType": "application/octet-stream",
+     *      "size": 389
+     *  }
+     * ]
+     * 
+     * - path is the path into the RAS folder of the artifact.
+     * - contentType is the content type used to create the folder
+     *   in the target RAS folder.
+     * - size is the size in bytes.
      * 
      * Using this function to encapsulate the gathering of the artifact 
      * descriptor information from that file, in case the file format changes.
@@ -608,21 +625,24 @@ public abstract class LocalEcosystemImpl extends AbstractEcosystemImpl implement
      * @return A list of ArtifactDescriptor objects.
      */
     private List<ArtifactDescriptor> getArtifacts(Path sourceRasRunFolder) throws IOException {
-        Path artifactsMetadataFile = sourceRasRunFolder.resolve("artifacts.properties");
         List<ArtifactDescriptor> artifacts = new ArrayList<ArtifactDescriptor>();
-        Properties artifactProperties = new Properties();
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        TypeToken<List<ArtifactMetadata>> listType = new TypeToken<List<ArtifactMetadata>>(){};
+
+        Path artifactsMetadataFile = sourceRasRunFolder.resolve("artifacts.json");
         if (Files.exists(artifactsMetadataFile)) {
-            artifactProperties.load(Files.newInputStream(artifactsMetadataFile));
+            List<ArtifactMetadata> metadataList;
+            try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(artifactsMetadataFile), StandardCharsets.UTF_8)) {
+                metadataList = gson.fromJson(reader, listType.getType());
+            }
 
-            for(Entry<Object, Object> entry : artifactProperties.entrySet()) {
-                
+            for (ArtifactMetadata metadata : metadataList) {
+                String path = metadata.getPath();
+                String pathNoLeadingSlash = path.startsWith("/") ? path.substring(1) : path;
+                String contentType = metadata.getContentType();
 
-                String path = (String) entry.getKey();
-                String pathNoLeadingSlash = path.substring(1);
-
-                String contentType = (String) entry.getValue();
                 ArtifactDescriptor artifact = new ArtifactDescriptor(pathNoLeadingSlash, contentType);
-
                 artifacts.add(artifact);
             }
         }
@@ -632,7 +652,7 @@ public abstract class LocalEcosystemImpl extends AbstractEcosystemImpl implement
     private void saveRunsData( List<LocalRun> localRuns , Path rasDirectory, Path ecosystemRootFolder ) {
 
         if (ecosystemRootFolder == null) {
-            logger.warn("Failed to save the local run log, structure, artifacts.properties, all other artifacts...etc : Programming logic error: saEcosystem is null.");
+            logger.warn("Failed to save the local run log, structure, artifacts.json, all other artifacts...etc : Programming logic error: saEcosystem is null.");
         } else {
 
             // copy all the run data
@@ -648,7 +668,7 @@ public abstract class LocalEcosystemImpl extends AbstractEcosystemImpl implement
                     // Save the framework files.
                     saveArtifactFile(saRun, runName, rasRun, "run.log");
                     saveArtifactFile(saRun, runName, rasRun, "structure.json");
-                    saveArtifactFile(saRun, runName, rasRun, "artifacts.properties");
+                    saveArtifactFile(saRun, runName, rasRun, "artifacts.json");
 
                     // Save the files that testcases/managers added.
                     saveTestCaseArtifactFiles(saRun, runName, rasRun);

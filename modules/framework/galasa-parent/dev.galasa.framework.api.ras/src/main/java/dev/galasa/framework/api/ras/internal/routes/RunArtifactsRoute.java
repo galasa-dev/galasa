@@ -70,11 +70,6 @@ public abstract class RunArtifactsRoute extends RunsRoute {
      *     "contentType": "application/json",
      *     "size": 1301
      *   },
-     *   {
-     *     "path": "/artifacts.properties",
-     *     "contentType": "text/plain",
-     *     "size": 378
-     *   }
      * ]
      * </code>
      * </pre>
