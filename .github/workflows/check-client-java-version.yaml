@@ -71,7 +71,7 @@ jobs:
             // Check if issue already exists
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
-              repo: context.repo.repo,
+              repo: 'projectmanagement',
               state: 'open',
               labels: ['dependency-update', 'kubernetes-client']
             });
@@ -102,7 +102,7 @@ jobs:
                 // Update the existing issue
                 await github.rest.issues.update({
                   owner: context.repo.owner,
-                  repo: context.repo.repo,
+                  repo: 'projectmanagement',
                   issue_number: existingIssue.number,
                   title: `Update io.kubernetes:client-java from ${current} to ${latest}`,
                   body: issueBody
@@ -111,7 +111,7 @@ jobs:
                 // Add a comment to notify about the update
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
-                  repo: context.repo.repo,
+                  repo: 'projectmanagement',
                   issue_number: existingIssue.number,
                   body: `🔄 **Issue updated**: A newer version (${latest}) is now available. The issue has been updated to reflect the latest version.`
                 });
@@ -124,7 +124,7 @@ jobs:
               // Create new issue
               await github.rest.issues.create({
                 owner: context.repo.owner,
-                repo: context.repo.repo,
+                repo: 'projectmanagement',
                 title: `Update io.kubernetes:client-java from ${current} to ${latest}`,
                 body: issueBody,
                 labels: ['dependency-update', 'kubernetes-client']
