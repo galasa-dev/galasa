@@ -1,0 +1,133 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Check Kubernetes client-java Version
+
+on:
+  schedule:
+    # Run daily at 9 AM UTC
+    - cron: '0 9 * * *'
+
+jobs:
+  check-version:
+    name: Check latest Kubernetes client-java version from Maven Central
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get latest version from Maven Central
+        id: maven-version
+        run: |
+          # Fetch maven-metadata.xml and extract the latest stable version
+          # (versions containing only numbers and dots, excluding -legacy, -alpha, -beta, etc.)
+          LATEST_VERSION=$(curl -s 'https://repo1.maven.org/maven2/io/kubernetes/client-java/maven-metadata.xml' \
+            | grep '<version>' \
+            | sed 's/.*<version>\(.*\)<\/version>.*/\1/' \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V \
+            | tail -1)
+
+          echo "Latest version: $LATEST_VERSION"
+          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get current version from build.gradle
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(grep "io.kubernetes:client-java:" \
+            modules/platform/dev.galasa.platform/build.gradle \
+            | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+
+          echo "Current version: $CURRENT_VERSION"
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
+        run: |
+          LATEST="${{ steps.maven-version.outputs.version }}"
+          CURRENT="${{ steps.current-version.outputs.version }}"
+
+          if [ "$LATEST" != "$CURRENT" ]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Version mismatch detected!"
+            echo "Current: $CURRENT"
+            echo "Latest: $LATEST"
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "✅ Version is up to date: $CURRENT"
+          fi
+
+      - name: Create or update issue if update needed
+        if: steps.compare.outputs.needs_update == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const latest = '${{ steps.maven-version.outputs.version }}';
+            const current = '${{ steps.current-version.outputs.version }}';
+
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: 'projectmanagement',
+              state: 'open',
+              labels: ['dependency-update', 'kubernetes-client']
+            });
+
+            const existingIssue = issues.data.find(issue =>
+              issue.title.includes('io.kubernetes:client-java')
+            );
+
+            const issueBody = `A new version of the Kubernetes client-java is available.\n\n` +
+                  `**Current version:** ${current}\n` +
+                  `**Latest version:** ${latest}\n\n` +
+                  `**Maven Central:** https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}\n\n` +
+                  `## Tasks\n` +
+                  `- [ ] Ensure [client-java ${latest}](https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}) exists on Maven Central\n` +
+                  `- [ ] Review and update the dependency in \`modules/platform/dev.galasa.platform/build.gradle\`\n` +
+                  `- [ ] Create a new row in the documentation table with the new min and max supported Kubernetes versions for this version of Galasa, found [here](https://galasa.dev/docs/ecosystem/ecosystem-installing-k8s/#supported-kubernetes-versions).`;
+
+
+            if (existingIssue) {
+              // Extract the version from the existing issue title
+              const titleMatch = existingIssue.title.match(/to (\d+\.\d+\.\d+)/);
+              const issueVersion = titleMatch ? titleMatch[1] : null;
+
+              // Check if the issue's target version is outdated
+              if (issueVersion && issueVersion !== latest) {
+                console.log(`Existing issue #${existingIssue.number} targets version ${issueVersion}, but latest is ${latest}`);
+                
+                // Update the existing issue
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: 'projectmanagement',
+                  issue_number: existingIssue.number,
+                  title: `Update io.kubernetes:client-java from ${current} to ${latest}`,
+                  body: issueBody
+                });
+                
+                // Add a comment to notify about the update
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: 'projectmanagement',
+                  issue_number: existingIssue.number,
+                  body: `🔄 **Issue updated**: A newer version (${latest}) is now available. The issue has been updated to reflect the latest version.`
+                });
+                
+                console.log(`Updated issue #${existingIssue.number} to target version ${latest}`);
+              } else {
+                console.log(`Existing issue #${existingIssue.number} is already up to date with version ${latest}`);
+              }
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: 'projectmanagement',
+                title: `Update io.kubernetes:client-java from ${current} to ${latest}`,
+                body: issueBody,
+                labels: ['dependency-update', 'kubernetes-client']
+              });
+              console.log(`Created new issue for version ${latest}`);
+            }
