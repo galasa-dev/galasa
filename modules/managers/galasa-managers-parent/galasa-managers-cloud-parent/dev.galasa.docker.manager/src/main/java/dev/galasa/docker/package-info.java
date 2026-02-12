@@ -8,7 +8,6 @@
  * 
  * @galasa.manager Docker
  * 
- * @galasa.release.state Release
  * 
  * @galasa.description
  * 

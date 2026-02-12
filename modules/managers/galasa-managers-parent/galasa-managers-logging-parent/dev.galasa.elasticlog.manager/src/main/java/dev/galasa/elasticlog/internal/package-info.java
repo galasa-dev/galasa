@@ -8,8 +8,6 @@
  * 
  * @galasa.manager ElasticLog
  * 
- * @galasa.release.state ALPHA - This Manager is being actively developed. It is subject to change and has not been extensively tested.
- * It is available for Galasa administrators to utilise to experiment with Elasticsearch and Kibana dashboards
  * 
  * @galasa.description
  * 

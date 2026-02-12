@@ -8,7 +8,6 @@
  * 
  * @galasa.manager IPNetwork 
  * 
- * @galasa.release.state Alpha
  * 
  * @galasa.description
  *

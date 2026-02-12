@@ -8,7 +8,6 @@
  * 
  * @galasa.manager Galasa Ecosystem
  * 
- * @galasa.release.state ALPHA - This Manager is being actively developed. It is subject to change and has not been extensively tested.
  * 
  * @galasa.description
  * 

@@ -2,7 +2,7 @@
 title: "Docker Manager"
 ---
 
-This Manager is at Release level. You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/docker/package-summary.html){target="_blank"}.
+You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/docker/package-summary.html){target="_blank"}.
 
 
 ## Overview

@@ -8,7 +8,6 @@
  * 
  * @galasa.manager Artifact
  * 
- * @galasa.release.state Release
  * 
  * @galasa.description
  * 
