@@ -29,18 +29,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import dev.galasa.framework.spi.ras.ArtifactMetadata;
 import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystem;
 import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider;
 import dev.galasa.framework.spi.ras.ResultArchiveStorePath;
+import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.ResultArchiveStoreFileAttributeView;
 import dev.galasa.SetContentType;
@@ -60,7 +56,7 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
     private final Path                          artifactJsonFile;
     private final Map<String, ArtifactMetadata> artifacts = new HashMap<>();
 
-    private final Gson          gson;
+    private final GalasaGson gson = new GalasaGson();
 
     /**
      * Create the Directory RAS provider for stored artifacts
@@ -74,12 +70,9 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
         this.artifactDirectory = runDirectory.resolve("artifacts");
         this.artifactJsonFile = runDirectory.resolve("artifacts.json");
 
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
-        TypeToken<List<ArtifactMetadata>> listType = new TypeToken<List<ArtifactMetadata>>(){};
-
         if (Files.exists(this.artifactJsonFile)) {
             try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(this.artifactJsonFile), StandardCharsets.UTF_8)) {
-                List<ArtifactMetadata> artifactMetadataList = gson.fromJson(reader, listType.getType());
+                ArtifactMetadata[] artifactMetadataList = gson.fromJson(reader, ArtifactMetadata[].class);
                 for (ArtifactMetadata artifactMetadata : artifactMetadataList) {
                     artifacts.put(artifactMetadata.getPath(), artifactMetadata);
                 }

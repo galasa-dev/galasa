@@ -34,12 +34,9 @@ import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SetContentType;
@@ -627,14 +624,11 @@ public abstract class LocalEcosystemImpl extends AbstractEcosystemImpl implement
     private List<ArtifactDescriptor> getArtifacts(Path sourceRasRunFolder) throws IOException {
         List<ArtifactDescriptor> artifacts = new ArrayList<ArtifactDescriptor>();
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        TypeToken<List<ArtifactMetadata>> listType = new TypeToken<List<ArtifactMetadata>>(){};
-
         Path artifactsMetadataFile = sourceRasRunFolder.resolve("artifacts.json");
         if (Files.exists(artifactsMetadataFile)) {
-            List<ArtifactMetadata> metadataList;
+            ArtifactMetadata[] metadataList;
             try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(artifactsMetadataFile), StandardCharsets.UTF_8)) {
-                metadataList = gson.fromJson(reader, listType.getType());
+                metadataList = gson.fromJson(reader, ArtifactMetadata[].class);
             }
 
             for (ArtifactMetadata metadata : metadataList) {
