@@ -8,7 +8,6 @@
  * 
  * @galasa.manager z/OS Batch z/OS MF
  * 
- * @galasa.release.state BETA - This Manager is feature complete but may contain known or unknown bugs.
  * 
  * @galasa.description
  * 

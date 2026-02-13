@@ -151,11 +151,6 @@
                             <head>Required:</head>
                         </tag>
                         <tag>
-                            <name>galasa.release.state</name>
-                            <placement>a</placement>
-                            <head>Release State:</head>
-                        </tag>
-                        <tag>
                             <name>galasa.valid_values</name>
                             <placement>a</placement>
                             <head>Valid Values:</head>

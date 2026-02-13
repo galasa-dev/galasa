@@ -3,21 +3,21 @@ title: "CICS TS Managers"
 ---
 
 
-[CECI Manager](./cics-ts-ceci-manager.md) ![release](../../../assets/images/tags/release.svg){ valign=middle }
+[CECI Manager](./cics-ts-ceci-manager.md)
 
 :   Provides CECI 3270 interaction - initially supporting containers and link programs.
 
 
-CEDA Manager ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+CEDA Manager
 
 :   Provides CEDA 3270 interaction.
 
 
-CEMT Manager ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+CEMT Manager
 
 :   Provides CEMT 3270 interaction.
 
 
-[CICS TS Manager](./cics-ts-manager.md) ![alpha](../../../assets/images/tags/alpha.svg){ valign=middle }
+[CICS TS Manager](./cics-ts-manager.md)
 
 :   Provides configuration information for pre-existing CICS TS servers. Drives provisioning services from other managers, e.g. z/OS PT.

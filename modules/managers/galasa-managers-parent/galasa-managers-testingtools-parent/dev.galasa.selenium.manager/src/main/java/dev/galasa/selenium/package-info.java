@@ -8,7 +8,6 @@
  * 
  * @galasa.manager Selenium
  * 
- * @galasa.release.state BETA - This Manager is almost ready.  It has been tested and the TPI is stable, but there may be minor changes to come.
  * 
  * @galasa.description
  * 

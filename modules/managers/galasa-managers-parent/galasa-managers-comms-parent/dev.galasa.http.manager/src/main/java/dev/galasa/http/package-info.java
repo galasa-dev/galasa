@@ -8,7 +8,6 @@
  * 
  * @galasa.manager HTTP Client
  * 
- * @galasa.release.state Release
  * 
  * @galasa.description
  * 

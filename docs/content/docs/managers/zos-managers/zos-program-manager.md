@@ -2,9 +2,6 @@
 title: "zOS Program Manager"
 ---
 
-This Manager is at Alpha level. 
-
-
 ## Overview
 
 This Manager allows Galasa tests to compile and link z/OS programs.

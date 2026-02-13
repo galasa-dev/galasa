@@ -8,7 +8,6 @@
  * 
  * @galasa.manager MQ Manager
  * 
- * @galasa.release.state Alpha
  * 
  * @galasa.description
  * 

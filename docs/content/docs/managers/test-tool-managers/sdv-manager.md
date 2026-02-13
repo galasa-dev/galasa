@@ -2,9 +2,6 @@
 title: "SDV Manager"
 ---
 
-This Manager is at Alpha level.
-
-
 ## Overview
   
 Create an automated integration test in Galasa and use the **Security Definition Validation (SDV)** Manager to obtain a report of the Security Definitions that would have been required if **Resource Security** and **Command Security** were turned on.

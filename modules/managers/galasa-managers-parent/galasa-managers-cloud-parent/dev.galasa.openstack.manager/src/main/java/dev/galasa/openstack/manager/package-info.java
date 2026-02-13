@@ -8,7 +8,6 @@
  * 
  * @galasa.manager Open Stack
  * 
- * @galasa.release.state Alpha
  * 
  * @galasa.description
  *                     This Manager enables Galasa to provision Linux images 
