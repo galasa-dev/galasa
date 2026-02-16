@@ -104,7 +104,6 @@ public class TestRunArtifactsListServlet extends RasServletTest {
     private void checkRootArtifactsJson(String jsonString) throws Exception {
         checkJsonArrayStructure(jsonString, getArtifactFields("/run.log", "text/plain", null));
         checkJsonArrayStructure(jsonString, getArtifactFields("/structure.json", "application/json", null));
-        checkJsonArrayStructure(jsonString, getArtifactFields("/artifacts.properties", "text/plain", null));
         checkJsonArrayStructure(jsonString, getArtifactFields("/artifacts.json", "application/json", null));
     }
 
@@ -348,11 +347,6 @@ public class TestRunArtifactsListServlet extends RasServletTest {
         //       "size": 71
         //     },
         //     {
-        //       "path": "/artifacts.properties",
-        //       "contentType": "text/plain",
-        //       "size": 240
-        //     }
-        //     {
         //       "path": "/artifacts.json",
         //       "contentType": "application/json",
         //       "size": 313
@@ -365,7 +359,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(7);
+		assertThat(jsonArray.size()).isEqualTo(6);
 
         List<Path> expectedArtifactPaths = dummyArtifactPaths.stream()
             .map(path -> new MockPath("/artifacts" + path.toString(), mockFileSystem))
@@ -431,11 +425,6 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		//     "size": "82",
 		//   },
 		//	 {
-		//     "path": "/artifacts.properties",
-		//     "contentType": "text/plain",
-		//     "size": "240",
-		//   }
-		//	 {
 		//     "path": "/artifacts.json",
 		//     "contentType": "application/json",
 		//     "size": "240",
@@ -448,7 +437,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(5);
+		assertThat(jsonArray.size()).isEqualTo(4);
 
         MockPath expectedArtifactPath = new MockPath("/artifacts" + dummyArtifactPath.toString(), mockFileSystem);
         MockJsonObject expectedArtifact = new MockJsonObject(expectedArtifactPath, mockArtifact.getContentType(), mockArtifact.getSize());
@@ -499,11 +488,6 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		//     "size": 82,
 		//   },
 		//	 {
-		//     "path": "/artifacts.properties",
-		//     "contentType": "text/plain",
-		//     "size": 240,
-		//   }
-		//	 {
 		//     "path": "/artifacts.json",
 		//     "contentType": "application/json",
 		//     "size": 240,
@@ -516,7 +500,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(4);
+		assertThat(jsonArray.size()).isEqualTo(3);
 
         checkRootArtifactsJson(jsonString);
         String expectedJson = generateExpectedJsonArtifacts(new ArrayList<>());
@@ -591,7 +575,7 @@ public class TestRunArtifactsListServlet extends RasServletTest {
 		assertThat(jsonElement).isNotNull().as("Failed to parse the body to a json object.");
 
 		JsonArray jsonArray = jsonElement.getAsJsonArray();
-		assertThat(jsonArray.size()).isEqualTo(4);
+		assertThat(jsonArray.size()).isEqualTo(3);
 
         checkRootArtifactsJson(jsonString);
         String expectedJson = generateExpectedJsonArtifacts(new ArrayList<>());

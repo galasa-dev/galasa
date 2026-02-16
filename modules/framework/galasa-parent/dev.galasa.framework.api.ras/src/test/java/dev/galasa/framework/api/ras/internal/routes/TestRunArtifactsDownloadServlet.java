@@ -26,7 +26,20 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class TestRunArtifactsDownloadServlet extends RasServletTest {
+
+	private String generateExpectedArtifactsJson(String path, String contentType) {
+		JsonArray artifactsJson = new JsonArray();
+		JsonObject artifactInfo = new JsonObject();
+		artifactInfo.addProperty("path", path);
+		artifactInfo.addProperty("contentType", contentType);
+		artifactInfo.addProperty("size", 0); // MockFileSystem returns 0 for file.size()
+		artifactsJson.add(artifactInfo);
+		return gson.toJson(artifactsJson);
+	}
 
 	@Before
 	public void setUp() {
@@ -505,11 +518,11 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 	}
 
     @Test
-    public void testGoodRunIdAndArtifactsPropertiesReturnsOKAndFile() throws Exception {
+    public void testGoodRunIdAndArtifactsJsonReturnsOKAndFile() throws Exception {
 		//Given..
 		String runId = "12345";
 		String runName = "testA";
-        String artifactPath = "/artifacts.properties";
+        String artifactPath = "/artifacts.json";
         MockPath existingPath = new MockPath("/testA/term002.gz", mockFileSystem);
 		String fileContent = "dummy content";
         List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
@@ -532,17 +545,17 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		// Then...
 		// Expecting:
 		assertThat(resp.getStatus()).isEqualTo(200);
-        assertThat(outStream.toString()).isEqualTo("/artifacts" + existingPath + "=" + "application/x-gzip");
-		assertThat(resp.getContentType()).isEqualTo("text/plain");
+        assertThat(outStream.toString()).isEqualTo(generateExpectedArtifactsJson("/artifacts" + existingPath, "application/x-gzip"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
 	}
 
     @Test
-    public void testUnknownContentTypeAndArtifactsPropertiesDefaultsToBinaryType() throws Exception {
+    public void testUnknownContentTypeAndArtifactsJsonDefaultsToBinaryType() throws Exception {
 		//Given..
 		String runId = "12345";
 		String runName = "testA";
-        String artifactPath = "/artifacts.properties";
+        String artifactPath = "/artifacts.json";
         MockPath existingPath = new MockPath("/testA/unknown.artifact", mockFileSystem);
 		String fileContent = "dummy content";
         List<IRunResult> mockInputRunResults = generateTestData(runId, runName, null);
@@ -565,8 +578,8 @@ public class TestRunArtifactsDownloadServlet extends RasServletTest {
 		// Then...
 		// Expecting:
 		assertThat(resp.getStatus()).isEqualTo(200);
-        assertThat(outStream.toString()).isEqualTo("/artifacts" + existingPath.toString() + "=application/octet-stream");
-		assertThat(resp.getContentType()).isEqualTo("text/plain");
+        assertThat(outStream.toString()).isEqualTo(generateExpectedArtifactsJson("/artifacts" + existingPath.toString(), "application/octet-stream"));
+		assertThat(resp.getContentType()).isEqualTo("application/json");
 		assertThat(resp.getHeader("Content-Disposition")).isEqualTo("attachment");
 	}
 

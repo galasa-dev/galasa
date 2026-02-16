@@ -21,7 +21,6 @@ import com.google.gson.JsonArray;
 
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsJson;
-import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
 import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
 import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
 import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
@@ -58,7 +57,6 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
         rootArtifacts = Arrays.asList(
             new RunLogArtifact(),
             new StructureJsonArtifact(),
-            new ArtifactsProperties(this),
             new ArtifactsJson(this)
         );
     }
