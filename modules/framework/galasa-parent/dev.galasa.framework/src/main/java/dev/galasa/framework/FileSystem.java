@@ -101,7 +101,7 @@ public class FileSystem implements IFileSystem {
         try {
             artifactFileSystem = run.getArtifactsRoot().getFileSystem();
         } catch( Exception ex) {
-            logger.warn("Failed to obtain the file system for articact run "+run.getRunId(),ex);
+            logger.warn("Failed to obtain the file system for artifact run "+run.getRunId(),ex);
             throw new IOException(ex);
         }
         

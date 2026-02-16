@@ -9,6 +9,8 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.FileSystem;
@@ -17,6 +19,7 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileAttribute;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -129,14 +132,23 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
         return res;
     }
 
-    private HttpServletResponse downloadStoredArtifact(HttpServletResponse res, IRunResult run, String artifactPath) throws ResultArchiveStoreException, IOException {
-        java.nio.file.FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
-        Path artifactLocation = artifactFileSystem.getPath(artifactPath);
+    private HttpServletResponse downloadStoredArtifact(HttpServletResponse res, IRunResult run, String artifactPath) throws ResultArchiveStoreException, IOException, InternalServletException {
+        URI artifactUri = null;
+        try {
+            artifactUri = new URI(artifactPath);
+        } catch (URISyntaxException e) {
+            ServletError error = new ServletError(GAL5008_ERROR_LOCATING_ARTIFACT, artifactPath, run.getTestStructure().getRunName());
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
+        FileSystemProvider artifactFileSystemProvider = artifactFileSystem.provider();
+        Path artifactLocation = artifactFileSystemProvider.getPath(artifactUri);
 
         // Open the artifact for reading
         Set<OpenOption> options = new HashSet<>();
         options.add(StandardOpenOption.READ);
-        try (ByteChannel channel = artifactFileSystem.provider().newByteChannel(artifactLocation, options, new FileAttribute<?>[]{});
+        try (ByteChannel channel = artifactFileSystemProvider.newByteChannel(artifactLocation, options, new FileAttribute<?>[]{});
             OutputStream outStream = res.getOutputStream()) {
 
             // Create a buffer to read small amounts of data into to avoid out-of-memory issues
@@ -161,8 +173,7 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
             logAttributesOfFileBeingDownloaded(artifactFileSystem, artifactLocation);
             
             // Get content type from the artifact file system's attributes
-            // String contentType = getFileSystem().getContentType(run,artifactLocation);
-            String contentType = getFileSystem().probeContentType(artifactLocation);
+            String contentType = getFileSystem().getContentType(run,artifactLocation);
 
             res.setContentType(contentType);
             res.setHeader("Content-Disposition", "attachment");

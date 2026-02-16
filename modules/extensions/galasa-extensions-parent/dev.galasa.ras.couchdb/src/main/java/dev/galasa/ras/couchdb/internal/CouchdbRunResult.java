@@ -26,10 +26,8 @@ public class CouchdbRunResult implements IRunResult {
     private Path path;
 
     private final Log logger;
-    private final LogFactory logFactory;
 
     public CouchdbRunResult(CouchdbRasStore store, TestStructureCouchdb testStructure, LogFactory logFactory) {
-        this.logFactory = logFactory;
         this.logger = logFactory.getLog(getClass());
         logger.info("CouchdbRunResult being constructed.");
 

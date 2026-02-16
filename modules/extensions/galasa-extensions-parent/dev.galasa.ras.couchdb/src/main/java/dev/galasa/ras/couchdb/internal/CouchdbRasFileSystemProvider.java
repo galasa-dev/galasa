@@ -128,7 +128,19 @@ public class CouchdbRasFileSystemProvider extends ResultArchiveStoreFileSystemPr
 
     @Override
     public Path getPath(URI uri) {
-        return new CouchdbArtifactPath(this.getActualFileSystem(), uri.toString());
+        Path pathToReturn = null;
+        String uriString = uri.toString();
+
+        for (CouchdbArtifactPath path : this.paths) {
+            if (path.toString().equals(uriString)) {
+                pathToReturn = path;
+            }
+        }
+
+        if (pathToReturn == null) {
+            pathToReturn = new CouchdbArtifactPath(this.getActualFileSystem(), uriString);
+        }
+        return pathToReturn;
     }
 
     @Override
