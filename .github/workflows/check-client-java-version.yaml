@@ -75,7 +75,7 @@ jobs:
           DOCS_FILE="docs/content/docs/ecosystem/ecosystem-installing-k8s.md"
 
           # Extract the first data row after the table header (most recent entry), then pipe through tail -1 to get most recent entry
-          LAST_ENTRY=$(grep -A 1 "| \*\*Galasa Version\*\*" "$DOCS_FILE" | tail -1)
+          LAST_ENTRY=$(grep -A 2 "| \*\*Galasa Version\*\*" "$DOCS_FILE" | tail -1)
 
           # Extract min and max versions from the last entry
           LAST_MIN=$(echo "$LAST_ENTRY" | awk -F'|' '{print $3}' | tr -d ' ')
