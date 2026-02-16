@@ -70,6 +70,10 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
         this.artifactDirectory = runDirectory.resolve("artifacts");
         this.artifactJsonFile = runDirectory.resolve("artifacts.json");
 
+        if (!this.artifactJsonFile.toAbsolutePath().startsWith(runDirectory)) {
+            throw new IllegalArgumentException("Invalid filename");
+        }
+
         if (Files.exists(this.artifactJsonFile)) {
             try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(this.artifactJsonFile), StandardCharsets.UTF_8)) {
                 ArtifactMetadata[] artifactMetadataList = gson.fromJson(reader, ArtifactMetadata[].class);
