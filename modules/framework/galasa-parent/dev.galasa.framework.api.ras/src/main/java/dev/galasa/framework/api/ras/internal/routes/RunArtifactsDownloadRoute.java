@@ -177,7 +177,6 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
 
             res.setContentType(contentType);
             res.setHeader("Content-Disposition", "attachment");
-            logger.info("ContentType is "+contentType);
         }
         return res;
     }

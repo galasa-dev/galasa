@@ -129,16 +129,20 @@ public class CouchdbRasFileSystemProvider extends ResultArchiveStoreFileSystemPr
     @Override
     public Path getPath(URI uri) {
         Path pathToReturn = null;
-        String uriString = uri.toString();
 
-        for (CouchdbArtifactPath path : this.paths) {
-            if (path.toString().equals(uriString)) {
-                pathToReturn = path;
+        if (uri != null) {
+            String uriString = uri.toString();
+
+            for (CouchdbArtifactPath path : this.paths) {
+                if (path.toString().equals(uriString)) {
+                    pathToReturn = path;
+                    break;
+                }
             }
-        }
 
-        if (pathToReturn == null) {
-            pathToReturn = new CouchdbArtifactPath(this.getActualFileSystem(), uriString);
+            if (pathToReturn == null) {
+                pathToReturn = new CouchdbArtifactPath(this.getActualFileSystem(), uriString);
+            }
         }
         return pathToReturn;
     }
