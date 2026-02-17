@@ -221,6 +221,8 @@ jobs:
                 .replace(clientJavaProtoRegex, `io.kubernetes:client-java-proto:${latest}`);
 
               // Validate that replacements occurred
+              console.log(updatedBuildGradle);
+              console.log(buildGradleContent);
               if (updatedBuildGradle === buildGradleContent) {
                 throw new Error('Failed to update build.gradle: No Kubernetes client-java dependencies found');
               }
