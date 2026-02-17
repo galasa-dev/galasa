@@ -97,7 +97,7 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
 
     public Path getRunArtifactPath(TestStructureCouchdb ts, String artifactPath) throws CouchdbRasException {
         CouchdbRasFileSystemProvider runProvider = createFileSystemProvider();
-        
+
         if (ts.getArtifactRecordIds() == null || ts.getArtifactRecordIds().isEmpty()) {
             return runProvider.getRoot();
         }
@@ -105,10 +105,9 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         boolean loadAllArtifacts = (artifactPath == null);
 
         for (String artifactRecordId : ts.getArtifactRecordIds()) {
-            if (loadArtifactsFromRecord(runProvider, artifactRecordId, artifactPath, loadAllArtifacts)) {
-                if (!loadAllArtifacts) {
-                    break;
-                }
+            boolean isArtifactFound = loadArtifactsFromRecord(runProvider, artifactRecordId, artifactPath, loadAllArtifacts);
+            if (!loadAllArtifacts && isArtifactFound) {
+                break;
             }
         }
 
@@ -117,79 +116,71 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
 
     private boolean loadArtifactsFromRecord(CouchdbRasFileSystemProvider runProvider, String artifactRecordId,
             String artifactPath, boolean loadAllArtifacts) throws CouchdbRasException {
-        
+
+        boolean hasLoadedArtifactsFromRecord = false;
         JsonObject artifactRecord = fetchArtifactRecord(artifactRecordId);
-        if (artifactRecord == null) {
-            return false;
-        }
+        if (artifactRecord != null) {
+            JsonElement attachmentsElement = artifactRecord.get("_attachments");
 
-        JsonElement attachmentsElement = artifactRecord.get("_attachments");
-        if (attachmentsElement == null || !(attachmentsElement instanceof JsonObject)) {
-            return false;
+            if (attachmentsElement != null && (attachmentsElement instanceof JsonObject)) {
+                JsonObject attachments = (JsonObject) attachmentsElement;
+                hasLoadedArtifactsFromRecord = processAttachments(runProvider, attachments, artifactRecordId, artifactPath, loadAllArtifacts);
+            }
         }
-
-        JsonObject attachments = (JsonObject) attachmentsElement;
-        return processAttachments(runProvider, attachments, artifactRecordId, artifactPath, loadAllArtifacts);
+        return hasLoadedArtifactsFromRecord;
     }
 
     private JsonObject fetchArtifactRecord(String artifactRecordId) throws CouchdbRasException {
-        HttpGet httpGet = requestFactory
-                .getHttpGetRequest(store.getCouchdbUri() + "/galasa_artifacts/" + artifactRecordId);
+        HttpGet httpGet = requestFactory.getHttpGetRequest(store.getCouchdbUri() + "/galasa_artifacts/" + artifactRecordId);
 
+        JsonObject artifactRecordJson;
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
             StatusLine statusLine = response.getStatusLine();
-            
-            if (statusLine.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+
+            if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+                HttpEntity entity = response.getEntity();
+                String responseEntity = EntityUtils.toString(entity);
+                artifactRecordJson = gson.fromJson(responseEntity, JsonObject.class);
+
+            } else if (statusLine.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
                 // Artifact record not found, skip it
-                return null;
-            }
-            
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                artifactRecordJson = null;
+            } else {
                 throw new CouchdbRasException("Unable to find artifacts - " + statusLine.toString());
             }
-
-            HttpEntity entity = response.getEntity();
-            String responseEntity = EntityUtils.toString(entity);
-            return gson.fromJson(responseEntity, JsonObject.class);
-            
         } catch (CouchdbRasException e) {
             throw e;
         } catch (Exception e) {
             throw new CouchdbRasException("Unable to find runs", e);
         }
+        return artifactRecordJson;
     }
 
     private boolean processAttachments(CouchdbRasFileSystemProvider runProvider, JsonObject attachments,
             String artifactRecordId, String artifactPath, boolean loadAllArtifacts) {
-        
+
         Set<Entry<String, JsonElement>> entries = attachments.entrySet();
         if (entries == null) {
             return false;
         }
 
-        boolean artifactFound = false;
+        boolean hasProcessedRequiredAttachments = false;
         for (Entry<String, JsonElement> entry : entries) {
             String entryKey = entry.getKey();
-            
-            boolean shouldLoadArtifact = loadAllArtifacts || entryKey.equals(artifactPath);
-            if (!shouldLoadArtifact) {
-                continue;
-            }
 
-            JsonElement elem = entry.getValue();
-            if (elem instanceof JsonObject) {
-                runProvider.addPath(new CouchdbArtifactPath(runProvider.getActualFileSystem(),
-                        entryKey, (JsonObject) elem, artifactRecordId));
-                artifactFound = true;
-                
-                if (!loadAllArtifacts) {
-                    // Found the specific artifact, no need to continue
-                    break;
+            if (loadAllArtifacts || entryKey.equals(artifactPath)) {
+                JsonElement elem = entry.getValue();
+                if (elem instanceof JsonObject) {
+                    runProvider.addPath(new CouchdbArtifactPath(runProvider.getActualFileSystem(), entryKey, (JsonObject) elem, artifactRecordId));
+                    hasProcessedRequiredAttachments = true;
+                    if (!loadAllArtifacts) {
+                        // Found the specific artifact, no need to continue
+                        break;
+                    }
                 }
             }
         }
-        
-        return artifactFound;
+        return hasProcessedRequiredAttachments;
     }
 
     private @NotNull List<IRunResult> getAllRuns() throws ResultArchiveStoreException {
