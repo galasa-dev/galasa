@@ -102,8 +102,7 @@ jobs:
         id: galasa-version
         run: |
           # The ^ anchor ensures it matches 'version = ' only at the beginning of a line
-          # GALASA_VERSION=$(grep "^version = " modules/platform/dev.galasa.platform/build.gradle | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
-          GALASA_VERSION=0.48.0
+          GALASA_VERSION=$(grep "^version = " modules/platform/dev.galasa.platform/build.gradle | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
           echo "Galasa version: $GALASA_VERSION"
           echo "version=$GALASA_VERSION" >> $GITHUB_OUTPUT
 
@@ -344,9 +343,64 @@ jobs:
 
               core.setOutput('pr_number', prNumber);
               core.setOutput('pr_url', `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}`);
+              core.setOutput('pr_title', prTitle);
             } catch (error) {
               core.setFailed(`Failed to create/update PR: ${error.message}`);
               throw error;
+            }
+
+      - name: Close outdated PRs
+        if: steps.compare.outputs.needs_update == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const currentPrNumber = parseInt('${{ steps.create-pr.outputs.pr_number }}');
+            const currentPrTitle = '${{ steps.create-pr.outputs.pr_title }}';
+            
+            try {
+              // Search for all open PRs with "Update io.kubernetes:client-java from" in the title
+              const { data: allPRs } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open'
+              });
+              
+              const outdatedPRs = allPRs.filter(pr =>
+                pr.title.includes('Update io.kubernetes:client-java from') &&
+                pr.number !== currentPrNumber
+              );
+              
+              if (outdatedPRs.length > 0) {
+                console.log(`Found ${outdatedPRs.length} outdated PR(s) to close`);
+                
+                for (const pr of outdatedPRs) {
+                  console.log(`Closing outdated PR #${pr.number}: ${pr.title}`);
+                  
+                  // Add a comment explaining why it's being closed
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: pr.number,
+                    body: `🔄 This PR has been superseded by a newer update: #${currentPrNumber}\n\n` +
+                          `Closing this PR as it's no longer needed.`
+                  });
+                  
+                  // Close the PR
+                  await github.rest.pulls.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: pr.number,
+                    state: 'closed'
+                  });
+                  
+                  console.log(`✅ Closed PR #${pr.number}`);
+                }
+              } else {
+                console.log('No outdated PRs found to close');
+              }
+            } catch (error) {
+              console.error(`Failed to close outdated PRs: ${error.message}`);
+              // Don't fail the workflow if closing old PRs fails
             }
 
       - name: Create or update issue if update needed
