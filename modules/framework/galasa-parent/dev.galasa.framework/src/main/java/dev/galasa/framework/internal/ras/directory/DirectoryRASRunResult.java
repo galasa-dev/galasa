@@ -86,4 +86,9 @@ public class DirectoryRASRunResult implements IRunResult {
     public void loadArtifacts() throws ResultArchiveStoreException {
         // Artifacts for local runs are already available on the filesystem so there is no need to load anything
     }
+
+    @Override
+    public void loadArtifact(String artifactPath) throws ResultArchiveStoreException {
+        // Artifacts for local runs are already available on the filesystem so there is no need to load anything
+    }
 }

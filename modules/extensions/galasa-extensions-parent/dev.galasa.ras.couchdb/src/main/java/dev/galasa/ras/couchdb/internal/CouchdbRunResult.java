@@ -7,8 +7,6 @@ package dev.galasa.ras.couchdb.internal;
 
 import java.nio.file.Path;
 
-import org.apache.commons.logging.Log;
-
 import dev.galasa.extensions.common.api.LogFactory;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -70,4 +68,8 @@ public class CouchdbRunResult implements IRunResult {
         this.path = storeService.getRunArtifactPath(this.testStructure);
     }
 
+    @Override
+    public void loadArtifact(String artifactPath) throws ResultArchiveStoreException {
+        this.path = storeService.getRunArtifactPath(this.testStructure, artifactPath);
+    }
 }
