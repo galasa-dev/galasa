@@ -85,6 +85,7 @@ public abstract class RunArtifactsRoute extends RunsRoute {
      * @throws IOException
      */
     public JsonArray getArtifacts(IRunResult run) throws ResultArchiveStoreException, IOException {
+        run.loadArtifacts();
 
         JsonArray artifactRecords = new JsonArray();
         List<Path> artifactPaths = getArtifactPaths(run.getArtifactsRoot(), new ArrayList<>());

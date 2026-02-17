@@ -78,7 +78,6 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
         JsonArray artifacts = new JsonArray();
         try {
             run = getRunByRunId(runId);
-            run.loadArtifacts();
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
             throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
