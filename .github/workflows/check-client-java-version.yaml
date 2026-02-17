@@ -234,7 +234,6 @@ jobs:
 
               // Update documentation with validation
               const lastGalasaVersion = '${{ steps.k8s-versions.outputs.last_galasa_version }}';
-              const tableHeaderRegex = /(\| \*\*Galasa Version\*\* \| \*\*Minimum Kubernetes Version\*\* \| \*\*Maximum Kubernetes Version\*\* \|\n\|[-\s|]+\|)/;
               
               let updatedDocs;
               
@@ -263,6 +262,8 @@ jobs:
                 console.log(`Galasa version ${galasaVersion} is new, adding new row to table`);
                 
                 // Add a new row for the new Galasa version
+                // Match the table header and separator line, capturing everything up to and including the newline after the separator
+                const tableHeaderRegex = /(\| \*\*Galasa Version\*\* \| \*\*Minimum Kubernetes Version\*\* \| \*\*Maximum Kubernetes Version\*\* \|\n\|[-\s|]+\|\n)/;
                 const newRow = `| ${galasaVersion} | ${minK8s} | ${maxK8s} |`;
                 
                 if (!tableHeaderRegex.test(docsContent)) {
@@ -271,7 +272,7 @@ jobs:
                 
                 updatedDocs = docsContent.replace(
                   tableHeaderRegex,
-                  `$1\n${newRow}`
+                  `$1${newRow}\n`
                 );
                 
                 // Validate that the new row was added
