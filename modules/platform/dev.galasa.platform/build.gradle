@@ -119,9 +119,9 @@ dependencies {
 
         api 'io.gsonfire:gson-fire:1.9.0'
 
-        api 'io.kubernetes:client-java:25.0.0'
-        api 'io.kubernetes:client-java-api:25.0.0'
-        api 'io.kubernetes:client-java-proto:25.0.0'
+        api 'io.kubernetes:client-java:24.0.0'
+        api 'io.kubernetes:client-java-api:24.0.0'
+        api 'io.kubernetes:client-java-proto:24.0.0'
 
         api 'io.netty:netty-buffer:4.1.124.Final'
         api 'io.netty:netty-codec:4.1.124.Final'
