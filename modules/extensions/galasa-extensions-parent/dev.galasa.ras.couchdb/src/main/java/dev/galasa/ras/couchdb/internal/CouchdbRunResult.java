@@ -7,6 +7,8 @@ package dev.galasa.ras.couchdb.internal;
 
 import java.nio.file.Path;
 
+import org.apache.commons.logging.Log;
+
 import dev.galasa.extensions.common.api.LogFactory;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
