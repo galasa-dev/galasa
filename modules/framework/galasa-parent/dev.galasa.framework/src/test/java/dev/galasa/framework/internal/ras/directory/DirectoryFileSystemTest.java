@@ -20,7 +20,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -250,12 +249,10 @@ public class DirectoryFileSystemTest {
 
     @Test
     public void testRASFileAttributesPreload() throws IOException {
-        final Properties contentTypes = new Properties();
-        contentTypes.setProperty("/arty1.png", "image/png");
-        final Path contentTypesFile = this.runDirectory.resolve("artifacts.properties");
-        OutputStream os = Files.newOutputStream(contentTypesFile);
-        contentTypes.store(os, null);
-        os.close();
+        final Path contentTypesFile = this.runDirectory.resolve("artifacts.json");
+        String artifactsJson = "[ { \"path\": \"/arty1.png\", \"contentType\": \"image/png\" } ]";
+
+        Files.writeString(contentTypesFile, artifactsJson);
 
         final FileSystemProvider fsp = new DirectoryRASFileSystemProvider(this.runDirectory);
         final FileSystem fs = fsp.getFileSystem(this.runDirectory.toUri());
