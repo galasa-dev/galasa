@@ -33,7 +33,7 @@ jobs:
           #   | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
           #   | sort -V \
           #   | tail -1)
-          LATEST_VERSION="26.0.0"
+          LATEST_VERSION="27.0.0"
 
           echo "Latest version: $LATEST_VERSION"
           echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
