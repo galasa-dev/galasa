@@ -17,7 +17,7 @@ jobs:
     name: Check latest Kubernetes client-java version from Maven Central
     runs-on: ubuntu-latest
     env:
-      targetRepository: context.repo.repo
+      targetRepository: galasa
 
     steps:
       - name: Checkout code
