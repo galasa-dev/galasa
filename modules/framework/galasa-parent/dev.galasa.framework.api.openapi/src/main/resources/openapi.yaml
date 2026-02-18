@@ -493,6 +493,51 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         '500':
           $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createStream
+      summary: Create a new test stream
+      description: |
+        Creates a new test stream with the provided configuration. This endpoint will fail if a stream
+        with the same name already exists.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Streams API
+      requestBody:
+        required: true
+        description: The stream configuration to create.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamCreateRequest'
+      responses:
+        '201':
+          description: Stream created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stream'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidpayload:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occurred when trying to create stream. Invalid request payload."
+                  summary: The request payload is invalid or missing required fields
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /streams/{streamName}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
@@ -541,6 +586,62 @@ paths:
                   summary: An Error occurred when trying to get a stream using the given stream name.
         '401':
           $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      operationId: updateStream
+      summary: Update or create a test stream
+      description: |
+        Updates an existing test stream or creates a new one if it doesn't exist. This endpoint
+        allows partial updates - only the fields provided in the request will be updated.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be provided
+        in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      tags:
+      - Streams API
+      parameters:
+        - name: streamName
+          in: path
+          description: Name of the stream to update or create
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: The stream configuration to update or create.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamUpdateRequest'
+      responses:
+        '200':
+          description: Stream updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stream'
+        '201':
+          description: Stream created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stream'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidpayload:
+                  value:
+                    error_code: 5400
+                    error_message: "E: Error occurred when trying to update stream. Invalid request payload."
+                  summary: The request payload is invalid
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:
@@ -3633,6 +3734,65 @@ components:
       properties:
         url:
           type: string
+    StreamCreateRequest:
+      type: object
+      required:
+        - name
+        - repository
+        - obrs
+        - testCatalog
+      properties:
+        name:
+          type: string
+          description: The name of the stream to create
+        description:
+          type: string
+          description: Optional description of the stream
+        repository:
+          type: object
+          required:
+            - url
+          properties:
+            url:
+              type: string
+              description: Maven repository URL
+        obrs:
+          type: array
+          description: List of OBRs
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/StreamOBRData'
+        testCatalog:
+          type: object
+          required:
+            - url
+          properties:
+            url:
+              type: string
+              description: Test catalog URL
+    StreamUpdateRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Optional description of the stream
+        repository:
+          type: object
+          properties:
+            url:
+              type: string
+              description: Maven repository URL
+        obrs:
+          type: array
+          description: List of OBRs
+          items:
+            $ref: '#/components/schemas/StreamOBRData'
+        testCatalog:
+          type: object
+          properties:
+            url:
+              type: string
+              description: Test catalog URL
     # Structures used by the listing of the available artifacts endpoint.
     ArtifactIndex:
       type: array
