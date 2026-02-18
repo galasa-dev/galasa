@@ -41,10 +41,9 @@ jobs:
       - name: Get current version from build.gradle
         id: current-client-java-version
         run: |
-          # CURRENT_VERSION=$(grep "io.kubernetes:client-java:" \
-          #   modules/platform/dev.galasa.platform/build.gradle \
-          #   | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
-          CURRENT_VERSION="24.0.0"
+          CURRENT_VERSION=$(grep "io.kubernetes:client-java:" \
+            modules/platform/dev.galasa.platform/build.gradle \
+            | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
 
           echo "Current version: $CURRENT_VERSION"
           echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
@@ -102,7 +101,8 @@ jobs:
         id: galasa-version
         run: |
           # The ^ anchor ensures it matches 'version = ' only at the beginning of a line
-          GALASA_VERSION=$(grep "^version = " modules/platform/dev.galasa.platform/build.gradle | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+          # GALASA_VERSION=$(grep "^version = " modules/platform/dev.galasa.platform/build.gradle | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+          GALASA_VERSION=0.48.0
           echo "Galasa version: $GALASA_VERSION"
           echo "version=$GALASA_VERSION" >> $GITHUB_OUTPUT
 
