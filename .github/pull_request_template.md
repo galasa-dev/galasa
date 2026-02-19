@@ -1,6 +1,7 @@
 ## Why?
 
-Refer to [link-to-github-issue]. [Brief-description-of-changes].
+Refer to [link-to-github-issue]. 
+[Brief-description-of-changes].
 
 ## Changes
 - [ ] Unit tests (if applicable)
