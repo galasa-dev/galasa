@@ -64,7 +64,6 @@ public class StreamValidator {
 
     /**
      * Validates a repository URL field.
-     * Checks that the URL is not null and is a valid URL.
      *
      * @param repositoryUrl the repository URL to validate (can be null for update requests)
      * @param isRequired whether the field is required (true for create, false for update)
@@ -83,7 +82,6 @@ public class StreamValidator {
 
     /**
      * Validates a test catalog URL field.
-     * Checks that the URL is not null and is a valid URL.
      *
      * @param testCatalogUrl the test catalog URL to validate (can be null for update requests)
      * @param isRequired whether the field is required (true for create, false for update)

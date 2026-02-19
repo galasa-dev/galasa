@@ -903,7 +903,7 @@ public class StreamsByNameRouteTest extends BaseServletTest {
         // Then...
         String output = outStream.toString();
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5436, "GAL5436E");
+        checkErrorStructure(output, 5436, "GAL5436E", "The URL provided for the 'repository' field is not a valid URL");
     }
 
     @Test

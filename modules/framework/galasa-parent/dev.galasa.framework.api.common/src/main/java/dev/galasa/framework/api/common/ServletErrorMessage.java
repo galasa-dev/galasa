@@ -178,7 +178,7 @@ public enum ServletErrorMessage {
     GAL5414_USER_CANNOT_UPDATE_SERVICE_OWNER_ROLE     (5414, "E: A user is not allowed to update the role of the Galasa service owner. Ask a Galasa service administrator to change the list of owners and update the kubernetes configuration of the service."),
 
     // Streams API
-    GAL5418_INVALID_STREAM_NAME                       (5418, "E: Invalid 'name' provided. A valid stream name should always start with 'a'-'z' or 'A'-'Z' and end with 'a'-'z', 'A'-'Z' or 0-9."),
+    GAL5418_INVALID_STREAM_NAME                       (5418, "E: Invalid ''name'' provided. A valid stream name should always start with 'a'-'z' or 'A'-'Z' and end with 'a'-'z', 'A'-'Z' or 0-9."),
     GAL5419_FAILED_TO_GET_STREAM_NAME_FROM_URL        (5419, "E: Failed to retrieve a stream name from the request path. Ensure that you have provided a valid name representing an existing stream in your request and try again"),
     GAL5420_ERROR_STREAM_NOT_FOUND                    (5420, "E: Unable to retrieve a stream with the given stream name. No such stream exists."),
     GAL5426_FAILED_TO_DELETE_STREAM                   (5426, "E: Failed to delete a test stream with the given name from the Configuration Property Store. The Configuration Property Store might be experiencing temporary issues. Report the problem to your Galasa service owner."),

@@ -506,7 +506,7 @@ paths:
       - Streams API
       requestBody:
         required: true
-        description: The stream configuration to create.
+        description: The test stream to create.
         content:
           application/json:
             schema:
@@ -608,7 +608,7 @@ paths:
             type: string
       requestBody:
         required: true
-        description: The stream configuration to update or create.
+        description: The test stream to update or create.
         content:
           application/json:
             schema:
@@ -636,7 +636,7 @@ paths:
                 invalidpayload:
                   value:
                     error_code: 5400
-                    error_message: "E: Error occurred when trying to update stream. Invalid request payload."
+                    error_message: "E: Error occurred when trying to update test stream. Invalid request payload."
                   summary: The request payload is invalid
         '401':
           $ref: "#/components/responses/Unauthorized"

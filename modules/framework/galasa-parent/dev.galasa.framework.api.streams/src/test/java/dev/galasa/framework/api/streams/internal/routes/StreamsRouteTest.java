@@ -341,7 +341,7 @@ public class StreamsRouteTest extends BaseServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(409);
-        checkErrorStructure(output, 5429, "GAL5429E");
+        checkErrorStructure(output, 5429, "GAL5429E", "A stream with the provided name already exists");
     }
 
     @Test
@@ -369,9 +369,9 @@ public class StreamsRouteTest extends BaseServletTest {
         testCatalog.addProperty("url", "http://myrepo.com/testcatalog.yaml");
 
         JsonObject obr = new JsonObject();
-        obr.addProperty("mvnGroupId", "dev.galasa");
-        obr.addProperty("mvnArtifactId", "dev.galasa.obr");
-        obr.addProperty("mvnVersion", "0.1.0");
+        obr.addProperty("group-id", "dev.galasa");
+        obr.addProperty("artifact-id", "dev.galasa.obr");
+        obr.addProperty("version", "0.1.0");
 
         JsonArray obrs = new JsonArray();
         obrs.add(obr);
@@ -394,7 +394,7 @@ public class StreamsRouteTest extends BaseServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5418, "GAL5418E");
+        checkErrorStructure(output, 5418, "GAL5418E", "Invalid 'name' provided");
     }
 
     @Test
@@ -441,6 +441,6 @@ public class StreamsRouteTest extends BaseServletTest {
 
         // Then...
         assertThat(servletResponse.getStatus()).isEqualTo(400);
-        checkErrorStructure(output, 5437, "GAL5437E");
+        checkErrorStructure(output, 5437, "GAL5437E", "Expecting at least one OBR");
     }
 }
