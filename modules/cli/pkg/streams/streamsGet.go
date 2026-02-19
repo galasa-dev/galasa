@@ -140,17 +140,23 @@ func getStreamByName(
 		if resp == nil {
 			err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_RETRIEVING_STREAMS_FROM_API_SERVER, err.Error())
 		} else {
-			err = galasaErrors.HttpResponseToGalasaError(
-				resp,
-				"",
-				byteReader,
-				galasaErrors.GALASA_ERROR_GET_STREAMS_NO_RESPONSE_CONTENT,
-				galasaErrors.GALASA_ERROR_GET_STREAMS_RESPONSE_BODY_UNREADABLE,
-				galasaErrors.GALASA_ERROR_GET_STREAMS_UNPARSEABLE_CONTENT,
-				galasaErrors.GALASA_ERROR_GET_STREAMS_SERVER_REPORTED_ERROR,
-				galasaErrors.GALASA_ERROR_GET_STREAMS_EXPLANATION_NOT_JSON,
-			)
-			log.Println("getStreamsFromRestApi - Failed to retrieve a test stream by name from API server")
+
+			if resp.StatusCode == http.StatusNotFound {
+				// Instead of returning a 404 error, return an empty list of streams
+				err = nil
+			} else {
+				err = galasaErrors.HttpResponseToGalasaError(
+					resp,
+					"",
+					byteReader,
+					galasaErrors.GALASA_ERROR_GET_STREAMS_NO_RESPONSE_CONTENT,
+					galasaErrors.GALASA_ERROR_GET_STREAMS_RESPONSE_BODY_UNREADABLE,
+					galasaErrors.GALASA_ERROR_GET_STREAMS_UNPARSEABLE_CONTENT,
+					galasaErrors.GALASA_ERROR_GET_STREAMS_SERVER_REPORTED_ERROR,
+					galasaErrors.GALASA_ERROR_GET_STREAMS_EXPLANATION_NOT_JSON,
+				)
+				log.Println("getStreamsFromRestApi - Failed to retrieve a test stream by name from API server")
+			}
 		}
 
 	} else if streamIn != nil {
@@ -159,7 +165,6 @@ func getStreamByName(
 	}
 
 	return streamsToReturn, err
-
 }
 
 func getAllStreams(
