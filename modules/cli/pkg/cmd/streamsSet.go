@@ -83,7 +83,9 @@ func (cmd *StreamsSetCommand) createCobraCmd(
     streamsSetCobraCmd := &cobra.Command{
         Use:     "set",
         Short:   "Creates or updates a test stream in the Galasa service",
-        Long:    "Creates or updates a test stream in the Galasa service",
+        Long:    "Creates or updates a test stream in the Galasa service. "+
+            "When creating a new test stream, you must provide a test catalog URL, Maven repository URL, and at least one OBR. "+
+            "When updating an existing test stream, you only need to supply the parameter that you wish to update and that parameter will be overwritten with your new value.",
         Aliases: []string{COMMAND_NAME_STREAMS_SET},
         RunE: func(cobraCommand *cobra.Command, args []string) error {
 			return cmd.executeStreamsSet(factory, streamsCommand.Values().(*StreamsCmdValues), commsFlagSetValues)
@@ -100,11 +102,11 @@ func (cmd *StreamsSetCommand) createCobraCmd(
     streamsSetCobraCmd.Flags().StringVar(&cmd.values.description, descriptionFlag, "", "the description to associate with the test stream being created or updated")
     streamsSetCobraCmd.Flags().StringVar(&cmd.values.testCatalogUrl, testCatalogUrlFlag, "", "the URL to the test catalog for the test stream being created or updated. For example: https://my-maven-repository/path/to/testcatalog.json")
     streamsSetCobraCmd.Flags().StringVar(&cmd.values.mavenRepositoryUrl, mavenRepoUrlFlag, "", "the URL to the Maven repository containing test material for the test stream to use. For example: https://my-maven-repository")
-    streamsSetCobraCmd.Flags().StringSliceVar(&cmd.values.obrs, obrFlag, make([]string, 0), "The maven coordinates of the OBR bundle(s) which refer to your test bundles. The format of this parameter is 'mvn:{OBR_GROUP_ID}/{OBR_ARTIFACT_ID}/{OBR_VERSION}/obr'. "+
+    streamsSetCobraCmd.Flags().StringSliceVar(&cmd.values.obrs, obrFlag, make([]string, 0), "The Maven coordinates of the OBR bundle(s) which refer to your test bundles. The format of this parameter is 'mvn:{OBR_GROUP_ID}/{OBR_ARTIFACT_ID}/{OBR_VERSION}/obr'. "+
         "Multiple instances of this flag can be used to describe multiple OBR bundles.")
 
-    // streams set requires the name flag as well as one of the following: --testcatalog, --maven-repo-url, --obr
-	streamsSetCobraCmd.MarkFlagsOneRequired(testCatalogUrlFlag, mavenRepoUrlFlag, obrFlag)
+    // streams set requires the name flag as well as one of the following: --description --testcatalog, --maven-repo-url, --obr
+	streamsSetCobraCmd.MarkFlagsOneRequired(descriptionFlag, testCatalogUrlFlag, mavenRepoUrlFlag, obrFlag)
 
     streamsCommand.CobraCommand().AddCommand(streamsSetCobraCmd)
 

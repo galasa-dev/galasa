@@ -4,7 +4,7 @@ Creates or updates a test stream in the Galasa service
 
 ### Synopsis
 
-Creates or updates a test stream in the Galasa service
+Creates or updates a test stream in the Galasa service. When creating a new test stream, you must provide a test catalog URL, Maven repository URL, and at least one OBR. When updating an existing test stream, you only need to supply the parameter that you wish to update and that parameter will be overwritten with your new value.
 
 ```
 galasactl streams set [flags]
@@ -17,7 +17,7 @@ galasactl streams set [flags]
   -h, --help                     Displays the options for the 'streams set' command.
       --maven-repo-url string    the URL to the Maven repository containing test material for the test stream to use. For example: https://my-maven-repository
       --name string              A mandatory field indicating the name of a test stream.
-      --obr strings              The maven coordinates of the OBR bundle(s) which refer to your test bundles. The format of this parameter is 'mvn:{OBR_GROUP_ID}/{OBR_ARTIFACT_ID}/{OBR_VERSION}/obr'. Multiple instances of this flag can be used to describe multiple OBR bundles.
+      --obr strings              The Maven coordinates of the OBR bundle(s) which refer to your test bundles. The format of this parameter is 'mvn:{OBR_GROUP_ID}/{OBR_ARTIFACT_ID}/{OBR_VERSION}/obr'. Multiple instances of this flag can be used to describe multiple OBR bundles.
       --testcatalog-url string   the URL to the test catalog for the test stream being created or updated. For example: https://my-maven-repository/path/to/testcatalog.json
 ```
 

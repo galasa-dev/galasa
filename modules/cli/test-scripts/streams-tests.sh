@@ -6,15 +6,27 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 echo "Running script streams-tests.sh"
+set -o pipefail
+
 # This script can be ran locally or executed in a pipeline to test the various built binaries of galasactl
-# This script tests the 'galasactl streams' command in the framework namespace that is in our ecosystem's cps namespaces already
-# Pre-requesite: the CLI must have been built first so the binaries are present in the /bin directory
+# This script tests the 'galasactl streams' commands to create, read, update, and delete streams in a Galasa service
+# Pre-requisite: the CLI must have been built first so the binaries are present in the /bin directory
+
+function usage {
+    info "Syntax: streams-tests.sh [OPTIONS]"
+    cat << EOF
+Options are:
+-h | --help : Display this help text
+--bootstrap : The bootstrap URL of the Galasa service to run tests against
+EOF
+}
 
 if [[ "$CALLED_BY_MAIN" == "" ]]; then
     # Where is this script executing from ?
     BASEDIR=$(dirname "$0");pushd $BASEDIR 2>&1 >> /dev/null ;BASEDIR=$(pwd);popd 2>&1 >> /dev/null
     export ORIGINAL_DIR=$(pwd)
     cd "${BASEDIR}"
+    mkdir -p ${BASEDIR}/temp
 
     #--------------------------------------------------------------------------
     #
@@ -47,20 +59,20 @@ if [[ "$CALLED_BY_MAIN" == "" ]]; then
     bold() { printf "${bold}%s${reset}\n" "$@" ;}
     note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@" ;}
 
-    #-----------------------------------------------------------------------------------------                   
+    #-----------------------------------------------------------------------------------------
     # Process parameters
-    #-----------------------------------------------------------------------------------------                   
+    #-----------------------------------------------------------------------------------------
     bootstrap=""
 
     while [ "$1" != "" ]; do
         case $1 in
-            --bootstrap )                     shift
+            --bootstrap )                   shift
                                             bootstrap="$1"
                                             ;;
-            -h | --help )                     usage
+            -h | --help )                   usage
                                             exit
                                             ;;
-            * )                               error "Unexpected argument $1"
+            * )                             error "Unexpected argument $1"
                                             usage
                                             exit 1
         esac
@@ -73,303 +85,296 @@ if [[ "$CALLED_BY_MAIN" == "" ]]; then
         info "No bootstrap supplied. Defaulting the --bootstrap to be ${bootstrap}"
     fi
 
-    info "Running tests against ecosystem bootstrap ${bootstrap}"
+    info "Running tests against service bootstrap ${bootstrap}"
 fi
 
-#-----------------------------------------------------------------------------------------                   
-    # Utility functions
-#-----------------------------------------------------------------------------------------                   
+#-----------------------------------------------------------------------------------------
+# Helper Functions
+#-----------------------------------------------------------------------------------------
+function set_stream {
+    stream_name="$1"
+    description="$2"
+    maven_repo_url="$3"
+    testcatalog_url="$4"
+    obr="$5"
 
-function configure_stream {
-    local stream_name=$1
-    local bootstrap=$2
-    
-    local desc_prop_name="test.stream.${stream_name}.description"
-    local maven_prop_name="test.stream.${stream_name}.repo"
-    local testCatalog_prop_name="test.stream.${stream_name}.location"
-    local obr_prop_name="test.stream.${stream_name}.obr"
-
-    # Define property settings with their commands
-    local cmd1="${BINARY_LOCATION} properties set --namespace framework \
-    --name $desc_prop_name \
-    --value Galasa \
-    --bootstrap $bootstrap \
+    cmd="${BINARY_LOCATION} streams set \
+    --name ${stream_name} \
+    --description ${description} \
+    --bootstrap ${bootstrap} \
     --log -"
 
-    local cmd2="${BINARY_LOCATION} properties set --namespace framework \
-    --name $maven_prop_name \
-    --value http://points-to-my-maven-repo.example.org \
-    --bootstrap $bootstrap \
-    --log -"
+    if [[ -n "${maven_repo_url}" ]]; then
+        cmd="${cmd} --maven-repo-url ${maven_repo_url}"
+    fi
 
-    local cmd3="${BINARY_LOCATION} properties set --namespace framework \
-    --name $testCatalog_prop_name \
-    --value http://points-to-my-test-catalog.example.org \
-    --bootstrap $bootstrap \
-    --log -"
+    if [[ -n "${testcatalog_url}" ]]; then
+        cmd="${cmd} --testcatalog-url ${testcatalog_url}"
+    fi
 
-    local cmd4="${BINARY_LOCATION} properties set --namespace framework \
-    --name $obr_prop_name \
-    --value mvn:myorg/myartifact/0.0.1/obr \
-    --bootstrap $bootstrap \
-    --log -"
+    if [[ -n "${obr}" ]]; then
+        cmd="${cmd} --obr ${obr}"
+    fi
 
-    info "Adding description property: $cmd1"
-    info "Adding maven repo url property: $cmd2"
-    info "Adding test catalog url property: $cmd3"
-    info "Adding obr property: $cmd4"
-
-    for cmd_var in cmd1 cmd2 cmd3 cmd4; do
-        # Use indirect reference to execute the command variable
-        eval "\${$cmd_var}"
-        rc=$?
-        if [[ "${rc}" != "0" ]]; then 
-            error "Failed to execute command: ${!cmd_var}"
-            return 1
-        fi
-    done
-
+    info "Creating stream with command: $cmd"
+    ${BINARY_LOCATION} streams set \
+    --name "${stream_name}" \
+    --description "${description}" \
+    ${maven_repo_url:+--maven-repo-url "${maven_repo_url}"} \
+    ${testcatalog_url:+--testcatalog-url "${testcatalog_url}"} \
+    ${obr:+--obr "${obr}"} \
+    --bootstrap "${bootstrap}" \
+    --log -
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to set stream."; exit 1; fi
 }
 
-function get_stream {
-    local stream_name=$1
-    local bootstrap=$2
-    local output_file=$3
-    local format=$4
-    
-    local cmd="${BINARY_LOCATION} streams get \
-    --name $stream_name \
-    --bootstrap $bootstrap \
-    --format $format \
+function delete_stream {
+    stream_name="$1"
+
+    cmd="${BINARY_LOCATION} streams delete \
+    --name ${stream_name} \
+    --bootstrap ${bootstrap} \
     --log -"
 
-    info "Getting stream with command: $cmd"
-
-    $cmd | tee "$output_file"
-    local rc=$?
-    
-    return $rc
+    info "Deleting stream with command: $cmd"
+    $cmd
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to delete stream."; exit 1; fi
 }
 
 #-----------------------------------------------------------------------------------------
 # Tests
-#----------------------------------------------------------------------------------------- 
-function streams_get_all {
-    h2 "Creating a test stream for get test"
+#-----------------------------------------------------------------------------------------
+function test_can_create_stream {
+    h2 "Creating a stream to test successful stream creation"
 
-    set -o pipefail # Fail everything if anything in the pipeline fails. Else we are just checking the 'tee' return code.
-    
-    stream_name="mystream"
+    stream_name="test-create-stream-$(date +%s)"
+    description="testing that stream creation works"
+    maven_repo_url="https://maven.example.com/repo"
+    testcatalog_url="https://catalog.example.com/testcatalog.json"
+    obr="mvn:dev.galasa/galasa-obr/0.1.0/obr"
 
-    configure_stream "$stream_name" "$bootstrap"
-    rc=$?
-    
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to configure stream properties with name $stream_name."
-        exit 1
-    fi
-
-    configure_stream "$stream_name_2" "$bootstrap"
-    rc=$?
-
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to configure stream properties with name $stream_name_2."
-        exit 1
-    fi
+    set_stream "${stream_name}" "${description}" "${maven_repo_url}" "${testcatalog_url}" "${obr}"
 
     # check that stream has been created
-    output_file="$ORIGINAL_DIR/temp/streams-get-output.txt"
-    local cmd="${BINARY_LOCATION} streams get \
-    --bootstrap $bootstrap \
+    output_file="$BASEDIR/temp/streams-set-check.txt"
+    cmd="${BINARY_LOCATION} streams get \
+    --name ${stream_name} \
     --log -"
 
-    info "Fetching all streams"
-    $cmd
-    rc=$?
+    info "Checking the stream that was just created"
+    $cmd | tee "${output_file}"
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get the stream that was just created."; exit 1; fi
 
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to get streams: command failed."
-        exit 1
-    fi
+    # Check that the previous streams set command created a stream with the correct values
+    cat ${output_file} | grep "${stream_name}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get stream with name ${stream_name}."; exit 1; fi
 
-    success "Fetched all streams"
-}
-
-function streams_create {
-    h2 "Creating a test stream to test successful stream creation"
-
-    set -o pipefail # Fail everything if anything in the pipeline fails. Else we are just checking the 'tee' return code.
-    
-    stream_name="mystream"
-    configure_stream "$stream_name" "$bootstrap"
-    rc=$?
-    
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to configure stream properties."
-        exit 1
-    fi
-
-    # check that stream has been created
-    output_file="$ORIGINAL_DIR/temp/streams-get-output.txt"
-    get_stream "$stream_name" "$bootstrap" "$output_file" "summary"
-    rc=$?
-
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to get stream with name used: command failed."
-        exit 1
-    fi
-
-    # Check that the previous properties set created a stream property
-    cat $output_file | grep "$stream_name" -q
-
-    rc=$?
-    # We expect a return code of 0 because this is a properly formed streams get command.
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to get stream with name $stream_name."
-        exit 1
-    fi
-
-    # Check that the previous properties set created a stream, with the correct values
-    grep -qF -- 'Galasa' "$output_file" \
-    || { error "Missing 'Galasa' in stream output"; exit 1; }
-
-    # 2) Check for the stream name
-    grep -qF -- "$stream_name" "$output_file" \
-    || { error "Missing '$stream_name' in stream output"; exit 1; }
-
-    # 3) Check for “enabled”
-    grep -qF -- 'enabled' "$output_file" \
-    || { error "Missing 'enabled' in stream output"; exit 1; }
+    cat ${output_file} | grep "${description}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Missing description '${description}' in stream output."; exit 1; fi
 
     success "Stream created successfully with all expected values."
-
+    delete_stream "${stream_name}"
 }
 
-function streams_get_yaml_format {
-    h2 "Creating a test stream to get stream in YAML format"
+function test_can_get_streams {
+    h2 "Checking that we can get streams from the Galasa service"
 
-    set -o pipefail # Fail everything if anything in the pipeline fails. Else we are just checking the 'tee' return code.
-    
-    stream_name="mystream"
-    configure_stream "$stream_name" "$bootstrap"
-    rc=$?
-    
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to configure stream properties."
-        exit 1
-    fi
+    stream_name="test-get-streams-$(date +%s)"
+    description="testing that stream retrieval works"
+    maven_repo_url="https://maven.example.com/repo"
+    testcatalog_url="https://maven.example.com/repo/testcatalog.json"
+    obr="mvn:my-group/my-artifact/1.0.0/obr"
 
-    # check that stream has been created
-    output_file="$ORIGINAL_DIR/temp/streams-get-output.txt"
-    get_stream "$stream_name" "$bootstrap" "$output_file" "yaml"
-    rc=$?
+    set_stream "${stream_name}" "${description}" "${maven_repo_url}" "${testcatalog_url}" "${obr}"
 
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to get stream with name used: command failed."
-        exit 1
-    fi
-
-    # Check that the previous properties set created a stream property
-    cat $output_file | grep "$stream_name" -q
-
-    rc=$?
-    # We expect a return code of 0 because this is a properly formed streams get command.
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to get stream with name $stream_name."
-        exit 1
-    fi
-
-    # Check that the previous properties set created a stream, with the correct values
-    grep -qF -- 'Galasa' "$output_file" \
-    || { error "Missing 'Galasa' in stream output"; exit 1; }
-
-    # 2) Check for the stream name
-    grep -qF -- "$stream_name" "$output_file" \
-    || { error "Missing '$stream_name' in stream output"; exit 1; }
-
-    # 3) Check for “enabled”
-    grep -qF -- 'true' "$output_file" \
-    || { error "Missing 'enabled' in stream output"; exit 1; }
-
-    success "Stream set with name and value used seems to have been created correctly and formatted in YAML"
-}
-
-function streams_get_missing_name {
-    h2 "Creating a test stream if stream is not present"
-
-    set -o pipefail # Fail everything if anything in the pipeline fails. Else we are just checking the 'tee' return code.
-    
-    # check that stream has been created
-    output_file="$ORIGINAL_DIR/temp/streams-get-output.txt"
-    get_stream "some-unknown-stream" "$bootstrap" "$output_file" "summary"
-
-    if grep -qF \
-        'GAL5420E: Unable to retrieve a stream with the given stream name. No such stream exists.' \
-        "$output_file"
-    then
-        success "Stream with the name was missing and threw an error as expected."
-    else
-        error "Expected 404 error message not found."
-        exit 1
-    fi
-
-}
-
-function streams_delete {
-    h2 "Performing streams delete with name parameter used..."
-
-    set -o pipefail # Fail everything if anything in the pipeline fails. Else we are just checking the 'tee' return code.
-    
-    stream_name="mystream"
-    configure_stream "$stream_name" "$bootstrap"
-    rc=$?
-    
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to configure stream properties."
-        exit 1
-    fi
-
-    cmd="${BINARY_LOCATION} streams delete \
-    --name $stream_name \
-    --bootstrap $bootstrap \
+    output_file="$BASEDIR/temp/streams-get-all-check.txt"
+    cmd="${BINARY_LOCATION} streams get \
+    --bootstrap ${bootstrap} \
     --log -"
 
-    info "Command is: $cmd"
+    info "Getting streams with command: $cmd"
+    $cmd | tee "${output_file}"
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get streams"; exit 1; fi
 
-    $cmd
-    rc=$?
-    # We expect a return code of 0 because this is a properly formed streams delete command.
-    if [[ "${rc}" != "0" ]]; then 
-        error "Failed to delete stream, command failed."
-        exit 1
-    fi
+    # Check that the previous streams set command created a stream with the given name
+    cat ${output_file} | grep "${stream_name}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get stream with name ${stream_name}."; exit 1; fi
 
-    # check that stream has been deleted
-    output_file="$ORIGINAL_DIR/temp/streams-get-output.txt"
-    get_stream "$stream_name" "$bootstrap" "$output_file" "summary"
+    cat ${output_file} | grep "${description}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Missing description '${description}' in stream output."; exit 1; fi
 
-    if grep -qF \
-        'GAL5420E: Unable to retrieve a stream with the given stream name. No such stream exists.' \
-        "$output_file"
-    then
-        success "Stream with the name was deleted correctly."
-    else
-        error "Deletion verification failed: expected 404 error message not found."
-        exit 1
-    fi
-        
+    success "Streams retrieved successfully with expected values."
+    delete_stream "${stream_name}"
 }
 
-function streams_tests {
-    streams_create
-    streams_get_yaml_format
-    streams_get_missing_name
-    streams_get_all
-    streams_delete
+function test_can_get_stream_by_name {
+    h2 "Checking that we can get a stream by name from the Galasa service"
+
+    stream_name="test-get-stream-by-name-$(date +%s)"
+    description="testing that stream retrieval works"
+    maven_repo_url="https://maven.example.com/repo"
+    testcatalog_url="https://catalog.example.com/testcatalog.json"
+    obr="mvn:my-group/my-artifact/1.0.0/obr"
+
+    set_stream "${stream_name}" "${description}" "${maven_repo_url}" "${testcatalog_url}" "${obr}"
+
+    output_file="$BASEDIR/temp/streams-get-by-name-check.txt"
+    cmd="${BINARY_LOCATION} streams get \
+    --name ${stream_name} \
+    --bootstrap ${bootstrap} \
+    --log -"
+
+    info "Getting stream with name '${stream_name}' using command: $cmd"
+    $cmd | tee "${output_file}"
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get stream with name ${stream_name}."; exit 1; fi
+
+    cat ${output_file} | grep "${stream_name}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get stream with name ${stream_name}."; exit 1; fi
+
+    cat ${output_file} | grep "${description}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Missing description '${description}' in stream output."; exit 1; fi
+
+    success "Stream retrieved successfully with expected values."
+    delete_stream "${stream_name}"
+}
+
+function test_get_missing_stream_name_outputs_no_results {
+    h2 "Checking that getting a non-existent stream returns a total of 0 results"
+
+    stream_name="unknown-stream-$(date +%s)"
+
+    output_file="$BASEDIR/temp/streams-get-unknown-name.txt"
+    cmd="${BINARY_LOCATION} streams get \
+    --name ${stream_name} \
+    --bootstrap ${bootstrap} \
+    --log -"
+
+    info "Getting stream with name '${stream_name}' using command: $cmd"
+    $cmd | tee "${output_file}"
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get stream with name ${stream_name}."; exit 1; fi
+
+    cat ${output_file} | grep "Total:0" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Found a stream named '${stream_name}' when there should not have been any results"; exit 1; fi
+
+    success "Streams get successfully returned no results."
+}
+
+function test_can_get_stream_in_yaml_format {
+    h2 "Checking that we can get a stream in YAML format from the Galasa service"
+
+    stream_name="test-get-stream-yaml-$(date +%s)"
+    description="testing that stream YAML formatting works"
+    maven_repo_url="https://maven.example.com/repo"
+    testcatalog_url="https://catalog.example.com/testcatalog.json"
+    obr="mvn:my-group/my-artifact/1.0.0/obr"
+
+    set_stream "${stream_name}" "${description}" "${maven_repo_url}" "${testcatalog_url}" "${obr}"
+
+    output_file="$BASEDIR/temp/streams-get-by-name-check.txt"
+    cmd="${BINARY_LOCATION} streams get \
+    --name ${stream_name} \
+    --format yaml \
+    --bootstrap ${bootstrap} \
+    --log -"
+
+    info "Getting stream with name '${stream_name}' using command: $cmd"
+    $cmd | tee "${output_file}"
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get stream with name ${stream_name}."; exit 1; fi
+
+    cat ${output_file} | grep "name: ${stream_name}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get stream with name ${stream_name}."; exit 1; fi
+
+    cat ${output_file} | grep "description: ${description}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Missing description '${description}' in stream output."; exit 1; fi
+
+    success "Stream retrieved successfully in YAML format."
+    delete_stream "${stream_name}"
+}
+
+function test_can_update_stream {
+    h2 "Checking that we can update an existing stream"
+
+    stream_name="test-update-stream-$(date +%s)"
+    old_description="testing that stream updates work"
+    old_maven_repo_url="https://old-maven.example.com/repo"
+    testcatalog_url="https://catalog.example.com/testcatalog.json"
+    obr="mvn:my-group/my-artifact/1.0.0/obr"
+
+    set_stream "${stream_name}" "${old_description}" "${old_maven_repo_url}" "${testcatalog_url}" "${obr}"
+
+    # Now update the stream with new values
+    new_description="updated description"
+    new_maven_repo_url="https://new-maven.example.com/repo"
+    new_testcatalog_url="https://new-catalog.example.com/testcatalog.json"
+    set_stream "${stream_name}" "${new_description}" "${new_maven_repo_url}" "${new_testcatalog_url}" ""
+
+    output_file="$BASEDIR/temp/streams-update-check.txt"
+    cmd="${BINARY_LOCATION} streams get \
+    --name ${stream_name} \
+    --bootstrap ${bootstrap} \
+    --log -"
+
+    info "Getting stream with name '${stream_name}' using command: $cmd"
+    $cmd | tee "${output_file}"
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get a stream named ${stream_name}."; exit 1; fi
+
+    cat ${output_file} | grep "${stream_name}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get stream with name ${stream_name}."; exit 1; fi
+
+    cat ${output_file} | grep "${new_description}" -q
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Missing description '${new_description}' in stream output."; exit 1; fi
+
+    cat ${output_file} | grep "${old_description}" -q
+    rc=$? ; if [[ "${rc}" != "1" ]]; then error "Description for stream ${stream_name} wasn't updated"; exit 1; fi
+
+    success "Stream retrieved successfully with updated values."
+    delete_stream "${stream_name}"
+}
+
+function test_can_delete_stream {
+    h2 "Checking that we can delete a stream"
+
+    stream_name="test-delete-stream-$(date +%s)"
+    description="testing that stream deletion works"
+    maven_repo_url="https://maven.example.com/repo"
+    testcatalog_url="https://catalog.example.com/testcatalog.json"
+    obr="mvn:my-group/my-artifact/1.0.0/obr"
+
+    set_stream "${stream_name}" "${description}" "${maven_repo_url}" "${testcatalog_url}" "${obr}"
+
+    # Now delete the stream
+    delete_stream "${stream_name}"
+
+    output_file="$BASEDIR/temp/streams-delete-check.txt"
+    cmd="${BINARY_LOCATION} streams get \
+    --name ${stream_name} \
+    --bootstrap ${bootstrap} \
+    --log -"
+
+    info "Getting stream with name '${stream_name}' using command: $cmd"
+    $cmd | tee "${output_file}"
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to get stream named ${stream_name}."; exit 1; fi
+
+    cat ${output_file} | grep "${stream_name}" -q
+    rc=$? ; if [[ "${rc}" != "1" ]]; then error "A stream named ${stream_name} exists even though it should have been deleted"; exit 1; fi
+
+    success "Stream deleted successfully."
+}
+
+function run_streams_tests {
+    test_can_create_stream
+    test_can_get_streams
+    test_can_get_stream_by_name
+    test_can_get_stream_in_yaml_format
+    test_get_missing_stream_name_outputs_no_results
+    test_can_update_stream
+    test_can_delete_stream
+
+    success "All streams tests completed successfully!"
 }
 
 if [[ "$CALLED_BY_MAIN" == "" ]]; then
-    source $BASEDIR/calculate-galasactl-executables.sh
+    source $BASEDIR/calculate-galasactl-executables.sh --bootstrap "${bootstrap}"
     calculate_galasactl_executable
-    streams_tests
+    run_streams_tests
 fi

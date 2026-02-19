@@ -86,5 +86,5 @@ func TestStreamsSetRequiresNameAndAtLeastOneOtherFlag(t *testing.T) {
 
 	// Then...
 	assert.NotNil(t, err)
-	assert.ErrorContains(t, err, "at least one of the flags in the group [testcatalog-url maven-repo-url obr] is required")
+	assert.ErrorContains(t, err, "at least one of the flags in the group [description testcatalog-url maven-repo-url obr] is required")
 }
