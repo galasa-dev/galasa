@@ -282,6 +282,14 @@ The `galasactl` tool can generate the following errors:
 - GAL1280E: An attempt to update a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are: '{}'
 - GAL1281E: An attempt to update a run named '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
 - GAL1282E: Invalid tag name '{}' provided. Tag names cannot be empty and must only contain characters in the Latin-1 character set.
+- GAL1283E: Invalid stream description provided. The description provided with the --description flag cannot be an empty string, and must only contain characters in the Latin-1 character set.
+- GAL1284E: Invalid URL provided. The URL '{}' is not a valid URL. Reason: '{}'
+- GAL1285E: An attempt to set stream '{}' failed. Sending the update request to the Galasa service failed. Cause is {}
+- GAL1286E: An attempt to set stream '{}' failed. Unexpected http status code {} received from the server.
+- GAL1287E: An attempt to set stream '{}' failed. Unexpected http status code {} received from the server. Error details from the server could not be read. Cause: {}
+- GAL1288E: An attempt to set stream '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in a valid json format. Cause: '{}'
+- GAL1289E: An attempt to set stream '{}' failed. Unexpected http status code {} received from the server. Error details from the server are: '{}'
+- GAL1290E: An attempt to set stream '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
 - GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'
 - GAL2501I: Downloaded {} artifacts to folder '{}'
 
