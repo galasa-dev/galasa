@@ -1,7 +1,8 @@
 ## Why?
 
 Refer to [link-to-github-issue]. 
-[Brief-description-of-changes].
+
+<!-- Provide a brief description of your changes -->
 
 ## Changes
 - [ ] Unit tests (if applicable)
