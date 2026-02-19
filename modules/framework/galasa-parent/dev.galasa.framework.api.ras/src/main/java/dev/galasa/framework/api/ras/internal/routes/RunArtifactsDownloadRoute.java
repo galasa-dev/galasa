@@ -107,7 +107,6 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
         // Get run details in order to find artifacts
         try {
             run = getRunByRunId(runId);
-            run.loadArtifacts();
             runName = run.getTestStructure().getRunName();
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID,runId);
@@ -135,11 +134,13 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
     private HttpServletResponse downloadStoredArtifact(HttpServletResponse res, IRunResult run, String artifactPath) throws ResultArchiveStoreException, IOException, InternalServletException {
         URI artifactUri = null;
         try {
+            run.loadArtifact(artifactPath);
             artifactUri = new URI(artifactPath);
         } catch (URISyntaxException e) {
             ServletError error = new ServletError(GAL5008_ERROR_LOCATING_ARTIFACT, artifactPath, run.getTestStructure().getRunName());
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
+
 
         FileSystem artifactFileSystem = run.getArtifactsRoot().getFileSystem();
         FileSystemProvider artifactFileSystemProvider = artifactFileSystem.provider();
