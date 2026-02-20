@@ -178,12 +178,12 @@ public enum ServletErrorMessage {
     GAL5414_USER_CANNOT_UPDATE_SERVICE_OWNER_ROLE     (5414, "E: A user is not allowed to update the role of the Galasa service owner. Ask a Galasa service administrator to change the list of owners and update the kubernetes configuration of the service."),
 
     // Streams API
-    GAL5418_INVALID_STREAM_NAME                       (5418, "E: Invalid 'name' provided. A valid stream name should always start with 'a'-'z' or 'A'-'Z' and end with 'a'-'z', 'A'-'Z' or 0-9."),
+    GAL5418_INVALID_STREAM_NAME                       (5418, "E: Invalid ''name'' provided. A valid stream name should always start with 'a'-'z' or 'A'-'Z' and end with 'a'-'z', 'A'-'Z' or 0-9."),
     GAL5419_FAILED_TO_GET_STREAM_NAME_FROM_URL        (5419, "E: Failed to retrieve a stream name from the request path. Ensure that you have provided a valid name representing an existing stream in your request and try again"),
     GAL5420_ERROR_STREAM_NOT_FOUND                    (5420, "E: Unable to retrieve a stream with the given stream name. No such stream exists."),
     GAL5426_FAILED_TO_DELETE_STREAM                   (5426, "E: Failed to delete a test stream with the given name from the Configuration Property Store. The Configuration Property Store might be experiencing temporary issues. Report the problem to your Galasa service owner."),
-    GAL5427_MISSING_STREAM_NAME                       (5427, "E: Error occurred because the Galasa Stream is invalid. The 'metadata' field cannot be empty. The field 'name' is mandatory for the type GalasaStream."),
-    GAL5429_ERROR_STREAM_ALREADY_EXISTS               (5279, "E: Error occurred when trying to create a stream with the given name. A stream with the provided name already exists."),
+    GAL5427_MISSING_STREAM_NAME                       (5427, "E: Failed to create or update a Galasa Stream. No stream name was provided. Check that your request payload is correct and try again."),
+    GAL5429_ERROR_STREAM_ALREADY_EXISTS               (5429, "E: Error occurred when trying to create a stream with the given name. A stream with the provided name already exists."),
     GAL5432_ERROR_STREAM_DOES_NOT_EXIST               (5432, "E: Error occurred. A stream with the provided name does not exist. Check that your provided stream name is correct and try again."),
     GAL5433_FAILED_TO_SET_STREAM                      (5433, "E: Failed to set a stream with the given name in the Configuration Property Store. The Configuration Property Store might be experiencing temporary issues. Report the problem to your Galasa service owner."),
     GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS      (5434, "E: Invalid GalasaStream provided. One or more of the following mandatory fields are missing from the ''{0}'' field: [{1}]. Check that your request payload is correct and try again."),
