@@ -41,6 +41,7 @@ public class MockRun implements IRun {
     private List<RunRasAction> rasActions = new ArrayList<>();
     private Set<String> tags = new HashSet<String>();
     private List<String> requestedTestMethods = new ArrayList<>();
+    private Instant finishedTime;
 
     public MockRun(
         String testBundleName,
@@ -317,6 +318,15 @@ public class MockRun implements IRun {
         this.requestedTestMethods = requestedTestMethods;
     }
 
+    @Override
+    public Instant getFinished() {
+        return this.finishedTime;
+    }
+
+    public void setFinished(Instant finishedTime) {
+        this.finishedTime = finishedTime;
+    }
+
     // ------------- un-implemented methods follow ----------------
 
     @Override
@@ -327,13 +337,6 @@ public class MockRun implements IRun {
     @Override
     public String getTest() {
         throw new UnsupportedOperationException("Unimplemented method 'getTest'");
-    }
-
-
-
-    @Override
-    public Instant getFinished() {
-        throw new UnsupportedOperationException("Unimplemented method 'getFinished'");
     }
 
     @Override

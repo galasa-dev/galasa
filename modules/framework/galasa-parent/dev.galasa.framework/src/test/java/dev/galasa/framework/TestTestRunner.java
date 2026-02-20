@@ -290,6 +290,11 @@ public class TestTestRunner {
         public void put(@NotNull String key, @NotNull String value) throws DynamicStatusStoreException {
             // Do nothing.
         }
+
+        @Override
+        public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {
+            // Do nothing.
+        }
     };
 
     @Test
@@ -403,7 +408,7 @@ public class TestTestRunner {
         };
 
         // When...
-        TestRunException ex = catchThrowableOfType( ()->runner.runTest(testRunData), TestRunException.class);
+        TestRunException ex = catchThrowableOfType(TestRunException.class, ()->runner.runTest(testRunData));
 
         /// Then...
         assertThat(ex).isNotNull();      

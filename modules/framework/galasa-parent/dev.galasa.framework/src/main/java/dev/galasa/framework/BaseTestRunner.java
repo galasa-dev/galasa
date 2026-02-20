@@ -354,10 +354,13 @@ public class BaseTestRunner {
         writeTestStructure();
 
         try {
-            this.dss.put(getDSSKeyString(DssPropertyKeyRunNameSuffix.STATUS.toString()), status.toString());
+            Map<String, String> propertiesToSet = new HashMap<>();
+            propertiesToSet.put(getDSSKeyString(DssPropertyKeyRunNameSuffix.STATUS.toString()), status.toString());
             if (dssTimePropSuffix != null) {
-                this.dss.put(getDSSKeyString(dssTimePropSuffix), time.toString());
+                propertiesToSet.put(getDSSKeyString(dssTimePropSuffix), time.toString());
             }
+
+            this.dss.put(propertiesToSet);
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update status", e);
         }

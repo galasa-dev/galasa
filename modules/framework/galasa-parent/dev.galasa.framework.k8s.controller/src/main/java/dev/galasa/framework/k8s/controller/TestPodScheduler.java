@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -203,10 +204,13 @@ public class TestPodScheduler implements Runnable {
                 launchAttemptCount+=1;
                 if( launchAttemptCount > maxLaunchAttempts ) {
                     // Mark the test run as finished due to environment failure.
-                    this.dss.put("run." + run.getName() + "."+DssPropertyKeyRunNameSuffix.RESULT, "EnvFail" );
-                    this.dss.put("run." + run.getName() + "."+DssPropertyKeyRunNameSuffix.STATUS, "finished");
+                    Map<String, String> propertiesToSet = new HashMap<>();
+                    propertiesToSet.put("run." + run.getName() + "."+DssPropertyKeyRunNameSuffix.RESULT, "EnvFail" );
+                    propertiesToSet.put("run." + run.getName() + "."+DssPropertyKeyRunNameSuffix.STATUS, "finished");
                     Instant finishedTimeStamp = timeService.now();
-                    this.dss.put("run." + run.getName() + "."+DssPropertyKeyRunNameSuffix.FINISHED_DATETIME , finishedTimeStamp.toString());
+                    propertiesToSet.put("run." + run.getName() + "."+DssPropertyKeyRunNameSuffix.FINISHED_DATETIME , finishedTimeStamp.toString());
+
+                    this.dss.put(propertiesToSet);
 
                     String msg = "Engine Pod " + newPodDefinition.getMetadata().getName() + " could not be started. Giving up. Retry count "+Integer.toString(launchAttemptCount)+"exceeded!";
                     logger.error(msg);
