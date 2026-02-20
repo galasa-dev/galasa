@@ -86,7 +86,6 @@ public class RunFinishedRuns implements Runnable {
                     logger.info("The run has expired so we will attempt to delete it");
                     if (finished != null) {
                         String sFinished = dtf.format(LocalDateTime.ofInstant(finished, ZoneId.systemDefault()));
-                        /// TODO put time management into the framework
                         logger.info("Deleting run " + runName + ", finished at " + sFinished);
                     } else {
                         logger.info("Deleting run " + runName + ", finished is null");
