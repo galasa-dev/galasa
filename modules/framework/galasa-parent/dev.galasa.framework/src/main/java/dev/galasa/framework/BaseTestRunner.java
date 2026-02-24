@@ -39,6 +39,8 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SystemTimeService;
 
 public class BaseTestRunner {
 
@@ -66,6 +68,7 @@ public class BaseTestRunner {
 
     protected RunRasActionProcessor rasActionProcessor;
 
+    protected ITimeService timeService = new SystemTimeService();
 
     protected Properties overrideProperties;
 

@@ -79,7 +79,7 @@ public class GherkinTestRunner extends BaseTestRunner {
                 String streamName = AbstractManager.nulled(run.getStream());
                 new MavenRepositoryListBuilder(this.mavenRepository, this.cps)
                     .addMavenRepositories(streamName, run.getRepository());
-                new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps)
+                new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps, this.timeService)
                     .addOBRsToRepoAdmin(streamName, run.getOBR());
 
 
