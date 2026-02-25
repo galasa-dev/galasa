@@ -11,21 +11,32 @@ import org.apache.felix.bundlerepository.RepositoryAdmin;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 public class FelixRepoAdminOBRAdder {
+
+    public static final int MAX_ADD_OBR_OPERATION_RETRIES = 10;
+    public static final long DELAY_BETWEEN_ADD_OBR_OPERATION_RETRIES_MILLISECS = 3000;
 
     private Log logger = LogFactory.getLog(FelixRepoAdminOBRAdder.class);
     private IConfigurationPropertyStoreService cps;
     private RepositoryAdmin repoAdmin;
 
-    public FelixRepoAdminOBRAdder(RepositoryAdmin repoAdmin, IConfigurationPropertyStoreService cps) {
-        this.repoAdmin = repoAdmin ;
-        this.cps = cps ;
+    private ITimeService timeService;
+
+    public FelixRepoAdminOBRAdder(
+        RepositoryAdmin repoAdmin,
+        IConfigurationPropertyStoreService cps,
+        ITimeService timeService
+    ) {
+        this.repoAdmin = repoAdmin;
+        this.cps = cps;
+        this.timeService = timeService;
     }
 
-    public void addOBRsToRepoAdmin(  String streamName, String runOBRLIst ) throws TestRunException {
+    public void addOBRsToRepoAdmin(String streamName, String runOBRList) throws TestRunException {
         String testOBR = getTestOBRFromStream(streamName);
-        testOBR = getOverriddenValue(testOBR, runOBRLIst);
+        testOBR = getOverriddenValue(testOBR, runOBRList);
         addOBRsToRepoAdmin(testOBR, repoAdmin);
     }
 
@@ -45,18 +56,53 @@ public class FelixRepoAdminOBRAdder {
     private void addOBRsToRepoAdmin(String testOBR, RepositoryAdmin repoAdmin) throws TestRunException {
         if (testOBR != null) {
             logger.debug("Loading test obr repository " + testOBR);
-            try {
-                String[] testOBRs = testOBR.split("\\,");
-                for(String obr : testOBRs) {
-                    obr = obr.trim();
-                    if (!obr.isEmpty()) {
-                        repoAdmin.addRepository(obr);
-                    }
+
+            String[] testOBRs = testOBR.split("\\,");
+            for (String obr : testOBRs) {
+                obr = obr.trim();
+                if (!obr.isEmpty()) {
+                    addRepositoryWithRetry(
+                        obr,
+                        repoAdmin,
+                        MAX_ADD_OBR_OPERATION_RETRIES,
+                        DELAY_BETWEEN_ADD_OBR_OPERATION_RETRIES_MILLISECS
+                    );
                 }
-            } catch (Exception e) {
-                logger.error("Unable to load specified OBR " + testOBR, e);
-                throw new TestRunException("Unable to load specified OBR " + testOBR, e);
             }
+        }
+    }
+    
+    private void addRepositoryWithRetry(String obr, RepositoryAdmin repoAdmin, int maxRetries, long retryDelayMs) throws TestRunException {
+        int attempt = 1;
+
+        while (attempt <= maxRetries) {
+            try {
+                if (attempt > 1) {
+                    logger.info("Retrying OBR load for " + obr + " (attempt " + attempt + " of " + maxRetries + ")");
+                }
+                repoAdmin.addRepository(obr);
+                logger.info("Successfully loaded OBR " + obr);
+                break;
+            } catch (Exception e) {
+                attempt++;
+                
+                if (attempt <= maxRetries) {
+                    logger.warn("Failed to load OBR. Retrying in " + retryDelayMs + "ms...");
+                    waitForRetryDelay(retryDelayMs);
+                } else {
+                    // All retries exhausted
+                    throw new TestRunException("Unable to load specified OBR " + obr + " after " + maxRetries + " attempts", e);
+                }
+            }
+        }        
+    }
+
+    private void waitForRetryDelay(long retryDelayMs) throws TestRunException {
+        try {
+            timeService.sleepMillis(retryDelayMs);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new TestRunException("Interrupted while waiting to retry an operation", ie);
         }
     }
     private String getOverriddenValue(String existingValue, String possibleOverrideValue) {
