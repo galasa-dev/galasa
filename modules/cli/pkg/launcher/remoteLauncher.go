@@ -320,6 +320,11 @@ func (launcher *RemoteLauncher) GetTestCatalog(stream string) (TestCatalog, erro
 			}
 		}
 	}
-
-	return testCatalog, err
-}
+	
+		return testCatalog, err
+	}
+	
+	// IsLocal returns false as this launcher runs tests remotely
+	func (launcher *RemoteLauncher) IsLocal() bool {
+		return false
+	}
