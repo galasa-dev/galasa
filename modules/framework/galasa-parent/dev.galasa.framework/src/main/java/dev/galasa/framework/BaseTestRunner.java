@@ -39,6 +39,8 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 import dev.galasa.framework.spi.utils.GalasaGson;
+import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SystemTimeService;
 
 public class BaseTestRunner {
 
@@ -66,6 +68,7 @@ public class BaseTestRunner {
 
     protected RunRasActionProcessor rasActionProcessor;
 
+    protected ITimeService timeService = new SystemTimeService();
 
     protected Properties overrideProperties;
 
@@ -207,26 +210,8 @@ public class BaseTestRunner {
      * @return A TestStructure which is written into the RAS eventually.
      */
     protected TestStructure createNewTestStructure(IRun run) {
-        TestStructure testStructure = new TestStructure();
-
-        String runName = run.getName();
-        String group = run.getGroup();
-        String submissionId = run.getSubmissionId();
-        Instant queuedAt = run.getQueued();
-        String requestor = AbstractManager.defaultString(run.getRequestor(), "unknown");
-        String user = AbstractManager.defaultString(run.getUser(), "unknown");          
-
-        testStructure.setQueued(queuedAt);
+        TestStructure testStructure = run.toTestStructure();
         testStructure.setStartTime(Instant.now());
-        testStructure.setRunName(runName);
-        testStructure.setRequestor(requestor);
-        testStructure.setUser(user);
-        testStructure.setGroup(group);
-        testStructure.setSubmissionId(submissionId);
-        
-        for( String tag : run.getTags()) {
-            testStructure.addTag(tag);
-        }
 
         return testStructure;
     }
