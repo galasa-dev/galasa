@@ -104,6 +104,7 @@ public class TestRunner extends BaseTestRunner {
 
 
             } catch (Exception ex) {
+                this.testStructure.setResult(Result.envfail(ex).getName());
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 throw new TestRunException(ex.getMessage(),ex);
             }
