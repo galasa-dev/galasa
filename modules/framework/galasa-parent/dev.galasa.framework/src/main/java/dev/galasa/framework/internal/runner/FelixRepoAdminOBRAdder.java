@@ -81,9 +81,7 @@ public class FelixRepoAdminOBRAdder {
                     logger.info("Retrying OBR load for " + obr + " (attempt " + attempt + " of " + maxRetries + ")");
                 }
                 repoAdmin.addRepository(obr);
-                if (attempt > 1) {
-                    logger.info("Successfully loaded OBR " + obr + " on retry attempt " + attempt);
-                }
+                logger.info("Successfully loaded OBR " + obr);
                 break;
             } catch (Exception e) {
                 attempt++;
