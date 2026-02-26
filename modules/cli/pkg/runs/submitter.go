@@ -360,6 +360,12 @@ func (submitter *Submitter) submitRun(
 				}
 				nextRun.Name = *submittedRun.Name
 
+				nextRun.Tags = submittedRun.GetTags()
+
+				if submittedRun.WebUiUrl != nil {
+					nextRun.WebUiUrl = *submittedRun.WebUiUrl
+				}
+
 				submittedRuns[nextRun.Name] = &nextRun
 
 				if nextRun.GherkinUrl != "" {
@@ -630,6 +636,7 @@ func (submitter *Submitter) buildListOfRunsToSubmit(portfolio *Portfolio, runOve
 	log.Printf("buildListOfRunsToSubmit - portfolio %v, runOverrides %v", portfolio, runOverrides)
 	readyRuns := make([]TestRun, 0, len(portfolio.Classes))
 	currentSystemUser := submitter.GetCurrentSystemUserName()
+	isLocal := submitter.launcher.IsLocal()
 	for _, portfolioTest := range portfolio.Classes {
 		newTestrun := TestRun{
 			Bundle:         portfolioTest.Bundle,
@@ -642,6 +649,7 @@ func (submitter *Submitter) buildListOfRunsToSubmit(portfolio *Portfolio, runOve
 			Overrides:      make(map[string]string, 0),
 			GherkinUrl:     portfolioTest.GherkinUrl,
 			GherkinFeature: submitter.getFeatureFromGherkinUrl(portfolioTest.GherkinUrl),
+			IsLocal:        isLocal,
 		}
 
 		// load the run overrides
