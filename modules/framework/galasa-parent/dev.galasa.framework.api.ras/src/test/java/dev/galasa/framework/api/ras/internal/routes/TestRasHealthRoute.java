@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.api.ras.internal.routes;
 
+import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.ras.internal.RasServlet;
 import dev.galasa.framework.api.ras.internal.RasServletTest;
@@ -52,6 +53,19 @@ public class TestRasHealthRoute extends RasServletTest {
 
     // Then...
     assertThat(matches).isTrue();
+  }
+
+    @Test
+  public void testPathRegexDoesNotMatchHealthEndpointWithMultipleTrailingSlashes() {
+    // Given...
+    String expectedPath = RasHealthRoute.path;
+    String inputPath = "/health//";
+
+    // When...
+    boolean matches = Pattern.compile(expectedPath).matcher(inputPath).matches();
+
+    // Then...
+    assertThat(matches).isFalse();
   }
 
   @Test
@@ -152,6 +166,7 @@ public class TestRasHealthRoute extends RasServletTest {
     List<IRunResult> mockInputRunResults = new ArrayList<>();
     Map<String, String[]> parameterMap = new HashMap<>();
     MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/health");
+    mockRequest.setMethod(HttpMethod.POST.toString());
 
     MockResultArchiveStoreDirectoryService mockRasStore = new MockResultArchiveStoreDirectoryService(
         mockInputRunResults);
@@ -178,6 +193,7 @@ public class TestRasHealthRoute extends RasServletTest {
     List<IRunResult> mockInputRunResults = new ArrayList<>();
     Map<String, String[]> parameterMap = new HashMap<>();
     MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/health");
+    mockRequest.setMethod(HttpMethod.PUT.toString());
 
     MockResultArchiveStoreDirectoryService mockRasStore = new MockResultArchiveStoreDirectoryService(
         mockInputRunResults);
@@ -204,6 +220,7 @@ public class TestRasHealthRoute extends RasServletTest {
     List<IRunResult> mockInputRunResults = new ArrayList<>();
     Map<String, String[]> parameterMap = new HashMap<>();
     MockHttpServletRequest mockRequest = new MockHttpServletRequest(parameterMap, "/health");
+    mockRequest.setMethod(HttpMethod.DELETE.toString());
 
     MockResultArchiveStoreDirectoryService mockRasStore = new MockResultArchiveStoreDirectoryService(
         mockInputRunResults);
@@ -224,5 +241,3 @@ public class TestRasHealthRoute extends RasServletTest {
     assertThat(resp.getStatus()).isEqualTo(405);
   }
 }
-
-// Made with Bob

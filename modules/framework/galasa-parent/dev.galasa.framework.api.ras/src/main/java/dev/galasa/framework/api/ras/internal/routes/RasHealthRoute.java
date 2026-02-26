@@ -14,22 +14,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 
-import dev.galasa.framework.api.common.BaseRoute;
 import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
+import dev.galasa.framework.api.common.PublicRoute;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
-import dev.galasa.framework.spi.rbac.BuiltInAction;
 
 /**
  * Route to check the health status of the Result Archive Store (RAS).
  * This endpoint is publicly accessible (no authentication required).
  */
-public class RasHealthRoute extends BaseRoute {
+public class RasHealthRoute extends PublicRoute {
 
     protected static final String path = "\\/health\\/?";
 
@@ -84,11 +83,5 @@ public class RasHealthRoute extends BaseRoute {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    @Override
-    public boolean isActionPermitted(BuiltInAction action, String loginId) throws InternalServletException {
-        // Health endpoint is publicly accessible, no authentication required
-        return true;
     }
 }
