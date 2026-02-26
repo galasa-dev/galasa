@@ -176,14 +176,14 @@ public class TestTestRunner {
 
         // initial setup.
         assertThat(rasHistory.get(0)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
-            .containsExactly("myTestRun",null,null, null, "daffyduck", null,null);
+            .containsExactly("myTestRun","myTestBundle","dev.galasa.framework.MyActualTestClass", null, "daffyduck", null,null);
 
         // Check that the RAS structure is populated with tags from the outset.
         assertThat(rasHistory.get(0).getTags()).containsOnly("tag1","tag2");
 
         // status = started
         assertThat(rasHistory.get(1)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
-            .containsExactly("myTestRun",null,null, null, "daffyduck", "started",null);
+            .containsExactly("myTestRun", "myTestBundle", "dev.galasa.framework.MyActualTestClass", null, "daffyduck", "started",null);
 
         // status = generating
         assertThat(rasHistory.get(2)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
@@ -288,6 +288,11 @@ public class TestTestRunner {
 
         @Override
         public void put(@NotNull String key, @NotNull String value) throws DynamicStatusStoreException {
+            // Do nothing.
+        }
+
+        @Override
+        public void put(@NotNull Map<String, String> keyValues) throws DynamicStatusStoreException {
             // Do nothing.
         }
     };
@@ -403,7 +408,7 @@ public class TestTestRunner {
         };
 
         // When...
-        TestRunException ex = catchThrowableOfType( ()->runner.runTest(testRunData), TestRunException.class);
+        TestRunException ex = catchThrowableOfType(TestRunException.class, ()->runner.runTest(testRunData));
 
         /// Then...
         assertThat(ex).isNotNull();      
@@ -415,11 +420,11 @@ public class TestTestRunner {
 
         // initial setup.
         assertThat(rasHistory.get(0)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
-            .containsExactly("myTestRun",null,null, null, "daffyduck", null,null);
+            .containsExactly("myTestRun", "myTestBundle", "dev.galasa.framework.MyActualTestClass", null, "daffyduck", null,null);
 
         // status = started
         assertThat(rasHistory.get(1)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")
-            .containsExactly("myTestRun",null,null, null, "daffyduck", "started",null);
+            .containsExactly("myTestRun", "myTestBundle", "dev.galasa.framework.MyActualTestClass", null, "daffyduck", "started",null);
 
         // status = finished
         assertThat(rasHistory.get(2)).extracting("runName","bundle", "testName", "testShortName", "requestor", "status", "result")

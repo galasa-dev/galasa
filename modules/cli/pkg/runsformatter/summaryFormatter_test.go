@@ -274,3 +274,136 @@ func TestSummaryFormatterHasTestWithTags(t *testing.T) {
 
 	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
 }
+
+func TestSummaryFormatterLocalRunDoesNotShowWebUiUrl(t *testing.T) {
+	// Given...
+	formatter := NewSummaryFormatter()
+
+	formattableTest := make([]FormattableTest, 0)
+	tags := []string{"tag1", "tag2"}
+	
+	// Create a local test run (IsLocal = true, no WebUiUrl)
+	localTest := FormattableTest{
+		Name:          "L123",
+		TestName:      "LocalTestName",
+		Requestor:     "localUser",
+		Status:        "Finished",
+		Result:        "Passed",
+		QueuedTimeUTC: "2023-05-04T10:55:29.545323Z",
+		Group:         "local-group",
+		Lost:          false,
+		Tags:          tags,
+		IsLocal:       true,
+		WebUiUrl:      "", // Local runs don't have web UI URLs
+	}
+	formattableTest = append(formattableTest, localTest)
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatRuns(formattableTest)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// The web-ui-url header should NOT be present for local runs
+	expectedFormattedOutput :=
+		"submitted-time(UTC) name requestor status   result test-name     group       tags\n" +
+			"2023-05-04 10:55:29 L123 localUser Finished Passed LocalTestName local-group tag1,tag2\n" +
+			"\n" +
+			"Total:1 Passed:1\n"
+
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+func TestSummaryFormatterRemoteRunShowsWebUiUrl(t *testing.T) {
+	// Given...
+	formatter := NewSummaryFormatter()
+
+	formattableTest := make([]FormattableTest, 0)
+	tags := []string{"remote-tag"}
+	
+	// Create a remote test run (IsLocal = false, has WebUiUrl)
+	remoteTest := FormattableTest{
+		Name:          "R456",
+		TestName:      "RemoteTestName",
+		Requestor:     "remoteUser",
+		Status:        "Finished",
+		Result:        "Passed",
+		QueuedTimeUTC: "2023-05-04T11:30:00.000000Z",
+		Group:         "remote-group",
+		Lost:          false,
+		Tags:          tags,
+		IsLocal:       false,
+		WebUiUrl:      WEB_UI_URL,
+	}
+	formattableTest = append(formattableTest, remoteTest)
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatRuns(formattableTest)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// The web-ui-url header SHOULD be present for remote runs
+	expectedFormattedOutput :=
+		"submitted-time(UTC) name requestor  status   result test-name      group        tags       web-ui-url\n" +
+			"2023-05-04 11:30:00 R456 remoteUser Finished Passed RemoteTestName remote-group remote-tag https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"\n" +
+			"Total:1 Passed:1\n"
+
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+func TestSummaryFormatterMixedLocalAndRemoteRunsShowsWebUiUrl(t *testing.T) {
+	// Given...
+	formatter := NewSummaryFormatter()
+
+	formattableTest := make([]FormattableTest, 0)
+	
+	// Create a local test run
+	localTest := FormattableTest{
+		Name:          "L123",
+		TestName:      "LocalTest",
+		Requestor:     "localUser",
+		Status:        "Finished",
+		Result:        "Passed",
+		QueuedTimeUTC: "2023-05-04T10:55:29.545323Z",
+		Group:         "local-group",
+		Lost:          false,
+		Tags:          []string{"local"},
+		IsLocal:       true,
+		WebUiUrl:      "",
+	}
+	
+	// Create a remote test run
+	remoteTest := FormattableTest{
+		Name:          "R456",
+		TestName:      "RemoteTest",
+		Requestor:     "remoteUser",
+		Status:        "Finished",
+		Result:        "Failed",
+		QueuedTimeUTC: "2023-05-04T11:30:00.000000Z",
+		Group:         "remote-group",
+		Lost:          false,
+		Tags:          []string{"remote"},
+		IsLocal:       false,
+		WebUiUrl:      WEB_UI_URL,
+	}
+	
+	formattableTest = append(formattableTest, localTest, remoteTest)
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatRuns(formattableTest)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// When there's a mix, the web-ui-url header SHOULD be present
+	expectedFormattedOutput :=
+		"submitted-time(UTC) name requestor  status   result test-name  group        tags   web-ui-url\n" +
+			"2023-05-04 10:55:29 L123 localUser  Finished Passed LocalTest  local-group  local  \n" +
+			"2023-05-04 11:30:00 R456 remoteUser Finished Failed RemoteTest remote-group remote https://my-api-server.com/test-runs/cdb-ba06e2a6-U123\n" +
+			"\n" +
+			"Total:2 Passed:1 Failed:1\n"
+
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}

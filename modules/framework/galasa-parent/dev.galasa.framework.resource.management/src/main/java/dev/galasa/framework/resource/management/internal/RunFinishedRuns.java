@@ -21,6 +21,7 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns;
 import dev.galasa.framework.spi.IResourceManagement;
+import dev.galasa.framework.spi.IResourceManagementProvider;
 import dev.galasa.framework.spi.IRun;
 
 public class RunFinishedRuns implements Runnable {
@@ -34,7 +35,7 @@ public class RunFinishedRuns implements Runnable {
             .withZone(ZoneId.systemDefault());
 
     protected RunFinishedRuns(IFramework framework, IResourceManagement resourceManagement,
-            IDynamicStatusStoreService dss, RunResourceManagement runResourceManagement,
+            IDynamicStatusStoreService dss, IResourceManagementProvider runResourceManagement,
             IConfigurationPropertyStoreService cps) throws FrameworkException {
         this.resourceManagement = resourceManagement;
         this.frameworkRuns = framework.getFrameworkRuns();
@@ -74,14 +75,22 @@ public class RunFinishedRuns implements Runnable {
 
                 Instant finished = run.getFinished();
                 logger.info("The runs finished time is: " + finished);
-                Instant expires = finished.plusSeconds(defaultFinishedDelete);
+                Instant expires = null;
+                if (finished != null) {
+                    expires = finished.plusSeconds(defaultFinishedDelete);
+                }
+
                 logger.info("The runs expired time is: " + expires);
                 Instant now = Instant.now();
-                if (expires.compareTo(now) <= 0) {
+                if (expires == null || expires.compareTo(now) <= 0) {
                     logger.info("The run has expired so we will attempt to delete it");
-                    String sFinished = dtf.format(LocalDateTime.ofInstant(finished, ZoneId.systemDefault()));
-                    /// TODO put time management into the framework
-                    logger.info("Deleting run " + runName + ", finished at " + sFinished);
+                    if (finished != null) {
+                        String sFinished = dtf.format(LocalDateTime.ofInstant(finished, ZoneId.systemDefault()));
+                        logger.info("Deleting run " + runName + ", finished at " + sFinished);
+                    } else {
+                        logger.info("Deleting run " + runName + ", finished is null");
+                    }
+
                     this.frameworkRuns.delete(runName);
                     logger.info("We have been able to delete the run in the delete() method");
                 }

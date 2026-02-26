@@ -74,6 +74,7 @@ type FormattableTest struct {
 	Tags          []string
 	WebUiUrl      string
 	RestApiUrl    string
+	IsLocal       bool
 }
 
 func NewFormattableTest() FormattableTest {
