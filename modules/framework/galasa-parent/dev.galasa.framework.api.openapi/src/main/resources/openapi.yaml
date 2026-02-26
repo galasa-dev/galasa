@@ -1464,6 +1464,46 @@ paths:
 ##################################################################################
 
   #--------------------------------------
+  # Get the health status of the RAS.
+  #--------------------------------------
+  /ras/health:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getRasHealth
+      summary: Get the health status of the RAS
+      description: |
+        Returns the health status of the Result Archive Store (RAS).
+        
+        This endpoint checks if the RAS is available and responding to requests.
+      tags:
+      - Result Archive Store API
+      security: []
+      responses:
+        '200':
+          description: RAS is healthy and available
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+        '503':
+          description: RAS is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                rasdown:
+                  value:
+                    error_code: 5449
+                    error_message: "The RAS is not available for requests at this time. The RAS might be experiencing server issues. Contact your Galasa service administrator."
+                  summary: RAS is down or unreachable
+
+  #--------------------------------------
   # List all known requestors.
   #--------------------------------------
   /ras/requestors:

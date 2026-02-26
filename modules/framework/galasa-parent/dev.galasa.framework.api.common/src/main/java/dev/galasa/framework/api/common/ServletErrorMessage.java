@@ -164,7 +164,6 @@ public enum ServletErrorMessage {
     GAL5104_INVALID_CALLBACK_URL_PROVIDED             (5104, "E: Invalid callback URL provided. The callback URL must be a valid URL. Check your request parameters and try again."),
     GAL5105_INTERNAL_DSS_ERROR                        (5105, "E: Error occurred when trying to access the Dynamic Status Store. Report the problem to your Galasa Ecosystem owner."),
 
-
     // RBAC APIs...
     GAL5119_USER_CANNOT_UPDATE_OWN_PRIORITY           (5119, "E: A user is not allowed to update their own priority. Ask a Galasa service administrator to change your priority instead."),
     GAL5120_INVALID_ACTION_NAME_PROVIDED              (5120, "E: Invalid action name provided."),
@@ -210,6 +209,9 @@ public enum ServletErrorMessage {
     GAL5446_ERROR_SETTING_TAG                         (5446, "E: Internal server error occurred when trying to set the tag with the given name. Report the problem to your Galasa service administrator"),
     GAL5447_MISSING_REQUIRED_TAG_FIELD                (5447, "E: Invalid GalasaTag provided. The required field ''{0}'' was missing from the request payload. Check your request payload and try again."),
     GAL5448_INVALID_TAG_PRIORITY_PROVIDED             (5448, "E: Invalid tag priority provided. The tag priority must be a whole number. Check your request payload and try again."),
+
+    // RAS Health API
+    GAL5449_RAS_NOT_AVAILABLE                         (5449, "E: The RAS is not available for requests at this time. The RAS might be experiencing server issues. Contact your Galasa service administrator."),
     ;
 
     // >>>
@@ -218,7 +220,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5449;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5450;
 
 
     private String template ;

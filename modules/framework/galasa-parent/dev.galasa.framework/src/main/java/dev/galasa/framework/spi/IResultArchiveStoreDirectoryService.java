@@ -54,4 +54,11 @@ public interface IResultArchiveStoreDirectoryService {
 
     List<IRunResult> getRunsByGroupName(@NotNull String groupName) throws ResultArchiveStoreException;
     
+    /**
+     * Check the health status of the RAS.
+     * 
+     * @return true if the RAS is healthy and available, false otherwise
+     */
+    boolean isHealthy() throws ResultArchiveStoreException;
+    
 }
