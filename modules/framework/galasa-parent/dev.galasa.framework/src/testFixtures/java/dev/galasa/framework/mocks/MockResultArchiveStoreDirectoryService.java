@@ -23,10 +23,6 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
     private String nextCursor;
 		private boolean isHealthy;
 
-		public void setHealthy(boolean isHealthy) {
-			this.isHealthy = isHealthy;
-		}
-
     public MockResultArchiveStoreDirectoryService(List<IRunResult> runsResults) {
         this.runResults = runsResults;
     }
@@ -157,6 +153,10 @@ public class MockResultArchiveStoreDirectoryService implements IResultArchiveSto
             }
         }
         return matchingRuns;
+	}
+
+	public void setHealthy(boolean isHealthy) {
+	    this.isHealthy = isHealthy;
 	}
 
 	@Override

@@ -51,7 +51,7 @@ public class RasHealthRoute extends PublicRoute {
 
         HttpServletRequest request = requestContext.getRequest();
 
-        boolean isHealthy = checkRasHealth();
+        boolean isHealthy = isRasHealthy();
 
         if (isHealthy) {
             JsonObject healthResponse = new JsonObject();
@@ -71,7 +71,7 @@ public class RasHealthRoute extends PublicRoute {
      * @return true if at least one RAS directory service is healthy, false
      *         otherwise
      */
-    private boolean checkRasHealth() {
+    private boolean isRasHealthy() {
         try {
             for (IResultArchiveStoreDirectoryService directoryService : framework.getResultArchiveStore()
                     .getDirectoryServices()) {
@@ -79,9 +79,7 @@ public class RasHealthRoute extends PublicRoute {
                     return true;
                 }
             }
-            return false;
-        } catch (Exception e) {
-            return false;
-        }
+        } catch (Exception e) { }
+        return false;
     }
 }
