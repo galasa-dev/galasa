@@ -544,4 +544,15 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
 
         return runs;
     }
+    
+    @Override
+    public boolean isHealthy() {
+        try {
+            store.getHealth();
+            return true;
+        } catch (CouchdbException e) {
+            logger.warn("RAS health check failed", e);
+            return false;
+        }
+    }
 }
