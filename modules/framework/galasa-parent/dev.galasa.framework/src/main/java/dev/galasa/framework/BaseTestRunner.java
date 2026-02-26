@@ -44,6 +44,8 @@ import dev.galasa.framework.spi.utils.SystemTimeService;
 
 public class BaseTestRunner {
 
+    private static final long THREAD_SHUTDOWN_TIMEOUT_MS = 2000;
+
     private Log logger = LogFactory.getLog(BaseTestRunner.class);
 
     protected BundleContext bundleContext;
@@ -250,7 +252,7 @@ public class BaseTestRunner {
 
         heartbeat.shutdown();
         try {
-            heartbeat.join(2000);
+            heartbeat.join(THREAD_SHUTDOWN_TIMEOUT_MS);
         } catch (Exception e) {
         }
 
@@ -274,7 +276,7 @@ public class BaseTestRunner {
 
         timeoutMonitor.shutdown();
         try {
-            timeoutMonitor.join(2000);
+            timeoutMonitor.join(THREAD_SHUTDOWN_TIMEOUT_MS);
         } catch (Exception e) {
             logger.error("Error occurred while stopping timeout monitor", e);
         }
