@@ -60,6 +60,7 @@ public class BaseTestRunner {
     protected TestStructure testStructure ;
 
     protected TestRunHeartbeat heartbeat;
+    protected TestRunTimeoutMonitor timeoutMonitor;
 
     protected boolean isRunOK = true;
     protected boolean isResourcesAvailable = true;
@@ -266,6 +267,19 @@ public class BaseTestRunner {
         }
     }
 
+    protected void stopTimeoutMonitor() {
+        if (this.timeoutMonitor == null) {
+            return;
+        }
+
+        timeoutMonitor.shutdown();
+        try {
+            timeoutMonitor.join(2000);
+        } catch (Exception e) {
+            logger.error("Error occurred while stopping timeout monitor", e);
+        }
+    }
+
     
 
     protected void markWaiting(@NotNull IFramework framework) throws TestRunException {
@@ -399,6 +413,36 @@ public class BaseTestRunner {
             throw new TestRunException("Unable to initialise the heartbeat. "+ex.getMessage(), ex);
         }
         return heartbeat;
+    }
+
+    protected TestRunTimeoutMonitor createTimeoutMonitor(IFramework framework) throws TestRunException {
+        Long timeoutMinutes = getTestRunTimeoutMinutesFromCPS();
+        TestRunTimeoutMonitor monitor = null;
+
+        if (timeoutMinutes != null && timeoutMinutes > 0) {
+            try {
+                monitor = new TestRunTimeoutMonitor(framework, timeoutMinutes, this.timeService);
+                monitor.start();
+                logger.info("Test run timeout monitor started with timeout of " + timeoutMinutes + " minute(s)");
+            } catch (FrameworkException ex) {
+                throw new TestRunException("Unable to initialise the timeout monitor", ex);
+            }
+        }
+        return monitor;
+    }
+
+    protected Long getTestRunTimeoutMinutesFromCPS() {
+        Long timeoutMinutes = null;
+        try {
+            IConfigurationPropertyStoreService cps = getCPS();
+            String timeoutValue = AbstractManager.nulled(cps.getProperty("test.run.timeout", "minutes"));
+            if (timeoutValue != null) {
+                timeoutMinutes = Long.parseLong(timeoutValue);
+            }
+        } catch (NumberFormatException | ConfigurationPropertyStoreException ex) {
+            logger.error("Failed to get the CPS property 'framework.test.run.timeout.minutes'", ex);
+        }
+        return timeoutMinutes;
     }
 
     protected boolean getContinueOnTestFailureFromCPS() {

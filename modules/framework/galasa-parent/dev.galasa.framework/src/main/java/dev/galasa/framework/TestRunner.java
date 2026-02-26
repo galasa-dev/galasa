@@ -119,6 +119,7 @@ public class TestRunner extends BaseTestRunner {
             switch(this.runType) {
             case TEST:
                 heartbeat = createBeatingHeart(framework);
+                timeoutMonitor = createTimeoutMonitor(framework);
                 incrimentMetric(dss,run);
                 break;
             case SHARED_ENVIRONMENT_BUILD:
@@ -221,6 +222,9 @@ public class TestRunner extends BaseTestRunner {
 
         logger.debug("Stopping heartbeat...");
         stopHeartbeat();
+        
+        logger.debug("Stopping timeout monitor...");
+        stopTimeoutMonitor();
 
         // Record all the CPS properties that were accessed
         saveUsedCPSPropertiesToArtifact(this.framework.getRecordProperties(), this.fileSystem, this.ras);
