@@ -21,6 +21,7 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.RunRasAction;
 
 public class MockFrameworkRuns implements IFrameworkRuns {
+    private List<String> deletedRunNames = new ArrayList<>();
     protected String groupName;
     List<IRun> runs ;
 
@@ -101,7 +102,12 @@ public class MockFrameworkRuns implements IFrameworkRuns {
 
     @Override
     public boolean delete(String runname) throws DynamicStatusStoreException {
+        deletedRunNames.add(runname);
         return true;
+    }
+
+    public List<String> getDeletedRunNames() {
+        return this.deletedRunNames;
     }
 
     @Override

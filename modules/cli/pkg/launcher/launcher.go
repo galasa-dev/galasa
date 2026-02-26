@@ -45,4 +45,7 @@ type Launcher interface {
 
 	// GetTestCatalog gets the test catalog for a given stream.
 	GetTestCatalog(stream string) (TestCatalog, error)
+
+	// IsLocal returns true if this launcher runs tests locally, false if remote
+	IsLocal() bool
 }

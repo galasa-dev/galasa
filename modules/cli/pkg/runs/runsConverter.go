@@ -171,6 +171,8 @@ func getTestRunData(run TestRun, isLost bool) runsformatter.FormattableTest {
 	newFormattableTest.Lost = isLost
 	newFormattableTest.Group = run.Group
 	newFormattableTest.Tags = run.Tags
+	newFormattableTest.IsLocal = run.IsLocal
+	newFormattableTest.WebUiUrl = run.WebUiUrl
 
 	return newFormattableTest
 }
