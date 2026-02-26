@@ -44,6 +44,8 @@ import dev.galasa.framework.spi.utils.SystemTimeService;
 
 public class BaseTestRunner {
 
+    private static final long THREAD_SHUTDOWN_TIMEOUT_MS = 2000;
+
     private Log logger = LogFactory.getLog(BaseTestRunner.class);
 
     protected BundleContext bundleContext;
@@ -60,6 +62,7 @@ public class BaseTestRunner {
     protected TestStructure testStructure ;
 
     protected TestRunHeartbeat heartbeat;
+    protected TestRunTimeoutMonitor timeoutMonitor;
 
     protected boolean isRunOK = true;
     protected boolean isResourcesAvailable = true;
@@ -249,7 +252,7 @@ public class BaseTestRunner {
 
         heartbeat.shutdown();
         try {
-            heartbeat.join(2000);
+            heartbeat.join(THREAD_SHUTDOWN_TIMEOUT_MS);
         } catch (Exception e) {
         }
 
@@ -263,6 +266,19 @@ public class BaseTestRunner {
             this.eventsProducer.produceTestHeartbeatStoppedEvent(framework.getTestRunName());
         } catch (TestRunException e) {
             logger.error("Unable to produce a test heartbeat stopped event to the Events Service", e);
+        }
+    }
+
+    protected void stopTimeoutMonitor() {
+        if (this.timeoutMonitor == null) {
+            return;
+        }
+
+        timeoutMonitor.shutdown();
+        try {
+            timeoutMonitor.join(THREAD_SHUTDOWN_TIMEOUT_MS);
+        } catch (Exception e) {
+            logger.error("Error occurred while stopping timeout monitor", e);
         }
     }
 
@@ -399,6 +415,36 @@ public class BaseTestRunner {
             throw new TestRunException("Unable to initialise the heartbeat. "+ex.getMessage(), ex);
         }
         return heartbeat;
+    }
+
+    protected TestRunTimeoutMonitor createTimeoutMonitor(IFramework framework) throws TestRunException {
+        Long timeoutMinutes = getTestRunTimeoutMinutesFromCPS();
+        TestRunTimeoutMonitor monitor = null;
+
+        if (timeoutMinutes != null && timeoutMinutes > 0) {
+            try {
+                monitor = new TestRunTimeoutMonitor(framework, timeoutMinutes, this.timeService);
+                monitor.start();
+                logger.info("Test run timeout monitor started with timeout of " + timeoutMinutes + " minute(s)");
+            } catch (FrameworkException ex) {
+                throw new TestRunException("Unable to initialise the timeout monitor", ex);
+            }
+        }
+        return monitor;
+    }
+
+    protected Long getTestRunTimeoutMinutesFromCPS() {
+        Long timeoutMinutes = null;
+        try {
+            IConfigurationPropertyStoreService cps = getCPS();
+            String timeoutValue = AbstractManager.nulled(cps.getProperty("test.run.timeout", "minutes"));
+            if (timeoutValue != null) {
+                timeoutMinutes = Long.parseLong(timeoutValue);
+            }
+        } catch (NumberFormatException | ConfigurationPropertyStoreException ex) {
+            logger.error("Failed to get the CPS property 'framework.test.run.timeout.minutes'", ex);
+        }
+        return timeoutMinutes;
     }
 
     protected boolean getContinueOnTestFailureFromCPS() {

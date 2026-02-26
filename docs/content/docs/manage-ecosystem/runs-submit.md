@@ -136,3 +136,15 @@ galasactl runs submit `
     --log - \
     --user my-tester-user
 ```
+
+## Controlling how long tests are allowed to run for
+
+In some situations, tests might seem to stall or run indefinitely due to issues in the test code or wider environmental issues. To prevent tests from hanging indefinitely, you can configure a timeout for test runs using the `framework.test.run.timeout.minutes` CPS property. When a test exceeds the configured timeout period, it is automatically interrupted and assigned the `Hung` result.
+
+For example, to configure a timeout of 30 minutes for test runs, you can set the `framework.test.run.timeout.minutes` CPS property using the Galasa CLI tool:
+
+```shell
+galasactl properties set --bootstrap http://example.com:30960/bootstrap --namespace framework --name test.run.timeout.minutes --value 30
+```
+
+This helps ensure that problematic tests do not consume resources indefinitely and allows you to identify and address issues more quickly.
