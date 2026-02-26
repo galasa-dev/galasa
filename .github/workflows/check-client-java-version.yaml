@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
+
 name: Check Kubernetes client-java Version
 
 on:
@@ -14,15 +15,18 @@ jobs:
   check-version:
     name: Check latest Kubernetes client-java version from Maven Central
     runs-on: ubuntu-latest
+    env:
+      issueRepository: projectmanagement
+      prRepository: galasa
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Get latest version from Maven Central
-        id: maven-version
+        id: latest-client-java-version
         run: |
-          # Fetch maven-metadata.xml and extract the latest stable version
+          # Fetch maven-metadata.xml and extract the latest stable version of client-java
           # (versions containing only numbers and dots, excluding -legacy, -alpha, -beta, etc.)
           LATEST_VERSION=$(curl -s 'https://repo1.maven.org/maven2/io/kubernetes/client-java/maven-metadata.xml' \
             | grep '<version>' \
@@ -35,7 +39,7 @@ jobs:
           echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
 
       - name: Get current version from build.gradle
-        id: current-version
+        id: current-client-java-version
         run: |
           CURRENT_VERSION=$(grep "io.kubernetes:client-java:" \
             modules/platform/dev.galasa.platform/build.gradle \
@@ -47,8 +51,8 @@ jobs:
       - name: Compare versions
         id: compare
         run: |
-          LATEST="${{ steps.maven-version.outputs.version }}"
-          CURRENT="${{ steps.current-version.outputs.version }}"
+          LATEST="${{ steps.latest-client-java-version.outputs.version }}"
+          CURRENT="${{ steps.current-client-java-version.outputs.version }}"
 
           if [ "$LATEST" != "$CURRENT" ]; then
             echo "needs_update=true" >> $GITHUB_OUTPUT
@@ -60,18 +64,361 @@ jobs:
             echo "✅ Version is up to date: $CURRENT"
           fi
 
+      - name: Get Kubernetes version compatibility from docs
+        if: steps.compare.outputs.needs_update == 'true'
+        id: k8s-versions
+        run: |
+          # Read the last entry from the documentation table to determine K8s versions
+          # The new entry will use the same min version and increment the max version by 1
+
+          DOCS_FILE="docs/content/docs/ecosystem/ecosystem-installing-k8s.md"
+
+          # Extract the first data row after the table header (most recent entry), then pipe through tail -1 to get most recent entry
+          LAST_ENTRY=$(grep -A 2 "| \*\*Galasa Version\*\*" "$DOCS_FILE" | tail -1)
+
+          # Extract Galasa version, min and max versions from the last entry
+          LAST_GALASA_VERSION=$(echo "$LAST_ENTRY" | awk -F'|' '{print $2}' | tr -d ' ')
+          LAST_MIN=$(echo "$LAST_ENTRY" | awk -F'|' '{print $3}' | tr -d ' ')
+          LAST_MAX=$(echo "$LAST_ENTRY" | awk -F'|' '{print $4}' | tr -d ' ')
+
+          # Use the same min version
+          MIN_VERSION="$LAST_MIN"
+
+          # Increment the max version by 1 (e.g. 1.34 -> 1.35)
+          MAX_MAJOR=$(echo "$LAST_MAX" | cut -d. -f1)
+          MAX_MINOR=$(echo "$LAST_MAX" | cut -d. -f2)
+          NEW_MAX_MINOR=$((MAX_MINOR + 1))
+          MAX_VERSION="${MAX_MAJOR}.${NEW_MAX_MINOR}"
+
+          echo "Last Galasa version in table: ${LAST_GALASA_VERSION}"
+          echo "Kubernetes compatibility (based on last entry): ${MIN_VERSION} - ${MAX_VERSION}"
+          echo "last_galasa_version=${LAST_GALASA_VERSION}" >> $GITHUB_OUTPUT
+          echo "min_version=${MIN_VERSION}" >> $GITHUB_OUTPUT
+          echo "max_version=${MAX_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Get current Galasa version
+        if: steps.compare.outputs.needs_update == 'true'
+        id: galasa-version
+        run: |
+          # The ^ anchor ensures it matches 'version = ' only at the beginning of a line
+          GALASA_VERSION=$(grep "^version = " modules/platform/dev.galasa.platform/build.gradle | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+          echo "Galasa version: $GALASA_VERSION"
+          echo "version=$GALASA_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create PR with updates
+        if: steps.compare.outputs.needs_update == 'true'
+        id: create-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const latest = '${{ steps.latest-client-java-version.outputs.version }}';
+            const current = '${{ steps.current-client-java-version.outputs.version }}';
+            const minK8s = '${{ steps.k8s-versions.outputs.min_version }}';
+            const maxK8s = '${{ steps.k8s-versions.outputs.max_version }}';
+            const galasaVersion = '${{ steps.galasa-version.outputs.version }}';
+
+            const branchName = `update-k8s-client-java-to-${latest}`;
+            const buildGradlePath = 'modules/platform/dev.galasa.platform/build.gradle';
+            const docsPath = 'docs/content/docs/ecosystem/ecosystem-installing-k8s.md';
+
+            // Define PR body template to avoid duplication
+            const prBody = `## Update Kubernetes client-java dependency\n\n` +
+                  `This PR updates the Kubernetes client-java dependency and documentation.\n\n` +
+                  `**Changes:**\n` +
+                  `- Updated \`io.kubernetes:client-java\` from ${current} to ${latest}\n` +
+                  `- Updated \`io.kubernetes:client-java-api\` from ${current} to ${latest}\n` +
+                  `- Updated \`io.kubernetes:client-java-proto\` from ${current} to ${latest}\n` +
+                  `- Added Galasa ${galasaVersion} with Kubernetes ${minK8s}-${maxK8s} compatibility to documentation\n\n` +
+                  `**Maven Central:** https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}\n\n` +
+                  `**Estimated supported Kubernetes versions:** ${minK8s} - ${maxK8s}\n\n` +
+                  `⚠️ **Note:** The Kubernetes version range was automatically calculated based on the previous entry in the documentation table. ` +
+                  `Please verify that these versions are correct for client-java ${latest} by checking the [official compatibility matrix](https://github.com/kubernetes-client/java/wiki/2.-Versioning-and-Compatibility).\n\n` +
+                  `---\n` +
+                  `*This PR was automatically generated by the check-client-java-version workflow.*`;
+
+            try {
+              const prRepository = process.env.prRepository;
+              // Get the default branch
+              const { data: repo } = await github.rest.repos.get({
+                owner: context.repo.owner,
+                repo: prRepository
+              });
+              const defaultBranch = repo.default_branch;
+
+              // Get the SHA of the default branch
+              const { data: ref } = await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: prRepository,
+                ref: `heads/${defaultBranch}`
+              });
+              const baseSha = ref.object.sha;
+
+              // Check if branch already exists
+              let branchExists = false;
+              let existingBranchSha = null;
+              try {
+                const { data: existingBranch } = await github.rest.git.getRef({
+                  owner: context.repo.owner,
+                  repo: prRepository,
+                  ref: `heads/${branchName}`
+                });
+                branchExists = true;
+                existingBranchSha = existingBranch.object.sha;
+                console.log(`Branch ${branchName} already exists at SHA ${existingBranchSha}`);
+                
+                // Warn if the existing branch has diverged from base
+                if (existingBranchSha !== baseSha) {
+                  console.log(`⚠️ Warning: Branch ${branchName} has diverged from ${defaultBranch}. It will be reset to the latest ${defaultBranch}.`);
+                }
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+
+              // Create or update branch
+              if (branchExists) {
+                await github.rest.git.updateRef({
+                  owner: context.repo.owner,
+                  repo: prRepository,
+                  ref: `heads/${branchName}`,
+                  sha: baseSha,
+                  force: true
+                });
+                console.log(`Updated branch ${branchName} to ${baseSha}`);
+              } else {
+                await github.rest.git.createRef({
+                  owner: context.repo.owner,
+                  repo: prRepository,
+                  ref: `refs/heads/${branchName}`,
+                  sha: baseSha
+                });
+                console.log(`Created branch ${branchName} at ${baseSha}`);
+              }
+
+              // Read both files from the base SHA before making any changes
+              const { data: buildGradleFile } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: prRepository,
+                path: buildGradlePath,
+                ref: baseSha
+              });
+
+              const { data: docsFile } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: prRepository,
+                path: docsPath,
+                ref: baseSha
+              });
+
+              const buildGradleContent = Buffer.from(buildGradleFile.content, 'base64').toString('utf8');
+              const docsContent = Buffer.from(docsFile.content, 'base64').toString('utf8');
+
+              // Update the version in build.gradle with validation
+              const clientJavaRegex = /io\.kubernetes:client-java:\d+\.\d+\.\d+/g;
+              const clientJavaApiRegex = /io\.kubernetes:client-java-api:\d+\.\d+\.\d+/g;
+              const clientJavaProtoRegex = /io\.kubernetes:client-java-proto:\d+\.\d+\.\d+/g;
+
+              let updatedBuildGradle = buildGradleContent
+                .replace(clientJavaRegex, `io.kubernetes:client-java:${latest}`)
+                .replace(clientJavaApiRegex, `io.kubernetes:client-java-api:${latest}`)
+                .replace(clientJavaProtoRegex, `io.kubernetes:client-java-proto:${latest}`);
+
+              // Validate that replacements occurred
+              if (updatedBuildGradle === buildGradleContent) {
+                throw new Error('Failed to update build.gradle: No Kubernetes client-java dependencies found');
+              }
+              if (!updatedBuildGradle.includes(`io.kubernetes:client-java:${latest}`)) {
+                throw new Error('Failed to update build.gradle: client-java version not updated');
+              }
+              console.log('✅ Successfully updated build.gradle content');
+
+              // Update documentation with validation
+              const lastGalasaVersion = '${{ steps.k8s-versions.outputs.last_galasa_version }}';
+              
+              let updatedDocs;
+              
+              // Check if the current Galasa version already exists in the table
+              if (lastGalasaVersion === galasaVersion) {
+                console.log(`Galasa version ${galasaVersion} already exists in table, updating max Kubernetes version`);
+                
+                // Find and update the existing row's max version
+                const existingRowRegex = new RegExp(`(\\| ${galasaVersion.replace(/\./g, '\\.')} \\| ${minK8s.replace(/\./g, '\\.')} \\| )\\d+\\.\\d+( \\|)`, 'g');
+                
+                if (!existingRowRegex.test(docsContent)) {
+                  throw new Error(`Failed to update documentation: Could not find existing row for Galasa version ${galasaVersion}`);
+                }
+                
+                updatedDocs = docsContent.replace(
+                  existingRowRegex,
+                  `$1${maxK8s}$2`
+                );
+                
+                // Validate that the max version was updated
+                if (!updatedDocs.includes(`| ${galasaVersion} | ${minK8s} | ${maxK8s} |`)) {
+                  throw new Error('Failed to update documentation: Max Kubernetes version not updated');
+                }
+                console.log('✅ Successfully updated max Kubernetes version in existing row');
+              } else {
+                console.log(`Galasa version ${galasaVersion} is new, adding new row to table`);
+                
+                // Add a new row for the new Galasa version
+                // Match the table header and separator line, capturing everything up to and including the newline after the separator
+                const tableHeaderRegex = /(\| \*\*Galasa Version\*\* \| \*\*Minimum Kubernetes Version\*\* \| \*\*Maximum Kubernetes Version\*\* \|\n\|[-\s|]+\|\n)/;
+                const newRow = `| ${galasaVersion} | ${minK8s} | ${maxK8s} |`;
+                
+                if (!tableHeaderRegex.test(docsContent)) {
+                  throw new Error('Failed to update documentation: Table header not found');
+                }
+                
+                updatedDocs = docsContent.replace(
+                  tableHeaderRegex,
+                  `$1${newRow}\n`
+                );
+                
+                // Validate that the new row was added
+                if (!updatedDocs.includes(newRow)) {
+                  throw new Error('Failed to update documentation: New row not added to table');
+                }
+                console.log('✅ Successfully added new row to documentation table');
+              }
+
+              // Commit the build.gradle changes
+              const { data: buildGradleCommit } = await github.rest.repos.createOrUpdateFileContents({
+                owner: context.repo.owner,
+                repo: prRepository,
+                path: buildGradlePath,
+                message: `Update io.kubernetes:client-java to ${latest}`,
+                content: Buffer.from(updatedBuildGradle).toString('base64'),
+                branch: branchName,
+                sha: buildGradleFile.sha
+              });
+              console.log(`✅ Committed build.gradle changes: ${buildGradleCommit.commit.sha}`);
+
+              // Commit the documentation changes using the SHA from the base (not the branch)
+              // since both files are being updated from the same base commit
+              const { data: docsCommit } = await github.rest.repos.createOrUpdateFileContents({
+                owner: context.repo.owner,
+                repo: prRepository,
+                path: docsPath,
+                message: `Add Kubernetes ${minK8s}-${maxK8s} compatibility for Galasa ${galasaVersion}`,
+                content: Buffer.from(updatedDocs).toString('base64'),
+                branch: branchName,
+                sha: docsFile.sha
+              });
+              console.log(`✅ Committed documentation changes: ${docsCommit.commit.sha}`);
+
+              // Check if PR already exists
+              const { data: existingPRs } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: prRepository,
+                state: 'open',
+                head: `${context.repo.owner}:${branchName}`
+              });
+
+              let prNumber;
+              const prTitle = `Update io.kubernetes:client-java from ${current} to ${latest}`;
+
+              if (existingPRs.length > 0) {
+                prNumber = existingPRs[0].number;
+                console.log(`PR #${prNumber} already exists, updating it`);
+                
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: prRepository,
+                  pull_number: prNumber,
+                  title: prTitle,
+                  body: prBody
+                });
+              } else {
+                const { data: pr } = await github.rest.pulls.create({
+                  owner: context.repo.owner,
+                  repo: prRepository,
+                  title: prTitle,
+                  head: branchName,
+                  base: defaultBranch,
+                  body: prBody
+                });
+                prNumber = pr.number;
+                console.log(`Created PR #${prNumber}`);
+              }
+
+              core.setOutput('pr_number', prNumber);
+              core.setOutput('pr_url', `https://github.com/${context.repo.owner}/${prRepository}/pull/${prNumber}`);
+              core.setOutput('pr_title', prTitle);
+            } catch (error) {
+              core.setFailed(`Failed to create/update PR: ${error.message}`);
+              throw error;
+            }
+
+      - name: Close outdated PRs
+        if: steps.compare.outputs.needs_update == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prRepository = process.env.prRepository;
+            const currentPrNumber = parseInt('${{ steps.create-pr.outputs.pr_number }}');
+            const currentPrTitle = '${{ steps.create-pr.outputs.pr_title }}';
+
+            try {
+              // Search for all open PRs with "Update io.kubernetes:client-java from" in the title
+              const { data: allPRs } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: prRepository,
+                state: 'open'
+              });
+              
+              const outdatedPRs = allPRs.filter(pr =>
+                pr.title.includes('Update io.kubernetes:client-java from') &&
+                pr.number !== currentPrNumber
+              );
+              
+              if (outdatedPRs.length > 0) {
+                console.log(`Found ${outdatedPRs.length} outdated PR(s) to close`);
+                
+                for (const pr of outdatedPRs) {
+                  console.log(`Closing outdated PR #${pr.number}: ${pr.title}`);
+                  
+                  // Add a comment explaining why it's being closed
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: prRepository,
+                    issue_number: pr.number,
+                    body: `🔄 This PR has been superseded by a newer update: #${currentPrNumber}\n\n` +
+                          `Closing this PR as it's no longer needed.`
+                  });
+                  
+                  // Close the PR
+                  await github.rest.pulls.update({
+                    owner: context.repo.owner,
+                    repo: prRepository,
+                    pull_number: pr.number,
+                    state: 'closed'
+                  });
+                  
+                  console.log(`✅ Closed PR #${pr.number}`);
+                }
+              } else {
+                console.log('No outdated PRs found to close');
+              }
+            } catch (error) {
+              console.error(`Failed to close outdated PRs: ${error.message}`);
+              // Don't fail the workflow if closing old PRs fails
+            }
+
       - name: Create or update issue if update needed
         if: steps.compare.outputs.needs_update == 'true'
         uses: actions/github-script@v7
         with:
           script: |
-            const latest = '${{ steps.maven-version.outputs.version }}';
-            const current = '${{ steps.current-version.outputs.version }}';
+            const issueRepository = process.env.issueRepository;
+            const latest = '${{ steps.latest-client-java-version.outputs.version }}';
+            const current = '${{ steps.current-client-java-version.outputs.version }}';
+            const prUrl = '${{ steps.create-pr.outputs.pr_url }}';
+            const prNumber = '${{ steps.create-pr.outputs.pr_number }}';
 
             // Check if issue already exists
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
-              repo: 'projectmanagement',
+              repo: issueRepository,
               state: 'open',
               labels: ['dependency-update', 'kubernetes-client']
             });
@@ -86,8 +433,8 @@ jobs:
                   `**Maven Central:** https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}\n\n` +
                   `## Tasks\n` +
                   `- [ ] Ensure [client-java ${latest}](https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}) exists on Maven Central\n` +
-                  `- [ ] Review and update the dependency in \`modules/platform/dev.galasa.platform/build.gradle\`\n` +
-                  `- [ ] Create a new row in the documentation table with the new min and max supported Kubernetes versions for this version of Galasa, found [here](https://galasa.dev/docs/ecosystem/ecosystem-installing-k8s/#supported-kubernetes-versions).`;
+                  `- [ ] Review the updated the dependency update and test the changes in PR ${prUrl}\n` +
+                  `- [ ] Review the updated documentation table with the new min and max supported Kubernetes versions for this version of Galasa, found in the [PR](${prUrl}). Use the [client-java versioning matrix](https://github.com/kubernetes-client/java/wiki/2.-Versioning-and-Compatibility) to verify this. Note: Helm will also affect the permitted versions.`;
 
 
             if (existingIssue) {
@@ -102,7 +449,7 @@ jobs:
                 // Update the existing issue
                 await github.rest.issues.update({
                   owner: context.repo.owner,
-                  repo: 'projectmanagement',
+                  repo: issueRepository,
                   issue_number: existingIssue.number,
                   title: `Update io.kubernetes:client-java from ${current} to ${latest}`,
                   body: issueBody
@@ -111,9 +458,9 @@ jobs:
                 // Add a comment to notify about the update
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
-                  repo: 'projectmanagement',
+                  repo: issueRepository,
                   issue_number: existingIssue.number,
-                  body: `🔄 **Issue updated**: A newer version (${latest}) is now available. The issue has been updated to reflect the latest version.`
+                  body: `🔄 **Issue updated**: A newer version (${latest}) is now available. The issue has been updated to reflect the latest version.\n\nA PR has been created: ${prUrl}`
                 });
                 
                 console.log(`Updated issue #${existingIssue.number} to target version ${latest}`);
@@ -124,7 +471,7 @@ jobs:
               // Create new issue
               await github.rest.issues.create({
                 owner: context.repo.owner,
-                repo: 'projectmanagement',
+                repo: issueRepository,
                 title: `Update io.kubernetes:client-java from ${current} to ${latest}`,
                 body: issueBody,
                 labels: ['dependency-update', 'kubernetes-client']
