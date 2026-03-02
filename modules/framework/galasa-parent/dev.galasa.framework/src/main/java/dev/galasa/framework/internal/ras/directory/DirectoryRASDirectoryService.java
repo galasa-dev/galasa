@@ -256,4 +256,10 @@ public class DirectoryRASDirectoryService implements IResultArchiveStoreDirector
         return matchingRuns;
 
     }
+
+    @Override
+    public boolean isHealthy() throws ResultArchiveStoreException {
+        // Assume file system always healthy
+        return true;
+    }
 }
