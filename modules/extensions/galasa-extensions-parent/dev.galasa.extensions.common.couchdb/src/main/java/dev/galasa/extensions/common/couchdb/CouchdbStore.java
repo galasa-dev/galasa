@@ -36,6 +36,7 @@ import dev.galasa.extensions.common.api.HttpClientFactory;
 import dev.galasa.extensions.common.api.HttpRequestFactory;
 import dev.galasa.extensions.common.couchdb.pojos.IdRev;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
+import dev.galasa.extensions.common.couchdb.pojos.UpResponse;
 import dev.galasa.extensions.common.couchdb.pojos.ViewResponse;
 import dev.galasa.extensions.common.couchdb.pojos.ViewRow;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -325,5 +326,17 @@ public abstract class CouchdbStore {
             }
         }
         return isExpectedStatusCode;
+    }
+
+    /**
+     * Checks the health status of the CouchDB server by calling the /_up endpoint.
+     * 
+     * @return UpResponse containing the health status
+     * @throws CouchdbException if there was a problem accessing the CouchDB store
+     */
+    public UpResponse getHealth() throws CouchdbException {
+        HttpGet getHealthRequest = httpRequestFactory.getHttpGetRequest(storeUri + "/_up");
+        String responseEntity = sendHttpRequest(getHealthRequest, HttpStatus.SC_OK);
+        return gson.fromJson(responseEntity, UpResponse.class);
     }
 }
