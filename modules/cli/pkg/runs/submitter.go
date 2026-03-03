@@ -100,7 +100,7 @@ func (submitter *Submitter) executePortfolio(portfolio *Portfolio,
 	var finishedRuns map[string]*TestRun
 	var lostRuns map[string]*TestRun
 	finishedRuns, lostRuns, err = submitter.executeSubmitRuns(
-		params, readyRuns, runOverrides)
+		params, readyRuns)
 
 	// Report on the results.
 	if err == nil {
@@ -144,7 +144,6 @@ func reportRendedImages(finishedRuns map[string]*TestRun, submitter *Submitter) 
 func (submitter *Submitter) executeSubmitRuns(
 	params utils.RunsSubmitCmdValues,
 	readyRuns []TestRun,
-	runOverrides map[string]string,
 ) (map[string]*TestRun, map[string]*TestRun, error) {
 
 	var err error
@@ -181,7 +180,7 @@ func (submitter *Submitter) executeSubmitRuns(
 		for len(submittedRuns) < throttle && len(readyRuns) > 0 {
 
 			readyRuns, err = submitter.submitRun(params.GroupName, readyRuns, submittedRuns,
-				lostRuns, &runOverrides, params.Trace, currentSystemUser, params.User, params.RequestType, params.Tags)
+				lostRuns, params.Trace, currentSystemUser, params.User, params.RequestType, params.Tags)
 
 			if err != nil {
 				// Ignore the error and continue to process the list of available runs.
@@ -315,7 +314,6 @@ func (submitter *Submitter) submitRun(
 	readyRuns []TestRun,
 	submittedRuns map[string]*TestRun,
 	lostRuns map[string]*TestRun,
-	runOverrides *map[string]string, // This doesn't appear to be used. Why not ?
 	trace bool,
 	requestor string,
 	user string,
@@ -359,6 +357,12 @@ func (submitter *Submitter) submitRun(
 					nextRun.SubmissionId = *submittedRun.SubmissionId
 				}
 				nextRun.Name = *submittedRun.Name
+
+				nextRun.Tags = submittedRun.GetTags()
+
+				if submittedRun.WebUiUrl != nil {
+					nextRun.WebUiUrl = *submittedRun.WebUiUrl
+				}
 
 				submittedRuns[nextRun.Name] = &nextRun
 
@@ -630,6 +634,7 @@ func (submitter *Submitter) buildListOfRunsToSubmit(portfolio *Portfolio, runOve
 	log.Printf("buildListOfRunsToSubmit - portfolio %v, runOverrides %v", portfolio, runOverrides)
 	readyRuns := make([]TestRun, 0, len(portfolio.Classes))
 	currentSystemUser := submitter.GetCurrentSystemUserName()
+	isLocal := submitter.launcher.IsLocal()
 	for _, portfolioTest := range portfolio.Classes {
 		newTestrun := TestRun{
 			Bundle:         portfolioTest.Bundle,
@@ -642,6 +647,7 @@ func (submitter *Submitter) buildListOfRunsToSubmit(portfolio *Portfolio, runOve
 			Overrides:      make(map[string]string, 0),
 			GherkinUrl:     portfolioTest.GherkinUrl,
 			GherkinFeature: submitter.getFeatureFromGherkinUrl(portfolioTest.GherkinUrl),
+			IsLocal:        isLocal,
 		}
 
 		// load the run overrides

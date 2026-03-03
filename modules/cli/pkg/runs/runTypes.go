@@ -24,6 +24,8 @@ type TestRun struct {
 	SubmissionId   string            `yaml:"submissionId" json:"submissionId"`
 	RunId          string            `yaml:"runId,omitempty" json:"runId,omitempty"`
 	Tags           []string          `yaml:"tags,omitempty" json:"tags,omitempty"`
+	IsLocal        bool              `yaml:"isLocal,omitempty" json:"isLocal,omitempty"`
+	WebUiUrl       string            `yaml:"webUiUrl,omitempty" json:"webUiUrl,omitempty"`
 }
 
 type TestMethod struct {
