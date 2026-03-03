@@ -68,4 +68,8 @@ public class CouchdbRunResult implements IRunResult {
         this.path = storeService.getRunArtifactPath(this.testStructure);
     }
 
+    @Override
+    public void loadArtifact(String artifactPath) throws ResultArchiveStoreException {
+        this.path = storeService.getRunArtifactPath(this.testStructure, artifactPath);
+    }
 }

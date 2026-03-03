@@ -145,3 +145,8 @@ func (launcher *MockLauncher) GetStreams() ([]string, error) {
 func (launcher *MockLauncher) GetTestCatalog(stream string) (TestCatalog, error) {
 	return nil, nil
 }
+
+// IsLocal returns false for the mock launcher
+func (launcher *MockLauncher) IsLocal() bool {
+	return false
+}

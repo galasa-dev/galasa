@@ -16,6 +16,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import dev.galasa.framework.api.ras.internal.routes.RunArtifactsRoute;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -23,6 +26,8 @@ import dev.galasa.framework.spi.ResultArchiveStoreException;
 public class ArtifactsProperties implements IRunRootArtifact {
 
     private RunArtifactsRoute runsRoute;
+
+    private static final Log logger = LogFactory.getLog(ArtifactsProperties.class);
 
     public ArtifactsProperties(RunArtifactsRoute runsRoute) {
         this.runsRoute = runsRoute;
@@ -40,8 +45,12 @@ public class ArtifactsProperties implements IRunRootArtifact {
             
             JsonElement path = artifactObject.get("path");
             JsonElement contentType = artifactObject.get("contentType");
+
             if ((path != JsonNull.INSTANCE) && (contentType != JsonNull.INSTANCE)) {
-                artifactsProperties.put(path.getAsString(), contentType.getAsString());
+                String pathAsString = path.getAsString();
+                String contentTypeAsString = contentType.getAsString();
+                logger.info("Content type detected: path:"+pathAsString+" content type:"+contentTypeAsString);
+                artifactsProperties.put(pathAsString, contentTypeAsString);
             }
         }
         

@@ -62,6 +62,11 @@ public class MockRunResult implements IRunResult {
         isLoadingArtifactsEnabled = true;
     }
 
+    @Override
+    public void loadArtifact(String artifactPath) throws ResultArchiveStoreException {
+        isLoadingArtifactsEnabled = true;
+    }
+
     public boolean isDiscarded() {
         return this.isDiscarded;
     }

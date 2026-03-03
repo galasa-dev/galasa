@@ -85,15 +85,24 @@ public abstract class RunArtifactsRoute extends RunsRoute {
      * @throws IOException
      */
     public JsonArray getArtifacts(IRunResult run) throws ResultArchiveStoreException, IOException {
+        run.loadArtifacts();
 
         JsonArray artifactRecords = new JsonArray();
         List<Path> artifactPaths = getArtifactPaths(run.getArtifactsRoot(), new ArrayList<>());
+
         for (Path artifactPath : artifactPaths) {
-            JsonObject artifactRecord = getArtifactAsJsonObject("/artifacts" + artifactPath.toString(), fileSystem.probeContentType(artifactPath), fileSystem.size(artifactPath));
+
+            String contentType = fileSystem.probeContentType(artifactPath);
+            long contentSize = fileSystem.size(artifactPath);
+            String pathAsString = artifactPath.toString();
+            
+            JsonObject artifactRecord = getArtifactAsJsonObject("/artifacts" + pathAsString, contentType, contentSize);
             artifactRecords.add(artifactRecord);
         }
+
         return artifactRecords;
     }
+
 
     /**
      * Walks through an artifact directory recursively, collecting each artifact and

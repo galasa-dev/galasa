@@ -23,4 +23,6 @@ public interface IRunResult {
 
     void loadArtifacts() throws ResultArchiveStoreException;
 
+    void loadArtifact(String artifactPath) throws ResultArchiveStoreException;
+
 }

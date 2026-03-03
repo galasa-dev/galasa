@@ -143,45 +143,17 @@ func TestMissingStreamNameFlagReturnsBadRequest(t *testing.T) {
 	assert.Equal(t, expectedOutput, err.Error())
 }
 
-func TestMultipleStreamByNameGetFormatsResultsOk(t *testing.T) {
+func TestGetUnknownStreamByNameReturnsEmptyOutput(t *testing.T) {
 
 	//Given..
-	var streamName = "mystream"
-
-	body := `
-{
-  "apiVersion": "galasa-dev/v1alpha1",
-  "kind": "GalasaStream",
-  "metadata": {
-    "name": "mystream",
-    "url": "http://localhost:8080/api/streams/myStream",
-    "description": "A stream which I use to..."
-  },
-  "data": {
-    "isEnabled": true,
-    "repository": {
-      "url": "http://mymavenrepo.host/testmaterial"
-    },
-    "obrs": [
-      {
-        "groupId": "com.ibm.zosadk.k8s",
-        "artifactId": "com.ibm.zosadk.k8s.obr",
-        "version": "0.1.0-SNAPSHOT"
-      }
-    ],
-    "testCatalog": {
-      "url": "http://mymavenrepo.host/testmaterial/com.ibm.zosadk.k8s/com.ibm.zosadk.k8s.obr/0.1.0-SNAPSHOT/testcatalog.yaml"
-    }
-  }
-}
-`
+	var streamName = "unknown-stream"
 
 	getStreamsInteraction := utils.NewHttpInteraction("/streams/"+streamName, http.MethodGet)
 	getStreamsInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("ClientApiVersion", "myVersion")
-		writer.WriteHeader(http.StatusOK)
-		writer.Write([]byte(body))
+		writer.WriteHeader(http.StatusNotFound)
+		writer.Write([]byte(`{ "error": "Stream not found!" }`))
 	}
 	mockByteReader := utils.NewMockByteReader()
 
@@ -195,10 +167,7 @@ func TestMultipleStreamByNameGetFormatsResultsOk(t *testing.T) {
 	apiClient := api.InitialiseAPI(server.Server.URL)
 	console := utils.NewMockConsole()
 
-	expectedOutput := `name     state   description
-mystream enabled A stream which I use to...
-
-Total:1
+	expectedOutput := `Total:0
 `
 
 	err := GetStreams(streamName, "summary", apiClient, console, mockByteReader)

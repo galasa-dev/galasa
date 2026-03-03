@@ -5,10 +5,10 @@ plugins {
 description = 'MQ Manager'
 
 dependencies {
-    implementation 'javax.jms:javax.jms-api'
+    api 'javax.jms:javax.jms-api'
     implementation 'com.ibm.mq:com.ibm.mq.allclient'
 	implementation 'commons-codec:commons-codec'
-  
+    implementation 'org.json:json'  
 }
 
 // Note: These values are consumed by the parent build process

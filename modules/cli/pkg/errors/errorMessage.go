@@ -438,6 +438,16 @@ var (
 	GALASA_ERROR_DELETE_STREAMS_SERVER_REPORTED_ERROR    = NewMessageType("GAL1245E: Failed to delete stream %s. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1245, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_DELETE_STREAMS_EXPLANATION_NOT_JSON     = NewMessageType("GAL1246E: Failed to delete stream %s. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1246, STACK_TRACE_NOT_WANTED)
 
+	// Streams set errors
+	GALASA_ERROR_INVALID_STREAM_DESCRIPTION              = NewMessageType("GAL1283E: Invalid stream description provided. The description provided with the --description flag cannot be an empty string, and must only contain characters in the Latin-1 character set.", 1283, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_URL                             = NewMessageType("GAL1284E: Invalid URL provided. The URL '%s' is not a valid URL. Reason: '%s'", 1284, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_STREAM_REQUEST_FAILED               = NewMessageType("GAL1285E: An attempt to set stream '%s' failed. Sending the update request to the Galasa service failed. Cause is %v", 1285, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_STREAM_NO_RESPONSE_CONTENT          = NewMessageType("GAL1286E: An attempt to set stream '%s' failed. Unexpected http status code %v received from the server.", 1286, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_STREAM_RESPONSE_BODY_UNREADABLE     = NewMessageType("GAL1287E: An attempt to set stream '%s' failed. Unexpected http status code %v received from the server. Error details from the server could not be read. Cause: %s", 1287, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_STREAM_UNPARSEABLE_CONTENT          = NewMessageType("GAL1288E: An attempt to set stream '%s' failed. Unexpected http status code %v received from the server. Error details from the server are not in a valid json format. Cause: '%s'", 1288, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_STREAM_SERVER_REPORTED_ERROR        = NewMessageType("GAL1289E: An attempt to set stream '%s' failed. Unexpected http status code %v received from the server. Error details from the server are: '%s'", 1289, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SET_STREAM_EXPLANATION_NOT_JSON         = NewMessageType("GAL1290E: An attempt to set stream '%s' failed. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1290, STACK_TRACE_NOT_WANTED)
+
 	// When getting multiple monitors...
 	GALASA_ERROR_GET_MONITORS_REQUEST_FAILED           = NewMessageType("GAL1218E: Failed to get monitors. Sending the get request to the Galasa service failed. Cause is %v", 1218, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_GET_MONITORS_NO_RESPONSE_CONTENT      = NewMessageType("GAL1219E: Failed to get monitors. Unexpected http status code %v received from the server.", 1219, STACK_TRACE_NOT_WANTED)
@@ -529,5 +539,5 @@ var (
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please increment this value.
     // >>>
-    GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1283;
+    GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1291;
 )

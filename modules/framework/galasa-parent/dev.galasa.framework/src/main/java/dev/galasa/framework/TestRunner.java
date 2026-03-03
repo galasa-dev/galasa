@@ -94,7 +94,7 @@ public class TestRunner extends BaseTestRunner {
                 String streamName = AbstractManager.nulled(run.getStream());
                 new MavenRepositoryListBuilder(this.mavenRepository, this.cps)
                     .addMavenRepositories(streamName, run.getRepository());
-                new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps)
+                new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps, this.timeService)
                     .addOBRsToRepoAdmin(streamName, run.getOBR());
 
 
@@ -104,6 +104,7 @@ public class TestRunner extends BaseTestRunner {
 
 
             } catch (Exception ex) {
+                this.testStructure.setResult(Result.envfail(ex).getName());
                 updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
                 throw new TestRunException(ex.getMessage(),ex);
             }
@@ -118,6 +119,7 @@ public class TestRunner extends BaseTestRunner {
             switch(this.runType) {
             case TEST:
                 heartbeat = createBeatingHeart(framework);
+                timeoutMonitor = createTimeoutMonitor(framework);
                 incrimentMetric(dss,run);
                 break;
             case SHARED_ENVIRONMENT_BUILD:
@@ -220,6 +222,9 @@ public class TestRunner extends BaseTestRunner {
 
         logger.debug("Stopping heartbeat...");
         stopHeartbeat();
+        
+        logger.debug("Stopping timeout monitor...");
+        stopTimeoutMonitor();
 
         // Record all the CPS properties that were accessed
         saveUsedCPSPropertiesToArtifact(this.framework.getRecordProperties(), this.fileSystem, this.ras);

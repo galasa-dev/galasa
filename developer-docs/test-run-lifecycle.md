@@ -7,12 +7,16 @@ When a test runs, it passes through many states which may be apparent to anyone 
 title: Test run states
 ---
 stateDiagram-v2
-    [*] --> queued : submitted
-    waiting --> queued : re-queued
-    queued  --> allocated
-    queued --> cancelling : cancel
+    [*] --> queued :  api server submits the run
+    waiting --> queued : re-queued after a back-off time has expired
+    queued: "Queued" awaiting and engine controller to scheduled it
+    queued  --> allocated : Engine controller creates a pod
+    allocated: "Allocated" pod has been created to run the test
+    queued --> cancelling : cancel 
+    note right of cancelling: User has cancelled the test. It can't now be scheduled by the engine controller
     cancelling --> finished
-    allocated --> started
+    allocated --> started : kube starts code running on the pod
+    started: "Started" test pod is running java code
     started --> building
     building --> provstart
     provstart --> generating
@@ -25,4 +29,6 @@ stateDiagram-v2
     finished --> [*]
 ```
 
+
 If a manager used by the test fails to acquire the required resources, it enters the `waiting` state, and stays there for a while, then gets re-queued.
+

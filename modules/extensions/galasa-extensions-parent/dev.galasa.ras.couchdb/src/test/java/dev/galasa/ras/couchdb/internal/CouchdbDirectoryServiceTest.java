@@ -21,12 +21,17 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
+import com.google.gson.JsonObject;
+
 import dev.galasa.extensions.common.couchdb.pojos.ViewResponse;
 import dev.galasa.extensions.common.couchdb.pojos.ViewRow;
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
 import dev.galasa.extensions.common.mocks.BaseHttpInteraction;
 import dev.galasa.extensions.common.mocks.HttpInteraction;
 import dev.galasa.extensions.common.mocks.MockCloseableHttpClient;
+import dev.galasa.extensions.common.mocks.MockCloseableHttpResponse;
+import dev.galasa.extensions.common.mocks.MockHttpEntity;
+import dev.galasa.extensions.common.mocks.MockStatusLine;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.IRunResult;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
@@ -40,6 +45,7 @@ import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTestName;
 import dev.galasa.framework.spi.ras.RasSortField;
+import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.ras.couchdb.internal.mocks.CouchdbTestFixtures;
 import dev.galasa.ras.couchdb.internal.mocks.MockLogFactory;
 import dev.galasa.ras.couchdb.internal.pojos.FoundRuns;
@@ -235,7 +241,7 @@ public class CouchdbDirectoryServiceTest extends BaseCouchdbOperationTest {
         RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(Instant.EPOCH);
 
         // When...
-        CouchdbRasException thrown = catchThrowableOfType(() -> directoryService.getRuns(queuedFrom), CouchdbRasException.class);
+        CouchdbRasException thrown = catchThrowableOfType(CouchdbRasException.class, () -> directoryService.getRuns(queuedFrom));
 
         // Then...
         assertThat(thrown).isNotNull();
@@ -264,7 +270,7 @@ public class CouchdbDirectoryServiceTest extends BaseCouchdbOperationTest {
         RasSearchCriteriaQueuedFrom queuedFrom = new RasSearchCriteriaQueuedFrom(Instant.EPOCH);
 
         // When...
-        CouchdbRasException thrown = catchThrowableOfType(() -> directoryService.getRuns(queuedFrom), CouchdbRasException.class);
+        CouchdbRasException thrown = catchThrowableOfType(CouchdbRasException.class, () -> directoryService.getRuns(queuedFrom));
 
         // Then...
         assertThat(thrown).isNotNull();
@@ -646,9 +652,9 @@ public class CouchdbDirectoryServiceTest extends BaseCouchdbOperationTest {
         CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
 
         // When...
-        ResultArchiveStoreException thrown = catchThrowableOfType(() -> {
+        ResultArchiveStoreException thrown = catchThrowableOfType(ResultArchiveStoreException.class, () -> {
             directoryService.getRunsByRunName(run1Name);
-        }, ResultArchiveStoreException.class);
+        });
 
         // Then...
         // The assertions in the interactions should not have failed
@@ -710,5 +716,363 @@ public class CouchdbDirectoryServiceTest extends BaseCouchdbOperationTest {
         assertThat(run.getRunId()).isEqualTo("cdb-" + run1Id);
         assertThat((TestStructureCouchdb)run.getTestStructure()).usingRecursiveComparison().isEqualTo(mockRun1);
         assertThat((String)run.getTestStructure().getGroup()).isEqualTo(groupName);
+    }
+
+    //------------------------------------------
+    //
+    // Tests for getRunArtifactPath methods
+    //
+    //------------------------------------------
+
+    @Test
+    public void testGetRunArtifactPathWithNoArtifactRecordIdsReturnsEmptyRoot() throws Exception {
+        // Given...
+        TestStructureCouchdb mockRun = createRunTestStructure("run1-id", "run1", "none");
+        mockRun.setArtifactRecordIds(null);
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(List.of(), mockLogFactory);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        java.nio.file.Path artifactPath = directoryService.getRunArtifactPath(mockRun);
+
+        // Then...
+        assertThat(artifactPath).isNotNull();
+        assertThat(artifactPath.toString()).isEqualTo("/");
+    }
+
+    @Test
+    public void testGetRunArtifactPathWithEmptyArtifactRecordIdsReturnsEmptyRoot() throws Exception {
+        // Given...
+        TestStructureCouchdb mockRun = createRunTestStructure("run1-id", "run1", "none");
+        mockRun.setArtifactRecordIds(new ArrayList<>());
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(List.of(), mockLogFactory);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        java.nio.file.Path artifactPath = directoryService.getRunArtifactPath(mockRun);
+
+        // Then...
+        assertThat(artifactPath).isNotNull();
+        assertThat(artifactPath.toString()).isEqualTo("/");
+    }
+
+    @Test
+    public void testGetRunArtifactPathWithNotFoundArtifactRecordReturnsEmptyRoot() throws Exception {
+        // Given...
+        TestStructureCouchdb mockRun = createRunTestStructure("run1-id", "run1", "none");
+        mockRun.setArtifactRecordIds(List.of("artifact-id-1"));
+
+        String expectedUri = "http://my.uri/galasa_artifacts/artifact-id-1";
+        List<HttpInteraction> interactions = List.of(
+            new BaseHttpInteraction(expectedUri, HttpStatus.SC_NOT_FOUND) {
+                @Override
+                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+                    super.validateRequest(host, request);
+                    assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+                }
+            }
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        java.nio.file.Path artifactPath = directoryService.getRunArtifactPath(mockRun);
+
+        // Then...
+        assertThat(artifactPath).isNotNull();
+        assertThat(artifactPath.toString()).isEqualTo("/");
+    }
+
+    @Test
+    public void testGetRunArtifactPathWithSpecificArtifactNotFoundReturnsEmptyRoot() throws Exception {
+        // Given...
+        TestStructureCouchdb mockRun = createRunTestStructure("run1-id", "run1", "none");
+        mockRun.setArtifactRecordIds(List.of("artifact-id-1"));
+
+        String expectedUri = "http://my.uri/galasa_artifacts/artifact-id-1";
+        List<HttpInteraction> interactions = List.of(
+            new BaseHttpInteraction(expectedUri, HttpStatus.SC_NOT_FOUND) {
+                @Override
+                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+                    super.validateRequest(host, request);
+                    assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+                }
+            }
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        java.nio.file.Path artifactPath = directoryService.getRunArtifactPath(mockRun, "specific-artifact.txt");
+
+        // Then...
+        assertThat(artifactPath).isNotNull();
+        assertThat(artifactPath.toString()).isEqualTo("/");
+    }
+
+    @Test
+    public void testGetRunArtifactPathWithErrorResponseThrowsException() throws Exception {
+        // Given...
+        TestStructureCouchdb mockRun = createRunTestStructure("run1-id", "run1", "none");
+        mockRun.setArtifactRecordIds(List.of("artifact-id-1"));
+
+        String expectedUri = "http://my.uri/galasa_artifacts/artifact-id-1";
+        List<HttpInteraction> interactions = List.of(
+            new BaseHttpInteraction(expectedUri, HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+                @Override
+                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+                    super.validateRequest(host, request);
+                    assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+                }
+            }
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        CouchdbRasException thrown = catchThrowableOfType(
+            CouchdbRasException.class,
+            () -> directoryService.getRunArtifactPath(mockRun)
+        );
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("Unable to find artifacts");
+    }
+
+    @Test
+    public void testGetRunArtifactPathWithSpecificArtifactStopsSearchingAfterFound() throws Exception {
+        // Given...
+        TestStructureCouchdb mockRun = createRunTestStructure("run1-id", "run1", "none");
+        mockRun.setArtifactRecordIds(List.of("artifact-id-1", "artifact-id-2", "artifact-id-3"));
+
+        JsonObject artifactRecord1 = new JsonObject();
+        artifactRecord1.addProperty("_id", "artifact-id-1");
+        artifactRecord1.addProperty("_rev", "1-abc");
+        
+        JsonObject attachments = new JsonObject();
+        JsonObject file1 = new JsonObject();
+        file1.addProperty("content_type", "text/plain");
+        file1.addProperty("length", 100);
+        attachments.add("file1.txt", file1);
+        
+        JsonObject targetFile = new JsonObject();
+        targetFile.addProperty("content_type", "text/plain");
+        targetFile.addProperty("length", 200);
+        attachments.add("target.txt", targetFile);
+        
+        artifactRecord1.add("_attachments", attachments);
+        
+        GalasaGson gson = new GalasaGson();
+        String artifactRecord1Json = gson.toJson(artifactRecord1);
+
+        // Only the first artifact record should be requested since we find the target artifact there
+        List<HttpInteraction> interactions = List.of(
+            new BaseHttpInteraction("http://my.uri/galasa_artifacts/artifact-id-1", HttpStatus.SC_OK) {
+                @Override
+                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+                    super.validateRequest(host, request);
+                    assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+                }
+
+                @Override
+                public MockCloseableHttpResponse getResponse() {
+                    MockCloseableHttpResponse response = new MockCloseableHttpResponse();
+                    MockStatusLine statusLine = new MockStatusLine();
+                    statusLine.setStatusCode(HttpStatus.SC_OK);
+                    response.setStatusLine(statusLine);
+                    response.setEntity(new MockHttpEntity(artifactRecord1Json));
+                    return response;
+                }
+            }
+            // No interactions for artifact-id-2 or artifact-id-3 should occur
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        java.nio.file.Path artifactPath = directoryService.getRunArtifactPath(mockRun, "target.txt");
+
+        // Then...
+        assertThat(artifactPath).isNotNull();
+        // The mock interactions will fail if artifact-id-2 or artifact-id-3 are requested
+    }
+
+    @Test
+    public void testGetRunArtifactPathLoadsAllArtifactsFromMultipleRecords() throws Exception {
+        // Given...
+        TestStructureCouchdb mockRun = createRunTestStructure("run1-id", "run1", "none");
+        mockRun.setArtifactRecordIds(List.of("artifact-id-1", "artifact-id-2"));
+
+        GalasaGson gson = new GalasaGson();
+
+        JsonObject artifactRecord1 = new JsonObject();
+        artifactRecord1.addProperty("_id", "artifact-id-1");
+        artifactRecord1.addProperty("_rev", "1-abc");
+
+        JsonObject attachments1 = new JsonObject();
+        JsonObject file1 = new JsonObject();
+        file1.addProperty("content_type", "text/plain");
+        file1.addProperty("length", 100);
+        attachments1.add("file1.txt", file1);
+
+        artifactRecord1.add("_attachments", attachments1);
+        String artifactRecord1Json = gson.toJson(artifactRecord1);
+
+        JsonObject artifactRecord2 = new JsonObject();
+        artifactRecord2.addProperty("_id", "artifact-id-2");
+        artifactRecord2.addProperty("_rev", "1-def");
+
+        JsonObject attachments2 = new JsonObject();
+        JsonObject file2 = new JsonObject();
+        file2.addProperty("content_type", "text/plain");
+        file2.addProperty("length", 200);
+        attachments2.add("file2.txt", file2);
+
+        artifactRecord2.add("_attachments", attachments2);
+        String artifactRecord2Json = gson.toJson(artifactRecord2);
+
+        List<HttpInteraction> interactions = List.of(
+            new BaseHttpInteraction("http://my.uri/galasa_artifacts/artifact-id-1", HttpStatus.SC_OK) {
+                @Override
+                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+                    super.validateRequest(host, request);
+                    assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+                }
+
+                @Override
+                public MockCloseableHttpResponse getResponse() {
+                    MockCloseableHttpResponse response = new MockCloseableHttpResponse();
+                    MockStatusLine statusLine = new MockStatusLine();
+                    statusLine.setStatusCode(HttpStatus.SC_OK);
+                    response.setStatusLine(statusLine);
+                    response.setEntity(new MockHttpEntity(artifactRecord1Json));
+                    return response;
+                }
+            },
+            new BaseHttpInteraction("http://my.uri/galasa_artifacts/artifact-id-2", HttpStatus.SC_OK) {
+                @Override
+                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+                    super.validateRequest(host, request);
+                    assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+                }
+
+                @Override
+                public MockCloseableHttpResponse getResponse() {
+                    MockCloseableHttpResponse response = new MockCloseableHttpResponse();
+                    MockStatusLine statusLine = new MockStatusLine();
+                    statusLine.setStatusCode(HttpStatus.SC_OK);
+                    response.setStatusLine(statusLine);
+                    response.setEntity(new MockHttpEntity(artifactRecord2Json));
+                    return response;
+                }
+            }
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        java.nio.file.Path artifactPath = directoryService.getRunArtifactPath(mockRun);
+
+        // Then...
+        assertThat(artifactPath).isNotNull();
+        // Both artifact records should have been requested (verified by the interactions)
+    }
+
+    @Test
+    public void testGetRunArtifactPathWithSpecificArtifactInSecondRecord() throws Exception {
+        // Given...
+        TestStructureCouchdb mockRun = createRunTestStructure("run1-id", "run1", "none");
+        mockRun.setArtifactRecordIds(List.of("artifact-id-1", "artifact-id-2"));
+
+        GalasaGson gson = new GalasaGson();
+
+        JsonObject artifactRecord1 = new JsonObject();
+        artifactRecord1.addProperty("_id", "artifact-id-1");
+        artifactRecord1.addProperty("_rev", "1-abc");
+
+        JsonObject attachments1 = new JsonObject();
+        JsonObject file1 = new JsonObject();
+        file1.addProperty("content_type", "text/plain");
+        file1.addProperty("length", 100);
+        attachments1.add("file1.txt", file1);
+
+        artifactRecord1.add("_attachments", attachments1);
+        String artifactRecord1Json = gson.toJson(artifactRecord1);
+
+        JsonObject artifactRecord2 = new JsonObject();
+        artifactRecord2.addProperty("_id", "artifact-id-2");
+        artifactRecord2.addProperty("_rev", "1-def");
+
+        JsonObject attachments2 = new JsonObject();
+        JsonObject targetFile = new JsonObject();
+        targetFile.addProperty("content_type", "text/plain");
+        targetFile.addProperty("length", 200);
+        attachments2.add("target.txt", targetFile);
+
+        artifactRecord2.add("_attachments", attachments2);
+        String artifactRecord2Json = gson.toJson(artifactRecord2);
+
+        List<HttpInteraction> interactions = List.of(
+            new BaseHttpInteraction("http://my.uri/galasa_artifacts/artifact-id-1", HttpStatus.SC_OK) {
+                @Override
+                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+                    super.validateRequest(host, request);
+                    assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+                }
+
+                @Override
+                public MockCloseableHttpResponse getResponse() {
+                    MockCloseableHttpResponse response = new MockCloseableHttpResponse();
+                    MockStatusLine statusLine = new MockStatusLine();
+                    statusLine.setStatusCode(HttpStatus.SC_OK);
+                    response.setStatusLine(statusLine);
+                    response.setEntity(new MockHttpEntity(artifactRecord1Json));
+                    return response;
+                }
+            },
+            new BaseHttpInteraction("http://my.uri/galasa_artifacts/artifact-id-2", HttpStatus.SC_OK) {
+                @Override
+                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+                    super.validateRequest(host, request);
+                    assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+                }
+
+                @Override
+                public MockCloseableHttpResponse getResponse() {
+                    MockCloseableHttpResponse response = new MockCloseableHttpResponse();
+                    MockStatusLine statusLine = new MockStatusLine();
+                    statusLine.setStatusCode(HttpStatus.SC_OK);
+                    response.setStatusLine(statusLine);
+                    response.setEntity(new MockHttpEntity(artifactRecord2Json));
+                    return response;
+                }
+            }
+        );
+
+        MockLogFactory mockLogFactory = new MockLogFactory();
+        CouchdbRasStore mockRasStore = fixtures.createCouchdbRasStore(interactions, mockLogFactory);
+        CouchdbDirectoryService directoryService = new CouchdbDirectoryService(mockRasStore, mockLogFactory, new HttpRequestFactoryImpl());
+
+        // When...
+        java.nio.file.Path artifactPath = directoryService.getRunArtifactPath(mockRun, "target.txt");
+
+        // Then...
+        assertThat(artifactPath).isNotNull();
+        // Both artifact records should have been requested since target.txt is in the second one
     }
 }

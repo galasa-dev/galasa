@@ -164,7 +164,6 @@ public enum ServletErrorMessage {
     GAL5104_INVALID_CALLBACK_URL_PROVIDED             (5104, "E: Invalid callback URL provided. The callback URL must be a valid URL. Check your request parameters and try again."),
     GAL5105_INTERNAL_DSS_ERROR                        (5105, "E: Error occurred when trying to access the Dynamic Status Store. Report the problem to your Galasa Ecosystem owner."),
 
-
     // RBAC APIs...
     GAL5119_USER_CANNOT_UPDATE_OWN_PRIORITY           (5119, "E: A user is not allowed to update their own priority. Ask a Galasa service administrator to change your priority instead."),
     GAL5120_INVALID_ACTION_NAME_PROVIDED              (5120, "E: Invalid action name provided."),
@@ -178,12 +177,12 @@ public enum ServletErrorMessage {
     GAL5414_USER_CANNOT_UPDATE_SERVICE_OWNER_ROLE     (5414, "E: A user is not allowed to update the role of the Galasa service owner. Ask a Galasa service administrator to change the list of owners and update the kubernetes configuration of the service."),
 
     // Streams API
-    GAL5418_INVALID_STREAM_NAME                       (5418, "E: Invalid 'name' provided. A valid stream name should always start with 'a'-'z' or 'A'-'Z' and end with 'a'-'z', 'A'-'Z' or 0-9."),
+    GAL5418_INVALID_STREAM_NAME                       (5418, "E: Invalid ''name'' provided. A valid stream name should always start with 'a'-'z' or 'A'-'Z' and end with 'a'-'z', 'A'-'Z' or 0-9."),
     GAL5419_FAILED_TO_GET_STREAM_NAME_FROM_URL        (5419, "E: Failed to retrieve a stream name from the request path. Ensure that you have provided a valid name representing an existing stream in your request and try again"),
     GAL5420_ERROR_STREAM_NOT_FOUND                    (5420, "E: Unable to retrieve a stream with the given stream name. No such stream exists."),
     GAL5426_FAILED_TO_DELETE_STREAM                   (5426, "E: Failed to delete a test stream with the given name from the Configuration Property Store. The Configuration Property Store might be experiencing temporary issues. Report the problem to your Galasa service owner."),
-    GAL5427_MISSING_STREAM_NAME                       (5427, "E: Error occurred because the Galasa Stream is invalid. The 'metadata' field cannot be empty. The field 'name' is mandatory for the type GalasaStream."),
-    GAL5429_ERROR_STREAM_ALREADY_EXISTS               (5279, "E: Error occurred when trying to create a stream with the given name. A stream with the provided name already exists."),
+    GAL5427_MISSING_STREAM_NAME                       (5427, "E: Failed to create or update a Galasa Stream. No stream name was provided. Check that your request payload is correct and try again."),
+    GAL5429_ERROR_STREAM_ALREADY_EXISTS               (5429, "E: Error occurred when trying to create a stream with the given name. A stream with the provided name already exists."),
     GAL5432_ERROR_STREAM_DOES_NOT_EXIST               (5432, "E: Error occurred. A stream with the provided name does not exist. Check that your provided stream name is correct and try again."),
     GAL5433_FAILED_TO_SET_STREAM                      (5433, "E: Failed to set a stream with the given name in the Configuration Property Store. The Configuration Property Store might be experiencing temporary issues. Report the problem to your Galasa service owner."),
     GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS      (5434, "E: Invalid GalasaStream provided. One or more of the following mandatory fields are missing from the ''{0}'' field: [{1}]. Check that your request payload is correct and try again."),
@@ -210,6 +209,9 @@ public enum ServletErrorMessage {
     GAL5446_ERROR_SETTING_TAG                         (5446, "E: Internal server error occurred when trying to set the tag with the given name. Report the problem to your Galasa service administrator"),
     GAL5447_MISSING_REQUIRED_TAG_FIELD                (5447, "E: Invalid GalasaTag provided. The required field ''{0}'' was missing from the request payload. Check your request payload and try again."),
     GAL5448_INVALID_TAG_PRIORITY_PROVIDED             (5448, "E: Invalid tag priority provided. The tag priority must be a whole number. Check your request payload and try again."),
+
+    // RAS Health API
+    GAL5449_RAS_NOT_AVAILABLE                         (5449, "E: The RAS is not available for requests at this time. The RAS might be experiencing server issues. Contact your Galasa service administrator."),
     ;
 
     // >>>
@@ -218,7 +220,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5449;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5450;
 
 
     private String template ;

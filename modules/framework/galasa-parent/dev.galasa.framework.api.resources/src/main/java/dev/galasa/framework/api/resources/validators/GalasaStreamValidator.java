@@ -13,31 +13,29 @@ import com.google.gson.JsonObject;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static dev.galasa.framework.api.common.resources.ResourceAction.*;
+import static dev.galasa.framework.api.common.resources.StreamValidator.*;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
 import dev.galasa.framework.api.common.resources.ResourceAction;
+import dev.galasa.framework.api.common.resources.StreamValidator;
 
 public class GalasaStreamValidator extends GalasaResourceValidator<JsonObject> {
 
-    private static final String MAVEN_REPOSITORY_KEY = "repository";
-    private static final String TESTCATALOG_KEY = "testCatalog";
-    private static final String OBRS_KEY = "obrs";
+    private final StreamValidator streamValidator;
 
     private static final List<String> REQUIRED_STREAM_DATA_FIELDS = List.of(MAVEN_REPOSITORY_KEY, OBRS_KEY, TESTCATALOG_KEY);
 
     private static final List<String> REQUIRED_STREAM_MAVEN_REPO_FIELDS = List.of("url");
     private static final List<String> REQUIRED_STREAM_TESTCATALOG_FIELDS = List.of("url");
-    private static final List<String> REQUIRED_STREAM_OBR_FIELDS = List.of("group-id", "artifact-id", "version");
+    private static final List<String> REQUIRED_STREAM_OBR_FIELDS = List.of(OBR_GROUP_ID_KEY, OBR_ARTIFACT_ID_KEY, OBR_VERSION_KEY);
 
     public GalasaStreamValidator(ResourceAction action) {
         super(action);
+        this.streamValidator = new StreamValidator();
     }
 
     @Override
@@ -79,12 +77,9 @@ public class GalasaStreamValidator extends GalasaResourceValidator<JsonObject> {
 
     private void validateStreamUrl(String fieldName, String urlToCheck) {
         try {
-            if (urlToCheck != null) {
-                new URL(urlToCheck).toURI();
-            }
-        } catch (MalformedURLException | URISyntaxException e) {
-            ServletError error = new ServletError(GAL5436_INVALID_STREAM_URL_PROVIDED, fieldName);
-            validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
+            streamValidator.validateUrl(fieldName, urlToCheck);
+        } catch (InternalServletException e) {
+            validationErrors.add(e.getMessage());
         }
     }
 
@@ -123,23 +118,20 @@ public class GalasaStreamValidator extends GalasaResourceValidator<JsonObject> {
     }
 
     private void validateStreamMetadata(JsonObject streamJson) {
-
         JsonObject metadata = streamJson.get("metadata").getAsJsonObject();
 
         // Check for name as we will delete the stream by name
         if (metadata.has("name")) {
-
             JsonElement name = metadata.get("name");
-            boolean isStreamNameValid = isAlphanumWithDashes(name.getAsString());
 
-            if(!isStreamNameValid) {
-                validationErrors.add(GAL5418_INVALID_STREAM_NAME.toString());
+            try {
+                streamValidator.validateStreamName(name.getAsString());
+            } catch (InternalServletException e) {
+                validationErrors.add(e.getMessage());
             }
-
         } else {
             ServletError error = new ServletError(GAL5427_MISSING_STREAM_NAME);
             validationErrors.add(new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST).getMessage());
         }
-
     }
 }

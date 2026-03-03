@@ -587,6 +587,11 @@ func (launcher *JvmLauncher) GetTestCatalog(stream string) (TestCatalog, error) 
 	return nil, nil
 }
 
+// IsLocal returns true as this launcher runs tests locally
+func (launcher *JvmLauncher) IsLocal() bool {
+	return true
+}
+
 // -----------------------------------------------------------------------------
 // Local functions
 // -----------------------------------------------------------------------------

@@ -70,6 +70,11 @@ public class MockFileSystemProvider extends FileSystemProvider {
     }
 
     @Override
+    public Path getPath(URI uri) {
+        return mockFS.getPath(uri.getPath());
+    }
+
+    @Override
     public DirectoryStream<Path> newDirectoryStream(Path dir, Filter<? super Path> filter) throws IOException {
         return new MockDirectoryStream(mockFS, filter, dir.toString());
     }
@@ -148,11 +153,6 @@ public class MockFileSystemProvider extends FileSystemProvider {
     @Override
     public FileSystem getFileSystem(URI uri) {
         throw new UnsupportedOperationException("Unimplemented method 'getFileSystem'");
-    }
-
-    @Override
-    public Path getPath(URI uri) {
-        throw new UnsupportedOperationException("Unimplemented method 'getPath'");
     }
 
     @Override

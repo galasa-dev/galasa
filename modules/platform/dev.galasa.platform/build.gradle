@@ -67,7 +67,7 @@ dependencies {
 
         api 'com.ibm.db2.jcc:db2jcc:db2jcc4'
 
-        api 'com.ibm.mq:com.ibm.mq.allclient:9.2.3.0'
+        api 'com.ibm.mq:com.ibm.mq.allclient:9.4.5.0'
 
         api 'com.github.mwiede:jsch:2.27.6'
 
@@ -254,9 +254,9 @@ dependencies {
 
         api 'org.bitbucket.b_c:jose4j:0.9.6'
 
-        api 'org.bouncycastle:bcpkix-jdk18on:1.82'
-        api 'org.bouncycastle:bcprov-jdk18on:1.82'
-        api 'org.bouncycastle:bcutil-jdk18on:1.82'
+        api 'org.bouncycastle:bcpkix-jdk18on:1.83'
+        api 'org.bouncycastle:bcprov-jdk18on:1.83'
+        api 'org.bouncycastle:bcutil-jdk18on:1.83'
 
         api 'org.checkerframework:checker-qual:3.43.0'
         api 'org.codehaus.mojo:animal-sniffer-annotations:1.24'
@@ -264,6 +264,8 @@ dependencies {
         api 'org.codehaus.plexus:plexus-utils:3.0.24'
 
         api 'org.jetbrains.kotlin:kotlin-osgi-bundle:2.2.0'
+
+        api 'org.json:json:20251224'
 
         api 'org.junit.jupiter:junit-jupiter:5.10.2'
 

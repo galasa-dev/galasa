@@ -45,7 +45,20 @@ func (*SummaryFormatter) FormatRuns(testResultsData []FormattableTest) (string, 
 	if totalResults > 0 {
 		var table [][]string
 
-		var headers = []string{HEADER_SUBMITTED_TIME, HEADER_RUNNAME, HEADER_REQUESTOR, HEADER_STATUS, HEADER_RESULT, HEADER_TEST_NAME, HEADER_GROUP, HEADER_TAGS, HEADER_WEBUI_URL}
+		includeWebUiUrl := false
+		for _, run := range testResultsData {
+			if !run.IsLocal {
+				includeWebUiUrl = true
+				break
+			}
+		}
+
+		var headers []string
+		if includeWebUiUrl {
+			headers = []string{HEADER_SUBMITTED_TIME, HEADER_RUNNAME, HEADER_REQUESTOR, HEADER_STATUS, HEADER_RESULT, HEADER_TEST_NAME, HEADER_GROUP, HEADER_TAGS, HEADER_WEBUI_URL}
+		} else {
+			headers = []string{HEADER_SUBMITTED_TIME, HEADER_RUNNAME, HEADER_REQUESTOR, HEADER_STATUS, HEADER_RESULT, HEADER_TEST_NAME, HEADER_GROUP, HEADER_TAGS}
+		}
 
 		table = append(table, headers)
 		for _, run := range testResultsData {
@@ -59,7 +72,11 @@ func (*SummaryFormatter) FormatRuns(testResultsData []FormattableTest) (string, 
 				accumulateResults(resultCountsMap, run)
 
 				tagsList := strings.Join(run.Tags[:], ",")
-				line = append(line, submittedTimeReadable, run.Name, run.Requestor, run.Status, run.Result, run.TestName, run.Group, tagsList, run.WebUiUrl)
+				if includeWebUiUrl {
+					line = append(line, submittedTimeReadable, run.Name, run.Requestor, run.Status, run.Result, run.TestName, run.Group, tagsList, run.WebUiUrl)
+				} else {
+					line = append(line, submittedTimeReadable, run.Name, run.Requestor, run.Status, run.Result, run.TestName, run.Group, tagsList)
+				}
 				table = append(table, line)
 			}
 		}

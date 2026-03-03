@@ -32,10 +32,10 @@ public class MqManagerIVT {
 	@QueueManager(tag = "bob")
 	public IMessageQueueManager qmgr;
 	
-	@Queue(archive = true, name = "GALASA.INPUT.QUEUE", tag = "ggbvg", queueMgrTag = "bob")
+	@Queue(archive = true, name = "DEV.QUEUE.1", queueMgrTag = "bob")
 	public IMessageQueue queue;
 	
-	@Queue(archive = false, name = "GALASA.INPUT.QUEUE2")
+	@Queue(archive = false, name = "DEV.QUEUE.2", queueMgrTag = "bob")
 	public IMessageQueue queue2;
 	
 //	@Queue(tag = "NEWQUEUE")

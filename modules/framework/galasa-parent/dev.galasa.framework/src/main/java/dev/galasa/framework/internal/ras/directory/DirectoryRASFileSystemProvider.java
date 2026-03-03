@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import dev.galasa.framework.SupportedFileAttributeName;
 import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystem;
 import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider;
 import dev.galasa.framework.spi.ras.ResultArchiveStorePath;
@@ -49,7 +50,7 @@ import dev.galasa.SetContentType;
  */
 public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystemProvider {
 
-    private static final String RAS_CONTENT_TYPE      = "ras:contentType";
+
 
     private final Path          artifactDirectory;
     private final Path          artifactPropertesFile;
@@ -309,12 +310,13 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
         final ArrayList<String> attrs = new ArrayList<>(Arrays.asList(attributes.replaceAll(" ", "").split(","))); // NOSONAR
 
         // *** We need to add our attributes for * or ras:* or ras:contentType, then
-        // pass off to the basic file attributes
+        // pass off to the basic file attributes.
+        // See SupportedFileAttributeName.CONTENT_TYPE also
         final Iterator<String> it = attrs.iterator();
         while (it.hasNext()) {
             final String attr = it.next();
             if ("*".equals(attr)) {
-                returnAttrs.put(RAS_CONTENT_TYPE, contentType.value());
+                returnAttrs.put(SupportedFileAttributeName.CONTENT_TYPE.getValue(), contentType.value());
             } else {
                 final int colon = attr.indexOf(':');
                 if ((colon == 3) && "ras".equals(attr.substring(0, colon))) {
@@ -323,9 +325,9 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
                     final String attrName = attr.substring(colon + 1);
 
                     if ("*".equals(attrName)) {
-                        returnAttrs.put(RAS_CONTENT_TYPE, contentType.value());
+                        returnAttrs.put(SupportedFileAttributeName.CONTENT_TYPE.getValue(), contentType.value());
                     } else if ("contentType".equals(attrName)) {
-                        returnAttrs.put(RAS_CONTENT_TYPE, contentType.value());
+                        returnAttrs.put(SupportedFileAttributeName.CONTENT_TYPE.getValue(), contentType.value());
                     } else {
                         throw new UnsupportedOperationException("Attribute ras:" + attrName + " is not available");
                     }
