@@ -1,0 +1,25 @@
+{
+  "general": {
+    "preferredEditor": "code",
+    "vimMode": false,
+    "disableAutoUpdate": false,
+    "disableUpdateNag": false,
+    "checkpointing": {
+      "enabled": false
+    },
+    "context": {
+        "fileName": [
+          "AGENTS.md"
+        ],
+        "includeDirectories": [
+          ".bob/"
+        ],
+        "discoveryMaxDirs": 200,
+        "fileFiltering": {
+            "respectGitIgnore": false,
+            "respectBobIgnore": true,
+            "enableRecursiveFileSearch": true
+        }
+    }
+  }
+}
