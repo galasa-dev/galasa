@@ -31,6 +31,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -434,11 +435,16 @@ public class HttpClientImpl implements IHttpClient {
     public IHttpClient setupClientAuth(KeyStore clientKeyStore, KeyStore serverKeyStore, String alias, String password)
             throws HttpClientException {
         try {
-            // Create the Key Manager Factory
+            // Create the Key Manager Factory for client authentication
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmf.init(clientKeyStore, password.toCharArray());
-            // Create the Trust Managers
-            TrustManager[] trustManagers = { new ClientAuthTrustManager(serverKeyStore, alias) };
+            
+            // Create the Trust Manager Factory for server certificate validation
+            // This properly validates the certificate chain using the CA certificates in the KeyStore
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(serverKeyStore);
+            TrustManager[] trustManagers = tmf.getTrustManagers();
+            
             // Create the SSL Context
             String contextName = nameSelector.getSelectedSSLContextName();
             SSLContext sslContext = SSLContext.getInstance(contextName);
@@ -448,6 +454,27 @@ public class HttpClientImpl implements IHttpClient {
             throw new HttpClientException("Error attempting to create SSL context", e);
         }
         return this;
+    }
+
+    /**
+     * Set up Client Authentication SSL Context using a single KeyStore
+     * for both client certificates and server trust.
+     *
+     * This is a convenience method that delegates to the full setupClientAuth method,
+     * using the same KeyStore for both client and server authentication. It automatically
+     * finds the first certificate alias in the KeyStore to use for server verification.
+     *
+     * @param keyStore KeyStore containing both client cert and trusted CAs
+     * @param password KeyStore password
+     * @return the updated client
+     * @throws HttpClientException if SSL setup fails
+     */
+    public IHttpClient setupClientAuth(KeyStore keyStore, String password)
+            throws HttpClientException {
+        // Use the same KeyStore for both client authentication and server trust
+        // The TrustManagerFactory will automatically use all CA certificates in the KeyStore
+        // No need to specify an alias - it validates the entire certificate chain
+        return setupClientAuth(keyStore, keyStore, null, password);
     }
 
     /**

@@ -476,7 +476,7 @@ public interface IHttpClient {
 
     /**
      * Set up Client Authentication SSL Context and install
-     * 
+     *
      * @param clientKeyStore
      * @param serverKeyStore
      * @param alias
@@ -488,8 +488,23 @@ public interface IHttpClient {
             throws HttpClientException;
 
     /**
+     * Set up Client Authentication SSL Context using a single KeyStore
+     * for both client certificates and server trust.
+     *
+     * This is a convenience method for cases where the same KeyStore contains
+     * both the client certificate/private key and the trusted CA certificates.
+     *
+     * @param keyStore KeyStore containing both client cert and trusted CAs
+     * @param password KeyStore password
+     * @return the updated client
+     * @throws HttpClientException if SSL setup fails
+     */
+    IHttpClient setupClientAuth(KeyStore keyStore, String password)
+            throws HttpClientException;
+
+    /**
      * Set the URI endpoint for this client
-     * 
+     *
      * @param host
      */
     void setURI(URI host);

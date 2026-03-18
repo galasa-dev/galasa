@@ -149,7 +149,7 @@ function build_galasa_modules_and_images {
     h2 "Building Galasa modules and Docker images used for the Galasa service..."
 
     info "Building Galasa modules for the galasa-boot-embedded Docker image..."
-    ${BASEDIR}/build-locally.sh --module wrapping --docker
+    ${BASEDIR}/build-locally.sh --module platform --docker
 
     rc=$?
     check_exit_code ${rc} "Failed to build the Galasa modules for the galasa-boot-embedded Docker image"

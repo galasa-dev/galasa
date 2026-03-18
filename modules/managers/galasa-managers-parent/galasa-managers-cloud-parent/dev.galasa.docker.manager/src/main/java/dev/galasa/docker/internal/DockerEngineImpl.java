@@ -11,6 +11,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyStore;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import javax.validation.constraints.NotNull;
 
@@ -22,12 +27,15 @@ import org.apache.http.HttpStatus;
 
 import com.google.gson.JsonObject;
 
+import dev.galasa.ICredentials;
+import dev.galasa.ICredentialsKeyStore;
 import dev.galasa.docker.DockerManagerException;
 import dev.galasa.docker.DockerNotFoundException;
 import dev.galasa.docker.DockerProvisionException;
 import dev.galasa.docker.IDockerEngine;
 import dev.galasa.docker.internal.properties.DockerDSEEngine;
 import dev.galasa.docker.internal.properties.DockerEngine;
+import dev.galasa.docker.internal.properties.DockerEngineCredentials;
 import dev.galasa.docker.internal.properties.DockerEnginePort;
 import dev.galasa.docker.internal.properties.DockerEngines;
 import dev.galasa.docker.internal.properties.DockerRegistry;
@@ -36,6 +44,7 @@ import dev.galasa.docker.internal.properties.DockerSlots;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.http.HttpClientException;
 import dev.galasa.http.HttpClientResponse;
 import dev.galasa.http.HttpFileResponse;
@@ -48,6 +57,7 @@ public class DockerEngineImpl implements IDockerEngine {
 	private final IDynamicStatusStoreService dss;
 
 	private URI uri;
+	private SSLContext sslContext;  // SSL context for HTTPS connections
 
 	private String dockerEngineId;
 	private String dockerEngineTag;
@@ -87,6 +97,15 @@ public class DockerEngineImpl implements IDockerEngine {
 
 			if (this.uri.toString() == null) {
 				throw new DockerProvisionException("Could not locate a availabe engine");
+			}
+			
+			String credentialsId = DockerEngineCredentials.get(this);
+			if (credentialsId != null) {
+				configureHttps(credentialsId);
+				// Explicitly build the HTTP client after SSL configuration
+				dockerEngineClient.build();
+			} else {
+				logger.debug("No credentials configured for Docker engine " + dockerEngineTag + ", using HTTP");
 			}
 
 		} catch (Exception e) {
@@ -146,6 +165,111 @@ public class DockerEngineImpl implements IDockerEngine {
 			logger.info("Engine " + engineId + " has no free slots. Checking to see if another engine is available.");
 		}
 		throw new DockerProvisionException("No Engines are free");
+	}
+
+	/**
+	 * Configure HTTPS connection when credentials are specified in CPS.
+	 *
+	 * This method retrieves the KeyStore from the Credentials Store
+	 * and configures the HTTP client for mutual TLS authentication.
+	 * HTTPS is automatically enabled when credentials are configured.
+	 *
+	 * @param credentialsId the ID of the credentials containing the KeyStore
+	 * @throws DockerProvisionException if HTTPS configuration fails
+	 */
+	private void configureHttps(String credentialsId) throws DockerProvisionException {
+		try {
+			logger.info("Configuring HTTPS for Docker engine " + dockerEngineTag + " using credentials: " + credentialsId);
+			logger.debug("Docker engine URI before HTTPS configuration: " + this.uri);
+
+			ICredentialsKeyStore keyStoreCreds = retrieveKeyStoreCredentials(credentialsId);
+			configureClientSsl(keyStoreCreds);
+			
+			// Always use HTTPS when credentials are configured
+			this.uri = convertUriToHttps(this.uri);
+			dockerEngineClient.setURI(this.uri);
+			logger.info("Docker engine " + dockerEngineTag + " configured for HTTPS: " + this.uri);
+			
+		} catch (CredentialsException | HttpClientException | URISyntaxException e) {
+			throw new DockerProvisionException("Failed to configure HTTPS for Docker engine " + dockerEngineTag, e);
+		}
+	}
+
+	/**
+	 * Retrieve and validate KeyStore credentials from the Credentials Store.
+	 *
+	 * @param credentialsId the ID of the credentials to retrieve
+	 * @return the KeyStore credentials
+	 * @throws DockerProvisionException if credentials are not found or invalid
+	 * @throws CredentialsException if there's an error retrieving credentials
+	 */
+	private ICredentialsKeyStore retrieveKeyStoreCredentials(String credentialsId)
+			throws DockerProvisionException, CredentialsException {
+		ICredentials credentials = framework.getCredentialsService().getCredentials(credentialsId);
+		
+		if (credentials == null) {
+			throw new DockerProvisionException("Credentials '" + credentialsId + "' not found in Credentials Store");
+		}
+		
+		if (!(credentials instanceof ICredentialsKeyStore)) {
+			throw new DockerProvisionException(
+				"Credentials '" + credentialsId + "' must be of type KeyStore for Docker HTTPS. " +
+				"Found type: " + credentials.getClass().getSimpleName());
+		}
+		
+		return (ICredentialsKeyStore) credentials;
+	}
+
+	/**
+	 * Configure the HTTP client with SSL context using the provided KeyStore credentials.
+	 *
+	 * This method creates an SSLContext that is used by both the HTTP Manager client
+	 * and raw HttpURLConnection instances (e.g., in DockerExecImpl).
+	 *
+	 * @param keyStoreCreds the KeyStore credentials containing the certificate and key
+	 * @throws HttpClientException if SSL configuration fails
+	 */
+	private void configureClientSsl(ICredentialsKeyStore keyStoreCreds) throws HttpClientException {
+		try {
+			KeyStore keyStore = keyStoreCreds.getKeyStore();
+			String password = keyStoreCreds.getKeyStorePassword();
+			
+			// Create KeyManagerFactory for client authentication
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+			kmf.init(keyStore, password.toCharArray());
+			
+			// Create TrustManagerFactory for server certificate validation
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			tmf.init(keyStore);
+			
+			// Create and initialize SSLContext
+			this.sslContext = SSLContext.getInstance("TLS");
+			this.sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+			
+			// Configure HTTP client with SSL context
+			// Use the same KeyStore for both client auth and server trust
+			dockerEngineClient.setupClientAuth(keyStore, password);
+			
+		} catch (Exception e) {
+			throw new HttpClientException("Failed to configure SSL context", e);
+		}
+	}
+
+	/**
+	 * Convert a URI to use HTTPS scheme while preserving all other components.
+	 *
+	 * @param currentUri the current URI
+	 * @return a new URI with HTTPS scheme
+	 * @throws URISyntaxException if URI construction fails
+	 */
+	private URI convertUriToHttps(URI currentUri) throws URISyntaxException {
+		return new URI("https",
+					  currentUri.getUserInfo(),
+					  currentUri.getHost(),
+					  currentUri.getPort(),
+					  currentUri.getPath(),
+					  currentUri.getQuery(),
+					  currentUri.getFragment());
 	}
 
 	public String getEngineTag() {
@@ -398,6 +522,18 @@ public class DockerEngineImpl implements IDockerEngine {
 	 */
 	public URI getURI() throws URISyntaxException {
 		return this.uri;
+	}
+
+	/**
+	 * Get the SSL context for HTTPS connections.
+	 *
+	 * This SSL context is used by both the HTTP Manager and raw HttpURLConnection
+	 * instances to ensure consistent TLS configuration across all Docker API calls.
+	 *
+	 * @return the SSL context, or null if HTTPS is not configured
+	 */
+	public SSLContext getSslContext() {
+		return this.sslContext;
 	}
 
 	/**

@@ -18,6 +18,7 @@ import dev.galasa.framework.spi.FrameworkPropertyFileException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
@@ -60,34 +61,42 @@ public class FileCredentialsStore implements ICredentialsStore {
      * <p>
      * This method is used to retrieve credentials as an appropriate object
      * </p>
-     * 
+     *
      * @param credentialsId
      * @throws CredentialsException
      */
     @Override
     public ICredentials getCredentials(String credentialsId) throws CredentialsException {
-        String token = fpf.get("secure.credentials." + credentialsId + ".token");
-        if (token != null) {
-            String username = fpf.get("secure.credentials." + credentialsId + ".username");
+        final String keyPrefix = "secure.credentials." + credentialsId;
+        ICredentials credentials = null;
 
-            if (username != null) {
-                return new CredentialsUsernameToken(key, username, token);
-            }
-            return new CredentialsToken(key, token);
+        String keystore = fpf.get(keyPrefix + ".keystore");
+        if (keystore != null) {
+            String keystorePassword = fpf.get(keyPrefix + ".password");
+            String type = fpf.get(keyPrefix + ".type");
+            
+            credentials = new CredentialsKeyStore(key, keystore, keystorePassword, type);
+        } else {
+            String token = fpf.get(keyPrefix + ".token");
+            String username = fpf.get(keyPrefix + ".username");
+            String password = fpf.get(keyPrefix + ".password");
+
+            boolean hasToken = (token != null);
+            boolean hasUsername = (username != null);
+            boolean hasPassword = (password != null);
+
+            if (hasToken && hasUsername) {
+                credentials = new CredentialsUsernameToken(key, username, token);
+            } else if (hasToken) {
+                credentials = new CredentialsToken(key, token);
+            } else if (hasUsername && hasPassword) {
+                credentials = new CredentialsUsernamePassword(key, username, password);
+            } else if (hasUsername) {
+                credentials = new CredentialsUsername(key, username);
+            }    
         }
 
-        String username = fpf.get("secure.credentials." + credentialsId + ".username");
-        String password = fpf.get("secure.credentials." + credentialsId + ".password");
-
-        if (username == null) {
-            return null;
-        }
-
-        if (password == null) {
-            return new CredentialsUsername(key, username);
-        }
-
-        return new CredentialsUsernamePassword(key, username, password);
+        return credentials;
     }
 
     private static SecretKeySpec createKey(String secret)
