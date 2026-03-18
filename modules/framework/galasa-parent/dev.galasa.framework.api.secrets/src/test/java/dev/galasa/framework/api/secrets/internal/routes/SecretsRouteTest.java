@@ -36,6 +36,7 @@ import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.api.secrets.internal.SecretsServletTest;
 import dev.galasa.framework.api.secrets.mocks.MockSecretsServlet;
+import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
@@ -927,5 +928,182 @@ public class SecretsRouteTest extends SecretsServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(output, 5102, "GAL5102E",
             "Invalid secret description provided");
+    }
+
+    @Test
+    public void testCreateKeyStoreSecretCreatesSecretOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "DOCKER_KEYSTORE";
+        String keystorePassword = "mysecretpassword";
+        String keystoreType = "PKCS12";
+        
+        String keystoreData = createValidKeyStoreBytes(keystorePassword, keystoreType);
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("keystore", createSecretJson(keystoreData));
+        secretJson.add("keystorePassword", createSecretJson(keystorePassword));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", secretJsonStr, HttpMethod.POST.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsKeyStore createdCredentials = (CredentialsKeyStore) credsService.getCredentials(secretName);
+        assertThat(createdCredentials).isNotNull();
+        assertThat(createdCredentials.getKeyStore()).isNotNull();
+        assertThat(createdCredentials.getKeyStorePassword()).isEqualTo(keystorePassword);
+        assertThat(createdCredentials.getKeyStoreType()).isEqualTo(keystoreType);
+    }
+
+    @Test
+    public void testCreateKeyStoreSecretWithoutBase64PrefixReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "INVALID_KEYSTORE";
+        String keystorePassword = "password";
+        String keystoreType = "PKCS12";
+        
+        // Keystore data without "base64:" prefix
+        String invalidKeystoreData = Base64.getEncoder().encodeToString("not a real keystore".getBytes());
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("keystore", createSecretJson(invalidKeystoreData));
+        secretJson.add("keystorePassword", createSecretJson(keystorePassword));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", secretJsonStr, HttpMethod.POST.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5452,
+            "GAL5452E",
+            "Invalid keystore value provided"
+        );
+        assertThat(credsService.getAllCredentials()).isEmpty();
+    }
+
+    @Test
+    public void testCreateKeyStoreSecretWithInvalidBase64ReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "INVALID_KEYSTORE";
+        String keystorePassword = "password";
+        String keystoreType = "PKCS12";
+        
+        // Invalid base64 data (contains invalid characters)
+        String invalidKeystoreData = "base64:not-valid-base64!!!";
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("keystore", createSecretJson(invalidKeystoreData));
+        secretJson.add("keystorePassword", createSecretJson(keystorePassword));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", secretJsonStr, HttpMethod.POST.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5452,
+            "GAL5452E",
+            "Invalid keystore value provided"
+        );
+        assertThat(credsService.getAllCredentials()).isEmpty();
+    }
+
+    @Test
+    public void testCreateKeyStoreSecretWithKeystoreAndUsernameReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "INVALID_KEYSTORE";
+        String username = "my-username";
+        String keystorePassword = "password";
+        String keystoreType = "PKCS12";
+        
+        String keystoreData = createValidKeyStoreBytes(keystorePassword, keystoreType);
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("keystore", createSecretJson(keystoreData));
+        secretJson.add("username", createSecretJson(username));
+        secretJson.add("keystorePassword", createSecretJson(keystorePassword));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", secretJsonStr, HttpMethod.POST.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5451,
+            "GAL5451E",
+            "The 'username' field cannot be used with KeyStore credentials"
+        );
+        assertThat(credsService.getAllCredentials()).isEmpty();
     }
 }

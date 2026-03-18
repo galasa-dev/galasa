@@ -158,6 +158,9 @@ public enum ServletErrorMessage {
     GAL5100_ERROR_UNEXPECTED_SECRET_FIELD_PROVIDED    (5100, "E: Invalid secret payload provided. An unexpected field was given to update a ''{0}'' secret. Only the following fields can be provided to update this secret: ''{1}''. Check your request payload and try again."),
     GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED     (5101, "E: Unknown secret type detected. A secret retrieved from the credentials store is in an unknown or unsupported format. Report the problem to your Galasa Ecosystem owner."),
     GAL5102_INVALID_SECRET_DESCRIPTION_PROVIDED       (5102, "E: Invalid secret description provided. The description should not only contain spaces or tabs. When provided, it must contain characters in the Latin-1 character set. Report the problem to your Galasa Ecosystem owner."),
+    GAL5450_FAILED_TO_CREATE_KEYSTORE_CREDENTIALS     (5450, "E: Failed to create a Java KeyStore from the provided secret data. The keystore data may be invalid, incorrectly encoded, the keystore type may be unsupported, or the keystore password may be incorrect. Check your request payload and try again."),
+    GAL5451_MUTUALLY_EXCLUSIVE_FIELDS_PROVIDED        (5451, "E: Invalid secret payload provided. The ''{0}'' field cannot be used with KeyStore credentials. KeyStore credentials only accept ''keystore'', ''keystoreType'', and ''keystorePassword'' fields. Check your request payload and try again."),
+    GAL5452_INVALID_KEYSTORE_BASE64_ENCODING          (5452, "E: Invalid keystore value provided. The keystore value must be prefixed with ''base64:'' followed by valid base64-encoded data. Check your request payload and try again."),
     
     // Auth callback API...
     GAL5103_UNEXPECTED_STATE_PARAMETER_PROVIDED       (5103, "E: Unexpected ''state'' query parameter value provided. The provided ''state'' parameter value does not match the stored state identifier or the auth request has timed out. Try to log in again."),
@@ -215,12 +218,12 @@ public enum ServletErrorMessage {
     ;
 
     // >>>
-    // >>> Note: Please keep this up to date, to save us wondering what to allocate next... 
+    // >>> Note: Please keep this up to date, to save us wondering what to allocate next...
     // >>>       otherwise you have to find a 'gap' in the range.
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5450;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5453;
 
 
     private String template ;

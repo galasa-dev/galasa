@@ -20,6 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import dev.galasa.ICredentials;
 import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.beans.generated.SecretRequestKeystorePassword;
+import dev.galasa.framework.api.beans.generated.SecretRequestkeystore;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
 import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
 import dev.galasa.framework.api.beans.generated.SecretRequestusername;
@@ -33,6 +35,7 @@ import dev.galasa.framework.api.secrets.internal.SecretRequestValidator;
 import dev.galasa.framework.api.secrets.internal.UpdateSecretRequestValidator;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
@@ -222,6 +225,17 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
             String overriddenUsername = getOverriddenUsername(usernameTokenSecret.getUsername(), secretRequest.getusername());
             String overriddenToken = getOverriddenToken(new String(usernameTokenSecret.getToken()), secretRequest.gettoken());
             overriddenSecret = new CredentialsUsernameToken(overriddenUsername, overriddenToken);
+        } else if (existingSecretType == KEYSTORE) {
+            CredentialsKeyStore keystoreSecret = (CredentialsKeyStore) existingSecret;
+            String overriddenKeystore = getOverriddenKeystore(keystoreSecret.getEncodedKeyStore(), secretRequest.getkeystore());
+            String overriddenKeystorePassword = getOverriddenKeystorePassword(keystoreSecret.getKeyStorePassword(), secretRequest.getKeystorePassword());
+            String overriddenKeystoreType = getOverriddenKeystoreType(keystoreSecret.getKeyStoreType(), secretRequest.getKeystoreType());
+            try {
+                overriddenSecret = new CredentialsKeyStore(overriddenKeystore, overriddenKeystorePassword, overriddenKeystoreType);
+            } catch (CredentialsException e) {
+                ServletError error = new ServletError(GAL5450_FAILED_TO_CREATE_KEYSTORE_CREDENTIALS);
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
+            }
         } else {
             // The credentials are in an unknown format, throw an error
             ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);
@@ -263,5 +277,32 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
             overriddenToken = getOverriddenValue(existingToken, possiblyDecodedToken);
         }
         return overriddenToken;
+    }
+
+    private String getOverriddenKeystore(String existingKeystore, SecretRequestkeystore requestKeystore) throws InternalServletException {
+        String overriddenKeystore = existingKeystore;
+        if (requestKeystore != null) {
+            String possiblyDecodedKeystore = decodeSecretValue(requestKeystore.getvalue(), null);
+            overriddenKeystore = getOverriddenValue(existingKeystore, possiblyDecodedKeystore);
+        }
+        return overriddenKeystore;
+    }
+
+    private String getOverriddenKeystorePassword(String existingKeystorePassword, SecretRequestKeystorePassword requestKeystorePassword) throws InternalServletException {
+        String overriddenKeystorePassword = existingKeystorePassword;
+        if (requestKeystorePassword != null) {
+            String possiblyDecodedKeystorePassword = decodeSecretValue(requestKeystorePassword.getvalue(), requestKeystorePassword.getencoding());
+            overriddenKeystorePassword = getOverriddenValue(existingKeystorePassword, possiblyDecodedKeystorePassword);
+        }
+        return overriddenKeystorePassword;
+    }
+
+    private String getOverriddenKeystoreType(String existingKeystoreType, String requestKeystoreType) throws InternalServletException {
+        String overriddenKeystoreType = existingKeystoreType;
+        if (requestKeystoreType != null) {
+            String possiblyDecodedKeystoreType = decodeSecretValue(requestKeystoreType, null);
+            overriddenKeystoreType = getOverriddenValue(existingKeystoreType, possiblyDecodedKeystoreType);
+        }
+        return overriddenKeystoreType;
     }
 }

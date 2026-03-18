@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.beans.generated.SecretRequestKeystorePassword;
+import dev.galasa.framework.api.beans.generated.SecretRequestkeystore;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
 import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
 import dev.galasa.framework.api.beans.generated.SecretRequestusername;
@@ -48,8 +50,14 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
         SecretRequestusername username = secretRequest.getusername();
         SecretRequestpassword password = secretRequest.getpassword();
         SecretRequesttoken token = secretRequest.gettoken();
+        SecretRequestkeystore keystore = secretRequest.getkeystore();
+        SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
+        String keystoreType = secretRequest.getKeystoreType();
 
         validateDescription(secretRequest.getdescription());
+
+        // Validate keystore mutual exclusivity
+        validateKeystoreMutualExclusivity(secretRequest);
 
         // Password and token are mutually exclusive, so error if both are provided
         if (password != null && token != null) {
@@ -63,15 +71,21 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        validateSecretRequestFields(username, password, token);
+        validateSecretRequestFields(username, password, token, keystore, keystorePassword, keystoreType);
     }
 
     private void validateUpdateSecretRequest(SecretRequest secretRequest) throws InternalServletException {
         SecretRequestusername username = secretRequest.getusername();
         SecretRequestpassword password = secretRequest.getpassword();
         SecretRequesttoken token = secretRequest.gettoken();
+        SecretRequestkeystore keystore = secretRequest.getkeystore();
+        SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
+        String keystoreType = secretRequest.getKeystoreType();
 
         validateDescription(secretRequest.getdescription());
+
+        // Validate keystore mutual exclusivity
+        validateKeystoreMutualExclusivity(secretRequest);
 
         // Password and token are mutually exclusive, so error if both are provided
         if (password != null && token != null) {
@@ -99,7 +113,7 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
             validateSecretTypeFields(secretType, secretRequest);
             checkProvidedSecretFieldsAreRelevant(secretType, secretRequest);
         }
-        validateSecretRequestFields(username, password, token);
+        validateSecretRequestFields(username, password, token, keystore, keystorePassword, keystoreType);
     }
 
     private void validateSecretTypeFields(GalasaSecretType secretType, SecretRequest secretRequest) throws InternalServletException {
