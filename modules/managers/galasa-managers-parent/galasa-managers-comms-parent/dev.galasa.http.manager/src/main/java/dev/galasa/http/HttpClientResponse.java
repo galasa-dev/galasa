@@ -7,6 +7,7 @@ package dev.galasa.http;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,11 +18,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -136,11 +138,11 @@ public class HttpClientResponse<T> {
 
     private void populateGenericValues(HttpResponse httpResponse) {
 
-        setStatusCode(httpResponse.getStatusLine().getStatusCode());
-        setStatusMessage(httpResponse.getStatusLine().getReasonPhrase());
-        setProtocolVersion(httpResponse.getStatusLine().getProtocolVersion().toString());
+        setStatusCode(httpResponse.getCode());
+        setStatusMessage(httpResponse.getReasonPhrase());
+        setProtocolVersion(httpResponse.getVersion() != null ? httpResponse.getVersion().toString() : "HTTP/1.1");
 
-        for (Header header : httpResponse.getAllHeaders()) {
+        for (Header header : httpResponse.getHeaders()) {
             setHeader(header.getName(), header.getValue());
         }
     }
@@ -227,7 +229,7 @@ public class HttpClientResponse<T> {
 
             if (httpResponse.getEntity() != null) {
                 if (response.getStatusCode() == HttpStatus.SC_OK || contentOnBadResponse) {
-                    String text = IOUtils.toString(httpResponse.getEntity().getContent());
+                    String text = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
                     response.setContent(text);
                 } else {
                     EntityUtils.consume(httpResponse.getEntity());
@@ -300,7 +302,7 @@ public class HttpClientResponse<T> {
                 httpResponse.close();
             }
 
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             throw new HttpClientException("Unable to extract response body to JSON object", e);
         }
 

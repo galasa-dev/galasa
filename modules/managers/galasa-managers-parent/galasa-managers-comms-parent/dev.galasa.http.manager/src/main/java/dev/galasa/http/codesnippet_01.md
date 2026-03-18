@@ -60,20 +60,27 @@ public IHttpClient client;
 File f = new File("/tmp/dev.galasa_0.7.0.jar");
 
 client.setURI(new URI("https://p2.galasa.dev"));
-CloseableHttpResponse response = client.getFile("/plugins/dev.galasa_0.7.0.jar");
-InputStream in = response.getEntity().getContent();
-OutputStream out = new FileOutputStream(f);
-int count;
-byte data[] = new byte[2048];
-while((count = in.read(data)) != -1) {
-   out.write(data, 0, count);
+try (HttpFileResponse response = client.getFileStream("/plugins/dev.galasa_0.7.0.jar")) {
+    if (response.isSuccessful()) {
+        InputStream in = response.getContent();
+        OutputStream out = new FileOutputStream(f);
+        int count;
+        byte data[] = new byte[2048];
+        while((count = in.read(data)) != -1) {
+           out.write(data, 0, count);
+        }
+        out.flush();
+        out.close();
+    } else {
+        System.err.println("Download failed: " + response.getStatusCode() + " " + response.getStatusMessage());
+    }
 }
-out.flush();
-out.close();
 ```
 
-The snippet begins by declaring `client` as before and `f`, an instance of `File`. The client's URI is set and its `getFile` method called to return `response` - an instance of `CloseableHttpResponse`.
+The snippet begins by declaring `client` as before and `f`, an instance of `File`. The client's URI is set and its `getFileStream` method called to return `response` - an instance of `HttpFileResponse`.
 
-The two streams `in` and `out` are declared and initialized and the data transferred from `in` to `out` in 2048 byte chunks, after which the output stream is flushed and then closed.
+The response is used in a try-with-resources block to ensure proper cleanup. The two streams `in` and `out` are declared and initialized and the data transferred from `in` to `out` in 2048 byte chunks, after which the output stream is flushed and then closed.
+
+**Note:** The older `getFile()` method that returns `CloseableHttpResponse` is deprecated. Use `getFileStream()` instead, which returns `HttpFileResponse` and provides a cleaner API that hides implementation details.
 
 </details>

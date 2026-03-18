@@ -102,6 +102,13 @@ external:
     mvp: true
     isolated: true
 
+  - artifact: dev.galasa.wrapping.httpclient5
+    version: 0.47.0
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
+
   - artifact: dev.galasa.wrapping.httpclient-osgi
     version: 0.47.0
     obr: true

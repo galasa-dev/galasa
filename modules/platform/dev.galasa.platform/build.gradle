@@ -103,6 +103,7 @@ dependencies {
         api 'dev.galasa:dev.galasa.wrapping.com.auth0.jwt:'+version
         api 'dev.galasa:dev.galasa.wrapping.gson:'+version // If updating, also update in obr/release.yaml.
         api 'dev.galasa:dev.galasa.wrapping.httpclient-osgi:'+version // If updating, also update in obr/release.yaml.
+        api 'dev.galasa:dev.galasa.wrapping.httpclient5:'+version // If updating, also update in obr/release.yaml.
         api 'dev.galasa:dev.galasa.wrapping.io.grpc.java:'+version
         api 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java:'+version
         api 'dev.galasa:dev.galasa.wrapping.jta:'+version
@@ -214,6 +215,10 @@ dependencies {
         api 'org.apache.felix:org.apache.felix.http.jetty:5.0.0'
         api 'org.apache.felix:org.apache.felix.http.servlet-api:2.1.0'
         api 'org.apache.felix:org.apache.felix.scr:2.1.14' // If updating, also update in galasa-boot build.gradle.
+
+        api 'org.apache.httpcomponents.client5:httpclient5:5.6'
+        api 'org.apache.httpcomponents.core5:httpcore5:5.4'
+        api 'org.apache.httpcomponents.core5:httpcore5-h2:5.4'
 
         api 'org.apache.httpcomponents:httpclient:4.5.14'
         api 'org.apache.httpcomponents:httpclient-osgi:4.5.14'

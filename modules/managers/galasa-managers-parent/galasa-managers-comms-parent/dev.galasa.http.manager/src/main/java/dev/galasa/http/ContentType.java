@@ -5,27 +5,27 @@
  */
 package dev.galasa.http;
 
-import org.apache.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntity;
 
 public enum ContentType {
 
-    APPLICATION_XML(org.apache.http.entity.ContentType.APPLICATION_XML),
-    APPLICATION_JSON(org.apache.http.entity.ContentType.APPLICATION_JSON),
-    APPLICATION_OCTET_STREAM(org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM),
-    DEFAULT_BINARY(org.apache.http.entity.ContentType.DEFAULT_BINARY),
+    APPLICATION_XML(org.apache.hc.core5.http.ContentType.APPLICATION_XML),
+    APPLICATION_JSON(org.apache.hc.core5.http.ContentType.APPLICATION_JSON),
+    APPLICATION_OCTET_STREAM(org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM),
+    DEFAULT_BINARY(org.apache.hc.core5.http.ContentType.DEFAULT_BINARY),
     APPLICATION_X_TAR("application/x-tar"),
-    MULTIPART_FORM_DATA(org.apache.http.entity.ContentType.MULTIPART_FORM_DATA),
-    APPLICATION_FORM_URLENCODED(org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED),
-    TEXT_PLAIN(org.apache.http.entity.ContentType.TEXT_PLAIN),
-    TEXT_HTML(org.apache.http.entity.ContentType.TEXT_HTML),
-    TEXT_XML(org.apache.http.entity.ContentType.TEXT_XML),
+    MULTIPART_FORM_DATA(org.apache.hc.core5.http.ContentType.MULTIPART_FORM_DATA),
+    APPLICATION_FORM_URLENCODED(org.apache.hc.core5.http.ContentType.APPLICATION_FORM_URLENCODED),
+    TEXT_PLAIN(org.apache.hc.core5.http.ContentType.TEXT_PLAIN),
+    TEXT_HTML(org.apache.hc.core5.http.ContentType.TEXT_HTML),
+    TEXT_XML(org.apache.hc.core5.http.ContentType.TEXT_XML),
     RDF_XML("application/rdf+xml"),
     SOAP_XML("application/soap+xml");
 
-    private final org.apache.http.entity.ContentType c;
-    private final String                             custom;
+    private final org.apache.hc.core5.http.ContentType c;
+    private final String                               custom;
 
-    ContentType(org.apache.http.entity.ContentType c) {
+    ContentType(org.apache.hc.core5.http.ContentType c) {
         this.c = c;
         this.custom = null;
     }
@@ -35,7 +35,7 @@ public enum ContentType {
         this.custom = custom;
     }
 
-    public org.apache.http.entity.ContentType getC() {
+    public org.apache.hc.core5.http.ContentType getC() {
         return c;
     }
 
@@ -44,8 +44,7 @@ public enum ContentType {
     }
 
     public static ContentType get(HttpEntity e) {
-
-        String type = e.getContentType().getValue();
+        String type = e.getContentType();
 
         for (ContentType ct : values()) {
             if (ct.c != null) {

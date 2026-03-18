@@ -7,7 +7,7 @@ package dev.galasa.http;
 
 import java.net.URI;
 
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 
 /**
  * HTTP DELETE method.
@@ -16,24 +16,23 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
  * of a body, which goes against HTTP specs, which allows it.
  * This simple class now provides the capability.
  */
-public class HttpDelete extends HttpEntityEnclosingRequestBase {
+public class HttpDelete extends HttpUriRequestBase {
 
     public static final String METHOD_NAME = "DELETE";
 
     public HttpDelete() {
-        super();
+        super(METHOD_NAME, (URI) null);
     }
 
     public HttpDelete(final URI uri) {
-        super();
-        setURI(uri);
+        super(METHOD_NAME, uri);
     }
 
     public HttpDelete(final String uri) {
-        super();
-        setURI(URI.create(uri));
+        super(METHOD_NAME, URI.create(uri));
     }
 
+    @Override
     public String getMethod() {
         return METHOD_NAME;
     }

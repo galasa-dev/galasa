@@ -5,6 +5,7 @@ plugins {
 description = 'HTTP Manager'
 
 dependencies {
+    api             'dev.galasa:dev.galasa.wrapping.httpclient5'
     api             'dev.galasa:dev.galasa.wrapping.httpclient-osgi'
     implementation  project (':galasa-managers-common-parent:dev.galasa.common')
     implementation  'commons-io:commons-io'

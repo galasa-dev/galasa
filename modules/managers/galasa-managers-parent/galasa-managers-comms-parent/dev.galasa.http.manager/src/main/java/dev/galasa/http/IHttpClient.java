@@ -273,18 +273,76 @@ public interface IHttpClient {
     HttpClientResponse<byte[]> deleteBinary(String url, byte[] binary) throws HttpClientException;
 
     /**
-     * Download a file from a specified location to a specified destination on local host.
-     * 
-     * @param path = URL path
+     * Download a file from a specified location, returning a wrapped response
+     * that provides access to the file stream and metadata.
+     *
+     * <p>Example usage:</p>
+     * <pre>
+     * try (HttpFileResponse response = client.getFileStream("/path/to/file")) {
+     *     if (response.isSuccessful()) {
+     *         InputStream stream = response.getContent();
+     *         // Process the stream
+     *     }
+     * }
+     * </pre>
+     *
+     * @param path - URL path
+     * @return HttpFileResponse containing the file stream and metadata
+     * @throws HttpClientException if the request fails
+     * @since 0.47.0
      */
+    HttpFileResponse getFileStream(String path) throws HttpClientException;
+    
+    /**
+     * Download a file from a specified location with specific accept types,
+     * returning a wrapped response that provides access to the file stream and metadata.
+     *
+     * <p>Example usage:</p>
+     * <pre>
+     * try (HttpFileResponse response = client.getFileStream("/path/to/file",
+     *         ContentType.APPLICATION_OCTET_STREAM)) {
+     *     if (response.isSuccessful()) {
+     *         InputStream stream = response.getContent();
+     *         // Process the stream
+     *     }
+     * }
+     * </pre>
+     *
+     * @param path - URL path
+     * @param acceptTypes - Content types to accept in the response
+     * @return HttpFileResponse containing the file stream and metadata
+     * @throws HttpClientException if the request fails
+     * @since 0.47.0
+     */
+    HttpFileResponse getFileStream(String path, ContentType... acceptTypes) throws HttpClientException;
+
+    /**
+     * Download a file from a specified location to a specified destination on local host.
+     *
+     * @param path = URL path
+     * @return the HTTP response
+     * @throws HttpClientException if the request fails
+     * @deprecated Use {@link #getFileStream(String)} instead. This method exposes internal
+     *             implementation details (CloseableHttpResponse) and will be removed in a
+     *             future release. The new method returns HttpFileResponse which provides
+     *             the same functionality with a cleaner API.
+     */
+    @Deprecated
     CloseableHttpResponse getFile(String path) throws HttpClientException;
     
     /**
      * Download a file from a specified location to a specified destination on local host.
-     * 
-     * @param acceptTypes
+     *
      * @param path - URL path
+     * @param acceptTypes - Content types to accept
+     * @return the HTTP response
+     * @throws HttpClientException if the request fails
+     * @deprecated Use {@link #getFileStream(String, ContentType...)} instead. This method exposes
+     *             internal implementation details (CloseableHttpResponse) and will be removed in a
+     *             future release. The new method returns HttpFileResponse which provides the same
+     *             functionality with a cleaner API.
      */
+    @Deprecated
     CloseableHttpResponse getFile(String path, ContentType... acceptTypes) throws HttpClientException;
 
     /**
