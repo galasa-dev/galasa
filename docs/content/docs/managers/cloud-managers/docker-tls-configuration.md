@@ -15,11 +15,19 @@ This guide explains how to configure Galasa to connect to Docker engines that ar
 
 ### Prerequisites
 
-- OpenSSL installed on your system
-- Docker installed and running
-- Java keytool (included with JDK)
-- Access to modify Docker daemon configuration
-- Galasa framework installed
+- **OpenSSL** installed on your system
+    - Linux/macOS: Usually pre-installed or available via package manager
+    - Windows: Download from [Win32/Win64 OpenSSL](https://slproweb.com/products/Win32OpenSSL.html) or use [Git for Windows](https://gitforwindows.org/) which includes OpenSSL
+- **Docker** installed and running
+- **Java keytool** (included with JDK)
+- **Access to modify Docker daemon configuration**
+- **Galasa framework** installed
+
+**Note for Windows users:** This guide uses command-line examples. You can use:
+
+- **PowerShell** (recommended) - Modern Windows shell with better scripting
+- **Command Prompt (cmd)** - Traditional Windows shell
+- **Git Bash** - Unix-like environment on Windows (includes OpenSSL)
 
 ---
 
@@ -29,6 +37,7 @@ The Certificate Authority is used to sign both the server and client certificate
 
 ### 1.1 Generate CA Private Key
 
+**Linux/macOS:**
 ```bash
 # Create a directory for certificates
 mkdir -p ~/docker-certs
@@ -38,13 +47,31 @@ cd ~/docker-certs
 openssl genrsa -out ca-key.pem 4096
 ```
 
+**Windows (PowerShell):**
+```powershell
+# Create a directory for certificates
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\docker-certs"
+Set-Location "$env:USERPROFILE\docker-certs"
+
+# Generate CA private key (4096-bit RSA)
+openssl genrsa -out ca-key.pem 4096
+```
+
 **Important:** Keep `ca-key.pem` secure! Anyone with this key can create trusted certificates.
 
 ### 1.2 Generate CA Certificate
 
+**Linux/macOS:**
 ```bash
 # Create CA certificate (valid for 10 years)
 openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem \
+  -subj "/C=US/ST=State/L=City/O=Organization/OU=IT/CN=Docker-CA"
+```
+
+**Windows (PowerShell):**
+```powershell
+# Create CA certificate (valid for 10 years)
+openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem `
   -subj "/C=US/ST=State/L=City/O=Organization/OU=IT/CN=Docker-CA"
 ```
 
@@ -56,17 +83,28 @@ The Docker daemon needs a server certificate to prove its identity to clients.
 
 ### 2.1 Generate Server Private Key
 
+**Linux/macOS/Windows:**
 ```bash
 openssl genrsa -out server-key.pem 4096
 ```
 
 ### 2.2 Create Certificate Signing Request (CSR)
 
-Replace `$DOCKER_HOST` with your Docker host's IP address or hostname:
+Replace the IP address with your Docker host's IP address or hostname:
 
+**Linux/macOS:**
 ```bash
 # Set your Docker host IP/hostname
 DOCKER_HOST="192.168.1.100"
+
+# Create CSR
+openssl req -subj "/CN=$DOCKER_HOST" -sha256 -new -key server-key.pem -out server.csr
+```
+
+**Windows (PowerShell):**
+```powershell
+# Set your Docker host IP/hostname
+$DOCKER_HOST="192.168.1.100"
 
 # Create CSR
 openssl req -subj "/CN=$DOCKER_HOST" -sha256 -new -key server-key.pem -out server.csr
@@ -76,6 +114,7 @@ openssl req -subj "/CN=$DOCKER_HOST" -sha256 -new -key server-key.pem -out serve
 
 Create a file named `extfile.cnf` with the following content (replace IP addresses as needed):
 
+**Linux/macOS:**
 ```bash
 cat > extfile.cnf <<EOF
 subjectAltName = DNS:$DOCKER_HOST,IP:$DOCKER_HOST,IP:127.0.0.1
@@ -83,8 +122,17 @@ extendedKeyUsage = serverAuth
 EOF
 ```
 
+**Windows (PowerShell):**
+```powershell
+@"
+subjectAltName = DNS:$DOCKER_HOST,IP:$DOCKER_HOST,IP:127.0.0.1
+extendedKeyUsage = serverAuth
+"@ | Out-File -FilePath extfile.cnf -Encoding ASCII
+```
+
 ### 2.4 Sign the Server Certificate
 
+**Linux/macOS:**
 ```bash
 openssl x509 -req -days 365 -sha256 \
   -in server.csr \
@@ -95,12 +143,16 @@ openssl x509 -req -days 365 -sha256 \
   -extfile extfile.cnf
 ```
 
-<!-- ### 2.5 Set Proper Permissions
-
-```bash
-chmod 0400 ca-key.pem server-key.pem
-chmod 0444 ca.pem server-cert.pem
-``` -->
+**Windows (PowerShell):**
+```powershell
+openssl x509 -req -days 365 -sha256 `
+  -in server.csr `
+  -CA ca.pem `
+  -CAkey ca-key.pem `
+  -CAcreateserial `
+  -out server-cert.pem `
+  -extfile extfile.cnf
+```
 
 ---
 
@@ -110,12 +162,14 @@ Galasa needs client certificates to authenticate to the Docker daemon.
 
 ### 3.1 Generate Client Private Key
 
+**Linux/macOS/Windows:**
 ```bash
 openssl genrsa -out key.pem 4096
 ```
 
 ### 3.2 Create Client CSR
 
+**Linux/macOS/Windows:**
 ```bash
 openssl req -subj '/CN=galasa-client' -new -key key.pem -out client.csr
 ```
@@ -124,14 +178,23 @@ openssl req -subj '/CN=galasa-client' -new -key key.pem -out client.csr
 
 Create `extfile-client.cnf`:
 
+**Linux/macOS:**
 ```bash
 cat > extfile-client.cnf <<EOF
 extendedKeyUsage = clientAuth
 EOF
 ```
 
+**Windows (PowerShell):**
+```powershell
+@"
+extendedKeyUsage = clientAuth
+"@ | Out-File -FilePath extfile-client.cnf -Encoding ASCII
+```
+
 ### 3.4 Sign the Client Certificate
 
+**Linux/macOS:**
 ```bash
 openssl x509 -req -days 365 -sha256 \
   -in client.csr \
@@ -142,15 +205,20 @@ openssl x509 -req -days 365 -sha256 \
   -extfile extfile-client.cnf
 ```
 
-<!-- ### 3.5 Set Client Certificate Permissions
+**Windows (PowerShell):**
+```powershell
+openssl x509 -req -days 365 -sha256 `
+  -in client.csr `
+  -CA ca.pem `
+  -CAkey ca-key.pem `
+  -CAcreateserial `
+  -out cert.pem `
+  -extfile extfile-client.cnf
+```
 
-```bash
-chmod 0400 key.pem
-chmod 0444 cert.pem
-``` -->
+### 3.5 Verify Certificate Chain
 
-### 3.6 Verify Certificate Chain
-
+**Linux/macOS/Windows:**
 ```bash
 # Verify server certificate
 openssl verify -CAfile ca.pem server-cert.pem
@@ -165,8 +233,11 @@ Both should output: `OK`
 
 ## Step 4: Configure Docker Daemon
 
+**Note:** This step is primarily for Linux systems. Windows Docker Desktop has a different configuration approach (see note below).
+
 ### 4.1 Copy Server Certificates to Docker
 
+**Linux:**
 ```bash
 # Create Docker certificate directory
 sudo mkdir -p /etc/docker/certs
@@ -176,15 +247,41 @@ sudo cp ca.pem /etc/docker/certs/
 sudo cp server-cert.pem /etc/docker/certs/
 sudo cp server-key.pem /etc/docker/certs/
 
-# Set ownership
+# Set ownership and permissions
 sudo chown root:root /etc/docker/certs/*
 sudo chmod 0400 /etc/docker/certs/server-key.pem
 sudo chmod 0444 /etc/docker/certs/ca.pem /etc/docker/certs/server-cert.pem
 ```
 
+**macOS:**
+```bash
+# Docker Desktop on macOS - certificates go in user directory
+mkdir -p ~/.docker/certs
+
+# Copy server certificates
+cp ca.pem ~/.docker/certs/
+cp server-cert.pem ~/.docker/certs/
+cp server-key.pem ~/.docker/certs/
+
+# Set permissions
+chmod 0400 ~/.docker/certs/server-key.pem
+chmod 0444 ~/.docker/certs/ca.pem ~/.docker/certs/server-cert.pem
+```
+
+**Windows:** Docker Desktop on Windows uses a GUI for configuration. For Windows Server with Docker Engine:
+```powershell
+# Create Docker certificate directory
+New-Item -ItemType Directory -Force -Path "C:\ProgramData\docker\certs"
+
+# Copy server certificates
+Copy-Item ca.pem C:\ProgramData\docker\certs\
+Copy-Item server-cert.pem C:\ProgramData\docker\certs\
+Copy-Item server-key.pem C:\ProgramData\docker\certs\
+```
+
 ### 4.2 Configure Docker Daemon
 
-Edit `/etc/docker/daemon.json` (create if it doesn't exist):
+**Linux:** Edit `/etc/docker/daemon.json` (create if it doesn't exist):
 
 ```json
 {
@@ -197,20 +294,59 @@ Edit `/etc/docker/daemon.json` (create if it doesn't exist):
 }
 ```
 
+**macOS:** Docker Desktop settings are in `~/.docker/daemon.json`:
+
+```json
+{
+  "hosts": ["tcp://0.0.0.0:2376"],
+  "tls": true,
+  "tlsverify": true,
+  "tlscacert": "/Users/YOUR_USERNAME/.docker/certs/ca.pem",
+  "tlscert": "/Users/YOUR_USERNAME/.docker/certs/server-cert.pem",
+  "tlskey": "/Users/YOUR_USERNAME/.docker/certs/server-key.pem"
+}
+```
+
+**Windows Server:** Edit `C:\ProgramData\docker\config\daemon.json`:
+
+```json
+{
+  "hosts": ["tcp://0.0.0.0:2376"],
+  "tls": true,
+  "tlsverify": true,
+  "tlscacert": "C:\\ProgramData\\docker\\certs\\ca.pem",
+  "tlscert": "C:\\ProgramData\\docker\\certs\\server-cert.pem",
+  "tlskey": "C:\\ProgramData\\docker\\certs\\server-key.pem"
+}
+```
+
 **Note:** Port 2376 is the standard Docker TLS port. Port 2375 is for unencrypted connections (not recommended).
 
 ### 4.3 Restart Docker Daemon
 
+**Linux (systemd):**
 ```bash
-# Systemd-based systems
+# Restart Docker daemon
 sudo systemctl restart docker
 
 # Verify Docker is running with TLS
 sudo systemctl status docker
 ```
 
+**macOS:** Restart Docker Desktop from the menu bar icon.
+
+**Windows Server:**
+```powershell
+# Restart Docker service
+Restart-Service docker
+
+# Verify Docker is running
+Get-Service docker
+```
+
 ### 4.4 Test Docker TLS Connection
 
+**Linux/macOS:**
 ```bash
 # Test with curl (should fail without certificates)
 curl https://$DOCKER_HOST:2376/version
@@ -220,6 +356,19 @@ curl --cacert ca.pem \
      --cert cert.pem \
      --key key.pem \
      https://$DOCKER_HOST:2376/version
+```
+
+**Windows (PowerShell):**
+```powershell
+# Test with Invoke-WebRequest (should fail without certificates)
+Invoke-WebRequest -Uri "https://$DOCKER_HOST:2376/version"
+
+# Test with certificates (requires certificate setup in PowerShell)
+# Or use curl if available (Git for Windows includes curl)
+curl --cacert ca.pem `
+     --cert cert.pem `
+     --key key.pem `
+     "https://$DOCKER_HOST:2376/version"
 ```
 
 You should see Docker version information in JSON format.
@@ -232,6 +381,7 @@ Galasa stores certificates in a Java KeyStore format. We'll create a PKCS12 KeyS
 
 ### 5.1 Create KeyStore with Client Certificate
 
+**Linux/macOS:**
 ```bash
 # Convert client cert and key to PKCS12 format
 openssl pkcs12 -export \
@@ -242,10 +392,22 @@ openssl pkcs12 -export \
   -password pass:changeit
 ```
 
+**Windows (PowerShell):**
+```powershell
+# Convert client cert and key to PKCS12 format
+openssl pkcs12 -export `
+  -in cert.pem `
+  -inkey key.pem `
+  -out client-only.p12 `
+  -name "docker-client" `
+  -password pass:changeit
+```
+
 **Important:** Replace `changeit` with a strong password!
 
 ### 5.2 Import into Final KeyStore
 
+**Linux/macOS:**
 ```bash
 # Import the client certificate
 keytool -importkeystore \
@@ -257,8 +419,21 @@ keytool -importkeystore \
   -deststorepass changeit
 ```
 
+**Windows:
+```powershell
+# Import the client certificate
+keytool -importkeystore `
+  -srckeystore client-only.p12 `
+  -srcstoretype PKCS12 `
+  -srcstorepass changeit `
+  -destkeystore docker-tls.p12 `
+  -deststoretype PKCS12 `
+  -deststorepass changeit
+```
+
 ### 5.3 Import CA Certificate
 
+**Linux/macOS:**
 ```bash
 # Import CA certificate as trusted cert
 keytool -importcert \
@@ -270,17 +445,30 @@ keytool -importcert \
   -noprompt
 ```
 
+**Windows (PowerShell):**
+```powershell
+# Import CA certificate as trusted cert
+keytool -importcert `
+  -alias docker-ca `
+  -file ca.pem `
+  -keystore docker-tls.p12 `
+  -storepass changeit `
+  -storetype PKCS12 `
+  -noprompt
+```
+
 ### 5.4 Verify KeyStore Contents
 
+**Linux/macOS/Windows:**
 ```bash
 keytool -list -v -keystore docker-tls.p12 -storepass changeit -storetype PKCS12
 ```
 
 You should see:
+
 - **Entry 1:** `docker-client` (PrivateKeyEntry) - Your client certificate and private key
 - **Entry 2:** `docker-ca` (trustedCertEntry) - The CA certificate
 
----
 ---
 
 ## Alternative: Create JKS KeyStore for Galasa
@@ -304,6 +492,7 @@ While PKCS12 is the recommended format, you can also use the legacy JKS (Java Ke
 
 #### Option A: Create JKS Directly from Certificates
 
+**Linux/macOS:**
 ```bash
 # Step 1: Convert client certificate and key to PKCS12 first
 openssl pkcs12 -export \
@@ -335,10 +524,44 @@ keytool -importcert \
 rm temp-client.p12
 ```
 
+**Windows:**
+```powershell
+# Step 1: Convert client certificate and key to PKCS12 first
+openssl pkcs12 -export `
+  -in cert.pem `
+  -inkey key.pem `
+  -out temp-client.p12 `
+  -name "docker-client" `
+  -password pass:changeit
+
+# Step 2: Convert PKCS12 to JKS
+keytool -importkeystore `
+  -srckeystore temp-client.p12 `
+  -srcstoretype PKCS12 `
+  -srcstorepass changeit `
+  -destkeystore docker-tls.jks `
+  -deststoretype JKS `
+  -deststorepass changeit
+
+# Step 3: Import CA certificate
+keytool -importcert `
+  -alias docker-ca `
+  -file ca.pem `
+  -keystore docker-tls.jks `
+  -storepass changeit `
+  -storetype JKS `
+  -noprompt
+
+# Step 4: Clean up temporary file
+rm temp-client.p12
+```
+
+
 #### Option B: Convert Existing PKCS12 to JKS
 
 If you already have a PKCS12 KeyStore from Step 5:
 
+**Linux/macOS:**
 ```bash
 # Convert PKCS12 to JKS
 keytool -importkeystore \
@@ -350,8 +573,21 @@ keytool -importkeystore \
   -deststorepass changeit
 ```
 
+**Windows:**
+```powershell
+# Convert PKCS12 to JKS
+keytool -importkeystore `
+  -srckeystore "docker-tls.p12" `
+  -srcstoretype PKCS12 `
+  -srcstorepass changeit `
+  -destkeystore "docker-tls.jks" `
+  -deststoretype JKS `
+  -deststorepass changeit
+```
+
 ### Verify JKS KeyStore
 
+**Linux/macOS/Windows:**
 ```bash
 # List contents
 keytool -list -v -keystore docker-tls.jks -storepass changeit -storetype JKS
@@ -389,6 +625,7 @@ Be aware of these JKS limitations:
 
 If you need to migrate from JKS to PKCS12:
 
+**Linux/macOS:**
 ```bash
 # Convert JKS to PKCS12
 keytool -importkeystore \
@@ -404,30 +641,20 @@ keytool -importkeystore \
 # Re-encode the PKCS12 file to base64 (see Step 6)
 ```
 
-### JKS-Specific Troubleshooting
+**Windows (PowerShell):**
+```powershell
+# Convert JKS to PKCS12
+keytool -importkeystore `
+  -srckeystore docker-tls.jks `
+  -srcstoretype JKS `
+  -srcstorepass changeit `
+  -destkeystore docker-tls.p12 `
+  -deststoretype PKCS12 `
+  -deststorepass changeit
 
-#### Issue: "JKS keystore uses a proprietary format"
-
-**Cause:** Warning message from Java 9+ about JKS being deprecated.
-
-**Solution:** This is just a warning. The KeyStore will still work, but consider migrating to PKCS12.
-
-#### Issue: "Cannot store non-PrivateKeys"
-
-**Cause:** Attempting to store secret keys in JKS format.
-
-**Solution:** JKS only supports private keys and certificates. Use PKCS12 if you need to store secret keys.
-
-#### Issue: "Keystore was tampered with, or password was incorrect"
-
-**Cause:** Incorrect password or corrupted JKS file.
-
-**Solution:**
-```bash
-# Verify password
-keytool -list -keystore docker-tls.jks -storepass YOUR_PASSWORD
-
-# If corrupted, recreate from original certificates
+# Update Galasa configuration
+# Change type=JKS to type=PKCS12
+# Re-encode the PKCS12 file to base64 (see Step 6)
 ```
 
 ---
@@ -439,6 +666,7 @@ Galasa stores KeyStore data as base64-encoded text in the Credentials Store.
 
 ### 6.1 Encode the KeyStore
 
+**Linux/macOS:**
 ```bash
 # Create base64-encoded version
 base64 docker-tls.p12 > docker-tls.b64
@@ -447,13 +675,29 @@ base64 docker-tls.p12 > docker-tls.b64
 head -n 5 docker-tls.b64
 ```
 
-### 6.2 Create Single-Line Base64 (Optional)
+**Windows (PowerShell):**
+```powershell
+# Create base64-encoded version
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("docker-tls.p12")) | Out-File -FilePath docker-tls.b64 -Encoding ASCII
 
-For easier copying:
+# Verify encoding (should show base64 text)
+Get-Content docker-tls.b64 -Head 5
+```
 
+### 6.2 Create Single-Line Base64 (Required for API)
+
+For easier copying and API usage:
+
+**Linux/macOS:**
 ```bash
 # Create single-line version
 base64 docker-tls.p12 | tr -d '\n' > docker-tls-oneline.b64
+```
+
+**Windows (PowerShell):**
+```powershell
+# Create single-line version (PowerShell output is already single-line)
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("docker-tls.p12")) | Out-File -FilePath docker-tls-oneline.b64 -Encoding ASCII -NoNewline
 ```
 
 ---
@@ -466,7 +710,10 @@ Galasa provides two methods for storing KeyStore credentials:
 
 #### Option A: File-Based Credentials Store
 
-Edit your `~/.galasa/cps.properties` file:
+Edit your Galasa properties file:
+
+- **Linux/macOS:** `~/.galasa/cps.properties`
+- **Windows:** `%USERPROFILE%\.galasa\cps.properties`
 
 ```properties
 # Docker TLS credentials
@@ -476,14 +723,22 @@ secure.credentials.DOCKER_TLS.type=PKCS12
 ```
 
 **To get the base64 content:**
+
+**Linux/macOS:**
 ```bash
 echo "base64:$(cat docker-tls-oneline.b64)"
+```
+
+**Windows (PowerShell):**
+```powershell
+"base64:$(Get-Content docker-tls-oneline.b64 -Raw)"
 ```
 
 #### Option B: ETCD Credentials Store
 
 For Galasa services, you can use the Secrets REST API to manage KeyStore credentials:
 
+**Linux/macOS:**
 ```bash
 # Prepare the secret payload
 cat > docker-tls-secret.json <<EOF
@@ -521,7 +776,47 @@ curl -X DELETE https://your-galasa-api/secrets/DOCKER_TLS \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
+**Windows (PowerShell):**
+```powershell
+# Prepare the secret payload
+$keystoreData = Get-Content docker-tls-oneline.b64 -Raw
+$secretPayload = @{
+    name = "DOCKER_TLS"
+    description = "Docker TLS certificates for PRIMARY engine"
+    type = "KeyStore"
+    data = @{
+        keystore = "base64:$keystoreData"
+        password = "changeit"
+        type = "PKCS12"
+    }
+    encoding = "base64"
+} | ConvertTo-Json -Depth 10
+
+$secretPayload | Out-File -FilePath docker-tls-secret.json -Encoding UTF8
+
+# Create the secret using the API
+curl -X POST https://your-galasa-api/secrets `
+  -H "Content-Type: application/json" `
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" `
+  -d "@docker-tls-secret.json"
+
+# Or update an existing secret
+curl -X PUT https://your-galasa-api/secrets/DOCKER_TLS `
+  -H "Content-Type: application/json" `
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" `
+  -d "@docker-tls-secret.json"
+
+# Retrieve the secret (values will be redacted unless you have permission)
+curl -X GET https://your-galasa-api/secrets/DOCKER_TLS `
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Delete the secret if needed
+curl -X DELETE https://your-galasa-api/secrets/DOCKER_TLS `
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
 **Important Notes for Secrets API:**
+
 - The KeyStore data must be base64-encoded and prefixed with "base64:" in the JSON payload
 - The `encoding` field must be set to `"base64"`
 - The `type` field in `data` specifies the KeyStore format (PKCS12 or JKS)
@@ -532,14 +827,6 @@ curl -X DELETE https://your-galasa-api/secrets/DOCKER_TLS \
   - The KeyStore type doesn't match the actual format
   - The KeyStore cannot be loaded
   - The "base64:" prefix is missing
-
-**Secrets API Benefits:**
-- ✅ **Fail-fast validation:** Errors detected immediately at creation time, not during test execution
-- ✅ **Centralized management:** Single API for all credential types
-- ✅ **Audit trail:** Automatic tracking of who created/updated credentials and when
-- ✅ **Role-based access control (RBAC):** Fine-grained permissions for credential operations
-- ✅ **Encrypted storage:** All credentials encrypted at rest in etcd
-- ✅ **RESTful interface:** Easy integration with CI/CD pipelines and automation tools
 
 ### 7.2 Configure Docker Engine Properties
 
@@ -563,6 +850,8 @@ import dev.galasa.docker.IDockerContainer;
 
 @Test
 public class DockerTlsTest {
+
+    @Logger public Log logger;
     
     @DockerContainer(image = "alpine:latest", dockerEngineTag = "PRIMARY")
     public IDockerContainer container;
@@ -571,7 +860,7 @@ public class DockerTlsTest {
     public void testDockerConnection() throws Exception {
         // Container will be provisioned using TLS connection
         String output = container.exec("echo", "Hello from secure Docker!");
-        System.out.println(output);
+        logger.info(output);
     }
 }
 ```
@@ -582,11 +871,21 @@ public class DockerTlsTest {
 
 ### 8.1 Verify Galasa Configuration
 
+**Linux/macOS:**
 ```bash
 # Test with curl using the same certificates
 curl --cacert ca.pem \
      --cert cert.pem \
      --key key.pem \
+     https://192.168.1.100:2376/version
+```
+
+**Windows (PowerShell):**
+```powershell
+# Test with curl using the same certificates
+curl --cacert ca.pem `
+     --cert cert.pem `
+     --key key.pem `
      https://192.168.1.100:2376/version
 ```
 
@@ -622,6 +921,8 @@ INFO: Docker engine PRIMARY connected via HTTPS
 **Cause:** The CA certificate is not properly included in the KeyStore as a trusted certificate.
 
 **Solution:**
+
+**Linux/macOS/Windows:**
 ```bash
 # Verify CA is in KeyStore
 keytool -list -keystore docker-tls.p12 -storepass changeit | grep docker-ca
@@ -645,6 +946,8 @@ keytool -importcert -alias docker-ca -file ca.pem \
 **Cause:** Docker daemon is not listening on the TLS port, or firewall is blocking the connection.
 
 **Solution:**
+
+**Linux:**
 ```bash
 # Check if Docker is listening on port 2376
 sudo netstat -tlnp | grep 2376
@@ -657,6 +960,35 @@ sudo iptables -L -n | grep 2376
 
 # Restart Docker daemon
 sudo systemctl restart docker
+```
+
+**macOS:**
+```bash
+# Check if Docker is listening on port 2376
+netstat -an | grep 2376
+
+# Check Docker daemon configuration (Docker Desktop)
+cat ~/Library/Group\ Containers/group.com.docker/settings.json
+
+# Restart Docker (Docker Desktop)
+# Use Docker Desktop UI or:
+killall Docker && open -a Docker
+```
+
+**Windows (PowerShell):**
+```powershell
+# Check if Docker is listening on port 2376
+netstat -an | Select-String "2376"
+
+# Check Docker daemon configuration (Docker Desktop)
+Get-Content "$env:APPDATA\Docker\settings.json"
+
+# Check firewall rules
+Get-NetFirewallRule | Where-Object {$_.DisplayName -like "*Docker*"}
+
+# Restart Docker service
+Restart-Service docker
+# Or for Docker Desktop, restart from system tray
 ```
 
 ### Issue 4: "KeyStore data must be base64 encoded with 'base64:' prefix"
@@ -692,6 +1024,8 @@ For Secrets REST API:
 **Cause:** Galasa only supports PKCS12 and JKS KeyStore formats.
 
 **Solution:**
+
+**Linux/macOS:**
 ```bash
 # Convert to PKCS12 if using another format
 keytool -importkeystore \
@@ -701,15 +1035,33 @@ keytool -importkeystore \
   -deststoretype PKCS12
 ```
 
+**Windows (PowerShell):**
+```powershell
+# Convert to PKCS12 if using another format
+keytool -importkeystore `
+  -srckeystore old-keystore.jks `
+  -srcstoretype JKS `
+  -destkeystore docker-tls.p12 `
+  -deststoretype PKCS12
+```
+
 ### Issue 6: "Hostname verification failed"
 
 **Cause:** The hostname in the Docker engine configuration doesn't match the Subject Alternative Names (SAN) in the server certificate.
 
 **Solution:**
 1. Verify the SAN in the server certificate:
+   
+   **Linux/macOS:**
    ```bash
    openssl x509 -in server-cert.pem -text -noout | grep -A 1 "Subject Alternative Name"
    ```
+   
+   **Windows (PowerShell):**
+   ```powershell
+   openssl x509 -in server-cert.pem -text -noout | Select-String -Pattern "Subject Alternative Name" -Context 0,1
+   ```
+
 2. Ensure your `docker.engine.PRIMARY.hostname` matches one of the SANs
 3. If needed, regenerate the server certificate with correct SANs
 
@@ -718,6 +1070,8 @@ keytool -importkeystore \
 **Cause:** Invalid certificate paths or permissions in `daemon.json`.
 
 **Solution:**
+
+**Linux:**
 ```bash
 # Check Docker logs
 sudo journalctl -u docker -n 50
@@ -732,11 +1086,43 @@ cat /etc/docker/daemon.json | python -m json.tool
 sudo dockerd --validate
 ```
 
+**macOS:**
+```bash
+# Check Docker logs (Docker Desktop)
+tail -f ~/Library/Containers/com.docker.docker/Data/log/vm/dockerd.log
+
+# Verify certificate files
+ls -la ~/.docker/certs/
+
+# Verify daemon.json syntax
+cat ~/Library/Group\ Containers/group.com.docker/settings.json | python -m json.tool
+```
+
+**Windows (PowerShell):**
+```powershell
+# Check Docker logs
+Get-EventLog -LogName Application -Source Docker -Newest 50
+
+# Or for Docker Desktop:
+Get-Content "$env:LOCALAPPDATA\Docker\log.txt" -Tail 50
+
+# Verify certificate files exist
+Get-ChildItem "$env:ProgramData\docker\certs.d\" -Recurse
+
+# Verify daemon.json syntax
+Get-Content "$env:ProgramData\docker\config\daemon.json" | ConvertFrom-Json
+
+# Test Docker daemon configuration
+dockerd --validate
+```
+
 ### Issue 8: "Failed to load KeyStore" or "Password incorrect"
 
 **Cause:** The password in Galasa configuration doesn't match the KeyStore password, or the KeyStore data is corrupted.
 
 **Solution:**
+
+**Linux/macOS/Windows:**
 ```bash
 # Test KeyStore password locally
 keytool -list -keystore docker-tls.p12 -storepass YOUR_PASSWORD
@@ -755,6 +1141,7 @@ secure.credentials.DOCKER_TLS.password=YOUR_PASSWORD
 
 ### 1. Protect Private Keys
 
+**Linux/macOS:**
 ```bash
 # Set restrictive permissions
 chmod 0400 ca-key.pem server-key.pem key.pem
@@ -763,19 +1150,66 @@ chmod 0400 ca-key.pem server-key.pem key.pem
 mv ca-key.pem /secure/offline/storage/
 ```
 
+**Windows (PowerShell):**
+```powershell
+# Remove inheritance and set explicit permissions for current user only
+$files = @("ca-key.pem", "server-key.pem", "key.pem")
+foreach ($file in $files) {
+    $acl = Get-Acl $file
+    $acl.SetAccessRuleProtection($true, $false)
+    $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+        $env:USERNAME, "Read", "Allow"
+    )
+    $acl.SetAccessRule($rule)
+    Set-Acl $file $acl
+}
+
+# Store CA key offline after certificate generation
+Move-Item ca-key.pem "C:\SecureStorage\"
+```
+
 ### 2. Use Strong Passwords
 
+**Linux/macOS:**
 ```bash
 # Generate a strong random password
 openssl rand -base64 32
 ```
 
+**Windows (PowerShell):**
+```powershell
+# Generate a strong random password
+openssl rand -base64 32
+
+# Alternative using PowerShell
+Add-Type -AssemblyName System.Web
+[System.Web.Security.Membership]::GeneratePassword(32, 8)
+```
+
 ### 3. Certificate Rotation
 
+**Linux/macOS:**
 ```bash
-# Set certificate expiry reminders
-# Regenerate certificates before expiry (typically 1 year)
+# Check certificate expiry date
 openssl x509 -in cert.pem -noout -enddate
+
+# Set up a reminder (example using cron)
+# Add to crontab: 0 0 1 * * /path/to/check-cert-expiry.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+# Check certificate expiry date
+openssl x509 -in cert.pem -noout -enddate
+
+# Alternative: View certificate details
+$cert = Get-PfxCertificate -FilePath docker-tls.p12
+Write-Host "Certificate expires: $($cert.NotAfter)"
+
+# Set up a reminder using Task Scheduler
+$action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-File C:\Scripts\check-cert-expiry.ps1"
+$trigger = New-ScheduledTaskTrigger -Daily -At 9am
+Register-ScheduledTask -TaskName "CheckDockerCertExpiry" -Action $action -Trigger $trigger
 ```
 
 ### 4. Limit Certificate Scope
@@ -786,10 +1220,43 @@ openssl x509 -in cert.pem -noout -enddate
 
 ### 5. Network Security
 
+**Linux:**
 ```bash
 # Restrict Docker TLS port to specific IPs
 sudo iptables -A INPUT -p tcp --dport 2376 -s 192.168.1.0/24 -j ACCEPT
 sudo iptables -A INPUT -p tcp --dport 2376 -j DROP
+
+# Make rules persistent
+sudo iptables-save > /etc/iptables/rules.v4
+```
+
+**macOS:**
+```bash
+# macOS uses pf (packet filter)
+# Edit /etc/pf.conf and add:
+# pass in proto tcp from 192.168.1.0/24 to any port 2376
+# block in proto tcp from any to any port 2376
+
+# Load the rules
+sudo pfctl -f /etc/pf.conf
+sudo pfctl -e
+```
+
+**Windows (PowerShell - Run as Administrator):**
+```powershell
+# Restrict Docker TLS port to specific IPs
+New-NetFirewallRule -DisplayName "Docker TLS - Allow Subnet" `
+    -Direction Inbound `
+    -LocalPort 2376 `
+    -Protocol TCP `
+    -RemoteAddress 192.168.1.0/24 `
+    -Action Allow
+
+New-NetFirewallRule -DisplayName "Docker TLS - Block Others" `
+    -Direction Inbound `
+    -LocalPort 2376 `
+    -Protocol TCP `
+    -Action Block
 ```
 
 ---
