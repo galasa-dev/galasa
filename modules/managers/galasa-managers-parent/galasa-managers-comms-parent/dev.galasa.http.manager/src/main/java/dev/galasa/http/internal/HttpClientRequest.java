@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -32,7 +33,6 @@ import org.w3c.dom.Document;
 import com.google.gson.JsonObject;
 
 import dev.galasa.http.ContentType;
-import dev.galasa.http.HttpDelete;
 import dev.galasa.http.HttpClientException;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -285,7 +285,6 @@ public class HttpClientRequest {
             request.setHeader(header.getKey(), header.getValue());
         }
 
-        // In httpclient5, all request types can have entities
         if (getContent() != null) {
             request.setEntity(getContent());
         }
