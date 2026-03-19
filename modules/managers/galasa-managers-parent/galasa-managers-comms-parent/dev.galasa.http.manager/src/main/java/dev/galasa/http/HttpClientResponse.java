@@ -54,7 +54,7 @@ public class HttpClientResponse<T> {
     private final Map<String, String> headers = new HashMap<>();
     private static final Log logger = LogFactory.getLog(HttpClientResponse.class);
 
-    private HttpClientResponse() {
+    HttpClientResponse() {
     }
 
     private void setStatusCode(int statusCode) {
@@ -101,7 +101,7 @@ public class HttpClientResponse<T> {
         return protocolVersion + " " + statusCode + " " + statusMessage;
     }
 
-    private void setContent(T content) {
+    protected void setContent(T content) {
         this.content = content;
     }
 
@@ -136,7 +136,7 @@ public class HttpClientResponse<T> {
         return headers;
     }
 
-    private void populateGenericValues(HttpResponse httpResponse) {
+    protected void populateGenericValues(HttpResponse httpResponse) {
 
         setStatusCode(httpResponse.getCode());
         setStatusMessage(httpResponse.getReasonPhrase());

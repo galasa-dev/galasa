@@ -324,8 +324,7 @@ public interface IHttpClient {
      * @throws HttpClientException if the request fails
      * @deprecated Use {@link #getFileStream(String)} instead. This method exposes internal
      *             implementation details (CloseableHttpResponse) and will be removed in a
-     *             future release. The new method returns HttpFileResponse which provides
-     *             the same functionality with a cleaner API.
+     *             future release.
      */
     @Deprecated
     CloseableHttpResponse getFile(String path) throws HttpClientException;
@@ -339,8 +338,7 @@ public interface IHttpClient {
      * @throws HttpClientException if the request fails
      * @deprecated Use {@link #getFileStream(String, ContentType...)} instead. This method exposes
      *             internal implementation details (CloseableHttpResponse) and will be removed in a
-     *             future release. The new method returns HttpFileResponse which provides the same
-     *             functionality with a cleaner API.
+     *             future release.
      */
     @Deprecated
     CloseableHttpResponse getFile(String path, ContentType... acceptTypes) throws HttpClientException;

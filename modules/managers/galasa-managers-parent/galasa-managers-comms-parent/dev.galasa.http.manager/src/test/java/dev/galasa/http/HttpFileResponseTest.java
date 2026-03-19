@@ -29,7 +29,7 @@ public class HttpFileResponseTest {
         try (HttpFileResponse response = new HttpFileResponse(mockResponse)) {
             // Then
             assertThat(response.getStatusCode()).as("Status code should be 200").isEqualTo(200);
-            assertThat(response.getReasonPhrase()).as("Reason phrase should be OK").isEqualTo("OK");
+            assertThat(response.getStatusMessage()).as("Reason phrase should be OK").isEqualTo("OK");
             assertThat(response.getHeader("Content-Type")).as("Content-Type header should be present").isEqualTo("application/json");
             assertThat(response.getHeader("Content-Length")).as("Content-Length header should be present").isEqualTo("1024");
         }
@@ -76,14 +76,11 @@ public class HttpFileResponseTest {
         MockClassicHttpResponse mockResponse = new MockClassicHttpResponse(200, "OK");
         mockResponse.setEntity(new MockHttpEntity(new IOException("Stream error")));
         
-        // When
-        try (HttpFileResponse response = new HttpFileResponse(mockResponse)) {
-            // Then
-            assertThatThrownBy(() -> response.getContent())
-                .isInstanceOf(HttpClientException.class)
-                .hasMessageContaining("Failed to get response content stream")
-                .hasCauseInstanceOf(IOException.class);
-        }
+        // When/Then
+        assertThatThrownBy(() -> new HttpFileResponse(mockResponse))
+            .isInstanceOf(HttpClientException.class)
+            .hasMessageContaining("Failed to get response content stream")
+            .hasCauseInstanceOf(IOException.class);
     }
 
     @Test
@@ -106,7 +103,7 @@ public class HttpFileResponseTest {
         // When
         try (HttpFileResponse response = new HttpFileResponse(mockResponse)) {
             // Then
-            assertThat(response.getReasonPhrase()).as("Reason phrase should match").isEqualTo("Internal Server Error");
+            assertThat(response.getStatusMessage()).as("Reason phrase should match").isEqualTo("Internal Server Error");
         }
     }
 
@@ -146,27 +143,10 @@ public class HttpFileResponseTest {
         // When
         try (HttpFileResponse response = new HttpFileResponse(mockResponse)) {
             // Then
-            assertThat(response.getHeaders()).as("Should contain all headers").hasSize(3);
-            assertThat(response.getHeaders()).as("Should contain Content-Type").containsEntry("Content-Type", "application/json");
-            assertThat(response.getHeaders()).as("Should contain Content-Length").containsEntry("Content-Length", "512");
-            assertThat(response.getHeaders()).as("Should contain X-Custom").containsEntry("X-Custom", "value");
-        }
-    }
-
-    @Test
-    public void testGetHeadersReturnsNewMapInstance() throws Exception {
-        // Given
-        MockClassicHttpResponse mockResponse = new MockClassicHttpResponse(200, "OK");
-        mockResponse.addHeader("Test", "value");
-        
-        // When
-        try (HttpFileResponse response = new HttpFileResponse(mockResponse)) {
-            var headers1 = response.getHeaders();
-            var headers2 = response.getHeaders();
-            
-            // Then
-            assertThat(headers1).as("Should return different map instances").isNotSameAs(headers2);
-            assertThat(headers1).as("Maps should have equal content").isEqualTo(headers2);
+            assertThat(response.getheaders()).as("Should contain all headers").hasSize(3);
+            assertThat(response.getheaders()).as("Should contain Content-Type").containsEntry("Content-Type", "application/json");
+            assertThat(response.getheaders()).as("Should contain Content-Length").containsEntry("Content-Length", "512");
+            assertThat(response.getheaders()).as("Should contain X-Custom").containsEntry("X-Custom", "value");
         }
     }
 

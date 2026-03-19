@@ -21,9 +21,10 @@ import org.apache.hc.core5.http.message.BasicHeader;
  */
 public class MockClassicHttpResponse implements ClassicHttpResponse {
 
-    private final int statusCode;
-    private final String reasonPhrase;
-    private final List<Header> headers;
+    private ProtocolVersion version;
+    private int statusCode;
+    private String reasonPhrase;
+    private List<Header> headers;
     private HttpEntity entity;
     private boolean closed;
     private int closeCount;
@@ -86,17 +87,27 @@ public class MockClassicHttpResponse implements ClassicHttpResponse {
         }
     }
 
-    // Unsupported methods - throw UnsupportedOperationException
+    @Override
+    public ProtocolVersion getVersion() {
+        return this.version;
+    }
 
     @Override
     public void setCode(int code) {
-        throw new UnsupportedOperationException("setCode not implemented");
+        this.statusCode = code;
     }
 
     @Override
     public void setReasonPhrase(String reason) {
-        throw new UnsupportedOperationException("setReasonPhrase not implemented");
+        this.reasonPhrase = reason;
     }
+
+    @Override
+    public void setVersion(ProtocolVersion version) {
+        this.version = version;
+    }
+
+    // Unsupported methods - throw UnsupportedOperationException
 
 
     @Override
@@ -107,16 +118,6 @@ public class MockClassicHttpResponse implements ClassicHttpResponse {
     @Override
     public void setLocale(Locale loc) {
         throw new UnsupportedOperationException("setLocale not implemented");
-    }
-
-    @Override
-    public ProtocolVersion getVersion() {
-        throw new UnsupportedOperationException("getVersion not implemented");
-    }
-
-    @Override
-    public void setVersion(ProtocolVersion version) {
-        throw new UnsupportedOperationException("setVersion not implemented");
     }
 
     @Override
