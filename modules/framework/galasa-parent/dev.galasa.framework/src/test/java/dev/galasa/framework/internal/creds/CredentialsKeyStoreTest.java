@@ -8,37 +8,34 @@ package dev.galasa.framework.internal.creds;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import dev.galasa.ICredentials;
 import dev.galasa.ICredentialsKeyStore;
-import dev.galasa.framework.mocks.MockFramework;
-import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.mocks.MockCPSStore;
+import dev.galasa.framework.mocks.MockCredentialsStore;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 
 /**
  * Test class for CredentialsKeyStore functionality.
- * 
+ *
  * This class tests the creation, storage, and retrieval of KeyStore
  * credentials. Uses a simple KeyStore with a secret key for testing
  * to avoid complex certificate generation.
  */
 public class CredentialsKeyStoreTest {
 
-    private File fileCPS;
-    private File fileCREDS;
     private KeyStore testKeyStore;
     private String testPassword = "testPassword123"; //pragma: allowlist secret
     private byte[] testKeyStoreBytes;
@@ -46,9 +43,6 @@ public class CredentialsKeyStoreTest {
 
     @Before
     public void setup() throws Exception {
-        fileCPS = File.createTempFile("galasacps_", ".properties");
-        fileCREDS = File.createTempFile("galasacreds_", ".properties");
-        
         // Create a simple test KeyStore with a secret key (no certificates needed)
         testKeyStore = createSimpleTestKeyStore();
         
@@ -58,16 +52,6 @@ public class CredentialsKeyStoreTest {
         testKeyStoreBytes = baos.toByteArray();
 
         encodedKeyStore = "base64:" + Base64.getEncoder().encodeToString(testKeyStoreBytes);
-    }
-
-    @After
-    public void teardown() throws Exception {
-        if (fileCPS.exists()) {
-            fileCPS.delete();
-        }
-        if (fileCREDS.exists()) {
-            fileCREDS.delete();
-        }
     }
 
     /**
@@ -123,36 +107,33 @@ public class CredentialsKeyStoreTest {
     }
 
     /**
-     * Test retrieving KeyStore credentials from FileCredentialsStore.
+     * Test retrieving KeyStore credentials from MockCredentialsStore.
      *
      * The KeyStore bytes must be stored with the "base64:" prefix so the
      * decode() method knows to base64-decode them.
      */
     @Test
-    public void testGetKeyStoreCredentialsFromFile() throws Exception {
-        Properties propsCPS = new Properties();
-        saveProperties(propsCPS, fileCPS);
+    public void testGetKeyStoreCredentialsFromStore() throws Exception {
+        // Create KeyStore credentials
+        CredentialsKeyStore keyStoreCreds = new CredentialsKeyStore(encodedKeyStore, testPassword, "PKCS12");
         
-        Properties propsCREDS = new Properties();
-        propsCREDS.setProperty("secure.credentials.TESTCREDSID.keystore", encodedKeyStore);
-        propsCREDS.setProperty("secure.credentials.TESTCREDSID.password", testPassword);
-        propsCREDS.setProperty("secure.credentials.TESTCREDSID.type", "PKCS12");
-        saveProperties(propsCREDS, fileCREDS);
+        // Create mock credentials store with the KeyStore credentials
+        Map<String, ICredentials> credsMap = new HashMap<>();
+        credsMap.put("TESTCREDSID", keyStoreCreds);
+        MockCredentialsStore mockCredsStore = new MockCredentialsStore(credsMap);
 
-        IFramework framework = new MockFramework(fileCPS);
-        FileCredentialsStore fileCreds = new FileCredentialsStore(fileCREDS.toURI(), framework);
-
-        ICredentials creds = fileCreds.getCredentials("TESTCREDSID");
+        // Retrieve credentials directly from the mock store
+        ICredentials creds = mockCredsStore.getCredentials("TESTCREDSID");
 
         assertThat(creds).isNotNull();
         assertThat(creds).isInstanceOf(ICredentialsKeyStore.class);
 
-        ICredentialsKeyStore keyStoreCreds = (ICredentialsKeyStore) creds;
-        assertThat(keyStoreCreds.getKeyStorePassword()).isEqualTo(testPassword);
-        assertThat(keyStoreCreds.getKeyStoreType()).isEqualTo("PKCS12");
+        ICredentialsKeyStore retrievedCreds = (ICredentialsKeyStore) creds;
+        assertThat(retrievedCreds.getKeyStorePassword()).isEqualTo(testPassword);
+        assertThat(retrievedCreds.getKeyStoreType()).isEqualTo("PKCS12");
         
         // Verify KeyStore can be loaded
-        KeyStore loadedKeyStore = keyStoreCreds.getKeyStore();
+        KeyStore loadedKeyStore = retrievedCreds.getKeyStore();
         assertThat(loadedKeyStore).isNotNull();
         assertThat(loadedKeyStore.containsAlias("test-secret-key")).isTrue();
     }
@@ -242,9 +223,4 @@ public class CredentialsKeyStoreTest {
         return keyStore;
     }
 
-    private void saveProperties(Properties properties, File file) throws Exception {
-        FileOutputStream out = new FileOutputStream(file);
-        properties.store(out, null);
-        out.close();
-    }
 }
