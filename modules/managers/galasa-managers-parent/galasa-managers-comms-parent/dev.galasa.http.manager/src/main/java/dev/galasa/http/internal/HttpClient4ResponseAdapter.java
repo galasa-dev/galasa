@@ -169,10 +169,14 @@ public class HttpClient4ResponseAdapter implements CloseableHttpResponse {
         // but we'll support it for completeness
         if (entity != null) {
             try {
+                // Sanitize content type to prevent header injection attacks
+                String contentTypeValue = entity.getContentType().getValue();
+                String sanitizedContentType = sanitizeHeaderValue(contentTypeValue);
+
                 org.apache.hc.core5.http.io.entity.ByteArrayEntity entity5 =
                     new org.apache.hc.core5.http.io.entity.ByteArrayEntity(
                         org.apache.commons.io.IOUtils.toByteArray(entity.getContent()),
-                        org.apache.hc.core5.http.ContentType.parse(entity.getContentType().getValue())
+                        org.apache.hc.core5.http.ContentType.parse(sanitizedContentType)
                     );
                 httpclient5Response.setEntity(entity5);
             } catch (IOException e) {
@@ -181,6 +185,23 @@ public class HttpClient4ResponseAdapter implements CloseableHttpResponse {
         } else {
             httpclient5Response.setEntity(null);
         }
+    }
+
+    /**
+     * Sanitizes header values to prevent HTTP header injection attacks.
+     * Removes carriage return (CR) and line feed (LF) characters that could
+     * be used to inject additional headers or split the response.
+     *
+     * @param value the header value to sanitize
+     * @return the sanitized header value, or null if input is null
+     */
+    private String sanitizeHeaderValue(String value) {
+        String sanitizedValue = null;
+        if (value != null) {
+            // Remove CR and LF characters to prevent header injection
+            sanitizedValue = value.replaceAll("[\r\n]", "");
+        }
+        return sanitizedValue;
     }
 
     @Override

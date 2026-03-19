@@ -353,8 +353,6 @@ public class HttpClientImpl implements IHttpClient {
 
     @Override
     public org.apache.http.client.methods.CloseableHttpResponse getFile(String path) throws HttpClientException {
-        logger.warn("getFile(String) is deprecated. Use getFileStream(String) instead. " +
-                    "This method exposes internal implementation details and will be removed in a future release.");
         try {
             HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
                     new ContentType[] { ContentType.APPLICATION_OCTET_STREAM, ContentType.APPLICATION_X_TAR });
@@ -369,8 +367,6 @@ public class HttpClientImpl implements IHttpClient {
 
     @Override
     public org.apache.http.client.methods.CloseableHttpResponse getFile(String path, ContentType... contentTypes) throws HttpClientException {
-        logger.warn("getFile(String, ContentType...) is deprecated. Use getFileStream(String, ContentType...) instead. " +
-                    "This method exposes internal implementation details and will be removed in a future release.");
         try {
             HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
                     contentTypes);
@@ -501,7 +497,7 @@ public class HttpClientImpl implements IHttpClient {
     public String getUsername() {
         org.apache.hc.client5.http.auth.Credentials creds =
             ((BasicCredentialsProvider)credentialsProvider).getCredentials(new AuthScope(null, -1), null);
-        if (creds != null) {
+        if (creds != null && creds.getUserPrincipal() != null) {
             return creds.getUserPrincipal().getName();
         }
         return null;
@@ -653,12 +649,8 @@ public class HttpClientImpl implements IHttpClient {
                     try {
                         response.close();
                     } catch (IOException e) {
-                        try {
-                            logger.error("Exception received when trying to close an http response from "
-                                    + request.getUri().toASCIIString(), e);
-                        } catch (URISyntaxException uriEx) {
-                            logger.error("Exception received when trying to close an http response", e);
-                        }
+                        logger.error("Exception received when trying to close an http response from "
+                                + request.getRequestUri(), e);
                     }
                 }
             }

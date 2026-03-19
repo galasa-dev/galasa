@@ -282,7 +282,9 @@ public class HttpClientRequest {
         }
 
         for (Entry<String, String> header : headers.entrySet()) {
-            request.setHeader(header.getKey(), header.getValue());
+            // Sanitize header values to prevent header injection attacks
+            String sanitizedValue = sanitizeHeaderValue(header.getValue());
+            request.setHeader(header.getKey(), sanitizedValue);
         }
 
         if (getContent() != null) {
@@ -290,6 +292,23 @@ public class HttpClientRequest {
         }
 
         return request;
+    }
+
+    /**
+     * Sanitizes header values to prevent HTTP header injection attacks.
+     * Removes carriage return (CR) and line feed (LF) characters that could
+     * be used to inject additional headers or split the request.
+     *
+     * @param value the header value to sanitize
+     * @return the sanitized header value, or null if input is null
+     */
+    private String sanitizeHeaderValue(String value) {
+        String sanitizedValue = null;
+        if (value != null) {
+            // Remove CR and LF characters to prevent header injection
+            sanitizedValue = value.replaceAll("[\r\n]", "");
+        }
+        return sanitizedValue;
     }
 
     /**
