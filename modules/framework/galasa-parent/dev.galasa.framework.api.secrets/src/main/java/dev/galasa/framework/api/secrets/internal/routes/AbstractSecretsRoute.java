@@ -173,18 +173,14 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
     private ICredentials decodeKeystoreCredentials(SecretRequest secretRequest, SecretRequestkeystore keystore) throws InternalServletException {
         String decodedKeystore = decodeSecretValue(keystore.getvalue(), keystore.getencoding());
         
-        // Get optional password
-        String decodedKeystorePass = "";
         SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
-        if (keystorePassword != null) {
-            decodedKeystorePass = decodeSecretValue(keystorePassword.getvalue(), keystorePassword.getencoding());
-        }
+        String decodedKeystorePassword = decodeSecretValue(keystorePassword.getvalue(), keystorePassword.getencoding());
         
         String type = secretRequest.getKeystoreType();
         
         // Create CredentialsKeyStore - it expects base64-encoded keystore with "base64:" prefix
         try {
-            return new CredentialsKeyStore(decodedKeystore, decodedKeystorePass, type);
+            return new CredentialsKeyStore(decodedKeystore, decodedKeystorePassword, type);
         } catch (CredentialsException | IllegalArgumentException e) {
             ServletError error = new ServletError(GAL5450_FAILED_TO_CREATE_KEYSTORE_CREDENTIALS);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);

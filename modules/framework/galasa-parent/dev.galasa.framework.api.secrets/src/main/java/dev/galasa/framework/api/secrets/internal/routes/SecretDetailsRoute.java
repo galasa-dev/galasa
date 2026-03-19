@@ -282,7 +282,7 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
     private String getOverriddenKeystore(String existingKeystore, SecretRequestkeystore requestKeystore) throws InternalServletException {
         String overriddenKeystore = existingKeystore;
         if (requestKeystore != null) {
-            String possiblyDecodedKeystore = decodeSecretValue(requestKeystore.getvalue(), null);
+            String possiblyDecodedKeystore = decodeSecretValue(requestKeystore.getvalue(), requestKeystore.getencoding());
             overriddenKeystore = getOverriddenValue(existingKeystore, possiblyDecodedKeystore);
         }
         return overriddenKeystore;

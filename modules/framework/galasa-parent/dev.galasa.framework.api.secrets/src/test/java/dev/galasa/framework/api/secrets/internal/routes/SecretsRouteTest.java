@@ -61,6 +61,10 @@ public class SecretsRouteTest extends SecretsServletTest {
         assertThat(routePattern.matcher("/wrongpath!").matches()).isFalse();
     }
 
+    /**
+     * GET requests
+     */
+
     @Test
     public void testGetSecretsWithMissingPermissionsRedactsSecretValues() throws Exception {
         // Given...
@@ -239,6 +243,10 @@ public class SecretsRouteTest extends SecretsServletTest {
         checkErrorStructure(outStream.toString(), 5101, "GAL5101E",
             "Unknown secret type detected");
     }
+
+    /**
+     * POST requests
+     */
 
     @Test
     public void testCreateUsernamePasswordSecretCreatesSecretOk() throws Exception {
@@ -1103,6 +1111,96 @@ public class SecretsRouteTest extends SecretsServletTest {
             5451,
             "GAL5451E",
             "The 'username' field cannot be used with KeyStore credentials"
+        );
+        assertThat(credsService.getAllCredentials()).isEmpty();
+    }
+
+    @Test
+    public void testCreateKeyStoreSecretWithKeystoreAndPasswordReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "INVALID_KEYSTORE";
+        String keystorePassword = "password";
+        String keystoreType = "PKCS12";
+        String password = "my-password";
+        
+        String keystoreData = createValidKeyStoreBytes(keystorePassword, keystoreType);
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("keystore", createSecretJson(keystoreData));
+        secretJson.add("keystorePassword", createSecretJson(keystorePassword));
+        secretJson.add("password", createSecretJson(password));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", secretJsonStr, HttpMethod.POST.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5451,
+            "GAL5451E",
+            "The 'password' field cannot be used with KeyStore credentials"
+        );
+        assertThat(credsService.getAllCredentials()).isEmpty();
+    }
+
+    @Test
+    public void testCreateKeyStoreSecretWithKeystoreAndTokenReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "INVALID_KEYSTORE";
+        String keystorePassword = "password";
+        String keystoreType = "PKCS12";
+        String token = "my-token";
+        
+        String keystoreData = createValidKeyStoreBytes(keystorePassword, keystoreType);
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("keystore", createSecretJson(keystoreData));
+        secretJson.add("keystorePassword", createSecretJson(keystorePassword));
+        secretJson.add("token", createSecretJson(token));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", secretJsonStr, HttpMethod.POST.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5451,
+            "GAL5451E",
+            "The 'token' field cannot be used with KeyStore credentials"
         );
         assertThat(credsService.getAllCredentials()).isEmpty();
     }
