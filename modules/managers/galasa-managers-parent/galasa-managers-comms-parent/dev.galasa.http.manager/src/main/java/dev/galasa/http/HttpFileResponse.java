@@ -110,7 +110,7 @@ public class HttpFileResponse implements AutoCloseable {
     /**
      * Get all response headers as a map.
      * 
-     * @return an unmodifiable map of header names to values
+     * @return a map of header names to values
      */
     public Map<String, String> getHeaders() {
         return new HashMap<>(headers);
