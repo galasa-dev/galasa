@@ -57,7 +57,7 @@ public class DockerEngineImpl implements IDockerEngine {
 	private final IDynamicStatusStoreService dss;
 
 	private URI uri;
-	private SSLContext sslContext;  // SSL context for HTTPS connections
+	private SSLContext sslContext;
 
 	private String dockerEngineId;
 	private String dockerEngineTag;
