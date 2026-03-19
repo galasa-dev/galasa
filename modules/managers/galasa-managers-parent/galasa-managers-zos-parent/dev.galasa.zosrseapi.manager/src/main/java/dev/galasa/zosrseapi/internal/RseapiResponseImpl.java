@@ -16,9 +16,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
 
+import dev.galasa.http.HttpClientException;
 import dev.galasa.http.HttpClientResponse;
+import dev.galasa.http.HttpFileResponse;
 import dev.galasa.zosrseapi.IRseapiResponse;
 import dev.galasa.zosrseapi.RseapiException;
 
@@ -101,12 +102,12 @@ public class RseapiResponseImpl implements IRseapiResponse {
         this.statusLine = httpClientResponse.getStatusLine();
     }
 
-    protected void setHttpClientresponse(CloseableHttpResponse httpClientResponse) throws RseapiException{
+    protected void setHttpClientresponse(HttpFileResponse httpClientResponse) throws RseapiException{
         try{
-            this.content = httpClientResponse.getEntity().getContent();
-            this.statusCode = httpClientResponse.getStatusLine().getStatusCode();
-            this.statusLine = httpClientResponse.getStatusLine().getReasonPhrase();
-        } catch (IOException e) {
+            this.content = httpClientResponse.getContent();
+            this.statusCode = httpClientResponse.getStatusCode();
+            this.statusLine = httpClientResponse.getReasonPhrase();
+        } catch (HttpClientException e) {
             throw new RseapiException("Could not retrieve response", e);
         }
     }

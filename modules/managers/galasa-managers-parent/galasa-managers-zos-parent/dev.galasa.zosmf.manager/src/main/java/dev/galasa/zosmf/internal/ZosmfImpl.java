@@ -105,7 +105,7 @@ public class ZosmfImpl implements IZosmf {
             if (convert) {
                 zosmfResponse.setHttpClientresponse(this.httpClient.getText(validPath(path)));
             } else {
-                zosmfResponse.setHttpClientresponse(this.httpClient.getFile(validPath(path)));
+                zosmfResponse.setHttpClientresponse(this.httpClient.getFileStream(validPath(path)));
             }
             
             logger.trace(logResponse(zosmfResponse.getStatusLine(), method, zosmfResponse.getRequestUrl()));

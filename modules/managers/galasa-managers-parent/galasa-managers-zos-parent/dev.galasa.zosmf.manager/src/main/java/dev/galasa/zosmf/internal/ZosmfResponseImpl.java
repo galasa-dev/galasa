@@ -5,7 +5,6 @@
  */
 package dev.galasa.zosmf.internal;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -15,9 +14,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-
+import dev.galasa.http.HttpClientException;
 import dev.galasa.http.HttpClientResponse;
+import dev.galasa.http.HttpFileResponse;
 import dev.galasa.zosmf.IZosmfResponse;
 import dev.galasa.zosmf.ZosmfException;
 
@@ -94,12 +93,12 @@ public class ZosmfResponseImpl implements IZosmfResponse {
         this.statusLine = httpClientResponse.getStatusLine();
     }
 
-    protected void setHttpClientresponse(CloseableHttpResponse httpClientResponse) throws ZosmfException{
+    protected void setHttpClientresponse(HttpFileResponse httpClientResponse) throws ZosmfException{
         try{
-            this.content = httpClientResponse.getEntity().getContent();
-            this.statusCode = httpClientResponse.getStatusLine().getStatusCode();
-            this.statusLine = httpClientResponse.getStatusLine().getReasonPhrase();
-        } catch (IOException e) {
+            this.content = httpClientResponse.getContent();
+            this.statusCode = httpClientResponse.getStatusCode();
+            this.statusLine = httpClientResponse.getReasonPhrase();
+        } catch (HttpClientException e) {
             throw new ZosmfException("Could not retrieve response", e);
         }
     }

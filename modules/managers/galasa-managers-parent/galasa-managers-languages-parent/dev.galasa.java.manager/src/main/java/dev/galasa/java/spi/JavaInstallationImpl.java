@@ -6,6 +6,8 @@
 package dev.galasa.java.spi;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,9 +23,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.ConnectionClosedException;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
 
 import dev.galasa.CpuArchitecture;
 import dev.galasa.ICredentials;
@@ -33,6 +32,7 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.http.HttpClientResponse;
+import dev.galasa.http.HttpFileResponse;
 import dev.galasa.http.IHttpClient;
 import dev.galasa.http.spi.IHttpManagerSpi;
 import dev.galasa.java.IJavaInstallation;
@@ -118,19 +118,19 @@ public abstract class JavaInstallationImpl implements IJavaInstallation {
         IHttpClient client = httpManager.newHttpClient();
         client.setURI(uri);
 
-        try (CloseableHttpResponse response = client.getFile(uri.getPath())) {
+        try (HttpFileResponse response = client.getFileStream(uri.getPath())) {
 
             Path archive = Files.createTempFile("galasa.java.", ".archive");
             archive.toFile().deleteOnExit();
 
-            HttpEntity entity = response.getEntity();
+            InputStream contentStream = response.getContent();
 
-            Files.copy(entity.getContent(), archive, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(contentStream, archive, StandardCopyOption.REPLACE_EXISTING);
 
             this.archive = archive;
 
             return archive;
-        } catch (ConnectionClosedException e) {
+        } catch (IOException e) {
             logger.error("Transfer connection closed early, usually caused by network instability, marking as resource unavailable so can try again later",e);
             throw new ResourceUnavailableException("Network error downloading Java archive from " + uri.toString());
         } catch (Exception e) {
@@ -159,14 +159,14 @@ public abstract class JavaInstallationImpl implements IJavaInstallation {
         IHttpClient client = httpManager.newHttpClient();
         client.setURI(uri);
 
-        try (CloseableHttpResponse response = client.getFile(uri.getPath())) {
+        try (HttpFileResponse response = client.getFileStream(uri.getPath())) {
 
             Path agent = Files.createTempFile("galasa.jacoco.", ".agent");
             agent.toFile().deleteOnExit();
 
-            HttpEntity entity = response.getEntity();
+            InputStream contentStream = response.getContent();
 
-            Files.copy(entity.getContent(), agent, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(contentStream, agent, StandardCopyOption.REPLACE_EXISTING);
 
             this.agent = agent;
 
