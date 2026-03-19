@@ -38,7 +38,7 @@ public interface ICredentialsKeyStore extends ICredentials {
      *
      * @return KeyStore object containing certificates and keys
      */
-    KeyStore getKeyStore();
+    KeyStore getKeyStore() throws Exception;
     
     /**
      * Get the password for the KeyStore.

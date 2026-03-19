@@ -125,14 +125,13 @@ public class CredentialsKeyStore extends AbstractCredentials implements ICredent
      * is thrown with details of the failure.
      */
     @Override
-    public KeyStore getKeyStore() {
+    public KeyStore getKeyStore() throws CredentialsException {
         if (this.keyStore == null) {
             try {
                 this.keyStore = KeyStore.getInstance(this.keyStoreType);
                 this.keyStore.load(new ByteArrayInputStream(this.keyStoreBytes), this.keyStorePassword.toCharArray());
             } catch (Exception e) {
-                throw new RuntimeException("Failed to load KeyStore of type " 
-                                            + this.keyStoreType + ": " + e.getMessage(), e);
+                throw new CredentialsException("Failed to load KeyStore of type " + this.keyStoreType);
             }
         }
         return this.keyStore;

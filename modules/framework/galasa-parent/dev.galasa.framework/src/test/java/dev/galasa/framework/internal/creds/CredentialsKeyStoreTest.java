@@ -25,6 +25,7 @@ import dev.galasa.ICredentials;
 import dev.galasa.ICredentialsKeyStore;
 import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.spi.IFramework;
+import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 
 /**
@@ -165,7 +166,7 @@ public class CredentialsKeyStoreTest {
         CredentialsKeyStore creds = new CredentialsKeyStore("base64:" + Base64.getEncoder().encodeToString(invalidBytes), testPassword, "PKCS12");
 
         assertThatThrownBy(() -> creds.getKeyStore())
-            .isInstanceOf(RuntimeException.class)
+            .isInstanceOf(CredentialsException.class)
             .hasMessageContaining("Failed to load KeyStore");
     }
 
@@ -214,7 +215,7 @@ public class CredentialsKeyStoreTest {
         CredentialsKeyStore creds = new CredentialsKeyStore(encodedKeyStore, "wrongPassword", "PKCS12");
 
         assertThatThrownBy(() -> creds.getKeyStore())
-            .isInstanceOf(RuntimeException.class)
+            .isInstanceOf(CredentialsException.class)
             .hasMessageContaining("Failed to load KeyStore");
     }
 
