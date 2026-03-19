@@ -18,7 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -155,7 +155,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a byte array content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<byte[]> byteResponse(CloseableHttpResponse httpResponse)
+    public static HttpClientResponse<byte[]> byteResponse(ClassicHttpResponse httpResponse)
             throws HttpClientException {
         return byteResponse(httpResponse, true);
     }
@@ -171,7 +171,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a byte array content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<byte[]> byteResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<byte[]> byteResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse) throws HttpClientException {
 
         HttpClientResponse<byte[]> response = new HttpClientResponse<>();
@@ -203,7 +203,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a {@link String} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<String> textResponse(CloseableHttpResponse httpResponse)
+    public static HttpClientResponse<String> textResponse(ClassicHttpResponse httpResponse)
             throws HttpClientException {
         return textResponse(httpResponse, true);
     }
@@ -219,7 +219,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a {@link String} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<String> textResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<String> textResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse) throws HttpClientException {
 
         HttpClientResponse<String> response = new HttpClientResponse<>();
@@ -252,7 +252,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a com.google.gson.JsonObject content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<JsonObject> jsonResponse(CloseableHttpResponse httpResponse)
+    public static HttpClientResponse<JsonObject> jsonResponse(ClassicHttpResponse httpResponse)
             throws HttpClientException {
         return jsonResponse(httpResponse, true);
     }
@@ -268,7 +268,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a com.google.gson.JsonObject content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<JsonObject> jsonResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<JsonObject> jsonResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse) throws HttpClientException {
 
         HttpClientResponse<JsonObject> response = new HttpClientResponse<>();
@@ -317,7 +317,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a {@link Document} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<Document> xmlResponse(CloseableHttpResponse httpResponse)
+    public static HttpClientResponse<Document> xmlResponse(ClassicHttpResponse httpResponse)
             throws HttpClientException {
         return xmlResponse(httpResponse, true);
     }
@@ -333,7 +333,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a {@link Document} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<Document> xmlResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<Document> xmlResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse) throws HttpClientException {
 
         HttpClientResponse<Document> response = new HttpClientResponse<>();
@@ -375,7 +375,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with an {@link Object} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<Object> jaxbResponse(CloseableHttpResponse httpResponse, Class<?>... responseTypes)
+    public static HttpClientResponse<Object> jaxbResponse(ClassicHttpResponse httpResponse, Class<?>... responseTypes)
             throws HttpClientException {
         return jaxbResponse(httpResponse, false, responseTypes);
     }
@@ -393,7 +393,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with an {@link Object} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<Object> jaxbResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<Object> jaxbResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse, Class<?>... responseTypes) throws HttpClientException {
 
         HttpClientResponse<Object> response = new HttpClientResponse<>();

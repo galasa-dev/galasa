@@ -15,6 +15,24 @@ Import-Package: com.google.gson,\
     javax.xml.parsers,\
     org.apache.commons.io;version="${@}",\
     org.apache.commons.logging,\
+    org.apache.hc.core5.http,\
+    org.apache.hc.core5.http.io.entity,\
+    org.apache.hc.core5.http.message,\
+    org.apache.hc.core5.http.protocol,\
+    org.apache.hc.core5.net,\
+    org.apache.hc.core5.util,\
+    org.apache.hc.client5.http.auth,\
+    org.apache.hc.client5.http.classic.methods,\
+    org.apache.hc.client5.http.config,\
+    org.apache.hc.client5.http.cookie,\
+    org.apache.hc.client5.http.entity,\
+    org.apache.hc.client5.http.entity.mime,\
+    org.apache.hc.client5.http.impl.auth,\
+    org.apache.hc.client5.http.impl.classic,\
+    org.apache.hc.client5.http.impl.io,\
+    org.apache.hc.client5.http.io,\
+    org.apache.hc.client5.http.protocol,\
+    org.apache.hc.client5.http.ssl,\
     org.apache.http,\
     org.apache.http.auth,\
     org.apache.http.client,\
@@ -30,6 +48,7 @@ Import-Package: com.google.gson,\
     org.apache.http.impl.auth,\
     org.apache.http.impl.client,\
     org.apache.http.message,\
+    org.apache.http.params,\
     org.apache.http.protocol,\
     org.apache.http.util,\
     org.w3c.dom,\

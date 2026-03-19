@@ -44,7 +44,6 @@ import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
@@ -53,6 +52,7 @@ import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
 import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -343,7 +343,7 @@ public class HttpClientImpl implements IHttpClient {
             HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
                     contentTypes);
 
-            CloseableHttpResponse response = execute(request.buildRequest());
+            ClassicHttpResponse response = execute(request.buildRequest());
             return new HttpFileResponse(response);
         } catch (HttpClientException e) {
             logger.error("Could not download file from specified path: " + path, e);
@@ -359,7 +359,7 @@ public class HttpClientImpl implements IHttpClient {
             HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
                     new ContentType[] { ContentType.APPLICATION_OCTET_STREAM, ContentType.APPLICATION_X_TAR });
 
-            CloseableHttpResponse httpclient5Response = execute(request.buildRequest());
+            ClassicHttpResponse httpclient5Response = execute(request.buildRequest());
             return new HttpClient4ResponseAdapter(httpclient5Response);
         } catch (HttpClientException e) {
             logger.error("Could not download file from specified path: " + path, e);
@@ -375,7 +375,7 @@ public class HttpClientImpl implements IHttpClient {
             HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
                     contentTypes);
 
-            CloseableHttpResponse httpclient5Response = execute(request.buildRequest());
+            ClassicHttpResponse httpclient5Response = execute(request.buildRequest());
             return new HttpClient4ResponseAdapter(httpclient5Response);
         } catch (HttpClientException e) {
             logger.error("Could not download file from specified path: " + path, e);
@@ -616,10 +616,10 @@ public class HttpClientImpl implements IHttpClient {
     private byte[] execute(ClassicHttpRequest request, boolean retry) throws HttpClientException {
 
         while (true) {
-            CloseableHttpResponse response = null;
+            ClassicHttpResponse response = null;
             try {
                 this.build();
-                response = httpClient.execute(request, httpContext);
+                response = httpClient.executeOpen(null, request, httpContext);
                 int statusCode = response.getCode();
                 if (statusCode != HttpStatus.SC_OK
                         && statusCode != HttpStatus.SC_CREATED
@@ -812,7 +812,7 @@ public class HttpClientImpl implements IHttpClient {
     public void putFile(String path, InputStream file) {    
         try {
             BufferedInputStream in = new BufferedInputStream(file);
-            CloseableHttpResponse response = putStream(path, null, ContentType.APPLICATION_X_TAR, in, new ContentType[] {
+            ClassicHttpResponse response = putStream(path, null, ContentType.APPLICATION_X_TAR, in, new ContentType[] {
                     ContentType.APPLICATION_XML, ContentType.APPLICATION_JSON, ContentType.TEXT_PLAIN }, null, false);
             in.close();
             response.close();
@@ -822,7 +822,7 @@ public class HttpClientImpl implements IHttpClient {
         }
     }
 
-    public CloseableHttpResponse putStream(String path, Map<String, String> queryParams, ContentType contentType, Object data,
+    public ClassicHttpResponse putStream(String path, Map<String, String> queryParams, ContentType contentType, Object data,
             ContentType[] acceptTypes, Class<?>[] jaxbClasses, boolean retry) throws HttpClientException {
 
         HttpPut put = new HttpPut(buildUri(path, queryParams));
@@ -837,7 +837,7 @@ public class HttpClientImpl implements IHttpClient {
                 entity = new InputStreamEntity((InputStream) data, org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM);
                 put.setEntity(entity);
                 addHeaders(put, contentType, acceptTypes);
-                return httpClient.execute(put, context);
+                return httpClient.executeOpen(null, put, context);
             } catch (IOException e) {
                 logger.error("IO error with input stream", e);
                 throw new HttpClientException(e);
@@ -870,10 +870,10 @@ public class HttpClientImpl implements IHttpClient {
         return HttpClientResponse.textResponse(execute(request.buildRequest()));
     }
 
-    private CloseableHttpResponse execute(ClassicHttpRequest request) throws HttpClientException {
+    private ClassicHttpResponse execute(ClassicHttpRequest request) throws HttpClientException {
         this.build();
         try {
-            return httpClient.execute(request, httpContext);
+            return httpClient.executeOpen(null, request, httpContext);
         } catch (IOException e) {
             throw new HttpClientException("Error executing http request", e);
         }

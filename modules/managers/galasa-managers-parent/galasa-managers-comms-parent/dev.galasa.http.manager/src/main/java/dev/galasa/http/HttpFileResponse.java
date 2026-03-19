@@ -35,12 +35,12 @@ public class HttpFileResponse implements AutoCloseable {
 
     private final ClassicHttpResponse httpResponse;
     private final int statusCode;
-    private final String statusMessage;
+    private final String reasonPhrase;
     private final Map<String, String> headers;
     private final HttpEntity entity;
 
     /**
-     * Public constructor for creating HttpFileResponse from CloseableHttpResponse.
+     * Public constructor for creating HttpFileResponse from ClassicHttpResponse.
      * Typically used internally by IHttpClient implementations.
      *
      * @param httpResponse the underlying HTTP response
@@ -49,7 +49,7 @@ public class HttpFileResponse implements AutoCloseable {
     public HttpFileResponse(ClassicHttpResponse httpResponse) throws HttpClientException {
         this.httpResponse = httpResponse;
         this.statusCode = httpResponse.getCode();
-        this.statusMessage = httpResponse.getReasonPhrase();
+        this.reasonPhrase = httpResponse.getReasonPhrase();
         this.entity = httpResponse.getEntity();
         this.headers = new HashMap<>();
         
@@ -68,14 +68,15 @@ public class HttpFileResponse implements AutoCloseable {
      * @throws HttpClientException if the stream cannot be obtained
      */
     public InputStream getContent() throws HttpClientException {
-        if (entity == null) {
-            return null;
+        InputStream contentStream = null;
+        if (entity != null) {
+            try {
+                contentStream = entity.getContent();
+            } catch (IOException e) {
+                throw new HttpClientException("Failed to get response content stream", e);
+            }
         }
-        try {
-            return entity.getContent();
-        } catch (IOException e) {
-            throw new HttpClientException("Failed to get response content stream", e);
-        }
+        return contentStream;
     }
 
     /**
@@ -92,8 +93,8 @@ public class HttpFileResponse implements AutoCloseable {
      * 
      * @return the status message (e.g., "OK", "Not Found", "Internal Server Error")
      */
-    public String getStatusMessage() {
-        return statusMessage;
+    public String getReasonPhrase() {
+        return reasonPhrase;
     }
 
     /**
@@ -121,20 +122,20 @@ public class HttpFileResponse implements AutoCloseable {
      * @return the ContentType, or null if not specified
      */
     public ContentType getContentType() {
+        ContentType contentType = null;
+
         String contentTypeHeader = getHeader("Content-Type");
-        if (contentTypeHeader == null) {
-            return null;
+        if (contentTypeHeader != null) {
+            // Extract just the MIME type (before any semicolon)
+            String mimeType = contentTypeHeader.split(";")[0].trim();
+
+            try {
+                contentType = ContentType.fromMimeTypeString(mimeType);
+            } catch (IllegalArgumentException e) {
+                // Content type not in our enum, return null
+            }
         }
-        
-        // Extract just the MIME type (before any semicolon)
-        String mimeType = contentTypeHeader.split(";")[0].trim();
-        
-        try {
-            return ContentType.fromMimeTypeString(mimeType);
-        } catch (IllegalArgumentException e) {
-            // Content type not in our enum, return null
-            return null;
-        }
+        return contentType;
     }
 
     /**
@@ -143,19 +144,20 @@ public class HttpFileResponse implements AutoCloseable {
      * @return the content length in bytes, or -1 if unknown
      */
     public long getContentLength() {
-        if (entity == null) {
-            return -1;
+        long contentLength = -1;
+        if (entity != null) {
+            contentLength = entity.getContentLength();
         }
-        return entity.getContentLength();
+        return contentLength;
     }
 
     /**
-     * Check if the response was successful (status code 2xx).
+     * Check if the response was successful (status code 2xx or 3xx).
      * 
-     * @return true if the status code is in the 200-299 range
+     * @return true if the status code is in the 200-399 range
      */
     public boolean isSuccessful() {
-        return statusCode >= 200 && statusCode < 300;
+        return statusCode >= 200 && statusCode < 400;
     }
 
     /**
@@ -173,14 +175,5 @@ public class HttpFileResponse implements AutoCloseable {
         } catch (IOException e) {
             throw new HttpClientException("Failed to close HTTP response", e);
         }
-    }
-
-    /**
-     * Get the full status line of the response.
-     * 
-     * @return the status line (e.g., "HTTP/1.1 200 OK")
-     */
-    public String getStatusLine() {
-        return "HTTP/1.1 " + statusCode + " " + statusMessage;
     }
 }

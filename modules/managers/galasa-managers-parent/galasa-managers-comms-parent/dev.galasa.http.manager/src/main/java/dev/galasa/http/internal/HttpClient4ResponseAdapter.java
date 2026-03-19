@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Locale;
 
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpEntity;
@@ -27,11 +28,11 @@ import org.apache.http.params.HttpParams;
  */
 public class HttpClient4ResponseAdapter implements CloseableHttpResponse {
 
-    private final org.apache.hc.client5.http.impl.classic.CloseableHttpResponse httpclient5Response;
+    private final ClassicHttpResponse httpclient5Response;
     private StatusLine statusLine;
     private Locale locale;
 
-    public HttpClient4ResponseAdapter(org.apache.hc.client5.http.impl.classic.CloseableHttpResponse httpclient5Response) {
+    public HttpClient4ResponseAdapter(ClassicHttpResponse httpclient5Response) {
         this.httpclient5Response = httpclient5Response;
         this.locale = httpclient5Response.getLocale();
     }

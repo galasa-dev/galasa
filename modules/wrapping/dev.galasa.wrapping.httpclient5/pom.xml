@@ -30,11 +30,6 @@
             <groupId>org.apache.httpcomponents.core5</groupId>
             <artifactId>httpcore5-h2</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -54,7 +49,8 @@
                             javax.net,
                             javax.net.ssl,
                             javax.security.auth.x500,
-                            org.slf4j.impl
+                            jdk.net,
+                            org.slf4j
                         </Import-Package>
                         <Export-Package>org.apache.hc.*</Export-Package>
                     </instructions>
