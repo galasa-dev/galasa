@@ -7,32 +7,32 @@ package dev.galasa.http.internal;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.classic.methods.HttpPatch;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.FileEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.net.URIBuilder;
 import org.w3c.dom.Document;
 
 import com.google.gson.JsonObject;
 
 import dev.galasa.http.ContentType;
-import dev.galasa.http.HttpDelete;
 import dev.galasa.http.HttpClientException;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -160,7 +160,7 @@ public class HttpClientRequest {
      * @return - the updated request
      */
     public HttpClientRequest setBody(byte[] data) {
-        this.content = new ByteArrayEntity(data);
+        this.content = new ByteArrayEntity(data, null);
 
         return this;
     }
@@ -172,12 +172,7 @@ public class HttpClientRequest {
      * @return - the updated request
      */
     public HttpClientRequest setBody(String data) {
-        try {
-            this.content = new StringEntity(data);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException("Body data '" + data + "' is invalid", e);
-        }
-
+        this.content = new StringEntity(data, StandardCharsets.UTF_8);
         return this;
     }
 
@@ -188,7 +183,7 @@ public class HttpClientRequest {
      * @return - the updated request
      */
     public HttpClientRequest setBody(File data) {
-        this.content = new FileEntity(data);
+        this.content = new FileEntity(data, null);
 
         return this;
     }
@@ -233,19 +228,19 @@ public class HttpClientRequest {
             throw new IllegalArgumentException("Body is an instance of " + jaxbObject.getClass().getSimpleName()
                     + " which appears not to be a valid JAXB class", e);
         }
-        this.content = new ByteArrayEntity(baos.toByteArray());
+        this.content = new ByteArrayEntity(baos.toByteArray(), null);
 
         return this;
     }
 
     /**
-     * Build the {@link HttpUriRequest} that underlies this object. Only for use by
+     * Build the {@link ClassicHttpRequest} that underlies this object. Only for use by
      * the {@link HttpClientImpl}
-     * 
-     * @return An {@link HttpUriRequest}
+     *
+     * @return A {@link ClassicHttpRequest}
      * @throws HttpClientException
      */
-    HttpUriRequest buildRequest() throws HttpClientException {
+    ClassicHttpRequest buildRequest() throws HttpClientException {
 
         if (uriBuilder == null) {
             throw new HttpClientException("URL has not been set for this request");
@@ -287,14 +282,33 @@ public class HttpClientRequest {
         }
 
         for (Entry<String, String> header : headers.entrySet()) {
-            request.setHeader(header.getKey(), header.getValue());
+            // Sanitize header values to prevent header injection attacks
+            String sanitizedValue = sanitizeHeaderValue(header.getValue());
+            request.setHeader(header.getKey(), sanitizedValue);
         }
 
-        if (request instanceof HttpEntityEnclosingRequestBase) {
-            ((HttpEntityEnclosingRequestBase) request).setEntity(getContent());
+        if (getContent() != null) {
+            request.setEntity(getContent());
         }
 
         return request;
+    }
+
+    /**
+     * Sanitizes header values to prevent HTTP header injection attacks.
+     * Removes carriage return (CR) and line feed (LF) characters that could
+     * be used to inject additional headers or split the request.
+     *
+     * @param value the header value to sanitize
+     * @return the sanitized header value, or null if input is null
+     */
+    private String sanitizeHeaderValue(String value) {
+        String sanitizedValue = null;
+        if (value != null) {
+            // Remove CR and LF characters to prevent header injection
+            sanitizedValue = value.replaceAll("[\r\n]", "");
+        }
+        return sanitizedValue;
     }
 
     /**

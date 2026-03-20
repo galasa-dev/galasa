@@ -32,7 +32,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.client.methods.CloseableHttpResponse;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -63,6 +62,7 @@ import dev.galasa.galasaecosystem.internal.properties.SimBankTestsVersion;
 import dev.galasa.galasaecosystem.internal.properties.SimplatformRepo;
 import dev.galasa.galasaecosystem.internal.properties.SimplatformVersion;
 import dev.galasa.http.HttpClientException;
+import dev.galasa.http.HttpFileResponse;
 import dev.galasa.http.IHttpClient;
 import dev.galasa.ipnetwork.IpNetworkManagerException;
 import dev.galasa.java.IJavaInstallation;
@@ -222,8 +222,8 @@ public abstract class LocalEcosystemImpl extends AbstractEcosystemImpl implement
         IHttpClient httpClient = this.getEcosystemManager().getHttpManager().newHttpClient();
         httpClient.setURI(isolatedZipLocation.toURI());
 
-        try (CloseableHttpResponse response = httpClient.getFile(isolatedZipLocation.getPath())) {
-            Files.copy(response.getEntity().getContent(), targetZip);
+        try (HttpFileResponse response = httpClient.getFileStream(isolatedZipLocation.getPath())) {
+            Files.copy(response.getContent(), targetZip);
             logger.debug("Downloaded the isolated zip from " + isolatedZipLocation);
         }
 

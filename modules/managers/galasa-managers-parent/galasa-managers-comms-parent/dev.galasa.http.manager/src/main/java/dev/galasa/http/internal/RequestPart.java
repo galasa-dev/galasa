@@ -5,7 +5,7 @@
  */
 package dev.galasa.http.internal;
 
-import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.hc.client5.http.entity.mime.ContentBody;
 
 public interface RequestPart {
 

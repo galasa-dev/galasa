@@ -69,7 +69,7 @@ There are also methods for the other HTTP verbs such as PUT, POST and DELETE
 
 ### Use streams to download a file
 
-The following code is an example of one way to download a file using streams.
+The following code shows how to download a file using the streaming API.
 
 ```java
 @HttpClient
@@ -78,23 +78,42 @@ public IHttpClient client;
 File f = new File("/tmp/dev.galasa_0.7.0.jar");
 
 client.setURI(new URI("https://p2.galasa.dev"));
-// Note: The response closes when we leave the code block.
-try( CloseableHttpResponse response = client.getFile("/plugins/dev.galasa_0.7.0.jar")) {
-  // Note: The input stream auto-closes when we leave the code block.
-  try (InputStream in = response.getEntity().getContent()) {
-    // Note: The output stream auto-closes when we leave the code block.
-    try (OutputStream out = new FileOutputStream(f)) { 
-      int count;
-      byte data[] = new byte[2048];
-      while((count = in.read(data)) != -1) {
-          out.write(data, 0, count);
-      }
+
+// Use try-with-resources to ensure the response is properly closed
+try (HttpFileResponse response = client.getFileStream("/plugins/dev.galasa_0.7.0.jar")) {
+    if (response.isSuccessful()) {
+        // Get the input stream from the response
+        InputStream in = response.getContent();
+
+        // Create output stream for the file
+        try (OutputStream out = new FileOutputStream(f)) {
+            int count;
+            byte data[] = new byte[2048];
+
+            // Transfer data in 2048 byte chunks
+            while ((count = in.read(data)) != -1) {
+                out.write(data, 0, count);
+            }
+        }
+    } else {
+        fail("Download failed with response code " + response.getStatusCode());
     }
-  }
 }
 ```
 
-The snippet begins by declaring `client` as before and `f`, an instance of `File`. The client's URI is set and its `getFile` method called to return `response` - an instance of `CloseableHttpResponse`.
+The snippet begins by declaring `client` and `f`, an instance of `File`. The client's URI is set and its `getFileStream` method is called, which returns an `HttpFileResponse` instance.
 
-The two streams `in` and `out` are declared and initialized and the data transferred from `in` to `out` in 2048 byte chunks, after which the output stream is flushed and then closed.
+The response is used in a try-with-resources block to ensure proper cleanup. The `isSuccessful()` method checks if the HTTP status code indicates success (2xx or 3xx). If successful, the input stream is obtained from the response and the data is transferred to the output file in 2048 byte chunks.
 
+You can also specify accepted content types:
+
+```java
+try (HttpFileResponse response = client.getFileStream("/path/to/file",
+        ContentType.APPLICATION_OCTET_STREAM, ContentType.APPLICATION_X_TAR)) {
+    if (response.isSuccessful()) {
+        // Process the file
+        InputStream in = response.getContent();
+        // ... use the stream
+    }
+}
+```

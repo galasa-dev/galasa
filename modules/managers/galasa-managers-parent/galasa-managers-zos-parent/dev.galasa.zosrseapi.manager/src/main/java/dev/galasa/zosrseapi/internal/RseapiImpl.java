@@ -104,7 +104,7 @@ public class RseapiImpl implements IRseapi {
             if (convert) {
                 rseapiResponse.setHttpClientresponse(this.httpClient.getJson(validPath(path)));
             } else {
-                rseapiResponse.setHttpClientresponse(this.httpClient.getFile(validPath(path)));
+                rseapiResponse.setHttpClientresponse(this.httpClient.getFileStream(validPath(path)));
             }
             
             logger.trace(logResponse(rseapiResponse.getStatusLine(), method, rseapiResponse.getRequestUrl()));

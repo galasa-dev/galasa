@@ -19,7 +19,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
 
 import com.google.gson.JsonObject;
 
@@ -39,6 +38,7 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.http.HttpClientException;
 import dev.galasa.http.HttpClientResponse;
+import dev.galasa.http.HttpFileResponse;
 import dev.galasa.http.IHttpClient;
 
 public class DockerEngineImpl implements IDockerEngine {
@@ -544,8 +544,8 @@ public class DockerEngineImpl implements IDockerEngine {
 		String path = "/containers/" + container.getContainerId() + "/archive?path=" + filePath;
 
 		try {
-			CloseableHttpResponse response = dockerEngineClient.getFile(path);
-			InputStream in = response.getEntity().getContent();
+			HttpFileResponse response = dockerEngineClient.getFileStream(path);
+			InputStream in = response.getContent();
 			
 			TarArchiveInputStream tais = new TarArchiveInputStream(in);
 			ArchiveEntry ae = tais.getNextEntry();

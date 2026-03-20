@@ -7,6 +7,7 @@ package dev.galasa.http;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,11 +18,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -52,7 +55,7 @@ public class HttpClientResponse<T> {
     private final Map<String, String> headers = new HashMap<>();
     private static final Log logger = LogFactory.getLog(HttpClientResponse.class);
 
-    private HttpClientResponse() {
+    HttpClientResponse() {
     }
 
     private void setStatusCode(int statusCode) {
@@ -99,7 +102,7 @@ public class HttpClientResponse<T> {
         return protocolVersion + " " + statusCode + " " + statusMessage;
     }
 
-    private void setContent(T content) {
+    protected void setContent(T content) {
         this.content = content;
     }
 
@@ -134,13 +137,13 @@ public class HttpClientResponse<T> {
         return headers;
     }
 
-    private void populateGenericValues(HttpResponse httpResponse) {
+    protected void populateGenericValues(HttpResponse httpResponse) {
 
-        setStatusCode(httpResponse.getStatusLine().getStatusCode());
-        setStatusMessage(httpResponse.getStatusLine().getReasonPhrase());
-        setProtocolVersion(httpResponse.getStatusLine().getProtocolVersion().toString());
+        setStatusCode(httpResponse.getCode());
+        setStatusMessage(httpResponse.getReasonPhrase());
+        setProtocolVersion(httpResponse.getVersion() != null ? httpResponse.getVersion().toString() : "HTTP/1.1");
 
-        for (Header header : httpResponse.getAllHeaders()) {
+        for (Header header : httpResponse.getHeaders()) {
             setHeader(header.getName(), header.getValue());
         }
     }
@@ -153,7 +156,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a byte array content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<byte[]> byteResponse(CloseableHttpResponse httpResponse)
+    public static HttpClientResponse<byte[]> byteResponse(ClassicHttpResponse httpResponse)
             throws HttpClientException {
         return byteResponse(httpResponse, true);
     }
@@ -169,7 +172,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a byte array content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<byte[]> byteResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<byte[]> byteResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse) throws HttpClientException {
 
         HttpClientResponse<byte[]> response = new HttpClientResponse<>();
@@ -201,7 +204,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a {@link String} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<String> textResponse(CloseableHttpResponse httpResponse)
+    public static HttpClientResponse<String> textResponse(ClassicHttpResponse httpResponse)
             throws HttpClientException {
         return textResponse(httpResponse, true);
     }
@@ -217,7 +220,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a {@link String} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<String> textResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<String> textResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse) throws HttpClientException {
 
         HttpClientResponse<String> response = new HttpClientResponse<>();
@@ -227,7 +230,7 @@ public class HttpClientResponse<T> {
 
             if (httpResponse.getEntity() != null) {
                 if (response.getStatusCode() == HttpStatus.SC_OK || contentOnBadResponse) {
-                    String text = IOUtils.toString(httpResponse.getEntity().getContent());
+                    String text = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
                     response.setContent(text);
                 } else {
                     EntityUtils.consume(httpResponse.getEntity());
@@ -250,7 +253,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a com.google.gson.JsonObject content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<JsonObject> jsonResponse(CloseableHttpResponse httpResponse)
+    public static HttpClientResponse<JsonObject> jsonResponse(ClassicHttpResponse httpResponse)
             throws HttpClientException {
         return jsonResponse(httpResponse, true);
     }
@@ -266,7 +269,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a com.google.gson.JsonObject content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<JsonObject> jsonResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<JsonObject> jsonResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse) throws HttpClientException {
 
         HttpClientResponse<JsonObject> response = new HttpClientResponse<>();
@@ -300,7 +303,7 @@ public class HttpClientResponse<T> {
                 httpResponse.close();
             }
 
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             throw new HttpClientException("Unable to extract response body to JSON object", e);
         }
 
@@ -315,7 +318,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a {@link Document} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<Document> xmlResponse(CloseableHttpResponse httpResponse)
+    public static HttpClientResponse<Document> xmlResponse(ClassicHttpResponse httpResponse)
             throws HttpClientException {
         return xmlResponse(httpResponse, true);
     }
@@ -331,7 +334,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with a {@link Document} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<Document> xmlResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<Document> xmlResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse) throws HttpClientException {
 
         HttpClientResponse<Document> response = new HttpClientResponse<>();
@@ -373,7 +376,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with an {@link Object} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<Object> jaxbResponse(CloseableHttpResponse httpResponse, Class<?>... responseTypes)
+    public static HttpClientResponse<Object> jaxbResponse(ClassicHttpResponse httpResponse, Class<?>... responseTypes)
             throws HttpClientException {
         return jaxbResponse(httpResponse, false, responseTypes);
     }
@@ -391,7 +394,7 @@ public class HttpClientResponse<T> {
      * @return - {@link HttpClientResponse} with an {@link Object} content type
      * @throws HttpClientException
      */
-    public static HttpClientResponse<Object> jaxbResponse(CloseableHttpResponse httpResponse,
+    public static HttpClientResponse<Object> jaxbResponse(ClassicHttpResponse httpResponse,
             boolean contentOnBadResponse, Class<?>... responseTypes) throws HttpClientException {
 
         HttpClientResponse<Object> response = new HttpClientResponse<>();
@@ -406,6 +409,225 @@ public class HttpClientResponse<T> {
                     response.setContent(data);
                 } else {
                     EntityUtils.consume(httpResponse.getEntity());
+                }
+            }
+
+            httpResponse.close();
+        } catch (IOException | JAXBException e) {
+            throw new HttpClientException("Unable to extract response body to JSON object", e);
+        }
+
+        return response;
+    }
+
+    // -----------------------------------------------------------------------------
+    // Deprecated methods that should be removed in a future release (since 0.47.0)
+    // -----------------------------------------------------------------------------
+
+    /**
+     * @deprecated This method uses the deprecated Apache HttpClient 4 API.
+     *             It will be removed in a future release. Internal use only.
+     */
+    @Deprecated
+    protected void populateGenericValues(CloseableHttpResponse httpResponse) {
+
+        setStatusCode(httpResponse.getStatusLine().getStatusCode());
+        setStatusMessage(httpResponse.getStatusLine().getReasonPhrase());
+        setProtocolVersion(httpResponse.getProtocolVersion().toString());
+
+        for (org.apache.http.Header header : httpResponse.getAllHeaders()) {
+            setHeader(header.getName(), header.getValue());
+        }
+    }
+
+    /**
+     * Create an {@link HttpClientResponse} with a com.google.gson.JsonObject content type
+     * from an {@link HttpResponse}.
+     *
+     * @param httpResponse
+     * @return - {@link HttpClientResponse} with a com.google.gson.JsonObject content type
+     * @throws HttpClientException
+     * @deprecated This method uses the deprecated Apache HttpClient 4 API (CloseableHttpResponse).
+     *             Use the overloaded method that accepts ClassicHttpResponse instead.
+     *             This method will be removed in a future release.
+     */
+    @Deprecated
+    public static HttpClientResponse<JsonObject> jsonResponse(CloseableHttpResponse httpResponse)
+            throws HttpClientException {
+        return jsonResponse(httpResponse, true);
+    }
+
+    /**
+     * Create an {@link HttpClientResponse} with a com.google.gson.JsonObject content type
+     * from an {@link HttpResponse}. If contentOnBadResponse is true, an attempt
+     * will be made to retrieve the content even on a non 200 status code, otherwise
+     * the content will be null in such an instance.
+     *
+     * @param httpResponse
+     * @param contentOnBadResponse
+     * @return - {@link HttpClientResponse} with a com.google.gson.JsonObject content type
+     * @throws HttpClientException
+     * @deprecated This method uses the deprecated Apache HttpClient 4 API (CloseableHttpResponse).
+     *             Use the overloaded method that accepts ClassicHttpResponse instead.
+     *             This method will be removed in a future release.
+     */
+    @Deprecated
+    public static HttpClientResponse<JsonObject> jsonResponse(CloseableHttpResponse httpResponse,
+            boolean contentOnBadResponse) throws HttpClientException {
+
+        HttpClientResponse<JsonObject> response = new HttpClientResponse<>();
+        try {
+            response.populateGenericValues(httpResponse);
+
+            try {
+                if (httpResponse.getEntity() != null) {
+                    if (response.getStatusCode() == HttpStatus.SC_OK || contentOnBadResponse) {
+                        String sResponse = org.apache.http.util.EntityUtils.toString(httpResponse.getEntity());
+                        
+                        if (sResponse.trim().startsWith("{")) {
+    //                      JsonReader reader = new JsonReader(new InputStreamReader(httpResponse.getEntity().getContent()));
+                            JsonElement jsonElement = null;
+                            try{
+                                jsonElement = new GalasaGson().fromJson(sResponse, JsonElement.class);
+                            }catch(JsonSyntaxException jse){
+                                logger.info("Unable to parse JSON from the following: " + sResponse);
+                                throw jse;
+                            }
+                            if (jsonElement != null) {
+                                JsonObject json = jsonElement.getAsJsonObject();
+                                response.setContent(json);
+                            }
+                        }
+                    } else {
+                        org.apache.http.util.EntityUtils.consume(httpResponse.getEntity());
+                    }
+                }
+            } finally {
+                httpResponse.close();
+            }
+
+        } catch (IOException e) {
+            throw new HttpClientException("Unable to extract response body to JSON object", e);
+        }
+
+        return response;
+    }
+
+    /**
+     * Create an {@link HttpClientResponse} with a {@link Document} content type
+     * from an {@link HttpResponse}.
+     *
+     * @param httpResponse
+     * @return - {@link HttpClientResponse} with a {@link Document} content type
+     * @throws HttpClientException
+     * @deprecated This method uses the deprecated Apache HttpClient 4 API (CloseableHttpResponse).
+     *             Use the overloaded method that accepts ClassicHttpResponse instead.
+     *             This method will be removed in a future release.
+     */
+    @Deprecated
+    public static HttpClientResponse<Document> xmlResponse(CloseableHttpResponse httpResponse)
+            throws HttpClientException {
+        return xmlResponse(httpResponse, true);
+    }
+
+    /**
+     * Create an {@link HttpClientResponse} with a {@link Document} content type
+     * from an {@link HttpResponse}. If contentOnBadResponse is true, an attempt
+     * will be made to retrieve the content even on a non 200 status code, otherwise
+     * the content will be null in such an instance.
+     *
+     * @param httpResponse
+     * @param contentOnBadResponse
+     * @return - {@link HttpClientResponse} with a {@link Document} content type
+     * @throws HttpClientException
+     * @deprecated This method uses the deprecated Apache HttpClient 4 API (CloseableHttpResponse).
+     *             Use the overloaded method that accepts ClassicHttpResponse instead.
+     *             This method will be removed in a future release.
+     */
+    @Deprecated
+    public static HttpClientResponse<Document> xmlResponse(CloseableHttpResponse httpResponse,
+            boolean contentOnBadResponse) throws HttpClientException {
+
+        HttpClientResponse<Document> response = new HttpClientResponse<>();
+        try {
+            response.populateGenericValues(httpResponse);
+
+            if (httpResponse.getEntity() != null) {
+                if (response.getStatusCode() == HttpStatus.SC_OK || contentOnBadResponse) {
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = factory.newDocumentBuilder();
+                    Document document = builder
+                            .parse(new InputSource(new InputStreamReader(httpResponse.getEntity().getContent())));
+                    response.setContent(document);
+                } else {
+                    org.apache.http.util.EntityUtils.consume(httpResponse.getEntity());
+                }
+            }
+
+            httpResponse.close();
+        } catch (IOException e) {
+            throw new HttpClientException("Unable to extract response body to XML document", e);
+        } catch (SAXException e) {
+            throw new HttpClientException("Unable to parse response body", e);
+        } catch (ParserConfigurationException e) {
+            throw new HttpClientException("Unable to create xml parser", e);
+        }
+
+        return response;
+    }
+
+    /**
+     * Create an {@link HttpClientResponse} with an {@link Object} content type from
+     * an {@link HttpResponse}. The object returned will be an instance of one of
+     * the JAXB classes provided in responseTypes. If the response did not contain a
+     * status code 200 (OK), the content will be null.
+     *
+     * @param httpResponse
+     * @param responseTypes
+     * @return - {@link HttpClientResponse} with an {@link Object} content type
+     * @throws HttpClientException
+     * @deprecated This method uses the deprecated Apache HttpClient 4 API (CloseableHttpResponse).
+     *             Use the overloaded method that accepts ClassicHttpResponse instead.
+     *             This method will be removed in a future release.
+     */
+    @Deprecated
+    public static HttpClientResponse<Object> jaxbResponse(CloseableHttpResponse httpResponse, Class<?>... responseTypes)
+            throws HttpClientException {
+        return jaxbResponse(httpResponse, false, responseTypes);
+    }
+
+    /**
+     * Create an {@link HttpClientResponse} with an {@link Object} content type from
+     * an {@link HttpResponse}. The object returned will be an instance of one of
+     * the JAXB classes provided in responseTypes. If contentOnBadResponse is true,
+     * an attempt will be made to retrieve the content even on a non 200 status
+     * code, otherwise the content will be null in such an instance.
+     *
+     * @param httpResponse
+     * @param contentOnBadResponse
+     * @param responseTypes
+     * @return - {@link HttpClientResponse} with an {@link Object} content type
+     * @throws HttpClientException
+     * @deprecated This method uses the deprecated Apache HttpClient 4 API (CloseableHttpResponse).
+     *             Use the overloaded method that accepts ClassicHttpResponse instead.
+     *             This method will be removed in a future release.
+     */
+    @Deprecated
+    public static HttpClientResponse<Object> jaxbResponse(CloseableHttpResponse httpResponse,
+            boolean contentOnBadResponse, Class<?>... responseTypes) throws HttpClientException {
+
+        HttpClientResponse<Object> response = new HttpClientResponse<>();
+        try {
+
+            response.populateGenericValues(httpResponse);
+
+            if (httpResponse.getEntity() != null) {
+                if (response.getStatusCode() == HttpStatus.SC_OK || contentOnBadResponse) {
+                    JAXBContext context = JAXBContext.newInstance(responseTypes);
+                    Object data = context.createUnmarshaller().unmarshal(httpResponse.getEntity().getContent());
+                    response.setContent(data);
+                } else {
+                    org.apache.http.util.EntityUtils.consume(httpResponse.getEntity());
                 }
             }
 

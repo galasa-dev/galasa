@@ -6,6 +6,7 @@
 package dev.galasa.http.manager.ivt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,6 +24,7 @@ import dev.galasa.core.manager.Logger;
 import dev.galasa.http.HttpClient;
 import dev.galasa.http.HttpClientException;
 import dev.galasa.http.HttpClientResponse;
+import dev.galasa.http.HttpFileResponse;
 import dev.galasa.http.IHttpClient;
 import dev.galasa.http.StandAloneHttpClient;
 
@@ -165,14 +167,14 @@ public class HttpManagerIVT {
     }
     
     @Test
-    public void downloadFileTest()
+    public void downloadFileLegacyTest()
             throws Exception {
         boolean fileExists = false;
-        File f = new File("/tmp/jenkins.hpi");
+        File f = new File("/tmp/managers.githash");
 
-        client.setURI(new URI("https://resources.galasa.dev"));
+        client.setURI(new URI("https://development.galasa.dev"));
 
-        InputStream in = client.getFile("/jenkins.hpi").getEntity().getContent();
+        InputStream in = client.getFile("/main/maven-repo/obr/managers.githash").getEntity().getContent();
         OutputStream out = new FileOutputStream(f);
 
         int count;
@@ -190,6 +192,38 @@ public class HttpManagerIVT {
         assertThat(fileExists).isTrue();
 
         f.delete();
+    }
+    
+    @Test
+    public void downloadFileTest() throws Exception {
+        boolean fileExists = false;
+        File f = new File("/tmp/managers.githash");
+
+        client.setURI(new URI("https://development.galasa.dev"));
+
+        try (HttpFileResponse response = client.getFileStream("/main/maven-repo/obr/managers.githash")) {
+            if (response.isSuccessful()) {
+                InputStream in = response.getContent();
+                OutputStream out = new FileOutputStream(f);
+
+                int count;
+                byte data[] = new byte[2048];
+                while((count = in.read(data)) != -1) {
+                    out.write(data, 0, count);
+                }
+                out.flush();
+                out.close();
+
+                if (f.exists() && !f.isDirectory() && f.getTotalSpace() > 0) {
+                    fileExists = true;
+                }
+                assertThat(fileExists).isTrue();
+
+                f.delete();
+            } else {
+                fail("HTTP request to download file failed with response code " + response.getStatusCode());
+            }
+        }
     }
     
     @Test

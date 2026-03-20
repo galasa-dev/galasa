@@ -10,10 +10,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
@@ -34,39 +34,36 @@ import javax.net.ssl.TrustManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.AbstractHttpMessage;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
-import org.w3c.dom.Document;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.CredentialsProvider;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.hc.core5.util.Timeout;
 
 import com.google.gson.JsonObject;
 
@@ -74,6 +71,7 @@ import dev.galasa.common.SSLTLSContextNameSelector;
 import dev.galasa.http.ContentType;
 import dev.galasa.http.HttpClientException;
 import dev.galasa.http.HttpClientResponse;
+import dev.galasa.http.HttpFileResponse;
 import dev.galasa.http.IHttpClient;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -90,7 +88,6 @@ public class HttpClientImpl implements IHttpClient {
 
     private final int           timeout;
 
-    private BasicCookieStore    cookieStore;
     private SSLContext          sslContext;
     private HostnameVerifier    hostnameVerifier     = NoopHostnameVerifier.INSTANCE;
     private CredentialsProvider credentialsProvider  = new BasicCredentialsProvider();
@@ -104,7 +101,6 @@ public class HttpClientImpl implements IHttpClient {
     public HttpClientImpl(int timeout, Log log) {
         this.timeout = timeout;
         this.logger = log;
-        this.cookieStore = new BasicCookieStore();
     }
 
     @Override
@@ -336,24 +332,56 @@ public class HttpClientImpl implements IHttpClient {
         return HttpClientResponse.byteResponse(execute(request.buildRequest()));
     }
 
+    @Override
+    public HttpFileResponse getFileStream(String path) throws HttpClientException {
+        return getFileStream(path, ContentType.APPLICATION_OCTET_STREAM, ContentType.APPLICATION_X_TAR);
+    }
 
+    @Override
+    public HttpFileResponse getFileStream(String path, ContentType... contentTypes) throws HttpClientException {
+        try {
+            HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
+                    contentTypes);
+
+            ClassicHttpResponse response = execute(request.buildRequest());
+            return new HttpFileResponse(response);
+        } catch (HttpClientException e) {
+            logger.error("Could not download file from specified path: " + path, e);
+            throw new HttpClientException("Failed to get file stream", e);
+        }
+    }
+
+    @Override
+    public org.apache.http.client.methods.CloseableHttpResponse getFile(String path) throws HttpClientException {
+        try {
+            HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
+                    new ContentType[] { ContentType.APPLICATION_OCTET_STREAM, ContentType.APPLICATION_X_TAR });
+
+            ClassicHttpResponse httpclient5Response = execute(request.buildRequest());
+            return new HttpClient4ResponseAdapter(httpclient5Response);
+        } catch (HttpClientException e) {
+            logger.error("Could not download file from specified path: " + path, e);
+            throw new HttpClientException("Failed to get file", e);
+        }
+    }
+
+    @Override
+    public org.apache.http.client.methods.CloseableHttpResponse getFile(String path, ContentType... contentTypes) throws HttpClientException {
+        try {
+            HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
+                    contentTypes);
+
+            ClassicHttpResponse httpclient5Response = execute(request.buildRequest());
+            return new HttpClient4ResponseAdapter(httpclient5Response);
+        } catch (HttpClientException e) {
+            logger.error("Could not download file from specified path: " + path, e);
+            throw new HttpClientException("Failed to get file", e);
+        }
+    }
 
     @Override
     public void setURI(URI host) {
         this.host = host;
-    }
-
-    public void enableAuthCache() {
-        // Create AuthCache instance
-        AuthCache authCache = new BasicAuthCache();
-        // Generate BASIC scheme object and add it to the local auth cache
-        BasicScheme basicAuth = new BasicScheme();
-        authCache.put(new HttpHost(host.getHost(), host.getPort(), host.getScheme()), basicAuth);
-
-        // Add AuthCache to the execution context
-        httpContext = HttpClientContext.create();
-        httpContext.setCredentialsProvider(credentialsProvider);
-        httpContext.setAuthCache(authCache);
     }
 
     /**
@@ -463,50 +491,61 @@ public class HttpClientImpl implements IHttpClient {
 
     /**
      * Get the username set for this client
-     * 
+     *
      * @return the username
      */
     public String getUsername() {
-        return credentialsProvider.getCredentials(AuthScope.ANY).getUserPrincipal().getName();
+        org.apache.hc.client5.http.auth.Credentials creds =
+            ((BasicCredentialsProvider)credentialsProvider).getCredentials(new AuthScope(null, -1), null);
+        if (creds != null && creds.getUserPrincipal() != null) {
+            return creds.getUserPrincipal().getName();
+        }
+        return null;
     }
 
     /**
      * Get the username set for this client for a specific scope
-     * 
+     *
      * @param scope
      * @return the username
      */
     public String getUsername(URI scope) {
-        return credentialsProvider.getCredentials(new AuthScope(scope.getHost(), scope.getPort())).getUserPrincipal()
-                .getName();
+        org.apache.hc.client5.http.auth.Credentials creds =
+            ((BasicCredentialsProvider)credentialsProvider).getCredentials(
+                new AuthScope(scope.getHost(), scope.getPort()), null);
+        if (creds != null) {
+            return creds.getUserPrincipal().getName();
+        }
+        return null;
     }
 
     /**
      * Set the username and password for all scopes
-     * 
+     *
      * @param username
      * @param password
      * @return the updated client
      */
     public IHttpClient setAuthorisation(String username, String password) {
-        credentialsProvider.clear();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-        enableAuthCache();
+        // Create a new credentials provider to clear existing credentials
+        credentialsProvider = new BasicCredentialsProvider();
+        ((BasicCredentialsProvider)credentialsProvider).setCredentials(new AuthScope(null, -1),
+                new UsernamePasswordCredentials(username, password.toCharArray()));
         return this;
     }
 
     /**
      * Set the username and password for a specific scope
-     * 
+     *
      * @param username
      * @param password
      * @param scope
      * @return the updated client
      */
     public IHttpClient setAuthorisation(String username, String password, URI scope) {
-        credentialsProvider.setCredentials(new AuthScope(scope.getHost(), scope.getPort()),
-                new UsernamePasswordCredentials(username, password));
-        enableAuthCache();
+        ((BasicCredentialsProvider)credentialsProvider).setCredentials(
+                new AuthScope(scope.getHost(), scope.getPort()),
+                new UsernamePasswordCredentials(username, password.toCharArray()));
         return this;
     }
 
@@ -516,21 +555,24 @@ public class HttpClientImpl implements IHttpClient {
      * @return the built client
      */
     public IHttpClient build() {
-    	RequestConfig.Builder requestBuilder = RequestConfig.custom();
-    	HttpClientBuilder builder = HttpClientBuilder.create();
-    	builder.setDefaultCookieStore(cookieStore);
-    	requestBuilder.setCookieSpec(CookieSpecs.STANDARD);
+        RequestConfig.Builder requestBuilder = RequestConfig.custom();
+        HttpClientBuilder builder = HttpClientBuilder.create();
+        requestBuilder.setCookieSpec(StandardCookieSpec.STRICT);
         builder.setDefaultCredentialsProvider(credentialsProvider);
         builder.setDefaultHeaders(commonHeaders);
 
         if (timeout > 0) {
-            requestBuilder.setConnectTimeout(timeout)
-                          .setConnectionRequestTimeout(timeout).setSocketTimeout(timeout);
+            Timeout timeoutValue = Timeout.ofMilliseconds(timeout);
+            requestBuilder.setConnectionRequestTimeout(timeoutValue)
+                          .setResponseTimeout(timeoutValue);
         }
 
         if (sslContext != null) {
-            SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
-            builder.setSSLSocketFactory(csf);
+            TlsSocketStrategy tlsStrategy = new DefaultClientTlsStrategy(sslContext, hostnameVerifier);
+            HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+                    .setTlsSocketStrategy(tlsStrategy)
+                    .build();
+            builder.setConnectionManager(cm);
         }
         builder.setDefaultRequestConfig(requestBuilder.build());
         httpClient = builder.build();
@@ -538,7 +580,7 @@ public class HttpClientImpl implements IHttpClient {
         return this;
     }
 
-    private void addHeaders(AbstractHttpMessage message, ContentType contentType, ContentType[] acceptTypes) {
+    private void addHeaders(ClassicHttpRequest message, ContentType contentType, ContentType[] acceptTypes) {
 
         if (contentType != null) {
             if(contentType.getC() != null) {
@@ -567,22 +609,22 @@ public class HttpClientImpl implements IHttpClient {
 
     }
 
-    private byte[] execute(HttpUriRequest request, boolean retry) throws HttpClientException {
+    private byte[] execute(ClassicHttpRequest request, boolean retry) throws HttpClientException {
 
         while (true) {
-            CloseableHttpResponse response = null;
+            ClassicHttpResponse response = null;
             try {
                 this.build();
-                response = httpClient.execute(request, httpContext);
-                StatusLine status = response.getStatusLine();
-                if (status.getStatusCode() != HttpStatus.SC_OK
-                        && status.getStatusCode() != HttpStatus.SC_CREATED
-                        && status.getStatusCode() != HttpStatus.SC_MOVED_TEMPORARILY
-                        && !okResponseCodes.contains(status.getStatusCode())) {
-                    String message = "HTTP " + request.getMethod() + " to " + request.getURI().toASCIIString()
-                            + " failed with " + status.getStatusCode() + ": '" + status.getReasonPhrase() + "'";
+                response = httpClient.executeOpen(null, request, httpContext);
+                int statusCode = response.getCode();
+                if (statusCode != HttpStatus.SC_OK
+                        && statusCode != HttpStatus.SC_CREATED
+                        && statusCode != HttpStatus.SC_MOVED_TEMPORARILY
+                        && !okResponseCodes.contains(statusCode)) {
+                    String message = "HTTP " + request.getMethod() + " to " + request.getUri().toASCIIString()
+                            + " failed with " + statusCode + ": '" + response.getReasonPhrase() + "'";
 
-                    if (retry && status.getStatusCode() != HttpStatus.SC_UNAUTHORIZED) {
+                    if (retry && statusCode != HttpStatus.SC_UNAUTHORIZED) {
                         logger.warn(message + ", retrying");
                         try {
                             Thread.sleep(2000);
@@ -608,7 +650,7 @@ public class HttpClientImpl implements IHttpClient {
                         response.close();
                     } catch (IOException e) {
                         logger.error("Exception received when trying to close an http response from "
-                                + request.getURI().toASCIIString(), e);
+                                + request.getRequestUri(), e);
                     }
                 }
             }
@@ -642,18 +684,14 @@ public class HttpClientImpl implements IHttpClient {
                     throw new HttpClientException("Illegal query parameter found: '" + pair + "'");
                 }
 
-                try {
-                    String param = URLDecoder.decode(parts[0], "UTF-8");
-                    String value = URLDecoder.decode(parts[1], "UTF-8");
-                    if (multiMap.containsKey(param)) {
-                        multiMap.get(param).add(value);
-                    } else {
-                        List<String> list = new ArrayList<>();
-                        list.add(value);
-                        multiMap.put(param, list);
-                    }
-                } catch (UnsupportedEncodingException e) {
-                    throw new HttpClientException("Unable to decode query parameter: '" + pair + "'", e);
+                String param = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
+                String value = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
+                if (multiMap.containsKey(param)) {
+                    multiMap.get(param).add(value);
+                } else {
+                    List<String> list = new ArrayList<>();
+                    list.add(value);
+                    multiMap.put(param, list);
                 }
             }
         }
@@ -736,7 +774,7 @@ public class HttpClientImpl implements IHttpClient {
         byte[] dataBytes = marshall(data, jaxbClasses);
 
         HttpPost post = new HttpPost(buildUri(path, queryParams));
-        post.setEntity(new ByteArrayEntity(dataBytes));
+        post.setEntity(new ByteArrayEntity(dataBytes, null));
         addHeaders(post, contentType, acceptTypes);
 
         byte[] response = execute(post, retry);
@@ -752,49 +790,21 @@ public class HttpClientImpl implements IHttpClient {
         HttpPost post = new HttpPost(buildUri(path, queryParams));
         addHeaders(post, ContentType.APPLICATION_FORM_URLENCODED, acceptTypes);
 
-        List<BasicNameValuePair> nvps = new ArrayList<BasicNameValuePair>();
+        List<NameValuePair> nvps = new ArrayList<>();
         for (Entry<String, String> field : fields.entrySet()) {
             nvps.add(new BasicNameValuePair(field.getKey(), field.getValue()));
         }
-        try {
-            post.setEntity(new UrlEncodedFormEntity(nvps));
-        } catch (UnsupportedEncodingException e) {
-            throw new HttpClientException("Unable to encode form", e);
-        }
+        post.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
 
         byte[] response = execute(post, retry);
 
         return unmarshall(response, null);
     }
 
-    public CloseableHttpResponse getFile(String path) throws HttpClientException {
-        try{
-            HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
-                    new ContentType[] { ContentType.APPLICATION_OCTET_STREAM, ContentType.APPLICATION_X_TAR });
-
-            return execute(request.buildRequest());
-        } catch (HttpClientException e) {
-            logger.error("Could not download file from specified path: "+ path, e);
-            throw new HttpClientException("Failed to get file",e);
-        }
-    }
-
-    public CloseableHttpResponse getFile(String path, ContentType... contentTypes) throws HttpClientException {
-        try{
-            HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
-                    contentTypes);
-
-            return execute(request.buildRequest());
-        } catch (HttpClientException e) {
-            logger.error("Could not download file from specified path: "+ path, e);
-            throw new HttpClientException("Failed to get file",e);
-        }
-    }
-
     public void putFile(String path, InputStream file) {    
         try {
             BufferedInputStream in = new BufferedInputStream(file);
-            CloseableHttpResponse response = putStream(path, null, ContentType.APPLICATION_X_TAR, in, new ContentType[] {
+            ClassicHttpResponse response = putStream(path, null, ContentType.APPLICATION_X_TAR, in, new ContentType[] {
                     ContentType.APPLICATION_XML, ContentType.APPLICATION_JSON, ContentType.TEXT_PLAIN }, null, false);
             in.close();
             response.close();
@@ -804,7 +814,7 @@ public class HttpClientImpl implements IHttpClient {
         }
     }
 
-    public CloseableHttpResponse putStream(String path, Map<String, String> queryParams, ContentType contentType, Object data,
+    public ClassicHttpResponse putStream(String path, Map<String, String> queryParams, ContentType contentType, Object data,
             ContentType[] acceptTypes, Class<?>[] jaxbClasses, boolean retry) throws HttpClientException {
 
         HttpPut put = new HttpPut(buildUri(path, queryParams));
@@ -816,10 +826,10 @@ public class HttpClientImpl implements IHttpClient {
         if(data instanceof InputStream) {
             InputStreamEntity entity;
             try {
-                entity = new InputStreamEntity((InputStream) data);
+                entity = new InputStreamEntity((InputStream) data, org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM);
                 put.setEntity(entity);
                 addHeaders(put, contentType, acceptTypes);
-                return httpClient.execute(put, context);
+                return httpClient.executeOpen(null, put, context);
             } catch (IOException e) {
                 logger.error("IO error with input stream", e);
                 throw new HttpClientException(e);
@@ -846,20 +856,16 @@ public class HttpClientImpl implements IHttpClient {
         commonHeaders.clear();
     }
 
-    private HttpClientResponse<Document> executeXmlRequest(HttpClientRequest request) throws HttpClientException {
-        return HttpClientResponse.xmlResponse(execute(request.buildRequest()));
-    }
-
     @Override
     public HttpClientResponse<String> head(String url) throws HttpClientException {
         HttpClientRequest request = HttpClientRequest.newHeadRequest(buildUri(url, null).toString());
         return HttpClientResponse.textResponse(execute(request.buildRequest()));
     }
 
-    private CloseableHttpResponse execute(HttpUriRequest request) throws HttpClientException {
+    private ClassicHttpResponse execute(ClassicHttpRequest request) throws HttpClientException {
         this.build();
         try {
-            return httpClient.execute(request, httpContext);
+            return httpClient.executeOpen(null, request, httpContext);
         } catch (IOException e) {
             throw new HttpClientException("Error executing http request", e);
         }
