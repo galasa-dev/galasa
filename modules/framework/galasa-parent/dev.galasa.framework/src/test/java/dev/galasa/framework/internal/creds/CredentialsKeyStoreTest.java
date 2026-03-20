@@ -51,7 +51,7 @@ public class CredentialsKeyStoreTest {
         testKeyStore.store(baos, testPassword.toCharArray());
         testKeyStoreBytes = baos.toByteArray();
 
-        encodedKeyStore = "base64:" + Base64.getEncoder().encodeToString(testKeyStoreBytes);
+        encodedKeyStore = Base64.getEncoder().encodeToString(testKeyStoreBytes);
     }
 
     /**
@@ -93,13 +93,11 @@ public class CredentialsKeyStoreTest {
         
         assertThat(props).isNotNull();
         
-        // Verify the keystore is base64 encoded with "base64:" prefix
-        String encodedKeyStore = props.getProperty("secure.credentials.TESTCREDS.keystore");
-        assertThat(encodedKeyStore).startsWith("base64:");
+        // Verify the keystore is base64 encoded
+        String storedKeyStore = props.getProperty("secure.credentials.TESTCREDS.keystore");
         
-        // Remove prefix and decode
-        String base64Data = encodedKeyStore.substring("base64:".length());
-        byte[] decodedBytes = Base64.getDecoder().decode(base64Data);
+        // Decode and verify
+        byte[] decodedBytes = Base64.getDecoder().decode(storedKeyStore);
         assertThat(decodedBytes).isEqualTo(testKeyStoreBytes);
         
         assertThat(props.getProperty("secure.credentials.TESTCREDS.password")).isEqualTo(testPassword);
@@ -109,8 +107,7 @@ public class CredentialsKeyStoreTest {
     /**
      * Test retrieving KeyStore credentials from MockCredentialsStore.
      *
-     * The KeyStore bytes must be stored with the "base64:" prefix so the
-     * decode() method knows to base64-decode them.
+     * The KeyStore bytes are base64 encoded.
      */
     @Test
     public void testGetKeyStoreCredentialsFromStore() throws Exception {
@@ -139,14 +136,14 @@ public class CredentialsKeyStoreTest {
     }
 
     /**
-     * Test that invalid KeyStore bytes throw an exception when loading.
+     * Test that invalid KeyStore bytes throw an exception during construction (eager validation).
      */
     @Test
     public void testInvalidKeyStoreBytesThrowsException() throws Exception {
         byte[] invalidBytes = "not a valid keystore".getBytes();
-        CredentialsKeyStore creds = new CredentialsKeyStore("base64:" + Base64.getEncoder().encodeToString(invalidBytes), testPassword, "PKCS12");
+        String invalidEncodedKeyStore = Base64.getEncoder().encodeToString(invalidBytes);
 
-        assertThatThrownBy(() -> creds.getKeyStore())
+        assertThatThrownBy(() -> new CredentialsKeyStore(invalidEncodedKeyStore, testPassword, "PKCS12"))
             .isInstanceOf(CredentialsException.class)
             .hasMessageContaining("Failed to load KeyStore");
     }
@@ -189,13 +186,11 @@ public class CredentialsKeyStoreTest {
     }
 
     /**
-     * Test that KeyStore with wrong password throws exception.
+     * Test that KeyStore with wrong password throws exception during construction (eager validation).
      */
     @Test
     public void testKeyStoreWithWrongPasswordThrowsException() throws Exception {
-        CredentialsKeyStore creds = new CredentialsKeyStore(encodedKeyStore, "wrongPassword", "PKCS12");
-
-        assertThatThrownBy(() -> creds.getKeyStore())
+        assertThatThrownBy(() -> new CredentialsKeyStore(encodedKeyStore, "wrongPassword", "PKCS12"))
             .isInstanceOf(CredentialsException.class)
             .hasMessageContaining("Failed to load KeyStore");
     }

@@ -160,7 +160,7 @@ public enum ServletErrorMessage {
     GAL5102_INVALID_SECRET_DESCRIPTION_PROVIDED       (5102, "E: Invalid secret description provided. The description should not only contain spaces or tabs. When provided, it must contain characters in the Latin-1 character set. Report the problem to your Galasa Ecosystem owner."),
     GAL5450_FAILED_TO_CREATE_KEYSTORE_CREDENTIALS     (5450, "E: Failed to create a Java KeyStore from the provided secret data. The keystore data may be invalid, incorrectly encoded, the keystore type may be unsupported, or the keystore password may be incorrect. Check your request payload and try again."),
     GAL5451_MUTUALLY_EXCLUSIVE_FIELDS_PROVIDED        (5451, "E: Invalid secret payload provided. The ''{0}'' field cannot be used with KeyStore credentials. KeyStore credentials only accept ''keystore'', ''keystoreType'', and ''keystorePassword'' fields. Check your request payload and try again."),
-    GAL5452_INVALID_KEYSTORE_BASE64_ENCODING          (5452, "E: Invalid keystore value provided. The keystore value must be prefixed with ''base64:'' followed by valid base64-encoded data. Check your request payload and try again."),
+    GAL5452_INVALID_KEYSTORE_BASE64_ENCODING          (5452, "E: Invalid keystore value provided. The keystore value must be valid base64-encoded data. Check your request payload and try again."),
     
     // Auth callback API...
     GAL5103_UNEXPECTED_STATE_PARAMETER_PROVIDED       (5103, "E: Unexpected ''state'' query parameter value provided. The provided ''state'' parameter value does not match the stored state identifier or the auth request has timed out. Try to log in again."),

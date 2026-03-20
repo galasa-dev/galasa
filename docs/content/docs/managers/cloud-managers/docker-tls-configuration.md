@@ -605,7 +605,7 @@ When using JKS format, you'll need to:
 2. **Set the KeyStore type to JKS** in Galasa configuration:
 
 ```properties
-secure.credentials.DOCKER_TLS.keystore=base64:MIIKEQIBAzCCCdcGCSqGSIb3DQE...
+secure.credentials.DOCKER_TLS.keystore=MIIKEQIBAzCCCdcGCSqGSIb3DQE...
 secure.credentials.DOCKER_TLS.password=changeit
 secure.credentials.DOCKER_TLS.type=JKS
 ```
@@ -717,7 +717,7 @@ Edit your Galasa properties file:
 
 ```properties
 # Docker TLS credentials
-secure.credentials.DOCKER_TLS.keystore=base64:MIIKEQIBAzCCCdcGCSqGSIb3DQE...
+secure.credentials.DOCKER_TLS.keystore=MIIKEQIBAzCCCdcGCSqGSIb3DQE...
 secure.credentials.DOCKER_TLS.password=changeit
 secure.credentials.DOCKER_TLS.type=PKCS12
 ```
@@ -726,12 +726,12 @@ secure.credentials.DOCKER_TLS.type=PKCS12
 
 **Linux/macOS:**
 ```bash
-echo "base64:$(cat docker-tls-oneline.b64)"
+cat docker-tls-oneline.b64
 ```
 
 **Windows (PowerShell):**
 ```powershell
-"base64:$(Get-Content docker-tls-oneline.b64 -Raw)"
+Get-Content docker-tls-oneline.b64 -Raw
 ```
 
 #### Option B: ETCD Credentials Store
@@ -747,7 +747,7 @@ cat > docker-tls-secret.json <<EOF
   "description": "Docker TLS certificates for PRIMARY engine",
   "type": "KeyStore",
   "data": {
-    "keystore": "base64:$(cat docker-tls-oneline.b64)",
+    "keystore": "$(cat docker-tls-oneline.b64)",
     "password": "changeit",
     "type": "PKCS12"
   },
@@ -785,7 +785,7 @@ $secretPayload = @{
     description = "Docker TLS certificates for PRIMARY engine"
     type = "KeyStore"
     data = @{
-        keystore = "base64:$keystoreData"
+        keystore = $keystoreData
         password = "changeit"
         type = "PKCS12"
     }
@@ -817,7 +817,7 @@ curl -X DELETE https://your-galasa-api/secrets/DOCKER_TLS `
 
 **Important Notes for Secrets API:**
 
-- The KeyStore data must be base64-encoded and prefixed with "base64:" in the JSON payload
+- The KeyStore data must be base64-encoded (without any prefix)
 - The `encoding` field must be set to `"base64"`
 - The `type` field in `data` specifies the KeyStore format (PKCS12 or JKS)
 - Authentication is required via JWT token
@@ -826,7 +826,7 @@ curl -X DELETE https://your-galasa-api/secrets/DOCKER_TLS `
   - The password is incorrect
   - The KeyStore type doesn't match the actual format
   - The KeyStore cannot be loaded
-  - The "base64:" prefix is missing
+  - The base64 encoding is invalid
 
 ### 7.2 Configure Docker Engine Properties
 
@@ -991,33 +991,36 @@ Restart-Service docker
 # Or for Docker Desktop, restart from system tray
 ```
 
-### Issue 4: "KeyStore data must be base64 encoded with 'base64:' prefix"
+### Issue 4: "Invalid keystore value provided"
 
-**Cause:** The KeyStore data in Galasa configuration is missing the required "base64:" prefix.
+**Cause:** The KeyStore data in Galasa configuration is not valid base64-encoded data.
 
 **Solution:**
 
+Ensure the KeyStore data is properly base64-encoded without any prefix:
+
 For file-based configuration:
 ```properties
-# Wrong:
-secure.credentials.DOCKER_TLS.keystore=MIIKEQIBAzCCCdcGCSqGSIb3DQE...
-
-# Correct:
+# Wrong (with prefix):
 secure.credentials.DOCKER_TLS.keystore=base64:MIIKEQIBAzCCCdcGCSqGSIb3DQE...
+
+# Correct (plain base64):
+secure.credentials.DOCKER_TLS.keystore=MIIKEQIBAzCCCdcGCSqGSIb3DQE...
 ```
 
 For Secrets REST API:
 ```json
 {
   "data": {
-    "keystore": "base64:MIIKEQIBAzCCCdcGCSqGSIb3DQE...",
+    "keystore": "MIIKEQIBAzCCCdcGCSqGSIb3DQE...",
     "password": "changeit",
     "type": "PKCS12"
   },
   "encoding": "base64"
 }
 ```
-**Note:** The "base64:" prefix is required in both file-based and API configurations.
+
+**Note:** The KeyStore value should be plain base64-encoded data without any "base64:" prefix in both file-based and API configurations.
 
 ### Issue 5: "Unsupported KeyStore type"
 

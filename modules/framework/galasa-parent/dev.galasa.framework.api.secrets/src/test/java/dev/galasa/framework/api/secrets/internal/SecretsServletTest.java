@@ -260,7 +260,7 @@ public class SecretsServletTest extends BaseServletTest {
     /**
      * Creates a valid empty PKCS12 KeyStore for testing.
      * This generates actual KeyStore binary data that can be loaded without errors.
-     * 
+     *
      * @param password The password to protect the KeyStore
      * @param keystoreType The type of KeyStore ("PKCS12" or "JKS")
      * @return Base64-encoded KeyStore bytes
@@ -277,7 +277,7 @@ public class SecretsServletTest extends BaseServletTest {
             byte[] keystoreBytes = baos.toByteArray();
             
             // Return base64-encoded bytes
-            return "base64:" + Base64.getEncoder().encodeToString(keystoreBytes);
+            return Base64.getEncoder().encodeToString(keystoreBytes);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create test KeyStore: " + e.getMessage(), e);
         }

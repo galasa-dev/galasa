@@ -23,9 +23,6 @@ import dev.galasa.framework.api.common.resources.SecretValidator;
 
 public class SecretRequestValidator extends SecretValidator<SecretRequest> {
 
-    private static final String BASE64_PREFIX = "base64:";
-    private static final int BASE64_PREFIX_LENGTH = BASE64_PREFIX.length();
-
     @Override
     public void validate(SecretRequest secretRequest) throws InternalServletException {
         SecretRequestusername username = secretRequest.getusername();
@@ -134,27 +131,19 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
     }
 
     /**
-     * Validates that the keystore value is prefixed with "base64:" and contains valid base64-encoded data.
+     * Validates that the keystore value contains valid base64-encoded data.
      *
      * @param keystoreValue the keystore value to validate
      * @throws InternalServletException if validation fails
      */
     private void validateKeystoreBase64Encoding(String keystoreValue) throws InternalServletException {
-        // Check for "base64:" prefix
-        if (!keystoreValue.startsWith(BASE64_PREFIX)) {
-            throwInvalidKeystoreEncodingError();
-        }
-
-        // Extract the base64 data after the prefix
-        String base64Data = keystoreValue.substring(BASE64_PREFIX_LENGTH);
-
-        if (base64Data.isBlank()) {
+        if (keystoreValue == null || keystoreValue.isBlank()) {
             throwInvalidKeystoreEncodingError();
         }
 
         // Validate that it's valid base64
         try {
-            Base64.getDecoder().decode(base64Data);
+            Base64.getDecoder().decode(keystoreValue);
         } catch (IllegalArgumentException e) {
             throwInvalidKeystoreEncodingError();
         }

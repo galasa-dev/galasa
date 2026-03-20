@@ -165,22 +165,35 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
     /**
      * Decodes keystore credentials with optional password and type.
      *
+     * The keystore value should be base64-encoded in the request payload.
+     * If encoding is "base64", the value will be decoded from base64 to get the actual base64 KeyStore data.
+     * If encoding is null or not "base64", the value is used as-is (assumed to be base64 KeyStore data).
+     *
      * @param secretRequest the request containing the credential data
      * @param keystore the keystore request object
      * @return decoded keystore credentials
      * @throws InternalServletException if decoding fails or keystore creation fails
      */
     private ICredentials decodeKeystoreCredentials(SecretRequest secretRequest, SecretRequestkeystore keystore) throws InternalServletException {
-        String decodedKeystore = decodeSecretValue(keystore.getvalue(), keystore.getencoding());
+        // Get the keystore value - if encoding is "base64", this will decode it
+        // The result should be base64-encoded KeyStore bytes (without prefix)
+        String keystoreValue = keystore.getvalue();
+        String keystoreEncoding = keystore.getencoding();
+        
+        // If encoding is "base64", the value is double-encoded, so decode it once
+        // to get the actual base64 KeyStore data
+        if (keystoreEncoding != null && keystoreEncoding.equalsIgnoreCase("base64")) {
+            keystoreValue = decodeSecretValue(keystoreValue, keystoreEncoding);
+        }
         
         SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
         String decodedKeystorePassword = decodeSecretValue(keystorePassword.getvalue(), keystorePassword.getencoding());
         
         String type = secretRequest.getKeystoreType();
         
-        // Create CredentialsKeyStore - it expects base64-encoded keystore with "base64:" prefix
+        // Create CredentialsKeyStore - it expects base64-encoded keystore (without "base64:" prefix)
         try {
-            return new CredentialsKeyStore(decodedKeystore, decodedKeystorePassword, type);
+            return new CredentialsKeyStore(keystoreValue, decodedKeystorePassword, type);
         } catch (CredentialsException | IllegalArgumentException e) {
             ServletError error = new ServletError(GAL5450_FAILED_TO_CREATE_KEYSTORE_CREDENTIALS);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
@@ -270,6 +283,7 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
             metadata.settype(Token);
         } else if (secretType == GalasaSecretType.KEYSTORE) {
             ICredentialsKeyStore keyStoreCredentials = (ICredentialsKeyStore) credentials;
+            // getEncodedKeyStore() returns base64 without prefix, so we encode it again for the response
             data.setkeystore(encodeValue(keyStoreCredentials.getEncodedKeyStore()));
             data.setKeystorePassword(encodeValue(keyStoreCredentials.getKeyStorePassword()));
             data.setKeystoreType(keyStoreCredentials.getKeyStoreType());
