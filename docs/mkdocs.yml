@@ -231,7 +231,9 @@ nav:
         - docs/managers/ims-tm-managers/ims-tm-manager.md
       - Cloud Managers:
         - docs/managers/cloud-managers/index.md
-        - docs/managers/cloud-managers/docker-manager.md
+        - Docker Manager:
+          - docs/managers/cloud-managers/docker-manager.md
+          - docs/managers/cloud-managers/docker-tls-configuration.md
         - docs/managers/cloud-managers/kubernetes-manager.md
         - docs/managers/cloud-managers/open-stack-manager.md
       - Communications Managers:
