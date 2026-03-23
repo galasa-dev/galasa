@@ -1375,8 +1375,13 @@ public class SecretsRouteTest extends SecretsServletTest {
         servlet.doPost(mockRequest, servletResponse);
 
         // Then...
-        assertThat(servletResponse.getStatus()).isEqualTo(500);
-        // NullPointerException will be caught and wrapped in a 500 error
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5453,
+            "GAL5453E",
+            "The 'keystorePassword' field is missing"
+        );
         assertThat(credsService.getAllCredentials()).isEmpty();
     }
 
