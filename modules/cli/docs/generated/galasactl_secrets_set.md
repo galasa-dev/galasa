@@ -21,7 +21,7 @@ galasactl secrets set [flags]
       --name string              A mandatory flag that identifies the secret to be created or manipulated.
       --password string          a password to set into a secret
       --token string             a token to set into a secret
-      --type string              the desired secret type to convert an existing secret into. Supported types are: [UsernamePassword Username UsernameToken Token].
+      --type string              the desired secret type to convert an existing secret into. Supported types are: [UsernamePassword Username UsernameToken Token KeyStore].
       --username string          a username to set into a secret
 ```
 
