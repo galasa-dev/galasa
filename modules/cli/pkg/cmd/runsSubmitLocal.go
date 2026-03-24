@@ -150,7 +150,6 @@ func (cmd *RunsSubmitLocalCommand) createRunsSubmitLocalCobraCmd(
 
 	runs.AddGherkinFlag(runsSubmitLocalCobraCmd, cmd.values.submitLocalSelectionFlags, false, "Gherkin feature file URL. Should start with 'file://'. ")
 
-	runsSubmitLocalCobraCmd.MarkFlagsRequiredTogether("class", "obr")
 	runsSubmitLocalCobraCmd.MarkFlagsOneRequired("class", "gherkin")
 	runsSubmitLocalCobraCmd.MarkFlagsMutuallyExclusive("methods", "gherkin")
 

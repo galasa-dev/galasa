@@ -43,40 +43,6 @@ func TestRunsSubmitLocalHelpFlagSetCorrectly(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestRunsSubmitLocalWithoutObrWithClassErrors(t *testing.T) {
-	// Given...
-	factory := utils.NewMockFactory()
-	var args []string = []string{"runs", "submit", "local", "--class", "osgi.bundle/class.path"}
-
-	// When...
-	err := Execute(factory, args)
-
-	// Then...
-	// Check what the user saw was reasonable
-	checkOutput("", "if any flags in the group [class obr] are set they must all be set; missing [obr]", factory, t)
-
-	// Should throw an error asking for flags to be set
-	assert.NotNil(t, err, "err should have been set!")
-	assert.Contains(t, err.Error(), "if any flags in the group [class obr] are set they must all be set; missing [obr]")
-}
-
-func TestRunsSubmitLocalWithoutClassWithObrErrors(t *testing.T) {
-	// Given...
-	factory := utils.NewMockFactory()
-	var args []string = []string{"runs", "submit", "local", "--obr", "mvn:second.breakfast/elevenses/0.1.0/brunch"}
-
-	// When...
-	err := Execute(factory, args)
-
-	// Then...
-	// Check what the user saw was reasonable
-	checkOutput("", "if any flags in the group [class obr] are set they must all be set; missing [class]", factory, t)
-
-	// Should throw an error asking for flags to be set
-	assert.NotNil(t, err, "err should have been set!")
-	assert.Contains(t, err.Error(), "if any flags in the group [class obr] are set they must all be set; missing [class]")
-}
-
 func TestMultipleRequiredFlagsNotSetReturnsListInError(t *testing.T) {
 	// Given...
 	factory := utils.NewMockFactory()
@@ -321,5 +287,28 @@ func TestRunsSubmitLocaGherkinFlagsWork(t *testing.T) {
 	assert.Contains(t, cmd.Values().(*RunsSubmitLocalCmdValues).runsSubmitLocalCmdParams.LocalMaven, "local/maven/location")
 	assert.Contains(t, cmd.Values().(*RunsSubmitLocalCmdValues).runsSubmitLocalCmdParams.RemoteMaven, "remote.maven.location")
 	assert.Empty(t, cmd.Values().(*RunsSubmitLocalCmdValues).runsSubmitLocalCmdParams.Obrs)
+	assert.Empty(t, cmd.Values().(*RunsSubmitLocalCmdValues).submitLocalSelectionFlags.Classes)
+}
+
+func TestRunsSubmitLocalGherkinFlagWithObrWorks(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	commandCollection, cmd := setupTestCommandCollection(COMMAND_NAME_RUNS_SUBMIT_LOCAL, factory, t)
+
+	var args []string = []string{"runs", "submit", "local",
+		"--gherkin", "gherkin.feature",
+		"--obr", "mvn:my.group/my.group.obr/0.0.1/obr"}
+
+	// When...
+	err := commandCollection.Execute(args)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// Check what the user saw is reasonable.
+	checkOutput("", "", factory, t)
+
+	assert.Contains(t, *cmd.Values().(*RunsSubmitLocalCmdValues).submitLocalSelectionFlags.GherkinUrl, "gherkin.feature")
+	assert.Contains(t, cmd.Values().(*RunsSubmitLocalCmdValues).runsSubmitLocalCmdParams.Obrs, "mvn:my.group/my.group.obr/0.0.1/obr")
 	assert.Empty(t, cmd.Values().(*RunsSubmitLocalCmdValues).submitLocalSelectionFlags.Classes)
 }
