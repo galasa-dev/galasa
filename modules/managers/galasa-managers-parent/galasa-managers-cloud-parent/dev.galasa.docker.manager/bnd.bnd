@@ -4,13 +4,15 @@ Export-Package: dev.galasa.docker, dev.galasa.docker.spi
 Import-Package: com.google.gson,\
     dev.galasa,\
     dev.galasa.artifact,\
-    dev.galasa.docker.spi,\dev.galasa.framework.spi,\
+    dev.galasa.docker.spi,\
+    dev.galasa.framework.spi,\
     dev.galasa.framework.spi.cps,\
     dev.galasa.framework.spi.creds,\
     dev.galasa.framework.spi.language,\
     dev.galasa.framework.spi.utils,\
     dev.galasa.http,\
     dev.galasa.http.spi,\
+    javax.net.ssl,\
     javax.validation.constraints;resolution:=optional,\
     org.apache.commons.compress.archivers,\
     org.apache.commons.compress.archivers.tar,\

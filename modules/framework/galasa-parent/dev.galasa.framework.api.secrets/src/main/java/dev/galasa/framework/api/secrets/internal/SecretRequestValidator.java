@@ -7,9 +7,13 @@ package dev.galasa.framework.api.secrets.internal;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
+import java.util.Base64;
+
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.beans.generated.SecretRequestkeystore;
+import dev.galasa.framework.api.beans.generated.SecretRequestKeystorePassword;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
 import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
 import dev.galasa.framework.api.beans.generated.SecretRequestusername;
@@ -24,11 +28,17 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
         SecretRequestusername username = secretRequest.getusername();
         SecretRequestpassword password = secretRequest.getpassword();
         SecretRequesttoken token = secretRequest.gettoken();
+        SecretRequestkeystore keystore = secretRequest.getkeystore();
+        SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
+        String keystoreType = secretRequest.getKeystoreType();
 
         // Check that the secret has been given a name
         validateSecretName(secretRequest.getname());
 
         validateDescription(secretRequest.getdescription());
+
+        // Validate keystore mutual exclusivity
+        validateKeystoreMutualExclusivity(secretRequest);
 
         // Password and token are mutually exclusive, so error if both are provided
         if (password != null && token != null) {
@@ -42,13 +52,16 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        validateSecretRequestFields(username, password, token);
+        validateSecretRequestFields(username, password, token, keystore, keystorePassword, keystoreType);
     }
 
     protected void validateSecretRequestFields(
         SecretRequestusername username,
         SecretRequestpassword password,
-        SecretRequesttoken token
+        SecretRequesttoken token,
+        SecretRequestkeystore keystore,
+        SecretRequestKeystorePassword keystorePassword,
+        String keystoreType
     ) throws InternalServletException {
         if (username != null) {
             validateField(username.getvalue(), username.getencoding());
@@ -60,6 +73,19 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
 
         if (token != null) {
             validateField(token.getvalue(), token.getencoding());
+        }
+
+        if (keystore != null) {
+            validateField(keystore.getvalue(), keystore.getencoding());
+            validateKeystoreBase64Encoding(keystore.getvalue());
+        }
+
+        if (keystorePassword != null) {
+            validateField(keystorePassword.getvalue(), keystorePassword.getencoding());
+        }
+
+        if (keystoreType != null) {
+            validateField(keystoreType, null);
         }
     }
 
@@ -73,5 +99,58 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
             ServletError error = new ServletError(GAL5096_ERROR_MISSING_SECRET_VALUE);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
+    }
+
+    /**
+     * Validates that keystore credentials are not mixed with username, password or token fields.
+     * Keystore credentials are mutually exclusive with username, password and token fields.
+     *
+     * @param secretRequest the request to validate
+     * @throws InternalServletException if validation fails
+     */
+    protected void validateKeystoreMutualExclusivity(SecretRequest secretRequest) throws InternalServletException {
+        SecretRequestkeystore keystore = secretRequest.getkeystore();
+        SecretRequestusername username = secretRequest.getusername();
+        SecretRequestpassword password = secretRequest.getpassword();
+        SecretRequesttoken token = secretRequest.gettoken();
+
+        if (keystore != null && username != null) {
+            ServletError error = new ServletError(GAL5451_MUTUALLY_EXCLUSIVE_FIELDS_PROVIDED, "username");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        if (keystore != null && password != null) {
+            ServletError error = new ServletError(GAL5451_MUTUALLY_EXCLUSIVE_FIELDS_PROVIDED, "password");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        if (keystore != null && token != null) {
+            ServletError error = new ServletError(GAL5451_MUTUALLY_EXCLUSIVE_FIELDS_PROVIDED, "token");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Validates that the keystore value contains valid base64-encoded data.
+     *
+     * @param keystoreValue the keystore value to validate
+     * @throws InternalServletException if validation fails
+     */
+    private void validateKeystoreBase64Encoding(String keystoreValue) throws InternalServletException {
+        if (keystoreValue == null || keystoreValue.isBlank()) {
+            throwInvalidKeystoreEncodingError();
+        }
+
+        // Validate that it's valid base64
+        try {
+            Base64.getDecoder().decode(keystoreValue);
+        } catch (IllegalArgumentException e) {
+            throwInvalidKeystoreEncodingError();
+        }
+    }
+
+    private void throwInvalidKeystoreEncodingError() throws InternalServletException {
+        ServletError error = new ServletError(GAL5452_INVALID_KEYSTORE_BASE64_ENCODING);
+        throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
     }
 }

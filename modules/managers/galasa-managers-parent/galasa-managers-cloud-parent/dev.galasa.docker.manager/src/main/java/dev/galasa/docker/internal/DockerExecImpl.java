@@ -13,6 +13,9 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+
 
 import com.google.gson.JsonObject;
 
@@ -180,6 +183,18 @@ public class DockerExecImpl implements IDockerExec {
 			try {
 				URL url = new URL(dockerEngine.getURI() + "/exec/" + id + "/start");
 				conn = (HttpURLConnection) url.openConnection();
+
+				// Configure HTTPS if SSL context is available
+				if (conn instanceof HttpsURLConnection) {
+					HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
+					SSLContext sslContext = dockerEngine.getSslContext();
+					if (sslContext != null) {
+						httpsConn.setSSLSocketFactory(sslContext.getSocketFactory());
+						logger.debug("Configured HTTPS connection for exec command");
+					} else {
+						logger.warn("HTTPS URL detected but no SSL context available");
+					}
+				}
 
 				conn.setConnectTimeout(timeout);
 				conn.setReadTimeout(timeout);

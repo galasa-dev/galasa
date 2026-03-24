@@ -8,6 +8,8 @@ package dev.galasa.framework.api.secrets.internal.routes;
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import static dev.galasa.framework.api.beans.generated.GalasaSecretType.*;
 
+import java.io.ByteArrayOutputStream;
+import java.security.KeyStore;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
@@ -15,6 +17,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.ICredentials;
+import dev.galasa.ICredentialsKeyStore;
 import dev.galasa.ICredentialsToken;
 import dev.galasa.ICredentialsUsername;
 import dev.galasa.ICredentialsUsernamePassword;
@@ -23,6 +26,8 @@ import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.GalasaSecretdata;
 import dev.galasa.framework.api.beans.generated.GalasaSecretmetadata;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.beans.generated.SecretRequestkeystore;
+import dev.galasa.framework.api.beans.generated.SecretRequestKeystorePassword;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
 import dev.galasa.framework.api.beans.generated.SecretRequesttoken;
 import dev.galasa.framework.api.beans.generated.SecretRequestusername;
@@ -32,6 +37,8 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
 import dev.galasa.framework.api.common.resources.GalasaSecretType;
+import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
@@ -50,7 +57,8 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         CredentialsUsername.class, GalasaSecretType.USERNAME,
         CredentialsToken.class, GalasaSecretType.TOKEN,
         CredentialsUsernamePassword.class, GalasaSecretType.USERNAME_PASSWORD,
-        CredentialsUsernameToken.class, GalasaSecretType.USERNAME_TOKEN
+        CredentialsUsernameToken.class, GalasaSecretType.USERNAME_TOKEN,
+        CredentialsKeyStore.class, GalasaSecretType.KEYSTORE
     );
 
     public AbstractSecretsRoute(
@@ -91,33 +99,121 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         return decodedSecret;
     }
 
+    /**
+     * Decodes credentials from a secret request payload.
+     *
+     * Precedence order:
+     * 1. Username-based credentials (username + password/token, or username alone)
+     * 2. Keystore credentials
+     * 3. Token-only credentials
+     *
+     * @param secretRequest the request containing encoded credential data
+     * @return decoded credentials, or null if no valid credentials found
+     * @throws InternalServletException if decoding fails
+     */
     private ICredentials decodeCredentialsFromSecretPayload(SecretRequest secretRequest) throws InternalServletException {
         ICredentials credentials = null;
         SecretRequestusername username = secretRequest.getusername();
-        SecretRequestpassword password = secretRequest.getpassword();
-        SecretRequesttoken token = secretRequest.gettoken();
-
+        
         if (username != null) {
-            String decodedUsername = decodeSecretValue(username.getvalue(), username.getencoding());
-            if (password != null) {
-                // We have a username and password
-                String decodedPassword = decodeSecretValue(password.getvalue(), password.getencoding());
-                credentials = new CredentialsUsernamePassword(decodedUsername, decodedPassword);
+            credentials = decodeUsernameBasedCredentials(secretRequest, username);
+        } else {
+            SecretRequestkeystore keystore = secretRequest.getkeystore();
+            if (keystore != null) {
+                credentials = decodeKeystoreCredentials(secretRequest, keystore);
+            } else {
+                SecretRequesttoken token = secretRequest.gettoken();
+                if (token != null) {
+                    credentials = decodeTokenCredentials(token);
+                }
+            }
+        }
+        return credentials;
+    }
 
-            } else if (token != null) {
+    /**
+     * Decodes username-based credentials (username + password, username + token, or username alone).
+     *
+     * @param secretRequest the request containing the credential data
+     * @param username the username request object
+     * @return decoded username-based credentials
+     * @throws InternalServletException if decoding fails
+     */
+    private ICredentials decodeUsernameBasedCredentials(SecretRequest secretRequest, SecretRequestusername username) throws InternalServletException {
+        String decodedUsername = decodeSecretValue(username.getvalue(), username.getencoding());
+        ICredentials credentials;
+        
+        SecretRequestpassword password = secretRequest.getpassword();
+        if (password != null) {
+            // We have a username and password
+            String decodedPassword = decodeSecretValue(password.getvalue(), password.getencoding());
+            credentials = new CredentialsUsernamePassword(decodedUsername, decodedPassword);
+        } else {
+            SecretRequesttoken token = secretRequest.gettoken();
+            if (token != null) {
                 // We have a username and token
                 String decodedToken = decodeSecretValue(token.getvalue(), token.getencoding());
                 credentials = new CredentialsUsernameToken(decodedUsername, decodedToken);
             } else {
-                // We have a username
+                // We have a username only
                 credentials = new CredentialsUsername(decodedUsername);
             }
-        } else if (token != null) {
-            // We have a token
-            String decodedToken = decodeSecretValue(token.getvalue(), token.getencoding());
-            credentials = new CredentialsToken(decodedToken);
         }
         return credentials;
+    }
+
+    /**
+     * Decodes keystore credentials with optional password and type.
+     *
+     * The keystore value should be base64-encoded in the request payload.
+     * If encoding is "base64", the value will be decoded from base64 to get the actual base64 KeyStore data.
+     * If encoding is null or not "base64", the value is used as-is (assumed to be base64 KeyStore data).
+     *
+     * @param secretRequest the request containing the credential data
+     * @param keystore the keystore request object
+     * @return decoded keystore credentials
+     * @throws InternalServletException if decoding fails or keystore creation fails
+     */
+    private ICredentials decodeKeystoreCredentials(SecretRequest secretRequest, SecretRequestkeystore keystore) throws InternalServletException {
+        // Get the keystore value - if encoding is "base64", this will decode it
+        // The result should be base64-encoded KeyStore bytes (without prefix)
+        String keystoreValue = keystore.getvalue();
+        String keystoreEncoding = keystore.getencoding();
+        
+        // If encoding is "base64", the value is double-encoded, so decode it once
+        // to get the actual base64 KeyStore data
+        if (keystoreEncoding != null && keystoreEncoding.equalsIgnoreCase("base64")) {
+            keystoreValue = decodeSecretValue(keystoreValue, keystoreEncoding);
+        }
+        
+        SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
+        if (keystorePassword == null) {
+            ServletError error = new ServletError(GAL5453_MISSING_KEYSTORE_PASSWORD_FIELD);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        String decodedKeystorePassword = decodeSecretValue(keystorePassword.getvalue(), keystorePassword.getencoding());
+        
+        String type = secretRequest.getKeystoreType();
+        
+        // Create CredentialsKeyStore - it expects base64-encoded keystore (without "base64:" prefix)
+        try {
+            return new CredentialsKeyStore(keystoreValue, decodedKeystorePassword, type);
+        } catch (CredentialsException | IllegalArgumentException e) {
+            ServletError error = new ServletError(GAL5450_FAILED_TO_CREATE_KEYSTORE_CREDENTIALS);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
+        }
+    }
+
+    /**
+     * Decodes token-only credentials.
+     *
+     * @param token the token request object
+     * @return decoded token credentials
+     * @throws InternalServletException if decoding fails
+     */
+    private ICredentials decodeTokenCredentials(SecretRequesttoken token) throws InternalServletException {
+        String decodedToken = decodeSecretValue(token.getvalue(), token.getencoding());
+        return new CredentialsToken(decodedToken);
     }
 
     protected String decodeSecretValue(String possiblyEncodedValue, String encoding) throws InternalServletException {
@@ -152,6 +248,13 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         } else if (secretType == GalasaSecretType.TOKEN) {
             data.settoken(REDACTED_SECRET_VALUE);
             metadata.settype(Token);
+        } else if (secretType == GalasaSecretType.KEYSTORE) {
+            ICredentialsKeyStore keyStoreCredentials = (ICredentialsKeyStore) credentials;
+            data.setkeystore(REDACTED_SECRET_VALUE);
+            data.setKeystorePassword(REDACTED_SECRET_VALUE);
+            // KeyStore type is not sensitive, so don't redact it
+            data.setKeystoreType(keyStoreCredentials.getKeyStoreType());
+            metadata.settype(KEY_STORE);
         } else {
             // The credentials are in an unknown format, throw an error
             ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);
@@ -181,8 +284,15 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         } else if (secretType == GalasaSecretType.TOKEN) {
             ICredentialsToken tokenCredentials = (ICredentialsToken) credentials;
             data.settoken(encodeValue(new String(tokenCredentials.getToken())));
-
             metadata.settype(Token);
+        } else if (secretType == GalasaSecretType.KEYSTORE) {
+            ICredentialsKeyStore keyStoreCredentials = (ICredentialsKeyStore) credentials;
+            // getEncodedKeyStore() returns base64 without prefix, so we encode it again for the response
+            data.setkeystore(encodeValue(keyStoreCredentials.getEncodedKeyStore()));
+            data.setKeystorePassword(encodeValue(keyStoreCredentials.getKeyStorePassword()));
+            data.setKeystoreType(keyStoreCredentials.getKeyStoreType());
+            
+            metadata.settype(KEY_STORE);
         } else {
             // The credentials are in an unknown format, throw an error
             ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);

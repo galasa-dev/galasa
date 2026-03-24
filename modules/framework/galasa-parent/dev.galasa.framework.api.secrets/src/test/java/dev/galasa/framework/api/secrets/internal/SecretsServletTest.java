@@ -8,6 +8,8 @@ package dev.galasa.framework.api.secrets.internal;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Base64.Encoder;
+import java.io.ByteArrayOutputStream;
+import java.security.KeyStore;
 import java.util.Map;
 
 import com.google.gson.JsonObject;
@@ -119,6 +121,28 @@ public class SecretsServletTest extends BaseServletTest {
         return secretJson;
     }
 
+    protected JsonObject generateKeyStoreSecretJson(
+        String secretName,
+        String keystore,
+        String keystorePassword,
+        String keystoreType,
+        String encoding,
+        String description,
+        String lastUpdatedUser,
+        Instant lastUpdatedTime
+    ) {
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("apiVersion", GalasaResourceValidator.DEFAULT_API_VERSION);
+
+        String type = "KeyStore";
+        secretJson.add("metadata", generateExpectedMetadata(secretName, type, encoding, description, lastUpdatedUser, lastUpdatedTime));
+        secretJson.add("data", generateExpectedKeyStoreData(keystore, keystorePassword, keystoreType, encoding));
+
+        secretJson.addProperty("kind", "GalasaSecret");
+
+        return secretJson;
+    }
+
     private JsonObject generateExpectedMetadata(
         String secretName,
         String type,
@@ -204,5 +228,58 @@ public class SecretsServletTest extends BaseServletTest {
         data.addProperty("password", password);
 
         return data;
+    }
+
+    private JsonObject generateExpectedKeyStoreData(String keystore, String keystorePassword, String keystoreType, String encoding) {
+        JsonObject data = new JsonObject();
+
+        if (encoding != null && encoding.equals("base64")) {
+            if (keystorePassword != null) {
+                Encoder encoder = Base64.getEncoder();
+                keystorePassword = encoder.encodeToString(keystorePassword.getBytes());
+            }
+            if (keystore != null) {
+                Encoder encoder = Base64.getEncoder();
+                keystore = encoder.encodeToString(keystore.getBytes());
+            }
+        }
+
+        if (keystoreType != null) {
+            data.addProperty("keystoreType", keystoreType);
+        }
+        if (keystorePassword != null) {
+            data.addProperty("keystorePassword", keystorePassword);
+        }
+        if (keystore != null) {
+            data.addProperty("keystore", keystore);
+        }
+
+        return data;
+    }
+
+    /**
+     * Creates a valid empty PKCS12 KeyStore for testing.
+     * This generates actual KeyStore binary data that can be loaded without errors.
+     *
+     * @param password The password to protect the KeyStore
+     * @param keystoreType The type of KeyStore ("PKCS12" or "JKS")
+     * @return Base64-encoded KeyStore bytes
+     */
+    protected String createValidKeyStoreBytes(String password, String keystoreType) {
+        try {
+            // Create an empty KeyStore
+            KeyStore keyStore = KeyStore.getInstance(keystoreType);
+            keyStore.load(null, password.toCharArray());
+            
+            // Serialize the KeyStore to bytes
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            keyStore.store(baos, password.toCharArray());
+            byte[] keystoreBytes = baos.toByteArray();
+            
+            // Return base64-encoded bytes
+            return Base64.getEncoder().encodeToString(keystoreBytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create test KeyStore: " + e.getMessage(), e);
+        }
     }
 }

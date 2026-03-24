@@ -3118,7 +3118,7 @@ components:
               $ref: '#/components/schemas/GalasaSecretType'
               description: |
                 The type of the Galasa Secret resource. Supported types are 'UsernamePassword', 'Username',
-                'UsernameToken', 'Token'.
+                'UsernameToken', 'Token', 'KeyStore'.
         data:
           type: object
           properties:
@@ -3140,10 +3140,29 @@ components:
                 A token for a system. Required if the Secret 'type' is set to 'UsernameToken' or 'Token'.
                 If the 'encoding' has been set in the metadata, this value must already be encoded with
                 the given encoding scheme (e.g. base64).
+            keystore:
+              type: string
+              description: |
+                A Java KeyStore containing certificates and private keys. Required if the Secret 'type' is set to 'KeyStore'.
+                This must be provided as a string with the prefix "base64:" followed by the KeyStore bytes base64-encoded.
+                Only PKCS12 and JKS KeyStore types are supported.
+                If the 'encoding' has been set in the metadata, this value must already be encoded with
+                the given encoding scheme (e.g. base64).
+            keystorePassword:
+              type: string
+              description: |
+                The password for the KeyStore. Only used when the Secret 'type' is set to 'KeyStore'.
+                If the 'encoding' has been set in the metadata, this value must already be encoded with
+                the given encoding scheme (e.g. base64).
+            keystoreType:
+              type: string
+              description: |
+                The type of the KeyStore. Optional, defaults to 'PKCS12' if not specified.
+                Supported values are 'PKCS12' and 'JKS'. Only used when the Secret 'type' is set to 'KeyStore'.
     GalasaSecretType:
       type: string
       description: The type of a Galasa Secret
-      enum: [UsernamePassword, Username, UsernameToken, Token]
+      enum: [UsernamePassword, Username, UsernameToken, Token, KeyStore]
     
     GalasaTag:
       type: object
@@ -3245,7 +3264,7 @@ components:
                 Currently, base64 is the only supported encoding scheme
         token:
           type: object
-          description: The token to create or update in the Credentials Store. Cannot be used alongside 'password'
+          description: The token to create or update in the Credentials Store. Cannot be used alongside 'password', 'keystore', or 'keystorePassword'
           properties:
             value:
               type: string
@@ -3255,6 +3274,35 @@ components:
               description: |
                 The character encoding scheme that has been applied to the token.
                 Currently, base64 is the only supported encoding scheme
+        keystore:
+          type: object
+          description: The keystore to create or update in the Credentials Store. Cannot be used alongside 'password' or 'token'
+          properties:
+            value:
+              type: string
+              description: The base64-encoded KeyStore value to set into the secret. Only PKCS12 and JKS KeyStore types are supported.
+            encoding:
+              type: string
+              description: |
+                The character encoding scheme that has been applied to the keystore.
+                Currently, base64 is the only supported encoding scheme
+        keystorePassword:
+          type: object
+          description: The password for the KeyStore. Optional - can be null or empty for password-less KeyStores. Only used when 'keystore' is provided.
+          properties:
+            value:
+              type: string
+              description: The password value for the KeyStore
+            encoding:
+              type: string
+              description: |
+                The character encoding scheme that has been applied to the keystore password.
+                Currently, base64 is the only supported encoding scheme
+        keystoreType:
+          type: string
+          description: |
+            The type of the KeyStore. Optional, defaults to 'PKCS12' if not specified.
+            Supported values are 'PKCS12' and 'JKS'. Only used when 'keystore' is provided.
     TagCreateRequest:
       type: object
       properties:
