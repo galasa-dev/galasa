@@ -36,11 +36,13 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
     protected URI authStoreUri;
     protected URI cpsBootstrapUri;
     protected URI dssUri;
+    protected URI credentialsStoreUri;
 
     private List<IAuthStore> registeredAuthStores = new ArrayList<IAuthStore>();
     private List<IConfigurationPropertyStore> registeredConfigPropertyStores = new ArrayList<IConfigurationPropertyStore>();
     private List<IEventsService> registeredEventsServices = new ArrayList<IEventsService>();
     private List<IDynamicStatusStore> registeredDynamicStatusStores = new ArrayList<IDynamicStatusStore>();
+    private ICredentialsStore registeredCredentialsStore;
 
     public MockFrameworkInitialisation() {}
 
@@ -51,6 +53,10 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
     public MockFrameworkInitialisation(URI cpsBootstrapUri, URI dssUri) {
         this.cpsBootstrapUri = cpsBootstrapUri;
         this.dssUri = dssUri;
+    }
+
+    public void setCredentialsStoreUri(URI credentialsStoreUri) {
+        this.credentialsStoreUri = credentialsStoreUri;
     }
 
     public void setAuthStoreUri(URI authStoreUri) {
@@ -114,7 +120,7 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
 
     @Override
     public URI getCredentialsStoreUri() {
-        throw new UnsupportedOperationException("Unimplemented method 'getCredentialsStoreUri'");
+        return credentialsStoreUri;
     }
 
     @Override
@@ -142,7 +148,11 @@ public class MockFrameworkInitialisation implements IFrameworkInitialisation {
 
     @Override
     public void registerCredentialsStore(@NotNull ICredentialsStore credentialsStore) throws CredentialsException {
-        throw new UnsupportedOperationException("Unimplemented method 'registerCredentialsStore'");
+        this.registeredCredentialsStore = credentialsStore;
+    }
+
+    public ICredentialsStore getRegisteredCredentialsStore() {
+        return registeredCredentialsStore;
     }
 
     @Override
