@@ -106,6 +106,7 @@ func (cmd *RunsGetCommand) createCobraCommand(
 	runsGetCobraCmd.PersistentFlags().StringVar(&cmd.values.user, "user", "", "the user of the test run we want information about."+
 		" This is the actual user who submitted the tests either with galasactl or through an automation tool."+
 		" This may or may not be the same as the requestor."+
+		" This flag is case-insensitive."+
 		" Cannot be used in conjunction with --name flag.")
 	runsGetCobraCmd.PersistentFlags().StringVar(&cmd.values.result, "result", "", "A filter on the test runs we want information about. Optional. Default is to display test runs with any result. Case insensitive. Value can be a single value or a comma-separated list. For example \"--result Failed,Ignored,EnvFail\"."+
 		" Cannot be used in conjunction with --name or --active flag.")

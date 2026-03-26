@@ -3416,7 +3416,7 @@ components:
             This field exists so that users can associate a user ID with any tests that were
             kicked off by an automation tool using the automation's JWT, which will be set into
             the requestor field. This means the user can then query and find tests that were
-            launched on their behalf by an automation tool.
+            launched on their behalf by an automation tool. This field is case-insensitive.
         testStream:
           type: string
           description: |-
