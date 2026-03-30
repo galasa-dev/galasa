@@ -21,20 +21,17 @@ import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
 
 public class MacOsKeychainStoreTest {
 
-    private MockSecurityFramework mockSecurity;
     private MockCommandExecutor mockCommandExecutor;
     private MacOsKeychainStore store;
 
     @Before
     public void setUp() {
-        mockSecurity = new MockSecurityFramework();
         mockCommandExecutor = new MockCommandExecutor();
         store = new MacOsKeychainStore(mockCommandExecutor);
     }
 
     @After
     public void tearDown() {
-        mockSecurity.clear();
         mockCommandExecutor.clear();
     }
 

@@ -22,12 +22,13 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
  * macOS Keychain implementation of the credentials store using JNA to access
  * the Security Framework.
  *
- * <p>This store supports four credential types, determined by the account name format:
+ * <p>This store supports the following credential types, determined by the account name format:
  * <ul>
  *   <li><b>CredentialsUsernamePassword</b>: Account = username, Password = password</li>
  *   <li><b>CredentialsUsername</b>: Account = "username:{username}", Password = empty</li>
  *   <li><b>CredentialsToken</b>: Account = "token", Password = token value</li>
  *   <li><b>CredentialsUsernameToken</b>: Account = "username-token:{username}", Password = token value</li>
+ *   <li><b>CredentialsKeyStore</b>: Account = "keystore:type:{keystore}", Password = keystore password</li>
  * </ul>
  *
  * <p><b>Creating credentials manually in Keychain Access.app:</b>
@@ -35,37 +36,8 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
  *   <li>Open Keychain Access.app</li>
  *   <li>Click the "+" button to add a new password item</li>
  *   <li>Set "Where" (Service Name) to: galasa.credentials.{CREDENTIALS-ID}</li>
- *   <li>Set "Account Name" and "Password" according to the credential type:</li>
+ *   <li>Set "Account Name" and "Password" according to the credential type</li>
  * </ol>
- *
- * <p><b>Examples:</b>
- * <table border="1">
- *   <tr>
- *     <th>Credential Type</th>
- *     <th>Account Name</th>
- *     <th>Password</th>
- *   </tr>
- *   <tr>
- *     <td>Username + Password</td>
- *     <td>myuser</td>
- *     <td>mypassword</td>
- *   </tr>
- *   <tr>
- *     <td>Username only</td>
- *     <td>username:myuser</td>
- *     <td>(leave empty)</td>
- *   </tr>
- *   <tr>
- *     <td>Token only</td>
- *     <td>token</td>
- *     <td>abc123token</td>
- *   </tr>
- *   <tr>
- *     <td>Username + Token</td>
- *     <td>username-token:myuser</td>
- *     <td>abc123token</td>
- *   </tr>
- * </table>
  *
  * <p>The implementation automatically detects the credential type when retrieving
  * credentials based on the account name format and password presence.
@@ -95,44 +67,42 @@ public class MacOsKeychainStore implements ICredentialsStore {
         }
 
         String serviceName = SERVICE_PREFIX + credsId;
+        ICredentials credentialsToReturn = null;
 
         // Try to get the keychain item by service name only
         KeychainItem item = getKeychainItem(serviceName);
-        if (item == null) {
-            return null;
+        if (item != null) {
+            // Detect credential type and return appropriate implementation
+            String accountName = item.getAccountName();
+            String password = item.getPassword();
+            CredentialType type = detectCredentialType(accountName, password);
+
+            switch (type) {
+                case TOKEN:
+                    credentialsToReturn = new CredentialsToken(password);
+                    break;
+
+                case USERNAME:
+                    String username = extractUsername(accountName);
+                    credentialsToReturn = new CredentialsUsername(username);
+                    break;
+
+                case USERNAME_TOKEN:
+                    String usernameForToken = extractUsername(accountName);
+                    credentialsToReturn = new CredentialsUsernameToken(usernameForToken, password);
+                    break;
+
+                case KEYSTORE:
+                    credentialsToReturn = extractKeyStore(accountName, password);
+                    break;
+
+                case USERNAME_PASSWORD:
+                default:
+                    credentialsToReturn = new CredentialsUsernamePassword(accountName, password);
+                    break;
+            }
         }
 
-        // Detect credential type and return appropriate implementation
-        String accountName = item.getAccountName();
-        String password = item.getPassword();
-        CredentialType type = detectCredentialType(accountName, password);
-
-
-        ICredentials credentialsToReturn = null;
-        switch (type) {
-            case TOKEN:
-                credentialsToReturn = new CredentialsToken(password);
-                break;
-
-            case USERNAME:
-                String username = extractUsername(accountName);
-                credentialsToReturn = new CredentialsUsername(username);
-                break;
-
-            case USERNAME_TOKEN:
-                String usernameForToken = extractUsername(accountName);
-                credentialsToReturn = new CredentialsUsernameToken(usernameForToken, password);
-                break;
-
-            case KEYSTORE:
-                credentialsToReturn = extractKeyStore(accountName, password);
-                break;
-
-            case USERNAME_PASSWORD:
-            default:
-                credentialsToReturn = new CredentialsUsernamePassword(accountName, password);
-                break;
-        }
         return credentialsToReturn;
     }
 
@@ -159,24 +129,19 @@ public class MacOsKeychainStore implements ICredentialsStore {
      * @return the detected credential type
      */
     private CredentialType detectCredentialType(String accountName, String password) {
+        CredentialType type = CredentialType.USERNAME_PASSWORD;
+
         if (TOKEN_ACCOUNT.equals(accountName)) {
-            return CredentialType.TOKEN;
+            type = CredentialType.TOKEN;
+        } else if (accountName.startsWith(USERNAME_TOKEN_PREFIX)) {
+            type = CredentialType.USERNAME_TOKEN;
+        } else if (accountName.startsWith(USERNAME_PREFIX)) {
+            type = CredentialType.USERNAME;
+        } else if (accountName.startsWith(KEYSTORE_PREFIX)) {
+            type = CredentialType.KEYSTORE;
         }
 
-        // Check for username-token BEFORE username to avoid false matches
-        if (accountName.startsWith(USERNAME_TOKEN_PREFIX)) {
-            return CredentialType.USERNAME_TOKEN;
-        }
-
-        if (accountName.startsWith(USERNAME_PREFIX)) {
-            return CredentialType.USERNAME;
-        }
-
-        if (accountName.startsWith(KEYSTORE_PREFIX)) {
-            return CredentialType.KEYSTORE;
-        }
-
-        return CredentialType.USERNAME_PASSWORD;
+        return type;
     }
 
     /**

@@ -34,13 +34,7 @@ public class OsCredentialsStore implements ICredentialsStore {
     private ICredentialsStore createDelegate(OperatingSystem os) throws OsCredentialsException {
         switch (os) {
             case MACOS:
-                try {
-                    return new MacOsKeychainStore();
-                } catch (UnsatisfiedLinkError e) {
-                    throw new OsCredentialsException(
-                        "Failed to load macOS Security Framework. JNA library may not be available or " +
-                        "Security framework is not accessible.", e);
-                }
+                return new MacOsKeychainStore();
             case WINDOWS:
                 throw new OsCredentialsException(
                     "Windows Credential Manager is not yet implemented. " +
