@@ -66,38 +66,6 @@ public interface SecurityFramework extends Library {
     );
 
     /**
-     * Adds a generic password to the keychain.
-     * 
-     * @param keychain          pointer to keychain (null for default)
-     * @param serviceNameLength length of service name
-     * @param serviceName       service name string
-     * @param accountNameLength length of account name
-     * @param accountName       account name string
-     * @param passwordLength    length of password data
-     * @param passwordData      password data bytes
-     * @param itemRef           output: reference to created item (can be null)
-     * @return status code (0 for success)
-     */
-    int SecKeychainAddGenericPassword(
-        Pointer keychain,
-        int serviceNameLength,
-        String serviceName,
-        int accountNameLength,
-        String accountName,
-        int passwordLength,
-        byte[] passwordData,
-        PointerByReference itemRef
-    );
-
-    /**
-     * Deletes a keychain item.
-     * 
-     * @param itemRef reference to keychain item
-     * @return status code (0 for success)
-     */
-    int SecKeychainItemDelete(Pointer itemRef);
-
-    /**
      * Frees memory allocated by keychain operations.
      *
      * @param attrList attribute list pointer (can be null)

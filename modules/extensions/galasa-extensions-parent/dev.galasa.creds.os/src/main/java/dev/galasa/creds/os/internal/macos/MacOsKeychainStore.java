@@ -5,14 +5,13 @@
  */
 package dev.galasa.creds.os.internal.macos;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
-import com.sun.jna.ptr.PointerByReference;
 
 import dev.galasa.ICredentials;
 import dev.galasa.creds.os.internal.OsCredentialsException;
+import dev.galasa.framework.spi.creds.CredentialType;
 import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
@@ -77,40 +76,15 @@ public class MacOsKeychainStore implements ICredentialsStore {
     private static final String USERNAME_PREFIX = "username:";
     private static final String USERNAME_TOKEN_PREFIX = "username-token:";
     private static final String TOKEN_ACCOUNT = "token";
+    private static final String KEYSTORE_PREFIX = "keystore:";
 
-    private final SecurityFramework security;
     private final CommandExecutor commandExecutor;
 
-    /**
-     * Internal class to hold keychain item data.
-     */
-    private static class KeychainItem {
-        final String accountName;
-        final String password;
-
-        KeychainItem(String accountName, String password) {
-            this.accountName = accountName;
-            this.password = password;
-        }
-    }
-
-    /**
-     * Enumeration of supported credential types.
-     */
-    private enum CredentialType {
-        USERNAME_PASSWORD,
-        USERNAME,
-        TOKEN,
-        USERNAME_TOKEN
-    }
-
     public MacOsKeychainStore() {
-        this(SecurityFramework.INSTANCE, new SystemCommandExecutor());
+        this(new SystemCommandExecutor());
     }
 
-    // Package-private constructor for testing
-    MacOsKeychainStore(SecurityFramework security, CommandExecutor commandExecutor) {
-        this.security = security;
+    public MacOsKeychainStore(CommandExecutor commandExecutor) {
         this.commandExecutor = commandExecutor;
     }
 
@@ -129,24 +103,37 @@ public class MacOsKeychainStore implements ICredentialsStore {
         }
 
         // Detect credential type and return appropriate implementation
-        CredentialType type = detectCredentialType(item.accountName, item.password);
-        
+        String accountName = item.getAccountName();
+        String password = item.getPassword();
+        CredentialType type = detectCredentialType(accountName, password);
+
+
+        ICredentials credentialsToReturn = null;
         switch (type) {
             case TOKEN:
-                return new CredentialsToken(item.password);
-            
+                credentialsToReturn = new CredentialsToken(password);
+                break;
+
             case USERNAME:
-                String username = extractUsername(item.accountName);
-                return new CredentialsUsername(username);
-            
+                String username = extractUsername(accountName);
+                credentialsToReturn = new CredentialsUsername(username);
+                break;
+
             case USERNAME_TOKEN:
-                String usernameForToken = extractUsername(item.accountName);
-                return new CredentialsUsernameToken(usernameForToken, item.password);
-            
+                String usernameForToken = extractUsername(accountName);
+                credentialsToReturn = new CredentialsUsernameToken(usernameForToken, password);
+                break;
+
+            case KEYSTORE:
+                credentialsToReturn = extractKeyStore(accountName, password);
+                break;
+
             case USERNAME_PASSWORD:
             default:
-                return new CredentialsUsernamePassword(item.accountName, item.password);
+                credentialsToReturn = new CredentialsUsernamePassword(accountName, password);
+                break;
         }
+        return credentialsToReturn;
     }
 
     @Override
@@ -156,57 +143,12 @@ public class MacOsKeychainStore implements ICredentialsStore {
 
     @Override
     public void setCredentials(String credsId, ICredentials credentials) throws CredentialsException {
-        if (credsId == null || credsId.trim().isEmpty()) {
-            throw new OsCredentialsException("Credentials ID cannot be null or empty");
-        }
-        if (credentials == null) {
-            throw new OsCredentialsException("Credentials cannot be null");
-        }
-
-        String serviceName = SERVICE_PREFIX + credsId;
-        String accountName;
-        String password;
-
-        // Format account name and password based on credential type
-        if (credentials instanceof CredentialsUsernamePassword) {
-            CredentialsUsernamePassword creds = (CredentialsUsernamePassword) credentials;
-            accountName = creds.getUsername();
-            password = creds.getPassword();
-        } else if (credentials instanceof CredentialsUsernameToken) {
-            CredentialsUsernameToken creds = (CredentialsUsernameToken) credentials;
-            accountName = USERNAME_TOKEN_PREFIX + creds.getUsername();
-            password = new String(creds.getToken(), StandardCharsets.UTF_8);
-        } else if (credentials instanceof CredentialsUsername) {
-            CredentialsUsername creds = (CredentialsUsername) credentials;
-            accountName = USERNAME_PREFIX + creds.getUsername();
-            password = ""; // No password for username-only credentials
-        } else if (credentials instanceof CredentialsToken) {
-            accountName = TOKEN_ACCOUNT;
-            CredentialsToken creds = (CredentialsToken) credentials;
-            password = new String(creds.getToken(), StandardCharsets.UTF_8);
-        } else {
-            throw new OsCredentialsException("Unsupported credentials type: " + credentials.getClass().getName());
-        }
-
-        // Delete any existing credential with this service name first
-        tryDeleteKeychainItemByService(serviceName);
-        
-        // Add the new credential
-        addPasswordToKeychain(serviceName, accountName, password);
+        throw new OsCredentialsException("Method not implemented for Mac OS Keychain");
     }
 
     @Override
     public void deleteCredentials(String credsId) throws CredentialsException {
-        if (credsId == null || credsId.trim().isEmpty()) {
-            throw new OsCredentialsException("Credentials ID cannot be null or empty");
-        }
-
-        String serviceName = SERVICE_PREFIX + credsId;
-
-        boolean deleted = tryDeleteKeychainItemByService(serviceName);
-        if (!deleted) {
-            throw new OsCredentialsException("Credentials not found: " + credsId);
-        }
+        throw new OsCredentialsException("Method not implemented for Mac OS Keychain");
     }
 
     /**
@@ -220,17 +162,42 @@ public class MacOsKeychainStore implements ICredentialsStore {
         if (TOKEN_ACCOUNT.equals(accountName)) {
             return CredentialType.TOKEN;
         }
-        
+
         // Check for username-token BEFORE username to avoid false matches
         if (accountName.startsWith(USERNAME_TOKEN_PREFIX)) {
             return CredentialType.USERNAME_TOKEN;
         }
-        
+
         if (accountName.startsWith(USERNAME_PREFIX)) {
             return CredentialType.USERNAME;
         }
-        
+
+        if (accountName.startsWith(KEYSTORE_PREFIX)) {
+            return CredentialType.KEYSTORE;
+        }
+
         return CredentialType.USERNAME_PASSWORD;
+    }
+
+    /**
+     * Extracts a keystore from an account name that has a prefix and password.
+     *
+     * @param accountName the account name (e.g., "keystore:jks:myuser")
+     * @return the extracted keystore (e.g., "myuser")
+     */
+    private ICredentials extractKeyStore(String accountName, String password) throws CredentialsException {
+        CredentialsKeyStore keystore = null;
+
+        String keystoreWithType = accountName.substring(KEYSTORE_PREFIX.length());
+        String[] parts = keystoreWithType.split(":");
+        if (parts.length == 2) {
+            String type = parts[0];
+            String keystoreContent = parts[1];
+            keystore = new CredentialsKeyStore(keystoreContent, password, type);
+        } else {
+            throw new CredentialsException("Invalid Keystore credential provided. Keystore item must be in the format 'keystore:type:content'");
+        }
+        return keystore;
     }
 
     /**
@@ -240,14 +207,15 @@ public class MacOsKeychainStore implements ICredentialsStore {
      * @return the extracted username (e.g., "myuser")
      */
     private String extractUsername(String accountName) {
+        String username = accountName;
         if (accountName.startsWith(USERNAME_TOKEN_PREFIX)) {
-            return accountName.substring(USERNAME_TOKEN_PREFIX.length());
+            username = accountName.substring(USERNAME_TOKEN_PREFIX.length());
+        } else if (accountName.startsWith(USERNAME_PREFIX)) {
+            username = accountName.substring(USERNAME_PREFIX.length());
         }
-        if (accountName.startsWith(USERNAME_PREFIX)) {
-            return accountName.substring(USERNAME_PREFIX.length());
-        }
-        return accountName;
+        return username;
     }
+
     public void shutdown() throws CredentialsException {
         // No resources to clean up
     }
@@ -270,9 +238,9 @@ public class MacOsKeychainStore implements ICredentialsStore {
             "-s", serviceName,
             "-g"
         );
-        
+
         int exitCode = result.getExitCode();
-        
+
         if (exitCode == 44) {
             // Item not found (errSecItemNotFound)
             return null;
@@ -353,71 +321,5 @@ public class MacOsKeychainStore implements ICredentialsStore {
             }
         }
         return null;
-    }
-
-    private void addPasswordToKeychain(String serviceName, String accountName, String password) throws CredentialsException {
-        byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
-        PointerByReference itemRef = new PointerByReference();
-
-        int status = security.SecKeychainAddGenericPassword(
-            null,
-            serviceName.length(),
-            serviceName,
-            accountName.length(),
-            accountName,
-            passwordBytes.length,
-            passwordBytes,
-            itemRef
-        );
-
-        if (status == SecurityFramework.errSecDuplicateItem) {
-            throw new OsCredentialsException("Credentials already exist. Delete them first before adding new ones.");
-        }
-
-        if (status == SecurityFramework.errSecUserCanceled) {
-            throw new OsCredentialsException("User cancelled keychain access");
-        }
-
-        if (status == SecurityFramework.errSecAuthFailed) {
-            throw new OsCredentialsException("Authorization failed for keychain access");
-        }
-
-        if (status != SecurityFramework.errSecSuccess) {
-            throw new OsCredentialsException("Failed to add credentials to keychain. Status code: " + status);
-        }
-    }
-
-    /**
-     * Tries to delete a keychain item by service name using the security command-line tool.
-     *
-     * @param serviceName the service name
-     * @return true if deleted, false if not found
-     * @throws CredentialsException if there's an error deleting the item
-     */
-    private boolean tryDeleteKeychainItemByService(String serviceName) throws CredentialsException {
-        // Use the security command-line tool to delete the password
-        CommandExecutor.CommandResult result = commandExecutor.execute(
-            "security",
-            "delete-generic-password",
-            "-s", serviceName
-        );
-        
-        int exitCode = result.getExitCode();
-        
-        if (exitCode == 44) {
-            // Item not found (errSecItemNotFound)
-            return false;
-        }
-
-        if (exitCode == 128) {
-            // User cancelled
-            throw new OsCredentialsException("User cancelled keychain access");
-        }
-
-        if (exitCode != 0) {
-            throw new OsCredentialsException("Failed to delete credentials from keychain. Exit code: " + exitCode);
-        }
-
-        return true;
     }
 }

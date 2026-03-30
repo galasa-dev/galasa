@@ -71,61 +71,6 @@ public class MockSecurityFramework implements SecurityFramework {
     }
 
     @Override
-    public int SecKeychainAddGenericPassword(
-            Pointer keychain,
-            int serviceNameLength,
-            String serviceName,
-            int accountNameLength,
-            String accountName,
-            int passwordLength,
-            byte[] passwordData,
-            PointerByReference itemRef) {
-
-        if (shouldCancelAccess) {
-            return errSecUserCanceled;
-        }
-
-        if (shouldFailAuth) {
-            return errSecAuthFailed;
-        }
-
-        String key = serviceName + ":" + accountName;
-        
-        if (storage.containsKey(key)) {
-            return errSecDuplicateItem;
-        }
-
-        byte[] password = new byte[passwordLength];
-        System.arraycopy(passwordData, 0, password, 0, passwordLength);
-        storage.put(key, password);
-
-        // Create a mock item reference
-        if (itemRef != null) {
-            Memory itemMemory = new Memory(8);
-            itemRef.setValue(itemMemory);
-        }
-
-        return nextStatus;
-    }
-
-    @Override
-    public int SecKeychainItemDelete(Pointer itemRef) {
-        if (itemRef == null) {
-            return errSecItemNotFound;
-        }
-
-        // Extract the key from the item reference
-        String key = itemRef.getString(0);
-        
-        if (storage.containsKey(key)) {
-            storage.remove(key);
-            return errSecSuccess;
-        }
-        
-        return errSecItemNotFound;
-    }
-
-    @Override
     public int SecKeychainItemFreeContent(Pointer attrList, Pointer data) {
         // No-op in mock - memory management is handled by JNA
         return errSecSuccess;

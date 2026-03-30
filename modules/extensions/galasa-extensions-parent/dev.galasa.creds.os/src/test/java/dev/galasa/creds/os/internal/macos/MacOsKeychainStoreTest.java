@@ -29,7 +29,7 @@ public class MacOsKeychainStoreTest {
     public void setUp() {
         mockSecurity = new MockSecurityFramework();
         mockCommandExecutor = new MockCommandExecutor();
-        store = new MacOsKeychainStore(mockSecurity, mockCommandExecutor);
+        store = new MacOsKeychainStore(mockCommandExecutor);
     }
 
     @After
@@ -193,173 +193,7 @@ public class MacOsKeychainStoreTest {
     public void testSetCredentialsWithNullId() {
         assertThatThrownBy(() -> store.setCredentials(null, new CredentialsUsername("user")))
             .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("Credentials ID cannot be null or empty");
-    }
-
-    @Test
-    public void testSetCredentialsWithEmptyId() {
-        assertThatThrownBy(() -> store.setCredentials("", new CredentialsUsername("user")))
-            .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("Credentials ID cannot be null or empty");
-    }
-
-    @Test
-    public void testSetCredentialsWithNullCredentials() {
-        assertThatThrownBy(() -> store.setCredentials("test-creds", null))
-            .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("Credentials cannot be null");
-    }
-
-    @Test
-    public void testSetUsernamePasswordCredentials() throws Exception {
-        // Given
-        String credsId = "SYSTEM1";
-        String username = "myuser";
-        CredentialsUsernamePassword credentials = new CredentialsUsernamePassword(username, "mypass");
-
-        // When
-        store.setCredentials(credsId, credentials);
-
-        // Then
-        String serviceName = "galasa.credentials." + credsId;
-        assertThat(mockSecurity.hasPassword(serviceName, username))
-            .as("Credentials should be stored with username as account name").isTrue();
-        
-        // Sync the mocks so getCredentials can read what setCredentials wrote
-        mockCommandExecutor.addPassword(serviceName, username, "mypass");
-        
-        // Verify we can retrieve them
-        ICredentials retrieved = store.getCredentials(credsId);
-        assertThat(retrieved).isInstanceOf(CredentialsUsernamePassword.class);
-        CredentialsUsernamePassword retrievedCreds = (CredentialsUsernamePassword) retrieved;
-        assertThat(retrievedCreds.getUsername()).as("Username should match").isEqualTo(username);
-        assertThat(retrievedCreds.getPassword()).isEqualTo("mypass");
-    }
-
-    @Test
-    public void testSetUsernameTokenCredentials() throws Exception {
-        // Given
-        String credsId = "SYSTEM1";
-        String username = "myuser";
-        CredentialsUsernameToken credentials = new CredentialsUsernameToken(username, "mytoken789");
-
-        // When
-        store.setCredentials(credsId, credentials);
-
-        // Then
-        String serviceName = "galasa.credentials." + credsId;
-        String expectedAccountName = "username-token:" + username;
-        assertThat(mockSecurity.hasPassword(serviceName, expectedAccountName))
-            .as("Credentials should be stored with 'username-token:' prefix").isTrue();
-        
-        // Sync the mocks so getCredentials can read what setCredentials wrote
-        mockCommandExecutor.addPassword(serviceName, expectedAccountName, "mytoken789");
-        
-        // Verify we can retrieve them as UsernameToken
-        ICredentials retrieved = store.getCredentials(credsId);
-        assertThat(retrieved).isInstanceOf(CredentialsUsernameToken.class);
-        CredentialsUsernameToken retrievedCreds = (CredentialsUsernameToken) retrieved;
-        assertThat(retrievedCreds.getUsername()).as("Username should match").isEqualTo(username);
-        assertThat(new String(retrievedCreds.getToken())).isEqualTo("mytoken789");
-    }
-
-    @Test
-    public void testSetUsernameCredentials() throws Exception {
-        // Given
-        String credsId = "SYSTEM1";
-        String username = "myuser";
-        CredentialsUsername credentials = new CredentialsUsername(username);
-
-        // When
-        store.setCredentials(credsId, credentials);
-
-        // Then
-        String serviceName = "galasa.credentials." + credsId;
-        String expectedAccountName = "username:" + username;
-        assertThat(mockSecurity.hasPassword(serviceName, expectedAccountName))
-            .as("Credentials should be stored with 'username:' prefix").isTrue();
-        
-        // Sync the mocks so getCredentials can read what setCredentials wrote
-        mockCommandExecutor.addPassword(serviceName, expectedAccountName, "");
-        
-        // Verify we can retrieve them as Username
-        ICredentials retrieved = store.getCredentials(credsId);
-        assertThat(retrieved).isInstanceOf(CredentialsUsername.class);
-        CredentialsUsername retrievedCreds = (CredentialsUsername) retrieved;
-        assertThat(retrievedCreds.getUsername()).as("Username should match").isEqualTo(username);
-    }
-
-    @Test
-    public void testSetTokenCredentials() throws Exception {
-        // Given
-        String credsId = "SYSTEM1";
-        CredentialsToken credentials = new CredentialsToken("mytoken999");
-
-        // When
-        store.setCredentials(credsId, credentials);
-
-        // Then
-        String serviceName = "galasa.credentials." + credsId;
-        String expectedAccountName = "token";
-        assertThat(mockSecurity.hasPassword(serviceName, expectedAccountName))
-            .as("Credentials should be stored with 'token' as account name").isTrue();
-        
-        // Sync the mocks so getCredentials can read what setCredentials wrote
-        mockCommandExecutor.addPassword(serviceName, expectedAccountName, "mytoken999");
-        
-        // Verify we can retrieve them as Token
-        ICredentials retrieved = store.getCredentials(credsId);
-        assertThat(retrieved).isInstanceOf(CredentialsToken.class);
-        CredentialsToken retrievedCreds = (CredentialsToken) retrieved;
-        assertThat(new String(retrievedCreds.getToken())).isEqualTo("mytoken999");
-    }
-
-    @Test
-    public void testSetCredentialsOverwritesExisting() throws Exception {
-        // Given - set initial credentials
-        String credsId = "SYSTEM1";
-        String username = "user";
-        String serviceName = "galasa.credentials." + credsId;
-        store.setCredentials(credsId, new CredentialsUsernamePassword(username, "oldpass"));
-        // Sync to mockCommandExecutor so the second setCredentials can delete it
-        mockCommandExecutor.addPassword(serviceName, username, "oldpass");
-
-        // When - overwrite with new credentials
-        // Note: setCredentials deletes from mockCommandExecutor but not mockSecurity,
-        // so we need to manually remove from mockSecurity to simulate the real behavior
-        mockSecurity.removePassword(serviceName, username);
-        store.setCredentials(credsId, new CredentialsUsernamePassword(username, "newpass"));
-        // Sync the new password to mockCommandExecutor for retrieval
-        mockCommandExecutor.addPassword(serviceName, username, "newpass");
-
-        // Then
-        ICredentials retrieved = store.getCredentials(credsId);
-        assertThat(retrieved).isInstanceOf(CredentialsUsernamePassword.class);
-        CredentialsUsernamePassword retrievedCreds = (CredentialsUsernamePassword) retrieved;
-        assertThat(retrievedCreds.getUsername()).as("Username should match").isEqualTo(username);
-        assertThat(retrievedCreds.getPassword()).as("Should have new password").isEqualTo("newpass");
-    }
-
-    @Test
-    public void testSetCredentialsUserCanceled() {
-        // Given
-        mockSecurity.setShouldCancelAccess(true);
-
-        // When/Then
-        assertThatThrownBy(() -> store.setCredentials("test-creds", new CredentialsUsername("user")))
-            .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("User cancelled keychain access");
-    }
-
-    @Test
-    public void testSetCredentialsAuthFailed() {
-        // Given
-        mockSecurity.setShouldFailAuth(true);
-
-        // When/Then
-        assertThatThrownBy(() -> store.setCredentials("test-creds", new CredentialsUsername("user")))
-            .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("Authorization failed for keychain access");
+            .hasMessageContaining("Method not implemented for Mac OS Keychain");
     }
 
     // ========== deleteCredentials() tests ==========
@@ -368,39 +202,7 @@ public class MacOsKeychainStoreTest {
     public void testDeleteCredentialsWithNullId() {
         assertThatThrownBy(() -> store.deleteCredentials(null))
             .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("Credentials ID cannot be null or empty");
-    }
-
-    @Test
-    public void testDeleteCredentialsWithEmptyId() {
-        assertThatThrownBy(() -> store.deleteCredentials(""))
-            .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("Credentials ID cannot be null or empty");
-    }
-
-    @Test
-    public void testDeleteCredentialsNotFound() {
-        assertThatThrownBy(() -> store.deleteCredentials("nonexistent"))
-            .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("Credentials not found");
-    }
-
-    @Test
-    public void testDeleteCredentials() throws Exception {
-        // Given
-        String credsId = "SYSTEM1";
-        String username = "user";
-        String serviceName = "galasa.credentials." + credsId;
-        store.setCredentials(credsId, new CredentialsUsernamePassword(username, "pass"));
-        mockCommandExecutor.addPassword(serviceName, username, "pass");
-
-        // When
-        store.deleteCredentials(credsId);
-        mockCommandExecutor.removePassword(serviceName);
-
-        // Then
-        ICredentials retrieved = store.getCredentials(credsId);
-        assertThat(retrieved).as("Credentials should be deleted").isNull();
+            .hasMessageContaining("Method not implemented for Mac OS Keychain");
     }
 
     // ========== getAllCredentials() tests ==========
@@ -420,78 +222,12 @@ public class MacOsKeychainStoreTest {
         store.shutdown();
     }
 
-    // ========== Integration tests ==========
-
-    @Test
-    public void testCompleteWorkflow() throws Exception {
-        // Given
-        String credsId = "SYSTEM1";
-        String username = "workflowuser";
-        String serviceName = "galasa.credentials." + credsId;
-        CredentialsUsernamePassword credentials = new CredentialsUsernamePassword(username, "workflowpass");
-
-        // When - set credentials
-        store.setCredentials(credsId, credentials);
-        mockCommandExecutor.addPassword(serviceName, username, "workflowpass");
-
-        // Then - retrieve and verify
-        ICredentials retrieved = store.getCredentials(credsId);
-        assertThat(retrieved).isInstanceOf(CredentialsUsernamePassword.class);
-        CredentialsUsernamePassword retrievedCreds = (CredentialsUsernamePassword) retrieved;
-        assertThat(retrievedCreds.getUsername()).as("Username should match").isEqualTo(username);
-        assertThat(retrievedCreds.getPassword()).isEqualTo("workflowpass");
-
-        // When - delete credentials
-        store.deleteCredentials(credsId);
-        mockCommandExecutor.removePassword(serviceName);
-
-        // Then - verify deleted
-        ICredentials afterDelete = store.getCredentials(credsId);
-        assertThat(afterDelete).as("Credentials should be deleted").isNull();
-    }
-
-    @Test
-    public void testMultipleCredentialsIndependence() throws Exception {
-        // Given
-        String credsId1 = "SYSTEM1";
-        String credsId2 = "SYSTEM2";
-        String username1 = "user1";
-        String username2 = "user2";
-        String serviceName1 = "galasa.credentials." + credsId1;
-        String serviceName2 = "galasa.credentials." + credsId2;
-        
-        // When - set different credentials
-        store.setCredentials(credsId1, new CredentialsUsernamePassword(username1, "pass1"));
-        mockCommandExecutor.addPassword(serviceName1, username1, "pass1");
-        store.setCredentials(credsId2, new CredentialsUsernamePassword(username2, "pass2"));
-        mockCommandExecutor.addPassword(serviceName2, username2, "pass2");
-
-        // Then - both should be retrievable independently
-        ICredentials creds1 = store.getCredentials(credsId1);
-        ICredentials creds2 = store.getCredentials(credsId2);
-        
-        assertThat(creds1).isInstanceOf(CredentialsUsernamePassword.class);
-        assertThat(creds2).isInstanceOf(CredentialsUsernamePassword.class);
-        assertThat(((CredentialsUsernamePassword) creds1).getUsername()).as("Username1 should match").isEqualTo(username1);
-        assertThat(((CredentialsUsernamePassword) creds1).getPassword()).isEqualTo("pass1");
-        assertThat(((CredentialsUsernamePassword) creds2).getUsername()).as("Username2 should match").isEqualTo(username2);
-        assertThat(((CredentialsUsernamePassword) creds2).getPassword()).isEqualTo("pass2");
-
-        // When - delete one
-        store.deleteCredentials(credsId1);
-        mockCommandExecutor.removePassword(serviceName1);
-
-        // Then - other should still exist
-        assertThat(store.getCredentials(credsId1)).isNull();
-        assertThat(store.getCredentials(credsId2)).isNotNull();
-    }
-
     @Test
     public void testManualKeychainEntry() throws Exception {
         // Simulate a user manually adding credentials via Keychain Access.app
         String credsId = "MANUAL_SYSTEM";
         String serviceName = "galasa.credentials." + credsId;
-        String manualUsername = "IBM user";
+        String manualUsername = "user";
 
         mockCommandExecutor.addPassword(serviceName, manualUsername, "manual_password");
 
