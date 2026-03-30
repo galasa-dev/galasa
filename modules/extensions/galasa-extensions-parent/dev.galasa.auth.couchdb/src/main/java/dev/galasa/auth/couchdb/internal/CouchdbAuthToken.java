@@ -16,17 +16,21 @@ public class CouchdbAuthToken implements IInternalAuthToken {
     private String dexClientId;
     private String description;
     private Instant creationTime;
+    private Instant expiryTime;
     private CouchdbUser owner;
 
-    public CouchdbAuthToken(String clientId, String description, Instant creationTime, CouchdbUser owner) {
+    public CouchdbAuthToken(String clientId, String description, Instant creationTime, Instant expiryTime,
+            CouchdbUser owner) {
         this.dexClientId = clientId;
         this.description = description;
         this.creationTime = creationTime;
+        this.expiryTime = expiryTime;
         this.owner = owner;
     }
 
-    public CouchdbAuthToken(String documentId, String clientId, String description, Instant creationTime, CouchdbUser owner) {
-        this(clientId, description, creationTime, owner);
+    public CouchdbAuthToken(String documentId, String clientId, String description, Instant creationTime,
+            Instant expiryTime, CouchdbUser owner) {
+        this(clientId, description, creationTime, expiryTime, owner);
         this._id = documentId;
     }
 
@@ -40,6 +44,10 @@ public class CouchdbAuthToken implements IInternalAuthToken {
 
     public Instant getCreationTime() {
         return creationTime;
+    }
+
+    public Instant getExpiryTime() {
+        return expiryTime;
     }
 
     public IInternalUser getOwner() {

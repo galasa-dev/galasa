@@ -9,6 +9,7 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,7 +44,10 @@ import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.SupportedQueryParameterNames;
 import dev.galasa.framework.auth.spi.IAuthService;
 import dev.galasa.framework.auth.spi.IDexGrpcClient;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
+import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IFrontEndClient;
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
@@ -60,11 +64,10 @@ public class AuthTokensRoute extends PublicRoute {
     private IOidcProvider oidcProvider;
     private IDexGrpcClient dexGrpcClient;
     private Environment env;
-
+    private IFramework framework;
 
     private static final String POST_BODY_FIELD_ID_TOKEN_KEY = "id_token";
     private static final String POST_BODY_FIELD_REFRESH_TOKEN_KEY = "refresh_token";
-
 
     // Regex to match /auth/tokens and /auth/tokens/ only
     private static final String PATH_PATTERN = "\\/tokens\\/?";
@@ -76,12 +79,17 @@ public class AuthTokensRoute extends PublicRoute {
 
     public static final String QUERY_PARAM_LOGIN_ID = "loginId";
     public static final SupportedQueryParameterNames SUPPORTED_QUERY_PARAMETER_NAMES = new SupportedQueryParameterNames(
-        QUERY_PARAM_LOGIN_ID
-    );
+            QUERY_PARAM_LOGIN_ID);
 
     private Log logger = LogFactory.getLog(this.getClass());
     private ITimeService timeService;
-    private  RBACService rbacService;
+    private RBACService rbacService;
+
+    // CPS property for token expiry warning threshold
+    private static final String CPS_PROPERTY_TOKEN_EXPIRY_WARNING_DAYS = "service.tokens.lifespan.nearly.expired.warning.days";
+    private static final int DEFAULT_TOKEN_EXPIRY_WARNING_DAYS = 14;
+    private static final int MIN_TOKEN_EXPIRY_WARNING_DAYS = 1;
+    private static final int MAX_TOKEN_EXPIRY_WARNING_DAYS = 30;
 
     public AuthTokensRoute(
             ResponseBuilder responseBuilder,
@@ -89,20 +97,21 @@ public class AuthTokensRoute extends PublicRoute {
             IAuthService authService,
             ITimeService timeService,
             RBACService rbacService,
-            Environment env) {
+            Environment env,
+            IFramework framework) {
         super(responseBuilder, PATH_PATTERN);
         this.oidcProvider = oidcProvider;
         this.dexGrpcClient = authService.getDexGrpcClient();
         this.authStoreService = authService.getAuthStoreService();
         this.env = env;
         this.rbacService = rbacService;
-
         this.timeService = timeService;
+        this.framework = framework;
     }
 
     @Override
     public SupportedQueryParameterNames getSupportedQueryParameterNames() {
-        return SUPPORTED_QUERY_PARAMETER_NAMES ;
+        return SUPPORTED_QUERY_PARAMETER_NAMES;
     }
 
     /**
@@ -196,6 +205,12 @@ public class AuthTokensRoute extends PublicRoute {
         TokenPayload requestPayload = parseRequestBody(request, TokenPayload.class);
         validator.validate(requestPayload);
 
+        // If this is a refresh token request (not a new token creation), check if the
+        // personal access token has expired
+        if (requestPayload.getRefreshToken() != null) {
+            validateTokenNotExpired(requestPayload.getClientId());
+        }
+
         JsonObject responseJson = new JsonObject();
         try {
             // Send a POST request to Dex's /token endpoint
@@ -208,7 +223,22 @@ public class AuthTokensRoute extends PublicRoute {
 
                 String jwt = tokenResponseBodyJson.get(POST_BODY_FIELD_ID_TOKEN_KEY).getAsString();
                 responseJson.addProperty("jwt", jwt);
-                responseJson.addProperty(POST_BODY_FIELD_REFRESH_TOKEN_KEY, tokenResponseBodyJson.get(POST_BODY_FIELD_REFRESH_TOKEN_KEY).getAsString());
+                responseJson.addProperty(POST_BODY_FIELD_REFRESH_TOKEN_KEY,
+                        tokenResponseBodyJson.get(POST_BODY_FIELD_REFRESH_TOKEN_KEY).getAsString());
+
+                // If we're refreshing an existing token, include the token's expiry time and
+                // warning threshold in the
+                // response
+                if (requestPayload.getRefreshToken() != null) {
+                    IInternalAuthToken token = authStoreService.getTokenByDexClientId(requestPayload.getClientId());
+                    if (token != null && token.getExpiryTime() != null) {
+                        responseJson.addProperty("token_expiry_time", token.getExpiryTime().toString());
+
+                        // Add the configurable warning threshold from CPS
+                        int warningDays = getTokenExpiryWarningDays();
+                        responseJson.addProperty("token_expiry_warning_days", warningDays);
+                    }
+                }
 
                 // If we're refreshing an existing token, then we don't want to create a new
                 // entry in the tokens database.
@@ -220,7 +250,7 @@ public class AuthTokensRoute extends PublicRoute {
                 }
 
                 boolean isWebUiLogin = isLoggingIntoWebUI(requestPayload.getRefreshToken(), tokenDescription);
-                recordUserJustLoggedIn(isWebUiLogin , jwt, this.timeService, this.env, isNewAccessTokenBeingCreated);
+                recordUserJustLoggedIn(isWebUiLogin, jwt, this.timeService, this.env, isNewAccessTokenBeingCreated);
 
             } else {
                 logger.info("Unable to get new bearer and refresh tokens from issuer.");
@@ -328,6 +358,7 @@ public class AuthTokensRoute extends PublicRoute {
                     token.getTokenId(),
                     token.getDescription(),
                     token.getCreationTime(),
+                    token.getExpiryTime(),
                     user));
         }
 
@@ -335,8 +366,59 @@ public class AuthTokensRoute extends PublicRoute {
 
     }
 
+    /**
+     * Reads the token expiry warning threshold from CPS property
+     * service.tokens.lifespan.nearly.expired.warning.days.
+     * Returns the default value if the property is not set or invalid.
+     * Validates that the value is between MIN and MAX days.
+     *
+     * @return the number of days before expiry when a warning should be displayed
+     */
+    private int getTokenExpiryWarningDays() {
+        int warningDays = DEFAULT_TOKEN_EXPIRY_WARNING_DAYS;
+
+        try {
+            IConfigurationPropertyStoreService cps = framework.getConfigurationPropertyService("service");
+            // CPS property format: service.tokens.lifespan.nearly.expired.warning.days
+            // Split into: prefix="tokens.lifespan.nearly.expired.warning", suffix="days"
+            String warningDaysStr = cps.getProperty("tokens.lifespan.nearly.expired.warning", "days");
+
+            if (warningDaysStr != null && !warningDaysStr.trim().isEmpty()) {
+                try {
+                    int parsedValue = Integer.parseInt(warningDaysStr.trim());
+
+                    // Validate the value is within acceptable range
+                    if (parsedValue < MIN_TOKEN_EXPIRY_WARNING_DAYS) {
+                        logger.warn("CPS property " + CPS_PROPERTY_TOKEN_EXPIRY_WARNING_DAYS + " value " + parsedValue
+                                + " is below minimum " + MIN_TOKEN_EXPIRY_WARNING_DAYS + ". Using minimum value.");
+                        warningDays = MIN_TOKEN_EXPIRY_WARNING_DAYS;
+                    } else if (parsedValue > MAX_TOKEN_EXPIRY_WARNING_DAYS) {
+                        logger.warn("CPS property " + CPS_PROPERTY_TOKEN_EXPIRY_WARNING_DAYS + " value " + parsedValue
+                                + " is above maximum " + MAX_TOKEN_EXPIRY_WARNING_DAYS + ". Using maximum value.");
+                        warningDays = MAX_TOKEN_EXPIRY_WARNING_DAYS;
+                    } else {
+                        warningDays = parsedValue;
+                    }
+                } catch (NumberFormatException e) {
+                    logger.warn("CPS property " + CPS_PROPERTY_TOKEN_EXPIRY_WARNING_DAYS + " has invalid value '"
+                            + warningDaysStr + "'. Using default value " + DEFAULT_TOKEN_EXPIRY_WARNING_DAYS + " days.",
+                            e);
+                }
+            } else {
+                logger.debug("CPS property " + CPS_PROPERTY_TOKEN_EXPIRY_WARNING_DAYS + " not set. Using default value "
+                        + DEFAULT_TOKEN_EXPIRY_WARNING_DAYS + " days.");
+            }
+        } catch (ConfigurationPropertyStoreException e) {
+            logger.warn("Failed to read CPS property " + CPS_PROPERTY_TOKEN_EXPIRY_WARNING_DAYS
+                    + ". Using default value " + DEFAULT_TOKEN_EXPIRY_WARNING_DAYS + " days.", e);
+        }
+
+        return warningDays;
+    }
+
     // This method is protected so we can unit test it easily.
-    protected void recordUserJustLoggedIn(boolean isWebUI, String jwt, ITimeService timeService, Environment env, boolean isNewAccessTokenBeingCreated)
+    protected void recordUserJustLoggedIn(boolean isWebUI, String jwt, ITimeService timeService, Environment env,
+            boolean isNewAccessTokenBeingCreated)
             throws InternalServletException, AuthStoreException, RBACException {
 
         JwtWrapper jwtWrapper = new JwtWrapper(jwt, env);
@@ -352,13 +434,15 @@ public class AuthTokensRoute extends PublicRoute {
 
         if (user == null) {
             String newUserRoleId = getDefaultRoleId();
-            logger.info("recordUserJustLoggedIn() ; User logged in for first time. Creating a user record. Role is "+newUserRoleId);
+            logger.info("recordUserJustLoggedIn() ; User logged in for first time. Creating a user record. Role is "
+                    + newUserRoleId);
             authStoreService.createUser(loginId, clientName, newUserRoleId);
         } else {
 
-            // Only update the document if the user has not created a new Galasa Access Token
+            // Only update the document if the user has not created a new Galasa Access
+            // Token
             // or is using the web-ui
-            if(!isNewAccessTokenBeingCreated || clientName.equals(WEB_UI_CLIENT)){
+            if (!isNewAccessTokenBeingCreated || clientName.equals(WEB_UI_CLIENT)) {
                 IFrontEndClient client = user.getClient(clientName);
                 if (client == null) {
                     client = authStoreService.createClient(clientName);
@@ -372,10 +456,10 @@ public class AuthTokensRoute extends PublicRoute {
     }
 
     private String getDefaultRoleId() throws AuthStoreException {
-        String defaultRoleId ;
+        String defaultRoleId;
         try {
             defaultRoleId = rbacService.getDefaultRoleId();
-        } catch( RBACException ex){
+        } catch (RBACException ex) {
             throw new AuthStoreException(ex);
         }
         return defaultRoleId;
@@ -394,6 +478,41 @@ public class AuthTokensRoute extends PublicRoute {
 
         return (refreshToken == null && tokenDescription == null);
 
+    }
+
+    /**
+     * Validates that the personal access token associated with the given client ID
+     * has not expired.
+     * If the token has expired, it is deleted from the auth store and an exception
+     * is thrown.
+     *
+     * @param clientId the Dex client ID associated with the personal access token
+     * @throws InternalServletException if the token has expired or there was an
+     *                                  error accessing the auth store
+     */
+    private void validateTokenNotExpired(String clientId) throws InternalServletException {
+        try {
+            IInternalAuthToken token = authStoreService.getTokenByDexClientId(clientId);
+
+            if (token != null) {
+                Instant now = timeService.now();
+                Instant expiryTime = token.getExpiryTime();
+
+                // Check if the token has expired
+                if (now.isAfter(expiryTime)) {
+                    logger.info("Personal access token has expired. Deleting token from auth store.");
+
+                    // Delete the expired token
+                    authStoreService.deleteToken(token.getTokenId());
+
+                    ServletError error = new ServletError(GAL5067_TOKEN_EXPIRED);
+                    throw new InternalServletException(error, HttpServletResponse.SC_UNAUTHORIZED);
+                }
+            }
+        } catch (AuthStoreException e) {
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+        }
     }
 
 }

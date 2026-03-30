@@ -81,4 +81,9 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
     public IFrontEndClient createClient(String clientName) {
         throw new UnsupportedOperationException("Unimplemented method 'createClient'");
     }
+
+    @Override
+    public IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'getTokenByDexClientId'");
+    }
 }

@@ -11,10 +11,10 @@ import (
 )
 
 //Print in the following fashion:
-// tokenid                   created(YYYY-MM-DD)  user     description
-// 098234980123-1283182389   2023-12-03           mcobbett So I can access ecosystem1 from my laptop.
-// 8218971d287s1-dhj32er2323 2024-03-03           mcobbett Automated build of example repo can change CPS properties
-// 87a6sd87ahq2-2y8hqwdjj273 2023-08-04           savvas   CLI access from vscode
+// tokenid                   created(YYYY-MM-DD)  expiry(YYYY-MM-DD)  user     description
+// 098234980123-1283182389   2023-12-03           2024-03-03          mcobbett So I can access ecosystem1 from my laptop.
+// 8218971d287s1-dhj32er2323 2024-03-03           2024-06-01          mcobbett Automated build of example repo can change CPS properties
+// 87a6sd87ahq2-2y8hqwdjj273 2023-08-04           2023-11-02          savvas   CLI access from vscode
 // Total:3
 
 // -----------------------------------------------------
@@ -23,6 +23,7 @@ import (
 const (
 	HEADER_TOKEN_ID            = "tokenid"
 	HEADER_TOKEN_CREATION_TIME = "created(YYYY-MM-DD)"
+	HEADER_TOKEN_EXPIRY_TIME   = "expiry(YYYY-MM-DD)"
 	HEADER_TOKEN_USER          = "user"
 	HEADER_TOKEN_DESCRIPTION   = "description"
 )
