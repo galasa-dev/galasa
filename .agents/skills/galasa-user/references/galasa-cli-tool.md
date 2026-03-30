@@ -6,8 +6,10 @@ description: Provides information about how to use the Galasa CLI tool to set up
 ## Getting started
 
 - The Galasa CLI tool, called `galasactl` is installed on this machine and is used to run Galasa tests.
-- You **MUST** check that the Galasa CLI tool is installed by running `galasactl --version`.
+- You can check that the Galasa CLI tool is installed by running `galasactl --version`.
 - For any `galasactl` command that is mentioned in this file, you can find the corresponding reference information for that command at - https://raw.githubusercontent.com/galasa-dev/galasa/refs/heads/main/modules/cli/docs/generated/{COMMAND_NAME}.md/ (where `{COMMAND_NAME}` is the name of the command where any spaces are replaced with `_`)
+
+**Note**: If the Galasa CLI tool is not installed, you should direct the user to the [Installing the Galasa CLI online](https://galasa.dev/docs/cli-command-reference/installing-cli-tool/) documentation page, or the [Installing the Galasa CLI offline](https://galasa.dev/docs/cli-command-reference/installing-offline/) page if they do not have access to the internet.
 
 ### Initialising the local environment
 
