@@ -181,7 +181,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken("a-different-token", description, creationTime, creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS), owner, clientId));
+        tokens.add(new MockInternalAuthToken("a-different-token", description, creationTime, owner, clientId));
 
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
         mockDexGrpcClient.addDexClient("another-client", "my-secret", "http://a-callback-url");

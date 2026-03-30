@@ -99,4 +99,9 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     public IFrontEndClient createClient(String clientName) {
         return authStore.createClient(clientName);
     }
+
+    @Override
+    public IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException {
+        return authStore.getTokenByDexClientId(clientId);
+    }
 }

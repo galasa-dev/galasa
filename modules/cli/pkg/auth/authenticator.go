@@ -9,6 +9,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/galasa-dev/cli/pkg/api"
 	"github.com/galasa-dev/cli/pkg/embedded"
@@ -24,6 +25,7 @@ type authenticatorImpl struct {
 	timeService  spi.TimeService
 	env          spi.Environment
 	cache        JwtCache
+	console      spi.Console
 }
 
 func NewAuthenticator(
@@ -46,6 +48,11 @@ func NewAuthenticator(
 	authenticator.cache = jwtCache
 
 	return authenticator
+}
+
+// SetConsole allows setting the console for displaying warnings
+func (authenticator *authenticatorImpl) SetConsole(console spi.Console) {
+	authenticator.console = console
 }
 
 func (authenticator *authenticatorImpl) GetBearerToken() (string, error) {
@@ -156,8 +163,40 @@ func (authenticator *authenticatorImpl) getJwtFromRestApi(apiServerUrl string, a
 		} else {
 			log.Println("Bearer token received from API server OK")
 			jwt = tokenResponse.GetJwt()
+
+			// Check if the token is approaching expiry and display a warning
+			if tokenResponse.HasTokenExpiryTime() {
+				warningDays := 14 // Default value
+				if tokenResponse.HasTokenExpiryWarningDays() {
+					warningDays = int(tokenResponse.GetTokenExpiryWarningDays())
+				}
+				authenticator.checkTokenExpiryAndWarn(tokenResponse.GetTokenExpiryTime(), warningDays)
+			}
 		}
 	}
 
 	return jwt, err
+}
+
+// checkTokenExpiryAndWarn checks if a token is approaching expiry and displays a warning
+func (authenticator *authenticatorImpl) checkTokenExpiryAndWarn(expiryTimeStr string, warningThresholdDays int) {
+
+	expiryTime, err := time.Parse(time.RFC3339, expiryTimeStr)
+	if err != nil {
+		log.Printf("Failed to parse token expiry time: %v", err)
+		return
+	}
+
+	now := authenticator.timeService.Now()
+	daysUntilExpiry := expiryTime.Sub(now).Hours() / 24
+
+	if daysUntilExpiry <= float64(warningThresholdDays) && daysUntilExpiry > 0 {
+		warningMessage := "GAL1200W: Your personal access token will expire soon. Once it expires, you will no longer be able to use it to contact your Galasa service. Create a new personal access token on your Galasa service's web user interface to continue to authenticate with the Galasa service."
+
+		if authenticator.console != nil {
+			authenticator.console.WriteString(warningMessage + "\n")
+		} else {
+			log.Println(warningMessage)
+		}
+	}
 }

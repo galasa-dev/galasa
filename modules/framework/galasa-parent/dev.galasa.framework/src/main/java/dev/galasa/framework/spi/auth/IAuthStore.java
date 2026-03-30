@@ -7,7 +7,6 @@ package dev.galasa.framework.spi.auth;
 
 import java.util.List;
 
-
 public interface IAuthStore {
 
     /**
@@ -18,9 +17,9 @@ public interface IAuthStore {
      */
     List<IInternalAuthToken> getTokens() throws AuthStoreException;
 
-
     /**
-     * Returns a list of token records stored in the auth store that match a given login ID.
+     * Returns a list of token records stored in the auth store that match a given
+     * login ID.
      *
      * @return a list of all token records stored in the auth store by login ID.
      * @throws AuthStoreException if there is an issue accessing the auth store.
@@ -39,11 +38,20 @@ public interface IAuthStore {
 
     /**
      * Deletes an existing token record from the auth store's tokens database.
-     * 
+     *
      * @param tokenId the ID of the token record to delete.
      * @throws AuthStoreException if there was an issue accessing the auth store.
      */
     void deleteToken(String tokenId) throws AuthStoreException;
+
+    /**
+     * Gets a token record given its Dex client ID from the auth store.
+     *
+     * @param clientId the Dex client ID of the token record to retrieve
+     * @return an auth token given its client ID, or null if not found
+     * @throws AuthStoreException if there is an issue accessing the auth store
+     */
+    IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException;
 
     /**
      * Returns a list of all the users using the system.
@@ -58,7 +66,8 @@ public interface IAuthStore {
      *
      * @param loginId    the loginId of the user trying to access Galasa API
      * @param clientName the name of the frontend client being used.
-     * @param roleId     the id of the role this user has been assigned. A numeric value.
+     * @param roleId     the id of the role this user has been assigned. A numeric
+     *                   value.
      * @throws AuthStoreException if there is an issue accessing the users store.
      */
     void createUser(String loginId, String clientName, String roleId) throws AuthStoreException;
@@ -66,7 +75,7 @@ public interface IAuthStore {
     /**
      * Retrieves a user record in the users store's database.
      *
-     * @param loginId    the loginId of the user trying to access Galasa API
+     * @param loginId the loginId of the user trying to access Galasa API
      * @throws AuthStoreException if there is an issue accessing the users store.
      */
     IUser getUserByLoginId(String loginId) throws AuthStoreException;
@@ -85,7 +94,7 @@ public interface IAuthStore {
     /**
      * Retrieves a user record in the users store's database.
      *
-     * @param userNumber    the ID of the user record to retrieve
+     * @param userNumber the ID of the user record to retrieve
      * @throws AuthStoreException if there is an issue accessing the users store.
      */
     IUser getUser(String userNumber) throws AuthStoreException;
@@ -93,7 +102,7 @@ public interface IAuthStore {
     /**
      * Updates a user record in the users store's database.
      *
-     * @param user    The user that needs to be updated
+     * @param user The user that needs to be updated
      * @throws AuthStoreException if there is an issue accessing the users store.
      */
     IUser updateUser(IUser user) throws AuthStoreException;

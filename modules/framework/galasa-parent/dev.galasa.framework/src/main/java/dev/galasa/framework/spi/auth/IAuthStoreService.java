@@ -19,7 +19,8 @@ public interface IAuthStoreService {
     List<IInternalAuthToken> getTokens() throws AuthStoreException;
 
     /**
-     * Returns a list of token records stored in the auth store that match a given login ID.
+     * Returns a list of token records stored in the auth store that match a given
+     * login ID.
      *
      * @return a list of all token records stored in the auth store by login ID.
      * @throws AuthStoreException if there is an issue accessing the auth store.
@@ -28,12 +29,21 @@ public interface IAuthStoreService {
 
     /**
      * Gets an token record given its ID from the auth store.
-     * 
+     *
      * @param tokenId the ID of the token record to retrieve
-     * @return an auth token givne 
+     * @return an auth token given its ID
      * @throws AuthStoreException
      */
     IInternalAuthToken getToken(String tokenId) throws AuthStoreException;
+
+    /**
+     * Gets a token record given its Dex client ID from the auth store.
+     *
+     * @param clientId the Dex client ID of the token record to retrieve
+     * @return an auth token given its client ID, or null if not found
+     * @throws AuthStoreException if there is an issue accessing the auth store
+     */
+    IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException;
 
     /**
      * Stores a new token in the auth store's tokens database.
@@ -74,7 +84,7 @@ public interface IAuthStoreService {
     /**
      * Retrieves a user record in the users database.
      *
-     * @param loginId    the loginId of the user trying to access Galasa API
+     * @param loginId the loginId of the user trying to access Galasa API
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
     IUser getUserByLoginId(String loginId) throws AuthStoreException;
@@ -82,7 +92,7 @@ public interface IAuthStoreService {
     /**
      * Retrieves a user record in the users database.
      *
-     * @param userNumber    the ID of the user record to retrieve
+     * @param userNumber the ID of the user record to retrieve
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
     IUser getUser(String userNumber) throws AuthStoreException;
@@ -101,7 +111,7 @@ public interface IAuthStoreService {
     /**
      * Updates a user record in the users store's database.
      *
-     * @param user    The user that needs to be updated
+     * @param user The user that needs to be updated
      * @throws AuthStoreException if there is an issue accessing the users store.
      */
     IUser updateUser(IUser user) throws AuthStoreException;

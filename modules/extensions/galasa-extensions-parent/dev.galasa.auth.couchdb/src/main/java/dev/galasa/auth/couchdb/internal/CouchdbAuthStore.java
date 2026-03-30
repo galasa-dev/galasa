@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +67,9 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     public static final String TOKENS_DB_VIEW_NAME = "loginId-view";
     public static final String USERS_DB_VIEW_NAME = "loginId-view";
     public static final String USERS_DB_LOWERCASE_VIEW_NAME = "loginId-lowercase-view";
+
+    // Default token lifespan in days (90 days)
+    public static final int DEFAULT_TOKEN_LIFESPAN_DAYS = 90;
 
     private Log logger;
     private ITimeService timeService;
@@ -143,7 +147,9 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     public void storeToken(String clientId, String description, IInternalUser owner) throws AuthStoreException {
         // Create the JSON payload representing the token to store
         CouchdbUser couchdbUser = new CouchdbUser(owner);
-        String tokenJson = gson.toJson(new CouchdbAuthToken(clientId, description, timeService.now(), couchdbUser));
+        Instant now = timeService.now();
+        Instant expiryTime = now.plus(DEFAULT_TOKEN_LIFESPAN_DAYS, ChronoUnit.DAYS);
+        String tokenJson = gson.toJson(new CouchdbAuthToken(clientId, description, now, expiryTime, couchdbUser));
 
         try {
             createDocument(TOKENS_DATABASE_NAME, tokenJson);
@@ -179,6 +185,33 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     }
 
     @Override
+    public IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException {
+        logger.info("Retrieving token by Dex client ID from CouchDB");
+
+        try {
+            // Get all tokens and search for one with matching clientId
+            List<IInternalAuthToken> allTokens = getTokens();
+
+            for (IInternalAuthToken token : allTokens) {
+                if (token instanceof CouchdbAuthToken) {
+                    CouchdbAuthToken couchdbToken = (CouchdbAuthToken) token;
+                    if (clientId.equals(couchdbToken.getDexClientId())) {
+                        logger.info("Token found for Dex client ID: " + clientId);
+                        return token;
+                    }
+                }
+            }
+
+            logger.info("No token found for Dex client ID: " + clientId);
+            return null;
+
+        } catch (AuthStoreException e) {
+            String errorMessage = ERROR_FAILED_TO_RETRIEVE_TOKENS.getMessage(e.getMessage());
+            throw new AuthStoreException(errorMessage, e);
+        }
+    }
+
+    @Override
     public List<IUser> getAllUsers() throws AuthStoreException {
         logger.info("Retrieving all users from couchdb");
 
@@ -207,7 +240,7 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     @Override
     public void createUser(String loginId, String clientName, String roleId) throws AuthStoreException {
 
-        logger.info("createUser: Creating user loginId:"+loginId+" clientName:"+clientName+" roleId:"+roleId );
+        logger.info("createUser: Creating user loginId:" + loginId + " clientName:" + clientName + " roleId:" + roleId);
         FrontEndClient client = new FrontEndClient();
 
         client.setClientName(clientName);

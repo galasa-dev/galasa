@@ -37,7 +37,8 @@ public class AuthServiceTest {
         IInternalUser owner = new InternalUser(userIdDeletingTokens, "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+        Instant expiryTime = creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, expiryTime, owner, clientId));
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
 
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
@@ -66,7 +67,8 @@ public class AuthServiceTest {
         IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+        Instant expiryTime = creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, expiryTime, owner, clientId));
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
 
         // Simulate a failure in the auth store
@@ -84,9 +86,8 @@ public class AuthServiceTest {
 
         // When...
         InternalServletException thrown = catchThrowableOfType(
-            () -> authService.revokeToken(tokenId,userIdDeletingTokens),
-            InternalServletException.class
-        );
+                () -> authService.revokeToken(tokenId, userIdDeletingTokens),
+                InternalServletException.class);
 
         // Then...
         assertThat(thrown).isNotNull();

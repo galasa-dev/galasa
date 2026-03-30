@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type AuthLoginCmdValues struct {}
+type AuthLoginCmdValues struct{}
 
 type AuthLoginComamnd struct {
 	values       *AuthLoginCmdValues
@@ -104,18 +104,18 @@ func (cmd *AuthLoginComamnd) executeAuthLogin(
 	err = utils.CaptureLog(fileSystem, commsFlagSetValues.logFileName)
 	if err == nil {
 		commsFlagSetValues.isCapturingLogs = true
-	
+
 		log.Println("Galasa CLI - Log in to an ecosystem")
-	
+
 		// Get the ability to query environment variables.
 		env := factory.GetEnvironment()
-	
+
 		var galasaHome spi.GalasaHome
 		galasaHome, err = utils.NewGalasaHome(fileSystem, env, commsFlagSetValues.CmdParamGalasaHomePath)
 		if err != nil {
 			panic(err)
 		}
-	
+
 		var commsClient api.APICommsClient
 		commsClient, err = api.NewAPICommsClient(
 			commsFlagSetValues.bootstrap,
@@ -127,6 +127,13 @@ func (cmd *AuthLoginComamnd) executeAuthLogin(
 
 		if err == nil {
 			authenticator := commsClient.GetAuthenticator()
+
+			// Set the console on the authenticator so it can display warnings
+			console := factory.GetStdOutConsole()
+			if authImpl, ok := authenticator.(interface{ SetConsole(spi.Console) }); ok {
+				authImpl.SetConsole(console)
+			}
+
 			err = commsClient.RunCommandWithRateLimitRetries(func() error {
 				return authenticator.Login()
 			})
