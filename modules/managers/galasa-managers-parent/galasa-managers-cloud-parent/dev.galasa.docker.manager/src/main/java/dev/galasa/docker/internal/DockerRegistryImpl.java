@@ -149,36 +149,83 @@ public class DockerRegistryImpl {
 	}
 
 	/**
-	 * Attempts to gain a bearer token from realm, if unauthorized tries basic credentials login 
-	 * retreive token
-	 * 
-	 * @return String token
+	 * Attempts to gain a bearer token from realm with credentials.
+	 *
+	 * This method has been enhanced to support registries like IBM Container Registry (ICR)
+	 * that require credentials to be sent to the token endpoint on the first request.
+	 *
+	 * Flow:
+	 * 1. Try to get token WITH credentials (Basic Auth) - supports ICR and similar registries
+	 * 2. If that fails with 401 and WWW-Authenticate header, parse the auth type
+	 * 3. If auth type is "Basic realm", retry with Basic Auth
+	 * 4. Otherwise fail with appropriate error
+	 *
+	 * @return String token - base64-encoded Docker registry auth structure for image pull
 	 * @throws DockerManagerException
 	 */
 	public String retrieveBearerToken() throws DockerManagerException {
 		try {
 			this.realmClient.setURI(this.registryRealmURL.toURI());
+			
+			// First attempt: Try with credentials (supports ICR and similar registries)
+			ICredentials creds = null;
+			String user = null;
+			String password = null;
+			
+			try {
+				creds = getCreds();
+				if (creds instanceof ICredentialsUsernamePassword) {
+					user = ((ICredentialsUsername) creds).getUsername();
+					password = ((ICredentialsUsernamePassword) creds).getPassword();
+				}
+			} catch (CredentialsException e) {
+				logger.debug("No credentials available for bearer token request, trying without credentials");
+			}
+			
+			// If we have username/password credentials, set them for Basic Auth
+			if (user != null && password != null) {
+				this.realmClient.setAuthorisation(user, password);
+				this.realmClient.build();
+				logger.debug("Attempting bearer token retrieval with Basic Auth credentials");
+			}
+			
 			HttpClientResponse<JsonObject> response = this.realmClient.getJson("");
 			if (response.getStatusCode() == (HttpStatus.SC_OK)) {
 				JsonObject json = response.getContent();
 				String token = json.get("token").getAsString();
 				this.client.addCommonHeader("Authorization", "Bearer "+token);
+				logger.info("Successfully retrieved bearer token");
+				
+				// Generate Docker auth structure for X-Registry-Auth header
+				// Docker Engine needs base64-encoded JSON with username/password, not the bearer token
+				if (user != null && password != null) {
+					logger.debug("Generating Docker registry auth structure for image pull");
+					return generateDockerRegistryAuthStructure(user, password);
+				}
+				
+				// Fallback: return token if no credentials
 				return token;
 			}
+			
+			// If unauthorized, check if we need to retry with different auth method
 			if (response.getStatusCode() == (HttpStatus.SC_UNAUTHORIZED)) {
 				Map<String, String> headers = response.getheaders();
 				for (String key : headers.keySet()) {
 					if (key.equalsIgnoreCase("WWW-Authenticate")) {
 						String authType = parseAuthRealmType(headers.get(key));
 						if ("Basic realm".equals(authType)) {
+							logger.debug("Token endpoint requires Basic Auth, attempting with credentials");
 							return retrieveBasicToken();
 						} else {
 							throw new DockerManagerException("Dont know how to authenticate to registry: " + this.registryUrl);
 						}
 					}
 				}
+				// No WWW-Authenticate header - registry may have returned error in body
+				logger.error("Token endpoint returned 401 without WWW-Authenticate header");
+				throw new DockerManagerException("Failed to retrieve token from: " + this.registryRealmURL + " - unauthorized");
 			}
-			throw new DockerManagerException("Failed to retrieve token from:" + this.registryRealmURL);
+			throw new DockerManagerException("Failed to retrieve token from:" + this.registryRealmURL + " - status code: " + response.getStatusCode());
 		} catch (HttpClientException | URISyntaxException e) {
 			throw new DockerManagerException("Failed to connect to: " + this.registryRealmURL);
 		}
