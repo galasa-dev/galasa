@@ -6,6 +6,7 @@ plugins {
 description = 'Galasa OS Credentials Store - Provides credentials from OS-native stores'
 
 dependencies {
+    implementation ('com.google.code.gson:gson')
     testImplementation(testFixtures(project(':dev.galasa.extensions.common')))
 }
 

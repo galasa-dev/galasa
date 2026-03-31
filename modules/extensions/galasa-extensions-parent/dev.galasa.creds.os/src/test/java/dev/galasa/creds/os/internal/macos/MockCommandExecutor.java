@@ -54,8 +54,6 @@ public class MockCommandExecutor implements CommandExecutor {
         switch (subcommand) {
             case "find-generic-password":
                 return handleFindPassword(command);
-            case "delete-generic-password":
-                return handleDeletePassword(command);
             default:
                 throw new OsCredentialsException("Unknown subcommand: " + subcommand);
         }
@@ -82,7 +80,7 @@ public class MockCommandExecutor implements CommandExecutor {
 
         // Format output like the real security command
         StringBuilder output = new StringBuilder();
-        output.append("keychain: \"/Users/test/Library/Keychains/login.keychain-db\"\n");
+        output.append("keychain: \"login.keychain-db\"\n");
         output.append("class: \"genp\"\n");
         output.append("attributes:\n");
         output.append("    0x00000007 <blob>=\"").append(serviceName).append("\"\n");
@@ -91,28 +89,6 @@ public class MockCommandExecutor implements CommandExecutor {
         output.append("password: \"").append(entry.password).append("\"\n");
 
         return new CommandResult(0, output.toString());
-    }
-
-    private CommandResult handleDeletePassword(String[] command) {
-        // Parse the service name from the command
-        String serviceName = null;
-        for (int i = 0; i < command.length - 1; i++) {
-            if ("-s".equals(command[i])) {
-                serviceName = command[i + 1];
-                break;
-            }
-        }
-
-        if (serviceName == null) {
-            return new CommandResult(1, "Error: service name not specified");
-        }
-
-        KeychainEntry entry = storage.remove(serviceName);
-        if (entry == null) {
-            return new CommandResult(44, ""); // errSecItemNotFound
-        }
-
-        return new CommandResult(0, "");
     }
 
     // Test helper methods

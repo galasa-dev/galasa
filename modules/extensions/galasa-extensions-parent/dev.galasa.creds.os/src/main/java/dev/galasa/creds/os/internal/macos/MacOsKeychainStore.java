@@ -5,13 +5,21 @@
  */
 package dev.galasa.creds.os.internal.macos;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import dev.galasa.ICredentials;
 import dev.galasa.creds.os.internal.OsCredentialsException;
+import dev.galasa.creds.os.internal.parsers.JsonCredentialParser;
+import dev.galasa.creds.os.internal.parsers.KeyStoreJsonParser;
 import dev.galasa.framework.spi.creds.CredentialType;
 import dev.galasa.framework.spi.creds.CredentialsException;
-import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
@@ -19,8 +27,8 @@ import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
 /**
- * macOS Keychain implementation of the credentials store using JNA to access
- * the Security Framework.
+ * macOS Keychain implementation of the credentials store using the <code>security</code> CLI tool
+ * to access the keychain.
  *
  * <p>This store supports the following credential types, determined by the account name format:
  * <ul>
@@ -28,7 +36,7 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
  *   <li><b>CredentialsUsername</b>: Account = "username:{username}", Password = empty</li>
  *   <li><b>CredentialsToken</b>: Account = "token", Password = token value</li>
  *   <li><b>CredentialsUsernameToken</b>: Account = "username-token:{username}", Password = token value</li>
- *   <li><b>CredentialsKeyStore</b>: Account = "keystore:type:{keystore}", Password = keystore password</li>
+ *   <li><b>JSON-based credentials</b>: Account = "JSON", Password = JSON object with credential properties</li>
  * </ul>
  *
  * <p><b>Creating credentials manually in Keychain Access.app:</b>
@@ -48,9 +56,18 @@ public class MacOsKeychainStore implements ICredentialsStore {
     private static final String USERNAME_PREFIX = "username:";
     private static final String USERNAME_TOKEN_PREFIX = "username-token:";
     private static final String TOKEN_ACCOUNT = "token";
-    private static final String KEYSTORE_PREFIX = "keystore:";
+    private static final String JSON_ACCOUNT = "JSON";
+    
+    private static final int SECURITY_CLI_SUCCESS_CODE = 0;
+    private static final int SECURITY_CLI_ERROR_ITEM_NOT_FOUND_CODE = 44;
+    private static final int SECURITY_CLI_ERROR_USER_CANCELLED_CODE = 128;
+    
+    private static final String SECURITY_ACCOUNT_NAME_FIELD = "\"acct\"";
+    private static final String SECURITY_PASSWORD_FIELD_PREFIX = "password:";
+
 
     private final CommandExecutor commandExecutor;
+    private final List<JsonCredentialParser> jsonParsers;
 
     public MacOsKeychainStore() {
         this(new SystemCommandExecutor());
@@ -58,6 +75,19 @@ public class MacOsKeychainStore implements ICredentialsStore {
 
     public MacOsKeychainStore(CommandExecutor commandExecutor) {
         this.commandExecutor = commandExecutor;
+        this.jsonParsers = initializeJsonParsers();
+    }
+
+    /**
+     * Initializes the list of JSON credential parsers.
+     * New parser implementations should be added here.
+     *
+     * @return list of JSON credential parsers
+     */
+    private List<JsonCredentialParser> initializeJsonParsers() {
+        List<JsonCredentialParser> parsers = new ArrayList<>();
+        parsers.add(new KeyStoreJsonParser());
+        return parsers;
     }
 
     @Override
@@ -75,31 +105,33 @@ public class MacOsKeychainStore implements ICredentialsStore {
             // Detect credential type and return appropriate implementation
             String accountName = item.getAccountName();
             String password = item.getPassword();
-            CredentialType type = detectCredentialType(accountName, password);
 
-            switch (type) {
-                case TOKEN:
-                    credentialsToReturn = new CredentialsToken(password);
-                    break;
+            // Check for JSON-based credentials first
+            if (JSON_ACCOUNT.equalsIgnoreCase(accountName)) {
+                credentialsToReturn = parseJsonCredentials(password);
+            } else {
+                CredentialType type = detectCredentialType(accountName, password);
 
-                case USERNAME:
-                    String username = extractUsername(accountName);
-                    credentialsToReturn = new CredentialsUsername(username);
-                    break;
+                switch (type) {
+                    case TOKEN:
+                        credentialsToReturn = new CredentialsToken(password);
+                        break;
 
-                case USERNAME_TOKEN:
-                    String usernameForToken = extractUsername(accountName);
-                    credentialsToReturn = new CredentialsUsernameToken(usernameForToken, password);
-                    break;
+                    case USERNAME:
+                        String username = extractUsername(accountName);
+                        credentialsToReturn = new CredentialsUsername(username);
+                        break;
 
-                case KEYSTORE:
-                    credentialsToReturn = extractKeyStore(accountName, password);
-                    break;
+                    case USERNAME_TOKEN:
+                        String usernameForToken = extractUsername(accountName);
+                        credentialsToReturn = new CredentialsUsernameToken(usernameForToken, password);
+                        break;
 
-                case USERNAME_PASSWORD:
-                default:
-                    credentialsToReturn = new CredentialsUsernamePassword(accountName, password);
-                    break;
+                    case USERNAME_PASSWORD:
+                    default:
+                        credentialsToReturn = new CredentialsUsernamePassword(accountName, password);
+                        break;
+                }
             }
         }
 
@@ -108,17 +140,17 @@ public class MacOsKeychainStore implements ICredentialsStore {
 
     @Override
     public Map<String, ICredentials> getAllCredentials() throws CredentialsException {
-        throw new OsCredentialsException("Method not implemented for Mac OS Keychain");
+        throw new OsCredentialsException("Getting all credentials is not enabled for OS credentials stores");
     }
 
     @Override
     public void setCredentials(String credsId, ICredentials credentials) throws CredentialsException {
-        throw new OsCredentialsException("Method not implemented for Mac OS Keychain");
+        throw new OsCredentialsException("Setting credentials is not enabled for OS credentials stores");
     }
 
     @Override
     public void deleteCredentials(String credsId) throws CredentialsException {
-        throw new OsCredentialsException("Method not implemented for Mac OS Keychain");
+        throw new OsCredentialsException("Deleting credentials is not enabled for OS credentials stores");
     }
 
     /**
@@ -131,38 +163,15 @@ public class MacOsKeychainStore implements ICredentialsStore {
     private CredentialType detectCredentialType(String accountName, String password) {
         CredentialType type = CredentialType.USERNAME_PASSWORD;
 
-        if (TOKEN_ACCOUNT.equals(accountName)) {
+        if (TOKEN_ACCOUNT.equalsIgnoreCase(accountName)) {
             type = CredentialType.TOKEN;
         } else if (accountName.startsWith(USERNAME_TOKEN_PREFIX)) {
             type = CredentialType.USERNAME_TOKEN;
         } else if (accountName.startsWith(USERNAME_PREFIX)) {
             type = CredentialType.USERNAME;
-        } else if (accountName.startsWith(KEYSTORE_PREFIX)) {
-            type = CredentialType.KEYSTORE;
         }
 
         return type;
-    }
-
-    /**
-     * Extracts a keystore from an account name that has a prefix and password.
-     *
-     * @param accountName the account name (e.g., "keystore:jks:myuser")
-     * @return the extracted keystore (e.g., "myuser")
-     */
-    private ICredentials extractKeyStore(String accountName, String password) throws CredentialsException {
-        CredentialsKeyStore keystore = null;
-
-        String keystoreWithType = accountName.substring(KEYSTORE_PREFIX.length());
-        String[] parts = keystoreWithType.split(":");
-        if (parts.length == 2) {
-            String type = parts[0];
-            String keystoreContent = parts[1];
-            keystore = new CredentialsKeyStore(keystoreContent, password, type);
-        } else {
-            throw new CredentialsException("Invalid Keystore credential provided. Keystore item must be in the format 'keystore:type:content'");
-        }
-        return keystore;
     }
 
     /**
@@ -179,6 +188,52 @@ public class MacOsKeychainStore implements ICredentialsStore {
             username = accountName.substring(USERNAME_PREFIX.length());
         }
         return username;
+    }
+
+    /**
+     * Parses JSON-based credentials from the password field using registered parsers.
+     *
+     * <p>This method iterates through all registered JSON credential parsers
+     * and uses the first one that can handle the JSON structure.
+     *
+     * <p>To add support for new JSON credential types:
+     * <ol>
+     *   <li>Create a new class implementing {@link JsonCredentialParser}</li>
+     *   <li>Add an instance to the {@link #initializeJsonParsers()} method</li>
+     * </ol>
+     *
+     * @param jsonPassword the JSON string containing credential data
+     * @return the parsed credentials object
+     * @throws CredentialsException if JSON parsing fails or no parser can handle the structure
+     */
+    private ICredentials parseJsonCredentials(String jsonPassword) throws CredentialsException {
+        if (jsonPassword == null || jsonPassword.trim().isEmpty()) {
+            throw new OsCredentialsException("JSON credentials cannot be empty");
+        }
+
+        try {
+            JsonObject json = JsonParser.parseString(jsonPassword).getAsJsonObject();
+
+            // Try each registered parser
+            for (JsonCredentialParser parser : jsonParsers) {
+                if (parser.canParse(json)) {
+                    return parser.parse(json);
+                }
+            }
+
+            // No parser could handle this JSON structure
+            List<String> supportedTypes = jsonParsers.stream()
+                .map(parser -> parser.getCredentialType())
+                .collect(Collectors.toList());
+
+            throw new OsCredentialsException(
+                "Unknown JSON credential structure. Supported types: " + String.join(", ", supportedTypes));
+
+        } catch (JsonSyntaxException e) {
+            throw new OsCredentialsException("Invalid JSON in credentials: " + e.getMessage(), e);
+        } catch (IllegalStateException e) {
+            throw new OsCredentialsException("Invalid JSON structure in credentials: " + e.getMessage(), e);
+        }
     }
 
     public void shutdown() throws CredentialsException {
@@ -206,17 +261,15 @@ public class MacOsKeychainStore implements ICredentialsStore {
 
         int exitCode = result.getExitCode();
 
-        if (exitCode == 44) {
-            // Item not found (errSecItemNotFound)
+        if (exitCode == SECURITY_CLI_ERROR_ITEM_NOT_FOUND_CODE) {
             return null;
         }
 
-        if (exitCode == 128) {
-            // User cancelled
+        if (exitCode == SECURITY_CLI_ERROR_USER_CANCELLED_CODE) {
             throw new OsCredentialsException("User cancelled keychain access");
         }
 
-        if (exitCode != 0) {
+        if (exitCode != SECURITY_CLI_SUCCESS_CODE) {
             throw new OsCredentialsException("Failed to retrieve credentials from keychain. Exit code: " + exitCode);
         }
 
@@ -241,27 +294,33 @@ public class MacOsKeychainStore implements ICredentialsStore {
      */
     private String extractAccountName(String output) {
         // Look for the account attribute line
+        String accountName = null;
         String[] lines = output.split("\n");
         for (String line : lines) {
-            if (line.contains("\"acct\"")) {
+            if (line.contains(SECURITY_ACCOUNT_NAME_FIELD)) {
+
                 // Extract the value after the equals sign
                 int equalsIndex = line.indexOf('=');
                 if (equalsIndex != -1) {
                     String value = line.substring(equalsIndex + 1).trim();
+
                     // Remove quotes if present
-                    if (value.startsWith("\"") && value.endsWith("\"")) {
-                        return value.substring(1, value.length() - 1);
+                    accountName = stripQuotes(value);
+                    if (accountName != null) {
+                        break;
                     }
+
                     // Handle hex blob format: 0x... "value"
                     int quoteStart = value.indexOf('"');
                     int quoteEnd = value.lastIndexOf('"');
                     if (quoteStart != -1 && quoteEnd != -1 && quoteStart < quoteEnd) {
-                        return value.substring(quoteStart + 1, quoteEnd);
+                        accountName = value.substring(quoteStart + 1, quoteEnd);
+                        break;
                     }
                 }
             }
         }
-        return null;
+        return accountName;
     }
 
     /**
@@ -273,18 +332,29 @@ public class MacOsKeychainStore implements ICredentialsStore {
      */
     private String extractPassword(String output) {
         // Look for the password line
+        String password = null;
         String[] lines = output.split("\n");
         for (String line : lines) {
-            if (line.startsWith("password:")) {
+            if (line.startsWith(SECURITY_PASSWORD_FIELD_PREFIX)) {
+
                 // Extract the value after the colon
-                String value = line.substring("password:".length()).trim();
+                String value = line.substring(SECURITY_PASSWORD_FIELD_PREFIX.length()).trim();
+
                 // Remove quotes if present
-                if (value.startsWith("\"") && value.endsWith("\"")) {
-                    return value.substring(1, value.length() - 1);
+                password = stripQuotes(value);
+                if (password != null) {
+                    break;
                 }
-                return value;
             }
         }
-        return null;
+        return password;
+    }
+
+    private String stripQuotes(String value) {
+        String strippedValue = value.trim();
+        if (strippedValue.startsWith("\"") && strippedValue.endsWith("\"")) {
+            strippedValue = strippedValue.substring(1, strippedValue.length() - 1);
+        }
+        return strippedValue;
     }
 }

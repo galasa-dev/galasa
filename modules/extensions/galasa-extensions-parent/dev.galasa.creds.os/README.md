@@ -20,8 +20,7 @@ The OS credentials store extension enables Galasa to read credentials from:
 
 ### macOS Implementation
 
-- **`MacOsKeychainStore`**: Implements `ICredentialsStore` using JNA to call macOS Security Framework APIs
-- **`SecurityFramework`**: JNA interface defining native macOS Security Framework functions
+- **`MacOsKeychainStore`**: Implements `ICredentialsStore` using the macOS `security` CLI tool to manage credentials in the Keychain.
 
 ## How It Works
 
@@ -48,7 +47,7 @@ Credentials are stored in the OS's native credential manager with a consistent f
 
 The macOS Keychain store supports multiple credential types, distinguished by the account name format:
 
-1. **Username + Password** (backward compatible):
+1. **Username + Password**:
    - Account Name: Plain username (e.g., `IBMUSER`)
    - Password: The password
    - Returns: `CredentialsUsernamePassword`
@@ -68,56 +67,20 @@ The macOS Keychain store supports multiple credential types, distinguished by th
    - Password: The token value
    - Returns: `CredentialsUsernameToken`
 
+5. **JSON-based Credentials** (Recommended for complex types):
+   - Account Name: `JSON` (case-insensitive)
+   - Password: JSON object containing credential properties
+   - Returns: Type depends on JSON structure
+   - **Supported JSON structures**:
+     - **KeyStore**: `{"keystore":"base64-content","password":"keystore-password","type":"JKS|PKCS12"}`
+
 This format allows users to easily add credentials manually using their OS's credential management tools while supporting all Galasa credential types.
-
-### macOS Keychain Integration
-
-The macOS implementation uses JNA (Java Native Access) to call Security Framework APIs directly:
-
-- `SecKeychainFindGenericPassword` - Retrieve credentials
-- `SecKeychainAddGenericPassword` - Store credentials
-- `SecKeychainItemDelete` - Delete credentials
-- `SecKeychainItemFreeContent` - Free allocated memory
-
-This approach avoids spawning CLI processes and provides better performance and error handling.
-
-## Building
-
-Build the extension using Gradle:
-
-```bash
-cd modules/extensions/galasa-extensions-parent/dev.galasa.creds.os
-gradle clean build publishToMavenLocal
-```
-
-## Testing
-
-The extension includes comprehensive unit tests:
-
-```bash
-gradle test
-```
-
-Test coverage includes:
-- OS detection and parsing (13 tests)
-- Credentials store registration (6 tests)
-- macOS Keychain operations (25 tests)
-
-### Mock Framework
-
-Tests use `MockSecurityFramework` to simulate macOS Keychain behavior without requiring actual system calls. This allows tests to run on any platform and verify all code paths including error scenarios.
-
-## Dependencies
-
-- **JNA (Java Native Access)**: 5.18.1 - For calling native macOS APIs
-- **JNA Platform**: 5.18.1 - Platform-specific JNA extensions
-- **Galasa Framework**: Core framework interfaces and utilities
 
 ## Usage Examples
 
 ### Adding Credentials (macOS)
 
-#### Username + Password (backward compatible)
+#### Username + Password
 
 Using Keychain Access.app:
 1. Open Keychain Access
@@ -168,48 +131,50 @@ security add-generic-password \
   -U
 ```
 
-### Retrieving Credentials in Tests
+#### KeyStore (JSON Format)
 
-```java
-@Test
-public void testWithCredentials() throws Exception {
-    ICredentials credentials = credentialsService.getCredentials("SIMBANK");
-    
-    // Handle different credential types
-    if (credentials instanceof CredentialsUsernamePassword) {
-        CredentialsUsernamePassword creds = (CredentialsUsernamePassword) credentials;
-        String username = creds.getUsername(); // Returns "IBMUSER"
-        String password = new String(creds.getPassword()); // Returns "SYS1"
-    } else if (credentials instanceof CredentialsUsernameToken) {
-        CredentialsUsernameToken creds = (CredentialsUsernameToken) credentials;
-        String username = creds.getUsername(); // Returns "myuser"
-        String token = new String(creds.getToken()); // Returns token value
-    } else if (credentials instanceof CredentialsUsername) {
-        CredentialsUsername creds = (CredentialsUsername) credentials;
-        String username = creds.getUsername(); // Returns username only
-    } else if (credentials instanceof CredentialsToken) {
-        CredentialsToken creds = (CredentialsToken) credentials;
-        byte[] token = creds.getToken(); // Returns token value
-    }
-}
+Using command line:
+```bash
+security add-generic-password \
+  -s "galasa.credentials.MYKEYSTORE" \
+  -a "JSON" \
+  -w '{"keystore":"base64-encoded-keystore","password":"keystorepass","type":"JKS"}' \
+  -U
+```
+
+Using Keychain Access.app:
+1. Open Keychain Access
+2. Create new Password item
+3. Set Name: `galasa.credentials.MYKEYSTORE`
+4. Set Account: `JSON`
+5. Set Password: `{"keystore":"base64-encoded-keystore","password":"keystorepass","type":"JKS"}`
+
+**Note**: The keystore content must be base64-encoded. You can encode a keystore file using:
+```bash
+base64 -i mykeystore.jks | tr -d '\n'
 ```
 
 ## Implementation Notes
 
 ### Credential Type Detection
 
-The implementation uses account name prefixes to distinguish between credential types:
+The implementation uses a hybrid approach to distinguish between credential types:
 
-- **No prefix**: Username+Password (backward compatible)
+#### Simple Types (Prefix-based)
+- **No prefix**: Username+Password
 - **`username:` prefix**: Username-only credentials
 - **`token` account name**: Token-only credentials
 - **`username-token:` prefix**: Username+Token credentials
 
-This approach:
-- Allows explicit type specification without metadata storage
-- Maintains backward compatibility with existing credentials
+#### Complex Types (JSON-based)
+- **`JSON` account name**: JSON object in password field containing credential properties
+
+This hybrid approach:
+- Keeps simple credential types simple and easy to use
+- Provides scalability for complex credential types via JSON
 - Works seamlessly with manual credential entry
 - Enables proper type-safe credential retrieval
+- Allows easy extension for future credential types without code changes
 
 ### Prefix Ordering
 
@@ -217,32 +182,32 @@ The detection logic checks prefixes in a specific order to avoid false matches:
 1. Check for `token` (exact match)
 2. Check for `username-token:` prefix (must come before `username:`)
 3. Check for `username:` prefix
-4. Default to username+password (backward compatible)
+4. Default to username+password
 
 This ordering is critical because `username:` would match `username-token:` if checked first.
 
-### Error Handling
+### JSON Credential Format
 
-The implementation handles various macOS Keychain error codes:
-- `errSecItemNotFound` (-25300): Credential doesn't exist
-- `errSecUserCanceled` (-128): User denied access
-- `errSecAuthFailed` (-25293): Authorization failed
-- `errSecDuplicateItem` (-25299): Credential already exists
+JSON-based credentials provide a scalable way to store complex credential types:
 
-## Contributing
+**Advantages:**
+- Self-documenting structure
+- Easy to validate and parse
+- Extensible without code changes
+- Supports multiple properties per credential
+- Industry-standard format
 
-When contributing to this extension:
+**Structure:**
+```json
+{
+  "property1": "value1",
+  "property2": "value2"
+}
+```
 
-1. **Follow existing patterns**: Match the style and structure of existing code
-2. **Add tests**: All new functionality must include unit tests
-3. **Update documentation**: Keep README and user docs in sync with code changes
-4. **Handle errors**: Provide clear error messages for common failure scenarios
-5. **Consider security**: Never log sensitive credential data
-
-## Security Considerations
-
-- Credentials are never logged or written to disk by this extension
-- Memory containing credentials is cleared after use where possible
-- OS-native encryption protects credentials at rest
-- Access control is delegated to the OS's credential manager
-- Users should follow their organization's security policies for test credentials
+**Adding New JSON Types:**
+To add support for new JSON-based credential types:
+1. Create a new class implementing `JsonCredentialParser` interface
+2. Implement the `canParse()`, `parse()`, and `getCredentialType()` methods
+3. Add an instance of your parser to the `initializeJsonParsers()` method in `MacOsKeychainStore`
+4. Update documentation

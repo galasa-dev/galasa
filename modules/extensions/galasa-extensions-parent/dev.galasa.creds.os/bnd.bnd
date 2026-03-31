@@ -4,6 +4,7 @@ Bundle-Description: OS-native credentials store for Galasa
 Bundle-License: https://www.eclipse.org/legal/epl-2.0
 Export-Package: !dev.galasa.creds.os.internal,dev.galasa.creds.os*
 Import-Package: \
+    com.google.gson,\
     dev.galasa,\
     dev.galasa.framework.spi,\
     dev.galasa.framework.spi.creds,\
