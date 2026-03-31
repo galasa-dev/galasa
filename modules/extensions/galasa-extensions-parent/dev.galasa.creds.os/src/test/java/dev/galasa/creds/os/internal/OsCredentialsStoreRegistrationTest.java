@@ -12,6 +12,7 @@ import java.net.URI;
 
 import org.junit.Test;
 
+import dev.galasa.extensions.common.mocks.MockEnvironment;
 import dev.galasa.extensions.common.mocks.MockFrameworkInitialisation;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
@@ -23,10 +24,14 @@ public class OsCredentialsStoreRegistrationTest {
     @Test
     public void testInitialiseWithOsAutoUri() throws Exception {
         // Given
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setProperty("os.name", "MacOS");
+        OperatingSystemDetector detector = new OperatingSystemDetector(mockEnv);
+
         URI uri = new URI("os:auto");
         MockFrameworkInitialisation mockInit = new MockFrameworkInitialisation();
         mockInit.setCredentialsStoreUri(uri);
-        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration();
+        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration(detector);
 
         // When
         registration.initialise(mockInit);
@@ -43,10 +48,11 @@ public class OsCredentialsStoreRegistrationTest {
     @Test
     public void testInitialiseWithOsMacOSUri() throws Exception {
         // Given
+        OperatingSystemDetector detector = new OperatingSystemDetector();
         URI uri = new URI("os:macOS");
         MockFrameworkInitialisation mockInit = new MockFrameworkInitialisation();
         mockInit.setCredentialsStoreUri(uri);
-        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration();
+        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration(detector);
 
         // When
         registration.initialise(mockInit);
@@ -63,10 +69,11 @@ public class OsCredentialsStoreRegistrationTest {
     @Test
     public void testInitialiseWithNonOsUri() throws Exception {
         // Given
+        OperatingSystemDetector detector = new OperatingSystemDetector();
         URI uri = new URI("file:///some/path");
         MockFrameworkInitialisation mockInit = new MockFrameworkInitialisation();
         mockInit.setCredentialsStoreUri(uri);
-        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration();
+        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration(detector);
 
         // When
         registration.initialise(mockInit);
@@ -79,10 +86,11 @@ public class OsCredentialsStoreRegistrationTest {
     @Test
     public void testInitialiseWithInvalidOsUri() throws Exception {
         // Given
+        OperatingSystemDetector detector = new OperatingSystemDetector();
         URI uri = new URI("os:invalid");
         MockFrameworkInitialisation mockInit = new MockFrameworkInitialisation();
         mockInit.setCredentialsStoreUri(uri);
-        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration();
+        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration(detector);
 
         // When/Then
         assertThatThrownBy(() -> registration.initialise(mockInit))
@@ -94,10 +102,11 @@ public class OsCredentialsStoreRegistrationTest {
     @Test
     public void testInitialiseWithWindowsUri() throws Exception {
         // Given
+        OperatingSystemDetector detector = new OperatingSystemDetector();
         URI uri = new URI("os:windows");
         MockFrameworkInitialisation mockInit = new MockFrameworkInitialisation();
         mockInit.setCredentialsStoreUri(uri);
-        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration();
+        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration(detector);
 
         // When/Then
         assertThatThrownBy(() -> registration.initialise(mockInit))
@@ -109,10 +118,11 @@ public class OsCredentialsStoreRegistrationTest {
     @Test
     public void testInitialiseWithLinuxUri() throws Exception {
         // Given
+        OperatingSystemDetector detector = new OperatingSystemDetector();
         URI uri = new URI("os:linux");
         MockFrameworkInitialisation mockInit = new MockFrameworkInitialisation();
         mockInit.setCredentialsStoreUri(uri);
-        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration();
+        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration(detector);
 
         // When/Then
         assertThatThrownBy(() -> registration.initialise(mockInit))
@@ -121,3 +131,5 @@ public class OsCredentialsStoreRegistrationTest {
             .hasMessageContaining("Linux Secret Service is not yet implemented");
     }
 }
+
+// Made with Bob

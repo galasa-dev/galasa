@@ -32,6 +32,17 @@ import dev.galasa.framework.spi.creds.ICredentialsStoreRegistration;
 @Component(service = { ICredentialsStoreRegistration.class })
 public class OsCredentialsStoreRegistration implements ICredentialsStoreRegistration {
 
+    private final OperatingSystemDetector osDetector;
+
+    public OsCredentialsStoreRegistration() {
+        this.osDetector = new OperatingSystemDetector();
+    }
+
+    // Package-private constructor for testing
+    OsCredentialsStoreRegistration(OperatingSystemDetector osDetector) {
+        this.osDetector = osDetector;
+    }
+
     @Override
     public void initialise(@NotNull IFrameworkInitialisation frameworkInitialisation) throws CredentialsException {
         URI credsUri = frameworkInitialisation.getCredentialsStoreUri();
@@ -62,16 +73,16 @@ public class OsCredentialsStoreRegistration implements ICredentialsStoreRegistra
 
     /**
      * Parses the operating system from the URI.
-     * 
+     *
      * @param uri the URI to parse (e.g., "os:auto", "os:macOS")
      * @return the parsed operating system
      */
     private OperatingSystem parseOperatingSystem(URI uri) {
         String schemeSpecificPart = uri.getSchemeSpecificPart();
         if (schemeSpecificPart == null || schemeSpecificPart.trim().isEmpty()) {
-            return OperatingSystem.detect();
+            return osDetector.detect();
         }
 
-        return OperatingSystem.fromString(schemeSpecificPart);
+        return osDetector.fromString(schemeSpecificPart);
     }
 }
