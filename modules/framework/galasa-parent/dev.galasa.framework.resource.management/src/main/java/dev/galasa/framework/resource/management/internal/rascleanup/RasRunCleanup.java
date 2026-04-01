@@ -1,0 +1,146 @@
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package dev.galasa.framework.resource.management.internal.rascleanup;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
+import dev.galasa.framework.spi.IResultArchiveStore;
+import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
+import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.ras.IRasSearchCriteria;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaQueuedTo;
+import dev.galasa.framework.spi.utils.ITimeService;
+
+public class RasRunCleanup implements Runnable {
+
+    private final Log logger = LogFactory.getLog(getClass());
+
+    private static final String TEST_RUN_CLEANUP_CPS_PREFIX = "ras.cleanup";
+    private static final String TEST_RUN_MAX_DAYS_CPS_PROPERTY = "test.run.age.max.days";
+    private static final String TEST_RUN_EXCLUDE_PREFIX = "test.run.exclude.";
+
+    private IResultArchiveStore rasService;
+    private IConfigurationPropertyStoreService cpsService;
+    private ITimeService timeService;
+
+    public RasRunCleanup(
+        IConfigurationPropertyStoreService cpsService,
+        IResultArchiveStore rasService,
+        ITimeService timeService
+    ) throws FrameworkException {
+        this.rasService = rasService;
+        this.cpsService = cpsService;
+        this.timeService = timeService;
+    }
+
+    @Override
+    public void run() {
+        logger.info("Starting scan for runs to clean up from the RAS");
+
+        try {
+            List<IRunResult> runs = getRunsToCleanUp();
+
+            for (IRunResult run : runs) {
+                logger.trace("Deleting run " + run.getRunId());
+                run.discard();
+                logger.trace("Deleted run " + run.getRunId());
+            }
+        } catch (Exception e) {
+            logger.error("Error while scanning for runs to clean up", e);
+        }
+
+        logger.info("Finished scan for runs to clean up from the RAS");
+    }
+
+    private List<IRunResult> getRunsToCleanUp() throws FrameworkException {
+        List<IRunResult> runs = new ArrayList<>();
+        List<IRasSearchCriteria> searchCriteria = buildSearchCriteria();
+
+        if (searchCriteria != null && !searchCriteria.isEmpty()) {
+            for (IResultArchiveStoreDirectoryService directoryService : rasService.getDirectoryServices()) {
+                runs.addAll(directoryService.getRuns(searchCriteria.toArray(new IRasSearchCriteria[0])));
+            }
+            logger.info("Found " + runs.size() + " runs matching cleanup criteria");
+
+            // Filter out excluded runs - returns only runs that should still be cleaned up
+            runs = filterOutRunsToKeep(runs);
+            logger.info(runs.size() + " runs will be cleaned up after applying exclusions");
+        }
+        return runs;
+    }
+
+    private List<IRunResult> filterOutRunsToKeep(List<IRunResult> runsToCleanUp) throws FrameworkException {
+        Set<IRunResult> runsToKeep = new HashSet<>();
+
+        // Get all the properties in the form framework.test.run.exclude.<field>=<comma-separated-values-to-exclude>
+        Map<String, String> excludeProperties = cpsService.getPrefixedProperties(TEST_RUN_EXCLUDE_PREFIX);
+
+        if (!excludeProperties.isEmpty()) {
+            for (Map.Entry<String, String> entry : excludeProperties.entrySet()) {
+                String key = entry.getKey();
+                String fieldName = key.substring(key.lastIndexOf(".") + 1).toLowerCase();
+
+                ExcludeCriteria criteria = ExcludeCriteria.getFromString(fieldName);
+                if (criteria != null) {
+                    // Split by comma and trim whitespace from each value
+                    String[] valuesToKeep = entry.getValue().split(",");
+                    for (int i = 0; i < valuesToKeep.length; i++) {
+                        valuesToKeep[i] = valuesToKeep[i].trim();
+                    }
+
+                    for (IRunResult run : runsToCleanUp) {
+                        if (criteria.shouldRunBeKept(run.getTestStructure(), valuesToKeep)) {
+                            runsToKeep.add(run);
+                            logger.trace("Run " + run.getRunId() + " excluded from cleanup by " + fieldName + " criteria");
+                        }
+                    }
+                }
+            }
+            logger.trace("Excluded " + (runsToCleanUp.size() - runsToKeep.size()) + " runs from cleanup");
+
+            // Remove the runs to keep from the list of runs that should be cleaned up
+            runsToCleanUp.removeAll(runsToKeep);
+        }
+
+        return runsToCleanUp;
+    }
+
+    private List<IRasSearchCriteria> buildSearchCriteria() throws ConfigurationPropertyStoreException {
+        List<IRasSearchCriteria> criteria = new ArrayList<>();
+
+        int runMaxAgeDays = -1;
+        try {
+            String runMaxAgeStr = cpsService.getProperty(TEST_RUN_CLEANUP_CPS_PREFIX, TEST_RUN_MAX_DAYS_CPS_PROPERTY);
+            if (runMaxAgeStr != null) {
+                runMaxAgeDays = Integer.parseInt(runMaxAgeStr);
+            }
+
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid CPS property value provided. A numeric value is expected for '" + TEST_RUN_MAX_DAYS_CPS_PROPERTY + "'.");
+        }
+
+        // If a maximum age is set, add queued time criteria
+        if (runMaxAgeDays > 0) {
+            Instant searchToTime = timeService.now().minus(runMaxAgeDays, ChronoUnit.DAYS);
+
+            // Add 'from' and 'to' time criteria
+            criteria.add(new RasSearchCriteriaQueuedTo(searchToTime));
+        }
+        return criteria;
+    }
+}
