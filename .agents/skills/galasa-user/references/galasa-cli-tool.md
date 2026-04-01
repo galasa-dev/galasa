@@ -91,7 +91,7 @@ To run Galasa tests in a local Java Virtual Machine (JVM), you can use the `gala
 
 Optionally, the `--trace` flag can be supplied if you would like to enable trace-level logging for the test run.
 
-- If a user would like to run specific test methods, the `--methods` flag can be supplied any number of times with the name of the test method or test methods to run. For example: `--methods testMethod1 --methods testMethod2`
+- If a user would like to run specific test methods, the `--methods` flag can be supplied any number of times with the name of the test method or test methods to run. Alternatively, a comma-separated list of methods can be supplied in a single `--methods` flag. For example: `--methods testMethod1 --methods testMethod2`, or `--methods testMethod1,testMethod2`.
 
 - **IMPORTANT**: Every Galasa test run is assigned a unique run name, in the form `XY` where `X` is a single capital letter (example: `L` for local) and `Y` is a number (example: `12`). You **MUST** retain knowledge of this run name for context in case the user want information about the test run's result.
 

@@ -28,10 +28,6 @@ This skill contains individual skill references that explain how the various asp
 - [Galasa architecture](./references/galasa-architecture.md) - Framework components, managers, test runner
 - [Galasa ecosystem](./references/galasa-ecosystem.md) - Running at scale, stores, services
 
-**Simple Tasks** (project creation, running tests, basic queries):
-- Load only the quick reference card
-- Avoid loading detailed documentation unless needed
-
 **CLI Operations** (creating projects, running tests, viewing results):
 - [Galasa CLI tool](./references/galasa-cli-tool.md) - Detailed command syntax and flags
 

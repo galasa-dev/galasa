@@ -27,7 +27,7 @@ Galasa differs from other test tools by:
 
 **Write once, run anywhere:**
 - Write tests as JUnit-style Java classes
-- Run locally from IDE or in automation
+- Run locally using a CLI tool or in automation
 - No code changes needed between environments
 
 **Deep z/OS integration:**
