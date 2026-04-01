@@ -39,7 +39,7 @@ The `os:` URI scheme triggers the registration of this credentials store. The va
 
 Credentials are stored in the OS's native credential manager with a consistent format:
 
-- **Service Name**: `galasa.credentials.{CREDENTIALS-ID}`
+- **Keychain Item Name**: `galasa.credentials.{CREDENTIALS-ID}`
 - **Account Name**: Varies by credential type (see below)
 - **Password**: The actual password or token value
 

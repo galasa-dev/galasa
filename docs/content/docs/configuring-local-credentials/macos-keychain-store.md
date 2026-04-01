@@ -19,7 +19,7 @@ Follow the [Enabling the OS Credentials Store](./index.md#enabling-the-os-creden
 
 Credentials must be added to the macOS Keychain before Galasa can retrieve them. Each credential is stored as a generic password item with:
 
-- **Service Name**: `galasa.credentials.{CREDENTIALS-ID}`
+- **Keychain Item Name**: `galasa.credentials.{CREDENTIALS-ID}`
 - **Account Name**: Varies by credential type (see below)
 - **Password**: The actual password, token, or JSON data
 
@@ -229,12 +229,12 @@ To minimize permission prompts:
 
 ### "Credentials not found" Error
 
-**Cause**: The credential doesn't exist in the Keychain or the service name is incorrect.
+**Cause**: The credential doesn't exist in the Keychain or the Keychain Item Name is incorrect.
 
 **Solution**:
 
 1. Verify the credential exists: `security find-generic-password -s "galasa.credentials.MYCRED"`
-2. Check the service name format: must be `galasa.credentials.{ID}`
+2. Check the keychain item name format: must be `galasa.credentials.{ID}`
 3. Ensure you're searching the correct keychain (login keychain by default)
 
 ### Invalid JSON Error (KeyStore credentials)
