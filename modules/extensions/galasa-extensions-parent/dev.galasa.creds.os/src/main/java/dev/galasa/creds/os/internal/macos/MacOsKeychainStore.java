@@ -26,6 +26,8 @@ import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
 import dev.galasa.framework.spi.creds.CredentialsUsernameToken;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
+import static dev.galasa.creds.os.internal.macos.SecurityCommand.*;
+
 /**
  * macOS Keychain implementation of the credentials store using the <code>security</code> CLI tool
  * to access the keychain.
@@ -58,23 +60,18 @@ public class MacOsKeychainStore implements ICredentialsStore {
     private static final String TOKEN_ACCOUNT = "token";
     private static final String JSON_ACCOUNT = "JSON";
     
-    private static final int SECURITY_CLI_SUCCESS_CODE = 0;
-    private static final int SECURITY_CLI_ERROR_ITEM_NOT_FOUND_CODE = 44;
-    private static final int SECURITY_CLI_ERROR_USER_CANCELLED_CODE = 128;
-    
     private static final String SECURITY_ACCOUNT_NAME_FIELD = "\"acct\"";
     private static final String SECURITY_PASSWORD_FIELD_PREFIX = "password:";
 
-
-    private final CommandExecutor commandExecutor;
     private final List<JsonCredentialParser> jsonParsers;
+    private final SecurityCommand securityCommand;
 
     public MacOsKeychainStore() {
-        this(new SystemCommandExecutor());
+        this(new SecurityCommand());
     }
 
-    public MacOsKeychainStore(CommandExecutor commandExecutor) {
-        this.commandExecutor = commandExecutor;
+    public MacOsKeychainStore(SecurityCommand securityCommand) {
+        this.securityCommand = securityCommand;
         this.jsonParsers = initializeJsonParsers();
     }
 
@@ -250,14 +247,7 @@ public class MacOsKeychainStore implements ICredentialsStore {
      * @throws CredentialsException if there's an error accessing the keychain
      */
     private KeychainItem getKeychainItem(String serviceName) throws CredentialsException {
-        // Use the security command-line tool to find the password
-        // The -g flag outputs the password to stderr
-        CommandExecutor.CommandResult result = commandExecutor.execute(
-            "security",
-            "find-generic-password",
-            "-s", serviceName,
-            "-g"
-        );
+        CommandResult result = securityCommand.findGenericPassword(serviceName);
 
         int exitCode = result.getExitCode();
 

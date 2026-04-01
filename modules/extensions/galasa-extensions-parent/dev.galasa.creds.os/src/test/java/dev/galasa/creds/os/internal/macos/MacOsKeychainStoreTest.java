@@ -38,7 +38,8 @@ public class MacOsKeychainStoreTest {
     @Before
     public void setUp() {
         mockCommandExecutor = new MockCommandExecutor();
-        store = new MacOsKeychainStore(mockCommandExecutor);
+        SecurityCommand securityCommand = new SecurityCommand(mockCommandExecutor);
+        store = new MacOsKeychainStore(securityCommand);
         gson = new GalasaGsonBuilder(false).getGson();
     }
 
@@ -90,6 +91,13 @@ public class MacOsKeychainStoreTest {
     }
 
     @Test
+    public void testGetCredentialsWithInvalidId() {
+        assertThatThrownBy(() -> store.getCredentials("galasa.credentials.ID\nmaliciouscode"))
+            .isInstanceOf(OsCredentialsException.class)
+            .hasMessageContaining("Credentials ID contains invalid characters");
+    }
+
+    @Test
     public void testGetCredentialsWithEmptyId() {
         assertThatThrownBy(() -> store.getCredentials(""))
             .isInstanceOf(OsCredentialsException.class)
@@ -115,6 +123,7 @@ public class MacOsKeychainStoreTest {
         String credsId = "SYSTEM1";
         String serviceName = "galasa.credentials." + credsId;
         String username = "testuser";
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, username, "mypassword");
 
         // When
@@ -157,6 +166,7 @@ public class MacOsKeychainStoreTest {
         String credsId = "SYSTEM1";
         String serviceName = "galasa.credentials." + credsId;
         String username = "testuser";
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "username:" + username, "");
 
         // When
@@ -175,6 +185,7 @@ public class MacOsKeychainStoreTest {
         // Given - manually add token-only credentials to mock keychain
         String credsId = "SYSTEM1";
         String serviceName = "galasa.credentials." + credsId;
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "token", "abc123token");
 
         // When
@@ -194,6 +205,7 @@ public class MacOsKeychainStoreTest {
         String credsId = "SYSTEM1";
         String serviceName = "galasa.credentials." + credsId;
         String username = "testuser";
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "username-token:" + username, "xyz789token");
 
         // When
@@ -214,6 +226,7 @@ public class MacOsKeychainStoreTest {
         String credsId = "SYSTEM1";
         String serviceName = "galasa.credentials." + credsId;
         String username = "oldformatuser";
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, username, "oldpassword");
 
         // When
@@ -232,8 +245,8 @@ public class MacOsKeychainStoreTest {
     // ========== setCredentials() tests ==========
 
     @Test
-    public void testSetCredentialsWithNullId() {
-        assertThatThrownBy(() -> store.setCredentials(null, new CredentialsUsername("user")))
+    public void testSetCredentialsThrowsException() {
+        assertThatThrownBy(() -> store.setCredentials("id", new CredentialsUsername("user")))
             .isInstanceOf(OsCredentialsException.class)
             .hasMessageContaining("Setting credentials is not enabled for OS credentials stores");
     }
@@ -241,8 +254,8 @@ public class MacOsKeychainStoreTest {
     // ========== deleteCredentials() tests ==========
 
     @Test
-    public void testDeleteCredentialsWithNullId() {
-        assertThatThrownBy(() -> store.deleteCredentials(null))
+    public void testDeleteCredentialsThrowsException() {
+        assertThatThrownBy(() -> store.deleteCredentials("id"))
             .isInstanceOf(OsCredentialsException.class)
             .hasMessageContaining("Deleting credentials is not enabled for OS credentials stores");
     }
@@ -250,7 +263,7 @@ public class MacOsKeychainStoreTest {
     // ========== getAllCredentials() tests ==========
 
     @Test
-    public void testGetAllCredentialsReturnsEmptyMap() throws Exception {
+    public void testGetAllCredentialsThrowsException() throws Exception {
         assertThatThrownBy(() -> store.getAllCredentials())
             .isInstanceOf(OsCredentialsException.class)
             .hasMessageContaining("Getting all credentials is not enabled for OS credentials stores");
@@ -271,6 +284,7 @@ public class MacOsKeychainStoreTest {
         String serviceName = "galasa.credentials." + credsId;
         String manualUsername = "user";
 
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, manualUsername, "manual_password");
 
         // When - Galasa retrieves the credentials
@@ -294,6 +308,7 @@ public class MacOsKeychainStoreTest {
         String keystorePassword = "keystorepass";
         String keystoreBase64 = createTestKeyStore("JKS", keystorePassword);
         String jsonPassword = createKeystoreJson(keystoreBase64, keystorePassword, "JKS");
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "JSON", jsonPassword);
 
         // When
@@ -317,6 +332,7 @@ public class MacOsKeychainStoreTest {
         String keystorePassword = "p12pass";
         String keystoreBase64 = createTestKeyStore("PKCS12", keystorePassword);
         String jsonPassword = createKeystoreJson(keystoreBase64, keystorePassword, "PKCS12");
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "JSON", jsonPassword);
 
         // When
@@ -340,7 +356,8 @@ public class MacOsKeychainStoreTest {
         String keystorePassword = "testpass";
         String keystoreBase64 = createTestKeyStore("JKS", keystorePassword);
         String jsonPassword = createKeystoreJson(keystoreBase64, keystorePassword, "JKS");
-        mockCommandExecutor.addPassword(serviceName, "json", jsonPassword); // lowercase
+        mockCommandExecutor.setServiceName(serviceName);
+        mockCommandExecutor.addPassword(serviceName, "json", jsonPassword);
 
         // When
         ICredentials credentials = store.getCredentials(credsId);
@@ -355,6 +372,7 @@ public class MacOsKeychainStoreTest {
         // Given - JSON account with empty password
         String credsId = "EMPTYTEST";
         String serviceName = "galasa.credentials." + credsId;
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "JSON", "");
 
         // When/Then
@@ -368,6 +386,7 @@ public class MacOsKeychainStoreTest {
         // Given - Invalid JSON syntax
         String credsId = "INVALIDJSON";
         String serviceName = "galasa.credentials." + credsId;
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "JSON", "{invalid json}");
 
         // When/Then
@@ -385,6 +404,7 @@ public class MacOsKeychainStoreTest {
         json.addProperty("password", "pass");
         json.addProperty("type", "JKS");
         String jsonPassword = gson.toJson(json);
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "JSON", jsonPassword);
 
         // When/Then
@@ -402,6 +422,7 @@ public class MacOsKeychainStoreTest {
         json.addProperty("keystore", "abc");
         json.addProperty("type", "JKS");
         String jsonPassword = gson.toJson(json);
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "JSON", jsonPassword);
 
         // When/Then
@@ -419,6 +440,7 @@ public class MacOsKeychainStoreTest {
         json.addProperty("keystore", "abc");
         json.addProperty("password", "pass");
         String jsonPassword = gson.toJson(json);
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "JSON", jsonPassword);
 
         // When/Then
@@ -435,6 +457,7 @@ public class MacOsKeychainStoreTest {
         JsonObject json = new JsonObject();
         json.addProperty("unknown", "field");
         String jsonPassword = gson.toJson(json);
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "JSON", jsonPassword);
 
         // When/Then
@@ -451,6 +474,7 @@ public class MacOsKeychainStoreTest {
         String keystorePassword = "pass";
         String keystoreBase64 = createTestKeyStore("JKS", keystorePassword);
         String jsonPassword = createKeystoreJson(keystoreBase64, keystorePassword, "JKS");
+        mockCommandExecutor.setServiceName(serviceName);
         mockCommandExecutor.addPassword(serviceName, "JSON", jsonPassword);
 
         // When

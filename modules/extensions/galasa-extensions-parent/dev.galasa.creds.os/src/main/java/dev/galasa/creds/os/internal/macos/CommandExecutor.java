@@ -9,7 +9,6 @@ import dev.galasa.creds.os.internal.OsCredentialsException;
 
 /**
  * Interface for executing system commands.
- * Allows for testing by providing a mock implementation.
  */
 public interface CommandExecutor {
     
@@ -21,25 +20,4 @@ public interface CommandExecutor {
      * @throws OsCredentialsException if there's an error executing the command
      */
     CommandResult execute(String... command) throws OsCredentialsException;
-    
-    /**
-     * Result of a command execution.
-     */
-    class CommandResult {
-        private final int exitCode;
-        private final String output;
-        
-        public CommandResult(int exitCode, String output) {
-            this.exitCode = exitCode;
-            this.output = output;
-        }
-        
-        public int getExitCode() {
-            return exitCode;
-        }
-        
-        public String getOutput() {
-            return output;
-        }
-    }
 }
