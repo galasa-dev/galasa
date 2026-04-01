@@ -45,15 +45,16 @@ public class KeyStoreJsonParser implements JsonCredentialParser {
             throw new OsCredentialsException(
                 "JSON KeyStore credential missing '" + FIELD_PASSWORD + "' field");
         }
-        if (!json.has(FIELD_TYPE)) {
-            throw new OsCredentialsException(
-                "JSON KeyStore credential missing '" + FIELD_TYPE + "' field");
-        }
         
         // Extract values
         String keystoreContent = json.get(FIELD_KEYSTORE).getAsString();
         String keystorePassword = json.get(FIELD_PASSWORD).getAsString();
-        String keystoreType = json.get(FIELD_TYPE).getAsString();
+
+        // Determine keystore type, defaulting to PKCS12 if a type is not provided
+        String keystoreType = CredentialsKeyStore.KEYSTORE_TYPE_PKCS12;
+        if (json.has(FIELD_TYPE)) {
+            keystoreType = json.get(FIELD_TYPE).getAsString();
+        }
         
         // Create and return KeyStore credentials
         return new CredentialsKeyStore(keystoreContent, keystorePassword, keystoreType);

@@ -432,24 +432,6 @@ public class MacOsKeychainStoreTest {
     }
 
     @Test
-    public void testGetCredentialsJsonMissingTypeField() {
-        // Given - JSON missing type field
-        String credsId = "MISSINGTYPE";
-        String serviceName = "galasa.credentials." + credsId;
-        JsonObject json = new JsonObject();
-        json.addProperty("keystore", "abc");
-        json.addProperty("password", "pass");
-        String jsonPassword = gson.toJson(json);
-        mockCommandExecutor.setServiceName(serviceName);
-        mockCommandExecutor.addPassword(serviceName, "JSON", jsonPassword);
-
-        // When/Then
-        assertThatThrownBy(() -> store.getCredentials(credsId))
-            .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("JSON KeyStore credential missing 'type' field");
-    }
-
-    @Test
     public void testGetCredentialsJsonUnknownStructure() {
         // Given - JSON with unknown structure (no recognized credential type)
         String credsId = "UNKNOWN";
@@ -484,4 +466,34 @@ public class MacOsKeychainStoreTest {
         assertThat(credentials).as("Credentials should be found").isNotNull();
         assertThat(credentials).as("Should be KeyStore type").isInstanceOf(CredentialsKeyStore.class);
     }
+    @Test
+    public void testGetCredentialsJsonKeystoreDefaultsToPKCS12WhenTypeNotProvided() throws Exception {
+        // Given - JSON-based KeyStore credentials without type field
+        String credsId = "DEFAULTTYPE";
+        String serviceName = "galasa.credentials." + credsId;
+        String keystorePassword = "dummy";
+        String keystoreBase64 = createTestKeyStore("PKCS12", keystorePassword);
+        
+        // Create JSON without type field
+        JsonObject json = new JsonObject();
+        json.addProperty("keystore", keystoreBase64);
+        json.addProperty("password", keystorePassword);
+        String jsonPassword = gson.toJson(json);
+        
+        mockCommandExecutor.setServiceName(serviceName);
+        mockCommandExecutor.addPassword(serviceName, "JSON", jsonPassword);
+
+        // When
+        ICredentials credentials = store.getCredentials(credsId);
+
+        // Then
+        assertThat(credentials).as("Credentials should be found").isNotNull();
+        assertThat(credentials).as("Should be KeyStore type").isInstanceOf(CredentialsKeyStore.class);
+        
+        ICredentialsKeyStore creds = (ICredentialsKeyStore) credentials;
+        assertThat(creds.getKeyStorePassword()).as("KeyStore password should match").isEqualTo(keystorePassword);
+        assertThat(creds.getKeyStoreType()).as("KeyStore type should default to PKCS12").isEqualTo("PKCS12");
+        assertThat(creds.getKeyStore()).as("KeyStore should be loadable").isNotNull();
+    }
+
 }
