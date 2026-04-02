@@ -199,6 +199,9 @@ nav:
       - docs/writing-own-tests/key-principles.md
       - docs/writing-own-tests/test-result-provider.md
       - docs/writing-own-tests/running-resource-cleanup-locally.md
+    - Configuring Credentials:
+      - docs/configuring-local-credentials/index.md
+      - docs/configuring-local-credentials/macos-keychain-store.md
     - The Galasa Ecosystem:
       - docs/ecosystem/index.md
       - docs/ecosystem/ecosystem-architecture.md

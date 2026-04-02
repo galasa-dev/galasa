@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.Base64;
+import java.util.List;
 import java.util.Properties;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -27,6 +28,12 @@ import dev.galasa.ICredentialsKeyStore;
  *   JKS - Java KeyStore format (legacy)
  */
 public class CredentialsKeyStore extends AbstractCredentials implements ICredentialsKeyStore {
+
+    public static final String KEYSTORE_TYPE_JKS = "JKS";
+    public static final String KEYSTORE_TYPE_PKCS12 = "PKCS12";
+    public static final List<String> SUPPORTED_KEYSTORE_TYPES = List.of(
+        KEYSTORE_TYPE_PKCS12, KEYSTORE_TYPE_JKS
+    );
     
     private KeyStore keyStore;
     private byte[] keyStoreBytes;
@@ -214,14 +221,14 @@ public class CredentialsKeyStore extends AbstractCredentials implements ICredent
         String validatedType;
         
         if (type == null) {
-            validatedType = "PKCS12";
+            validatedType = KEYSTORE_TYPE_PKCS12;
         } else {
             String upperType = type.toUpperCase();
-            if ("PKCS12".equals(upperType) || "JKS".equals(upperType)) {
+            if (KEYSTORE_TYPE_PKCS12.equals(upperType) || KEYSTORE_TYPE_JKS.equals(upperType)) {
                 validatedType = upperType;
             } else {
                 throw new IllegalArgumentException("Unsupported KeyStore type: " + type +
-                    ". Only PKCS12 and JKS are supported.");
+                    ". Supported types are: " + String.join(", ", SUPPORTED_KEYSTORE_TYPES));
             }
         }
         
