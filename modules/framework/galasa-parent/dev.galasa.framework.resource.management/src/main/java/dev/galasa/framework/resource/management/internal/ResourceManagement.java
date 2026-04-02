@@ -40,6 +40,8 @@ import io.prometheus.client.exporter.HTTPServer;
 @Component(service = { ResourceManagement.class })
 public class ResourceManagement extends AbstractResourceManagement {
 
+    private static final int RESOURCE_MANAGEMENT_RAS_CLEANUP_POLL_INTERVAL_MINUTES = 5;
+
     private Log logger = LogFactory.getLog(this.getClass());
 
     private BundleContext                                bundleContext;
@@ -126,8 +128,7 @@ public class ResourceManagement extends AbstractResourceManagement {
             // *** Start the Run watch thread
             ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, resourceManagementProviders, getScheduledExecutorService());
 
-            RasRunCleanupScheduler rasRunCleanupScheduler = new RasRunCleanupScheduler(framework, getScheduledExecutorService(), new SystemTimeService());
-            getScheduledExecutorService().scheduleWithFixedDelay(rasRunCleanupScheduler, 0, 5, TimeUnit.MINUTES);
+            startRasRunCleanupScheduler();
 
             logger.info("Resource Manager has started");
 
@@ -148,6 +149,16 @@ public class ResourceManagement extends AbstractResourceManagement {
             // Let the ShutDownHook know that the main thread has shut things down via this shared-state boolean.
             shutdownComplete = true;
         }
+    }
+
+    private void startRasRunCleanupScheduler() throws FrameworkException {
+        RasRunCleanupScheduler rasRunCleanupScheduler = new RasRunCleanupScheduler(framework, getScheduledExecutorService(), new SystemTimeService());
+        getScheduledExecutorService().scheduleWithFixedDelay(
+            rasRunCleanupScheduler,
+            0,
+            RESOURCE_MANAGEMENT_RAS_CLEANUP_POLL_INTERVAL_MINUTES,
+            TimeUnit.MINUTES
+        );
     }
 
     private void shutdown(ResourceManagementRunWatch runWatch) {
