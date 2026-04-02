@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.Environment;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -22,9 +23,18 @@ public class RasRunCleanupScheduler implements Runnable {
 
     private final Log logger = LogFactory.getLog(getClass());
 
+    public static final String TEST_RUN_CLEANUP_INTERVAL_HOURS_ENV_VAR = "GALASA_TEST_RUN_CLEANUP_INTERVAL_HOURS";
+    public static final String TEST_RUN_CLEANUP_MAX_AGE_DAYS_ENV_VAR = "GALASA_TEST_RUN_CLEANUP_MAX_AGE_DAYS";
+
     private static final String CPS_NAMESPACE = "framework";
     private static final String TEST_RUN_CLEANUP_CPS_PREFIX = "ras.cleanup";
     private static final String TEST_RUN_CLEANUP_INTERVAL_HOURS_CPS_PROPERTY = "test.run.interval.hours";
+
+    private static final long DEFAULT_RUN_CLEANUP_INTERVAL_HOURS = 24;
+    private static final int DEFAULT_RUN_CLEANUP_MAX_AGE_DAYS = 30;
+
+    private long initialRunCleanupIntervalHours;
+    private int initialRunCleanupMaxAgeDays;
 
     private IConfigurationPropertyStoreService cpsService;
     private ScheduledExecutorService scheduledExecutorService;
@@ -36,12 +46,19 @@ public class RasRunCleanupScheduler implements Runnable {
     public RasRunCleanupScheduler(
         IFramework framework,
         ScheduledExecutorService scheduledExecutorService,
-        ITimeService timeService
+        ITimeService timeService,
+        Environment env
     ) throws FrameworkException {
         this.cpsService = framework.getConfigurationPropertyService(CPS_NAMESPACE);
         this.scheduledExecutorService = scheduledExecutorService;
 
-        rasRunCleanup = new RasRunCleanup(cpsService, framework.getResultArchiveStore(), timeService);
+        String testRunCleanupIntervalHoursStr = env.getenv(TEST_RUN_CLEANUP_INTERVAL_HOURS_ENV_VAR);
+        String testRunCleanupMaxAgeDaysStr = env.getenv(TEST_RUN_CLEANUP_MAX_AGE_DAYS_ENV_VAR);
+
+        this.initialRunCleanupIntervalHours = parseLong(testRunCleanupIntervalHoursStr, DEFAULT_RUN_CLEANUP_INTERVAL_HOURS, TEST_RUN_CLEANUP_INTERVAL_HOURS_ENV_VAR);
+        this.initialRunCleanupMaxAgeDays = parseInt(testRunCleanupMaxAgeDaysStr, DEFAULT_RUN_CLEANUP_MAX_AGE_DAYS, TEST_RUN_CLEANUP_MAX_AGE_DAYS_ENV_VAR);
+
+        rasRunCleanup = new RasRunCleanup(cpsService, framework.getResultArchiveStore(), timeService, initialRunCleanupMaxAgeDays);
     }
 
     @Override
@@ -70,17 +87,32 @@ public class RasRunCleanupScheduler implements Runnable {
     }
 
     private long getRunCleanupIntervalHours() throws ConfigurationPropertyStoreException {
-        long runCleanupIntervalHours = 0;
-        try {
-            String runCleanupIntervalHoursStr = cpsService.getProperty(TEST_RUN_CLEANUP_CPS_PREFIX, TEST_RUN_CLEANUP_INTERVAL_HOURS_CPS_PROPERTY);
-            if (runCleanupIntervalHoursStr != null) {
-                runCleanupIntervalHours = Long.parseLong(runCleanupIntervalHoursStr);
-            }
-
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid CPS property value provided. A numeric value is expected for '" + TEST_RUN_CLEANUP_INTERVAL_HOURS_CPS_PROPERTY + "'.");
+        long runCleanupIntervalHours = initialRunCleanupIntervalHours;
+        String runCleanupIntervalHoursStr = cpsService.getProperty(TEST_RUN_CLEANUP_CPS_PREFIX, TEST_RUN_CLEANUP_INTERVAL_HOURS_CPS_PROPERTY);
+        if (runCleanupIntervalHoursStr != null) {
+            runCleanupIntervalHours = parseLong(runCleanupIntervalHoursStr, runCleanupIntervalHours, TEST_RUN_CLEANUP_INTERVAL_HOURS_CPS_PROPERTY);
         }
+
         return runCleanupIntervalHours;
     }
-    
+
+    private long parseLong(String valueToParse, long defaultValue, String identifier) {
+        long valueToReturn = defaultValue;
+        try {
+            valueToReturn = Long.parseLong(valueToParse);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid value provided. A numeric value is expected for '" + identifier + "'.");
+        }
+        return valueToReturn;
+    }
+
+    private int parseInt(String valueToParse, int defaultValue, String identifier) {
+        int valueToReturn = defaultValue;
+        try {
+            valueToReturn = Integer.parseInt(valueToParse);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid value provided. A numeric value is expected for '" + identifier + "'.");
+        }
+        return valueToReturn;
+    }
 }

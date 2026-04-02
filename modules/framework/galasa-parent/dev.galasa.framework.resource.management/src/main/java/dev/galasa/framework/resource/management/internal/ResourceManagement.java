@@ -30,6 +30,7 @@ import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
+import dev.galasa.framework.spi.SystemEnvironment;
 import dev.galasa.framework.spi.utils.SystemTimeService;
 import io.prometheus.client.Counter;
 import io.prometheus.client.exporter.HTTPServer;
@@ -152,7 +153,13 @@ public class ResourceManagement extends AbstractResourceManagement {
     }
 
     private void startRasRunCleanupScheduler() throws FrameworkException {
-        RasRunCleanupScheduler rasRunCleanupScheduler = new RasRunCleanupScheduler(framework, getScheduledExecutorService(), new SystemTimeService());
+        RasRunCleanupScheduler rasRunCleanupScheduler = new RasRunCleanupScheduler(
+            framework,
+            getScheduledExecutorService(),
+            new SystemTimeService(),
+            new SystemEnvironment()
+        );
+
         getScheduledExecutorService().scheduleWithFixedDelay(
             rasRunCleanupScheduler,
             0,

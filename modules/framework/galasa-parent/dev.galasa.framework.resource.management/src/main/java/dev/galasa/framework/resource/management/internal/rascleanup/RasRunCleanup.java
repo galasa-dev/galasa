@@ -33,6 +33,8 @@ public class RasRunCleanup implements Runnable {
     private static final String TEST_RUN_CLEANUP_CPS_PREFIX = "ras.cleanup";
     private static final String TEST_RUN_MAX_DAYS_CPS_PROPERTY = "test.run.age.max.days";
     private static final String TEST_RUN_EXCLUDE_PREFIX = "test.run.exclude.";
+    
+    private final int initialRunCleanupMaxAgeDays;
 
     private IResultArchiveStore rasService;
     private IConfigurationPropertyStoreService cpsService;
@@ -41,11 +43,13 @@ public class RasRunCleanup implements Runnable {
     public RasRunCleanup(
         IConfigurationPropertyStoreService cpsService,
         IResultArchiveStore rasService,
-        ITimeService timeService
+        ITimeService timeService,
+        int initialRunCleanupMaxAgeDays
     ) throws FrameworkException {
         this.rasService = rasService;
         this.cpsService = cpsService;
         this.timeService = timeService;
+        this.initialRunCleanupMaxAgeDays = initialRunCleanupMaxAgeDays;
     }
 
     @Override
@@ -123,7 +127,7 @@ public class RasRunCleanup implements Runnable {
     private List<IRasSearchCriteria> buildSearchCriteria() throws ConfigurationPropertyStoreException {
         List<IRasSearchCriteria> criteria = new ArrayList<>();
 
-        int runMaxAgeDays = -1;
+        int runMaxAgeDays = initialRunCleanupMaxAgeDays;
         try {
             String runMaxAgeStr = cpsService.getProperty(TEST_RUN_CLEANUP_CPS_PREFIX, TEST_RUN_MAX_DAYS_CPS_PROPERTY);
             if (runMaxAgeStr != null) {

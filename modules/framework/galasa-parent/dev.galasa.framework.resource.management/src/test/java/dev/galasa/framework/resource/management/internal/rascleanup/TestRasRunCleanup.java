@@ -35,9 +35,10 @@ public class TestRasRunCleanup {
         MockCPSStore cps = createMockCPSStore(new HashMap<>());
         MockIResultArchiveStore ras = new MockIResultArchiveStore();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        int initialRunCleanupMaxAgeDays = 10;
 
         // When...
-        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService);
+        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService, initialRunCleanupMaxAgeDays);
 
         // Then...
         assertThat(cleanup).isNotNull();
@@ -54,10 +55,11 @@ public class TestRasRunCleanup {
         MockResultArchiveStoreDirectoryService directoryService = new MockResultArchiveStoreDirectoryService(runs);
         MockIResultArchiveStore ras = new MockIResultArchiveStore();
         ras.addDirectoryService(directoryService);
+        int initialRunCleanupMaxAgeDays = 0;
         
         MockTimeService timeService = new MockTimeService(Instant.now());
 
-        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService);
+        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService, initialRunCleanupMaxAgeDays);
 
         // When...
         cleanup.run();
@@ -74,6 +76,7 @@ public class TestRasRunCleanup {
         // Given...
         Instant now = Instant.now();
         int maxAgeDays = 30;
+        int initialRunCleanupMaxAgeDays = 10;
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
@@ -92,7 +95,7 @@ public class TestRasRunCleanup {
         
         MockTimeService timeService = new MockTimeService(now);
 
-        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService);
+        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService, initialRunCleanupMaxAgeDays);
 
         // When...
         cleanup.run();
@@ -114,6 +117,7 @@ public class TestRasRunCleanup {
         // Given...
         Instant now = Instant.now();
         int maxAgeDays = 30;
+        int initialRunCleanupMaxAgeDays = 10;
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
@@ -133,7 +137,7 @@ public class TestRasRunCleanup {
         
         MockTimeService timeService = new MockTimeService(now);
 
-        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService);
+        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService, initialRunCleanupMaxAgeDays);
 
         // When...
         cleanup.run();
@@ -155,6 +159,7 @@ public class TestRasRunCleanup {
         // Given...
         Instant now = Instant.now();
         int maxAgeDays = 30;
+        int initialRunCleanupMaxAgeDays = 10;
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
@@ -174,7 +179,7 @@ public class TestRasRunCleanup {
         
         MockTimeService timeService = new MockTimeService(now);
 
-        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService);
+        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService, initialRunCleanupMaxAgeDays);
 
         // When...
         cleanup.run();
@@ -196,6 +201,7 @@ public class TestRasRunCleanup {
         // Given...
         Instant now = Instant.now();
         int maxAgeDays = 30;
+        int initialRunCleanupMaxAgeDays = 10;
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
@@ -213,7 +219,7 @@ public class TestRasRunCleanup {
         
         MockTimeService timeService = new MockTimeService(now);
 
-        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService);
+        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService, initialRunCleanupMaxAgeDays);
 
         // When...
         cleanup.run();
@@ -231,6 +237,7 @@ public class TestRasRunCleanup {
         // Given...
         Instant now = Instant.now();
         int maxAgeDays = 30;
+        int initialRunCleanupMaxAgeDays = 10;
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
@@ -250,7 +257,7 @@ public class TestRasRunCleanup {
         
         MockTimeService timeService = new MockTimeService(now);
 
-        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService);
+        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService, initialRunCleanupMaxAgeDays);
 
         // When...
         cleanup.run();
@@ -266,8 +273,10 @@ public class TestRasRunCleanup {
     }
 
     @Test
-    public void testRunWithInvalidMaxAgeDaysProperty() throws Exception {
+    public void testRunWithInvalidMaxAgeDaysPropertyShouldUseDefault() throws Exception {
         // Given...
+        int initialRunCleanupMaxAgeDays = 30;
+
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", "invalid");
         MockCPSStore cps = createMockCPSStore(cpsProperties);
@@ -279,16 +288,15 @@ public class TestRasRunCleanup {
         
         MockTimeService timeService = new MockTimeService(Instant.now());
 
-        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService);
+        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService, initialRunCleanupMaxAgeDays);
 
         // When...
         cleanup.run();
 
         // Then...
-        // Should not throw exception, just log warning and not clean up runs
         for (IRunResult run : runs) {
             MockRunResult mockRun = (MockRunResult) run;
-            assertThat(mockRun.isDiscarded()).as("Run should not be discarded with invalid max age").isFalse();
+            assertThat(mockRun.isDiscarded()).as("Run should be discarded using the initial max age").isTrue();
         }
     }
 
@@ -297,6 +305,7 @@ public class TestRasRunCleanup {
         // Given...
         Instant now = Instant.now();
         int maxAgeDays = 30;
+        int initialRunCleanupMaxAgeDays = 10;
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
@@ -314,7 +323,7 @@ public class TestRasRunCleanup {
         
         MockTimeService timeService = new MockTimeService(now);
 
-        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService);
+        RasRunCleanup cleanup = new RasRunCleanup(cps, ras, timeService, initialRunCleanupMaxAgeDays);
 
         // When...
         cleanup.run();

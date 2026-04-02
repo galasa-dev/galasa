@@ -14,6 +14,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import dev.galasa.framework.mocks.MockCPSStore;
+import dev.galasa.framework.mocks.MockEnvironment;
 import dev.galasa.framework.mocks.MockFramework;
 import dev.galasa.framework.mocks.MockRASStoreService;
 import dev.galasa.framework.mocks.MockTimeService;
@@ -29,42 +30,27 @@ public class TestRasRunCleanupScheduler {
         MockFramework framework = createMockFramework(new HashMap<>());
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
 
         // When...
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // Then...
         assertThat(scheduler).as("Scheduler should be instantiated").isNotNull();
     }
 
     @Test
-    public void testRunWithNoIntervalDoesNotScheduleTask() throws Exception {
+    public void testRunWithZeroIntervalDoesNotScheduleTask() throws Exception {
         // Given...
         Map<String, String> cpsProperties = new HashMap<>();
         // No interval property set
         MockFramework framework = createMockFramework(cpsProperties);
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(RasRunCleanupScheduler.TEST_RUN_CLEANUP_INTERVAL_HOURS_ENV_VAR, "0");
 
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
-
-        // When...
-        scheduler.run();
-
-        // Then...
-        assertThat(executorService.scheduleWithFixedDelayCallCount).as("Task should not be scheduled when interval is not set").isEqualTo(0);
-    }
-
-    @Test
-    public void testRunWithZeroIntervalDoesNotScheduleTask() throws Exception {
-        // Given...
-        Map<String, String> cpsProperties = new HashMap<>();
-        cpsProperties.put("ras.cleanup.test.run.interval.hours", "0");
-        MockFramework framework = createMockFramework(cpsProperties);
-        MockScheduledExecutorService executorService = new MockScheduledExecutorService();
-        MockTimeService timeService = new MockTimeService(Instant.now());
-
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // When...
         scheduler.run();
@@ -81,8 +67,9 @@ public class TestRasRunCleanupScheduler {
         MockFramework framework = createMockFramework(cpsProperties);
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
 
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // When...
         scheduler.run();
@@ -99,8 +86,9 @@ public class TestRasRunCleanupScheduler {
         MockFramework framework = createMockFramework(cpsProperties);
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
 
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // When...
         scheduler.run();
@@ -118,8 +106,9 @@ public class TestRasRunCleanupScheduler {
         MockFramework framework = createMockFramework(cpsProperties);
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
 
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // When...
         scheduler.run();
@@ -138,8 +127,9 @@ public class TestRasRunCleanupScheduler {
 
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
 
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // When...
         scheduler.run();
@@ -158,21 +148,24 @@ public class TestRasRunCleanupScheduler {
     }
 
     @Test
-    public void testRunWithInvalidIntervalDoesNotScheduleTask() throws Exception {
+    public void testRunWithInvalidIntervalInCpsUsesDefault() throws Exception {
         // Given...
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.interval.hours", "not-a-number");
         MockFramework framework = createMockFramework(cpsProperties);
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
+        env.setenv(RasRunCleanupScheduler.TEST_RUN_CLEANUP_INTERVAL_HOURS_ENV_VAR, "10");
 
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // When...
         scheduler.run();
 
         // Then...
-        assertThat(executorService.scheduleWithFixedDelayCallCount).as("Task should not be scheduled when interval is invalid").isEqualTo(0);
+        assertThat(executorService.scheduleWithFixedDelayCallCount).as("Task should have been scheduled").isEqualTo(1);
+        assertThat(executorService.lastDelay).as("Task should be scheduled using the default interval").isEqualTo(10);
     }
 
     @Test
@@ -184,8 +177,9 @@ public class TestRasRunCleanupScheduler {
 
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
 
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // When...
         scheduler.run();
@@ -214,8 +208,9 @@ public class TestRasRunCleanupScheduler {
 
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
 
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // When...
         scheduler.run();
@@ -236,8 +231,9 @@ public class TestRasRunCleanupScheduler {
 
         MockScheduledExecutorService executorService = new MockScheduledExecutorService();
         MockTimeService timeService = new MockTimeService(Instant.now());
+        MockEnvironment env = new MockEnvironment();
 
-        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService);
+        RasRunCleanupScheduler scheduler = new RasRunCleanupScheduler(framework, executorService, timeService, env);
 
         // When...
         scheduler.run();
