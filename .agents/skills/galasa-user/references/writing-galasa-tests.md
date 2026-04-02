@@ -72,7 +72,13 @@ Where:
 
 **IMPORTANT**: Every manager has its own set of supported CPS property. **DO NOT** assume that managers share the same CPS properties. The supported CPS properties for each manager can be found in the managers' documentation pages https://raw.githubusercontent.com/galasa-dev/galasa/refs/heads/main/docs/content/docs/managers/index.md. Example: the z/OS manager's supported CPS properties can be found at https://raw.githubusercontent.com/galasa-dev/galasa/refs/heads/main/docs/content/docs/managers/zos-managers/zos-manager.md
 
-Galasa tests often also need to supply credentials to connect to protected systems. Credentials can be configured into the Credentials Store file found at `~/.galasa/credentials.properties` by default.
+### Configuring Credentials
+
+Galasa tests often need to supply credentials to connect to protected systems. There are two ways to configure credentials:
+
+#### Option 1: Plaintext Credentials File (Default)
+
+Credentials can be configured into the Credentials Store file found at `~/.galasa/credentials.properties` by default.
 
 Credentials properties are key-value pairs in the form:
 ```properties
@@ -95,3 +101,46 @@ Then, the CPS properties can use the credentials like this:
 ```properties
 zos.image.MYZOSSYSTEM.credentials=SYSTEM1
 ```
+
+#### Option 2: macOS Keychain Store (macOS only, more secure)
+
+**If you are on macOS**, you can use the macOS Keychain to store credentials securely instead of storing them in plaintext in `credentials.properties`.
+
+**Benefits:**
+- Credentials are encrypted by macOS
+- No plaintext passwords in configuration files
+- Leverages macOS security features
+
+**Setup:**
+
+1. Enable the OS Credentials Store by adding this to `~/.galasa/bootstrap.properties`:
+   ```properties
+   framework.credentials.store=os:auto
+   framework.extra.bundles=dev.galasa.creds.os
+   ```
+
+2. Add credentials to the macOS Keychain using the `security` command or Keychain Access.app. **ALWAYS** ask the user if they would like you to do this for them:
+   ```bash
+   # Example: Add username + password credentials
+   security add-generic-password \
+     -s "galasa.credentials.SYSTEM1" \
+     -a "MYUSER" \
+     -w "PASSW0RD" \
+     -U
+   ```
+
+3. Reference credentials in CPS properties the same way:
+   ```properties
+   zos.image.MYZOSSYSTEM.credentials=SYSTEM1
+   ```
+
+**Supported credential types:**
+- Username + Password
+- Username only
+- Token only
+- Username + Token
+- KeyStore (for SSL/TLS certificates)
+
+**Note:** The first time Galasa accesses a credential, macOS will prompt you to allow access.
+
+For complete documentation on using the macOS Keychain store, including all credential types and troubleshooting, see: https://raw.githubusercontent.com/galasa-dev/galasa/refs/heads/main/docs/content/docs/configuring-local-credentials/macos-keychain-store.md
