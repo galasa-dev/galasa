@@ -18,6 +18,10 @@ import java.util.concurrent.TimeoutException;
 public class MockScheduledExecutorService implements ScheduledExecutorService {
 
     private boolean isShutdown = false;
+    
+    public int scheduleWithFixedDelayCallCount = 0;
+    public long lastDelay;
+    public MockScheduledFuture lastScheduledFuture;
 
     @Override
     public void shutdown() {
@@ -103,6 +107,9 @@ public class MockScheduledExecutorService implements ScheduledExecutorService {
 
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        return null;
+        scheduleWithFixedDelayCallCount++;
+        lastDelay = delay;
+        lastScheduledFuture = new MockScheduledFuture();
+        return lastScheduledFuture;
     }
 }

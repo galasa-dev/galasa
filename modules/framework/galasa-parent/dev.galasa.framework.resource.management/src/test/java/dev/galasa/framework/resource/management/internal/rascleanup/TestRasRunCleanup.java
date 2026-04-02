@@ -24,6 +24,7 @@ import dev.galasa.framework.mocks.MockResultArchiveStoreDirectoryService;
 import dev.galasa.framework.mocks.MockRunResult;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.spi.IRunResult;
+import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class TestRasRunCleanup {
@@ -80,10 +81,10 @@ public class TestRasRunCleanup {
         
         // Create runs: 2 old (should be cleaned), 2 recent (should not be cleaned)
         List<IRunResult> runs = new ArrayList<>();
-        runs.add(createMockRun("run1", now.minus(40, ChronoUnit.DAYS))); // Old
-        runs.add(createMockRun("run2", now.minus(35, ChronoUnit.DAYS))); // Old
-        runs.add(createMockRun("run3", now.minus(20, ChronoUnit.DAYS))); // Recent
-        runs.add(createMockRun("run4", now.minus(10, ChronoUnit.DAYS))); // Recent
+        runs.add(createMockRun("run1", now.minus(40, ChronoUnit.DAYS)));
+        runs.add(createMockRun("run2", now.minus(35, ChronoUnit.DAYS)));
+        runs.add(createMockRun("run3", now.minus(20, ChronoUnit.DAYS)));
+        runs.add(createMockRun("run4", now.minus(10, ChronoUnit.DAYS)));
         
         MockResultArchiveStoreDirectoryService directoryService = new MockResultArchiveStoreDirectoryService(runs);
         MockIResultArchiveStore ras = new MockIResultArchiveStore();
@@ -121,10 +122,10 @@ public class TestRasRunCleanup {
         
         // Create old runs with different tags
         List<IRunResult> runs = new ArrayList<>();
-        runs.add(createMockRunWithTags("run1", now.minus(40, ChronoUnit.DAYS), "production")); // Excluded
-        runs.add(createMockRunWithTags("run2", now.minus(35, ChronoUnit.DAYS), "critical")); // Excluded
-        runs.add(createMockRunWithTags("run3", now.minus(40, ChronoUnit.DAYS), "test")); // Should be cleaned
-        runs.add(createMockRunWithTags("run4", now.minus(35, ChronoUnit.DAYS), "dev")); // Should be cleaned
+        runs.add(createMockRunWithTags("run1", now.minus(40, ChronoUnit.DAYS), "production"));
+        runs.add(createMockRunWithTags("run2", now.minus(35, ChronoUnit.DAYS), "critical"));
+        runs.add(createMockRunWithTags("run3", now.minus(40, ChronoUnit.DAYS), "test"));
+        runs.add(createMockRunWithTags("run4", now.minus(35, ChronoUnit.DAYS), "dev"));
         
         MockResultArchiveStoreDirectoryService directoryService = new MockResultArchiveStoreDirectoryService(runs);
         MockIResultArchiveStore ras = new MockIResultArchiveStore();
@@ -162,10 +163,10 @@ public class TestRasRunCleanup {
         
         // Create old runs with different users
         List<IRunResult> runs = new ArrayList<>();
-        runs.add(createMockRunWithUser("run1", now.minus(40, ChronoUnit.DAYS), "admin")); // Excluded
-        runs.add(createMockRunWithUser("run2", now.minus(35, ChronoUnit.DAYS), "system")); // Excluded
-        runs.add(createMockRunWithUser("run3", now.minus(40, ChronoUnit.DAYS), "developer")); // Should be cleaned
-        runs.add(createMockRunWithUser("run4", now.minus(35, ChronoUnit.DAYS), "tester")); // Should be cleaned
+        runs.add(createMockRunWithUser("run1", now.minus(40, ChronoUnit.DAYS), "admin"));
+        runs.add(createMockRunWithUser("run2", now.minus(35, ChronoUnit.DAYS), "system"));
+        runs.add(createMockRunWithUser("run3", now.minus(40, ChronoUnit.DAYS), "developer"));
+        runs.add(createMockRunWithUser("run4", now.minus(35, ChronoUnit.DAYS), "tester"));
         
         MockResultArchiveStoreDirectoryService directoryService = new MockResultArchiveStoreDirectoryService(runs);
         MockIResultArchiveStore ras = new MockIResultArchiveStore();
@@ -191,20 +192,20 @@ public class TestRasRunCleanup {
     }
 
     @Test
-    public void testRunExcludesRunsWithMatchingBundle() throws Exception {
+    public void testRunExcludesRunsWithMatchingResult() throws Exception {
         // Given...
         Instant now = Instant.now();
         int maxAgeDays = 30;
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
-        cpsProperties.put("test.run.exclude.bundle", "dev.galasa.important.tests");
+        cpsProperties.put("test.run.exclude.result", Result.HUNG);
         MockCPSStore cps = createMockCPSStore(cpsProperties);
         
-        // Create old runs with different bundles
+        // Create old runs with different results
         List<IRunResult> runs = new ArrayList<>();
-        runs.add(createMockRunWithBundle("run1", now.minus(40, ChronoUnit.DAYS), "dev.galasa.important.tests")); // Excluded
-        runs.add(createMockRunWithBundle("run2", now.minus(35, ChronoUnit.DAYS), "dev.galasa.other.tests")); // Should be cleaned
+        runs.add(createMockRunWithResult("run1", now.minus(40, ChronoUnit.DAYS), Result.HUNG));
+        runs.add(createMockRunWithResult("run2", now.minus(35, ChronoUnit.DAYS), "another result"));
         
         MockResultArchiveStoreDirectoryService directoryService = new MockResultArchiveStoreDirectoryService(runs);
         MockIResultArchiveStore ras = new MockIResultArchiveStore();
@@ -221,8 +222,8 @@ public class TestRasRunCleanup {
         MockRunResult run1 = (MockRunResult) runs.get(0);
         MockRunResult run2 = (MockRunResult) runs.get(1);
         
-        assertThat(run1.isDiscarded()).as("Run from important bundle should be excluded from cleanup").isFalse();
-        assertThat(run2.isDiscarded()).as("Run from other bundle should be cleaned up").isTrue();
+        assertThat(run1.isDiscarded()).as("Run from important result should be excluded from cleanup").isFalse();
+        assertThat(run2.isDiscarded()).as("Run from other result should be cleaned up").isTrue();
     }
 
     @Test
@@ -239,9 +240,9 @@ public class TestRasRunCleanup {
         
         // Create old runs
         List<IRunResult> runs = new ArrayList<>();
-        runs.add(createMockRunWithTagsAndUser("run1", now.minus(40, ChronoUnit.DAYS), "production", "developer")); // Excluded by tag
-        runs.add(createMockRunWithTagsAndUser("run2", now.minus(35, ChronoUnit.DAYS), "test", "admin")); // Excluded by user
-        runs.add(createMockRunWithTagsAndUser("run3", now.minus(40, ChronoUnit.DAYS), "test", "developer")); // Should be cleaned
+        runs.add(createMockRunWithTagsAndUser("run1", now.minus(40, ChronoUnit.DAYS), "production", "developer"));
+        runs.add(createMockRunWithTagsAndUser("run2", now.minus(35, ChronoUnit.DAYS), "test", "admin"));
+        runs.add(createMockRunWithTagsAndUser("run3", now.minus(40, ChronoUnit.DAYS), "test", "developer"));
         
         MockResultArchiveStoreDirectoryService directoryService = new MockResultArchiveStoreDirectoryService(runs);
         MockIResultArchiveStore ras = new MockIResultArchiveStore();
@@ -299,13 +300,13 @@ public class TestRasRunCleanup {
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
-        cpsProperties.put("test.run.exclude.tags", " production , critical "); // With whitespace
+        cpsProperties.put("test.run.exclude.tags", " production , critical ");
         MockCPSStore cps = createMockCPSStore(cpsProperties);
         
         // Create old runs
         List<IRunResult> runs = new ArrayList<>();
-        runs.add(createMockRunWithTags("run1", now.minus(40, ChronoUnit.DAYS), "production")); // Should be excluded
-        runs.add(createMockRunWithTags("run2", now.minus(35, ChronoUnit.DAYS), "critical")); // Should be excluded
+        runs.add(createMockRunWithTags("run1", now.minus(40, ChronoUnit.DAYS), "production"));
+        runs.add(createMockRunWithTags("run2", now.minus(35, ChronoUnit.DAYS), "critical"));
         
         MockResultArchiveStoreDirectoryService directoryService = new MockResultArchiveStoreDirectoryService(runs);
         MockIResultArchiveStore ras = new MockIResultArchiveStore();
@@ -364,19 +365,19 @@ public class TestRasRunCleanup {
         return createMockRun(runId, startTime, null, user);
     }
 
-    private IRunResult createMockRunWithBundle(String runId, Instant startTime, String bundle) {
-        return createMockRun(runId, startTime, bundle, null);
+    private IRunResult createMockRunWithResult(String runId, Instant startTime, String result) {
+        return createMockRun(runId, startTime, result, null);
     }
 
     private IRunResult createMockRunWithTagsAndUser(String runId, Instant startTime, String tag, String user) {
         return createMockRun(runId, startTime, null, user, tag);
     }
 
-    private IRunResult createMockRun(String runId, Instant startTime, String bundle, String user, String... tags) {
+    private IRunResult createMockRun(String runId, Instant startTime, String result, String user, String... tags) {
         TestStructure testStructure = new TestStructure();
         testStructure.setRunName(runId);
         testStructure.setStartTime(startTime);
-        testStructure.setBundle(bundle != null ? bundle : "dev.galasa.test");
+        testStructure.setResult(result);
         testStructure.setTestName("TestClass");
         
         if (user != null) {

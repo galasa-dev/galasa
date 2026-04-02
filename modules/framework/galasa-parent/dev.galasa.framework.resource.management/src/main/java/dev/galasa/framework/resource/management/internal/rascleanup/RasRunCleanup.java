@@ -79,7 +79,7 @@ public class RasRunCleanup implements Runnable {
 
             // Filter out excluded runs - returns only runs that should still be cleaned up
             runs = filterOutRunsToKeep(runs);
-            logger.info(runs.size() + " runs will be cleaned up after applying exclusions");
+            logger.info(runs.size() + " runs will be deleted from the RAS");
         }
         return runs;
     }

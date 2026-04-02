@@ -7,15 +7,19 @@ package dev.galasa.framework.resource.management.internal.rascleanup;
 
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
-import dev.galasa.framework.spi.ras.RasSearchCriteriaBundle;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaGroup;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTags;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaUser;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public enum ExcludeCriteria {
+    GROUP("group"),
+    REQUESTOR("requestor"),
+    RESULT("result"),
     TAGS("tags"),
-    USER("user"),
-    BUNDLE("bundle");
+    USER("user");
 
     private String criteriaName;
 
@@ -34,10 +38,14 @@ public enum ExcludeCriteria {
         switch (this) {
             case TAGS:
                 return new RasSearchCriteriaTags(values);
+            case RESULT:
+                return new RasSearchCriteriaResult(values);
+            case GROUP:
+                return new RasSearchCriteriaGroup(values);
             case USER:
                 return new RasSearchCriteriaUser(values);
-            case BUNDLE:
-                return new RasSearchCriteriaBundle(values);
+            case REQUESTOR:
+                return new RasSearchCriteriaRequestor(values);
             default:
                 throw new FrameworkException("Unknown criteria type: " + this);
         }
