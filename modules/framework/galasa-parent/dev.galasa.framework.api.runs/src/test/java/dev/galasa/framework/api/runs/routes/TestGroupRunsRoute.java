@@ -8,6 +8,7 @@ package dev.galasa.framework.api.runs.routes;
 import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,8 +39,10 @@ import dev.galasa.framework.api.common.mocks.MockIFrameworkRuns;
 import dev.galasa.framework.api.common.mocks.MockIRun;
 import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
 import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockAuthStoreService;
 import dev.galasa.framework.mocks.MockIResultArchiveStore;
 import dev.galasa.framework.mocks.MockRBACService;
+import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -1061,7 +1064,12 @@ public class TestGroupRunsRoute extends BaseServletTest {
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
         MockIResultArchiveStore mockRasStore = new MockIResultArchiveStore();
 
-        MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
+        MockTimeService timeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
+        mockAuthStoreService.createUser(JWT_USERNAME, "client-name", "");
+        mockAuthStoreService.createUser(NON_ADMIN_JWT_USERNAME, "client-name", "");
+
+        MockFramework mockFramework = new MockFramework(mockFrameworkRuns, mockAuthStoreService);
         mockFramework.setResultArchiveStore(mockRasStore);
         mockFramework.setRBACService(mockRbacService);
 
@@ -1169,8 +1177,12 @@ public class TestGroupRunsRoute extends BaseServletTest {
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
 
-        MockFramework mockFramework = new MockFramework();
-        mockFramework.setRBACService(mockRbacService);
+        MockTimeService timeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
+        mockAuthStoreService.createUser(JWT_USERNAME, "client-name", "");
+        mockAuthStoreService.createUser(NON_ADMIN_JWT_USERNAME, "client-name", "");
+
+        MockFramework mockFramework = new MockFramework(mockAuthStoreService, mockRbacService);
 
 		MockRunsServlet servlet = new MockRunsServlet(mockEnv, mockFramework);
 

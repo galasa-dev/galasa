@@ -144,6 +144,23 @@ public class MockAuthStoreService implements IAuthStoreService {
     }
 
     @Override
+    public IUser getUserByLoginIdCaseInsensitive(String loginId) throws AuthStoreException {
+        // Convert the provided loginId to lowercase for comparison
+        String lowerCaseLoginId = loginId.toLowerCase();
+        
+        // Search for a user with a matching lowercase loginId
+        for (Map.Entry<String, IUser> entry : usersByLoginId.entrySet()) {
+            if (entry.getKey().toLowerCase().equals(lowerCaseLoginId)) {
+                // Return the user with the actual case-accurate loginId
+                return entry.getValue();
+            }
+        }
+        
+        // No matching user found
+        return null;
+    }
+
+    @Override
     public IUser getUser(String userNumber) throws AuthStoreException {
 
         IUser userOut = null;

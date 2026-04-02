@@ -76,6 +76,11 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     }
 
     @Override
+    public IUser getUserByLoginIdCaseInsensitive(String loginId) throws AuthStoreException {
+        return authStore.getUserByLoginIdCaseInsensitive(loginId);
+    }
+
+    @Override
     public IUser getUser(String userNumber) throws AuthStoreException {
         return authStore.getUser(userNumber);
     }
