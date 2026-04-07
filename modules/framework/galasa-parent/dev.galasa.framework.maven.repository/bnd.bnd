@@ -2,4 +2,5 @@
 Bundle-Name: Galasa framework maven repository implementation
 Import-Package: dev.galasa*,org.apache.commons.logging,org.osgi.service.url
 -includeresource: maven-repository-metadata-*.jar; lib:=true,\
-    plexus-utils-*.jar; lib:=true
+    plexus-utils-*.jar; lib:=true,\
+    plexus-xml-*.jar; lib:=true
