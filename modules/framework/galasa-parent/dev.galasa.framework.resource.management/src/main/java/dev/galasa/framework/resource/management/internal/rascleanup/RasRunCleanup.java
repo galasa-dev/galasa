@@ -56,16 +56,23 @@ public class RasRunCleanup implements Runnable {
     public void run() {
         logger.info("Starting scan for runs to clean up from the RAS");
 
+        List<IRunResult> runs = new ArrayList<>();
         try {
-            List<IRunResult> runs = getRunsToCleanUp();
-
-            for (IRunResult run : runs) {
-                logger.trace("Deleting run " + run.getRunId());
-                run.discard();
-                logger.trace("Deleted run " + run.getRunId());
-            }
+            runs = getRunsToCleanUp();
         } catch (Exception e) {
             logger.error("Error while scanning for runs to clean up", e);
+        }
+
+        for (IRunResult run : runs) {
+            String runId = run.getRunId();
+
+            try {
+                logger.trace("Deleting run " + runId);
+                run.discard();
+                logger.trace("Deleted run " + runId);
+            } catch (Exception e) {
+                logger.error("Error while deleting run " + runId, e);
+            }
         }
 
         logger.info("Finished scan for runs to clean up from the RAS");
