@@ -255,6 +255,55 @@ public class TestCouchdbAuthStore {
     }
 
     @Test
+    public void testGetTokensByLoginIdCaseInsensitiveReturnsTokensOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
+
+        ViewRow tokenDoc = new ViewRow();
+        tokenDoc.id = "token1";
+        List<ViewRow> mockDocs = List.of(tokenDoc);
+
+        ViewResponse mockAllDocsResponse = new ViewResponse();
+        mockAllDocsResponse.rows = mockDocs;
+
+        // Token owned by user "JohnDoe" (mixed case stored in document)
+        CouchdbAuthToken mockToken = new CouchdbAuthToken("token1", "dex-client", "test token 1", Instant.now(),
+                new CouchdbUser("JohnDoe", "dex-user-id"));
+        // Another token owned by a different user
+        CouchdbAuthToken mockToken2 = new CouchdbAuthToken("token2", "dex-client", "test token 2", Instant.now(),
+                new CouchdbUser("notJohnDoe", "dex-user-id"));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        // The view query will search for lowercase "johndoe" (converted from "JOHNDOE")
+        interactions.add(new GetAllDocumentsInteraction(
+                "https://my-auth-store/galasa_tokens/_design/docs/_view/loginId-view?key=%22johndoe%22",
+                HttpStatus.SC_OK, mockAllDocsResponse));
+        interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
+                "https://my-auth-store/galasa_tokens/token1",
+                HttpStatus.SC_OK, mockToken));
+        interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
+                "https://my-auth-store/galasa_tokens/token2",
+                HttpStatus.SC_OK, mockToken2));
+
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
+        
+        // When...
+        // Search for tokens with "JOHNDOE" (uppercase) when tokens exist for "JohnDoe" (mixed case)
+        List<IInternalAuthToken> tokens = authStore.getTokensByLoginId("JOHNDOE");
+
+        // Then...
+        // Should find the tokens via case-insensitive CouchDB view lookup
+        assertThat(tokens).hasSize(1);
+        assertThat(tokens.get(0)).usingRecursiveComparison().isEqualTo(mockToken);
+    }
+
+    @Test
     public void testStoreTokenSendsRequestToCreateTokenDocumentOK() throws Exception {
         // Given...
         URI authStoreUri = URI.create("couchdb:https://my-auth-store");
@@ -646,7 +695,7 @@ public class TestCouchdbAuthStore {
 
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         interactions.add(new GetAllDocumentsInteraction(
-                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22notJohndoe%22",
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22notjohndoe%22",
                 HttpStatus.SC_OK, mockAllDocsResponse));
         interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
                 HttpStatus.SC_OK, mockUser));
@@ -663,6 +712,73 @@ public class TestCouchdbAuthStore {
         IUser user = authStore.getUserByLoginId("notJohndoe");
 
         assertThat(user).usingRecursiveComparison().isNotEqualTo(mockUser);
+    }
+
+    @Test
+    public void testGetUserByLoginIdCaseInsensitiveReturnsUserOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
+
+        ViewResponse emptyResponse = new ViewResponse();
+        emptyResponse.rows = List.of();
+
+        ViewRow userDoc1 = new ViewRow();
+        userDoc1.id = "user1";
+        
+        ViewRow userDoc2 = new ViewRow();
+        userDoc2.id = "user2";
+        
+        List<ViewRow> mockDocs = List.of(userDoc1, userDoc2);
+        ViewResponse mockAllDocsResponse = new ViewResponse();
+        mockAllDocsResponse.rows = mockDocs;
+
+        FrontEndClient client = new FrontEndClient();
+
+        client.setClientName("web-ui");
+        client.setLastLogin(Instant.now());
+
+        // User with loginId "JohnDoe" (capital letters)
+        UserDoc mockUser1 = new UserDoc("JohnDoe", List.of(client), "2");
+        UserDoc mockUser2 = new UserDoc("janedoe", List.of(client), "3");
+
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        
+        // Exact match search for "johndoe" returns empty
+        interactions.add(new GetAllDocumentsInteraction(
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22johndoe%22",
+                HttpStatus.SC_OK, emptyResponse));
+        
+        // getAllUsers to perform case-insensitive search
+        interactions.add(new GetAllDocumentsInteraction(
+                "https://my-auth-store/galasa_users/_all_docs",
+                HttpStatus.SC_OK, mockAllDocsResponse));
+        
+        // Get individual user documents
+        interactions.add(new GetDocumentInteraction<UserDoc>(
+                "https://my-auth-store/galasa_users/user1",
+                HttpStatus.SC_OK, mockUser1));
+        interactions.add(new GetDocumentInteraction<UserDoc>(
+                "https://my-auth-store/galasa_users/user2",
+                HttpStatus.SC_OK, mockUser2));
+
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
+        
+        // When...
+        // Search for "johndoe" (lowercase) when user exists as "JohnDoe" (mixed case)
+        IUser user = authStore.getUserByLoginId("johndoe");
+
+        // Then...
+        // Should find the user via case-insensitive fallback
+        assertThat(user).isNotNull();
+        assertThat(user).isInstanceOf(UserImpl.class);
+        assertThat(user.getLoginId()).isEqualTo("JohnDoe");
     }
 
     @Test

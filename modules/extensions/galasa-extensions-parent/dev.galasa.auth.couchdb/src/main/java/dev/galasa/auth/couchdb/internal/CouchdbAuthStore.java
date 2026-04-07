@@ -230,7 +230,7 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
         IUser user = null;
 
         try {
-            // Fetch documents matching the loginId
+            // Fetch documents matching the loginId (case-sensitive)
             userDocument = getAllDocsByLoginId(USERS_DATABASE_NAME, loginId, USERS_DB_VIEW_NAME);
 
             // Since loginIds are unique, there should be only one document.
@@ -248,6 +248,18 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
 
                 // Assign fetchedUser to the user variable
                 user = new UserImpl(fetchedUser);
+            } else {
+                // If exact match fails, do case-insensitive search through all users
+                logger.info("Exact match failed, performing case-insensitive search for loginId: " + loginId);
+                List<IUser> allUsers = getAllUsers();
+                
+                for (IUser potentialMatch : allUsers) {
+                    if (potentialMatch.getLoginId().equalsIgnoreCase(loginId)) {
+                        user = potentialMatch;
+                        logger.info("Found case-insensitive match for loginId: " + loginId);
+                        break;
+                    }
+                }
             }
 
             logger.info("User retrieved from CouchDB OK");
@@ -274,9 +286,11 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
      * /{db}/_design/docs/_view/loginId-view?key={loginId} endpoint and returns the
      * "rows" list in the response,
      * which corresponds to the list of documents within the given database.
+     * The loginId is converted to lowercase to enable case-insensitive matching,
+     * as the CouchDB view indexes loginIds in lowercase.
      *
      * @param dbName  the name of the database to retrieve the documents of
-     * @param loginId the loginId of the user to retrieve the doucemnts of
+     * @param loginId the loginId of the user to retrieve the documents of
      * @return a list of rows corresponding to documents within the database
      * @throws CouchdbException if there was a problem accessing the
      *                          CouchDB store or its response
@@ -284,7 +298,9 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     protected List<ViewRow> getAllDocsByLoginId(String dbName, String loginId, String viewName)
             throws CouchdbException {
 
-        String encodedLoginId = URLEncoder.encode("\"" + loginId + "\"", StandardCharsets.UTF_8);
+        // Convert loginId to lowercase to match the lowercase keys emitted in the CouchDB view
+        String lowercaseLoginId = loginId.toLowerCase();
+        String encodedLoginId = URLEncoder.encode("\"" + lowercaseLoginId + "\"", StandardCharsets.UTF_8);
         String url = storeUri + "/" + dbName + "/_design/docs/_view/" + viewName + "?key=" + encodedLoginId;
 
         HttpGet getDocs = httpRequestFactory.getHttpGetRequest(url);
