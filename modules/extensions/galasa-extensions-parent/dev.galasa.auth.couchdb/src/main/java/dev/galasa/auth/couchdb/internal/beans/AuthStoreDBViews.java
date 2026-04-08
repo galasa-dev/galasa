@@ -10,4 +10,7 @@ import com.google.gson.annotations.SerializedName;
 public class AuthStoreDBViews {
     @SerializedName("loginId-view")
     public AuthStoreDBLoginView loginIdView;
+
+    @SerializedName("loginId-lowercase-view")
+    public AuthStoreDBLoginLowerCaseView loginIdLowerCaseView;
 }
