@@ -148,8 +148,6 @@ public class RasRunCleanup implements Runnable {
         // If a maximum age is set, add queued time criteria
         if (runMaxAgeDays > 0) {
             Instant searchToTime = timeService.now().minus(runMaxAgeDays, ChronoUnit.DAYS);
-
-            // Add 'from' and 'to' time criteria
             criteria.add(new RasSearchCriteriaQueuedTo(searchToTime));
         }
         return criteria;

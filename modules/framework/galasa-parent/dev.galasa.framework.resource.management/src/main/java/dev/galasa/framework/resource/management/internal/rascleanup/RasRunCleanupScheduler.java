@@ -79,11 +79,14 @@ public class RasRunCleanupScheduler implements Runnable {
     }
 
     private void scheduleCleanupTask(long runCleanupIntervalHours) {
+        logger.trace("Scheduling cleanup task with interval (in hours): " + runCleanupIntervalHours);
         if (cleanupTask != null) {
             // Cancel the previous task before scheduling a new one
+            logger.trace("Cancelling previously scheduled cleanup task");
             cleanupTask.cancel(false);
         }
         cleanupTask = scheduledExecutorService.scheduleWithFixedDelay(rasRunCleanup, 0, runCleanupIntervalHours, TimeUnit.HOURS);
+        logger.trace("Scheduled cleanup task with interval (in hours): " + runCleanupIntervalHours);
     }
 
     private long getRunCleanupIntervalHours() throws ConfigurationPropertyStoreException {
