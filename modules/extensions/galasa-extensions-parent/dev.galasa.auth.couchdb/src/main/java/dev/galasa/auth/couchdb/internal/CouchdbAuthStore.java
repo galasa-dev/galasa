@@ -235,7 +235,7 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
             userDocument = getAllDocsByLoginId(USERS_DATABASE_NAME, loginId, USERS_DB_VIEW_NAME);
 
             // Since loginIds are unique, there should be only one document.
-            if (!userDocument.isEmpty()) {
+            if (userDocument != null && !userDocument.isEmpty()) {
                 ViewRow row = userDocument.get(0); // Get the first entry since loginId is unique
 
                 // Fetch the user document from the CouchDB using the ID from the row
@@ -275,7 +275,7 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
             userDocument = getAllDocsByLoginId(USERS_DATABASE_NAME, lowerCaseLoginId, USERS_DB_LOWERCASE_VIEW_NAME);
 
             // Since loginIds are unique (case-insensitive), there should be only one document.
-            if (!userDocument.isEmpty()) {
+            if (userDocument != null && !userDocument.isEmpty()) {
                 ViewRow row = userDocument.get(0); // Get the first entry since loginId is unique
 
                 // Fetch the user document from the CouchDB using the ID from the row
