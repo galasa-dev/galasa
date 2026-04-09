@@ -1,2 +1,5 @@
 -snapshot: ${tstamp}
 Bundle-Name: Galasa MQ Manager IVTs
+Embed-Transitive: true
+Embed-Dependency: *;scope=compile
+-includeresource: javax.jms-api-*.jar; lib:=true
