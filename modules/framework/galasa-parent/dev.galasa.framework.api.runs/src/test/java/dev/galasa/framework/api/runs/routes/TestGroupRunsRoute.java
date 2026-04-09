@@ -8,6 +8,7 @@ package dev.galasa.framework.api.runs.routes;
 import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,8 +39,10 @@ import dev.galasa.framework.api.common.mocks.MockIFrameworkRuns;
 import dev.galasa.framework.api.common.mocks.MockIRun;
 import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
 import dev.galasa.framework.mocks.FilledMockRBACService;
+import dev.galasa.framework.mocks.MockAuthStoreService;
 import dev.galasa.framework.mocks.MockIResultArchiveStore;
 import dev.galasa.framework.mocks.MockRBACService;
+import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.rbac.Action;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -1061,7 +1064,12 @@ public class TestGroupRunsRoute extends BaseServletTest {
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
         MockIResultArchiveStore mockRasStore = new MockIResultArchiveStore();
 
-        MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
+        MockTimeService timeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
+        mockAuthStoreService.createUser(JWT_USERNAME, "client-name", "");
+        mockAuthStoreService.createUser(NON_ADMIN_JWT_USERNAME, "client-name", "");
+
+        MockFramework mockFramework = new MockFramework(mockFrameworkRuns, mockAuthStoreService);
         mockFramework.setResultArchiveStore(mockRasStore);
         mockFramework.setRBACService(mockRbacService);
 
@@ -1169,8 +1177,12 @@ public class TestGroupRunsRoute extends BaseServletTest {
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
 
-        MockFramework mockFramework = new MockFramework();
-        mockFramework.setRBACService(mockRbacService);
+        MockTimeService timeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
+        mockAuthStoreService.createUser(JWT_USERNAME, "client-name", "");
+        mockAuthStoreService.createUser(NON_ADMIN_JWT_USERNAME, "client-name", "");
+
+        MockFramework mockFramework = new MockFramework(mockAuthStoreService, mockRbacService);
 
 		MockRunsServlet servlet = new MockRunsServlet(mockEnv, mockFramework);
 
@@ -1186,6 +1198,142 @@ public class TestGroupRunsRoute extends BaseServletTest {
         assertThat(resp.getStatus()).isEqualTo(403);
         assertThat(resp.getContentType()).isEqualTo(MimeType.APPLICATION_JSON.toString());
         checkErrorStructure(outStream.toString(), 5125, "GAL5125E", "TEST_RUN_LAUNCH");
+    }
+
+    @Test
+    public void testPostRunsWithValidBodyAdminRequestorCanSetUserWithDifferentCasingOK() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String testName1 = "package.class";
+        String class1 = "bundle/" + testName1;
+        String[] classes = new String[]{class1};
+        String submissionId = "submission1";
+        Set<String> tags = new HashSet<>();
+        List<IRun> runs = new ArrayList<IRun>();
+
+        // The user in the auth store is "joeTester"
+        MockIRun run = new MockIRun("runname", "requestorType", JWT_USERNAME, NON_ADMIN_JWT_USERNAME, class1, "submitted", class1.split("/")[0], testName1, groupName, submissionId, tags);
+        runs.add(run);
+        
+        // We will submit with "JOETESTER" to test case-insensitive lookup
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "JOETESTER", "this.test.stream", groupName, null, submissionId, tags);
+
+        // Set up permissions - 
+        // The JWT_USERNAME has all actions including TEST_RUN_SET_USER.
+        // The NON_ADMIN_JWT_USERNAME has GENERAL_API_ACCESS and TEST_RUN_LAUNCH.
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), TEST_RUN_LAUNCH.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithAdminAndTestUser(JWT_USERNAME, NON_ADMIN_JWT_USERNAME, permittedActions);
+
+        MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
+        MockIResultArchiveStore mockRasStore = new MockIResultArchiveStore();
+
+        MockTimeService timeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
+        mockAuthStoreService.createUser(JWT_USERNAME, "client-name", "");
+        // Create user with mixed case
+        mockAuthStoreService.createUser(NON_ADMIN_JWT_USERNAME, "client-name", "");
+
+        MockFramework mockFramework = new MockFramework(mockFrameworkRuns, mockAuthStoreService);
+        mockFramework.setResultArchiveStore(mockRasStore);
+        mockFramework.setRBACService(mockRbacService);
+
+		MockRunsServlet servlet = new MockRunsServlet(mockEnv, mockFramework);
+
+		HttpServletRequest req = new MockHttpServletRequest("/"+groupName, payload, HttpMethod.POST.toString(), REQUIRED_HEADERS);
+		HttpServletResponse resp = new MockHttpServletResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        // Should succeed and use the case-accurate loginId from the auth store
+        String expectedJson = generateExpectedJson(runs, false);
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+
+        List<TestStructure> testStructureHistory = mockRasStore.getTestStructureHistory();
+        assertThat(testStructureHistory).hasSize(1);
+
+        TestStructure testStructure = testStructureHistory.get(0);
+        assertThat(testStructure.getRequestor()).isEqualTo(run.getRequestor());
+        // The user should be stored with the case-accurate loginId from the auth store
+        assertThat(testStructure.getUser()).isEqualTo(NON_ADMIN_JWT_USERNAME);
+        assertThat(testStructure.getRunName()).isEqualTo(run.getName());
+        assertThat(testStructure.getBundle()).isEqualTo(run.getTestBundleName());
+        assertThat(testStructure.getTestName()).isEqualTo(run.getTestClassName());
+        assertThat(testStructure.getSubmissionId()).isEqualTo(run.getSubmissionId());
+        assertThat(testStructure.getGroup()).isEqualTo(run.getGroup());
+    }
+
+    @Test
+    public void testPostRunsWithValidBodyAdminRequestorCanSetUserWithLowercaseCasingOK() throws Exception {
+        // Given...
+		String groupName = "valid";
+        String testName1 = "package.class";
+        String class1 = "bundle/" + testName1;
+        String[] classes = new String[]{class1};
+        String submissionId = "submission1";
+        Set<String> tags = new HashSet<>();
+        List<IRun> runs = new ArrayList<IRun>();
+
+        // The user in the auth store is "joeTester"
+        MockIRun run = new MockIRun("runname", "requestorType", JWT_USERNAME, NON_ADMIN_JWT_USERNAME, class1, "submitted", class1.split("/")[0], testName1, groupName, submissionId, tags);
+        runs.add(run);
+        
+        // We'll submit with "joetester" to test case-insensitive lookup
+        String payload = generatePayload(classes, "requestorType", JWT_USERNAME, "joetester", "this.test.stream", groupName, null, submissionId, tags);
+
+        // Set up permissions - 
+        // The JWT_USERNAME has all actions including TEST_RUN_SET_USER.
+        // The NON_ADMIN_JWT_USERNAME has GENERAL_API_ACCESS and TEST_RUN_LAUNCH.
+        List<Action> permittedActions = List.of(GENERAL_API_ACCESS.getAction(), TEST_RUN_LAUNCH.getAction());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithAdminAndTestUser(JWT_USERNAME, NON_ADMIN_JWT_USERNAME, permittedActions);
+
+        MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
+        MockIResultArchiveStore mockRasStore = new MockIResultArchiveStore();
+
+        MockTimeService timeService = new MockTimeService(Instant.now());
+        MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(timeService);
+        mockAuthStoreService.createUser(JWT_USERNAME, "client-name", "");
+        // Create user with mixed case
+        mockAuthStoreService.createUser(NON_ADMIN_JWT_USERNAME, "client-name", "");
+
+        MockFramework mockFramework = new MockFramework(mockFrameworkRuns, mockAuthStoreService);
+        mockFramework.setResultArchiveStore(mockRasStore);
+        mockFramework.setRBACService(mockRbacService);
+
+		MockRunsServlet servlet = new MockRunsServlet(mockEnv, mockFramework);
+
+		HttpServletRequest req = new MockHttpServletRequest("/"+groupName, payload, HttpMethod.POST.toString(), REQUIRED_HEADERS);
+		HttpServletResponse resp = new MockHttpServletResponse();
+        ServletOutputStream outStream = resp.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(req, resp);
+
+        // Then...
+        // Should succeed and use the case-accurate loginId from the auth store
+        String expectedJson = generateExpectedJson(runs, false);
+        assertThat(resp.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+
+        List<TestStructure> testStructureHistory = mockRasStore.getTestStructureHistory();
+        assertThat(testStructureHistory).hasSize(1);
+
+        TestStructure testStructure = testStructureHistory.get(0);
+        assertThat(testStructure.getRequestor()).isEqualTo(run.getRequestor());
+        // The user should be stored with the case-accurate loginId from the auth store
+        assertThat(testStructure.getUser()).isEqualTo(NON_ADMIN_JWT_USERNAME);
+        assertThat(testStructure.getRunName()).isEqualTo(run.getName());
+        assertThat(testStructure.getBundle()).isEqualTo(run.getTestBundleName());
+        assertThat(testStructure.getTestName()).isEqualTo(run.getTestClassName());
+        assertThat(testStructure.getSubmissionId()).isEqualTo(run.getSubmissionId());
+        assertThat(testStructure.getGroup()).isEqualTo(run.getGroup());
     }
 
     /*

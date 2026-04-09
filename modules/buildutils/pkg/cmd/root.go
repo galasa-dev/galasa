@@ -17,7 +17,7 @@ var rootCmd = &cobra.Command{
 	Use:     "galasabld",
 	Short:   "Build utilities for Galasa",
 	Long:    "",
-	Version: "0.47.0",
+	Version: "0.48.0",
 }
 
 func Execute() {

@@ -88,6 +88,17 @@ public interface IAuthStoreService {
     IUser getUser(String userNumber) throws AuthStoreException;
 
     /**
+     * Retrieves a user record in the users database using case-insensitive matching.
+     * This method converts the provided loginId to lowercase and searches for a matching user.
+     * If a match is found, the actual case-accurate loginId from the store is returned.
+     *
+     * @param loginId    the loginId of the user trying to access Galasa API (case-insensitive)
+     * @return the user with the case-accurate loginId, or null if no match is found
+     * @throws AuthStoreException if there is an issue accessing the auth store.
+     */
+    IUser getUserByLoginIdCaseInsensitive(String loginId) throws AuthStoreException;
+
+    /**
      * Updates a user record in the users store's database.
      *
      * @param user    The user that needs to be updated
