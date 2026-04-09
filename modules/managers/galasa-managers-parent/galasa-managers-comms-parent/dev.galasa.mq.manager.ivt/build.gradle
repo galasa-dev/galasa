@@ -7,6 +7,7 @@ description = 'Galasa MQ Manager IVTs'
 dependencies {
     implementation project(':galasa-managers-comms-parent:dev.galasa.mq.manager')
     implementation project(':galasa-managers-core-parent:dev.galasa.core.manager')
+    implementation 'javax.jms:javax.jms-api'
 }
 
 // Note: These values are consumed by the parent build process

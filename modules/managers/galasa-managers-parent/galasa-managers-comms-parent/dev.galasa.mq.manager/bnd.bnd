@@ -1,8 +1,7 @@
 -snapshot: ${tstamp}
 Bundle-Name: MQ Manager
 Export-Package: !dev.galasa.mq.internal*,\
-        dev.galasa.mq*,\
-        javax.jms*
+        dev.galasa.mq*
 Import-Package: !javax.validation.constraints,\
         dev.galasa,\
         dev.galasa.framework.spi,\
