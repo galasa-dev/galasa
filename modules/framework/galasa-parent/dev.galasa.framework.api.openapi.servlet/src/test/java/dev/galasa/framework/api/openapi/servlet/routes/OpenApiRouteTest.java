@@ -57,7 +57,7 @@ public class OpenApiRouteTest {
             "openapi:",
             "version",
             "title: Galasa Ecosystem API",
-            "url: '" + apiServerUrl + "'",
+            "url: \"" + apiServerUrl + "\"",
             "paths:",
             "/bootstrap:",
             "/auth/tokens:"

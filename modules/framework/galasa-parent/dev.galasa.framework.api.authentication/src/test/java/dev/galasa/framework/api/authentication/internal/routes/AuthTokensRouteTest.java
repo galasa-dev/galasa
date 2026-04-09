@@ -134,7 +134,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         Environment env = null;
 
         String tokensRoutePath = new AuthTokensRoute(responseBuilder, oidcProvider, authService, timeService,
-                mockRBACService, env).getPathRegex().toString();
+                mockRBACService, env, null).getPathRegex().toString();
 
         // When...
         Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
@@ -948,7 +948,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient);
 
-        String payload = buildRequestPayload("dummy-id", "here-is-a-token", null);
+        String payload = buildRequestPayload("dummy-id", null, "here-is-a-token");
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", payload, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -1013,7 +1013,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
                 authService,
                 mockTimeService,
                 mockRBACService,
-                mockEnv);
+                mockEnv,
+                null);
 
         boolean isWebUiJustLoggedIn = true;
 
@@ -1092,7 +1093,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
                 authService,
                 mockTimeService,
                 mockRBACService,
-                mockEnv);
+                mockEnv,
+                null);
 
         // When...
         route.recordUserJustLoggedIn(isWebUiJustLoggedIn, dummyJwt, mockTimeService, mockEnv, false);
@@ -1142,7 +1144,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
                 authService,
                 mockTimeService,
                 mockRBACService,
-                mockEnv);
+                mockEnv,
+                null);
 
         boolean isWebUiJustLoggedIn = true;
 

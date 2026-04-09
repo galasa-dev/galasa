@@ -212,7 +212,7 @@ public enum ServletErrorMessage {
             "E: Failed to retrieve a token ID from the request path. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
     GAL5066_ERROR_NO_SUCH_TOKEN_EXISTS(5066,
             "E: No such token with the given ID exists. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"),
-    GAL5067_TOKEN_EXPIRED(5067,
+    GAL5454_TOKEN_EXPIRED(5454,
             "E: Your personal access token has expired. Create a new personal access token on your Galasa service's web user interface to continue to authenticate with the Galasa service."),
     GAL5127_ERROR_INVALID_LOGINID(5127,
             "E: Invalid login ID provided. This could be because no value was given for the loginId query parameter. Check your provided loginId query parameter value and try again."),
@@ -376,7 +376,7 @@ public enum ServletErrorMessage {
     // >>> If you do use this number for a new error template, please incriment this
     // value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5454;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5455;
 
     private String template;
     private int templateNumber;
