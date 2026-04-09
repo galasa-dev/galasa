@@ -4,6 +4,8 @@ title: "Deleting test run results"
 
 Over time, test run results build up and take up space in the Galasa Ecosystem. You can delete test runs which have completed in the past by using the `galasactl runs delete` command.
 
+For information about configuring automatic cleanup of old test runs, see [Configuring automatic cleanup of test runs](./automatic-runs-cleanup.md).
+
 To view the full command syntax, see the [galasactl runs delete](../reference/cli-syntax/galasactl_runs_delete.md) command reference.
 
 
