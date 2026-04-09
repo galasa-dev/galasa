@@ -259,6 +259,9 @@ public class AuthTokensRoute extends PublicRoute {
                 throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
 
+        } catch (InternalServletException e) {
+            // Re-throw InternalServletException to preserve the specific error code
+            throw e;
         } catch (InterruptedException e) {
             logger.error("POST request to the OpenID Connect provider's token endpoint was interrupted.", e);
 
@@ -505,7 +508,7 @@ public class AuthTokensRoute extends PublicRoute {
                     // Delete the expired token
                     authStoreService.deleteToken(token.getTokenId());
 
-                    ServletError error = new ServletError(GAL5067_TOKEN_EXPIRED);
+                    ServletError error = new ServletError(GAL5454_TOKEN_EXPIRED);
                     throw new InternalServletException(error, HttpServletResponse.SC_UNAUTHORIZED);
                 }
             }
