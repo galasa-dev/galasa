@@ -14,21 +14,21 @@ info:
 servers:
   # A value for the following URL is injected in the OpenAPI servlet for the /openapi endpoint.
   # Any changes to this must be reflected in the OpenAPI servlet
-  - url: "{API_SERVER_URL}"
+  - url: '{API_SERVER_URL}'
 security:
   - JwtAuth: []
 paths:
-  ##################################################################################
-  # Authentication API
-  ##################################################################################
+##################################################################################
+# Authentication API
+##################################################################################
   /auth:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getAuthenticate
       summary: Redirect to authenticate with an upstream OpenID Connect connector.
       tags:
-        - Authentication API
+      - Authentication API
       security: []
       parameters:
         - name: client_id
@@ -58,71 +58,71 @@ paths:
           schema:
             type: string
       responses:
-        "302":
+        '302':
           description: Returns a redirect to authenticate with the configured connector.
           headers:
             location:
               description: The URL of the configured connector to redirect to.
               schema:
                 type: string
-        "400":
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 missingparametererror:
                   value:
                     error_code: 5400
                     error_message: "E: Error occurred when trying to execute request '/user'. Check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required query parameters are missing
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
     # POST /auth is deprecated in favour of POST /auth/tokens and will be removed in a future release
     post:
       operationId: postAuthenticate
       deprecated: true
       summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
       tags:
-        - Authentication API
+      - Authentication API
       security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AuthProperties"
+              $ref: '#/components/schemas/AuthProperties'
       responses:
-        "200":
+        '200':
           description: Returns a JSON Object containing a JWT and refresh token
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TokenResponse"
-        "400":
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 missingparametererror:
                   value:
                     error_code: 5400
                     error_message: "E: Error occurred when trying to execute request '/auth'. Check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required body properties are missing
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /auth/callback:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getAuthenticateCallback
       summary: Callback endpoint used as part of an OAuth 2.0 authorization code flow, redirects to a callback URL with an authorization code as a query parameter.
       tags:
-        - Authentication API
+      - Authentication API
       security: []
       parameters:
         - name: code
@@ -138,19 +138,19 @@ paths:
           schema:
             type: string
       responses:
-        "302":
+        '302':
           description: Returns a redirect to the callback URL provided in the original /auth request.
           headers:
             location:
               description: The callback URL provided in the original /auth request, with an authorization code appended as a query parameter.
               schema:
                 type: string
-        "400":
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 missingparametererror:
                   value:
@@ -159,7 +159,7 @@ paths:
                   summary: One or more required query parameters are missing
   /auth/clients:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     post:
       operationId: postClients
       summary: Create a new Dex client to authenticate with.
@@ -169,23 +169,23 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Authentication API
+      - Authentication API
       responses:
-        "201":
+        '201':
           description: Returns a JSON Object containing the created client's ID
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DexClient"
-        "401":
+                $ref: '#/components/schemas/DexClient'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /auth/tokens:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getTokens
       summary: Get a list of tokens used for authenticating with the Galasa API server.
@@ -196,75 +196,75 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Authentication API
+      - Authentication API
       parameters:
-        - name: loginId
-          in: query
-          description: |
+      - name: loginId
+        in: query
+        description: |
             The loginId of the user whose details will be returned.
-          required: false
-          schema:
-            type: string
+        required: false
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Returns a JSON Object containing the list of tokens
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthTokens"
-        "400":
+                $ref: '#/components/schemas/AuthTokens'
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 missingparametererror:
                   value:
                     error_code: 5400
-                    error_message: "E: Error occured when trying to execute request '/tokens'. Check your request parameters or report the problem to your Galasa Ecosystem owner."
-        "401":
+                    error_message: "E: Error occured when trying to execute request '/tokens'. Check your request parameters or report the problem to your Galasa Ecosystem owner."        
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       operationId: createToken
       summary: Provide a refresh token and get back a JWT for authenticating to a Galasa ecosystem.
       tags:
-        - Authentication API
+      - Authentication API
       security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AuthProperties"
+              $ref: '#/components/schemas/AuthProperties'
       responses:
-        "200":
+        '200':
           description: Returns a JSON Object containing a JWT and refresh token
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TokenResponse"
-        "400":
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 missingparametererror:
                   value:
                     error_code: 5400
                     error_message: "E: Error occurred when trying to execute request '/auth/tokens'. Check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required body properties are missing
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /auth/tokens/{tokenId}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     delete:
       operationId: deleteToken
       summary: Revokes a token which is used for authenticating with the Galasa API server.
@@ -274,53 +274,53 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Authentication API
+      - Authentication API
       parameters:
-        - name: tokenId
-          in: path
-          description: |
+      - name: tokenId
+        in: path
+        description: |
             Token ID. An alphanumeric string used to identify a token.
-          required: true
-          schema:
-            type: string
+        required: true
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Success message indicating that the given token has been revoked
           content:
             text/plain:
               schema:
                 type: string
               example: Successfully revoked token with ID 'tokenId'
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Could not find an existing auth token with the given ID
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 notfounderror:
                   value:
                     error_code: 5064
                     error_message: "GAL5064E: Failed to revoke the token with the given ID. Ensure that you have provided a valid ID representing an existing auth token in your request and try again"
                   summary: The given token ID in the request did not correspond to an existing token record stored in the Galasa auth store.
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  ##################################################################################
-  # Users API
-  ##################################################################################
+##################################################################################
+# Users API
+##################################################################################
   /users:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getUserByLoginId
-      summary: Returns the details of the requesting user.
+      summary: Returns the details of the requesting user. 
       tags:
-        - Users API
+      - Users API
       parameters:
         - name: loginId
           in: query
@@ -329,20 +329,20 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Array of User Data
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/UserData"
-        "400":
+                  $ref: '#/components/schemas/UserData'
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 missingparametererror:
                   value:
@@ -351,11 +351,11 @@ paths:
                   summary: One or more required query parameters are missing
   /users/{userNumber}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
-    get:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get: 
       operationId: getUserByNumber
       summary: Gets a user based on its numeric id.
-      tags:
+      tags: 
         - Users API
       parameters:
         - name: userNumber
@@ -365,30 +365,30 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: The get operation worked. The user found is returned.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserData"
-        "404":
+                $ref: '#/components/schemas/UserData'
+        '404':
           description: The delete operation failed. The record was not found.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 runiderror:
                   value:
                     error_code: 5083
                     error_message: "GAL5083E: Error getting user"
                   summary: An Error occurred when trying to get a user using the given user number.
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       operationId: deleteUserByNumber
       summary: Deletes a user in the ecosystem
@@ -400,28 +400,28 @@ paths:
           description: User number of the user to be deleted.
           required: true
           schema:
-            type: string
+            type: string      
       responses:
-        "204":
+        '204':
           description: The delete operation worked. The user is now deleted.
-        "404":
+        '404':
           description: The delete operation failed. The record was not found.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 runiderror:
                   value:
                     error_code: 5083
                     error_message: "GAL5083E: Error deleting user"
                   summary: An Error occurred when trying to delete a user using the given user number.
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     put:
       operationId: updateUser
       summary: Updates a user in the ecosystem
@@ -446,53 +446,53 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserUpdateData"
+              $ref: '#/components/schemas/UserUpdateData'
       responses:
-        "200":
+        '200':
           description: The update operation worked. The user is now updated.
-        "404":
+        '404':
           description: The updated operation failed. The record of the user was not found.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 runiderror:
                   value:
                     error_code: 5083
                     error_message: "GAL5083E: Error updating user"
                   summary: An Error occurred when trying to update a user using the given user number.
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  ##################################################################################
-  # STREAMS API
-  ##################################################################################
+##################################################################################
+# STREAMS API
+##################################################################################
   /streams:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getStreams
-      summary: Returns the details of all the test streams.
+      summary: Returns the details of all the test streams. 
       tags:
-        - Streams API
+      - Streams API
       responses:
-        "200":
+        '200':
           description: Array of Stream Data
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Stream"
-        "401":
+                  $ref: '#/components/schemas/Stream'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       operationId: createStream
       summary: Create a new test stream
@@ -503,49 +503,49 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Streams API
+      - Streams API
       requestBody:
         required: true
         description: The test stream to create.
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StreamCreateRequest"
+              $ref: '#/components/schemas/StreamCreateRequest'
       responses:
-        "201":
+        '201':
           description: Stream created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Stream"
-        "400":
+                $ref: '#/components/schemas/Stream'
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 invalidpayload:
                   value:
                     error_code: 5400
                     error_message: "E: Error occurred when trying to create stream. Invalid request payload."
                   summary: The request payload is invalid or missing required fields
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "409":
+        '409':
           $ref: "#/components/responses/Conflict"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /streams/{streamName}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getStreamByName
-      summary: Gets a stream based on its name.
+      summary: Gets a stream based on its name. 
       tags:
-        - Streams API
+      - Streams API
       parameters:
         - name: streamName
           in: path
@@ -554,40 +554,40 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: The get operation worked. The stream found is returned.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Stream"
-        "400":
+                  $ref: '#/components/schemas/Stream'
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 missingparametererror:
                   value:
                     error_code: 5400
                     error_message: "E: Error occurred when trying to execute request '/streams'. Check your request parameters or report the problem to your Galasa Ecosystem owner."
-                  summary: One or more required query parameters are missing
-        "404":
+                  summary: One or more required query parameters are missing                
+        '404':
           description: The get operation failed. The record was not found.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 runiderror:
                   value:
                     error_code: 5420
                     error_message: "GAL5420E: Error getting stream"
                   summary: An Error occurred when trying to get a stream using the given stream name.
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     put:
       operationId: updateStream
       summary: Update or create a test stream
@@ -598,7 +598,7 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Streams API
+      - Streams API
       parameters:
         - name: streamName
           in: path
@@ -612,43 +612,43 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StreamUpdateRequest"
+              $ref: '#/components/schemas/StreamUpdateRequest'
       responses:
-        "200":
+        '200':
           description: Stream updated successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Stream"
-        "201":
+                $ref: '#/components/schemas/Stream'
+        '201':
           description: Stream created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Stream"
-        "400":
+                $ref: '#/components/schemas/Stream'
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 invalidpayload:
                   value:
                     error_code: 5400
                     error_message: "E: Error occurred when trying to update test stream. Invalid request payload."
                   summary: The request payload is invalid
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       operationId: deleteStreamByName
-      summary: Deletes a stream based on its name.
+      summary: Deletes a stream based on its name. 
       tags:
-        - Streams API
+      - Streams API
       parameters:
         - name: streamName
           in: path
@@ -657,46 +657,46 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: The delete operation worked. The user is now deleted.
-        "400":
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 missingparametererror:
                   value:
                     error_code: 5400
                     error_message: "E: Error occurred when trying to execute request '/streams/{streamName}'. Check your request path variables or report the problem to your Galasa Ecosystem owner."
-                  summary: One or more required path variables are missing
-        "404":
+                  summary: One or more required path variables are missing                
+        '404':
           description: The delete operation failed. The stream was not found.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 streamnameerror:
                   value:
                     error_code: 5420
                     error_message: "GAL5420E: Error getting stream"
                   summary: An Error occurred when trying to get a stream using the given stream name.
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  ##################################################################################
-  # CPS API
-  ##################################################################################
+##################################################################################
+# CPS API
+##################################################################################
   #--------------------------------------
   # List all known Namespaces in CPS, excluding hidden namespaces
   #--------------------------------------
   /cps:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getAllCpsNamespaces
       summary: Get all known CPS namespaces
@@ -706,29 +706,29 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       responses:
-        "200":
+        '200':
           description: Array of CPS namespaces
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Namespace"
-        "401":
+                  $ref: '#/components/schemas/Namespace'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   #--------------------------------------
   # List all properties for a given Namespace in CPS
   # Create a new property
   #--------------------------------------
   /cps/{namespace}/properties:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: queryCpsNamespaceProperties
       summary: Get all CPS namespace properties
@@ -738,67 +738,67 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       parameters:
-        - name: namespace
-          in: path
-          description: |
+      - name: namespace
+        in: path
+        description: |
             Property Namespace. First character of the namespace must be in the 'a'-'z' range,
             and following characters can be 'a'-'z' or '0'-'9'
-          required: true
-          schema:
-            type: string
-        - name: prefix
-          in: query
-          description: |
-            Property Prefix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
-              and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) , '_' (underscore) or '@' (at)
-          required: false
-          schema:
-            type: string
-        - name: suffix
-          in: query
-          description: |
-            Property suffix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: query
+        description: |
+          Property Prefix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
             and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) , '_' (underscore) or '@' (at)
-          required: false
-          schema:
-            type: string
-        - name: infix
-          in: query
-          description: |
-            Comma-separated list of Property infixes. The first character of each infix must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) , '_' (underscore) or '@' (at)
-          required: false
-          schema:
-            type: string
+        required: false
+        schema:
+          type: string
+      - name: suffix
+        in: query
+        description: |
+          Property suffix. The first character must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) , '_' (underscore) or '@' (at)
+        required: false
+        schema:
+          type: string
+      - name: infix
+        in: query
+        description: |
+          Comma-separated list of Property infixes. The first character of each infix must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) , '_' (underscore) or '@' (at)
+        required: false
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Array of CPS Properties
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GalasaProperty"
-        "401":
+                  $ref: '#/components/schemas/GalasaProperty'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 namespacerror:
                   value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. Namespace 'xyz' is not available."
                   summary: An Error occurred when trying to retrieve the CPS namespaces
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       operationId: createCpsProperty
       summary: Create a new CPS property
@@ -808,41 +808,41 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       parameters:
-        - name: namespace
-          in: path
-          description: |
+      - name: namespace
+        in: path
+        description: |
             Property Namespace. First character of the namespace must be in the 'a'-'z' range,
             and following characters can be 'a'-'z' or '0'-'9'
-          required: true
-          schema:
-            type: string
+        required: true
+        schema:
+          type: string
       requestBody:
         required: true
         description: The value of the property being created.
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GalasaProperty"
+              $ref: '#/components/schemas/GalasaProperty'
       responses:
-        "201":
+        '201':
           description: Action Message
           content:
             text/plain:
               schema:
                 type: string
               example: Successfully created property propertyName in namespace
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 namespaceerror:
                   value:
@@ -854,26 +854,26 @@ paths:
                     error_code: 5018
                     error_message: "GAL5018E: Error occurred when trying to access property 'propertyName'. The property name provided already exists in the 'framework' namespace."
                   summary: An Error occurred because the property already exists
-        "411":
+        '411':
           description: Content Length Required
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 nocontenterror:
                   value:
                     error_code: 5411
                     error_message: "GAL5411E: Error occurred when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
                   summary: An Error occurred when no value was supplied in the request body
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   #--------------------------------------
   # Read, Update and Delete a CPS property
   #--------------------------------------
   /cps/{namespace}/properties/{propertyName}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsProperty
       summary: Get single CPS property
@@ -883,34 +883,34 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       parameters:
-        - name: namespace
-          in: path
-          description: |
+      - name: namespace
+        in: path
+        description: |
             Property Namespace. First character of the namespace must be in the 'a'-'z' range,
             and following characters can be 'a'-'z' or '0'-'9'
-          required: true
-          schema:
-            type: string
-        - name: propertyName
-          in: path
-          description: |
-            Property Name.
-            The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-          required: true
-          schema:
-            type: string
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name.
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: CPS Property
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GalasaProperty"
+                  $ref: '#/components/schemas/GalasaProperty'
               examples:
                 propertyexists:
                   value:
@@ -923,7 +923,7 @@ paths:
                       value: my.property.value
                   summary: Property Found in namespace
                 propertynotfound:
-                  value: "[ ]"
+                  value: '[ ]'
                   summary: Property does not exist in namespace
                 propertyexistsinwriteonlynamespace:
                   value:
@@ -933,26 +933,26 @@ paths:
                       namespace: propertyNamespace
                       name: my.property.name
                     data:
-                      value: "*********"
+                      value: '*********'
                   summary: Property found in write only namespace
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 invalidnamespaceerror:
                   value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An Error occurred when trying to retrieve the CPS namespaces
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     put:
       operationId: updateCpsProperty
       summary: Update existing CPS property
@@ -962,50 +962,50 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       parameters:
-        - name: namespace
-          in: path
-          description: |
+      - name: namespace
+        in: path
+        description: |
             Property Namespace. First character of the namespace must be in the 'a'-'z' range,
             and following characters can be 'a'-'z' or '0'-'9'
-          required: true
-          schema:
-            type: string
-        - name: propertyName
-          in: path
-          description: |
-            Property Name.
-            The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-          required: true
-          schema:
-            type: string
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name.
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
       requestBody:
         required: true
         description: The value of the property being created.
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GalasaProperty"
+              $ref: '#/components/schemas/GalasaProperty'
       responses:
-        "200":
+        '200':
           description: Action Message
           content:
             text/plain:
               schema:
                 type: string
               example: Successfully updated property propertyName in namespace
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 namespaceerror:
                   value:
@@ -1017,20 +1017,20 @@ paths:
                     error_code: 5017
                     error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
                   summary: An Error occurred because the property does not exist
-        "411":
+        '411':
           description: Content Length Required
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 nocontenterror:
                   value:
                     error_code: 5411
                     error_message: "GAL5411E: Error occurred when trying to access the endpoint '/cps/namespace/properties/propertyName'. The request body is empty."
                   summary: An Error occurred when no value was supplied in the request body
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       operationId: deleteCpsProperty
       summary: Delete existing CPS property
@@ -1040,43 +1040,43 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       parameters:
-        - name: namespace
-          in: path
-          description: |
+      - name: namespace
+        in: path
+        description: |
             Property Namespace. First character of the namespace must be in the 'a'-'z' range,
             and following characters can be 'a'-'z' or '0'-'9'
-          required: true
-          schema:
-            type: string
-        - name: propertyName
-          in: path
-          description: |
-            Property Name.
-            The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-          required: true
-          schema:
-            type: string
+        required: true
+        schema:
+          type: string
+      - name: propertyName
+        in: path
+        description: |
+          Property Name.
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Action Message
           content:
             text/plain:
               schema:
                 type: string
               example: Successfully deleted property propertyName in namespace
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 namespaceerror:
                   value:
@@ -1088,22 +1088,22 @@ paths:
                     error_code: 5017
                     error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
                   summary: An Error occurred because the property does not exist
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-  ##################################################################################
-  # Deprecated CPS API
-  ##################################################################################
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+##################################################################################
+# Deprecated CPS API
+##################################################################################
   /cps/namespace:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsNamespaces
       deprecated: true
       summary: Get CPS Namespaces
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       responses:
-        "200":
+        '200':
           description: Array of CPS Namespaces
           content:
             application/json:
@@ -1111,21 +1111,21 @@ paths:
                 type: array
                 items:
                   type: string
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsNamespaceProperties
       deprecated: true
       summary: Get all properties for a namepace
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       parameters:
         - name: namespace
           in: path
@@ -1136,35 +1136,35 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Array of CPS Properties
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GalasaProperty"
-        "401":
+                  $ref: '#/components/schemas/GalasaProperty'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 namespaceerror:
                   value:
                     error_code: 5016
                     error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
                   summary: An Error occurred when trying to retrieve the CPS namespaces
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}/prefix/{prefix}/suffix/{suffix}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getCpsNamespaceCascadeProperty
       deprecated: true
@@ -1178,57 +1178,57 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       parameters:
-        - name: namespace
-          in: path
-          description: |
+      - name: namespace
+        in: path
+        description: |
             Property Namespace. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
             and following characters can be 'a'-'z' or 'A'-'Z' or '0'-'9'
-          required: true
-          schema:
-            type: string
-        - name: prefix
-          in: path
-          description: |
-            Property Prefix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-              and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-          required: true
-          schema:
-            type: string
-        - name: suffix
-          in: path
-          description: |
-            Property suffix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+        required: true
+        schema:
+          type: string
+      - name: prefix
+        in: path
+        description: |
+          Property Prefix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
             and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-          required: true
-          schema:
+        required: true
+        schema:
+          type: string
+      - name: suffix
+        in: path
+        description: |
+          Property suffix. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
+      - name: infixes
+        in: query
+        description: |
+          Property infixes. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        schema:
+          type: array
+          items:
             type: string
-        - name: infixes
-          in: query
-          description: |
-            Property infixes. The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-          schema:
-            type: array
-            items:
-              type: string
       responses:
-        "200":
+        '200':
           description: CPS Property
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CpsProperty"
-        "401":
+                $ref: '#/components/schemas/CpsProperty'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /cps/namespace/{namespace}/property/{property}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     put:
       operationId: putCpsNamespaceProperty
       deprecated: true
@@ -1244,51 +1244,51 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Configuration Property Store API
+      - Configuration Property Store API
       parameters:
-        - name: namespace
-          in: path
-          description: |
+      - name: namespace
+        in: path
+        description: |
             Property Namespace. First character of the namespace must be in the 'a'-'z' range,
             and following characters can be 'a'-'z' or '0'-'9'
-          required: true
-          schema:
-            type: string
-        - name: property
-          in: path
-          description: |
-            Property Name.
-            The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
-            and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
-          required: true
-          schema:
-            type: string
+        required: true
+        schema:
+          type: string
+      - name: property
+        in: path
+        description: |
+          Property Name.
+          The first character of the namespace must be in the 'a'-'z' or 'A'-'Z' ranges,
+          and following characters can be 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore)
+        required: true
+        schema:
+          type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CpsProperty"
+              $ref: '#/components/schemas/CpsProperty'
       responses:
-        "200":
+        '200':
           description: CPS Property
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CpsProperty"
-        "401":
+                $ref: '#/components/schemas/CpsProperty'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  ##################################################################################
-  # Monitors API
-  ##################################################################################
+##################################################################################
+# Monitors API
+##################################################################################
   /monitors:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getMonitors
       summary: Get a list of Galasa Monitors available in the Galasa service
@@ -1297,23 +1297,23 @@ paths:
       tags:
         - Monitors API
       responses:
-        "200":
+        '200':
           description: The Galasa Monitors available in this Galasa service
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GalasaMonitor"
-        "401":
+                  $ref: '#/components/schemas/GalasaMonitor'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /monitors/{monitorName}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
       - name: monitorName
         in: path
         description: The name of the Galasa monitor resource to manipulate
@@ -1329,15 +1329,15 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: getMonitorByName
       tags:
-        - Monitors API
+      - Monitors API
       responses:
-        "200":
+        '200':
           description: The monitor with the provided name
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GalasaMonitor"
-        "400":
+                $ref: '#/components/schemas/GalasaMonitor'
+        '400':
           $ref: "#/components/responses/BadRequest"
     put:
       operationId: setMonitorStatus
@@ -1358,28 +1358,28 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateGalasaMonitorRequest"
+              $ref: '#/components/schemas/UpdateGalasaMonitorRequest'
       tags:
         - Monitors API
       responses:
-        "204":
+        '204':
           description: The Galasa Monitor was successfully enabled or disabled
-        "400":
+        '400':
           $ref: "#/components/responses/BadRequest"
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-  ##################################################################################
-  # OpenAPI API
-  ##################################################################################
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+##################################################################################
+# OpenAPI API
+##################################################################################
   /openapi:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getOpenApiSpec
       security: []
@@ -1395,7 +1395,7 @@ paths:
       tags:
         - OpenAPI API
       responses:
-        "200":
+        '200':
           description: The Galasa API server's OpenAPI specification in YAML or JSON format
           content:
             application/yaml:
@@ -1404,17 +1404,17 @@ paths:
             application/json:
               schema:
                 type: object
-        "406":
-          $ref: "#/components/responses/UnsupportedMimeType"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '406':
+          $ref: '#/components/responses/UnsupportedMimeType'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  ##################################################################################
-  # Resources API
-  ##################################################################################
+##################################################################################
+# Resources API
+##################################################################################
   /resources/:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     post:
       operationId: setEcosystemResources
       summary: Upload Resources to the ecosystem
@@ -1424,62 +1424,63 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Resources API
+       - Resources API
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Resources"
+              $ref: '#/components/schemas/Resources'
       responses:
-        "200":
+        '200':
           description: Success
-        "400":
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIErrorArray"
+                $ref: '#/components/schemas/APIErrorArray'
               examples:
                 singleError:
                   value:
-                    - error_code: 5017
-                      error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
+                  - error_code: 5017
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
                 multipleErrors:
                   value:
-                    - error_code: 5017
-                      error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
-                    - error_code: 5016
-                      error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
-        "401":
+                  - error_code: 5017
+                    error_message: "GAL5017E: Error occurred when trying to access property 'propertyName'. The property name provided is invalid."
+                  - error_code: 5016
+                    error_message: "GAL5016E: Error occurred when trying to access namespace 'xyz'. The Namespace provided is invalid."
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  ##################################################################################
-  # RAS API
-  ##################################################################################
+
+##################################################################################
+# RAS API
+##################################################################################
 
   #--------------------------------------
   # Get the health status of the RAS.
   #--------------------------------------
   /ras/health:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasHealth
       summary: Get the health status of the RAS
       description: |
         Returns the health status of the Result Archive Store (RAS).
-
+        
         This endpoint checks if the RAS is available and responding to requests.
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       security: []
       responses:
-        "200":
+        '200':
           description: RAS is healthy and available
           content:
             application/json:
@@ -1489,12 +1490,12 @@ paths:
                   status:
                     type: string
                     example: "ok"
-        "503":
+        '503':
           description: RAS is unavailable
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 rasdown:
                   value:
@@ -1507,7 +1508,7 @@ paths:
   #--------------------------------------
   /ras/requestors:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRequestors
       summary: Get all known requestors
@@ -1517,7 +1518,7 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       parameters:
         - name: sort
           in: query
@@ -1526,25 +1527,26 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Requestors
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Requestors"
-        "401":
+                $ref: '#/components/schemas/Requestors'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 
   #--------------------------------------
   # List all known result names.
   #--------------------------------------
   /ras/resultnames:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasResultNames
       summary: Get all the known result names
@@ -1554,7 +1556,7 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       parameters:
         - name: sort
           in: query
@@ -1563,25 +1565,26 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: ResultNames
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ResultNames"
-        "401":
+                $ref: '#/components/schemas/ResultNames'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 
   #--------------------------------------
   # Retrieve Runs based on a query.
   #--------------------------------------
   /ras/runs:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasSearchRuns
       summary: Get Runs from Query
@@ -1603,14 +1606,14 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       parameters:
         - name: sort
           in: query
           description: |
             Sorts the returned runs based on the sort field.
             Supports sorting fields 'from', 'to', 'result' and 'testclass'.
-
+            
             If omitted, runs will be sorted in descending order based on their 'queued' time,
             which is equivalent to specifying 'from:desc' (i.e. latest queued run first, oldest last).
 
@@ -1675,7 +1678,7 @@ paths:
           schema:
             type: string
             format: date-time
-          example: "2023-04-11T09:42:06.589180Z"
+          example: '2023-04-11T09:42:06.589180Z'
         - name: to
           in: query
           description: |
@@ -1710,7 +1713,7 @@ paths:
             one or zero test runs in the first page.
           schema:
             type: string
-          example: cdb-a4ddb7fd1dab8d6025e4f3894010d20d
+          example : cdb-a4ddb7fd1dab8d6025e4f3894010d20d
         - name: runname
           in: query
           description: |
@@ -1768,7 +1771,7 @@ paths:
             in the response. If omitted, it will default to false.
           schema:
             type: string
-          example: "true"
+          example: 'true'
         - name: cursor
           in: query
           description: |
@@ -1780,18 +1783,18 @@ paths:
             type: string
           example: g2wAAAACaAJkAA5zdGFydG
       responses:
-        "200":
+        '200':
           description: Array of Run Objects
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RunResults"
-        "400":
+                $ref: '#/components/schemas/RunResults'
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 fromerror:
                   value:
@@ -1813,24 +1816,24 @@ paths:
                     error_code: 5006
                     error_message: "GAL5006E: Error parsing the query parameters. Duplicate instances of query parameter 'size' found in the request URL. Expecting only one."
                   summary: An Error occurred parsing duplicate parameter
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 runiderror:
                   value:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-xxx'."
                   summary: An Error occurred when trying to retrieve a specific run using a runId
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
           examples:
             runerror:
               value:
@@ -1843,17 +1846,18 @@ paths:
                 error_message: "GAL5004E: Error retrieving page. Report the problem to your Galasa Ecosystem owner."
               summary: An Error occurred when trying to return a results page
 
+
   #--------------------------------------
   # Retrieve a single Run.
   #--------------------------------------
   /ras/runs/{runid}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     delete:
       operationId: deleteRasRunById
       summary: Delete run from the RAS using a given run ID
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       description: |
         Deletes a test run and its corresponding artifacts from the RAS given the run's ID.
 
@@ -1867,26 +1871,26 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: The delete operation worked. The run is now deleted.
-        "404":
+        '404':
           description: The delete operation failed. The record was not found.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 runiderror:
                   value:
                     error_code: 5091
                     error_message: "GAL5091E: Error deleting ras run from RunID 'cdb-xxx'."
                   summary: An Error occurred when trying to delete a run using the given runId
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       operationId: getRasRunById
       summary: Get Run by ID
@@ -1896,7 +1900,7 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       parameters:
         - name: runid
           in: path
@@ -1905,23 +1909,23 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Run Data
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Run"
-        "401":
+                $ref: '#/components/schemas/Run'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-    #--------------------------------------
-    # Update the tags associated with a test run,
-    # or update the status to reset or cancel it.
-    #--------------------------------------
+  #--------------------------------------
+  # Update the tags associated with a test run, 
+  # or update the status to reset or cancel it.
+  #--------------------------------------
     put:
       summary: Update the tags, status or result of a test run
       description: |
@@ -1937,7 +1941,7 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: putRasRunTagsOrStatusById
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       parameters:
         - name: runid
           in: path
@@ -1950,9 +1954,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateRunRequest"
+              $ref: '#/components/schemas/UpdateRunRequest'
       responses:
-        "202":
+        '202':
           description: Run status updated
           content:
             text/plain:
@@ -1965,12 +1969,12 @@ paths:
                 cancelRun:
                   value: The request to cancel run U123 has been received.
                   summary: Cancel run action success
-        "400":
+        '400':
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 invalidStatusUpdateRequest:
                   value:
@@ -1992,16 +1996,16 @@ paths:
                     error_code: 5050
                     error_message: "GAL5050E: Error occurred when trying to cancel the run 'U123'. The run has already completed."
                   summary: The run in the request has already completed and can not be cancelled
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
+        '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 genericerror:
                   value:
@@ -2010,8 +2014,8 @@ paths:
                   summary: An Error occurred when trying to access the endpoint
                 unableToReset:
                   value:
-                    error_code: 5047
-                    error_message: "GAL5047E: Error occurred when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner."
+                   error_code: 5047
+                   error_message: "GAL5047E: Error occurred when trying to reset the run 'U123'. Report the problem to your Galasa Ecosystem owner."
                   summary: An Error occurred when trying to action the run reset
                 unableToCancel:
                   value:
@@ -2023,7 +2027,7 @@ paths:
   #--------------------------------------
   /ras/runs/{runid}/runlog:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRunLog
       summary: Get Run Log
@@ -2033,7 +2037,7 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       parameters:
         - name: runid
           in: path
@@ -2042,25 +2046,26 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Run Data
           content:
             text/plain:
               schema:
                 type: string
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 
   #--------------------------------------
   # List the artifacts available.
   #--------------------------------------
   /ras/runs/{runid}/artifacts:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRunArtifactList
       summary: Get the available run artifacts which can be downloaded.
@@ -2070,7 +2075,7 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       parameters:
         - name: runid
           in: path
@@ -2079,37 +2084,38 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: The list of artifacts was returned.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArtifactIndex"
-        "401":
+                $ref: '#/components/schemas/ArtifactIndex'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 runiderror:
                   value:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-xxx'."
                   summary: An Error occurred when trying to retrieve a specific run using a runId
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 
   #--------------------------------------
   # Download a specific artifact
   #--------------------------------------
   /ras/runs/{runid}/files/{artifactPath}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasRunArtifactByPath
       summary: Download artifact for a given runid by artifactPath
@@ -2119,7 +2125,7 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       parameters:
         - name: runid
           in: path
@@ -2134,7 +2140,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: The artifact is made available to read.
           content:
             application/octet-stream:
@@ -2142,28 +2148,28 @@ paths:
                 type: string
                 format: binary
               example: attachment; filename="cps.properties"
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
+        '404':
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 runiderror:
                   value:
                     error_code: 5002
                     error_message: "GAL5002E: Error retrieving ras run from RunID 'cdb-xxx'."
                   summary: An Error occurred when trying to retrieve a specific run  using a runId
-        "500":
+        '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 genericerror:
                   value:
@@ -2186,7 +2192,7 @@ paths:
   #--------------------------------------
   /ras/testclasses:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRasTestclasses
       summary: Get all the known test classes
@@ -2196,7 +2202,7 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Result Archive Store API
+      - Result Archive Store API
       parameters:
         - name: sort
           in: query
@@ -2205,25 +2211,25 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: TestClasses
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/TestClasses"
-        "401":
+             schema:
+                $ref: '#/components/schemas/TestClasses'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  ##################################################################################
-  # Runs API
-  ##################################################################################
+##################################################################################
+# Runs API
+##################################################################################
   /runs/{groupId}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       summary: Get group runs
       description: |
@@ -2233,7 +2239,7 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: getRunsGroup
       tags:
-        - Runs API
+      - Runs API
       parameters:
         - name: groupId
           in: path
@@ -2242,15 +2248,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Run Info
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TestRuns"
-        "401":
+                $ref: '#/components/schemas/TestRuns'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
     post:
       summary: Submit test runs
@@ -2269,7 +2275,7 @@ paths:
         It has only one set of {...} brackets to indicate this property is an object.
       operationId: postSubmitTestRuns
       tags:
-        - Runs API
+      - Runs API
       parameters:
         - name: groupId
           in: path
@@ -2282,17 +2288,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TestRunRequest"
+              $ref: '#/components/schemas/TestRunRequest'
       responses:
-        "201":
+        '201':
           description: Test Submitted
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TestRuns"
-        "401":
+                $ref: '#/components/schemas/TestRuns'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
     put:
       summary: Update the status of a test run by group id
@@ -2305,7 +2311,7 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: putRunStatusByGroupId
       tags:
-        - Runs API
+      - Runs API
       parameters:
         - name: groupId
           in: path
@@ -2318,9 +2324,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateGroupStatusRequest"
+              $ref: '#/components/schemas/UpdateGroupStatusRequest'
       responses:
-        "200":
+        '200':
           description: Runs already finished
           content:
             application/json:
@@ -2328,9 +2334,9 @@ paths:
                 type: string
               examples:
                 runsAlreadyFinished:
-                  value: "Info: When trying to cancel the run group 'group-one', no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store."
+                  value: "Info: When trying to cancel the run group 'group-one', no recent active (unfinished) test runs were found which are part of that group. Archived test runs may be part of that group, which can be queried separately from the Result Archive Store." 
                   summary: An information message indicating there are no active test runs under provided group id.
-        "202":
+        '202':
           description: Run status updated
           content:
             text/plain:
@@ -2340,40 +2346,40 @@ paths:
                 cancelRun:
                   value: The request to cancel run with group id xxgroupxx has been received.
                   summary: Cancel run action success
-        "400":
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 invalidRequestPayload:
                   value:
                     error_code: 5431
                     error_message: "E: Error occurred. The field ''result'' in the request body is invalid. The ''result'' value ''badRequest'' supplied is not supported. Supported values are: ''cancelled''."
                   summary: The provided request body is invalid
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
+        '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/APIError"
+                $ref: '#/components/schemas/APIError'
               examples:
                 genericerror:
                   value:
                     error_code: 5000
                     error_message: "GAL5000E: Error occurred when trying to access the endpoint. Report the problem to your Galasa Ecosystem owner."
                   summary: An Error occurred when trying to access the endpoint
-  ##################################################################################
-  # Secrets API
-  ##################################################################################
+##################################################################################
+# Secrets API
+##################################################################################
   /secrets:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       summary: Get a list of secrets from the Credentials Store
       description: |
@@ -2383,22 +2389,22 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: getSecrets
       tags:
-        - Secrets API
+      - Secrets API
       responses:
-        "200":
+        '200':
           description: A list of secrets
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GalasaSecret"
-        "401":
+                  $ref: '#/components/schemas/GalasaSecret'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       summary: Create a new secret
       description: |
@@ -2408,29 +2414,29 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: createSecret
       tags:
-        - Secrets API
+      - Secrets API
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SecretRequest"
+              $ref: '#/components/schemas/SecretRequest'
       responses:
-        "201":
+        '201':
           description: A new secret was created successfully
-        "409":
+        '409':
           $ref: "#/components/responses/Conflict"
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "400":
+        '400':
           $ref: "#/components/responses/BadRequest"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /secrets/{secretName}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
       - name: secretName
         in: path
         description: The name of the secret resource to manage
@@ -2446,22 +2452,22 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: getSecret
       tags:
-        - Secrets API
+      - Secrets API
       responses:
-        "200":
+        '200':
           description: The secret with the provided name
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GalasaSecret"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "401":
+                $ref: '#/components/schemas/GalasaSecret'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     put:
       summary: Create or update a secret
       description: |
@@ -2472,26 +2478,26 @@ paths:
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       operationId: updateSecret
       tags:
-        - Secrets API
+      - Secrets API
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SecretRequest"
+              $ref: '#/components/schemas/SecretRequest'
       responses:
-        "204":
+        '204':
           description: The existing secret was updated successfully
-        "201":
+        '201':
           description: A new secret was created successfully
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "400":
+        '400':
           $ref: "#/components/responses/BadRequest"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       operationId: deleteSecret
       summary: Deletes a secret from the Credentials Store
@@ -2501,24 +2507,24 @@ paths:
         Requests to this endpoint require a valid bearer token in JWT format to be provided
         in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
       tags:
-        - Secrets API
+      - Secrets API
       responses:
-        "204":
+        '204':
           description: No content response indicating that the given secret has been deleted
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-  ##################################################################################
-  # Tags API
-  ##################################################################################
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+##################################################################################
+# Tags API
+##################################################################################
   /tags:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
       - name: name
         in: query
         description: |
@@ -2540,20 +2546,20 @@ paths:
       tags:
         - Tags API
       responses:
-        "200":
+        '200':
           description: The list of tags in the system
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GalasaTag"
-        "401":
+                  $ref: '#/components/schemas/GalasaTag'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       operationId: createTag
       summary: Creates a new Tag in the system
@@ -2569,27 +2575,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TagCreateRequest"
+              $ref: '#/components/schemas/TagCreateRequest'
       responses:
-        "201":
+        '201':
           description: A new tag was successfully created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GalasaTag"
-        "409":
+                $ref: '#/components/schemas/GalasaTag'
+        '409':
           $ref: "#/components/responses/Conflict"
-        "401":
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "400":
+        '400':
           $ref: "#/components/responses/BadRequest"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /tags/{tagId}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
       - name: tagId
         in: path
         description: The Base64 URL encoded name of the tag to retrieve
@@ -2607,20 +2613,20 @@ paths:
       tags:
         - Tags API
       responses:
-        "200":
+        '200':
           description: The tag with the specified name
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GalasaTag"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "401":
+                $ref: '#/components/schemas/GalasaTag'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     put:
       operationId: setTag
       summary: Creates or updates a Tag in the system
@@ -2636,28 +2642,28 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TagSetRequest"
+              $ref: '#/components/schemas/TagSetRequest'
       responses:
-        "200":
+        '200':
           description: A new tag was successfully updated
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GalasaTag"
-        "201":
+                $ref: '#/components/schemas/GalasaTag'
+        '201':
           description: A new tag was successfully created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GalasaTag"
-        "401":
+                $ref: '#/components/schemas/GalasaTag'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "400":
+        '400':
           $ref: "#/components/responses/BadRequest"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       operationId: deleteTagByName
       summary: Deletes a tag by name
@@ -2669,23 +2675,23 @@ paths:
       tags:
         - Tags API
       responses:
-        "204":
+        '204':
           description: No content response indicating that the given tag has been deleted
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
-  ##################################################################################
-  # Bootstrap API
-  ##################################################################################
+##################################################################################
+# Bootstrap API
+##################################################################################
   /bootstrap:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getEcosystemBootstrap
       security: []
@@ -2693,20 +2699,20 @@ paths:
       tags:
         - Bootstrap API
       responses:
-        "200":
+        '200':
           description: The Galasa ecosystem bootstrap.
           content:
             text/plain:
               schema:
                 type: string
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-  ##################################################################################
-  # RBAC
-  ##################################################################################
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+##################################################################################
+# RBAC
+##################################################################################
   /rbac/roles:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
       - name: name
         in: query
         description: |
@@ -2728,44 +2734,45 @@ paths:
       tags:
         - Role Based Access Control API
       responses:
-        "200":
+        '200':
           description: The Galasa Role definition
           content:
             application/json:
               schema:
                 type: array
                 description: A list of the roles in the system.
-                items:
-                  $ref: "#/components/schemas/RBACRole"
+                items: 
+                  $ref: '#/components/schemas/RBACRole'
                 example:
+
                   - kind: GalasaRole
                     apiVersion: galasa-dev/v1alpha1
                     metadata:
-                      url: http://myhost.com:8080/rbac/roles/2
-                      name: admin
-                      id: "2"
-                      description: "Administrator access"
-                    data:
+                        url: http://myhost.com:8080/rbac/roles/2
+                        name: admin
+                        id: "2"
+                        description: "Administrator access"
+                    data: 
                       actions:
                         - GENERAL_API_ACCESS
                         - SECRETS_GET_UNREDACTED_VALUES
                         - USER_ROLE_UPDATE_ANY
                         - CPS_PROPERTIES_SET
 
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "401":
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   /rbac/roles/{role-id}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
       - name: role-id
-        description: |-
+        description: |- 
           The id of the role. This will typically be numeric. 
           It must be less than 128 characters and a consist of alphanumeric characters, '-' (hyphen) or '_' (underscore)
         in: path
@@ -2781,62 +2788,64 @@ paths:
       tags:
         - Role Based Access Control API
       responses:
-        "200":
+        '200':
           description: The Galasa Role definition
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RBACRole"
+                $ref: '#/components/schemas/RBACRole'
               example:
+
                 - kind: GalasaRole
                   apiVersion: galasa-dev/v1alpha1
                   metadata:
-                    url: http://myhost.com:8080/rbac/roles/2
-                    name: admin
-                    id: "2"
-                    description: "Administrator access"
-                  data:
+                      url: http://myhost.com:8080/rbac/roles/2
+                      name: admin
+                      id: "2"
+                      description: "Administrator access"
+                  data: 
                     actions:
                       - GENERAL_API_ACCESS
                       - SECRETS_GET_UNREDACTED_VALUES
                       - USER_EDIT_OTHER
                       - CPS_PROPERTIES_SET
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "401":
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 
   /rbac/actions:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
     get:
       operationId: getRBACActions
       summary: Gets information about actions which a role can be permitted to perfrom.
       tags:
         - Role Based Access Control API
       responses:
-        "200":
+        '200':
           description: The Galasa Action definition
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RBACActionsSummary"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "401":
+                $ref: '#/components/schemas/RBACActionsSummary'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
 
   /rbac/actions/{action-id}:
     parameters:
-      - $ref: "#/components/parameters/ClientApiVersion"
+      - $ref: '#/components/parameters/ClientApiVersion'
       - name: action-id
         description: The id of an action. This is typically readable in English, upper-case, with underscores as word separators.
         in: path
@@ -2849,19 +2858,19 @@ paths:
       tags:
         - Role Based Access Control API
       responses:
-        "200":
+        '200':
           description: The Galasa Action definition
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RBACAction"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "401":
+                $ref: '#/components/schemas/RBACAction'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
           $ref: "#/components/responses/Unauthorized"
-        "403":
+        '403':
           $ref: "#/components/responses/Forbidden"
 
 ##################################################################################
@@ -2874,25 +2883,25 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/APIError"
+            $ref: '#/components/schemas/APIError'
     Conflict:
       description: The requested resource already exists
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/APIError"
+            $ref: '#/components/schemas/APIError'
     Forbidden:
       description: The user is not permitted to perform the requested operation
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/APIError"
+            $ref: '#/components/schemas/APIError'
     InternalServerError:
       description: An internal server error occurred
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/APIError"
+            $ref: '#/components/schemas/APIError'
           examples:
             genericerror:
               value:
@@ -2904,13 +2913,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/APIError"
+            $ref: '#/components/schemas/APIError'
     Unauthorized:
       description: Unauthorized as a valid bearer token has not been provided in the "Authorization" header
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/APIError"
+            $ref: '#/components/schemas/APIError'
           examples:
             unauthorizederror:
               value:
@@ -2922,7 +2931,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/APIError"
+            $ref: '#/components/schemas/APIError'
           examples:
             unsupportedContentTypeError:
               value:
@@ -2953,7 +2962,7 @@ components:
         tokens:
           type: array
           items:
-            $ref: "#/components/schemas/AuthToken"
+            $ref: '#/components/schemas/AuthToken'
     AuthToken:
       type: object
       properties:
@@ -2968,7 +2977,7 @@ components:
           description: The expiry date and time of the auth token (e.g. "2024-06-30T12:25:00.123Z").
         owner:
           description: Details about the owner of the token.
-          $ref: "#/components/schemas/User"
+          $ref: '#/components/schemas/User'
         description:
           type: string
           description: A description of the token, provided by the user when creating it.
@@ -3115,7 +3124,7 @@ components:
                 The character encoding scheme that has already been applied to all the values within the 'data' field.
                 Currently, 'base64' is the only supported encoding scheme.
             type:
-              $ref: "#/components/schemas/GalasaSecretType"
+              $ref: '#/components/schemas/GalasaSecretType'
               description: |
                 The type of the Galasa Secret resource. Supported types are 'UsernamePassword', 'Username',
                 'UsernameToken', 'Token', 'KeyStore'.
@@ -3163,7 +3172,7 @@ components:
       type: string
       description: The type of a Galasa Secret
       enum: [UsernamePassword, Username, UsernameToken, Token, KeyStore]
-
+    
     GalasaTag:
       type: object
       properties:
@@ -3202,7 +3211,7 @@ components:
       type: array
       description: An array of API Errors relating to the resources that failed to complete as expected
       items:
-        $ref: "#/components/schemas/APIError"
+          $ref: '#/components/schemas/APIError'
     APIError:
       type: object
       properties:
@@ -3215,16 +3224,16 @@ components:
       properties:
         action:
           type: string
-          enum: ["apply", "create", "update", "delete"]
+          enum: ["apply","create","update","delete"]
         data:
           type: array
           description: An array of Galasa Resources that should contain one or more entrys matching any of the schemas outlined
           items:
             anyOf:
-              - $ref: "#/components/schemas/GalasaProperty"
-              - $ref: "#/components/schemas/GalasaSecret"
-              - $ref: "#/components/schemas/GalasaTag"
-              - $ref: "#/components/schemas/Stream"
+              - $ref: '#/components/schemas/GalasaProperty'
+              - $ref: '#/components/schemas/GalasaSecret'
+              - $ref: '#/components/schemas/GalasaTag'
+              - $ref: '#/components/schemas/Stream'
     SecretRequest:
       type: object
       properties:
@@ -3237,7 +3246,7 @@ components:
         type:
           type: string
           description: The type of the secret to create or update
-          $ref: "#/components/schemas/GalasaSecretType"
+          $ref: '#/components/schemas/GalasaSecretType'
         username:
           type: object
           description: The username to create or update in the Credentials Store.
@@ -3332,7 +3341,7 @@ components:
         runs:
           type: array
           items:
-            $ref: "#/components/schemas/TestRun"
+            $ref: '#/components/schemas/TestRun'
     TestRun:
       type: object
       properties:
@@ -3387,9 +3396,9 @@ components:
           type: array
           items:
             type: string
-        webUiUrl:
+        webUiUrl: 
           type: string
-        restApiUrl:
+        restApiUrl: 
           type: string
     TestRunRequest:
       type: object
@@ -3474,19 +3483,19 @@ components:
       properties:
         status:
           type: string
-          enum: ["queued", "finished"]
+          enum: ["queued","finished"]
         result:
           type: string
-          enum: [nil, "cancelled"]
+          enum: [nil,"cancelled"]
     UpdateRunRequest:
       type: object
       properties:
         status:
           type: string
-          enum: ["queued", "finished"]
+          enum: ["queued","finished"]
         result:
           type: string
-          enum: [nil, "cancelled"]
+          enum: [nil,"cancelled"]
         tags:
           type: array
           items:
@@ -3512,12 +3521,12 @@ components:
         login-id:
           type: string
           description: The ID representing the user's username. Returned from queries about users.
-        role:
+        role: 
           type: string
-          description: |-
+          description: |- 
             The role that the user has in the system. This is not a readable name, but a numeric.
             It must be less than 128 characters and a consist of alphanumeric characters, '-' (hyphen) or '_' (underscore)
-        priority:
+        priority: 
           type: integer
           description: |-
             A numeric priority modifier that the user has in the system.
@@ -3526,17 +3535,17 @@ components:
           type: array
           description: The list of client activities, containing client names and last login times.
           items:
-            $ref: "#/components/schemas/FrontEndClient"
+            $ref: '#/components/schemas/FrontEndClient'
         url:
           type: string
           description: The API URL for accessing the user data.
         synthetic:
-          $ref: "#/components/schemas/UserSynthetics"
+          $ref: '#/components/schemas/UserSynthetics'
     UserSynthetics:
       type: object
       properties:
         role:
-          $ref: "#/components/schemas/RBACRole"
+          $ref: '#/components/schemas/RBACRole'
     UserUpdateData:
       type: object
       properties:
@@ -3550,7 +3559,7 @@ components:
             A numeric priority modifier that the user has in the system.
             This value is used to determine the priority the user has when the system schedules tests.
           type: integer
-
+          
     RBACRole:
       type: object
       properties:
@@ -3559,19 +3568,19 @@ components:
         kind:
           type: string
         metadata:
-          $ref: "#/components/schemas/RBACRoleMetadata"
+          $ref: '#/components/schemas/RBACRoleMetadata'
         data:
-          $ref: "#/components/schemas/RBACRoleData"
+          $ref: '#/components/schemas/RBACRoleData'
     RBACRoleMetadata:
       type: object
       properties:
-        id:
+        id: 
           type: string
         name:
           type: string
         description:
-          type: string
-        url:
+          type: string          
+        url: 
           type: string
         assignable:
           type: boolean
@@ -3579,8 +3588,8 @@ components:
 
     RBACRoleData:
       type: object
-      properties:
-        actions:
+      properties:  
+        actions: 
           type: array
           items:
             type: string
@@ -3589,28 +3598,28 @@ components:
       type: array
       description: A list of the actions in the system.
       items:
-        $ref: "#/components/schemas/RBACActionMetadata"
-
+        $ref: '#/components/schemas/RBACActionMetadata'
+    
     RBACAction:
       type: object
       properties:
-        apiVersion:
+        apiVersion: 
           type: string
-        kind:
+        kind: 
           type: string
         metadata:
-          $ref: "#/components/schemas/RBACActionMetadata"
+          $ref: '#/components/schemas/RBACActionMetadata'
 
     RBACActionMetadata:
       type: object
       properties:
         id:
           type: string
-        name:
+        name: 
           type: string
         description:
-          type: string
-        url:
+          type: string 
+        url: 
           type: string
 
     FrontEndClient:
@@ -3648,11 +3657,11 @@ components:
           description: A uuid created to identify this test run. Useful until this run has been allocated a test name, which is allocated once the test is launched.
         requestor:
           type: string
-          description: |-
+          description:  |-
             The Galasa user associated with the JWT used to submit the test.
         user:
           type: string
-          description: |-
+          description:  |-
             The Galasa user who requested this test to be executed.
             This may or may not be the same as the requestor.
         status:
@@ -3668,10 +3677,10 @@ components:
         methods:
           type: array
           items:
-            $ref: "#/components/schemas/TestMethod"
-        tags:
+            $ref: '#/components/schemas/TestMethod'
+        tags: 
           type: array
-          items:
+          items: 
             type: string
     TestMethod:
       type: object
@@ -3712,19 +3721,19 @@ components:
         contentType:
           type: string
     TestClasses:
-      type: object
+      type : object
       properties:
         testclasses:
           type: array
           items:
-            $ref: "#/components/schemas/TestClass"
+            $ref: '#/components/schemas/TestClass'
     TestClass:
       type: object
       properties:
         testclass:
-          type: string
+           type: string
         bundle:
-          type: string
+           type: string
     ResultNames:
       type: object
       properties:
@@ -3738,14 +3747,14 @@ components:
         runId:
           type: string
         testStructure:
-          $ref: "#/components/schemas/TestStructure"
+          $ref: '#/components/schemas/TestStructure'
         artifacts:
           type: array
           items:
-            $ref: "#/components/schemas/Artifact"
-        webUiUrl:
+            $ref: '#/components/schemas/Artifact'
+        webUiUrl: 
           type: string
-        restApiUrl:
+        restApiUrl: 
           type: string
     RunResults:
       type: object
@@ -3759,7 +3768,7 @@ components:
         runs:
           type: array
           items:
-            $ref: "#/components/schemas/Run"
+            $ref: '#/components/schemas/Run'
     Namespace:
       type: object
       properties:
@@ -3777,9 +3786,9 @@ components:
         kind:
           type: string
         metadata:
-          $ref: "#/components/schemas/StreamMetadata"
+          $ref: '#/components/schemas/StreamMetadata'
         data:
-          $ref: "#/components/schemas/StreamData"
+          $ref: '#/components/schemas/StreamData'
     StreamMetadata:
       type: object
       properties:
@@ -3795,14 +3804,14 @@ components:
         isEnabled:
           type: boolean
         repository:
-          $ref: "#/components/schemas/StreamRepository"
+          $ref: '#/components/schemas/StreamRepository'
         obrs:
           type: array
           description: List of OBRs
           items:
-            $ref: "#/components/schemas/StreamOBRData"
+            $ref: '#/components/schemas/StreamOBRData'
         testCatalog:
-          $ref: "#/components/schemas/StreamTestCatalog"
+          $ref: '#/components/schemas/StreamTestCatalog'
     StreamOBRData:
       type: object
       properties:
@@ -3849,7 +3858,7 @@ components:
           description: List of OBRs
           minItems: 1
           items:
-            $ref: "#/components/schemas/StreamOBRData"
+            $ref: '#/components/schemas/StreamOBRData'
         testCatalog:
           type: object
           required:
@@ -3874,7 +3883,7 @@ components:
           type: array
           description: List of OBRs
           items:
-            $ref: "#/components/schemas/StreamOBRData"
+            $ref: '#/components/schemas/StreamOBRData'
         testCatalog:
           type: object
           properties:
@@ -3885,7 +3894,7 @@ components:
     ArtifactIndex:
       type: array
       items:
-        $ref: "#/components/schemas/ArtifactIndexEntry"
+        $ref: '#/components/schemas/ArtifactIndexEntry'
       uniqueItems: true
 
     ArtifactIndexEntry:
@@ -3901,9 +3910,9 @@ components:
           type: string
           format: uri
           readOnly: true
-  ##################################################################################
-  # Security Schemas
-  ##################################################################################
+##################################################################################
+# Security Schemas
+##################################################################################
   securitySchemes:
     JwtAuth:
       description: |
@@ -3912,9 +3921,9 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
-  ##################################################################################
-  # Parameters
-  ##################################################################################
+##################################################################################
+# Parameters
+##################################################################################
   parameters:
     ClientApiVersion:
       in: header
