@@ -121,7 +121,7 @@ public class TestRasRunCleanup {
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
-        cpsProperties.put("test.run.exclude.tags", "production,critical");
+        cpsProperties.put("ras.cleanup.test.run.exclude.tags", "production,critical");
         MockCPSStore cps = createMockCPSStore(cpsProperties);
         
         // Create old runs with different tags
@@ -163,7 +163,7 @@ public class TestRasRunCleanup {
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
-        cpsProperties.put("test.run.exclude.user", "admin,system");
+        cpsProperties.put("ras.cleanup.test.run.exclude.user", "admin,system");
         MockCPSStore cps = createMockCPSStore(cpsProperties);
         
         // Create old runs with different users
@@ -205,7 +205,7 @@ public class TestRasRunCleanup {
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
-        cpsProperties.put("test.run.exclude.result", Result.HUNG);
+        cpsProperties.put("ras.cleanup.test.run.exclude.result", Result.HUNG);
         MockCPSStore cps = createMockCPSStore(cpsProperties);
         
         // Create old runs with different results
@@ -241,8 +241,8 @@ public class TestRasRunCleanup {
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
-        cpsProperties.put("test.run.exclude.tags", "production");
-        cpsProperties.put("test.run.exclude.user", "admin");
+        cpsProperties.put("ras.cleanup.test.run.exclude.tags", "production");
+        cpsProperties.put("ras.cleanup.test.run.exclude.user", "admin");
         MockCPSStore cps = createMockCPSStore(cpsProperties);
         
         // Create old runs
@@ -309,7 +309,7 @@ public class TestRasRunCleanup {
         
         Map<String, String> cpsProperties = new HashMap<>();
         cpsProperties.put("ras.cleanup.test.run.age.max.days", String.valueOf(maxAgeDays));
-        cpsProperties.put("test.run.exclude.tags", " production , critical ");
+        cpsProperties.put("ras.cleanup.test.run.exclude.tags", " production , critical ");
         MockCPSStore cps = createMockCPSStore(cpsProperties);
         
         // Create old runs

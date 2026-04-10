@@ -74,6 +74,16 @@ Use the `framework.ras.cleanup.test.run.exclude.[FIELD_NAME]` CPS property patte
 
 The property accepts a comma-separated list of values. Test runs matching any of the specified values for that field will be excluded from cleanup.
 
+Supported test run field names are:
+
+- `group`
+- `requestor`
+- `result`
+- `runName`
+- `status`
+- `tags`
+- `user`
+
 ### Example: Excluding by tags
 
 To exclude test runs that are tagged with `keepMe` or `doNotDelete`:

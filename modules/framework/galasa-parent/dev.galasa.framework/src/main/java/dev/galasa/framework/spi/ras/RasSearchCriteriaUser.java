@@ -29,7 +29,7 @@ public class RasSearchCriteriaUser implements IRasSearchCriteria {
         if (users != null) {
             for (String user : users) {
                 // When searching by user, match on either the test user or requestor.
-                if (user.equals(structure.getUser()) || user.equals(structure.getRequestor())) {
+                if (user.equalsIgnoreCase(structure.getUser()) || user.equalsIgnoreCase(structure.getRequestor())) {
                     return true;
                 }
             }

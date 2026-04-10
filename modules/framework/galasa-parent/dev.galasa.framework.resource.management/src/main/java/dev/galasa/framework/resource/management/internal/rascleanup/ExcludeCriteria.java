@@ -5,11 +5,17 @@
  */
 package dev.galasa.framework.resource.management.internal.rascleanup;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.ras.IRasSearchCriteria;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaGroup;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaRequestor;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaResult;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaRunName;
+import dev.galasa.framework.spi.ras.RasSearchCriteriaStatus;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaTags;
 import dev.galasa.framework.spi.ras.RasSearchCriteriaUser;
 import dev.galasa.framework.spi.teststructure.TestStructure;
@@ -18,6 +24,8 @@ public enum ExcludeCriteria {
     GROUP("group"),
     REQUESTOR("requestor"),
     RESULT("result"),
+    RUN_NAME("runName"),
+    STATUS("status"),
     TAGS("tags"),
     USER("user");
 
@@ -40,15 +48,32 @@ public enum ExcludeCriteria {
                 return new RasSearchCriteriaTags(values);
             case RESULT:
                 return new RasSearchCriteriaResult(values);
+            case RUN_NAME:
+                return new RasSearchCriteriaRunName(values);
             case GROUP:
                 return new RasSearchCriteriaGroup(values);
             case USER:
                 return new RasSearchCriteriaUser(values);
             case REQUESTOR:
                 return new RasSearchCriteriaRequestor(values);
+            case STATUS:
+                List<TestRunLifecycleStatus> statuses = getTestRunStatusesFromValues(values);
+                return new RasSearchCriteriaStatus(statuses);
             default:
                 throw new FrameworkException("Unknown criteria type: " + this);
         }
+    }
+
+    private List<TestRunLifecycleStatus> getTestRunStatusesFromValues(String[] values) {
+        List<TestRunLifecycleStatus> statuses = new ArrayList<>();
+
+        for (String value : values) {
+            TestRunLifecycleStatus status = TestRunLifecycleStatus.getFromString(value);
+            if (status != null) {
+                statuses.add(status);
+            }
+        }
+        return statuses;
     }
 
     /**

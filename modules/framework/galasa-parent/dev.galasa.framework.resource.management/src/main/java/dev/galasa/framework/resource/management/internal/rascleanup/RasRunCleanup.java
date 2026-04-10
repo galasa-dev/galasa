@@ -32,8 +32,8 @@ public class RasRunCleanup implements Runnable {
 
     private static final String TEST_RUN_CLEANUP_CPS_PREFIX = "ras.cleanup";
     private static final String TEST_RUN_MAX_DAYS_CPS_PROPERTY = "test.run.age.max.days";
-    private static final String TEST_RUN_EXCLUDE_PREFIX = "test.run.exclude.";
-    
+    private static final String TEST_RUN_EXCLUDE_PREFIX = TEST_RUN_CLEANUP_CPS_PREFIX + ".test.run.exclude.";
+
     private final int initialRunCleanupMaxAgeDays;
 
     private IResultArchiveStore rasService;
@@ -86,11 +86,11 @@ public class RasRunCleanup implements Runnable {
             for (IResultArchiveStoreDirectoryService directoryService : rasService.getDirectoryServices()) {
                 runs.addAll(directoryService.getRuns(searchCriteria.toArray(new IRasSearchCriteria[0])));
             }
-            logger.info("Found " + runs.size() + " runs matching cleanup criteria");
+            logger.info("Found " + runs.size() + " run(s) matching cleanup criteria");
 
             // Filter out excluded runs - returns only runs that should still be cleaned up
             runs = filterOutRunsToKeep(runs);
-            logger.info(runs.size() + " runs will be deleted from the RAS");
+            logger.info(runs.size() + " run(s) will be deleted from the RAS");
         }
         return runs;
     }
@@ -98,37 +98,77 @@ public class RasRunCleanup implements Runnable {
     private List<IRunResult> filterOutRunsToKeep(List<IRunResult> runsToCleanUp) throws FrameworkException {
         Set<IRunResult> runsToKeep = new HashSet<>();
 
-        // Get all the properties in the form framework.test.run.exclude.<field>=<comma-separated-values-to-exclude>
+        // Get all the properties in the form framework.ras.cleanup.test.run.exclude.<field>=<comma-separated-values-to-exclude>
         Map<String, String> excludeProperties = cpsService.getPrefixedProperties(TEST_RUN_EXCLUDE_PREFIX);
 
         if (!excludeProperties.isEmpty()) {
-            for (Map.Entry<String, String> entry : excludeProperties.entrySet()) {
-                String key = entry.getKey();
-                String fieldName = key.substring(key.lastIndexOf(".") + 1).toLowerCase();
 
-                ExcludeCriteria criteria = ExcludeCriteria.getFromString(fieldName);
-                if (criteria != null) {
-                    // Split by comma and trim whitespace from each value
-                    String[] valuesToKeep = entry.getValue().split(",");
-                    for (int i = 0; i < valuesToKeep.length; i++) {
-                        valuesToKeep[i] = valuesToKeep[i].trim();
-                    }
+            // Build a list of exclude criteria
+            List<ParsedExcludeCriteria> criteriaList = buildExcludeCriteria(excludeProperties);
 
-                    for (IRunResult run : runsToCleanUp) {
-                        if (criteria.shouldRunBeKept(run.getTestStructure(), valuesToKeep)) {
-                            runsToKeep.add(run);
-                            logger.trace("Run " + run.getRunId() + " excluded from cleanup by " + fieldName + " criteria");
-                        }
+            // Build a list of runs to keep
+            for (IRunResult run : runsToCleanUp) {
+                for (ParsedExcludeCriteria parsedCriteria : criteriaList) {
+                    if (parsedCriteria.getCriteria().shouldRunBeKept(run.getTestStructure(), parsedCriteria.getValues())) {
+                        runsToKeep.add(run);
+                        logger.trace("Run " + run.getRunId() + " excluded from cleanup by " + parsedCriteria.getRunFieldName() + " criteria");
+                        break;
                     }
                 }
             }
-            logger.trace("Excluded " + (runsToCleanUp.size() - runsToKeep.size()) + " runs from cleanup");
+            logger.trace("Excluded " + runsToKeep.size() + " run(s) from cleanup");
 
             // Remove the runs to keep from the list of runs that should be cleaned up
             runsToCleanUp.removeAll(runsToKeep);
         }
 
         return runsToCleanUp;
+    }
+
+    private List<ParsedExcludeCriteria> buildExcludeCriteria(Map<String, String> excludeProperties) {
+        List<ParsedExcludeCriteria> criteriaList = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : excludeProperties.entrySet()) {
+            String key = entry.getKey();
+            String fieldName = key.substring(key.lastIndexOf(".") + 1).toLowerCase();
+
+            ExcludeCriteria criteria = ExcludeCriteria.getFromString(fieldName);
+            if (criteria != null) {
+
+                // Values may be provided as comma-separated lists,
+                // so split by the commas and trim each value
+                String[] valuesToKeep = entry.getValue().split(",");
+                for (int i = 0; i < valuesToKeep.length; i++) {
+                    valuesToKeep[i] = valuesToKeep[i].trim();
+                }
+                criteriaList.add(new ParsedExcludeCriteria(criteria, valuesToKeep, fieldName));
+            }
+        }
+        return criteriaList;
+    }
+
+    private class ParsedExcludeCriteria {
+        final ExcludeCriteria criteria;
+        final String[] values;
+        final String fieldName;
+
+        ParsedExcludeCriteria(ExcludeCriteria criteria, String[] values, String fieldName) {
+            this.criteria = criteria;
+            this.values = values;
+            this.fieldName = fieldName;
+        }
+
+        public ExcludeCriteria getCriteria() {
+            return criteria;
+        }
+
+        public String[] getValues() {
+            return values;
+        }
+
+        public String getRunFieldName() {
+            return fieldName;
+        }
     }
 
     private List<IRasSearchCriteria> buildSearchCriteria() throws ConfigurationPropertyStoreException {

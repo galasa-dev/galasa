@@ -57,6 +57,24 @@ public class TestExcludeCriteria {
     }
 
     @Test
+    public void testGetFromStringReturnsStatusCriteria() {
+        // When...
+        ExcludeCriteria criteria = ExcludeCriteria.getFromString("status");
+
+        // Then...
+        assertThat(criteria).as("Should return STATUS criteria").isEqualTo(ExcludeCriteria.STATUS);
+    }
+
+    @Test
+    public void testGetFromStringReturnsRunNameCriteria() {
+        // When...
+        ExcludeCriteria criteria = ExcludeCriteria.getFromString("runName");
+
+        // Then...
+        assertThat(criteria).as("Should return RUN_NAME criteria").isEqualTo(ExcludeCriteria.RUN_NAME);
+    }
+
+    @Test
     public void testGetFromStringIsCaseInsensitive() {
         // When...
         ExcludeCriteria upperCase = ExcludeCriteria.getFromString("TAGS");
@@ -104,6 +122,8 @@ public class TestExcludeCriteria {
         assertThat(ExcludeCriteria.GROUP.toString()).isEqualTo("group");
         assertThat(ExcludeCriteria.REQUESTOR.toString()).isEqualTo("requestor");
         assertThat(ExcludeCriteria.RESULT.toString()).isEqualTo("result");
+        assertThat(ExcludeCriteria.RUN_NAME.toString()).isEqualTo("runName");
+        assertThat(ExcludeCriteria.STATUS.toString()).isEqualTo("status");
     }
 
     @Test
@@ -240,6 +260,66 @@ public class TestExcludeCriteria {
     }
 
     @Test
+    public void testShouldRunBeKeptReturnsTrueWhenStatusMatches() throws Exception {
+        // Given...
+        TestStructure testStructure = new TestStructure();
+        testStructure.setStatus("running");
+
+        String[] excludeValues = {"running"};
+
+        // When...
+        boolean shouldKeep = ExcludeCriteria.STATUS.shouldRunBeKept(testStructure, excludeValues);
+
+        // Then...
+        assertThat(shouldKeep).as("Should return true when status matches").isTrue();
+    }
+
+    @Test
+    public void testShouldRunBeKeptReturnsFalseWhenStatusDoesNotMatch() throws Exception {
+        // Given...
+        TestStructure testStructure = new TestStructure();
+        testStructure.setStatus("other");
+
+        String[] excludeValues = {"running"};
+
+        // When...
+        boolean shouldKeep = ExcludeCriteria.STATUS.shouldRunBeKept(testStructure, excludeValues);
+
+        // Then...
+        assertThat(shouldKeep).as("Should return false when status does not match").isFalse();
+    }
+
+    @Test
+    public void testShouldRunBeKeptReturnsTrueWhenRunNameMatches() throws Exception {
+        // Given...
+        TestStructure testStructure = new TestStructure();
+        testStructure.setRunName("RUN1");
+
+        String[] excludeValues = {"RUN1"};
+
+        // When...
+        boolean shouldKeep = ExcludeCriteria.RUN_NAME.shouldRunBeKept(testStructure, excludeValues);
+
+        // Then...
+        assertThat(shouldKeep).as("Should return true when run name matches").isTrue();
+    }
+
+    @Test
+    public void testShouldRunBeKeptReturnsFalseWhenRunNameDoesNotMatch() throws Exception {
+        // Given...
+        TestStructure testStructure = new TestStructure();
+        testStructure.setRunName("other");
+
+        String[] excludeValues = {"RUN1"};
+
+        // When...
+        boolean shouldKeep = ExcludeCriteria.RUN_NAME.shouldRunBeKept(testStructure, excludeValues);
+
+        // Then...
+        assertThat(shouldKeep).as("Should return false when run name does not match").isFalse();
+    }
+
+    @Test
     public void testShouldRunBeKeptReturnsFalseWhenExcludeValuesIsNull() throws Exception {
         // Given...
         TestStructure testStructure = new TestStructure();
@@ -277,12 +357,14 @@ public class TestExcludeCriteria {
         ExcludeCriteria[] values = ExcludeCriteria.values();
 
         // Then...
-        assertThat(values).as("Should have 3 enum values").hasSize(5);
+        assertThat(values).as("Should have 3 enum values").hasSize(7);
         assertThat(values).as("Should contain TAGS").contains(ExcludeCriteria.TAGS);
         assertThat(values).as("Should contain USER").contains(ExcludeCriteria.USER);
         assertThat(values).as("Should contain GROUP").contains(ExcludeCriteria.GROUP);
         assertThat(values).as("Should contain REQUESTOR").contains(ExcludeCriteria.REQUESTOR);
         assertThat(values).as("Should contain RESULT").contains(ExcludeCriteria.RESULT);
+        assertThat(values).as("Should contain STATUS").contains(ExcludeCriteria.STATUS);
+        assertThat(values).as("Should contain RUN_NAME").contains(ExcludeCriteria.RUN_NAME);
     }
 
     @Test

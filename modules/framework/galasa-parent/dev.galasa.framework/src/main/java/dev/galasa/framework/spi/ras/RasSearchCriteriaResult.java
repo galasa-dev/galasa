@@ -22,18 +22,18 @@ public class RasSearchCriteriaResult implements IRasSearchCriteria {
    public boolean criteriaMatched(@NotNull TestStructure structure) {
       
       if(structure == null) {
-         return Boolean.FALSE;
+         return false;
       }
       
       if(results != null) {
          for(String result : results) {
-             if(result.equals(structure.getResult())){
-                 return Boolean.TRUE;
+             if(result.equalsIgnoreCase(structure.getResult())){
+                 return true;
              }
          }
      }
       
-      return Boolean.FALSE;
+      return false;
       
       
    }
