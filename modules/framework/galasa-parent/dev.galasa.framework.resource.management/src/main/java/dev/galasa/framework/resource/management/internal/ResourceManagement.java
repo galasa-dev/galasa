@@ -11,7 +11,6 @@ import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,15 +22,12 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
-import dev.galasa.framework.resource.management.internal.rascleanup.RasRunCleanupScheduler;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
-import dev.galasa.framework.spi.SystemEnvironment;
-import dev.galasa.framework.spi.utils.SystemTimeService;
 import io.prometheus.client.Counter;
 import io.prometheus.client.exporter.HTTPServer;
 
@@ -40,8 +36,6 @@ import io.prometheus.client.exporter.HTTPServer;
  */
 @Component(service = { ResourceManagement.class })
 public class ResourceManagement extends AbstractResourceManagement {
-
-    private static final int RESOURCE_MANAGEMENT_RAS_CLEANUP_POLL_INTERVAL_MINUTES = 5;
 
     private Log logger = LogFactory.getLog(this.getClass());
 
@@ -129,8 +123,6 @@ public class ResourceManagement extends AbstractResourceManagement {
             // *** Start the Run watch thread
             ResourceManagementRunWatch runWatch = new ResourceManagementRunWatch(framework, resourceManagementProviders, getScheduledExecutorService());
 
-            startRasRunCleanupScheduler();
-
             logger.info("Resource Manager has started");
 
             // *** Loop until we are asked to shutdown
@@ -150,22 +142,6 @@ public class ResourceManagement extends AbstractResourceManagement {
             // Let the ShutDownHook know that the main thread has shut things down via this shared-state boolean.
             shutdownComplete = true;
         }
-    }
-
-    private void startRasRunCleanupScheduler() throws FrameworkException {
-        RasRunCleanupScheduler rasRunCleanupScheduler = new RasRunCleanupScheduler(
-            framework,
-            getScheduledExecutorService(),
-            new SystemTimeService(),
-            new SystemEnvironment()
-        );
-
-        getScheduledExecutorService().scheduleWithFixedDelay(
-            rasRunCleanupScheduler,
-            0,
-            RESOURCE_MANAGEMENT_RAS_CLEANUP_POLL_INTERVAL_MINUTES,
-            TimeUnit.MINUTES
-        );
     }
 
     private void shutdown(ResourceManagementRunWatch runWatch) {
