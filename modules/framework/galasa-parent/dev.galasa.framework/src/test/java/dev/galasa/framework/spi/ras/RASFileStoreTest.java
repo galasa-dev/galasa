@@ -12,8 +12,6 @@ import java.nio.file.attribute.FileStoreAttributeView;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dev.galasa.framework.spi.ras.ResultArchiveStoreFileStore;
-
 public class RASFileStoreTest {
 
     @Test

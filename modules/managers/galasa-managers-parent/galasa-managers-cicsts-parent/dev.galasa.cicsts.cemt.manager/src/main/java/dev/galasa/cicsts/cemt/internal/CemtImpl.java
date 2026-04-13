@@ -10,8 +10,6 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import dev.galasa.cicsts.CemtException;
 import dev.galasa.cicsts.CemtManagerException;
 import dev.galasa.cicsts.CicstsHashMap;
@@ -27,8 +25,6 @@ import dev.galasa.zos3270.TimeoutException;
 import dev.galasa.zos3270.spi.NetworkException;
 
 public class CemtImpl implements ICemt {
-
-    private static final Log logger = LogFactory.getLog(CemtImpl.class);
     
     private ICicsRegion cicsRegion;
 

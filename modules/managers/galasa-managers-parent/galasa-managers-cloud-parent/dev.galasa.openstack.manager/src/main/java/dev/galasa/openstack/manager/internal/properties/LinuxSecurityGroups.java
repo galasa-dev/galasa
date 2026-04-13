@@ -12,7 +12,6 @@ import dev.galasa.framework.spi.cps.CpsProperties;
 import dev.galasa.openstack.manager.OpenstackManagerException;
 
 import java.util.List;
-import java.util.Arrays;
 
 /**
  * OpenStack Linux Security Groups

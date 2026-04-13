@@ -5,24 +5,11 @@
  */
 package dev.galasa.db2.internal;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ICredentialsUsernamePassword;
 import dev.galasa.db2.Db2ManagerException;
@@ -45,8 +32,6 @@ import dev.galasa.framework.spi.creds.CredentialsException;
  */
 public class Db2InstanceImpl implements IDb2Instance{
 	private Connection 			conn;
-	
-	private static final Log  	logger = LogFactory.getLog(Db2InstanceImpl.class);
 	
 	public Db2InstanceImpl(IFramework framework, Db2ManagerImpl manager, String tag) throws Db2ManagerException{
 		String instance = Db2DSEInstanceName.get(tag);

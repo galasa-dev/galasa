@@ -9,8 +9,6 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import java.net.HttpURLConnection;
-
 import org.apache.http.HttpStatus;
 
 import com.google.gson.JsonObject;
