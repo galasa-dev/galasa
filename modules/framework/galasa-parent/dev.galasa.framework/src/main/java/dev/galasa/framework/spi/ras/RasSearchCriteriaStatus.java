@@ -26,7 +26,7 @@ public class RasSearchCriteriaStatus implements IRasSearchCriteria {
    public boolean criteriaMatched(@NotNull TestStructure structure) {
       
       for(TestRunLifecycleStatus status : statuses) {
-            if(status.toString().equals(structure.getStatus())){
+            if(status.toString().equalsIgnoreCase(structure.getStatus())){
                return true;
             }
       }

@@ -220,6 +220,7 @@ nav:
       - docs/manage-ecosystem/runs-reset-cancel.md
       - docs/manage-ecosystem/runs-get.md
       - docs/manage-ecosystem/runs-download.md
+      - docs/manage-ecosystem/automatic-runs-cleanup.md
       - docs/manage-ecosystem/runs-delete.md
     - Upgrading:
       - docs/upgrading/index.md 
