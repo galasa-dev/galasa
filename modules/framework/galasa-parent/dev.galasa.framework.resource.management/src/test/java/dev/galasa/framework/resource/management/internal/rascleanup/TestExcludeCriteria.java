@@ -357,7 +357,7 @@ public class TestExcludeCriteria {
         ExcludeCriteria[] values = ExcludeCriteria.values();
 
         // Then...
-        assertThat(values).as("Should have 3 enum values").hasSize(7);
+        assertThat(values).as("Should have 7 enum values").hasSize(7);
         assertThat(values).as("Should contain TAGS").contains(ExcludeCriteria.TAGS);
         assertThat(values).as("Should contain USER").contains(ExcludeCriteria.USER);
         assertThat(values).as("Should contain GROUP").contains(ExcludeCriteria.GROUP);

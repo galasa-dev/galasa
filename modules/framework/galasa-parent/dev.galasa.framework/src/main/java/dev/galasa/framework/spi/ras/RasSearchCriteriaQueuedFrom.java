@@ -23,22 +23,22 @@ public class RasSearchCriteriaQueuedFrom implements IRasSearchCriteria {
 	public boolean criteriaMatched(@NotNull TestStructure structure) {
 		
 		if(structure == null) {
-			return Boolean.FALSE;	
+			return true;	
 		}
 		
-		if(structure.getStartTime() == null) {
-			return Boolean.FALSE;
+		if(structure.getQueued() == null) {
+			return false;
 		}
 		
 		if(from == null) {
-			return Boolean.FALSE;
+			return false;
 		}
 		
-		if(from.equals(structure.getStartTime()) || from.isBefore(structure.getStartTime())) {
-			return Boolean.TRUE;
+		if(from.equals(structure.getQueued()) || from.isBefore(structure.getQueued())) {
+			return true;
 		}
 		
-		return Boolean.FALSE;
+		return false;
 	}
 
     public Instant getFrom() {
