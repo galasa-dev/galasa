@@ -54,14 +54,13 @@ public class OpenApiRouteTest {
 
     private void checkYamlContents(String yamlContents, String apiServerUrl) {
         assertThat(yamlContents).contains(
-            "openapi:",
-            "version",
-            "title: Galasa Ecosystem API",
-            "url: \"" + apiServerUrl + "\"",
-            "paths:",
-            "/bootstrap:",
-            "/auth/tokens:"
-        );
+                "openapi:",
+                "version",
+                "title: Galasa Ecosystem API",
+                "url: '" + apiServerUrl + "'",
+                "paths:",
+                "/bootstrap:",
+                "/auth/tokens:");
     }
 
     @Test
@@ -109,7 +108,8 @@ public class OpenApiRouteTest {
         ServletOutputStream outputStream = response.getOutputStream();
         assertThat(response.getStatus()).isEqualTo(200);
 
-        // Check a few key parts of the OpenAPI specification were returned and that the JSON string can be serialised into a JSON object
+        // Check a few key parts of the OpenAPI specification were returned and that the
+        // JSON string can be serialised into a JSON object
         checkJsonContents(outputStream.toString(), apiServerUrl);
     }
 
@@ -194,7 +194,8 @@ public class OpenApiRouteTest {
         MockHttpServletRequest request = new MockHttpServletRequest("");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        // Set application/json to have the higher quality value, so a JSON response should be returned
+        // Set application/json to have the higher quality value, so a JSON response
+        // should be returned
         request.setHeader("Accept", "application/yaml;q=0.1, application/json;q=0.7");
 
         // When...
@@ -288,7 +289,8 @@ public class OpenApiRouteTest {
         MockHttpServletRequest request = new MockHttpServletRequest("");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        // Both priorities are 1 if quality values aren't given, in this case a YAML response should be returned
+        // Both priorities are 1 if quality values aren't given, in this case a YAML
+        // response should be returned
         request.setHeader("Accept", "application/yaml, application/json");
 
         // When...
@@ -362,6 +364,7 @@ public class OpenApiRouteTest {
         }, ServletException.class);
 
         // Then...
-        assertThat(thrown.getMessage()).contains("Required environment variable", EnvironmentVariables.GALASA_EXTERNAL_API_URL, "not set");
+        assertThat(thrown.getMessage()).contains("Required environment variable",
+                EnvironmentVariables.GALASA_EXTERNAL_API_URL, "not set");
     }
 }
