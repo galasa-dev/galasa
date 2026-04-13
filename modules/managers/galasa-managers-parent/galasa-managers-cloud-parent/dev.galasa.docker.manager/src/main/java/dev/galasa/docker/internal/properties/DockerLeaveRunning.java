@@ -5,8 +5,6 @@
  */
 package dev.galasa.docker.internal.properties;
 
-import java.util.Map;
-
 import dev.galasa.docker.DockerManagerException;
 import dev.galasa.docker.internal.DockerContainerImpl;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;

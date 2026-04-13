@@ -29,7 +29,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SetContentType;
-import dev.galasa.framework.spi.IFramework;
 import dev.galasa.selenium.IWebPage;
 import dev.galasa.selenium.SeleniumManagerException;
 
