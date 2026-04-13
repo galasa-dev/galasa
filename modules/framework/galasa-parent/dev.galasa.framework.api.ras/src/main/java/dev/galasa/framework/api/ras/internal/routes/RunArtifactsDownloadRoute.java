@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.IFileSystem;
 import dev.galasa.framework.api.ras.internal.common.ArtifactsJson;
-import dev.galasa.framework.api.ras.internal.common.ArtifactsProperties;
 import dev.galasa.framework.api.ras.internal.common.IRunRootArtifact;
 import dev.galasa.framework.api.ras.internal.common.RunLogArtifact;
 import dev.galasa.framework.api.ras.internal.common.StructureJsonArtifact;
@@ -84,7 +83,6 @@ public class RunArtifactsDownloadRoute extends RunArtifactsRoute {
 
         rootArtifacts.put("run.log", new RunLogArtifact());
         rootArtifacts.put("structure.json", new StructureJsonArtifact());
-        rootArtifacts.put("artifacts.properties", new ArtifactsProperties(this));
         rootArtifacts.put("artifacts.json", new ArtifactsJson(this));
     }
 

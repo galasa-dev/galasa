@@ -6,9 +6,9 @@
 package dev.galasa.framework.internal.ras.directory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStreamReader;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.AccessMode;
 import java.nio.file.DirectoryStream;
@@ -30,13 +30,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
+import dev.galasa.framework.spi.ras.ArtifactMetadata;
 import dev.galasa.framework.SupportedFileAttributeName;
 import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystem;
 import dev.galasa.framework.spi.ras.ResultArchiveStoreFileSystemProvider;
 import dev.galasa.framework.spi.ras.ResultArchiveStorePath;
+import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.ResultArchiveStoreFileAttributeView;
 import dev.galasa.SetContentType;
@@ -50,11 +51,11 @@ import dev.galasa.SetContentType;
  */
 public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystemProvider {
 
+    private final Path                          artifactDirectory;
+    private final Path                          artifactJsonFile;
+    private final Map<String, ArtifactMetadata> artifacts = new HashMap<>();
 
-
-    private final Path          artifactDirectory;
-    private final Path          artifactPropertesFile;
-    private final Properties    contentTypeProperties = new Properties();
+    private final GalasaGson gson = new GalasaGson();
 
     /**
      * Create the Directory RAS provider for stored artifacts
@@ -66,15 +67,18 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
         super(runDirectory.getFileSystem().provider().getFileStore(runDirectory));
 
         this.artifactDirectory = runDirectory.resolve("artifacts");
-        this.artifactPropertesFile = runDirectory.resolve("artifacts.properties");
+        this.artifactJsonFile = runDirectory.resolve("artifacts.json");
 
-        // *** Load the content type properties file, contains the content type of all
-        // the files if set
-        if (Files.exists(this.artifactPropertesFile)) {
-            try (InputStream is = Files.newInputStream(this.artifactPropertesFile)) {
-                this.contentTypeProperties.load(is);
-            } catch (final Exception e) {
-                throw new IOException("Unable to read the artifacts contenttypes", e);
+        if (!this.artifactJsonFile.toAbsolutePath().startsWith(runDirectory)) {
+            throw new IllegalArgumentException("Invalid filename");
+        }
+
+        if (Files.exists(this.artifactJsonFile)) {
+            try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(this.artifactJsonFile), StandardCharsets.UTF_8)) {
+                ArtifactMetadata[] artifactMetadataList = gson.fromJson(reader, ArtifactMetadata[].class);
+                for (ArtifactMetadata artifactMetadata : artifactMetadataList) {
+                    artifacts.put(artifactMetadata.getPath(), artifactMetadata);
+                }
             }
         }
     }
@@ -84,21 +88,22 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
      *
      * @param path        - the stored artifact to set the content type for
      * @param contentType - the content type
-     * @throws IOException - if unable to save the properties file
+     * @throws IOException - if unable to save the artifacts.json file
      */
     private void setContentType(Path path, ResultArchiveStoreContentType contentType) throws IOException {
         if (!path.isAbsolute()) {
             path = path.toAbsolutePath();
         }
 
-        this.contentTypeProperties.setProperty(path.toString(), contentType.value());
-
-        // *** Make hardcopy
-        try (OutputStream os = Files.newOutputStream(this.artifactPropertesFile)) {
-            this.contentTypeProperties.store(os, null);
-        } catch (final Exception e) {
-            throw new IOException("Unable to write the artifacts contenttypes", e);
+        String pathString = path.toString();
+        ArtifactMetadata metadata = artifacts.get(pathString);
+        if (metadata == null) {
+            metadata = new ArtifactMetadata(pathString, contentType.value());
+            artifacts.put(pathString, metadata);
+        } else {
+            metadata.setContentType(contentType.value());
         }
+        Files.writeString(this.artifactJsonFile, gson.toJson(new ArrayList<>(artifacts.values())), StandardCharsets.UTF_8);
     }
 
     /**
@@ -112,11 +117,11 @@ public class DirectoryRASFileSystemProvider extends ResultArchiveStoreFileSystem
             path = path.toAbsolutePath();
         }
         ResultArchiveStoreContentType contentType = null;
-        final String sContentType = this.contentTypeProperties.getProperty(path.toString());
-        if (sContentType == null) {
+        ArtifactMetadata metadata = artifacts.get(path.toString());
+        if (metadata == null || metadata.getContentType() == null) {
             contentType = ResultArchiveStoreContentType.TEXT;
         } else {
-            contentType = new ResultArchiveStoreContentType(sContentType);
+            contentType = new ResultArchiveStoreContentType(metadata.getContentType());
         }
         return contentType;
     }
