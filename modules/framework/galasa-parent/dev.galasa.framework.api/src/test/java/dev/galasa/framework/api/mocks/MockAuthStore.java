@@ -86,4 +86,9 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
     public IUser getUserByLoginIdCaseInsensitive(String loginId) throws AuthStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'getUserByLoginIdCaseInsensitive'");
     }
+
+    @Override
+    public IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'getTokenByDexClientId'");
+    }
 }

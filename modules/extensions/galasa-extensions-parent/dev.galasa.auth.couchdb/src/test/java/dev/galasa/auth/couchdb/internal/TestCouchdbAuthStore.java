@@ -38,664 +38,640 @@ import dev.galasa.framework.spi.auth.IUser;
 
 public class TestCouchdbAuthStore {
 
-        class GetAllDocumentsInteraction extends BaseHttpInteraction {
+    class GetAllDocumentsInteraction extends BaseHttpInteraction {
 
-                public GetAllDocumentsInteraction(String expectedUri, int responseStatusCode,
-                                ViewResponse tokenDocsToReturn) {
-                        super(expectedUri, responseStatusCode);
-                        setResponsePayload(tokenDocsToReturn);
-                }
-
-                @Override
-                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
-                        super.validateRequest(host, request);
-                        assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
-                }
+        public GetAllDocumentsInteraction(String expectedUri, int responseStatusCode, ViewResponse tokenDocsToReturn) {
+            super(expectedUri, responseStatusCode);
+            setResponsePayload(tokenDocsToReturn);
         }
 
-        class GetDocumentInteraction<T> extends BaseHttpInteraction {
+        @Override
+        public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+            super.validateRequest(host, request);
+            assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+        }
+    }
 
-                public GetDocumentInteraction(String expectedUri, int responseStatusCode, T responseObjToReturn) {
-                        super(expectedUri, responseStatusCode);
-                        setResponsePayload(responseObjToReturn);
-                }
+    class GetDocumentInteraction<T> extends BaseHttpInteraction {
 
-                @Override
-                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
-                        super.validateRequest(host, request);
-                        assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
-                }
+        public GetDocumentInteraction(String expectedUri, int responseStatusCode, T responseObjToReturn) {
+            super(expectedUri, responseStatusCode);
+            setResponsePayload(responseObjToReturn);
         }
 
-        class DeleteDocumentInteraction extends BaseHttpInteraction {
+        @Override
+        public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+            super.validateRequest(host, request);
+            assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+        }
+    }
 
-                public DeleteDocumentInteraction(String expectedUri, int responseStatusCode) {
-                        super(expectedUri, responseStatusCode);
-                        setResponsePayload("");
-                }
+    class DeleteDocumentInteraction extends BaseHttpInteraction {
 
-                @Override
-                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
-                        super.validateRequest(host, request);
-                        assertThat(request.getRequestLine().getMethod()).isEqualTo("DELETE");
-                }
+        public DeleteDocumentInteraction(String expectedUri, int responseStatusCode) {
+            super(expectedUri, responseStatusCode);
+            setResponsePayload("");
         }
 
-        class CreateDocumentInteraction extends BaseHttpInteraction {
+        @Override
+        public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+            super.validateRequest(host, request);
+            assertThat(request.getRequestLine().getMethod()).isEqualTo("DELETE");
+        }
+    }
 
-                public CreateDocumentInteraction(String expectedUri, int responseStatusCode) {
-                        super(expectedUri, responseStatusCode);
+    class CreateDocumentInteraction extends BaseHttpInteraction {
 
-                        PutPostResponse responseTransportBean = new PutPostResponse();
-                        responseTransportBean.id = "id";
-                        responseTransportBean.ok = true;
-                        responseTransportBean.rev = "rev";
-                        setResponsePayload(responseTransportBean);
-                }
+        public CreateDocumentInteraction(String expectedUri, int responseStatusCode) {
+            super(expectedUri, responseStatusCode);
 
-                @Override
-                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
-                        super.validateRequest(host, request);
-                        assertThat(request.getRequestLine().getMethod()).isEqualTo("POST");
-                }
+            PutPostResponse responseTransportBean = new PutPostResponse();
+            responseTransportBean.id = "id";
+            responseTransportBean.ok = true;
+            responseTransportBean.rev = "rev";
+            setResponsePayload(responseTransportBean);
         }
 
-        class UpdateDocumentInteraction extends BaseHttpInteraction {
+        @Override
+        public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+            super.validateRequest(host, request);
+            assertThat(request.getRequestLine().getMethod()).isEqualTo("POST");
+        }
+    }
 
-                public UpdateDocumentInteraction(String expectedUri, int responseStatusCode, String id, String rev) {
-                        super(expectedUri, responseStatusCode);
+    class UpdateDocumentInteraction extends BaseHttpInteraction {
 
-                        PutPostResponse responseTransportBean = new PutPostResponse();
-                        responseTransportBean.id = id;
-                        responseTransportBean.ok = true;
-                        responseTransportBean.rev = rev;
-                        setResponsePayload(responseTransportBean);
-                }
+        public UpdateDocumentInteraction(String expectedUri, int responseStatusCode, String id, String rev) {
+            super(expectedUri, responseStatusCode);
 
-                @Override
-                public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
-                        super.validateRequest(host, request);
-                        assertThat(request.getRequestLine().getMethod()).isEqualTo("PUT");
-                }
+            PutPostResponse responseTransportBean = new PutPostResponse();
+            responseTransportBean.id = id;
+            responseTransportBean.ok = true;
+            responseTransportBean.rev = rev;
+            setResponsePayload(responseTransportBean);
         }
 
-        @Test
-        public void testGetTokensReturnsTokensWithFailingRequestReturnsErrorDup() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
-
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetAllDocumentsInteraction("https://my-auth-store/galasa_tokens/_all_docs",
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR, null));
-
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
-
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
-
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
-
-                // When...
-                AuthStoreException thrown = catchThrowableOfType(() -> authStore.getTokens(), AuthStoreException.class);
-
-                // Then...
-                assertThat(thrown).isNotNull();
-                assertThat(thrown.getMessage()).contains("GAL6101E",
-                                "Failed to get auth tokens from the CouchDB auth store");
+        @Override
+        public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
+            super.validateRequest(host, request);
+            assertThat(request.getRequestLine().getMethod()).isEqualTo("PUT");
         }
+    }
+
+    @Test
+    public void testGetTokensReturnsTokensWithFailingRequestReturnsErrorDup() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
+
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetAllDocumentsInteraction("https://my-auth-store/galasa_tokens/_all_docs",
+                HttpStatus.SC_INTERNAL_SERVER_ERROR, null));
+
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
+
+        // When...
+        AuthStoreException thrown = catchThrowableOfType(() -> authStore.getTokens(), AuthStoreException.class);
+
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL6101E", "Failed to get auth tokens from the CouchDB auth store");
+    }
+
+    @Test
+    public void testGetTokensReturnsTokensFromCouchdbOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
+
+        ViewRow tokenDoc = new ViewRow();
+        tokenDoc.key = "token1";
+        List<ViewRow> mockDocs = List.of(tokenDoc);
+
+        ViewResponse mockAllDocsResponse = new ViewResponse();
+        mockAllDocsResponse.rows = mockDocs;
+
+        Instant now3 = Instant.now();
+        Instant expiry3 = now3.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        CouchdbAuthToken mockToken = new CouchdbAuthToken("token1", "dex-client", "my test token",
+                now3, expiry3,
+                new CouchdbUser("johndoe", "dex-user-id"));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetAllDocumentsInteraction("https://my-auth-store/galasa_tokens/_all_docs",
+                HttpStatus.SC_OK, mockAllDocsResponse));
+        interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
+                "https://my-auth-store/galasa_tokens/token1",
+                HttpStatus.SC_OK, mockToken));
+
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
+
+        // When...
+        List<IInternalAuthToken> tokens = authStore.getTokens();
+
+        // Then...
+        assertThat(tokens).hasSize(1);
+
+        IInternalAuthToken actualToken = tokens.get(0);
+        assertThat(actualToken).usingRecursiveComparison().isEqualTo(mockToken);
+    }
+
+    @Test
+    public void testGetTokensReturnsTokensByLoginIdFromCouchdbOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
+
+        ViewRow tokenDoc = new ViewRow();
+        tokenDoc.id = "token1";
+        List<ViewRow> mockDocs = List.of(tokenDoc);
+
+        ViewResponse mockAllDocsResponse = new ViewResponse();
+        mockAllDocsResponse.rows = mockDocs;
+
+        Instant now = Instant.now();
+        Instant expiry = now.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        CouchdbAuthToken mockToken = new CouchdbAuthToken("token1", "dex-client", "my test token", now, expiry,
+                        new CouchdbUser("johndoe", "dex-user-id"));
+        Instant now2 = Instant.now();
+        Instant expiry2 = now2.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        CouchdbAuthToken mockToken2 = new CouchdbAuthToken("token2", "dex-client", "my test token",
+                        now2, expiry2,
+                        new CouchdbUser("notJohnDoe", "dex-user-id"));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetAllDocumentsInteraction(
+                        "https://my-auth-store/galasa_tokens/_design/docs/_view/loginId-view?key=%22johndoe%22",
+                        HttpStatus.SC_OK, mockAllDocsResponse));
+        interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
+                        "https://my-auth-store/galasa_tokens/token1",
+                        HttpStatus.SC_OK, mockToken));
+        interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
+                        "https://my-auth-store/galasa_tokens/token1",
+                        HttpStatus.SC_OK, mockToken2));
 
-        @Test
-        public void testGetTokensReturnsTokensFromCouchdbOK() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
-
-                ViewRow tokenDoc = new ViewRow();
-                tokenDoc.key = "token1";
-                List<ViewRow> mockDocs = List.of(tokenDoc);
-
-                ViewResponse mockAllDocsResponse = new ViewResponse();
-                mockAllDocsResponse.rows = mockDocs;
-
-                Instant now3 = Instant.now();
-                Instant expiry3 = now3.plus(90, java.time.temporal.ChronoUnit.DAYS);
-                CouchdbAuthToken mockToken = new CouchdbAuthToken("token1", "dex-client", "my test token",
-                                now3, expiry3,
-                                new CouchdbUser("johndoe", "dex-user-id"));
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetAllDocumentsInteraction("https://my-auth-store/galasa_tokens/_all_docs",
-                                HttpStatus.SC_OK, mockAllDocsResponse));
-                interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
-                                "https://my-auth-store/galasa_tokens/token1",
-                                HttpStatus.SC_OK, mockToken));
-
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
-
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
-
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
-
-                // When...
-                List<IInternalAuthToken> tokens = authStore.getTokens();
-
-                // Then...
-                assertThat(tokens).hasSize(1);
-
-                IInternalAuthToken actualToken = tokens.get(0);
-                assertThat(actualToken).usingRecursiveComparison().isEqualTo(mockToken);
-        }
-
-        @Test
-        public void testGetTokensReturnsTokensByLoginIdFromCouchdbOK() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
-
-                ViewRow tokenDoc = new ViewRow();
-                tokenDoc.id = "token1";
-                List<ViewRow> mockDocs = List.of(tokenDoc);
-
-                ViewResponse mockAllDocsResponse = new ViewResponse();
-                mockAllDocsResponse.rows = mockDocs;
-
-                Instant now = Instant.now();
-                Instant expiry = now.plus(90, java.time.temporal.ChronoUnit.DAYS);
-                CouchdbAuthToken mockToken = new CouchdbAuthToken("token1", "dex-client", "my test token", now, expiry,
-                                new CouchdbUser("johndoe", "dex-user-id"));
-                Instant now2 = Instant.now();
-                Instant expiry2 = now2.plus(90, java.time.temporal.ChronoUnit.DAYS);
-                CouchdbAuthToken mockToken2 = new CouchdbAuthToken("token2", "dex-client", "my test token",
-                                now2, expiry2,
-                                new CouchdbUser("notJohnDoe", "dex-user-id"));
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetAllDocumentsInteraction(
-                                "https://my-auth-store/galasa_tokens/_design/docs/_view/loginId-view?key=%22johndoe%22",
-                                HttpStatus.SC_OK, mockAllDocsResponse));
-                interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
-                                "https://my-auth-store/galasa_tokens/token1",
-                                HttpStatus.SC_OK, mockToken));
-                interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
-                                "https://my-auth-store/galasa_tokens/token1",
-                                HttpStatus.SC_OK, mockToken2));
-
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
-
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
-
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
-                // When...
-                List<IInternalAuthToken> tokens = authStore.getTokensByLoginId("johndoe");
-
-                // Then...
-                assertThat(tokens).hasSize(1);
-
-                IInternalAuthToken actualToken = tokens.get(0);
-                assertThat(actualToken).usingRecursiveComparison().isEqualTo(mockToken);
-        }
-
-        @Test
-        public void testGetTokensReturnsTokensByLoginIdWithFailingRequestReturnsError() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
-
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetAllDocumentsInteraction(
-                                "https://my-auth-store/galasa_tokens/_design/docs/_view/loginId-view?key=%22johndoe%22",
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR, null));
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
+        // When...
+        List<IInternalAuthToken> tokens = authStore.getTokensByLoginId("johndoe");
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        // Then...
+        assertThat(tokens).hasSize(1);
 
-                // When...
-                AuthStoreException thrown = catchThrowableOfType(() -> authStore.getTokensByLoginId("johndoe"),
-                                AuthStoreException.class);
+        IInternalAuthToken actualToken = tokens.get(0);
+        assertThat(actualToken).usingRecursiveComparison().isEqualTo(mockToken);
+    }
 
-                // Then...
-                assertThat(thrown).isNotNull();
-                assertThat(thrown.getMessage()).contains("GAL6101E",
-                                "Failed to get auth tokens from the CouchDB auth store");
-        }
+    @Test
+    public void testGetTokensReturnsTokensByLoginIdWithFailingRequestReturnsError() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-        @Test
-        public void testStoreTokenSendsRequestToCreateTokenDocumentOK() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetAllDocumentsInteraction(
+                "https://my-auth-store/galasa_tokens/_design/docs/_view/loginId-view?key=%22johndoe%22",
+                HttpStatus.SC_INTERNAL_SERVER_ERROR, null));
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new CreateDocumentInteraction("https://my-auth-store/galasa_tokens",
-                                HttpStatus.SC_CREATED));
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        // When...
+        AuthStoreException thrown = catchThrowableOfType(() -> authStore.getTokensByLoginId("johndoe"),
+                AuthStoreException.class);
 
-                // When...
-                authStore.storeToken("this-is-a-dex-id", "my token", new CouchdbUser("user1", "user1-id"));
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL6101E", "Failed to get auth tokens from the CouchDB auth store");
+    }
 
-                // Then the assertions made in the create token document interaction shouldn't
-                // have failed.
-        }
+    @Test
+    public void testStoreTokenSendsRequestToCreateTokenDocumentOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-        @Test
-        public void testStoreTokenWithFailingRequestToCreateTokenDocumentReturnsError() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new CreateDocumentInteraction("https://my-auth-store/galasa_tokens", HttpStatus.SC_CREATED));
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new CreateDocumentInteraction("https://my-auth-store/galasa_tokens",
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR));
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        // When...
+        authStore.storeToken("this-is-a-dex-id", "my token", new CouchdbUser("user1", "user1-id"));
 
-                // When...
-                AuthStoreException thrown = catchThrowableOfType(
-                                () -> authStore.storeToken("this-is-a-dex-id", "my token",
-                                                new CouchdbUser("user1", "user1-id")),
-                                AuthStoreException.class);
+        // Then the assertions made in the create token document interaction shouldn't
+        // have failed.
+    }
 
-                // Then...
-                assertThat(thrown).isNotNull();
-                assertThat(thrown.getMessage()).contains("GAL6102E",
-                                "Failed to store auth token in the CouchDB tokens database");
-        }
+    @Test
+    public void testStoreTokenWithFailingRequestToCreateTokenDocumentReturnsError() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-        @Test
-        public void testDeleteTokenSendsRequestToDeleteTokenDocumentOK() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new CreateDocumentInteraction("https://my-auth-store/galasa_tokens",
+                HttpStatus.SC_INTERNAL_SERVER_ERROR));
 
-                String tokenIdToDelete = "my-old-token";
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                IdRev mockIdRev = new IdRev();
-                mockIdRev._rev = "this-is-a-revision";
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
-                String expectedDeleteRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete + "?rev="
-                                + mockIdRev._rev;
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
-                interactions.add(new DeleteDocumentInteraction(expectedDeleteRequestUrl, HttpStatus.SC_OK));
+        // When...
+        AuthStoreException thrown = catchThrowableOfType(
+                () -> authStore.storeToken("this-is-a-dex-id", "my token", new CouchdbUser("user1", "user1-id")),
+                AuthStoreException.class);
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL6102E",
+                "Failed to store auth token in the CouchDB tokens database");
+    }
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+    @Test
+    public void testDeleteTokenSendsRequestToDeleteTokenDocumentOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        String tokenIdToDelete = "my-old-token";
 
-                // When...
-                authStore.deleteToken(tokenIdToDelete);
+        IdRev mockIdRev = new IdRev();
+        mockIdRev._rev = "this-is-a-revision";
 
-                // Then the assertions made in the document interactions shouldn't have failed.
-        }
+        String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
+        String expectedDeleteRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete + "?rev="
+                + mockIdRev._rev;
 
-        @Test
-        public void testDeleteTokenWithAcceptedRequestToDeleteTokenDocumentDoesNotError() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
+        interactions.add(new DeleteDocumentInteraction(expectedDeleteRequestUrl, HttpStatus.SC_OK));
 
-                String tokenIdToDelete = "my-old-token";
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                IdRev mockIdRev = new IdRev();
-                mockIdRev._rev = "this-is-a-revision";
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
-                String expectedDeleteRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete + "?rev="
-                                + mockIdRev._rev;
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
+        // When...
+        authStore.deleteToken(tokenIdToDelete);
 
-                // The DELETE request may return a 202 Accepted, which shouldn't be a problem
-                // for us
-                interactions.add(new DeleteDocumentInteraction(expectedDeleteRequestUrl, HttpStatus.SC_ACCEPTED));
+        // Then the assertions made in the document interactions shouldn't have failed.
+    }
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+    @Test
+    public void testDeleteTokenWithAcceptedRequestToDeleteTokenDocumentDoesNotError() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        String tokenIdToDelete = "my-old-token";
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        IdRev mockIdRev = new IdRev();
+        mockIdRev._rev = "this-is-a-revision";
 
-                // When...
-                authStore.deleteToken(tokenIdToDelete);
+        String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
+        String expectedDeleteRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete + "?rev="
+                + mockIdRev._rev;
 
-                // Then the assertions made in the document interactions shouldn't have failed.
-        }
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
 
-        @Test
-        public void testDeleteTokenWithFailingRequestToDeleteTokenDocumentThrowsError() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        // The DELETE request may return a 202 Accepted, which shouldn't be a problem
+        // for us
+        interactions.add(new DeleteDocumentInteraction(expectedDeleteRequestUrl, HttpStatus.SC_ACCEPTED));
 
-                String tokenIdToDelete = "my-old-token";
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                IdRev mockIdRev = new IdRev();
-                mockIdRev._rev = "this-is-a-revision";
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
-                String expectedDeleteRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete + "?rev="
-                                + mockIdRev._rev;
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
+        // When...
+        authStore.deleteToken(tokenIdToDelete);
 
-                // Simulate an internal server error
-                interactions
-                                .add(new DeleteDocumentInteraction(expectedDeleteRequestUrl,
-                                                HttpStatus.SC_INTERNAL_SERVER_ERROR));
+        // Then the assertions made in the document interactions shouldn't have failed.
+    }
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+    @Test
+    public void testDeleteTokenWithFailingRequestToDeleteTokenDocumentThrowsError() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        String tokenIdToDelete = "my-old-token";
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        IdRev mockIdRev = new IdRev();
+        mockIdRev._rev = "this-is-a-revision";
 
-                // When...
-                AuthStoreException thrown = catchThrowableOfType(() -> {
-                        authStore.deleteToken(tokenIdToDelete);
-                }, AuthStoreException.class);
+        String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
+        String expectedDeleteRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete + "?rev="
+                + mockIdRev._rev;
 
-                // Then...
-                assertThat(thrown).isNotNull();
-                assertThat(thrown.getMessage()).contains("GAL6104E",
-                                "Failed to delete auth token from the CouchDB tokens database");
-                assertThat(thrown.getMessage()).contains("GAL6007E",
-                                "Expected status code(s) [200, 202, 404] but received 500");
-        }
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
 
-        @Test
-        public void testDeleteTokenWithFailingRequestToGetTokenDocumentThrowsError() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        // Simulate an internal server error
+        interactions
+                .add(new DeleteDocumentInteraction(expectedDeleteRequestUrl, HttpStatus.SC_INTERNAL_SERVER_ERROR));
 
-                String tokenIdToDelete = "my-old-token";
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                IdRev mockIdRev = new IdRev();
-                mockIdRev._rev = "this-is-a-revision";
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        // When...
+        AuthStoreException thrown = catchThrowableOfType(() -> {
+            authStore.deleteToken(tokenIdToDelete);
+        }, AuthStoreException.class);
 
-                // Simulate an internal server error
-                interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl,
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                                mockIdRev));
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL6104E",
+                "Failed to delete auth token from the CouchDB tokens database");
+        assertThat(thrown.getMessage()).contains("GAL6007E", "Expected status code(s) [200, 202, 404] but received 500");
+    }
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+    @Test
+    public void testDeleteTokenWithFailingRequestToGetTokenDocumentThrowsError() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        String tokenIdToDelete = "my-old-token";
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        IdRev mockIdRev = new IdRev();
+        mockIdRev._rev = "this-is-a-revision";
 
-                // When...
-                AuthStoreException thrown = catchThrowableOfType(() -> {
-                        authStore.deleteToken(tokenIdToDelete);
-                }, AuthStoreException.class);
+        String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
 
-                // Then...
-                assertThat(thrown).isNotNull();
-                assertThat(thrown.getMessage()).contains("GAL6104E",
-                                "Failed to delete auth token from the CouchDB tokens database");
-        }
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
 
-        @Test
-        public void testDeleteTokenWithBadGetTokenDocumentResponseBodyThrowsError() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        // Simulate an internal server error
+        interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                mockIdRev));
 
-                String tokenIdToDelete = "my-old-token";
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                // Simulate an internal server error
-                interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, null));
+        // When...
+        AuthStoreException thrown = catchThrowableOfType(() -> {
+            authStore.deleteToken(tokenIdToDelete);
+        }, AuthStoreException.class);
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL6104E",
+                "Failed to delete auth token from the CouchDB tokens database");
+    }
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+    @Test
+    public void testDeleteTokenWithBadGetTokenDocumentResponseBodyThrowsError() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        String tokenIdToDelete = "my-old-token";
 
-                // When...
-                AuthStoreException thrown = catchThrowableOfType(() -> {
-                        authStore.deleteToken(tokenIdToDelete);
-                }, AuthStoreException.class);
+        String expectedGetRequestUrl = "https://my-auth-store/galasa_tokens/" + tokenIdToDelete;
 
-                // Then...
-                assertThat(thrown).isNotNull();
-                assertThat(thrown.getMessage()).contains("GAL6104E",
-                                "Failed to delete auth token from the CouchDB tokens database");
-                assertThat(thrown.getMessage()).contains("GAL6011E",
-                                "Failed to get document with ID 'my-old-token' from the 'galasa_tokens' database");
-        }
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
 
-        @Test
-        public void testGetAllUsersReturnsListOfUsersFromCouchdbOK() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-users-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        // Simulate an internal server error
+        interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, null));
 
-                ViewRow userDoc = new ViewRow();
-                ViewRow userDoc2 = new ViewRow();
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                userDoc.id = "user1";
-                userDoc2.id = "user2";
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                List<ViewRow> mockDocs = List.of(userDoc, userDoc2);
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                ViewResponse mockAllDocsResponse = new ViewResponse();
-                mockAllDocsResponse.rows = mockDocs;
+        // When...
+        AuthStoreException thrown = catchThrowableOfType(() -> {
+            authStore.deleteToken(tokenIdToDelete);
+        }, AuthStoreException.class);
 
-                UserDoc mockUser = new UserDoc("user1", List.of(), "2");
-                UserDoc mockUser2 = new UserDoc("user2", List.of(), "2");
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetAllDocumentsInteraction("https://my-users-store/galasa_users/_all_docs",
-                                HttpStatus.SC_OK, mockAllDocsResponse));
-                interactions.add(new GetDocumentInteraction<UserDoc>("https://my-users-store/galasa_users/user1",
-                                HttpStatus.SC_OK, mockUser));
-                interactions.add(new GetDocumentInteraction<UserDoc>("https://my-users-store/galasa_users/user2",
-                                HttpStatus.SC_OK, mockUser2));
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL6104E",
+                "Failed to delete auth token from the CouchDB tokens database");
+        assertThat(thrown.getMessage()).contains("GAL6011E",
+                "Failed to get document with ID 'my-old-token' from the 'galasa_tokens' database");
+    }
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+    @Test
+    public void testGetAllUsersReturnsListOfUsersFromCouchdbOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-users-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        ViewRow userDoc = new ViewRow();
+        ViewRow userDoc2 = new ViewRow();
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri,
-                                httpClientFactory, new HttpRequestFactoryImpl(), logFactory, new MockCouchdbValidator(),
-                                mockTimeService);
-                // When...
-                List<IUser> users = authStore.getAllUsers();
+        userDoc.id = "user1";
+        userDoc2.id = "user2";
 
-                // Then...
-                assertThat(users).hasSize(2);
-        }
+        List<ViewRow> mockDocs = List.of(userDoc, userDoc2);
 
-        @Test
-        public void testGetTokensReturnsTokensWithFailingRequestReturnsError() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-users-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        ViewResponse mockAllDocsResponse = new ViewResponse();
+        mockAllDocsResponse.rows = mockDocs;
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetAllDocumentsInteraction("https://my-users-store/galasa_users/_all_docs",
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR, null));
+        UserDoc mockUser = new UserDoc("user1", List.of(), "2");
+        UserDoc mockUser2 = new UserDoc("user2", List.of(), "2");
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetAllDocumentsInteraction("https://my-users-store/galasa_users/_all_docs",
+                HttpStatus.SC_OK, mockAllDocsResponse));
+        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-users-store/galasa_users/user1",
+                HttpStatus.SC_OK, mockUser));
+        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-users-store/galasa_users/user2",
+                HttpStatus.SC_OK, mockUser2));
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri,
+                httpClientFactory, new HttpRequestFactoryImpl(), logFactory, new MockCouchdbValidator(),
+                mockTimeService);
+        // When...
+        List<IUser> users = authStore.getAllUsers();
 
-                // When...
-                AuthStoreException thrown = catchThrowableOfType(() -> authStore.getAllUsers(),
-                                AuthStoreException.class);
+        // Then...
+        assertThat(users).hasSize(2);
+    }
 
-                // Then...
-                assertThat(thrown).isNotNull();
-                assertThat(thrown.getMessage()).contains("GAL6202E",
-                                "Failed to get user documents from the CouchDB users database.");
-        }
+    @Test
+    public void testGetTokensReturnsTokensWithFailingRequestReturnsError() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-users-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-        @Test
-        public void testStoreUserSendsRequestToCreateUserDocumentOK() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-users-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetAllDocumentsInteraction("https://my-users-store/galasa_users/_all_docs",
+                HttpStatus.SC_INTERNAL_SERVER_ERROR, null));
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new CreateDocumentInteraction("https://my-users-store/galasa_users",
-                                HttpStatus.SC_CREATED));
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        // When...
+        AuthStoreException thrown = catchThrowableOfType(() -> authStore.getAllUsers(), AuthStoreException.class);
 
-                // When...
-                authStore.createUser("this-is-a-login-id", "rest-api", "2");
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL6202E",
+                "Failed to get user documents from the CouchDB users database.");
+    }
 
-                // Then the assertions made in the create users document interaction shouldn't
-                // have failed.
-        }
+    @Test
+    public void testStoreUserSendsRequestToCreateUserDocumentOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-users-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-        @Test
-        public void testGetUserReturnsUsersByLoginIdFromCouchdbOK() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new CreateDocumentInteraction("https://my-users-store/galasa_users", HttpStatus.SC_CREATED));
 
-                ViewRow userDoc1 = new ViewRow();
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                userDoc1.id = "user1";
-                List<ViewRow> mockDocs = List.of(userDoc1);
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                ViewResponse mockAllDocsResponse = new ViewResponse();
-                mockAllDocsResponse.rows = mockDocs;
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                FrontEndClient client = new FrontEndClient();
+        // When...
+        authStore.createUser("this-is-a-login-id", "rest-api", "2");
 
-                client.setClientName("web-ui");
-                client.setLastLogin(Instant.now());
+        // Then the assertions made in the create users document interaction shouldn't
+        // have failed.
+    }
 
-                UserDoc mockUser = new UserDoc("johndoe", List.of(client), "2");
+    @Test
+    public void testGetUserReturnsUsersByLoginIdFromCouchdbOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetAllDocumentsInteraction(
-                                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22user1%22",
-                                HttpStatus.SC_OK, mockAllDocsResponse));
-                interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
-                                HttpStatus.SC_OK, mockUser));
+        ViewRow userDoc1 = new ViewRow();
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        userDoc1.id = "user1";
+        List<ViewRow> mockDocs = List.of(userDoc1);
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        ViewResponse mockAllDocsResponse = new ViewResponse();
+        mockAllDocsResponse.rows = mockDocs;
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
-                // When...
-                IUser user = authStore.getUserByLoginId("user1");
+        FrontEndClient client = new FrontEndClient();
 
-                assertThat(user).isInstanceOf(UserImpl.class);
-                assertThat(user).isNotNull();
-                assertThat(user.getLoginId()).isEqualTo("johndoe");
-        }
+        client.setClientName("web-ui");
+        client.setLastLogin(Instant.now());
 
-        @Test
-        public void testGetUserReturnsCorrectUserByLoginIdFromCouchdbOK() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        UserDoc mockUser = new UserDoc("johndoe", List.of(client), "2");
 
-                ViewRow userDoc1 = new ViewRow();
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetAllDocumentsInteraction(
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22user1%22",
+                HttpStatus.SC_OK, mockAllDocsResponse));
+        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
+                HttpStatus.SC_OK, mockUser));
 
-                userDoc1.id = "user1";
-                List<ViewRow> mockDocs = List.of(userDoc1);
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                ViewResponse mockAllDocsResponse = new ViewResponse();
-                mockAllDocsResponse.rows = mockDocs;
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                UserDoc mockUser = new UserDoc("johndoe", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
+        // When...
+        IUser user = authStore.getUserByLoginId("user1");
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetAllDocumentsInteraction(
-                                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22notJohndoe%22",
-                                HttpStatus.SC_OK, mockAllDocsResponse));
-                interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
-                                HttpStatus.SC_OK, mockUser));
+        assertThat(user).isInstanceOf(UserImpl.class);
+        assertThat(user).isNotNull();
+        assertThat(user.getLoginId()).isEqualTo("johndoe");
+    }
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+    @Test
+    public void testGetUserReturnsCorrectUserByLoginIdFromCouchdbOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        ViewRow userDoc1 = new ViewRow();
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri,
-                                httpClientFactory, new HttpRequestFactoryImpl(), logFactory, new MockCouchdbValidator(),
-                                mockTimeService);
-                // When...
-                IUser user = authStore.getUserByLoginId("notJohndoe");
+        userDoc1.id = "user1";
+        List<ViewRow> mockDocs = List.of(userDoc1);
+
+        ViewResponse mockAllDocsResponse = new ViewResponse();
+        mockAllDocsResponse.rows = mockDocs;
+
+        UserDoc mockUser = new UserDoc("johndoe", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
+
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetAllDocumentsInteraction(
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22notJohndoe%22",
+                HttpStatus.SC_OK, mockAllDocsResponse));
+        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
+                HttpStatus.SC_OK, mockUser));
+
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri,
+                httpClientFactory, new HttpRequestFactoryImpl(), logFactory, new MockCouchdbValidator(),
+                mockTimeService);
+        // When...
+        IUser user = authStore.getUserByLoginId("notJohndoe");
 
         assertThat(user).usingRecursiveComparison().isNotEqualTo(mockUser);
     }
@@ -821,361 +797,346 @@ public class TestCouchdbAuthStore {
                 mockUser.setVersion("1");
                 mockUser.setUserNumber("user1");
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1",
-                                HttpStatus.SC_CREATED, "user1", "2"));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1",
+                HttpStatus.SC_CREATED, "user1", "2" ));
 
-                CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
+        CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
 
-                IUser userGotBack = authStore.updateUser(mockUser);
+        IUser userGotBack = authStore.updateUser(mockUser);
 
-                assertThat(userGotBack.getVersion()).isEqualTo("2");
-        }
+        assertThat(userGotBack.getVersion()).isEqualTo("2");
+    }
 
-        @Test
-        public void testUpdateUserCouchDBPassesBackANullVersionField() throws Exception {
-                // Given...
-                UserImpl mockUser = new UserImpl(
-                                new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)), "2"));
-                mockUser.setVersion("1");
-                mockUser.setUserNumber("user1");
+    @Test
+    public void testUpdateUserCouchDBPassesBackANullVersionField() throws Exception {
+        // Given...
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
+        mockUser.setVersion("1");
+        mockUser.setUserNumber("user1");
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(
-                                new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1",
-                                                HttpStatus.SC_CREATED, "user1", null));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(
+            new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1", HttpStatus.SC_CREATED, "user1" , null )
+        );
 
-                CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
+        CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
 
-                AuthStoreException ex = catchThrowableOfType(() -> authStore.updateUser(mockUser),
-                                AuthStoreException.class);
+        AuthStoreException ex = catchThrowableOfType( ()-> authStore.updateUser(mockUser), AuthStoreException.class);
 
-                assertThat(ex.getMessage()).contains("GAL6204E");
-        }
+        assertThat(ex.getMessage()).contains("GAL6204E");
+    }
 
-        @Test
-        public void testUpdateUserCouchDBPassesBackADocIdWithWrongUserNumberField() throws Exception {
-                // Given...
-                UserImpl mockUser = new UserImpl(
-                                new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)), "2"));
-                mockUser.setVersion("1");
-                mockUser.setUserNumber("user1");
+    @Test
+    public void testUpdateUserCouchDBPassesBackADocIdWithWrongUserNumberField() throws Exception {
+        // Given...
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
+        mockUser.setVersion("1");
+        mockUser.setUserNumber("user1");
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(
-                                new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1",
-                                                HttpStatus.SC_CREATED, "user2", "2"));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(
+            new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1", HttpStatus.SC_CREATED, "user2" , "2" )
+        );
 
-                CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
+        CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
 
-                AuthStoreException ex = catchThrowableOfType(() -> authStore.updateUser(mockUser),
-                                AuthStoreException.class);
+        AuthStoreException ex = catchThrowableOfType( ()-> authStore.updateUser(mockUser), AuthStoreException.class);
 
-                assertThat(ex.getMessage()).contains("GAL6205E");
-        }
+        assertThat(ex.getMessage()).contains("GAL6205E");
+    }
 
-        @Test
-        public void testUpdateUserCouchDBPassesBackADocIdWithMissingIdField() throws Exception {
-                // Given...
+    @Test
+    public void testUpdateUserCouchDBPassesBackADocIdWithMissingIdField() throws Exception {
+        // Given...
 
-                UserImpl mockUser = new UserImpl(
-                                new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)), "2"));
-                mockUser.setVersion("1");
-                mockUser.setUserNumber("user1");
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
+        mockUser.setVersion("1");
+        mockUser.setUserNumber("user1");
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(
-                                new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1",
-                                                HttpStatus.SC_CREATED, null, "2"));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(
+            new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1", HttpStatus.SC_CREATED,null , "2" )
+        );
 
-                CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
+        CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
 
-                AuthStoreException ex = catchThrowableOfType(() -> authStore.updateUser(mockUser),
-                                AuthStoreException.class);
+        AuthStoreException ex = catchThrowableOfType( ()-> authStore.updateUser(mockUser), AuthStoreException.class);
 
-                assertThat(ex.getMessage()).contains("GAL6204E");
-        }
+        assertThat(ex.getMessage()).contains("GAL6204E");
+    }
 
-        @Test
-        public void testUpdateUserCouchDBPassesBackAnUnexpectedServerError() throws Exception {
-                // Given...
-                UserImpl mockUser = new UserImpl(
-                                new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)), "2"));
-                mockUser.setVersion("1");
-                mockUser.setUserNumber("user1");
+    @Test
+    public void testUpdateUserCouchDBPassesBackAnUnexpectedServerError() throws Exception {
+        // Given...
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
+        mockUser.setVersion("1");
+        mockUser.setUserNumber("user1");
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(
-                                new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1",
-                                                HttpStatus.SC_INTERNAL_SERVER_ERROR, null, "2"));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(
+            new UpdateDocumentInteraction("https://my-auth-store/galasa_users/user1", HttpStatus.SC_INTERNAL_SERVER_ERROR,null , "2" )
+        );
 
-                CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
+        CouchdbAuthStore authStore = createAuthStoreToTest(interactions);
 
-                AuthStoreException ex = catchThrowableOfType(() -> authStore.updateUser(mockUser),
-                                AuthStoreException.class);
+        AuthStoreException ex = catchThrowableOfType( ()-> authStore.updateUser(mockUser), AuthStoreException.class);
 
-                assertThat(ex.getMessage()).contains("GAL6203E");
-        }
+        assertThat(ex.getMessage()).contains("GAL6203E");
+    }
 
-        @Test
-        public void testUpdateUserWithBadUserNullIdFieldGetsDetectedAsError() throws Exception {
-                UserImpl mockUser = new UserImpl(
-                                new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)), "2"));
-                mockUser.setVersion("1");
-                mockUser.setUserNumber(null);
+    @Test
+    public void testUpdateUserWithBadUserNullIdFieldGetsDetectedAsError() throws Exception {
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
+        mockUser.setVersion("1");
+        mockUser.setUserNumber(null);
 
-                CouchdbAuthStore authStore = createAuthStoreToTest();
+        CouchdbAuthStore authStore = createAuthStoreToTest();
 
-                AuthStoreException ex = catchThrowableOfType(() -> authStore.updateUser(mockUser),
-                                AuthStoreException.class);
+        AuthStoreException ex = catchThrowableOfType( ()-> authStore.updateUser(mockUser), AuthStoreException.class);
 
-                assertThat(ex.getMessage()).contains("GAL6206E");
-        }
+        assertThat(ex.getMessage()).contains("GAL6206E");
+    }
 
-        @Test
-        public void testUpdateUserWithBadUserNullVersionFieldGetsDetectedAsError() throws Exception {
-                UserImpl mockUser = new UserImpl(
-                                new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)), "2"));
-                mockUser.setVersion(null);
-                mockUser.setUserNumber("user1");
+    @Test
+    public void testUpdateUserWithBadUserNullVersionFieldGetsDetectedAsError() throws Exception {
+        UserImpl mockUser = new UserImpl(new UserDoc("johndoe", List.of(new FrontEndClient("rest-api", Instant.MIN)),"2"));
+        mockUser.setVersion(null);
+        mockUser.setUserNumber("user1");
 
-                CouchdbAuthStore authStore = createAuthStoreToTest();
+        CouchdbAuthStore authStore = createAuthStoreToTest();
 
-                AuthStoreException ex = catchThrowableOfType(() -> authStore.updateUser(mockUser),
-                                AuthStoreException.class);
+        AuthStoreException ex = catchThrowableOfType( ()-> authStore.updateUser(mockUser), AuthStoreException.class);
 
-                assertThat(ex.getMessage()).contains("GAL6207E");
-        }
+        assertThat(ex.getMessage()).contains("GAL6207E");
+    }
 
-        private CouchdbAuthStore createAuthStoreToTest() throws Exception {
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                return createAuthStoreToTest(interactions);
-        }
+    private CouchdbAuthStore createAuthStoreToTest() throws Exception {
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        return createAuthStoreToTest(interactions);
+    }
 
-        private CouchdbAuthStore createAuthStoreToTest(List<HttpInteraction> interactions) throws Exception {
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+    private CouchdbAuthStore createAuthStoreToTest(List<HttpInteraction> interactions) throws Exception {
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockCloseableHttpClient mockHttpClient = new
+        MockCloseableHttpClient(interactions);
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.MIN);
+        MockHttpClientFactory httpClientFactory = new
+        MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.MIN);
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri,
-                                httpClientFactory, new HttpRequestFactoryImpl(), logFactory, new MockCouchdbValidator(),
-                                mockTimeService);
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri,
+        httpClientFactory, new HttpRequestFactoryImpl(), logFactory, new
+        MockCouchdbValidator(), mockTimeService);
 
-                return authStore;
-        }
+        return authStore;
+    }
 
-        @Test
-        public void testCanCreateAClientDocument() throws Exception {
-                CouchdbAuthStore authStore = createAuthStoreToTest();
-                IFrontEndClient client = authStore.createClient("myClientName");
-                assertThat(client.getClientName()).isEqualTo("myClientName");
-                assertThat(client.getLastLogin()).isEqualTo(Instant.MIN);
-        }
+    @Test
+    public void testCanCreateAClientDocument() throws Exception {
+        CouchdbAuthStore authStore = createAuthStoreToTest();
+        IFrontEndClient client = authStore.createClient("myClientName");
+        assertThat(client.getClientName()).isEqualTo("myClientName");
+        assertThat(client.getLastLogin()).isEqualTo(Instant.MIN);
+    }
 
-        @Test
-        public void testCanGetUserByUserNumberReturnsOK() throws Exception {
+    @Test
+    public void testCanGetUserByUserNumberReturnsOK() throws Exception{
 
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                FrontEndClient client = new FrontEndClient();
+        FrontEndClient client = new FrontEndClient();
 
-                client.setClientName("web-ui");
-                client.setLastLogin(Instant.now());
+        client.setClientName("web-ui");
+        client.setLastLogin(Instant.now());
 
-                UserDoc mockUser = new UserDoc("johndoe", List.of(client), "2");
+        UserDoc mockUser = new UserDoc("johndoe", List.of(client),"2");
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user2",
-                                HttpStatus.SC_OK, mockUser));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user2",
+                HttpStatus.SC_OK, mockUser));
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
-                // When...
-                IUser user = authStore.getUser("user2");
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
+        // When...
+        IUser user = authStore.getUser("user2");
 
-                assertThat(user).isInstanceOf(UserImpl.class);
-                assertThat(user).isNotNull();
-                assertThat(user.getLoginId()).isEqualTo("johndoe");
+        assertThat(user).isInstanceOf(UserImpl.class);
+        assertThat(user).isNotNull();
+        assertThat(user.getLoginId()).isEqualTo("johndoe");
 
-        }
+    }
 
-        @Test
-        public void testReturnsNullWhenUserNotFoundByUserNumberReturnsOK() throws Exception {
+    @Test
+    public void testReturnsNullWhenUserNotFoundByUserNumberReturnsOK() throws Exception{
 
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                FrontEndClient client = new FrontEndClient();
+        FrontEndClient client = new FrontEndClient();
 
-                client.setClientName("web-ui");
-                client.setLastLogin(Instant.now());
+        client.setClientName("web-ui");
+        client.setLastLogin(Instant.now());
 
-                UserDoc mockUser = new UserDoc("johndoe", List.of(client), "2");
-                mockUser.setUserNumber("user2");
-                mockUser.setVersion("v-1");
+        UserDoc mockUser = new UserDoc("johndoe", List.of(client),"2");
+        mockUser.setUserNumber("user2");
+        mockUser.setVersion("v-1");
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
-                                HttpStatus.SC_OK, null));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
+                HttpStatus.SC_OK, null));
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
-                // When...
-                IUser user = authStore.getUser("user1");
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
+        // When...
+        IUser user = authStore.getUser("user1");
 
-                assertThat(user).isNull();
+        assertThat(user).isNull();
 
-        }
+    }
 
-        @Test
-        public void testGetUserThrowsInternalServerError() throws Exception {
+    @Test
+    public void testGetUserThrowsInternalServerError() throws Exception{
 
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                FrontEndClient client = new FrontEndClient();
+        FrontEndClient client = new FrontEndClient();
 
-                client.setClientName("web-ui");
-                client.setLastLogin(Instant.now());
+        client.setClientName("web-ui");
+        client.setLastLogin(Instant.now());
 
-                UserDoc mockUser = new UserDoc("johndoe", List.of(client), "2");
-                mockUser.setUserNumber("user1");
-                mockUser.setVersion("v-1");
+        UserDoc mockUser = new UserDoc("johndoe", List.of(client),"2");
+        mockUser.setUserNumber("user1");
+        mockUser.setVersion("v-1");
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR, null));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
+                HttpStatus.SC_INTERNAL_SERVER_ERROR, null));
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                // When...
-                AuthStoreException thrown = catchThrowableOfType(
-                                () -> authStore.getUser("user1"),
-                                AuthStoreException.class);
+        // When...
+        AuthStoreException thrown = catchThrowableOfType(
+                () -> authStore.getUser("user1"),
+                AuthStoreException.class);
 
-                // Then...
-                assertThat(thrown).isNotNull();
-                assertThat(thrown.getMessage()).contains("GAL6202E",
-                                "Failed to get user documents from the CouchDB users database");
-        }
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL6202E",
+                "Failed to get user documents from the CouchDB users database");
+    }
 
-        @Test
-        public void testDeleteUserWithAcceptedRequestToDeleteUserDocumentReturnsOK() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+    @Test
+    public void testDeleteUserWithAcceptedRequestToDeleteUserDocumentReturnsOK() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                String userIdToDelete = "my-old-user";
+        String userIdToDelete = "my-old-user";
 
-                IdRev mockIdRev = new IdRev();
-                mockIdRev._rev = "this-is-a-revision";
-                mockIdRev._id = userIdToDelete;
+        IdRev mockIdRev = new IdRev();
+        mockIdRev._rev = "this-is-a-revision";
+        mockIdRev._id = userIdToDelete;
 
-                UserDoc userToBeDeleted = new UserDoc();
-                userToBeDeleted.setVersion(mockIdRev._rev);
-                userToBeDeleted.setUserNumber(mockIdRev._id);
+        UserDoc userToBeDeleted = new UserDoc();
+        userToBeDeleted.setVersion(mockIdRev._rev);
+        userToBeDeleted.setUserNumber(mockIdRev._id);
 
-                IUser user = new UserImpl(userToBeDeleted);
+        IUser user = new UserImpl(userToBeDeleted);
 
-                String expectedGetRequestUrl = "https://my-auth-store/galasa_users/" + userIdToDelete;
-                String expectedDeleteRequestUrl = "https://my-auth-store/galasa_users/" + userIdToDelete + "?rev="
-                                + mockIdRev._rev;
+        String expectedGetRequestUrl = "https://my-auth-store/galasa_users/" + userIdToDelete;
+        String expectedDeleteRequestUrl = "https://my-auth-store/galasa_users/" + userIdToDelete + "?rev="
+                + mockIdRev._rev;
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
 
-                // The DELETE request may return a 202 Accepted, which shouldn't be a problem
-                // for us
-                interactions.add(new DeleteDocumentInteraction(expectedDeleteRequestUrl, HttpStatus.SC_ACCEPTED));
+        // The DELETE request may return a 202 Accepted, which shouldn't be a problem
+        // for us
+        interactions.add(new DeleteDocumentInteraction(expectedDeleteRequestUrl, HttpStatus.SC_ACCEPTED));
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                // When...
-                authStore.deleteUser(user);
+        // When...
+        authStore.deleteUser(user);
 
-                // Then the assertions made in the document interactions shouldn't have failed.
-        }
+        // Then the assertions made in the document interactions shouldn't have failed.
+    }
 
-        @Test
-        public void testDeleteUserWithAcceptedRequestToDeleteUserDocumentThrowsError() throws Exception {
-                // Given...
-                URI authStoreUri = URI.create("couchdb:https://my-auth-store");
-                MockLogFactory logFactory = new MockLogFactory();
+    @Test
+    public void testDeleteUserWithAcceptedRequestToDeleteUserDocumentThrowsError() throws Exception {
+        // Given...
+        URI authStoreUri = URI.create("couchdb:https://my-auth-store");
+        MockLogFactory logFactory = new MockLogFactory();
 
-                String userIdToDelete = "my-old-user";
+        String userIdToDelete = "my-old-user";
 
-                IdRev mockIdRev = new IdRev();
-                mockIdRev._rev = "this-is-a-revision";
-                mockIdRev._id = userIdToDelete;
+        IdRev mockIdRev = new IdRev();
+        mockIdRev._rev = "this-is-a-revision";
+        mockIdRev._id = userIdToDelete;
 
-                UserDoc userToBeDeleted = new UserDoc();
-                userToBeDeleted.setVersion(mockIdRev._rev);
-                userToBeDeleted.setUserNumber(mockIdRev._id);
+        UserDoc userToBeDeleted = new UserDoc();
+        userToBeDeleted.setVersion(mockIdRev._rev);
+        userToBeDeleted.setUserNumber(mockIdRev._id);
 
-                IUser user = new UserImpl(userToBeDeleted);
+        IUser user = new UserImpl(userToBeDeleted);
 
-                String expectedGetRequestUrl = "https://my-auth-store/galasa_users/" + userIdToDelete;
-                String expectedDeleteRequestUrl = "https://my-auth-store/galasa_users/" + userIdToDelete + "?rev="
-                                + mockIdRev._rev;
+        String expectedGetRequestUrl = "https://my-auth-store/galasa_users/" + userIdToDelete;
+        String expectedDeleteRequestUrl = "https://my-auth-store/galasa_users/" + userIdToDelete + "?rev="
+                + mockIdRev._rev;
 
-                List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
-                interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
+        List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
+        interactions.add(new GetDocumentInteraction<IdRev>(expectedGetRequestUrl, HttpStatus.SC_OK, mockIdRev));
 
-                interactions.add(new DeleteDocumentInteraction(expectedDeleteRequestUrl,
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR));
+        interactions.add(new DeleteDocumentInteraction(expectedDeleteRequestUrl, HttpStatus.SC_INTERNAL_SERVER_ERROR));
 
-                MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
+        MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
-                MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
-                MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockHttpClientFactory httpClientFactory = new MockHttpClientFactory(mockHttpClient);
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
 
-                CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory,
-                                new HttpRequestFactoryImpl(),
-                                logFactory, new MockCouchdbValidator(), mockTimeService);
+        CouchdbAuthStore authStore = new CouchdbAuthStore(authStoreUri, httpClientFactory, new HttpRequestFactoryImpl(),
+                logFactory, new MockCouchdbValidator(), mockTimeService);
 
-                // When...
-                AuthStoreException thrown = catchThrowableOfType(
-                                () -> authStore.deleteUser(user),
-                                AuthStoreException.class);
+        // When...
+        AuthStoreException thrown = catchThrowableOfType(
+                () -> authStore.deleteUser(user),
+                AuthStoreException.class);
 
-                // Then...
-                assertThat(thrown).isNotNull();
-                assertThat(thrown.getMessage()).contains("GAL6208E",
-                                "Failed to delete user from the CouchDB users database.");
-        }
+        // Then...
+        assertThat(thrown).isNotNull();
+        assertThat(thrown.getMessage()).contains("GAL6208E",
+                "Failed to delete user from the CouchDB users database.");
+    }
+
 
 }
