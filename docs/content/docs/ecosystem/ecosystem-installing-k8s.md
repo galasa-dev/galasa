@@ -313,8 +313,7 @@ To enable mTLS for internal pod-to-pod traffic:
 ```yaml
 istio:
   enabled: true
-  mtls:
-    mode: "STRICT"  # Recommended for production
+  mtlsMode: "STRICT"  # Recommended for production
 ```
 
 **External Traffic Routing:**
@@ -326,8 +325,7 @@ Istio can also handle external traffic routing. Choose one option:
 ```yaml
 istio:
   enabled: true
-  mtls:
-    mode: "STRICT"
+  mtlsMode: "STRICT"
 
 gatewayApi:
   enabled: true
@@ -355,8 +353,7 @@ Then configure the chart's values:
 ```yaml
 istio:
   enabled: true
-  mtls:
-    mode: "STRICT"
+  mtlsMode: "STRICT"
 
 ingress:
   enabled: true
@@ -369,7 +366,7 @@ ingress:
 **Configuration Options:**
 
 - `istio.enabled`: Enable or disable Istio integration (default: `false`)
-- `istio.mtls.mode`: mTLS enforcement mode
+- `istio.mtlsMode`: mTLS enforcement mode
   - `STRICT`: Only mTLS traffic allowed (recommended for production)
   - `PERMISSIVE`: Both mTLS and plaintext allowed (useful for migration)
   - `DISABLE`: mTLS disabled
@@ -390,8 +387,7 @@ For existing deployments, use a gradual migration approach:
    ```yaml
    istio:
      enabled: true
-     mtls:
-       mode: "PERMISSIVE"
+     mtlsMode: "PERMISSIVE"
    ```
 
 2. **Upgrade your deployment:**
@@ -412,8 +408,7 @@ For existing deployments, use a gradual migration approach:
    ```yaml
    istio:
      enabled: true
-     mtls:
-       mode: "STRICT"
+     mtlsMode: "STRICT"
    ```
 
 5. **Upgrade again:**
