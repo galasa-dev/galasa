@@ -91,12 +91,16 @@ public class TestPodSchedulerTest {
         String expectedPodName,
         ISettings settings
     ) {
+        Map<String, String> expectedLabels = new HashMap<>();
+        expectedLabels.put(TestPodKubeLabels.GALASA_RUN.toString(), expectedRunName);
+        expectedLabels.put(TestPodKubeLabels.ENGINE_CONTROLLER.toString(), settings.getEngineLabel());
+        expectedLabels.put(TestPodKubeLabels.GALASA_SERVICE_NAME.toString(), expectedGalasaServiceName);
+        if (settings.isIstioEnabled()) {
+            expectedLabels.put(TestPodKubeLabels.ISTIO_SIDECAR.toString(), "true");
+        }
+
         V1ObjectMeta expectedMetadata = new V1ObjectMeta()
-            .labels(Map.of(
-                TestPodKubeLabels.GALASA_RUN.toString(), expectedRunName,
-                TestPodKubeLabels.ENGINE_CONTROLLER.toString(), settings.getEngineLabel(),
-                TestPodKubeLabels.GALASA_SERVICE_NAME.toString(), expectedGalasaServiceName
-            ))
+            .labels(expectedLabels)
             .name(expectedPodName);
 
         // Check the pod's metadata is as expected
@@ -248,6 +252,45 @@ public class TestPodSchedulerTest {
         // Then...
         String expectedEncryptionKeysMountPath = "/encryption";
         assertPodDetailsAreCorrect(pod, galasaServiceInstallName, runName, podName, expectedEncryptionKeysMountPath, settings);
+    }
+
+    @Test
+    public void testCanCreateTestPodWithoutIstioSidecarLabelWhenIstioDisabled() throws Exception {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String encryptionKeysMountPath = "/encryption/encryption-keys.yaml";
+        mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, encryptionKeysMountPath);
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        MockISettings settings = new MockISettings();
+        settings.setIsIstioEnabled(false);
+
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
+
+        // Then...
+        String expectedEncryptionKeysMountPath = "/encryption";
+        assertPodDetailsAreCorrect(pod, galasaServiceInstallName, runName, podName, expectedEncryptionKeysMountPath, settings);
+        assertThat(pod.getMetadata().getLabels()).doesNotContainKey(TestPodKubeLabels.ISTIO_SIDECAR.toString());
     }
 
     @Test

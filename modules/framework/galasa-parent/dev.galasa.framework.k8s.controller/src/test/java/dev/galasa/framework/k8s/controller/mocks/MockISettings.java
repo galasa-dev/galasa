@@ -13,6 +13,7 @@ public class MockISettings implements ISettings {
     private int maxEngines = 5;
     private String nodeRequiredAffinity = "MyNodeRequiredAffinity=MyNodeRequiredAffinityValue:23";
     private String nodePreferredAffinity = "MyNodePreferredAffinity=MyNodePreferredAffinityValue:23";
+    private boolean isIstioEnabled = true;
 
     @Override
     public String getEngineLabel() {
@@ -124,6 +125,15 @@ public class MockISettings implements ISettings {
     @Override
     public long getAllocatedTestRunTimeoutMinutes() {
         return allocatedTestRunTimeoutMins;
+    }
+
+    @Override
+    public boolean isIstioEnabled() {
+        return isIstioEnabled;
+    }
+
+    public void setIsIstioEnabled(boolean isIstioEnabled) {
+        this.isIstioEnabled = isIstioEnabled;
     }
 
     @Override
