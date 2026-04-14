@@ -131,13 +131,13 @@ public class TestCouchdbAuthStoreValidator {
         //   "_rev": "3-9e69612124f138c029ab40c9c9072deb",
         //   "views": {
         //     "loginId-view": {
-        //       "map": "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId, doc);\n  }\n}"
+        //       "map": "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}"
         //     }
         //   },
         //   "language": "javascript"
         // }
         AuthStoreDBLoginView view = new AuthStoreDBLoginView();
-        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId, doc);\n  }\n}";
+        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}";
         AuthStoreDBViews views = new AuthStoreDBViews();
         views.loginIdView = view;
         AuthDBNameViewDesign designDocToPassBack = new AuthDBNameViewDesign();
@@ -210,7 +210,7 @@ public class TestCouchdbAuthStoreValidator {
         interactions.add(new CreateDatabaseInteraction(couchdbUriStr + "/" + usersDatabaseName, HttpStatus.SC_CREATED));
 
         AuthStoreDBLoginView view = new AuthStoreDBLoginView();
-        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId, doc);\n  }\n}";
+        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}";
         AuthStoreDBViews views = new AuthStoreDBViews();
         views.loginIdView = view;
         AuthDBNameViewDesign designDocToPassBack = new AuthDBNameViewDesign();
@@ -442,13 +442,13 @@ public class TestCouchdbAuthStoreValidator {
         //   "_rev": "3-9e69612124f138c029ab40c9c9072deb",
         //   "views": {
         //     "loginId-view": {
-        //       "map": "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId, doc);\n  }\n}"
+        //       "map": "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}"
         //     }
         //   },
         //   "language": "javascript"
         // }
         AuthStoreDBLoginView view = new AuthStoreDBLoginView();
-        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId, doc);\n  }\n}";
+        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}";
         AuthStoreDBViews views = new AuthStoreDBViews();
         views.loginIdView = view;
         AuthDBNameViewDesign designDocToPassBack = new AuthDBNameViewDesign();
@@ -493,13 +493,13 @@ public class TestCouchdbAuthStoreValidator {
         //   "_rev": "3-9e69612124f138c029ab40c9c9072deb",
         //   "views": {
         //     "loginId-view": {
-        //       "map": "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId, doc);\n  }\n}"
+        //       "map": "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}"
         //     }
         //   },
         //   "language": "javascript"
         // }
         AuthStoreDBLoginView view = new AuthStoreDBLoginView();
-        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId, doc);\n  }\n}";
+        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}";
         AuthStoreDBViews views = new AuthStoreDBViews();
         views.loginIdView = view;
         AuthDBNameViewDesign designDocToPassBack = new AuthDBNameViewDesign();
@@ -534,7 +534,7 @@ public class TestCouchdbAuthStoreValidator {
 
         boolean isUpdated = validator.updateDesignDocToDesiredDesignDoc(tableDesign, dbName);
 
-        String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId, doc); } }";
+        String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), doc); } }";
 
         assertTrue(isUpdated);
         assertNotNull(tableDesign.views);
@@ -553,7 +553,7 @@ public class TestCouchdbAuthStoreValidator {
 
         boolean isUpdated = validator.updateDesignDocToDesiredDesignDoc(tableDesign, dbName);
 
-        String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'], doc); } }";
+        String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), doc); } }";
 
         assertTrue(isUpdated);
         assertNotNull(tableDesign.views);
