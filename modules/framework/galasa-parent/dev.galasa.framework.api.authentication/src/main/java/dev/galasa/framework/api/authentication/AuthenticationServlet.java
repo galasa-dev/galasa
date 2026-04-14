@@ -75,8 +75,7 @@ public class AuthenticationServlet extends BaseServlet {
     public void init() throws ServletException {
         logger.info("Galasa Authentication API initialising");
 
-        // Make sure the relevant environment variables have been set, otherwise the
-        // servlet won't be able to talk to Dex
+        // Make sure the relevant environment variables have been set, otherwise the servlet won't be able to talk to Dex
         String externalApiServerUrl = getRequiredEnvVariable(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
         String dexIssuerUrl = getRequiredEnvVariable(EnvironmentVariables.GALASA_DEX_ISSUER);
 
@@ -93,20 +92,19 @@ public class AuthenticationServlet extends BaseServlet {
             throw new ServletException("Failed to initialise authentication servlet");
         }
 
-        IAuthService authService;
+        IAuthService authService ;
         try {
             authService = factory.getAuthService();
-        } catch (InternalServletException ex) {
+        } catch( InternalServletException ex) {
             throw new ServletException(ex);
         }
 
         rbacService = getRBACService(framework);
-
+        
         addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, authService, env, dssService));
         addRoute(new AuthClientsRoute(getResponseBuilder(), authService, rbacService));
         addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl, dssService));
-        addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, authService, timeService, rbacService, env,
-                framework));
+        addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, authService, timeService, rbacService, env, framework ));
 
         addRoute(new AuthTokensDetailsRoute(getResponseBuilder(), authService, rbacService));
 
@@ -116,8 +114,8 @@ public class AuthenticationServlet extends BaseServlet {
     private RBACService getRBACService(IFramework framework) throws ServletException {
         RBACService rbacService;
         try {
-            rbacService = framework.getRBACService();
-        } catch (RBACException ex) {
+            rbacService= framework.getRBACService();
+        } catch( RBACException ex) {
             throw new ServletException(ex);
         }
         return rbacService;
@@ -130,7 +128,6 @@ public class AuthenticationServlet extends BaseServlet {
     /**
      * Initialises the OpenID Connect Provider and Dex gRPC client fields to allow
      * the authentication servlet to communicate with Dex.
-     * 
      * @throws ServletException if there was an issue contacting Dex
      */
     protected void initialiseDexClients(String dexIssuerUrl) throws ServletException {
@@ -138,8 +135,7 @@ public class AuthenticationServlet extends BaseServlet {
     }
 
     /**
-     * Gets a given required environment variable, throwing a ServletException if a
-     * value has not been set.
+     * Gets a given required environment variable, throwing a ServletException if a value has not been set.
      */
     private String getRequiredEnvVariable(String envName) throws ServletException {
         String envValue = env.getenv(envName);
