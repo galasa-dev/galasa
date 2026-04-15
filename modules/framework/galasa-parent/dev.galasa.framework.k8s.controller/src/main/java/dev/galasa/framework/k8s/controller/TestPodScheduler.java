@@ -261,6 +261,11 @@ public class TestPodScheduler implements Runnable {
         metadata.putLabelsItem(TestPodKubeLabels.ENGINE_CONTROLLER.toString(), this.settings.getEngineLabel());
         metadata.putLabelsItem(TestPodKubeLabels.GALASA_RUN.toString(), runName);
         metadata.putLabelsItem(TestPodKubeLabels.GALASA_SERVICE_NAME.toString(), kubeEngineFacade.getGalasaServiceInstallName());
+
+        if (settings.isIstioEnabled()) {
+            metadata.putLabelsItem(TestPodKubeLabels.ISTIO_SIDECAR.toString(), "true");
+        }
+
         logger.debug(metadata.toString());
 
         V1PodSpec podSpec = new V1PodSpec();

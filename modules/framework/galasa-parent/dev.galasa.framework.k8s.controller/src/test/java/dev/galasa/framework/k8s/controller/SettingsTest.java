@@ -148,4 +148,48 @@ public class SettingsTest {
 
         assertThat(gotBack).isEqualTo(300);
     }
+
+    @Test
+    public void testUsesDefaultIstioEnabledIfMissingFromConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        KubernetesEngineFacade kube = null;
+        Settings settings = new Settings(controller, kube, "myPod", "myConfigMapName");
+        Map<String, String> configMap = new HashMap<String, String>();
+
+        settings.updateConfigMapProperties(configMap);
+
+        boolean gotBack = settings.isIstioEnabled();
+
+        assertThat(gotBack).isFalse();
+    }
+
+    @Test
+    public void testCanReadIstioEnabledTrueIfPresentInConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        KubernetesEngineFacade kube = null;
+        Settings settings = new Settings(controller, kube, "myPod", "myConfigMapName");
+        Map<String, String> configMap = new HashMap<String, String>();
+        configMap.put(Settings.IS_ISTIO_ENABLED_PROPERTY_NAME, "true");
+
+        settings.updateConfigMapProperties(configMap);
+
+        boolean gotBack = settings.isIstioEnabled();
+
+        assertThat(gotBack).isTrue();
+    }
+
+    @Test
+    public void testCanReadIstioEnabledFalseIfPresentInConfigMap() throws Exception {
+        K8sController controller = new K8sController();
+        KubernetesEngineFacade kube = null;
+        Settings settings = new Settings(controller, kube, "myPod", "myConfigMapName");
+        Map<String, String> configMap = new HashMap<String, String>();
+        configMap.put(Settings.IS_ISTIO_ENABLED_PROPERTY_NAME, "false");
+
+        settings.updateConfigMapProperties(configMap);
+
+        boolean gotBack = settings.isIstioEnabled();
+
+        assertThat(gotBack).isFalse();
+    }
 }

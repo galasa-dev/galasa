@@ -24,7 +24,13 @@ public enum TestPodKubeLabels {
      * Test pods have a kube label with a value being the name of the engine controller
      * the pods were launched using
      */
-    ENGINE_CONTROLLER("galasa-engine-controller");
+    ENGINE_CONTROLLER("galasa-engine-controller"),
+
+    /**
+     * If secure internal pod communication is enabled, then test pods will be injected with
+     * an Istio sidecar and will have this kube label set to "true"
+     */
+    ISTIO_SIDECAR("sidecar.istio.io/inject");
     ;
 
     private String label;
