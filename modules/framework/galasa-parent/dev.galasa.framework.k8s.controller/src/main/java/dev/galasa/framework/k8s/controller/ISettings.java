@@ -54,5 +54,7 @@ public interface ISettings {
     public long getInterruptedTestRunCleanupGracePeriodSeconds();
 
     public long getAllocatedTestRunTimeoutMinutes();
+
+    public boolean isIstioEnabled();
 }
 

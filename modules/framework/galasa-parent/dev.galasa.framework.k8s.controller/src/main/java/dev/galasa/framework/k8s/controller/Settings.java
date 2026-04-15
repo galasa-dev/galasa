@@ -35,6 +35,8 @@ public class Settings implements Runnable, ISettings {
     public static final int ALLOCATED_TEST_RUN_TIMEOUT_MINUTES_DEFAULT = 30;
     public static final String ALLOCATED_TEST_RUN_TIMEOUT_MINUTES_PROPERTY_NAME = "allocated_test_run_timeout_minutes";
 
+    public static final String IS_ISTIO_ENABLED_PROPERTY_NAME = "is_istio_enabled";
+
     private final Log         logger                      = LogFactory.getLog(getClass());
 
     private final K8sController controller;
@@ -57,6 +59,7 @@ public class Settings implements Runnable, ISettings {
     private String            nodePreferredAffinity       = "";
     private String            nodeRequiredAffinity        = "";
     private String            nodeTolerations             = "";
+    private boolean           isIstioEnabled              = false;
 
     // A fail-safe to make sure we never try to re-launch/re-create a pod for a testcase more than 
     // this number  of times.
@@ -110,6 +113,14 @@ public class Settings implements Runnable, ISettings {
     private String updateProperty(Map<String, String> configMapData, String key, String defaultValue, String oldValue) {
         String newValue = getPropertyFromData(configMapData, key, defaultValue);
         if (!newValue.equals(oldValue)) {
+            logger.info("Setting " + key + " from '" + oldValue + "' to '" + newValue + "'");
+        }
+        return newValue;
+    }
+
+    private boolean updateProperty(Map<String, String> configMapData, String key, boolean defaultValue, boolean oldValue) {
+        boolean newValue = Boolean.parseBoolean(getPropertyFromData(configMapData, key, String.valueOf(defaultValue)));
+        if (newValue != oldValue) {
             logger.info("Setting " + key + " from '" + oldValue + "' to '" + newValue + "'");
         }
         return newValue;
@@ -222,6 +233,7 @@ public class Settings implements Runnable, ISettings {
         this.encryptionKeysSecretName = updateProperty(configMapData, "encryption_keys_secret_name", "", this.encryptionKeysSecretName);
 
         this.maxTestPodRetryLimit = updateProperty(configMapData, MAX_TEST_POD_RETRY_LIMIT_CONFIG_MAP_PROPERTY_NAME, MAX_TEST_POD_RETRY_LIMIT_DEFAULT, this.maxTestPodRetryLimit);
+        this.isIstioEnabled = updateProperty(configMapData, IS_ISTIO_ENABLED_PROPERTY_NAME, false, this.isIstioEnabled);
     }
 
     private void setRunPoll(Map<String,String> configMapData) throws K8sControllerException {
@@ -406,5 +418,9 @@ public class Settings implements Runnable, ISettings {
 
     public long getAllocatedTestRunTimeoutMinutes() {
         return this.allocatedTestRunTimeoutMinutes;
+    }
+
+    public boolean isIstioEnabled() {
+        return this.isIstioEnabled;
     }
 }
