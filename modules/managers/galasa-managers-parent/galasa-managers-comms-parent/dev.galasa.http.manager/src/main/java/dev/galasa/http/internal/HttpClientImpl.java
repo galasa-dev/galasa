@@ -35,15 +35,20 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
+import org.apache.hc.client5.http.auth.AuthCache;
 import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.Credentials;
 import org.apache.hc.client5.http.auth.CredentialsProvider;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.auth.BasicScheme;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
@@ -57,6 +62,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
@@ -89,6 +95,7 @@ public class HttpClientImpl implements IHttpClient {
 
     private final int           timeout;
 
+    private BasicCookieStore    cookieStore;
     private SSLContext          sslContext;
     private HostnameVerifier    hostnameVerifier     = NoopHostnameVerifier.INSTANCE;
     private CredentialsProvider credentialsProvider  = new BasicCredentialsProvider();
@@ -102,6 +109,34 @@ public class HttpClientImpl implements IHttpClient {
     public HttpClientImpl(int timeout, Log log) {
         this.timeout = timeout;
         this.logger = log;
+        this.cookieStore = new BasicCookieStore();
+    }
+
+    /**
+     * Enables an auth cache for preemptive basic authentication
+     * @param authScope the auth scope that contains the credentials to populate the cache with
+     */
+    public void enableAuthCache(AuthScope authScope) {
+        if (host != null) {
+            // Create AuthCache instance
+            AuthCache authCache = new BasicAuthCache();
+
+            // Generate BASIC scheme object and add it to the local auth cache
+            BasicScheme basicAuth = new BasicScheme();
+
+            Credentials credentials = credentialsProvider.getCredentials(authScope, null);
+            if (credentials != null) {
+                basicAuth.initPreemptive(credentials);
+            }
+
+            authCache.put(new HttpHost(host.getScheme(), host.getHost(), host.getPort()), basicAuth);
+            
+            // Add AuthCache to the execution context
+            httpContext = HttpClientContext.create();
+            
+            httpContext.setCredentialsProvider(credentialsProvider);
+            httpContext.setAuthCache(authCache);
+        }
     }
 
     @Override
@@ -554,10 +589,13 @@ public class HttpClientImpl implements IHttpClient {
      * @return the updated client
      */
     public IHttpClient setAuthorisation(String username, String password) {
-        // Create a new credentials provider to clear existing credentials
-        credentialsProvider = new BasicCredentialsProvider();
-        ((BasicCredentialsProvider)credentialsProvider).setCredentials(new AuthScope(null, -1),
+        BasicCredentialsProvider basicCredentialsProvider = (BasicCredentialsProvider)credentialsProvider;
+        AuthScope authScope = new AuthScope(null, -1);
+
+        basicCredentialsProvider.clear();
+        basicCredentialsProvider.setCredentials(authScope,
                 new UsernamePasswordCredentials(username, password.toCharArray()));
+        enableAuthCache(authScope);
         return this;
     }
 
@@ -570,9 +608,11 @@ public class HttpClientImpl implements IHttpClient {
      * @return the updated client
      */
     public IHttpClient setAuthorisation(String username, String password, URI scope) {
+        AuthScope authScope = new AuthScope(scope.getHost(), scope.getPort());
         ((BasicCredentialsProvider)credentialsProvider).setCredentials(
-                new AuthScope(scope.getHost(), scope.getPort()),
+                authScope,
                 new UsernamePasswordCredentials(username, password.toCharArray()));
+        enableAuthCache(authScope);
         return this;
     }
 
@@ -584,6 +624,7 @@ public class HttpClientImpl implements IHttpClient {
     public IHttpClient build() {
         RequestConfig.Builder requestBuilder = RequestConfig.custom();
         HttpClientBuilder builder = HttpClientBuilder.create();
+        builder.setDefaultCookieStore(cookieStore);
         requestBuilder.setCookieSpec(StandardCookieSpec.STRICT);
         builder.setDefaultCredentialsProvider(credentialsProvider);
         builder.setDefaultHeaders(commonHeaders);
