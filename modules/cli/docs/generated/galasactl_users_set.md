@@ -14,7 +14,7 @@ galasactl users set [flags]
 
 ```
   -h, --help              Displays the options for the 'users set' command.
-      --login-id string   A mandatory field indicating the login ID of a user.
+      --login-id string   A mandatory field indicating the login ID of a user.This parameter is case-insensitive (e.g., 'myuser', 'MyUser', and 'MYUSER' are treated as the same user).
       --priority int      An optional field indicating the new priority of the specified user. The higher the number, the higher the priority.
       --role string       An optional field indicating the new role of the specified user.
 ```

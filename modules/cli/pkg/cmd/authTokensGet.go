@@ -110,12 +110,12 @@ func (cmd *AuthTokensGetCommand) executeAuthTokensGet(
 	err = utils.CaptureLog(fileSystem, commsFlagSetValues.logFileName)
 	if err == nil {
 		commsFlagSetValues.isCapturingLogs = true
-	
+
 		log.Println("Galasa CLI - Get tokens from the ecosystem")
-	
+
 		// Get the ability to query environment variables.
 		env := factory.GetEnvironment()
-	
+
 		var galasaHome spi.GalasaHome
 		galasaHome, err = utils.NewGalasaHome(fileSystem, env, commsFlagSetValues.CmdParamGalasaHomePath)
 		if err == nil {
@@ -145,7 +145,8 @@ func (cmd *AuthTokensGetCommand) executeAuthTokensGet(
 func addLoginIdFlagToAuthTokensGet(cmd *cobra.Command, authTokensGetCmdValues *AuthTokensCmdValues) {
 
 	flagName := "user"
-	var description string = "Optional. Retrieves a list of access tokens for the user with the given username."
+	var description string = "Optional. Retrieves a list of access tokens for the user with the given username." +
+		" This parameter is case-insensitive (e.g., 'myuser', 'MyUser', and 'MYUSER' are treated as the same user)."
 
 	cmd.Flags().StringVar(&authTokensGetCmdValues.loginId, flagName, "", description)
 }
