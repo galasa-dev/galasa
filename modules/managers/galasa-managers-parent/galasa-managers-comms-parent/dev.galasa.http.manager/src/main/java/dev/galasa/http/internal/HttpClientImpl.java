@@ -112,6 +112,10 @@ public class HttpClientImpl implements IHttpClient {
         this.cookieStore = new BasicCookieStore();
     }
 
+    /**
+     * Enables an auth cache for preemptive basic authentication
+     * @param authScope the auth scope that contains the credentials to populate the cache with
+     */
     public void enableAuthCache(AuthScope authScope) {
         if (host != null) {
             // Create AuthCache instance
