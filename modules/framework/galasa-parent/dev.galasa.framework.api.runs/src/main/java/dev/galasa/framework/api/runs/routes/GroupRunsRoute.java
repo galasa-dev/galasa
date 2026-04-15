@@ -123,7 +123,7 @@ public class GroupRunsRoute extends GroupRuns{
     private String getCaseAccurateLoginId(String loginId) throws FrameworkException {
         try {
             IAuthStoreService authStoreService = framework.getAuthStoreService();
-            IUser user = authStoreService.getUserByLoginIdCaseInsensitive(loginId);
+            IUser user = authStoreService.getUserByLoginId(loginId);
             if (user != null) {
                 return user.getLoginId();
             }

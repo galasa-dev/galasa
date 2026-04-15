@@ -74,14 +74,6 @@ public interface IAuthStoreService {
     /**
      * Retrieves a user record in the users database.
      *
-     * @param loginId    the loginId of the user trying to access Galasa API
-     * @throws AuthStoreException if there is an issue accessing the auth store.
-     */
-    IUser getUserByLoginId(String loginId) throws AuthStoreException;
-
-    /**
-     * Retrieves a user record in the users database.
-     *
      * @param userNumber    the ID of the user record to retrieve
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
@@ -96,7 +88,7 @@ public interface IAuthStoreService {
      * @return the user with the case-accurate loginId, or null if no match is found
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
-    IUser getUserByLoginIdCaseInsensitive(String loginId) throws AuthStoreException;
+    IUser getUserByLoginId(String loginId) throws AuthStoreException;
 
     /**
      * Updates a user record in the users store's database.

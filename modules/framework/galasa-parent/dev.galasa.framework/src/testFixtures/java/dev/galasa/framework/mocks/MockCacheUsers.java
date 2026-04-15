@@ -63,7 +63,7 @@ public class MockCacheUsers implements CacheUsers {
         IUser matchingUser = null;
         if (loginId != null) {
             for (IUser user : cachedUsers) {
-                if (loginId.equals(user.getLoginId())) {
+                if (loginId.equalsIgnoreCase(user.getLoginId())) {
                     matchingUser = user;
                     break;
                 }
