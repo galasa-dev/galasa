@@ -14,7 +14,7 @@ galasactl users delete [flags]
 
 ```
   -h, --help              Displays the options for the 'users delete' command.
-      --login-id string   A mandatory field indicating the login ID of a user.
+      --login-id string   A mandatory field indicating the login ID of a user. This parameter is case-insensitive (e.g., 'myuser', 'MyUser', and 'MYUSER' are treated as the same user).
 ```
 
 ### Options inherited from parent commands

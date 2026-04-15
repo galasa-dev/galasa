@@ -202,6 +202,7 @@ paths:
         in: query
         description: |
             The loginId of the user whose details will be returned.
+            This parameter is case-insensitive (e.g., 'myuser', 'MyUser', and 'MYUSER' are treated as the same user).
         required: false
         schema:
           type: string
@@ -324,7 +325,9 @@ paths:
       parameters:
         - name: loginId
           in: query
-          description: The loginId of the user whose details will be returned. #If the keyword of 'me' is used, the details of the requesting user will be returned.
+          description: |
+            The loginId of the user whose details will be returned.
+            This parameter is case-insensitive (e.g., 'myuser', 'MyUser', and 'MYUSER' are treated as the same user).
           required: false
           schema:
             type: string
@@ -3416,7 +3419,8 @@ components:
             This field exists so that users can associate a user ID with any tests that were
             kicked off by an automation tool using the automation's JWT, which will be set into
             the requestor field. This means the user can then query and find tests that were
-            launched on their behalf by an automation tool.
+            launched on their behalf by an automation tool. This parameter is case-insensitive 
+            (e.g., 'myuser', 'MyUser', and 'MYUSER' are treated as the same user).
         testStream:
           type: string
           description: |-

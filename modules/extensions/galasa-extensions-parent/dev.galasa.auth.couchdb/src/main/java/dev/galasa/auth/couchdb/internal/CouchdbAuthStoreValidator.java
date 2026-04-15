@@ -42,9 +42,8 @@ public class CouchdbAuthStoreValidator extends CouchdbBaseValidator {
     private final LogFactory logFactory;
 
     // A couchDB view, it gets all the access tokens of a the user based on the loginId provided.
-    public static final String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId, doc); } }";
-    public static final String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'], doc); } }";
-    public static final String DB_TABLE_USERS_LOWERCASE_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), doc); } }";
+    public static final String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), doc); } }";
+    public static final String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), doc); } }";
 
     public CouchdbAuthStoreValidator() {
         this(new LogFactory(){
@@ -139,19 +138,6 @@ public class CouchdbAuthStoreValidator extends CouchdbBaseValidator {
             }
             else{
                 tableDesign.views.loginIdView.map = DB_TABLE_USERS_DESIGN;
-            }
-        }
-
-        // Add the lowercase view for users database only
-        if (dbName.equals(CouchdbAuthStore.USERS_DATABASE_NAME)) {
-            if (tableDesign.views.loginIdLowerCaseView == null) {
-                isUpdated = true;
-                tableDesign.views.loginIdLowerCaseView = new AuthStoreDBLoginLowerCaseView();
-            }
-
-            if (tableDesign.views.loginIdLowerCaseView.map == null) {
-                isUpdated = true;
-                tableDesign.views.loginIdLowerCaseView.map = DB_TABLE_USERS_LOWERCASE_DESIGN;
             }
         }
 

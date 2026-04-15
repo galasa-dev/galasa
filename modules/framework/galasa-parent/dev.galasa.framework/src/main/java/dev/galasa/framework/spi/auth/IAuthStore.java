@@ -64,14 +64,6 @@ public interface IAuthStore {
     void createUser(String loginId, String clientName, String roleId) throws AuthStoreException;
 
     /**
-     * Retrieves a user record in the users store's database.
-     *
-     * @param loginId    the loginId of the user trying to access Galasa API
-     * @throws AuthStoreException if there is an issue accessing the users store.
-     */
-    IUser getUserByLoginId(String loginId) throws AuthStoreException;
-
-    /**
      * Retrieves a user record in the users store's database using case-insensitive matching.
      * This method converts the provided loginId to lowercase and searches for a matching user.
      * If a match is found, the actual case-accurate loginId from the store is returned.
@@ -80,7 +72,7 @@ public interface IAuthStore {
      * @return the user with the case-accurate loginId, or null if no match is found
      * @throws AuthStoreException if there is an issue accessing the users store.
      */
-    IUser getUserByLoginIdCaseInsensitive(String loginId) throws AuthStoreException;
+    IUser getUserByLoginId(String loginId) throws AuthStoreException;
 
     /**
      * Retrieves a user record in the users store's database.

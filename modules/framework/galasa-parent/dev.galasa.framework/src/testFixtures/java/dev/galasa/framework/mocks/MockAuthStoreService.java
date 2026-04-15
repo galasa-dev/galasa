@@ -140,11 +140,6 @@ public class MockAuthStoreService implements IAuthStoreService {
 
     @Override
     public IUser getUserByLoginId(String loginId) throws AuthStoreException {
-        return usersByLoginId.get(loginId);
-    }
-
-    @Override
-    public IUser getUserByLoginIdCaseInsensitive(String loginId) throws AuthStoreException {
         // Convert the provided loginId to lowercase for comparison
         String lowerCaseLoginId = loginId.toLowerCase();
         

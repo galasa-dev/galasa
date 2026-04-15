@@ -87,6 +87,8 @@ func addLoginIdFlag(cmd *cobra.Command, isMandatory bool, userCmdValues *UsersCm
 		description = "An optional field indicating the login ID of a user."
 	}
 
+	description += " This parameter is case-insensitive (e.g., 'myuser', 'MyUser', and 'MYUSER' are treated as the same user)."
+
 	cmd.Flags().StringVar(&userCmdValues.name, flagName, "", description)
 
 	if isMandatory {

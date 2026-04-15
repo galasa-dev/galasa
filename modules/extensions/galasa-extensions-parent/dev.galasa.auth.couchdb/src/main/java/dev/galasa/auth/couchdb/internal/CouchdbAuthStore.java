@@ -65,7 +65,6 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
 
     public static final String TOKENS_DB_VIEW_NAME = "loginId-view";
     public static final String USERS_DB_VIEW_NAME = "loginId-view";
-    public static final String USERS_DB_LOWERCASE_VIEW_NAME = "loginId-lowercase-view";
 
     private Log logger;
     private ITimeService timeService;
@@ -112,9 +111,12 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
         List<ViewRow> tokenDocuments = new ArrayList<>();
         List<IInternalAuthToken> tokens = new ArrayList<>();
 
+        // Token view emits loginIds in lowercase so we should search by lowercase.
+        String lowercaseLoginId = loginId.toLowerCase();
+
         try {
             // Get all of the documents in the tokens database
-            tokenDocuments = getAllDocsByLoginId(TOKENS_DATABASE_NAME, loginId, TOKENS_DB_VIEW_NAME);
+            tokenDocuments = getAllDocsByLoginId(TOKENS_DATABASE_NAME, lowercaseLoginId, TOKENS_DB_VIEW_NAME);
 
             // Build up a list of all the tokens using the document IDs
             for (ViewRow row : tokenDocuments) {
@@ -226,43 +228,6 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
 
     @Override
     public IUser getUserByLoginId(String loginId) throws AuthStoreException {
-        logger.info("Retrieving user by loginId from CouchDB");
-        List<ViewRow> userDocument;
-        IUser user = null;
-
-        try {
-            // Fetch documents matching the loginId
-            userDocument = getAllDocsByLoginId(USERS_DATABASE_NAME, loginId, USERS_DB_VIEW_NAME);
-
-            // Since loginIds are unique, there should be only one document.
-            if (userDocument != null && !userDocument.isEmpty()) {
-                ViewRow row = userDocument.get(0); // Get the first entry since loginId is unique
-
-                // Fetch the user document from the CouchDB using the ID from the row
-                UserDoc fetchedUser = getUserFromDocument(row.id);
-
-                if (row.value != null) {
-                    AuthDBNameViewDesign nameViewDesign = gson.fromJson(gson.toJson(row.value),
-                            AuthDBNameViewDesign.class);
-                    fetchedUser.setVersion(nameViewDesign._rev); // Set the version from the CouchDB rev
-                }
-
-                // Assign fetchedUser to the user variable
-                user = new UserImpl(fetchedUser);
-            }
-
-            logger.info("User retrieved from CouchDB OK");
-
-        } catch (CouchdbException e) {
-            String errorMessage = ERROR_FAILED_TO_RETRIEVE_USERS.getMessage(e.getMessage());
-            throw new AuthStoreException(errorMessage, e);
-        }
-
-        return user;
-    }
-
-    @Override
-    public IUser getUserByLoginIdCaseInsensitive(String loginId) throws AuthStoreException {
         logger.info("Retrieving user by loginId (case-insensitive) from CouchDB");
         List<ViewRow> userDocument;
         IUser user = null;
@@ -272,7 +237,7 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
             String lowerCaseLoginId = loginId.toLowerCase();
             
             // Fetch documents matching the lowercase loginId using the lowercase view
-            userDocument = getAllDocsByLoginId(USERS_DATABASE_NAME, lowerCaseLoginId, USERS_DB_LOWERCASE_VIEW_NAME);
+            userDocument = getAllDocsByLoginId(USERS_DATABASE_NAME, lowerCaseLoginId, USERS_DB_VIEW_NAME);
 
             // Since loginIds are unique (case-insensitive), there should be only one document.
             if (userDocument != null && !userDocument.isEmpty()) {
