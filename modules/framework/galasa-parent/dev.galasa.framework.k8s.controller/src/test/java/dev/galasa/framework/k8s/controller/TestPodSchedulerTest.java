@@ -294,6 +294,45 @@ public class TestPodSchedulerTest {
     }
 
     @Test
+    public void testCanCreateTestPodWithIstioSidecarLabelWhenIstioEnabled() throws Exception {
+        // Given...
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        String encryptionKeysMountPath = "/encryption/encryption-keys.yaml";
+        mockEnvironment.setenv(FrameworkEncryptionService.ENCRYPTION_KEYS_PATH_ENV, encryptionKeysMountPath);
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        MockISettings settings = new MockISettings();
+        settings.setIsIstioEnabled(true);
+
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade facade = new KubernetesEngineFacade(null, "mynamespace", galasaServiceInstallName);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler runPoll = new TestPodScheduler(mockEnvironment, mockDss, settings, facade, mockTimeService, prioritySchedulingService);
+
+        String runName = "run1";
+        String podName = settings.getEngineLabel() + "-" + runName;
+        boolean isTraceEnabled = false;
+
+        // When...
+        V1Pod pod = runPoll.createTestPodDefinition(runName, podName, isTraceEnabled);
+
+        // Then...
+        String expectedEncryptionKeysMountPath = "/encryption";
+        assertPodDetailsAreCorrect(pod, galasaServiceInstallName, runName, podName, expectedEncryptionKeysMountPath, settings);
+        assertThat(pod.getMetadata().getLabels()).containsKey(TestPodKubeLabels.ISTIO_SIDECAR.toString());
+    }
+
+    @Test
     public void testCanCreateTestPodWithoutNodeRequiredAffinity() throws Exception {
         // Given...
         MockEnvironment mockEnvironment = new MockEnvironment();
