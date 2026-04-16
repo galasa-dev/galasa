@@ -227,27 +227,17 @@ public class HttpManagerIVT {
     }
     
     @Test
-    public void buildURITest() {
-    	HttpClientException expected = null;
-    	
-    	try {
-    		// dummy request
-    		client.getText("http://httpbin.org/anything?should==fail");
-    	} catch (HttpClientException e) {
-    		logger.info("Caught expected exception: " + e.getMessage());
-    		expected = e;
-    	}
-    	assertThat(expected).isNotNull();
-    	
-    	expected = null;
-    	try {
-    		// dummy request
-    		client.getText("http://httpbin.org/anything?thisparam=ok&&oops=yes");
-    	} catch (HttpClientException e) {
-    		logger.info("Caught expected exception: " + e.getMessage());
-    		expected = e;
-    	}
-    	assertThat(expected).isNotNull();
+    public void buildURITest() throws Exception {
+    	// Query parameter with double equals: "should==fail"
+    	// This is valid - parsed as parameter "should" with value "=fail"
+    	HttpClientResponse<String> response1 = client.getText("http://httpbin.org/anything?should==fail");
+    	assertThat(response1.getStatusCode()).isEqualTo(200);
+    	logger.info("Successfully handled query parameter with double equals");
+
+    	// Query parameter with double ampersand: "thisparam=ok&&oops=yes"
+    	// This is valid - parsed as "thisparam=ok", empty parameter, then "oops=yes"
+    	HttpClientResponse<String> response2 = client.getText("http://httpbin.org/anything?thisparam=ok&&oops=yes");
+    	assertThat(response2.getStatusCode()).isEqualTo(200);
+    	logger.info("Successfully handled query parameter with double ampersand");
     }
-    
 }
