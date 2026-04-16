@@ -131,14 +131,16 @@ public class CouchdbAuthStoreValidator extends CouchdbBaseValidator {
             tableDesign.views.loginIdView = new AuthStoreDBLoginView();
         }
 
-        if (tableDesign.views.loginIdView.map == null) {
+        String expectedMapFunction;
+        if (dbName.equals(CouchdbAuthStore.TOKENS_DATABASE_NAME)) {
+            expectedMapFunction = DB_TABLE_TOKENS_DESIGN;
+        } else {
+            expectedMapFunction = DB_TABLE_USERS_DESIGN;
+        }
+
+        if (tableDesign.views.loginIdView.map == null || !tableDesign.views.loginIdView.map.equals(expectedMapFunction)) {
             isUpdated = true;
-            if(dbName.equals(CouchdbAuthStore.TOKENS_DATABASE_NAME)){
-                tableDesign.views.loginIdView.map = DB_TABLE_TOKENS_DESIGN;
-            }
-            else{
-                tableDesign.views.loginIdView.map = DB_TABLE_USERS_DESIGN;
-            }
+            tableDesign.views.loginIdView.map = expectedMapFunction;
         }
 
         if (tableDesign.language == null || !tableDesign.language.equals("javascript")) {
