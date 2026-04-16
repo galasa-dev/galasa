@@ -37,6 +37,16 @@ public interface IAuthStore {
     void storeToken(String clientId, String description, IInternalUser owner) throws AuthStoreException;
 
     /**
+     * Updates an existing token record in the auth store's tokens database with a
+     * new expiry time.
+     *
+     * @param tokenId    the ID of the token record to update.
+     * @param expiryTime the new expiry time for the token.
+     * @throws AuthStoreException if there was an issue accessing the auth store.
+     */
+    void updateTokenExpiryTime(String tokenId, java.time.Instant expiryTime) throws AuthStoreException;
+
+    /**
      * Deletes an existing token record from the auth store's tokens database.
      *
      * @param tokenId the ID of the token record to delete.

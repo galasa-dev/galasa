@@ -32,6 +32,7 @@ import dev.galasa.extensions.common.api.LogFactory;
 import dev.galasa.extensions.common.couchdb.CouchdbException;
 import dev.galasa.extensions.common.couchdb.CouchdbStore;
 import dev.galasa.extensions.common.couchdb.CouchdbValidator;
+import dev.galasa.extensions.common.couchdb.pojos.IdRev;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
 import dev.galasa.extensions.common.couchdb.pojos.ViewResponse;
 import dev.galasa.extensions.common.couchdb.pojos.ViewRow;
@@ -155,6 +156,57 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
             createDocument(TOKENS_DATABASE_NAME, tokenJson);
         } catch (CouchdbException e) {
             String errorMessage = ERROR_FAILED_TO_CREATE_TOKEN_DOCUMENT.getMessage(e.getMessage());
+            throw new AuthStoreException(errorMessage, e);
+        }
+    }
+
+    @Override
+    public void updateTokenExpiryTime(String tokenId, Instant expiryTime) throws AuthStoreException {
+        try {
+            // Get the existing token document
+            CouchdbAuthToken existingToken = getDocumentFromDatabase(TOKENS_DATABASE_NAME, tokenId,
+                    CouchdbAuthToken.class);
+
+            if (existingToken == null) {
+                String errorMessage = ERROR_FAILED_TO_RETRIEVE_TOKENS.getMessage("Token not found: " + tokenId);
+                throw new AuthStoreException(errorMessage);
+            }
+
+            // Create an updated token with the new expiry time
+            CouchdbAuthToken updatedToken = new CouchdbAuthToken(
+                    tokenId,
+                    existingToken.getDexClientId(),
+                    existingToken.getDescription(),
+                    existingToken.getCreationTime(),
+                    expiryTime,
+                    (CouchdbUser) existingToken.getOwner());
+
+            // Convert to JSON and update the document
+            String tokenJson = gson.toJson(updatedToken);
+
+            // Get the document revision for the update
+            IdRev tokenIdRev = getDocumentFromDatabase(TOKENS_DATABASE_NAME, tokenId, IdRev.class);
+            if (tokenIdRev == null || tokenIdRev._rev == null) {
+                String errorMessage = ERROR_FAILED_TO_RETRIEVE_TOKENS
+                        .getMessage("Could not get revision for token: " + tokenId);
+                throw new AuthStoreException(errorMessage);
+            }
+
+            // Build and send the update request
+            HttpPut request = httpRequestFactory
+                    .getHttpPutRequest(storeUri + "/" + TOKENS_DATABASE_NAME + "/" + tokenId);
+            request.setHeader("If-Match", tokenIdRev._rev);
+            request.setEntity(new StringEntity(tokenJson, StandardCharsets.UTF_8));
+
+            String responseEntity = sendHttpRequest(request, HttpStatus.SC_OK);
+            PutPostResponse putResponse = gson.fromJson(responseEntity, PutPostResponse.class);
+
+            if (!putResponse.ok || putResponse.id == null || putResponse.rev == null) {
+                String errorMessage = ERROR_FAILED_TO_UPDATE_USER_DOCUMENT_INVALID_RESP.getMessage();
+                throw new AuthStoreException(errorMessage);
+            }
+        } catch (CouchdbException e) {
+            String errorMessage = ERROR_FAILED_TO_RETRIEVE_TOKENS.getMessage(e.getMessage());
             throw new AuthStoreException(errorMessage, e);
         }
     }

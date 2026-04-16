@@ -502,7 +502,7 @@ public class AuthTokensRoute extends PublicRoute {
                 Instant expiryTime = token.getExpiryTime();
 
                 // Check if the token has expired
-                if (now.isAfter(expiryTime)) {
+                if (expiryTime != null && now.isAfter(expiryTime)) {
                     logger.info("Personal access token has expired. Deleting token from auth store.");
 
                     // Delete the expired token
