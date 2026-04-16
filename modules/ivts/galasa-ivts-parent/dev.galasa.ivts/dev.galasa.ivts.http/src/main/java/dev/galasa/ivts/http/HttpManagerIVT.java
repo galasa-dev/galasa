@@ -228,15 +228,15 @@ public class HttpManagerIVT {
     
     @Test
     public void buildURITest() throws Exception {
-    	// Query parameter with double equals: "should==fail"
-    	// This is valid - parsed as parameter "should" with value "=fail"
-    	HttpClientResponse<String> response1 = client.getText("http://httpbin.org/anything?should==fail");
+    	// Query parameter with double equals
+    	// This is valid - parsed as parameter "should" with value "=pass"
+    	HttpClientResponse<String> response1 = client.getText("http://httpbin.org/anything?should==pass");
     	assertThat(response1.getStatusCode()).isEqualTo(200);
     	logger.info("Successfully handled query parameter with double equals");
 
-    	// Query parameter with double ampersand: "thisparam=ok&&oops=yes"
-    	// This is valid - parsed as "thisparam=ok", empty parameter, then "oops=yes"
-    	HttpClientResponse<String> response2 = client.getText("http://httpbin.org/anything?thisparam=ok&&oops=yes");
+    	// Query parameter with double ampersand
+    	// This is valid - parsed as "thisparam=ok", empty parameter, then "thisisfine=yes"
+    	HttpClientResponse<String> response2 = client.getText("http://httpbin.org/anything?thisparam=ok&&thisisfine=yes");
     	assertThat(response2.getStatusCode()).isEqualTo(200);
     	logger.info("Successfully handled query parameter with double ampersand");
     }

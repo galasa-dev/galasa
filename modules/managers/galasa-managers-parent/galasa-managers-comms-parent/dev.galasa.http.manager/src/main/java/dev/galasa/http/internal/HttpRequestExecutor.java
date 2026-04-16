@@ -14,6 +14,11 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 
 import dev.galasa.http.HttpClientException;
 
+/**
+ * Executes HTTP requests using Apache HttpClient.
+ * This class wraps the execution of HTTP requests and handles any IO exceptions
+ * by converting them to HttpClientException.
+ */
 public class HttpRequestExecutor implements IHttpRequestExecutor {
 
     @Override
