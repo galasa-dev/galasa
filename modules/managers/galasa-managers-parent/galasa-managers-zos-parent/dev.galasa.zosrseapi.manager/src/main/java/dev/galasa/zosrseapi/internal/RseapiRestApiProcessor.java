@@ -22,7 +22,6 @@ import org.apache.http.HttpStatus;
 
 import com.google.gson.JsonObject;
 
-import dev.galasa.zosbatch.ZosBatchException;
 import dev.galasa.zosrseapi.IRseapi;
 import dev.galasa.zosrseapi.IRseapiResponse;
 import dev.galasa.zosrseapi.IRseapiRestApiProcessor;

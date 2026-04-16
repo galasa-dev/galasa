@@ -14,8 +14,6 @@ import java.nio.channels.ClosedChannelException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dev.galasa.framework.spi.ras.ResultArchiveStoreByteChannel;
-
 public class RASByteChannelTest {
 
     @Test
