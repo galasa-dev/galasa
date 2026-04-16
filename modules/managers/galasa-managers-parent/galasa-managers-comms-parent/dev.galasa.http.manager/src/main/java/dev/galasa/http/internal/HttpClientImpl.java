@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -24,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManagerFactory;
@@ -102,14 +99,21 @@ public class HttpClientImpl implements IHttpClient {
     private HttpClientContext   httpContext          = null;
     private Set<Integer>        okResponseCodes      = new HashSet<>();
 
+    private IHttpRequestExecutor httpRequestExecutor;
+
     private Log                 logger;
 
     private SSLTLSContextNameSelector nameSelector = new SSLTLSContextNameSelector();
 
     public HttpClientImpl(int timeout, Log log) {
+        this(timeout, log, new HttpRequestExecutor());
+    }
+
+    public HttpClientImpl(int timeout, Log log, IHttpRequestExecutor httpRequestExecutor) {
         this.timeout = timeout;
         this.logger = log;
         this.cookieStore = new BasicCookieStore();
+        this.httpRequestExecutor = httpRequestExecutor;
     }
 
     /**
@@ -726,55 +730,32 @@ public class HttpClientImpl implements IHttpClient {
     }
 
     private URI buildUri(String path, Map<String, String> queryParams) throws HttpClientException {
-
-        if (queryParams == null) {
-            queryParams = new HashMap<>();
-        }
-
-        // Create a multi-valued map since we can have more than one value for each
-        // param in the path
-        Map<String, List<String>> multiMap = new HashMap<>();
-        for (Entry<String, String> entry : queryParams.entrySet()) {
-            List<String> list = new ArrayList<>();
-            list.add(entry.getValue());
-            multiMap.put(entry.getKey(), list);
-        }
-
-        Pattern p = Pattern.compile("^(.*)\\?((?:.+=.*&?)+)$", Pattern.MULTILINE);
-        Matcher m = p.matcher(path);
-        if (m.find()) {
-            path = m.group(1);
-
-            String[] pairs = m.group(2).split("&");
-            for (String pair : pairs) {
-                String[] parts = pair.split("=");
-                if (parts.length != 2) {
-                    throw new HttpClientException("Illegal query parameter found: '" + pair + "'");
-                }
-
-                String param = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
-                String value = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
-                if (multiMap.containsKey(param)) {
-                    multiMap.get(param).add(value);
-                } else {
-                    List<String> list = new ArrayList<>();
-                    list.add(value);
-                    multiMap.put(param, list);
-                }
-            }
-        }
-
-        URIBuilder ub = new URIBuilder(host);
-        appendPath(ub, path);
-
-        // Iterate through the multi-value map to add all the parameters
-        for (Entry<String, List<String>> entry : multiMap.entrySet()) {
-            for (String value : entry.getValue()) {
-                ub.addParameter(entry.getKey(), value);
-            }
-        }
-
         try {
+            // Parse the path (which may contain a query string) into a temporary URIBuilder
+            URIBuilder tempBuilder = new URIBuilder(path);
+            
+            // Check if the path contains a complete URI (scheme + host)
+            // If so, use it directly; otherwise combine with the host field
+            URIBuilder ub;
+            if (tempBuilder.getScheme() != null && tempBuilder.getHost() != null) {
+                // Path contains a complete URI, use it as the base
+                ub = tempBuilder;
+            } else {
+                // Path is relative, combine with the host field
+                ub = new URIBuilder(host);
+                appendPath(ub, tempBuilder.getPath());
+                
+                // Add existing query parameters from the path
+                ub.addParameters(tempBuilder.getQueryParams());
+            }
+            
+            // Add additional query parameters if provided
+            if (queryParams != null) {
+                for (Entry<String, String> entry : queryParams.entrySet()) {
+                    ub.addParameter(entry.getKey(), entry.getValue());
+                }
+            }
+            
             return ub.build();
         } catch (URISyntaxException e) {
             throw new HttpClientException("Cannot construct URI using path: '" + path + "'", e);
@@ -932,11 +913,7 @@ public class HttpClientImpl implements IHttpClient {
 
     private ClassicHttpResponse execute(ClassicHttpRequest request) throws HttpClientException {
         this.build();
-        try {
-            return httpClient.executeOpen(null, request, httpContext);
-        } catch (IOException e) {
-            throw new HttpClientException("Error executing http request", e);
-        }
+        return httpRequestExecutor.execute(httpClient, httpContext, request);
     }
 
     @Override
