@@ -38,11 +38,6 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
     }
 
     @Override
-    public void updateTokenExpiryTime(String tokenId, java.time.Instant expiryTime) throws AuthStoreException {
-        throw new UnsupportedOperationException("Unimplemented method 'updateToken'");
-    }
-
-    @Override
     public void deleteToken(String tokenId) throws AuthStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'deleteToken'");
     }
