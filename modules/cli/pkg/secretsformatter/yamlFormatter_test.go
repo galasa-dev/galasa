@@ -13,11 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func createMockGalasaSecret(secretName string) galasaapi.GalasaSecret {
-	return createMockGalasaSecretWithDescription(secretName, "")
-}
-
-func generateExpectedSecretYaml(secretName string) string {
+func generateExpectedYamlBase(secretName string, secretType string, dataSection string) string {
     return fmt.Sprintf(
 `apiVersion: %s
 kind: GalasaSecret
@@ -26,10 +22,19 @@ metadata:
     lastUpdatedTime: 2024-01-01T10:00:00Z
     lastUpdatedBy: %s
     encoding: %s
-    type: UsernamePassword
+    type: %s
 data:
-    username: %s
-    password: %s`, API_VERSION, secretName, DUMMY_USERNAME, DUMMY_ENCODING, DUMMY_USERNAME, DUMMY_PASSWORD)
+%s`, API_VERSION, secretName, DUMMY_USERNAME, DUMMY_ENCODING, secretType, dataSection)
+}
+
+func createMockGalasaSecret(secretName string) galasaapi.GalasaSecret {
+	return createMockGalasaSecretWithDescription(secretName, "")
+}
+
+func generateExpectedSecretYaml(secretName string) string {
+    dataSection := fmt.Sprintf(`    username: %s
+    password: %s`, DUMMY_USERNAME, DUMMY_PASSWORD)
+    return generateExpectedYamlBase(secretName, "UsernamePassword", dataSection)
 }
 
 func createMockKeystoreSecret(secretName string, keystoreType string) galasaapi.GalasaSecret {
@@ -37,19 +42,10 @@ func createMockKeystoreSecret(secretName string, keystoreType string) galasaapi.
 }
 
 func generateExpectedKeystoreSecretYaml(secretName string, keystoreType string) string {
-	return fmt.Sprintf(
-`apiVersion: %s
-kind: GalasaSecret
-metadata:
-    name: %s
-    lastUpdatedTime: 2024-01-01T10:00:00Z
-    lastUpdatedBy: %s
-    encoding: %s
-    type: KeyStore
-data:
-    keystore: %s
+    dataSection := fmt.Sprintf(`    keystore: %s
     keystorePassword: %s
-    keystoreType: %s`, API_VERSION, secretName, DUMMY_USERNAME, DUMMY_ENCODING, DUMMY_KEYSTORE, DUMMY_KEYSTORE_PASSWORD, keystoreType)
+    keystoreType: %s`, DUMMY_KEYSTORE, DUMMY_KEYSTORE_PASSWORD, keystoreType)
+    return generateExpectedYamlBase(secretName, "KeyStore", dataSection)
 }
 
 func TestSecretsYamlFormatterNoDataReturnsBlankString(t *testing.T) {

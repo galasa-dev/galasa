@@ -22,9 +22,10 @@ const (
 	DUMMY_KEYSTORE_PASSWORD = "keystore-password"
 )
 
-func createMockGalasaSecretWithDescription(
-    secretName string,
-    description string,
+func createMockSecretBase(
+	secretName string,
+	description string,
+	secretType galasaapi.GalasaSecretType,
 ) galasaapi.GalasaSecret {
     secret := *galasaapi.NewGalasaSecret()
 
@@ -34,7 +35,7 @@ func createMockGalasaSecretWithDescription(
     secretMetadata := *galasaapi.NewGalasaSecretMetadata()
     secretMetadata.SetName(secretName)
     secretMetadata.SetEncoding(DUMMY_ENCODING)
-    secretMetadata.SetType("UsernamePassword")
+    secretMetadata.SetType(secretType)
     secretMetadata.SetLastUpdatedBy(DUMMY_USERNAME)
     secretMetadata.SetLastUpdatedTime(time.Date(2024, 01, 01, 10, 0, 0, 0, time.UTC))
 
@@ -42,11 +43,21 @@ func createMockGalasaSecretWithDescription(
         secretMetadata.SetDescription(description)
     }
 
+	secret.SetMetadata(secretMetadata)
+
+    return secret
+}
+
+func createMockGalasaSecretWithDescription(
+    secretName string,
+    description string,
+) galasaapi.GalasaSecret {
+    secret := createMockSecretBase(secretName, description, galasaapi.GalasaSecretType("UsernamePassword"))
+
     secretData := *galasaapi.NewGalasaSecretData()
     secretData.SetUsername(DUMMY_USERNAME)
     secretData.SetPassword(DUMMY_PASSWORD)
 
-    secret.SetMetadata(secretMetadata)
     secret.SetData(secretData)
     return secret
 }
@@ -56,28 +67,13 @@ func createMockKeystoreSecretWithDescription(
 	description string,
 	keystoreType string,
 ) galasaapi.GalasaSecret {
-	secret := *galasaapi.NewGalasaSecret()
-
-	secret.SetApiVersion(API_VERSION)
-	secret.SetKind("GalasaSecret")
-
-	secretMetadata := *galasaapi.NewGalasaSecretMetadata()
-	secretMetadata.SetName(secretName)
-	secretMetadata.SetEncoding(DUMMY_ENCODING)
-	secretMetadata.SetType("KeyStore")
-	secretMetadata.SetLastUpdatedBy(DUMMY_USERNAME)
-	secretMetadata.SetLastUpdatedTime(time.Date(2024, 01, 01, 10, 0, 0, 0, time.UTC))
-
-	if description != "" {
-		secretMetadata.SetDescription(description)
-	}
+	secret := createMockSecretBase(secretName, description, galasaapi.GalasaSecretType("KeyStore"))
 
 	secretData := *galasaapi.NewGalasaSecretData()
 	secretData.SetKeystore(DUMMY_KEYSTORE)
 	secretData.SetKeystorePassword(DUMMY_KEYSTORE_PASSWORD)
 	secretData.SetKeystoreType(keystoreType)
 
-	secret.SetMetadata(secretMetadata)
 	secret.SetData(secretData)
 	return secret
 }
