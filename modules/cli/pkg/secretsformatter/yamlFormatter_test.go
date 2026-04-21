@@ -32,6 +32,26 @@ data:
     password: %s`, API_VERSION, secretName, DUMMY_USERNAME, DUMMY_ENCODING, DUMMY_USERNAME, DUMMY_PASSWORD)
 }
 
+func createMockKeystoreSecret(secretName string, keystoreType string) galasaapi.GalasaSecret {
+    return createMockKeystoreSecretWithDescription(secretName, "", keystoreType)
+}
+
+func generateExpectedKeystoreSecretYaml(secretName string, keystoreType string) string {
+	return fmt.Sprintf(
+`apiVersion: %s
+kind: GalasaSecret
+metadata:
+    name: %s
+    lastUpdatedTime: 2024-01-01T10:00:00Z
+    lastUpdatedBy: %s
+    encoding: %s
+    type: KeyStore
+data:
+    keystore: %s
+    keystorePassword: %s
+    keystoreType: %s`, API_VERSION, secretName, DUMMY_USERNAME, DUMMY_ENCODING, DUMMY_KEYSTORE, DUMMY_KEYSTORE_PASSWORD, keystoreType)
+}
+
 func TestSecretsYamlFormatterNoDataReturnsBlankString(t *testing.T) {
     // Given...
     formatter := NewSecretYamlFormatter()
@@ -86,4 +106,88 @@ func TestSecretsYamlFormatterMultipleDataSeperatesWithNewLine(t *testing.T) {
 %s
 `, expectedSecret1Output, expectedSecret2Output)
     assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+func TestSecretsYamlFormatterKeystoreJKSReturnsCorrectly(t *testing.T) {
+	// Given...
+	formatter := NewSecretYamlFormatter()
+	formattableSecrets := make([]galasaapi.GalasaSecret, 0)
+	secretName := "MYJKSKEYSTORE"
+	secret1 := createMockKeystoreSecret(secretName, "JKS")
+	formattableSecrets = append(formattableSecrets, secret1)
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatSecrets(formattableSecrets)
+
+	// Then...
+	assert.Nil(t, err)
+	expectedFormattedOutput := generateExpectedKeystoreSecretYaml(secretName, "JKS") + "\n"
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+func TestSecretsYamlFormatterKeystorePKCS12ReturnsCorrectly(t *testing.T) {
+	// Given...
+	formatter := NewSecretYamlFormatter()
+	formattableSecrets := make([]galasaapi.GalasaSecret, 0)
+	secretName := "MYPKCS12KEYSTORE"
+	secret1 := createMockKeystoreSecret(secretName, "PKCS12")
+	formattableSecrets = append(formattableSecrets, secret1)
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatSecrets(formattableSecrets)
+
+	// Then...
+	assert.Nil(t, err)
+	expectedFormattedOutput := generateExpectedKeystoreSecretYaml(secretName, "PKCS12") + "\n"
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+func TestSecretsYamlFormatterKeystoreWithoutDescriptionReturnsCorrectly(t *testing.T) {
+	// Given...
+	formatter := NewSecretYamlFormatter()
+	formattableSecrets := make([]galasaapi.GalasaSecret, 0)
+	secretName := "KEYSTOREWITHOUTDESC"
+	secret1 := createMockKeystoreSecret(secretName, "JKS")
+	formattableSecrets = append(formattableSecrets, secret1)
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatSecrets(formattableSecrets)
+
+	// Then...
+	assert.Nil(t, err)
+	expectedFormattedOutput := generateExpectedKeystoreSecretYaml(secretName, "JKS") + "\n"
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+func TestSecretsYamlFormatterMixedSecretsReturnsCorrectly(t *testing.T) {
+	// Given...
+	formatter := NewSecretYamlFormatter()
+	formattableSecrets := make([]galasaapi.GalasaSecret, 0)
+
+	secret1Name := "USERPWD"
+	secret1 := createMockGalasaSecret(secret1Name)
+	
+	secret2Name := "JKSSTORE"
+	secret2 := createMockKeystoreSecret(secret2Name, "JKS")
+	
+	secret3Name := "PKCS12STORE"
+	secret3 := createMockKeystoreSecret(secret3Name, "PKCS12")
+	
+	formattableSecrets = append(formattableSecrets, secret1, secret2, secret3)
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatSecrets(formattableSecrets)
+
+	// Then...
+	assert.Nil(t, err)
+	expectedSecret1Output := generateExpectedSecretYaml(secret1Name)
+	expectedSecret2Output := generateExpectedKeystoreSecretYaml(secret2Name, "JKS")
+	expectedSecret3Output := generateExpectedKeystoreSecretYaml(secret3Name, "PKCS12")
+	expectedFormattedOutput := fmt.Sprintf(`%s
+---
+%s
+---
+%s
+`, expectedSecret1Output, expectedSecret2Output, expectedSecret3Output)
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
 }
