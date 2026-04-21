@@ -391,6 +391,7 @@ var (
 	GALASA_ERROR_SET_SECRET_INVALID_FLAG_COMBINATION = NewMessageType("GAL1193E: Invalid flag combination provided. --username cannot be provided with --base64-username, --password cannot be provided with --base64-password, and --token cannot be provided with --base64-token."+SEE_COMMAND_REFERENCE, 1193, STACK_TRACE_NOT_WANTED)
 
 	GALASA_ERROR_INVALID_SECRET_DESCRIPTION              = NewMessageType("GAL1194E: Invalid secret description provided. The description provided with the --description flag cannot be an empty string, and must only contain characters in the Latin-1 character set.", 1194, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_KEYSTORE_TYPE                   = NewMessageType("GAL1291E: Invalid keystore type provided. The keystore type must be either 'JKS' or 'PKCS12'."+SEE_COMMAND_REFERENCE, 1291, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_FAILED_TO_DELETE_USER                   = NewMessageType("GAL1195E: Failed to delete user from database by user number.", 1195, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_SERVER_DELETE_USER_NOT_FOUND            = NewMessageType("GAL1196E: The user could not be deleted by login ID because it was not found by the Galasa service. Try listing users using 'galasactl users get' to identify the one you wish to delete", 1196, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_SERVER_DELETE_USER_FAILED               = NewMessageType("GAL1197E: An attempt to delete a user failed. Sending the delete request to the Galasa service failed. Cause is %v", 1197, STACK_TRACE_NOT_WANTED)
@@ -539,5 +540,5 @@ var (
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please increment this value.
     // >>>
-    GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1291;
+	GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1292
 )
