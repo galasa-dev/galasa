@@ -11,6 +11,7 @@ import (
 	"encoding/base64"
 	"log"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/galasa-dev/cli/pkg/embedded"
@@ -140,15 +141,17 @@ func createSecretRequestKeystore(keystoreEncoded string, keystoreFile string, ba
 	} else if keystoreEncoded != "" {
 		// Plain base64 string provided
 		requestKeystore.SetValue(keystoreEncoded)
-		// requestKeystore.SetEncoding(BASE64_ENCODING)
 	} else if keystoreFile != "" {
 		// Read file and base64 encode it
 		var fileBytes []byte
 		fileBytes, err = fileSystem.ReadBinaryFile(keystoreFile)
 		if err == nil {
-			encodedKeystore := base64.StdEncoding.EncodeToString(fileBytes)
-			requestKeystore.SetValue(encodedKeystore)
-			// requestKeystore.SetEncoding(BASE64_ENCODING)
+			if len(fileBytes) == 0 {
+				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_EMPTY_KEYSTORE_FILE, keystoreFile)
+			} else {
+				encodedKeystore := base64.StdEncoding.EncodeToString(fileBytes)
+				requestKeystore.SetValue(encodedKeystore)
+			}
 		}
 	}
 	return requestKeystore, err
@@ -294,53 +297,57 @@ func validateFlagCombination(
 	// Make sure that a field and its base64 equivalent haven't both been provided
 	if (username != "" && base64Username != "") ||
 		(password != "" && base64Password != "") ||
-		(token != "" && base64Token != "") ||
-		(keystoreEncoded != "" && base64KeystoreEncoded != "") ||
-		(keystorePassword != "" && base64KeystorePassword != "") {
+		(token != "" && base64Token != "") {
 		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SET_SECRET_INVALID_FLAG_COMBINATION)
 	}
 
-	// Make sure keystoreEncoded and keystoreFile aren't both provided
-	if err == nil && keystoreEncoded != "" && keystoreFile != "" {
-		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SET_SECRET_INVALID_FLAG_COMBINATION)
+	// Make sure that a field and its base64 equivalent haven't both been provided
+	if (keystoreEncoded != "" && base64KeystoreEncoded != "") ||
+		(keystorePassword != "" && base64KeystorePassword != "") ||
+		// Make sure keystoreEncoded and keystoreFile aren't both provided
+		(keystoreEncoded != "" && keystoreFile != "") ||
+		// Make sure keystoreFile and base64KeystoreEncoded aren't both provided
+		(keystoreFile != "" && base64KeystoreEncoded != "") {
+		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_SET_SECRET_INVALID_KEYSTORE_FLAGS)
 	}
 
-	// Make sure keystoreFile and base64KeystoreEncoded aren't both provided
-	if err == nil && keystoreFile != "" && base64KeystoreEncoded != "" {
-		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SET_SECRET_INVALID_FLAG_COMBINATION)
-	}
+	if err == nil {
 
-	// Check if keystore is provided
-	hasKeystore := keystoreEncoded != "" || keystoreFile != "" || base64KeystoreEncoded != ""
-	
-	// If keystore is provided, password must also be provided
-	if err == nil && hasKeystore {
-		hasPassword := keystorePassword != "" || base64KeystorePassword != ""
-		if !hasPassword {
-			err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SET_SECRET_INVALID_FLAG_COMBINATION)
-		} else {
-			// Check for blank password (whitespace only)
-			trimmedPassword := strings.TrimSpace(keystorePassword)
-			if keystorePassword != "" && trimmedPassword == "" {
-				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SET_SECRET_INVALID_FLAG_COMBINATION)
+		// Check if keystore is provided
+		hasKeystore := keystoreEncoded != "" || keystoreFile != "" || base64KeystoreEncoded != ""
+
+		// If keystore is provided, a password must also be provided
+		if hasKeystore {
+			err  = validateKeystorePassword(keystorePassword, base64KeystorePassword)
+
+			if err == nil {
+
+				// Validate keystore type if provided (defaults to PKCS12 if not)
+				if keystoreType != "" {
+					err = validateKeystoreType(keystoreType)
+				}
 			}
 		}
 	}
 
-	// Validate keystore type if provided
-	if err == nil && keystoreType != "" && hasKeystore {
-		validTypes := []string{"JKS", "PKCS12"}
-		isValid := false
-		for _, validType := range validTypes {
-			if strings.ToUpper(keystoreType) == validType {
-				isValid = true
-				break
-			}
-		}
-		if !isValid {
-			err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_INVALID_KEYSTORE_TYPE)
-		}
-	}
+	return err
+}
 
+func validateKeystorePassword(keystorePassword string, base64KeystorePassword string) error {
+	var err error
+	trimmedPassword := strings.TrimSpace(keystorePassword)
+	hasValidPassword := base64KeystorePassword != "" || (keystorePassword != "" && trimmedPassword != "")
+	if !hasValidPassword {
+		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_MISSING_KEYSTORE_PASSWORD)
+	}
+	return err
+}
+
+func validateKeystoreType(keystoreType string) error {
+	var err error
+	validTypes := []string{"JKS", "PKCS12"}
+	if !slices.Contains(validTypes, strings.ToUpper(keystoreType)) {
+		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_INVALID_KEYSTORE_TYPE)
+	}
 	return err
 }

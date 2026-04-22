@@ -2198,8 +2198,8 @@ func TestUpdateKeystoreSecretWithBothEncodedAndFileThrowsError(t *testing.T) {
 	// Then...
 	assert.NotNil(t, err, "SetSecret did not return an error as expected")
 	errorMsg := err.Error()
-	assert.Contains(t, errorMsg, "GAL1193E")
-	assert.Contains(t, errorMsg, "Invalid flag combination provided")
+	assert.Contains(t, errorMsg, "GAL1293E")
+	assert.Contains(t, errorMsg, "Invalid keystore flag combination provided")
 }
 
 func TestUpdateKeystoreSecretWithBothEncodedAndBase64EncodedThrowsError(t *testing.T) {
@@ -2257,8 +2257,8 @@ func TestUpdateKeystoreSecretWithBothEncodedAndBase64EncodedThrowsError(t *testi
 	// Then...
 	assert.NotNil(t, err, "SetSecret did not return an error as expected")
 	errorMsg := err.Error()
-	assert.Contains(t, errorMsg, "GAL1193E")
-	assert.Contains(t, errorMsg, "Invalid flag combination provided")
+	assert.Contains(t, errorMsg, "GAL1293E")
+	assert.Contains(t, errorMsg, "Invalid keystore flag combination provided")
 }
 
 func TestUpdateKeystoreSecretWithBothPasswordAndBase64PasswordThrowsError(t *testing.T) {
@@ -2316,8 +2316,8 @@ func TestUpdateKeystoreSecretWithBothPasswordAndBase64PasswordThrowsError(t *tes
 	// Then...
 	assert.NotNil(t, err, "SetSecret did not return an error as expected")
 	errorMsg := err.Error()
-	assert.Contains(t, errorMsg, "GAL1193E")
-	assert.Contains(t, errorMsg, "Invalid flag combination provided")
+	assert.Contains(t, errorMsg, "GAL1293E")
+	assert.Contains(t, errorMsg, "Invalid keystore flag combination provided")
 }
 
 func TestCreateKeystoreSecretWithoutPasswordThrowsError(t *testing.T) {
@@ -2375,8 +2375,8 @@ func TestCreateKeystoreSecretWithoutPasswordThrowsError(t *testing.T) {
 	// Then...
 	assert.NotNil(t, err, "SetSecret did not return an error as expected")
 	errorMsg := err.Error()
-	assert.Contains(t, errorMsg, "GAL1193E")
-	assert.Contains(t, errorMsg, "Invalid flag combination provided")
+	assert.Contains(t, errorMsg, "GAL1292E")
+	assert.Contains(t, errorMsg, "Missing required keystore password")
 }
 
 func TestCreateKeystoreSecretWithBlankPasswordThrowsError(t *testing.T) {
@@ -2434,8 +2434,8 @@ func TestCreateKeystoreSecretWithBlankPasswordThrowsError(t *testing.T) {
 	// Then...
 	assert.NotNil(t, err, "SetSecret did not return an error as expected")
 	errorMsg := err.Error()
-	assert.Contains(t, errorMsg, "GAL1193E")
-	assert.Contains(t, errorMsg, "Invalid flag combination provided")
+	assert.Contains(t, errorMsg, "GAL1292E")
+	assert.Contains(t, errorMsg, "Missing required keystore password")
 }
 
 func TestCreateKeystoreSecretFromNonExistentFileThrowsError(t *testing.T) {
@@ -2558,5 +2558,71 @@ func TestCreateKeystoreSecretFromUnreadableFileThrowsError(t *testing.T) {
 	assert.NotNil(t, err, "SetSecret did not return an error as expected")
 	errorMsg := err.Error()
 	assert.Contains(t, errorMsg, "permission denied")
+	assert.Contains(t, errorMsg, keystoreFile)
+}
+
+func TestCreateKeystoreSecretFromEmptyFileThrowsError(t *testing.T) {
+	// Given...
+	secretName := "KEYSTORE_FILE_EMPTY"
+	username := ""
+	password := ""
+	token := ""
+	base64Username := ""
+	base64Password := ""
+	base64Token := ""
+	keystoreEncoded := ""
+	keystoreFile := "/path/to/empty/keystore.jks"
+	keystorePassword := "mypassword"
+	base64KeystoreEncoded := ""
+	base64KeystorePassword := ""
+	keystoreType := "JKS"
+	secretType := ""
+	description := "Keystore from empty file"
+
+	// Validation should fail, so no HTTP interactions should take place
+	interactions := []utils.HttpInteraction{}
+
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	console := utils.NewMockConsole()
+	apiServerUrl := server.Server.URL
+	apiClient := api.InitialiseAPI(apiServerUrl)
+	mockByteReader := utils.NewMockByteReader()
+	mockFileSystem := files.NewMockFileSystem()
+
+	// Override the ReadBinaryFile function to return an empty byte array
+	mockFS := mockFileSystem.(*files.MockFileSystem)
+	mockFS.VirtualFunction_ReadBinaryFile = func(filePath string) ([]byte, error) {
+		return []byte{}, nil
+	}
+
+	// When...
+	err := SetSecret(
+		secretName,
+		username,
+		password,
+		token,
+		base64Username,
+		base64Password,
+		base64Token,
+		keystoreEncoded,
+		keystoreFile,
+		keystorePassword,
+		base64KeystoreEncoded,
+		base64KeystorePassword,
+		keystoreType,
+		secretType,
+		description,
+		console,
+		apiClient,
+		mockByteReader,
+		mockFileSystem)
+
+	// Then...
+	assert.NotNil(t, err, "SetSecret did not return an error as expected")
+	errorMsg := err.Error()
+	assert.Contains(t, errorMsg, "GAL1294E")
+	assert.Contains(t, errorMsg, "Empty keystore file provided")
 	assert.Contains(t, errorMsg, keystoreFile)
 }
