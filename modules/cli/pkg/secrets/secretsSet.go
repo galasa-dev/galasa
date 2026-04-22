@@ -87,7 +87,7 @@ func SetSecret(
 			}
 		}
 	}
-	log.Printf("SecretsSet exiting. err is %v\n", err)
+	log.Printf("SecretsSet exiting.")
 	return err
 }
 
@@ -318,7 +318,7 @@ func validateFlagCombination(
 
 		// If keystore is provided, a password must also be provided
 		if hasKeystore {
-			err  = validateKeystorePassword(keystorePassword, base64KeystorePassword)
+			err = validateKeystorePassword(keystorePassword, base64KeystorePassword)
 
 			if err == nil {
 
