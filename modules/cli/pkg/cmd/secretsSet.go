@@ -129,43 +129,43 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.base64Password, base64PasswordFlag, "", "a base64-encoded password to set into a secret")
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.base64Token, base64TokenFlag, "", "a base64-encoded token to set into a secret")
 
- secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreEncoded, keystoreEncodedFlag, "", "a base64-encoded keystore to set into a secret")
- secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreFile, keystoreFileFlag, "", "the path to a keystore file (.p12 or .jks) to set into a secret")
- secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystorePassword, keystorePasswordFlag, "", "the password for the keystore")
- secretsSetCobraCmd.Flags().StringVar(&cmd.values.base64KeystoreEncoded, base64KeystoreEncodedFlag, "", "a base64-encoded keystore (already base64-encoded) to set into a secret")
- secretsSetCobraCmd.Flags().StringVar(&cmd.values.base64KeystorePassword, base64KeystorePasswordFlag, "", "a base64-encoded password for the keystore")
- secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreType, keystoreTypeFlag, "", "the type of keystore (PKCS12 or JKS). Defaults to PKCS12 if not specified")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreEncoded, keystoreEncodedFlag, "", "a base64-encoded keystore to set into a secret")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreFile, keystoreFileFlag, "", "the path to a keystore file (.p12 or .jks) to set into a secret")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystorePassword, keystorePasswordFlag, "", "the password for the keystore")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.base64KeystoreEncoded, base64KeystoreEncodedFlag, "", "a base64-encoded keystore (already base64-encoded) to set into a secret")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.base64KeystorePassword, base64KeystorePasswordFlag, "", "a base64-encoded password for the keystore")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreType, keystoreTypeFlag, "", "the type of keystore (PKCS12 or JKS). Defaults to PKCS12 if not specified")
 
     // A non-encoded credential cannot be provided alongside an encoded credential
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(usernameFlag, base64UsernameFlag)
- secretsSetCobraCmd.MarkFlagsMutuallyExclusive(keystoreEncodedFlag, base64KeystoreEncodedFlag)
- secretsSetCobraCmd.MarkFlagsMutuallyExclusive(keystorePasswordFlag, base64KeystorePasswordFlag)
+    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(keystoreEncodedFlag, base64KeystoreEncodedFlag)
+    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(keystorePasswordFlag, base64KeystorePasswordFlag)
 
- // Keystore file and keystore encoded are mutually exclusive (can only provide one way to specify keystore)
- secretsSetCobraCmd.MarkFlagsMutuallyExclusive(keystoreFileFlag, keystoreEncodedFlag, base64KeystoreEncodedFlag)
+    // Keystore file and keystore encoded are mutually exclusive (can only provide one way to specify keystore)
+    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(keystoreFileFlag, keystoreEncodedFlag, base64KeystoreEncodedFlag)
 
     // A password cannot be provided alongside a token or keystore (there is no secret type that allows both)
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(passwordFlag, tokenFlag, base64PasswordFlag, base64TokenFlag, keystoreEncodedFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
 
- // A token cannot be provided alongside a keystore
- secretsSetCobraCmd.MarkFlagsMutuallyExclusive(tokenFlag, base64TokenFlag, keystoreEncodedFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
+    // A token cannot be provided alongside a keystore
+    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(tokenFlag, base64TokenFlag, keystoreEncodedFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
 
- // A secret must have a name and at least one of the credentials flags
- secretsSetCobraCmd.MarkFlagsOneRequired(
-  usernameFlag,
-  passwordFlag,
-  tokenFlag,
-  base64UsernameFlag,
-  base64PasswordFlag,
-  base64TokenFlag,
-  keystoreEncodedFlag,
-  keystoreFileFlag,
-  keystorePasswordFlag,
-  base64KeystoreEncodedFlag,
-  base64KeystorePasswordFlag,
-  keystoreTypeFlag,
-  descriptionFlag,
- )
+    // A secret must have a name and at least one of the credentials flags
+    secretsSetCobraCmd.MarkFlagsOneRequired(
+        usernameFlag,
+        passwordFlag,
+        tokenFlag,
+        base64UsernameFlag,
+        base64PasswordFlag,
+        base64TokenFlag,
+        keystoreEncodedFlag,
+        keystoreFileFlag,
+        keystorePasswordFlag,
+        base64KeystoreEncodedFlag,
+        base64KeystorePasswordFlag,
+        keystoreTypeFlag,
+        descriptionFlag,
+    )
 
     secretsCommand.CobraCommand().AddCommand(secretsSetCobraCmd)
 
