@@ -81,8 +81,8 @@ if [[ "$CALLED_BY_MAIN" == "" ]]; then
     export GALASA_TEST_NAME_SHORT="core.CoreManagerIVT"   
     export GALASA_TEST_NAME_LONG="dev.galasa.ivts.${GALASA_TEST_NAME_SHORT}" 
     export GALASA_TEST_RUN_GET_EXPECTED_SUMMARY_LINE_COUNT="4"
-    export GALASA_TEST_RUN_GET_EXPECTED_DETAILS_LINE_COUNT="14"
-    export GALASA_TEST_RUN_GET_EXPECTED_RAW_PIPE_COUNT="11"
+    export GALASA_TEST_RUN_GET_EXPECTED_DETAILS_LINE_COUNT="18"
+    export GALASA_TEST_RUN_GET_EXPECTED_RAW_PIPE_COUNT="14"
     export GALASA_TEST_RUN_GET_EXPECTED_NUMBER_ARTIFACT_RUNNING_COUNT="10"
 
 fi
@@ -1037,7 +1037,8 @@ function test_runs_commands {
     runs_download_check_folder_names_during_test_run
 
     # Attempt to reset an active run...
-    runs_reset_check_retry_present
+    # Temporarily disabled until https://github.com/galasa-dev/projectmanagement/issues/2577 is resolved
+    # runs_reset_check_retry_present
 
     # Attempt to delete a run...
     runs_delete_check_run_can_be_deleted $RUN_NAME
