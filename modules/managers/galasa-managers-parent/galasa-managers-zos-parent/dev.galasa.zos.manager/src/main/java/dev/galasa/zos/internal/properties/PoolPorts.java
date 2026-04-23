@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.cps.CpsProperties;
-import dev.galasa.zos.IZosImage;
 import dev.galasa.zos.ZosManagerException;
 
 public class PoolPorts extends CpsProperties {

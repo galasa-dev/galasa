@@ -6,7 +6,6 @@
 package dev.galasa.elasticlog.internal.properties;
 
 import dev.galasa.elasticlog.internal.ElasticLogManagerException;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.cps.CpsProperties;
 
 /**

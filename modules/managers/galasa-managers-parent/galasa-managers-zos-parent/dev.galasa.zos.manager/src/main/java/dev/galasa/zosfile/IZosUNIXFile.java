@@ -11,8 +11,6 @@ import java.util.SortedMap;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.zosfile.IZosDataset.DatasetDataType;
-
 /**
  * Representation of a UNIX file or directory.
  *

@@ -9,10 +9,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.apache.commons.logging.Log;
 
-import dev.galasa.ICredentialsUsernamePassword;
+// import dev.galasa.ICredentialsUsernamePassword;
 import dev.galasa.Test;
 import dev.galasa.core.manager.CoreManager;
-import dev.galasa.core.manager.CoreManagerException;
+// import dev.galasa.core.manager.CoreManagerException;
 import dev.galasa.core.manager.ICoreManager;
 import dev.galasa.core.manager.Logger;
 import dev.galasa.core.manager.RunName;
@@ -28,8 +28,8 @@ import dev.galasa.zos3270.TextNotFoundException;
 import dev.galasa.zos3270.TimeoutException;
 import dev.galasa.zos3270.Zos3270Exception;
 import dev.galasa.zos3270.Zos3270Terminal;
-import dev.galasa.zos3270.spi.Colour;
-import dev.galasa.zos3270.spi.Highlight;
+// import dev.galasa.zos3270.spi.Colour;
+// import dev.galasa.zos3270.spi.Highlight;
 import dev.galasa.zos3270.spi.NetworkException;
 
 @Test
