@@ -12,7 +12,6 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 
-import dev.galasa.ICredentialsUsernamePassword;
 import dev.galasa.Test;
 import dev.galasa.artifact.BundleResources;
 import dev.galasa.artifact.IBundleResources;

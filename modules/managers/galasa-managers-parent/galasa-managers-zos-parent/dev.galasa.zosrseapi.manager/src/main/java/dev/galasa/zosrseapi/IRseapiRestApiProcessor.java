@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import dev.galasa.zosbatch.ZosBatchException;
 import dev.galasa.zosrseapi.IRseapi.RseapiRequestType;
 
 public interface IRseapiRestApiProcessor {    
