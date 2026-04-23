@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -729,36 +730,73 @@ public class HttpClientImpl implements IHttpClient {
         }
     }
 
-    private URI buildUri(String path, Map<String, String> queryParams) throws HttpClientException {
+    private URI buildUri(String pathOrUri, Map<String, String> queryParams) throws HttpClientException {
+        // Split path and query string if present
+        String pathPart = pathOrUri;
+        String queryPart = null;
+        int queryIndex = pathOrUri.indexOf('?');
+        if (queryIndex != -1) {
+            pathPart = pathOrUri.substring(0, queryIndex);
+            queryPart = pathOrUri.substring(queryIndex + 1);
+        }
+
+        URI inputUri = null;
+        boolean isCompleteUri = false;
         try {
-            // Parse the path (which may contain a query string) into a temporary URIBuilder
-            URIBuilder tempBuilder = new URIBuilder(path);
-            
-            // Check if the path contains a complete URI (scheme + host)
-            // If so, use it directly; otherwise combine with the host field
-            URIBuilder ub;
-            if (tempBuilder.getScheme() != null && tempBuilder.getHost() != null) {
-                // Path contains a complete URI, use it as the base
-                ub = tempBuilder;
-            } else {
-                // Path is relative, combine with the host field
-                ub = new URIBuilder(host);
-                appendPath(ub, tempBuilder.getPath());
-                
-                // Add existing query parameters from the path
-                ub.addParameters(tempBuilder.getQueryParams());
+            String encodedPathPart = pathPart.trim().replaceAll(" ", "%20");
+            inputUri = new URI(encodedPathPart);
+            isCompleteUri = (inputUri.getScheme() != null && inputUri.getHost() != null);
+        } catch (URISyntaxException e) {
+            // Treat as a path that needs encoding
+            isCompleteUri = false;
+        }
+
+        URIBuilder ub;
+        if (isCompleteUri) {
+            // Path contains a complete URI - use URIBuilder to parse it
+            // This preserves the encoding of the original URI
+            ub = new URIBuilder(inputUri);
+        } else {
+            // Path is relative or contains characters that need encoding
+            ub = new URIBuilder(host);
+            appendPath(ub, pathPart);
+        }
+
+        if (queryPart != null && !queryPart.isEmpty()) {
+            parseAndAddQueryParameters(ub, queryPart);
+        }
+
+        // Add additional query parameters if provided
+        if (queryParams != null) {
+            for (Entry<String, String> entry : queryParams.entrySet()) {
+                ub.addParameter(entry.getKey(), entry.getValue());
             }
-            
-            // Add additional query parameters if provided
-            if (queryParams != null) {
-                for (Entry<String, String> entry : queryParams.entrySet()) {
-                    ub.addParameter(entry.getKey(), entry.getValue());
-                }
-            }
-            
+        }
+
+        try {
             return ub.build();
         } catch (URISyntaxException e) {
-            throw new HttpClientException("Cannot construct URI using path: '" + path + "'", e);
+            throw new HttpClientException("Cannot construct URI using path: '" + pathOrUri + "'", e);
+        }
+    }
+
+    private void parseAndAddQueryParameters(URIBuilder ub, String queryString) {
+        String[] params = queryString.split("&");
+        for (String param : params) {
+            int eqIndex = param.indexOf('=');
+            if (eqIndex != -1) {
+                String key = param.substring(0, eqIndex);
+                String value = param.substring(eqIndex + 1);
+
+                String decodedKey = URLDecoder.decode(key, StandardCharsets.UTF_8);
+                String decodedValue = URLDecoder.decode(value, StandardCharsets.UTF_8);
+
+                ub.addParameter(decodedKey, decodedValue);
+            } else {
+                // Parameter with no value
+                String decodedKey = URLDecoder.decode(param, StandardCharsets.UTF_8);
+                ub.addParameter(decodedKey, null);
+            }
         }
     }
 

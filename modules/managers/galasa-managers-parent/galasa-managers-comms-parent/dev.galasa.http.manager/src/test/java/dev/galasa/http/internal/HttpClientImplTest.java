@@ -450,7 +450,7 @@ public class HttpClientImplTest {
 
         ClassicHttpRequest request = requests.get(0);
         URI uri = request.getUri();
-        assertThat(uri.getQuery()).isEqualTo("name=John+Doe");
+        assertThat(uri.getQuery()).isEqualTo("name=John Doe");
     }
 
     @Test
@@ -576,6 +576,199 @@ public class HttpClientImplTest {
         
         String query = uri.getQuery();
         assertThat(query).isEqualTo("id=123");
+    }
+
+    @Test
+    public void testCanBuildUriWithSpacesInPath() throws Exception {
+        // Given...
+        ClassicHttpResponse mockResponse = new BasicClassicHttpResponse(200);
+        mockHttpRequestExecutor.setMockResponse(mockResponse);
+
+        // When...
+        httpClient.getText("/api/users/john doe");
+
+        // Then...
+        List<ClassicHttpRequest> requests = mockHttpRequestExecutor.getRequests();
+        assertThat(requests).hasSize(1);
+
+        ClassicHttpRequest request = requests.get(0);
+        URI uri = request.getUri();
+        // Spaces should be encoded as %20
+        assertThat(uri.getRawPath()).contains("john%20doe");
+        assertThat(uri.getPath()).contains("john doe");
+    }
+
+    @Test
+    public void testCanBuildUriWithSpacesInQueryParameter() throws Exception {
+        // Given...
+        ClassicHttpResponse mockResponse = new BasicClassicHttpResponse(200);
+        mockHttpRequestExecutor.setMockResponse(mockResponse);
+
+        // When...
+        httpClient.getText("/api/search?q=hello world");
+
+        // Then...
+        List<ClassicHttpRequest> requests = mockHttpRequestExecutor.getRequests();
+        assertThat(requests).hasSize(1);
+
+        ClassicHttpRequest request = requests.get(0);
+        URI uri = request.getUri();
+        // Spaces in query parameters should be encoded
+        assertThat(uri.getRawQuery()).contains("hello%20world");
+        assertThat(uri.getQuery()).contains("hello world");
+    }
+
+    @Test
+    public void testCanBuildUriWithMultipleSpacesInPath() throws Exception {
+        // Given...
+        ClassicHttpResponse mockResponse = new BasicClassicHttpResponse(200);
+        mockHttpRequestExecutor.setMockResponse(mockResponse);
+
+        // When...
+        httpClient.getText("/api/documents/my test file name.pdf");
+
+        // Then...
+        List<ClassicHttpRequest> requests = mockHttpRequestExecutor.getRequests();
+        assertThat(requests).hasSize(1);
+
+        ClassicHttpRequest request = requests.get(0);
+        URI uri = request.getUri();
+        // All spaces should be encoded
+        assertThat(uri.getRawPath()).contains("my%20test%20file%20name.pdf");
+        assertThat(uri.getPath()).contains("my test file name.pdf");
+    }
+
+    @Test
+    public void testCanBuildUriWithSpacesInPathAndQueryParameters() throws Exception {
+        // Given...
+        ClassicHttpResponse mockResponse = new BasicClassicHttpResponse(200);
+        mockHttpRequestExecutor.setMockResponse(mockResponse);
+
+        // When...
+        httpClient.getText("/api/users/john doe?filter=active users&sort=last name");
+
+        // Then...
+        List<ClassicHttpRequest> requests = mockHttpRequestExecutor.getRequests();
+        assertThat(requests).hasSize(1);
+
+        ClassicHttpRequest request = requests.get(0);
+        URI uri = request.getUri();
+        // Spaces in both path and query should be encoded
+        assertThat(uri.getRawPath()).contains("john%20doe");
+        assertThat(uri.getRawQuery()).contains("active%20users");
+        assertThat(uri.getRawQuery()).contains("last%20name");
+    }
+
+    @Test
+    public void testCanBuildUriWithCompleteUrlContainingSpaces() throws Exception {
+        // Given...
+        MockLog mockLog = new MockLog();
+        HttpClientImpl client = new HttpClientImpl(DEFAULT_TIMEOUT, mockLog, mockHttpRequestExecutor);
+
+        ClassicHttpResponse mockResponse = new BasicClassicHttpResponse(200);
+        mockHttpRequestExecutor.setMockResponse(mockResponse);
+
+        // When...
+        client.getText("http://example.com/api/files/my document.pdf");
+
+        // Then...
+        List<ClassicHttpRequest> requests = mockHttpRequestExecutor.getRequests();
+        assertThat(requests).hasSize(1);
+
+        ClassicHttpRequest request = requests.get(0);
+        URI uri = request.getUri();
+        assertThat(uri.getScheme()).isEqualTo("http");
+        assertThat(uri.getHost()).isEqualTo("example.com");
+        // Spaces should be encoded in the path
+        assertThat(uri.getRawPath()).contains("my%20document.pdf");
+        assertThat(uri.getPath()).contains("my document.pdf");
+    }
+
+    @Test
+    public void testCanBuildUriWithCompleteUrlContainingSpacesInQueryParams() throws Exception {
+        // Given...
+        MockLog mockLog = new MockLog();
+        HttpClientImpl client = new HttpClientImpl(DEFAULT_TIMEOUT, mockLog, mockHttpRequestExecutor);
+
+        ClassicHttpResponse mockResponse = new BasicClassicHttpResponse(200);
+        mockHttpRequestExecutor.setMockResponse(mockResponse);
+
+        // When...
+        client.getText("https://api.example.com/search?query=hello world&filter=test data");
+
+        // Then...
+        List<ClassicHttpRequest> requests = mockHttpRequestExecutor.getRequests();
+        assertThat(requests).hasSize(1);
+
+        ClassicHttpRequest request = requests.get(0);
+        URI uri = request.getUri();
+        assertThat(uri.getScheme()).isEqualTo("https");
+        assertThat(uri.getHost()).isEqualTo("api.example.com");
+        // Spaces in query parameters should be encoded
+        assertThat(uri.getRawQuery()).contains("hello%20world");
+        assertThat(uri.getRawQuery()).contains("test%20data");
+    }
+
+    @Test
+    public void testCanBuildUriWithSpacesAndSpecialCharactersInPath() throws Exception {
+        // Given...
+        ClassicHttpResponse mockResponse = new BasicClassicHttpResponse(200);
+        mockHttpRequestExecutor.setMockResponse(mockResponse);
+
+        // When...
+        httpClient.getText("/api/files/my file (copy).txt");
+
+        // Then...
+        List<ClassicHttpRequest> requests = mockHttpRequestExecutor.getRequests();
+        assertThat(requests).hasSize(1);
+
+        ClassicHttpRequest request = requests.get(0);
+        URI uri = request.getUri();
+        // Spaces and special characters should be properly encoded
+        assertThat(uri.getRawPath()).contains("my%20file");
+        assertThat(uri.getPath()).contains("my file (copy).txt");
+    }
+
+    @Test
+    public void testCanBuildUriWithLeadingAndTrailingSpacesInQueryParameter() throws Exception {
+        // Given...
+        ClassicHttpResponse mockResponse = new BasicClassicHttpResponse(200);
+        mockHttpRequestExecutor.setMockResponse(mockResponse);
+
+        // When...
+        httpClient.getText("/api/search?q= test query ");
+
+        // Then...
+        List<ClassicHttpRequest> requests = mockHttpRequestExecutor.getRequests();
+        assertThat(requests).hasSize(1);
+
+        ClassicHttpRequest request = requests.get(0);
+        URI uri = request.getUri();
+        // Leading and trailing spaces should be encoded
+        assertThat(uri.getRawQuery()).contains("%20test%20query%20");
+    }
+
+    @Test
+    public void testCanBuildUriWithQueryParameterValueContainingUrl() throws Exception {
+        // Given...
+        ClassicHttpResponse mockResponse = new BasicClassicHttpResponse(200);
+        mockHttpRequestExecutor.setMockResponse(mockResponse);
+
+        // When...
+        // Query parameter contains a URL with spaces - should not be confused with complete URL
+        httpClient.getText("/api/redirect?url=http://example.com/my page");
+
+        // Then...
+        List<ClassicHttpRequest> requests = mockHttpRequestExecutor.getRequests();
+        assertThat(requests).hasSize(1);
+
+        ClassicHttpRequest request = requests.get(0);
+        URI uri = request.getUri();
+        // Should use the default host, not the URL in the query parameter
+        assertThat(uri.getHost()).isEqualTo("example.com");
+        assertThat(uri.getPath()).isEqualTo("/api/redirect");
+        // The URL in the query parameter should have its spaces encoded
+        assertThat(uri.getQuery()).contains("url=http://example.com/my page");
     }
 }
 
