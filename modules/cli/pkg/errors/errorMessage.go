@@ -177,7 +177,7 @@ var (
 	// A map of all the messages. Indexed by ordinal number.
 	GALASA_ALL_MESSAGES = make(map[int]*MessageType)
 
-	SEE_COMMAND_REFERENCE = " Use the --help flag for more information, or refer to the documentation at https://galasa.dev/docs/reference"
+	SEE_COMMAND_REFERENCE = " Use the --help flag for more information."
 
 	GALASA_ERROR_UNSUPPORTED_BOOTSTRAP_URL                = NewMessageType("GAL1001E: Unsupported bootstrap URL %s. Acceptable values start with 'http' or 'https'."+SEE_COMMAND_REFERENCE, 1001, STACK_TRACE_WANTED)
 	GALASA_ERROR_BOOTSTRAP_URL_BAD_ENDING                 = NewMessageType("GAL1002E: Bootstrap url does not end in '/bootstrap'. Bootstrap url is '%s'."+SEE_COMMAND_REFERENCE, 1002, STACK_TRACE_WANTED)
@@ -389,8 +389,12 @@ var (
 	GALASA_ERROR_SET_SECRET_EXPLANATION_NOT_JSON     = NewMessageType("GAL1191E: Failed to set a secret named '%s'. Unexpected http status code %v received from the server. Error details from the server are not in the json format.", 1191, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_SET_SECRET_REQUEST_FAILED           = NewMessageType("GAL1192E: Failed to set a secret named '%s'. Sending the put request to the Galasa service failed. Cause is %v", 1192, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_SET_SECRET_INVALID_FLAG_COMBINATION = NewMessageType("GAL1193E: Invalid flag combination provided. --username cannot be provided with --base64-username, --password cannot be provided with --base64-password, and --token cannot be provided with --base64-token."+SEE_COMMAND_REFERENCE, 1193, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_KEYSTORE_TYPE               = NewMessageType("GAL1291E: Invalid keystore type provided. The keystore type must be either 'JKS' or 'PKCS12'."+SEE_COMMAND_REFERENCE, 1291, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_MISSING_KEYSTORE_PASSWORD           = NewMessageType("GAL1292E: Missing required keystore password. When creating a keystore secret using --keystore-file or --base64-keystore-encoded, you must also provide --password or --base64-password."+SEE_COMMAND_REFERENCE, 1292, STACK_TRACE_NOT_WANTED)
+	GALASA_SET_SECRET_INVALID_KEYSTORE_FLAGS         = NewMessageType("GAL1293E: Invalid keystore flag combination provided. --keystore-file cannot be provided with --base64-keystore-encoded, and --password cannot be provided with --base64-password."+SEE_COMMAND_REFERENCE, 1293, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_EMPTY_KEYSTORE_FILE                 = NewMessageType("GAL1294E: Empty keystore file provided. The keystore file '%s' contains 0 bytes. Please provide a valid keystore file."+SEE_COMMAND_REFERENCE, 1294, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_INVALID_SECRET_DESCRIPTION          = NewMessageType("GAL1194E: Invalid secret description provided. The description provided with the --description flag cannot be an empty string, and must only contain characters in the Latin-1 character set.", 1194, STACK_TRACE_NOT_WANTED)
 
-	GALASA_ERROR_INVALID_SECRET_DESCRIPTION              = NewMessageType("GAL1194E: Invalid secret description provided. The description provided with the --description flag cannot be an empty string, and must only contain characters in the Latin-1 character set.", 1194, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_FAILED_TO_DELETE_USER                   = NewMessageType("GAL1195E: Failed to delete user from database by user number.", 1195, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_SERVER_DELETE_USER_NOT_FOUND            = NewMessageType("GAL1196E: The user could not be deleted by login ID because it was not found by the Galasa service. Try listing users using 'galasactl users get' to identify the one you wish to delete", 1196, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_SERVER_DELETE_USER_FAILED               = NewMessageType("GAL1197E: An attempt to delete a user failed. Sending the delete request to the Galasa service failed. Cause is %v", 1197, STACK_TRACE_NOT_WANTED)
@@ -539,5 +543,5 @@ var (
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please increment this value.
     // >>>
-    GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1291;
+	GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1295
 )

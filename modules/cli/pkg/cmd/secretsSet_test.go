@@ -142,5 +142,5 @@ func TestSecretsSetWithOnlyNameFlagProducesErrorMessage(t *testing.T) {
     // Then...
     assert.NotNil(t, err)
 
-    checkOutput("", "Error: at least one of the flags in the group [username password token base64-username base64-password base64-token description] is required", factory, t)
+    checkOutput("", "Error: at least one of the flags in the group [username password token base64-username base64-password base64-token keystore-file base64-keystore-encoded keystore-type description] is required", factory, t)
 }

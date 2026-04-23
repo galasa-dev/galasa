@@ -14,15 +14,18 @@ import (
 )
 
 const (
-    API_VERSION = "galasa-dev/v1alpha1"
-    DUMMY_ENCODING = "myencoding"
-    DUMMY_USERNAME = "dummy-username"
-    DUMMY_PASSWORD = "dummy-password"
+    API_VERSION             = "galasa-dev/v1alpha1"
+    DUMMY_ENCODING          = "myencoding"
+    DUMMY_USERNAME          = "dummy-username"
+    DUMMY_PASSWORD          = "dummy-password"
+    DUMMY_KEYSTORE          = "dGVzdC1rZXlzdG9yZS1kYXRh"
+	DUMMY_KEYSTORE_PASSWORD = "keystore-password"
 )
 
-func createMockGalasaSecretWithDescription(
-    secretName string,
-    description string,
+func createMockSecretBase(
+	secretName string,
+	description string,
+	secretType galasaapi.GalasaSecretType,
 ) galasaapi.GalasaSecret {
     secret := *galasaapi.NewGalasaSecret()
 
@@ -32,7 +35,7 @@ func createMockGalasaSecretWithDescription(
     secretMetadata := *galasaapi.NewGalasaSecretMetadata()
     secretMetadata.SetName(secretName)
     secretMetadata.SetEncoding(DUMMY_ENCODING)
-    secretMetadata.SetType("UsernamePassword")
+    secretMetadata.SetType(secretType)
     secretMetadata.SetLastUpdatedBy(DUMMY_USERNAME)
     secretMetadata.SetLastUpdatedTime(time.Date(2024, 01, 01, 10, 0, 0, 0, time.UTC))
 
@@ -40,13 +43,39 @@ func createMockGalasaSecretWithDescription(
         secretMetadata.SetDescription(description)
     }
 
+	secret.SetMetadata(secretMetadata)
+
+    return secret
+}
+
+func createMockGalasaSecretWithDescription(
+    secretName string,
+    description string,
+) galasaapi.GalasaSecret {
+    secret := createMockSecretBase(secretName, description, galasaapi.GalasaSecretType("UsernamePassword"))
+
     secretData := *galasaapi.NewGalasaSecretData()
     secretData.SetUsername(DUMMY_USERNAME)
     secretData.SetPassword(DUMMY_PASSWORD)
 
-    secret.SetMetadata(secretMetadata)
     secret.SetData(secretData)
     return secret
+}
+
+func createMockKeystoreSecretWithDescription(
+	secretName string,
+	description string,
+	keystoreType string,
+) galasaapi.GalasaSecret {
+	secret := createMockSecretBase(secretName, description, galasaapi.GalasaSecretType("KeyStore"))
+
+	secretData := *galasaapi.NewGalasaSecretData()
+	secretData.SetKeystore(DUMMY_KEYSTORE)
+	secretData.SetKeystorePassword(DUMMY_KEYSTORE_PASSWORD)
+	secretData.SetKeystoreType(keystoreType)
+
+	secret.SetData(secretData)
+	return secret
 }
 
 func TestSecretSummaryFormatterNoDataReturnsTotalCountAllZeros(t *testing.T) {
@@ -116,4 +145,99 @@ SECRET3 UsernamePassword 2024-01-01 10:00:00 dummy-username  my third secret
 Total:3
 `
     assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+// --------------------------------
+// Keystore Secret Tests
+// --------------------------------
+
+func TestSecretSummaryFormatterKeystoreJKSDisplaysOK(t *testing.T) {
+	// Given...
+	formatter := NewSecretSummaryFormatter()
+	description := "my jks keystore"
+	secretName := "MYJKSKEYSTORE"
+	secret1 := createMockKeystoreSecretWithDescription(secretName, description, "JKS")
+	secrets := []galasaapi.GalasaSecret{secret1}
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatSecrets(secrets)
+
+	// Then...
+	assert.Nil(t, err)
+	expectedFormattedOutput :=
+`name          type     last-updated(UTC)   last-updated-by description
+MYJKSKEYSTORE KeyStore 2024-01-01 10:00:00 dummy-username  my jks keystore
+
+Total:1
+`
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+func TestSecretSummaryFormatterKeystorePKCS12DisplaysOK(t *testing.T) {
+	// Given...
+	formatter := NewSecretSummaryFormatter()
+	description := "my pkcs12 keystore"
+	secretName := "MYPKCS12KEYSTORE"
+	secret1 := createMockKeystoreSecretWithDescription(secretName, description, "PKCS12")
+	secrets := []galasaapi.GalasaSecret{secret1}
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatSecrets(secrets)
+
+	// Then...
+	assert.Nil(t, err)
+	expectedFormattedOutput :=
+`name             type     last-updated(UTC)   last-updated-by description
+MYPKCS12KEYSTORE KeyStore 2024-01-01 10:00:00 dummy-username  my pkcs12 keystore
+
+Total:1
+`
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+func TestSecretSummaryFormatterKeystoreWithoutDescriptionDisplaysOK(t *testing.T) {
+	// Given...
+	formatter := NewSecretSummaryFormatter()
+	secretName := "KEYSTOREWITHOUTDESC"
+	secret1 := createMockKeystoreSecretWithDescription(secretName, "", "JKS")
+	secrets := []galasaapi.GalasaSecret{secret1}
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatSecrets(secrets)
+
+	// Then...
+	assert.Nil(t, err)
+	expectedFormattedOutput :=
+`name                type     last-updated(UTC)   last-updated-by description
+KEYSTOREWITHOUTDESC KeyStore 2024-01-01 10:00:00 dummy-username  
+
+Total:1
+`
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
+}
+
+func TestSecretSummaryFormatterMixedSecretsDisplaysCorrectly(t *testing.T) {
+	// Given...
+	formatter := NewSecretSummaryFormatter()
+	secrets := make([]galasaapi.GalasaSecret, 0)
+
+	secret1 := createMockGalasaSecretWithDescription("USERPWD", "username password secret")
+	secret2 := createMockKeystoreSecretWithDescription("JKSSTORE", "jks keystore", "JKS")
+	secret3 := createMockKeystoreSecretWithDescription("PKCS12STORE", "pkcs12 keystore", "PKCS12")
+	secrets = append(secrets, secret1, secret2, secret3)
+
+	// When...
+	actualFormattedOutput, err := formatter.FormatSecrets(secrets)
+
+	// Then...
+	assert.Nil(t, err)
+	expectedFormattedOutput :=
+`name        type             last-updated(UTC)   last-updated-by description
+USERPWD     UsernamePassword 2024-01-01 10:00:00 dummy-username  username password secret
+JKSSTORE    KeyStore         2024-01-01 10:00:00 dummy-username  jks keystore
+PKCS12STORE KeyStore         2024-01-01 10:00:00 dummy-username  pkcs12 keystore
+
+Total:3
+`
+	assert.Equal(t, expectedFormattedOutput, actualFormattedOutput)
 }
