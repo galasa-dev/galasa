@@ -91,7 +91,7 @@ func TestSecretsSetNonEncodedPasswordFlagWithEncodedFlagProducesErrorMessage(t *
     // Then...
     assert.NotNil(t, err)
 
-    checkOutput("", "Error: if any flags in the group [password token base64-password base64-token keystore-encoded keystore-file base64-keystore-encoded] are set none of the others can be", factory, t)
+    checkOutput("", "Error: if any flags in the group [password token base64-password base64-token] are set none of the others can be", factory, t)
 }
 
 func TestSecretsSetNonEncodedTokenFlagWithEncodedFlagProducesErrorMessage(t *testing.T) {
@@ -110,7 +110,7 @@ func TestSecretsSetNonEncodedTokenFlagWithEncodedFlagProducesErrorMessage(t *tes
     // Then...
     assert.NotNil(t, err)
 
-    checkOutput("", "Error: if any flags in the group [password token base64-password base64-token keystore-encoded keystore-file base64-keystore-encoded] are set none of the others can be", factory, t)
+    checkOutput("", "Error: if any flags in the group [password token base64-password base64-token] are set none of the others can be", factory, t)
 }
 
 func TestSecretsSetPasswordAndTokenFlagsProducesErrorMessage(t *testing.T) {
@@ -128,7 +128,7 @@ func TestSecretsSetPasswordAndTokenFlagsProducesErrorMessage(t *testing.T) {
     // Then...
     assert.NotNil(t, err)
 
-    checkOutput("", "Error: if any flags in the group [password token base64-password base64-token keystore-encoded keystore-file base64-keystore-encoded] are set none of the others can be", factory, t)
+    checkOutput("", "Error: if any flags in the group [password token base64-password base64-token] are set none of the others can be", factory, t)
 }
 
 func TestSecretsSetWithOnlyNameFlagProducesErrorMessage(t *testing.T) {
@@ -142,5 +142,5 @@ func TestSecretsSetWithOnlyNameFlagProducesErrorMessage(t *testing.T) {
     // Then...
     assert.NotNil(t, err)
 
-    checkOutput("", "Error: at least one of the flags in the group [username password token base64-username base64-password base64-token keystore-encoded keystore-file keystore-password base64-keystore-encoded base64-keystore-password keystore-type description] is required", factory, t)
+    checkOutput("", "Error: at least one of the flags in the group [username password token base64-username base64-password base64-token keystore-file base64-keystore-encoded keystore-type description] is required", factory, t)
 }

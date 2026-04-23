@@ -39,14 +39,10 @@ func TestCanCreateAUsernameSecret(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -96,12 +92,7 @@ func TestCanCreateAUsernameSecret(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -123,14 +114,10 @@ func TestCanCreateAUsernamePasswordSecret(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := "my secret description"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -181,12 +168,7 @@ func TestCanCreateAUsernamePasswordSecret(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -208,14 +190,10 @@ func TestCanCreateAUsernameTokenSecret(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -265,12 +243,7 @@ func TestCanCreateAUsernameTokenSecret(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -292,14 +265,10 @@ func TestCanCreateATokenSecret(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -349,12 +318,7 @@ func TestCanCreateATokenSecret(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -376,14 +340,10 @@ func TestCanUpdateASecret(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -433,12 +393,7 @@ func TestCanUpdateASecret(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -460,14 +415,10 @@ func TestCanUpdateAUsernamePasswordSecretInBase64Format(t *testing.T) {
 	base64Username := "my-base64-username"
 	base64Password := "my-base64-password"
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -517,12 +468,7 @@ func TestCanUpdateAUsernamePasswordSecretInBase64Format(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -544,14 +490,10 @@ func TestCanUpdateATokenSecretInBase64Format(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -601,12 +543,7 @@ func TestCanUpdateATokenSecretInBase64Format(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -628,14 +565,10 @@ func TestCanUpdateASecretsTypeOk(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := "token"
 	description := "my new token"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -685,12 +618,7 @@ func TestCanUpdateASecretsTypeOk(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -712,14 +640,10 @@ func TestUpdateSecretWithNoNameThrowsError(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -742,12 +666,7 @@ func TestUpdateSecretWithNoNameThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -771,14 +690,10 @@ func TestUpdateSecretWithNonLatin1NameThrowsError(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -801,12 +716,7 @@ func TestUpdateSecretWithNonLatin1NameThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -830,14 +740,10 @@ func TestUpdateSecretWithNonLatin1DescriptionThrowsError(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := string(rune(256)) + " is not latin-1"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -860,12 +766,7 @@ func TestUpdateSecretWithNonLatin1DescriptionThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -889,14 +790,10 @@ func TestUpdateSecretWithBlankDescriptionThrowsError(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := "       "
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -919,12 +816,7 @@ func TestUpdateSecretWithBlankDescriptionThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -948,14 +840,10 @@ func TestUpdateSecretWithUnknownTypeThrowsError(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := "UNKNOWN"
 	description := "this should fail!"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -978,12 +866,7 @@ func TestUpdateSecretWithUnknownTypeThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1008,14 +891,10 @@ func TestUpdateSecretWithInvalidFlagCombinationThrowsError(t *testing.T) {
 	base64Username := "my-base64-username"
 	base64Password := "my-base64-password"
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -1038,12 +917,7 @@ func TestUpdateSecretWithInvalidFlagCombinationThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1067,14 +941,10 @@ func TestSetSecretFailsWithNoExplanationErrorPayloadGivesCorrectMessage(t *testi
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1104,12 +974,7 @@ func TestSetSecretFailsWithNoExplanationErrorPayloadGivesCorrectMessage(t *testi
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1134,14 +999,10 @@ func TestSetSecretFailsWithNonJsonContentTypeExplanationErrorPayloadGivesCorrect
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1173,12 +1034,7 @@ func TestSetSecretFailsWithNonJsonContentTypeExplanationErrorPayloadGivesCorrect
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1204,14 +1060,10 @@ func TestSetSecretFailsWithBadlyFormedJsonContentExplanationErrorPayloadGivesCor
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1243,12 +1095,7 @@ func TestSetSecretFailsWithBadlyFormedJsonContentExplanationErrorPayloadGivesCor
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1275,16 +1122,12 @@ func TestSetSecretFailsWithValidErrorResponsePayloadGivesCorrectMessage(t *testi
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
 	apiErrorCode := 5000
 	apiErrorMessage := "this is an error from the API server"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1322,12 +1165,7 @@ func TestSetSecretFailsWithValidErrorResponsePayloadGivesCorrectMessage(t *testi
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1353,14 +1191,10 @@ func TestSecretsSetFailsWithFailureToReadResponseBodyGivesCorrectMessage(t *test
 	base64Username := ""
 	base64Password := ""
 	base64Token := "my-base64-token"
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := ""
 	secretType := ""
 	description := ""
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1392,12 +1226,7 @@ func TestSecretsSetFailsWithFailureToReadResponseBodyGivesCorrectMessage(t *test
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1418,19 +1247,15 @@ func TestCanCreateAKeystoreSecretWithJKSType(t *testing.T) {
 	// Given...
 	secretName := "JKS_KEYSTORE"
 	username := ""
-	password := ""
+	password := "changeit"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := "VGhpc0lzQUR1bW15S2V5c3RvcmVEYXRhRm9yVGVzdGluZ1B1cnBvc2VzT25seQ=="
-	keystoreFile := ""
-	keystorePassword := "changeit"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "JKS"
 	secretType := ""
 	description := "JKS keystore for testing"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "VGhpc0lzQUR1bW15S2V5c3RvcmVEYXRhRm9yVGVzdGluZ1B1cnBvc2VzT25seQ==", password, base64Password, "JKS")
 
 	// Create the expected HTTP interactions with the API server
 	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1441,14 +1266,14 @@ func TestCanCreateAKeystoreSecretWithJKSType(t *testing.T) {
 
 		// Verify keystore fields
 		requestKeystore := secretRequest.GetKeystore()
-		assert.Equal(t, requestKeystore.GetValue(), keystoreEncoded)
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
 		assert.Empty(t, requestKeystore.GetEncoding())
 
 		requestKeystorePassword := secretRequest.GetKeystorePassword()
-		assert.Equal(t, requestKeystorePassword.GetValue(), keystorePassword)
+		assert.Equal(t, requestKeystorePassword.GetValue(), password)
 		assert.Empty(t, requestKeystorePassword.GetEncoding())
 
-		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreType)
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
 
 		// Verify other fields are empty
 		requestUsername := secretRequest.GetUsername()
@@ -1485,12 +1310,7 @@ func TestCanCreateAKeystoreSecretWithJKSType(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1507,19 +1327,15 @@ func TestCanCreateAKeystoreSecretWithPKCS12Type(t *testing.T) {
 	// Given...
 	secretName := "PKCS12_KEYSTORE"
 	username := ""
-	password := ""
+	password := "mysecretpassword"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := "UEtDUzEyS2V5c3RvcmVEYXRhRm9yVGVzdGluZ1B1cnBvc2VzT25seUhlcmU="
-	keystoreFile := ""
-	keystorePassword := "mysecretpassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "PKCS12"
 	secretType := ""
 	description := "PKCS12 keystore for testing"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "UEtDUzEyS2V5c3RvcmVEYXRhRm9yVGVzdGluZ1B1cnBvc2VzT25seUhlcmU=", password, base64Password, "PKCS12")
 
 	// Create the expected HTTP interactions with the API server
 	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1530,14 +1346,14 @@ func TestCanCreateAKeystoreSecretWithPKCS12Type(t *testing.T) {
 
 		// Verify keystore fields
 		requestKeystore := secretRequest.GetKeystore()
-		assert.Equal(t, requestKeystore.GetValue(), keystoreEncoded)
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
 		assert.Empty(t, requestKeystore.GetEncoding())
 
 		requestKeystorePassword := secretRequest.GetKeystorePassword()
-		assert.Equal(t, requestKeystorePassword.GetValue(), keystorePassword)
+		assert.Equal(t, requestKeystorePassword.GetValue(), password)
 		assert.Empty(t, requestKeystorePassword.GetEncoding())
 
-		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreType)
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
 
 		// Verify other fields are empty
 		requestUsername := secretRequest.GetUsername()
@@ -1574,12 +1390,7 @@ func TestCanCreateAKeystoreSecretWithPKCS12Type(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1596,19 +1407,15 @@ func TestCanCreateAKeystoreSecretFromFile(t *testing.T) {
 	// Given...
 	secretName := "FILE_KEYSTORE"
 	username := ""
-	password := ""
+	password := "changeit"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := "/path/to/keystore.p12"
-	keystorePassword := "changeit"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "PKCS12"
 	secretType := ""
 	description := "Keystore from file for testing"
+
+	keystoreValues := NewSecretsSetKeystoreValues("/path/to/keystore.p12", "", password, base64Password, "PKCS12")
 
 	// Dummy keystore file content (doesn't need to be a real keystore)
 	keystoreFileContent := []byte("This is dummy keystore file content for testing")
@@ -1626,10 +1433,10 @@ func TestCanCreateAKeystoreSecretFromFile(t *testing.T) {
 		assert.Empty(t, requestKeystore.GetEncoding())
 
 		requestKeystorePassword := secretRequest.GetKeystorePassword()
-		assert.Equal(t, requestKeystorePassword.GetValue(), keystorePassword)
+		assert.Equal(t, requestKeystorePassword.GetValue(), password)
 		assert.Empty(t, requestKeystorePassword.GetEncoding())
 
-		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreType)
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
 	}
 
 	createSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
@@ -1650,7 +1457,7 @@ func TestCanCreateAKeystoreSecretFromFile(t *testing.T) {
 	mockFileSystem := files.NewMockFileSystem()
 
 	// Set up the mock file system to return keystore data when the file is read
-	mockFileSystem.WriteBinaryFile(keystoreFile, keystoreFileContent)
+	mockFileSystem.WriteBinaryFile(keystoreValues.KeystoreFile, keystoreFileContent)
 
 	// When...
 	err := SetSecret(
@@ -1661,12 +1468,7 @@ func TestCanCreateAKeystoreSecretFromFile(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1683,19 +1485,15 @@ func TestCanCreateAKeystoreSecretWithBase64EncodedKeystore(t *testing.T) {
 	// Given...
 	secretName := "BASE64_KEYSTORE"
 	username := ""
-	password := ""
+	password := "changeit"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := ""
-	keystorePassword := "changeit"
-	base64KeystoreEncoded := "QmFzZTY0RW5jb2RlZEtleXN0b3JlRGF0YUZvclRlc3RpbmdQdXJwb3Nlcw=="
-	base64KeystorePassword := ""
-	keystoreType := "PKCS12"
 	secretType := ""
 	description := "Base64 encoded keystore for testing"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "QmFzZTY0RW5jb2RlZEtleXN0b3JlRGF0YUZvclRlc3RpbmdQdXJwb3Nlcw==", password, base64Password, "PKCS12")
 
 	// Create the expected HTTP interactions with the API server
 	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1706,14 +1504,14 @@ func TestCanCreateAKeystoreSecretWithBase64EncodedKeystore(t *testing.T) {
 
 		// Verify keystore fields
 		requestKeystore := secretRequest.GetKeystore()
-		assert.Equal(t, requestKeystore.GetValue(), base64KeystoreEncoded)
-		assert.Equal(t, requestKeystore.GetEncoding(), "base64")
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
+		assert.Empty(t, requestKeystore.GetEncoding())
 
 		requestKeystorePassword := secretRequest.GetKeystorePassword()
-		assert.Equal(t, requestKeystorePassword.GetValue(), keystorePassword)
+		assert.Equal(t, requestKeystorePassword.GetValue(), password)
 		assert.Empty(t, requestKeystorePassword.GetEncoding())
 
-		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreType)
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
 	}
 
 	createSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
@@ -1742,12 +1540,7 @@ func TestCanCreateAKeystoreSecretWithBase64EncodedKeystore(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1767,16 +1560,12 @@ func TestCanCreateAKeystoreSecretWithBase64EncodedPassword(t *testing.T) {
 	password := ""
 	token := ""
 	base64Username := ""
-	base64Password := ""
+	base64Password := "Y2hhbmdlaXQ="
 	base64Token := ""
-	keystoreEncoded := "S2V5c3RvcmVXaXRoQmFzZTY0UGFzc3dvcmRGb3JUZXN0aW5nUHVycG9zZXM="
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := "Y2hhbmdlaXQ=" // "changeit" in base64
-	keystoreType := "PKCS12"
 	secretType := ""
 	description := "Keystore with base64 encoded password for testing"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "S2V5c3RvcmVXaXRoQmFzZTY0UGFzc3dvcmRGb3JUZXN0aW5nUHVycG9zZXM=", password, base64Password, "PKCS12")
 
 	// Create the expected HTTP interactions with the API server
 	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1787,14 +1576,14 @@ func TestCanCreateAKeystoreSecretWithBase64EncodedPassword(t *testing.T) {
 
 		// Verify keystore fields
 		requestKeystore := secretRequest.GetKeystore()
-		assert.Equal(t, requestKeystore.GetValue(), keystoreEncoded)
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
 		assert.Empty(t, requestKeystore.GetEncoding())
 
 		requestKeystorePassword := secretRequest.GetKeystorePassword()
-		assert.Equal(t, requestKeystorePassword.GetValue(), base64KeystorePassword)
+		assert.Equal(t, requestKeystorePassword.GetValue(), base64Password)
 		assert.Equal(t, requestKeystorePassword.GetEncoding(), "base64")
 
-		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreType)
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
 	}
 
 	createSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
@@ -1823,12 +1612,7 @@ func TestCanCreateAKeystoreSecretWithBase64EncodedPassword(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1845,19 +1629,15 @@ func TestCanUpdateAKeystoreSecretWithNewKeystoreData(t *testing.T) {
 	// Given...
 	secretName := "UPDATE_KEYSTORE_DATA"
 	username := ""
-	password := ""
+	password := "newpassword"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := "TmV3S2V5c3RvcmVEYXRhRm9yVXBkYXRlVGVzdGluZ1B1cnBvc2VzPT0="
-	keystoreFile := ""
-	keystorePassword := "newpassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "JKS"
 	secretType := ""
 	description := "Updated keystore with new data"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "TmV3S2V5c3RvcmVEYXRhRm9yVXBkYXRlVGVzdGluZ1B1cnBvc2VzPT0=", password, base64Password, "JKS")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1868,14 +1648,14 @@ func TestCanUpdateAKeystoreSecretWithNewKeystoreData(t *testing.T) {
 
 		// Verify keystore fields
 		requestKeystore := secretRequest.GetKeystore()
-		assert.Equal(t, requestKeystore.GetValue(), keystoreEncoded)
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
 		assert.Empty(t, requestKeystore.GetEncoding())
 
 		requestKeystorePassword := secretRequest.GetKeystorePassword()
-		assert.Equal(t, requestKeystorePassword.GetValue(), keystorePassword)
+		assert.Equal(t, requestKeystorePassword.GetValue(), password)
 		assert.Empty(t, requestKeystorePassword.GetEncoding())
 
-		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreType)
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
 	}
 
 	updateSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
@@ -1904,12 +1684,7 @@ func TestCanUpdateAKeystoreSecretWithNewKeystoreData(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -1926,19 +1701,15 @@ func TestCanUpdateAKeystoreSecretWithNewPassword(t *testing.T) {
 	// Given...
 	secretName := "UPDATE_KEYSTORE_PASSWORD"
 	username := ""
-	password := ""
+	password := "updatedpassword"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := "U2FtZUtleXN0b3JlRGF0YUJ1dE5ld1Bhc3N3b3JkRm9yVGVzdGluZz0="
-	keystoreFile := ""
-	keystorePassword := "updatedpassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "PKCS12"
 	secretType := ""
 	description := "Updated keystore password"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "U2FtZUtleXN0b3JlRGF0YUJ1dE5ld1Bhc3N3b3JkRm9yVGVzdGluZz0=", password, base64Password, "PKCS12")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -1949,14 +1720,14 @@ func TestCanUpdateAKeystoreSecretWithNewPassword(t *testing.T) {
 
 		// Verify keystore fields
 		requestKeystore := secretRequest.GetKeystore()
-		assert.Equal(t, requestKeystore.GetValue(), keystoreEncoded)
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
 		assert.Empty(t, requestKeystore.GetEncoding())
 
 		requestKeystorePassword := secretRequest.GetKeystorePassword()
-		assert.Equal(t, requestKeystorePassword.GetValue(), keystorePassword)
+		assert.Equal(t, requestKeystorePassword.GetValue(), password)
 		assert.Empty(t, requestKeystorePassword.GetEncoding())
 
-		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreType)
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
 	}
 
 	updateSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
@@ -1985,12 +1756,7 @@ func TestCanUpdateAKeystoreSecretWithNewPassword(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2007,19 +1773,15 @@ func TestCanUpdateAKeystoreSecretType(t *testing.T) {
 	// Given...
 	secretName := "UPDATE_KEYSTORE_TYPE"
 	username := ""
-	password := ""
+	password := "mypassword"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := "S2V5c3RvcmVXaXRoVHlwZUNoYW5nZUZyb21KS1NUb1BLQ1MxMj0="
-	keystoreFile := ""
-	keystorePassword := "mypassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "PKCS12"
 	secretType := ""
 	description := "Updated keystore type from JKS to PKCS12"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "S2V5c3RvcmVXaXRoVHlwZUNoYW5nZUZyb21KS1NUb1BLQ1MxMj0=", password, base64Password, "PKCS12")
 
 	// Create the expected HTTP interactions with the API server
 	updateSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
@@ -2030,14 +1792,14 @@ func TestCanUpdateAKeystoreSecretType(t *testing.T) {
 
 		// Verify keystore fields
 		requestKeystore := secretRequest.GetKeystore()
-		assert.Equal(t, requestKeystore.GetValue(), keystoreEncoded)
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
 		assert.Empty(t, requestKeystore.GetEncoding())
 
 		requestKeystorePassword := secretRequest.GetKeystorePassword()
-		assert.Equal(t, requestKeystorePassword.GetValue(), keystorePassword)
+		assert.Equal(t, requestKeystorePassword.GetValue(), password)
 		assert.Empty(t, requestKeystorePassword.GetEncoding())
 
-		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreType)
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
 	}
 
 	updateSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
@@ -2066,12 +1828,7 @@ func TestCanUpdateAKeystoreSecretType(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2088,19 +1845,15 @@ func TestUpdateKeystoreSecretWithInvalidTypeThrowsError(t *testing.T) {
 	// Given...
 	secretName := "INVALID_TYPE_KEYSTORE"
 	username := ""
-	password := ""
+	password := "mypassword"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := "VmFsaWRLZXlzdG9yZURhdGFCdXRJbnZhbGlkVHlwZT0="
-	keystoreFile := ""
-	keystorePassword := "mypassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "INVALID_TYPE"
 	secretType := ""
 	description := "Keystore with invalid type"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "VmFsaWRLZXlzdG9yZURhdGFCdXRJbnZhbGlkVHlwZT0=", password, base64Password, "INVALID_TYPE")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -2123,12 +1876,7 @@ func TestUpdateKeystoreSecretWithInvalidTypeThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2147,19 +1895,15 @@ func TestUpdateKeystoreSecretWithBothEncodedAndFileThrowsError(t *testing.T) {
 	// Given...
 	secretName := "BOTH_ENCODED_AND_FILE"
 	username := ""
-	password := ""
+	password := "mypassword"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := "S2V5c3RvcmVFbmNvZGVkRGF0YT0="
-	keystoreFile := "/path/to/keystore.jks"
-	keystorePassword := "mypassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "JKS"
 	secretType := ""
-	description := "Both keystoreEncoded and keystoreFile provided"
+	description := "Both base64KeystoreEncoded and keystoreFile provided"
+
+	keystoreValues := NewSecretsSetKeystoreValues("/path/to/keystore.jks", "S2V5c3RvcmVFbmNvZGVkRGF0YT0=", password, base64Password, "JKS")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -2182,71 +1926,7 @@ func TestUpdateKeystoreSecretWithBothEncodedAndFileThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
-		secretType,
-		description,
-		console,
-		apiClient,
-		mockByteReader,
-		mockFileSystem)
-
-	// Then...
-	assert.NotNil(t, err, "SetSecret did not return an error as expected")
-	errorMsg := err.Error()
-	assert.Contains(t, errorMsg, "GAL1293E")
-	assert.Contains(t, errorMsg, "Invalid keystore flag combination provided")
-}
-
-func TestUpdateKeystoreSecretWithBothEncodedAndBase64EncodedThrowsError(t *testing.T) {
-	// Given...
-	secretName := "BOTH_ENCODED_TYPES"
-	username := ""
-	password := ""
-	token := ""
-	base64Username := ""
-	base64Password := ""
-	base64Token := ""
-	keystoreEncoded := "S2V5c3RvcmVFbmNvZGVkRGF0YT0="
-	keystoreFile := ""
-	keystorePassword := "mypassword"
-	base64KeystoreEncoded := "QmFzZTY0S2V5c3RvcmVFbmNvZGVkRGF0YT0="
-	base64KeystorePassword := ""
-	keystoreType := "PKCS12"
-	secretType := ""
-	description := "Both keystoreEncoded and base64KeystoreEncoded provided"
-
-	// Validation should fail, so no HTTP interactions should take place
-	interactions := []utils.HttpInteraction{}
-
-	server := utils.NewMockHttpServer(t, interactions)
-	defer server.Server.Close()
-
-	console := utils.NewMockConsole()
-	apiServerUrl := server.Server.URL
-	apiClient := api.InitialiseAPI(apiServerUrl)
-	mockByteReader := utils.NewMockByteReader()
-	mockFileSystem := files.NewMockFileSystem()
-
-	// When...
-	err := SetSecret(
-		secretName,
-		username,
-		password,
-		token,
-		base64Username,
-		base64Password,
-		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2265,19 +1945,15 @@ func TestUpdateKeystoreSecretWithBothPasswordAndBase64PasswordThrowsError(t *tes
 	// Given...
 	secretName := "BOTH_PASSWORD_TYPES"
 	username := ""
-	password := ""
+	password := "plainpassword"
 	token := ""
 	base64Username := ""
-	base64Password := ""
+	base64Password := "YmFzZTY0cGFzc3dvcmQ="
 	base64Token := ""
-	keystoreEncoded := "S2V5c3RvcmVEYXRhV2l0aEJvdGhQYXNzd29yZHM9"
-	keystoreFile := ""
-	keystorePassword := "plainpassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := "YmFzZTY0cGFzc3dvcmQ="
-	keystoreType := "JKS"
 	secretType := ""
-	description := "Both keystorePassword and base64KeystorePassword provided"
+	description := "Both password and base64Password provided"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "S2V5c3RvcmVEYXRhV2l0aEJvdGhQYXNzd29yZHM9", password, base64Password, "JKS")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -2300,12 +1976,7 @@ func TestUpdateKeystoreSecretWithBothPasswordAndBase64PasswordThrowsError(t *tes
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2316,8 +1987,8 @@ func TestUpdateKeystoreSecretWithBothPasswordAndBase64PasswordThrowsError(t *tes
 	// Then...
 	assert.NotNil(t, err, "SetSecret did not return an error as expected")
 	errorMsg := err.Error()
-	assert.Contains(t, errorMsg, "GAL1293E")
-	assert.Contains(t, errorMsg, "Invalid keystore flag combination provided")
+	assert.Contains(t, errorMsg, "GAL1193E")
+	assert.Contains(t, errorMsg, "Invalid flag combination provided")
 }
 
 func TestCreateKeystoreSecretWithoutPasswordThrowsError(t *testing.T) {
@@ -2329,14 +2000,10 @@ func TestCreateKeystoreSecretWithoutPasswordThrowsError(t *testing.T) {
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := "S2V5c3RvcmVXaXRob3V0UGFzc3dvcmQ9"
-	keystoreFile := ""
-	keystorePassword := ""
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "JKS"
 	secretType := ""
 	description := "Keystore without password"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "S2V5c3RvcmVXaXRob3V0UGFzc3dvcmQ9", password, base64Password, "JKS")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -2359,12 +2026,7 @@ func TestCreateKeystoreSecretWithoutPasswordThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2383,19 +2045,15 @@ func TestCreateKeystoreSecretWithBlankPasswordThrowsError(t *testing.T) {
 	// Given...
 	secretName := "KEYSTORE_BLANK_PASSWORD"
 	username := ""
-	password := ""
+	password := "    "
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := "S2V5c3RvcmVXaXRoQmxhbmtQYXNzd29yZD0="
-	keystoreFile := ""
-	keystorePassword := "    "
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "PKCS12"
 	secretType := ""
 	description := "Keystore with blank password"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "S2V5c3RvcmVXaXRoQmxhbmtQYXNzd29yZD0=", password, base64Password, "PKCS12")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -2418,12 +2076,7 @@ func TestCreateKeystoreSecretWithBlankPasswordThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2442,19 +2095,15 @@ func TestCreateKeystoreSecretFromNonExistentFileThrowsError(t *testing.T) {
 	// Given...
 	secretName := "KEYSTORE_FILE_NOT_FOUND"
 	username := ""
-	password := ""
+	password := "mypassword"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := "/path/to/nonexistent/keystore.jks"
-	keystorePassword := "mypassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "JKS"
 	secretType := ""
 	description := "Keystore from non-existent file"
+
+	keystoreValues := NewSecretsSetKeystoreValues("/path/to/nonexistent/keystore.jks", "", password, base64Password, "JKS")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -2477,12 +2126,7 @@ func TestCreateKeystoreSecretFromNonExistentFileThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2500,19 +2144,15 @@ func TestCreateKeystoreSecretFromUnreadableFileThrowsError(t *testing.T) {
 	// Given...
 	secretName := "KEYSTORE_FILE_UNREADABLE"
 	username := ""
-	password := ""
+	password := "mypassword"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := "/path/to/unreadable/keystore.jks"
-	keystorePassword := "mypassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "PKCS12"
 	secretType := ""
 	description := "Keystore from unreadable file"
+
+	keystoreValues := NewSecretsSetKeystoreValues("/path/to/unreadable/keystore.jks", "", password, base64Password, "PKCS12")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -2541,12 +2181,7 @@ func TestCreateKeystoreSecretFromUnreadableFileThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2558,26 +2193,22 @@ func TestCreateKeystoreSecretFromUnreadableFileThrowsError(t *testing.T) {
 	assert.NotNil(t, err, "SetSecret did not return an error as expected")
 	errorMsg := err.Error()
 	assert.Contains(t, errorMsg, "permission denied")
-	assert.Contains(t, errorMsg, keystoreFile)
+	assert.Contains(t, errorMsg, keystoreValues.KeystoreFile)
 }
 
 func TestCreateKeystoreSecretFromEmptyFileThrowsError(t *testing.T) {
 	// Given...
 	secretName := "KEYSTORE_FILE_EMPTY"
 	username := ""
-	password := ""
+	password := "mypassword"
 	token := ""
 	base64Username := ""
 	base64Password := ""
 	base64Token := ""
-	keystoreEncoded := ""
-	keystoreFile := "/path/to/empty/keystore.jks"
-	keystorePassword := "mypassword"
-	base64KeystoreEncoded := ""
-	base64KeystorePassword := ""
-	keystoreType := "JKS"
 	secretType := ""
 	description := "Keystore from empty file"
+
+	keystoreValues := NewSecretsSetKeystoreValues("/path/to/empty/keystore.jks", "", password, base64Password, "JKS")
 
 	// Validation should fail, so no HTTP interactions should take place
 	interactions := []utils.HttpInteraction{}
@@ -2606,12 +2237,7 @@ func TestCreateKeystoreSecretFromEmptyFileThrowsError(t *testing.T) {
 		base64Username,
 		base64Password,
 		base64Token,
-		keystoreEncoded,
-		keystoreFile,
-		keystorePassword,
-		base64KeystoreEncoded,
-		base64KeystorePassword,
-		keystoreType,
+		keystoreValues,
 		secretType,
 		description,
 		console,
@@ -2624,5 +2250,5 @@ func TestCreateKeystoreSecretFromEmptyFileThrowsError(t *testing.T) {
 	errorMsg := err.Error()
 	assert.Contains(t, errorMsg, "GAL1294E")
 	assert.Contains(t, errorMsg, "Empty keystore file provided")
-	assert.Contains(t, errorMsg, keystoreFile)
+	assert.Contains(t, errorMsg, keystoreValues.KeystoreFile)
 }

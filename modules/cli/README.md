@@ -797,24 +797,24 @@ Keystore secrets can be created to store Java keystores (JKS or PKCS12 format) f
 For example, to create a JKS keystore secret:
 
 ```
-galasactl secrets set --name MYKEYSTORE --keystore-file /path/to/keystore.jks --keystore-password "keystore-password" --keystore-type JKS
+galasactl secrets set --name MYKEYSTORE --keystore-file /path/to/keystore.jks --password "keystore-password" --keystore-type JKS
 ```
 
 To create a PKCS12 keystore secret:
 
 ```
-galasactl secrets set --name MYKEYSTORE --keystore-file /path/to/keystore.p12 --keystore-password "keystore-password" --keystore-type PKCS12
+galasactl secrets set --name MYKEYSTORE --keystore-file /path/to/keystore.p12 --password "keystore-password" --keystore-type PKCS12
 ```
 
 The keystore file will be read and base64-encoded before being stored in the Galasa Ecosystem's credentials store. The supported keystore types are `JKS` and `PKCS12`.
 
-Alternatively, if you wish to provide the data from the keystore file already base64 encoded, you can provide it directly using the `--keystore-encoded` flag:
+Alternatively, if you wish to provide the data from the keystore file already base64 encoded, you can provide it directly using the `--base64-keystore-encoded` flag:
 
 ```
-galasactl secrets set --name MYKEYSTORE --keystore-encoded "dGVzdC1rZXlzdG9yZS1kYXRh" --keystore-password "keystore-password" --keystore-type JKS
+galasactl secrets set --name MYKEYSTORE --base64-keystore-encoded "dGVzdC1rZXlzdG9yZS1kYXRh" --password "keystore-password" --keystore-type JKS
 ```
 
-As with Username/Password/Token secrets, base64-encoded versions of the credentials can be supplied using the `--base64-keystore-encoded` and `--base64-keystore-password` flags to avoid sending unencoded credentials on the command-line.
+A base64-encoded versions of the password can be supplied using the `--base64-password` flag to avoid sending unencoded passwords on the command-line.
 
 #### Changing Secret Types
 
