@@ -132,38 +132,6 @@ By using the concepts introduced in this example, you can write your own z/OS Ba
 The z/OS Batch Manager stores the job output in the test results main archive store.
 
 
-## Reviewing the stored artifacts in Eclipse
-
-When `BatchAccountsOpenTest` has finished running, you can expand the relevant entry in the *Galasa Results* tab - if it is not initially visible, choose *Galasa > Initialise Galasa Framework* and then *Window > Show View > Other* and finally, *Galasa Results*. 
-
-For example, your *Galasa Results* tab might resemble:
-
-![Galasa Results](./galasa-results.png)
-
-Double-click on a run and you can explore the three tabs in the main pane:
-
-- **General**: presenting some useful overview metrics about the run, and its payload of tests and test classes
-
-- **Run Log**: which stores the console messages emitted by Eclipse as the test ran, which end with the following lines signifying test success:
-
-```
-****************************************************************************************************
-*** Passed - Test method dev.galasa.simbanks.tests.BatchAccountsOpenTest#batchOpenAccountsTest,type=Test
-****************************************************************************************************
-28/01/2020 09:31:53.738 INFO dev.galasa.framework.TestClassWrapper.runTestMethods - Ending
-****************************************************************************************************
-*** Passed - Test class dev.galasa.simbanks.tests.BatchAccountsOpenTest
-****************************************************************************************************
-
-```
-
-- **Stored Artifacts**: which contain a variety of detailed test-related outputs - the specifics are determined by the writer of the z/OS Batch Manager in this case.
-
-![Stored Artifacts](./stored-artifacts.png)
-
-The outputs include the constructed input JCL and several of the usual JES batch output datasets.
-
-
 ## BatchAccountsOpenTest - full source listing
 
 ```java

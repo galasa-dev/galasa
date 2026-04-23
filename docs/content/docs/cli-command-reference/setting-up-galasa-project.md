@@ -286,22 +286,3 @@ Other elements that are contained within the generated parent pom.xml are listed
 
  - The `<packaging>` element is set to `galasa-obr` which causes the Galasa Maven plugin to build this project.
 
-
-## Importing the example test project into Eclipse
-
-If you want to edit source code using an IDE, you might want to import the projects into your IDE workspace. 
-
-The following steps show you how to import an example test project built using Maven into Eclipse:
-
-1. Launch Eclipse and choose _File > Import..._
-1. In the _Select_ dialog, expand _Maven_, choose _Existing Maven Projects_ and click _Next_.
-1. Navigate to your root project directory - _dev.galasa.example.banking_ in this case - and follow the remaining prompts to complete the import. If you see a warning or error dialog, opt to resolve the error later.
-1. View your set of projects in _Package Explorer_.
-
-Complete the following steps to import an example test project built using Gradle into Eclipse:
-
-1. Launch Eclipse and choose _File > Import..._
-1. In the _Select_ dialog, expand _Gradle_, choose _Existing Gradle Projects_ and click _Next_.
-1. Navigate to your root project directory - _dev.galasa.example.banking_ in this case - and follow the remaining prompts to complete the import. If you see a warning or error dialog, opt to resolve the error later.
-1. View your set of projects in _Package Explorer_.
-
