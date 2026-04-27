@@ -24,7 +24,7 @@ import dev.galasa.framework.spi.utils.GalasaGson;
 
 public class DirectoryRASRunResult implements IRunResult {
 
-    private static final int LOG_STREAM_BUFFER_BYTES = 8192;
+    private static final int LOG_STREAM_BUFFER_BYTES = 8 * 1024;
 
     private final Path                           runDirectory;
     private final TestStructure                  testStructure;

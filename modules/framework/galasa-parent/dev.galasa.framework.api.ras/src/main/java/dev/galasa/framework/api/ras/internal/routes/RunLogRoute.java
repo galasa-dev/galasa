@@ -50,7 +50,7 @@ public class RunLogRoute extends RunsRoute {
             return res;
         } catch (ResultArchiveStoreException e) {
             ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
-            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND, e);
+            throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -70,15 +70,14 @@ public class RunLogRoute extends RunsRoute {
 
     	IRunResult run = getRunByRunId(runId);
 
-    	if (run == null) {
-    		ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
-    		throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
-    	}
-
     	long logSize = run.getLogSize();
     	if (logSize == -1) {
-    		ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
-    		throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            // Fall back to loading the run log for legacy runs without the logSize metadata
+            String runLog = run.getLog();
+            if (runLog == null) {
+                ServletError error = new ServletError(GAL5002_INVALID_RUN_ID, runId);
+                throw new InternalServletException(error, HttpServletResponse.SC_NOT_FOUND);
+            }
     	}
 
     	res = getResponseBuilder().buildResponse(request, res, "text/plain", HttpServletResponse.SC_OK);

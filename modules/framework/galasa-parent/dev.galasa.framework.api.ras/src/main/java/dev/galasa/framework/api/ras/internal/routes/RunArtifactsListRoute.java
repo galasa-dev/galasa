@@ -102,7 +102,7 @@ public class RunArtifactsListRoute extends RunArtifactsRoute {
                 // Size is available from metadata, use it directly
                 artifactRecords.add(getArtifactAsJsonObject(rootArtifact.getPathName(), rootArtifact.getContentType(), (int)size));
             } else {
-                // Fall back to loading content for legacy artifacts without size metadata
+                // Fall back to calculating the content size for legacy artifacts by loading it into memory
                 byte[] content = rootArtifact.getContent(run);
                 if (content != null) {
                     artifactRecords.add(getArtifactAsJsonObject(rootArtifact.getPathName(), rootArtifact.getContentType(), content.length));

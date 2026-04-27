@@ -379,27 +379,40 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
         retrieveArtifactFromDatabase(artifactURI, cachePath,StandardCopyOption.REPLACE_EXISTING);
     }
 
+    /**
+     * Fetch a log document from CouchDB and return the parsed LogLines object.
+     *
+     * @param logRecordId The ID of the log document to fetch
+     * @return The parsed LogLines object
+     * @throws ResultArchiveStoreException if there's an error fetching or parsing the document
+     */
+    private LogLines fetchLogDocument(String logRecordId) throws ResultArchiveStoreException {
+    	HttpGet httpGet = httpRequestFactory.getHttpGetRequest(this.storeUri + "/"+LOG_DB+"/" + logRecordId);
+
+    	try {
+    		String entity = sendHttpRequest(httpGet, HttpStatus.SC_OK);
+    		LogLines logLines = gson.fromJson(entity, LogLines.class);
+    		return logLines;
+    	} catch (CouchdbException e) {
+    		throw new ResultArchiveStoreException(e);
+    	} catch (Exception e) {
+            throw new ResultArchiveStoreException("Unable to fetch log", e);
+        }
+    }
+
     public String getLog(TestStructure ts) throws ResultArchiveStoreException {
         StringBuilder sb = new StringBuilder();
 
         for (String logRecordId : ts.getLogRecordIds()) {
-            HttpGet httpGet = httpRequestFactory.getHttpGetRequest(this.storeUri + "/"+LOG_DB+"/" + logRecordId);
+            LogLines logLines = fetchLogDocument(logRecordId);
 
-            try{
-                String entity = sendHttpRequest(httpGet, HttpStatus.SC_OK);
-                LogLines logLines = gson.fromJson(entity, LogLines.class);
-                if (logLines.lines != null) {
-                    for (String line : logLines.lines) {
-                        if (sb.length() > 0) {
-                            sb.append("\n");
-                        }
-                        sb.append(line);
+            if (logLines.lines != null) {
+                for (String line : logLines.lines) {
+                    if (sb.length() > 0) {
+                        sb.append("\n");
                     }
+                    sb.append(line);
                 }
-            } catch (CouchdbException e) {
-                throw new ResultArchiveStoreException(e);
-            } catch (Exception e) {
-                throw new ResultArchiveStoreException("Unable to find runs", e);
             }
         }
         return sb.toString();
@@ -414,38 +427,38 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
      * @param outputStream The stream to write log content to
      * @throws ResultArchiveStoreException if there's an error accessing the log
      */
-    public void streamLog(TestStructure ts, OutputStream outputStream)
-        throws ResultArchiveStoreException {
+    public void streamLog(TestStructure ts, OutputStream outputStream) throws ResultArchiveStoreException {
 
-        boolean isAtFirstLine = true;
+    	boolean isFirstLine = true;
 
-        for (String logRecordId : ts.getLogRecordIds()) {
-            HttpGet httpGet = httpRequestFactory.getHttpGetRequest(this.storeUri + "/"+LOG_DB+"/" + logRecordId);
+    	for (String logRecordId : ts.getLogRecordIds()) {
+    		LogLines logLines = fetchLogDocument(logRecordId);
 
-            try {
-                String entity = sendHttpRequest(httpGet, HttpStatus.SC_OK);
-                LogLines logLines = gson.fromJson(entity, LogLines.class);
+    		if (logLines.lines != null && !logLines.lines.isEmpty()) {
+    			StringBuilder documentContent = new StringBuilder();
 
-                if (logLines.lines != null && !logLines.lines.isEmpty()) {
-                    StringBuilder documentContent = new StringBuilder();
+    			for (String line : logLines.lines) {
+    				if (!isFirstLine) {
+    					documentContent.append('\n');
+    				}
+    				documentContent.append(line);
+    				isFirstLine = false;
+    			}
 
-                    for (String line : logLines.lines) {
-                        if (!isAtFirstLine) {
-                            documentContent.append('\n');
-                        }
-                        documentContent.append(line);
-                        isAtFirstLine = false;
-                    }
+    			// Write the entire document's content in one operation
+    			try {
+    				outputStream.write(documentContent.toString().getBytes(StandardCharsets.UTF_8));
+    			} catch (IOException e) {
+    				throw new ResultArchiveStoreException("Unable to stream log", e);
+    			}
+    		}
+    	}
 
-                    outputStream.write(documentContent.toString().getBytes(StandardCharsets.UTF_8));
-                }
-
-            } catch (CouchdbException e) {
-                throw new ResultArchiveStoreException(e);
-            } catch (IOException e) {
-                throw new ResultArchiveStoreException("Unable to stream log", e);
-            }
-        }
+    	try {
+    		outputStream.flush();
+    	} catch (IOException e) {
+    		throw new ResultArchiveStoreException("Unable to flush stream", e);
+    	}
     }
 
     @Override
