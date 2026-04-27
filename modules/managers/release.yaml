@@ -150,15 +150,6 @@ managers:
     isolated:     true
     codecoverage: false
 
-  - artifact: dev.galasa.liberty.manager
-    version: 0.48.0
-    obr:          false
-    mvp:          false
-    bom:          false
-    javadoc:      false
-    isolated:     false
-    codecoverage: false
-
   - artifact: dev.galasa.openstack.manager
     version: 0.48.0
     obr:          true
@@ -285,24 +276,6 @@ managers:
     isolated:     false
     codecoverage: false
 
-  - artifact: dev.galasa.eclipseruntime.manager
-    version: 0.48.0
-    obr:          false
-    mvp:          false
-    bom:          false
-    javadoc:      false
-    isolated:     false
-    codecoverage: false
-
-  - artifact: dev.galasa.eclipseruntime.ubuntu.manager
-    version: 0.48.0
-    obr:          false
-    mvp:          false
-    bom:          false
-    javadoc:      false
-    isolated:     false
-    codecoverage: false
-
   - artifact: dev.galasa.imstm.manager
     version: 0.48.0
     obr:          true
@@ -362,15 +335,6 @@ managers:
     obr:          true
     mvp:          false
     bom:          false
-    javadoc:      false
-    isolated:     false
-    codecoverage: false
-
-  - artifact: dev.galasa.phoenix2.manager
-    version: 0.48.0
-    obr:          true
-    mvp:          false
-    bom:          true
     javadoc:      false
     isolated:     false
     codecoverage: false
