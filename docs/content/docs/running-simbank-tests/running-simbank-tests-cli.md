@@ -1,5 +1,5 @@
 ---
-title: "Running the SimBank tests using the CLI"
+title: "Running the sample SimBank tests"
 ---
 
 You can explore Galasa further with Galasa Simbank. Galasa Simbank is a simulated bank application that showcases Galasa's functionality within an application. Galasa SimBank comes with a selection of prepared Galasa tests:
@@ -9,7 +9,7 @@ You can explore Galasa further with Galasa Simbank. Galasa Simbank is a simulate
 - A test that uses a provisioned account object to perform the same test as `BasicAccountCreditTest.java` in an improved test design - `ProvisionedAccountCreditTests.java`.
 - A test that exercises the z/OS Batch Manager by simulating the submission of a JCL job to add a number of accounts to the SimBank system - `BatchAccountsOpenTest.java`.
 
-The following sections explain how to run the `SimBankIVT` test class by using the CLI. Make sure that you have installed the Galasa CLI tool and Java version 17 JDK, and have set the JAVA_HOME environment variable, as described in the [CLI prerequisites online](../cli-command-reference/cli-prereqs.md) documentation. 
+The following sections explain how to run the `SimBankIVT` test class by using the CLI. Make sure that you have installed the Galasa CLI tool and Java version 17 JDK, and have set the JAVA_HOME environment variable, as described in the [Prerequisites](../cli-command-reference/cli-prereqs.md) documentation. 
 
 
 ## Updating the overrides and credentials property files
@@ -48,13 +48,13 @@ In order to run the Galasa SimBanks tests you need to add some configuration inf
 
 ## Running the SimBank IVT test class by using the CLI
 
-The SimBank tests are held in the [Galasa simplatform repository](https://github.com/galasa-dev/simplatform){target="_blank"} in GitHub. To start running the tests you need to clone the repository, if you have not already done so. To find out how to clone the cli repository, follow the instruction in the [Running Galasa SimBank online](../running-simbank-tests/simbank-cli.md) documentation.
+The SimBank tests are held in the [Galasa simplatform repository](https://github.com/galasa-dev/simplatform){target="_blank"} in GitHub. To start running the tests you need to clone the repository, if you have not already done so. To find out how to clone the cli repository, follow the instruction in the [Launching the SimBank application](../running-simbank-tests/simbank-cli.md) documentation.
 
 After cloning the repository, complete the following steps to run the SimBankIVT test that is provided with Galasa. The following example uses SimBank OBR version `0.48.0` and Galasa uber OBR version `0.48.0`.
 
 You can find the version of the `dev.galasa.simbank.obr` that you are using by looking in the `pom.xml` file in the `dev.galasa.simbank.obr` folder. The `dev.galasa.uber.obr` is the OBR that contains all the bundles that are needed for Galasa to work including Managers, any required dependencies, the framework, etc. The version of the `dev.galasa.uber.obr` depends on which version of Galasa you have installed.
 
-Remember to initialise your local environment by running the `galasactl local init` command. Note that the the following section describes how to run the `./build-locally.sh` and  `./run-locally.sh --server` scripts only in a Mac or Unix environment.
+Remember to initialise your local environment by running the `galasactl local init` command. Note that the the following section describes how to run the `./build-locally.sh` and  `./run-locally.sh --server` scripts only in a Linux or macOS environment.
 
 
 1. Open a terminal, navigate to your `simplatform` directory and run the `./build-locally.sh` script to build the code in both the simbank-tests and the simplaform-application directories.
@@ -83,7 +83,7 @@ Remember to initialise your local environment by running the `galasactl local in
     If you are a Mac or Linux user, the messages will be almost identical.
 
 3. In the terminal in which you ran the `./build-locally.sh` script, run the following command to run the SimBankIVT test:
-    On Mac or Unix:
+=== "Linux or macOS"
 
     ```shell
     galasactl runs submit local --log - \
@@ -91,7 +91,7 @@ Remember to initialise your local environment by running the `galasactl local in
     --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.SimBankIVT 
     ```
 
-    On Windows (Powershell):
+=== "Windows (Powershell)"
 
     ```powershell
     galasactl runs submit local --log - `
@@ -99,11 +99,11 @@ Remember to initialise your local environment by running the `galasactl local in
     --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.SimBankIVT
     ```
 
-    where:
+where:
 
-    - `--log` specifies that debugging information is directed somewhere, and the `-` means that it is sent to the console (stderr).
-    - `--obr`  The `--obr` parameter specifies the Maven co-ordinates of the OBR jar file, in the format `mvn:groupId/artifactId/version/classifier`. The first instance specifies the OBR where the  CLI tool can find an OBR which refers to the bundle where the tests are stored. When running locally, all tests must exist in the OBR (or OBRs) that are passed to the tool. The second instance specifies the OBR containing  the bundles that are needed for Galasa to work (for example, Galasa Managers, required dependencies, and the Galasa framework).
-    - `--class` specifies which test class to run. The string is in the format of `<osgi-bundle-id>/<fully-qualified-java-class>`.
+- `--log` specifies that debugging information is directed somewhere, and the `-` means that it is sent to the console (stderr).
+- `--obr`  The `--obr` parameter specifies the Maven co-ordinates of the OBR jar file, in the format `mvn:groupId/artifactId/version/classifier`. The first instance specifies the OBR where the  CLI tool can find an OBR which refers to the bundle where the tests are stored. When running locally, all tests must exist in the OBR (or OBRs) that are passed to the tool. The second instance specifies the OBR containing  the bundles that are needed for Galasa to work (for example, Galasa Managers, required dependencies, and the Galasa framework).
+- `--class` specifies which test class to run. The string is in the format of `<osgi-bundle-id>/<fully-qualified-java-class>`.
 
 4. The `SimBankIVT` test class runs, and the terminal displays its progress through to completion, with an Exit code of `0`.
 
@@ -111,21 +111,21 @@ Remember to initialise your local environment by running the `galasactl local in
 
 To run other SimBank tests, for example `BasicAccountCreditTest`, replace the test class name in the `--class` parameter. For example: 
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs submit local --log - \
---obr mvn:dev.galasa/dev.galasa.simbank.obr/0.48.0/obr \
---class dev.galasa.simbank.tests/dev.galasa.simbank.tests.BasicAccountCreditTest 
-```
+    ```shell
+    galasactl runs submit local --log - \
+    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.48.0/obr \
+    --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.BasicAccountCreditTest 
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs submit local --log - `
---obr mvn:dev.galasa/dev.galasa.simbank.obr/0.48.0/obr `
---class dev.galasa.simbank.tests/dev.galasa.simbank.tests.BasicAccountCreditTest
-```
+    ```powershell
+    galasactl runs submit local --log - `
+    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.48.0/obr `
+    --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.BasicAccountCreditTest
+    ```
 
 
 

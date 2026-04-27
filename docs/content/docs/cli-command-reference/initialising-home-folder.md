@@ -13,17 +13,17 @@ You do not need to change the default setting, but if you want to, the default v
 
 For example, to set the `GALASA_HOME` environment variable to a folder called _mygalasatests_ in a directory called _temp_, use the following command:
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-export GALASA_HOME=/temp/mygalasatests
-```
+    ```shell
+    export GALASA_HOME=/temp/mygalasatests
+    ```
 
-On Windows: 
+=== "Windows (Powershell)"
 
-```powershell
-set GALASA_HOME=C:\temp\mygalasatests
-```
+    ```powershell
+    set GALASA_HOME=C:\temp\mygalasatests
+    ```
 
 You can override the value of the `GALASA_HOME` environment variable on a call-by-call basis by using the `--galasahome` command-line option.
 
@@ -57,7 +57,7 @@ Running the `galasactl local init` command also creates an `/.m2` directory, con
 You can validate the set up by locating your user home directory and confirming that it contains a `.galasa` and a `.m2` folder. On Windows, the user home directory resembles: `C:\Users\<username>`, on MacOS it will be `/Users/<username>` and on Linux `/home/<username>`. Note that any file or folder beginning with a `.` is a hidden folder, so you might need to change the settings on your file browser user interface to show hidden files.
 
 
-!!! note "Note - online installation only"
+!!! note "Note"
     If an `.~/.m2/settings.xml` file already exists, the `galasactl local init` command does not update it. View the file contents and check that it has the required `maven.central` and `plugin` repositories configured. The file should contain the following content:
 
 
@@ -127,28 +127,25 @@ The bootstrap is a simple properties file that contains the information that Gal
 
 If you are planning to only run tests locally, with everything running on the local machine, you do not need to set the Galasa bootstrap. Otherwise, you can set the bootstrap either by using the `--bootstrap` option on the CLI command or by setting the `GALASA_BOOTSTRAP` environment variable. If both are provided, the `--bootstrap` option takes precedence.
 
-You can set environment variables on a terminal by using the `export` (if you are on Mac or Linux) or `set` (if you are on Windows) command. For example, to set `GALASA_BOOTSTRAP` to `http://galasa-bootstrap.url.com`, use the following command:
+You can set environment variables on a terminal by using the `export` (if you are on Mac or Linux) or `set` (if you are on Windows) command. For example, to set `GALASA_BOOTSTRAP` to `http://galasa-bootstrap.url.com`, use the following command where `http://galasa-bootstrap.url.com` is the URL of the Galasa Ecosystem in which you want to run your test or in which the shared configuration is stored:
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-export GALASA_BOOTSTRAP=http://galasa-bootstrap.url.com/bootstrap
-```
+    ```shell
+    export GALASA_BOOTSTRAP=http://galasa-bootstrap.url.com/bootstrap
+    ```
 
-On Windows: 
+=== "Windows (Powershell)"
 
-```powershell
-set GALASA_BOOTSTRAP=http://galasa-bootstrap.url.com/bootstrap
-```
-
-where:
-`http://galasa-bootstrap.url.com` is the URL of the Galasa Ecosystem in which you want to run your test or in which the shared configuration is stored.
+    ```powershell
+    set GALASA_BOOTSTRAP=http://galasa-bootstrap.url.com/bootstrap
+    ```
 
 
 
 ## Next steps
 
-You can now start [creating a project using the CLI](./setting-up-galasa-project.md) to accommodate your Galasa tests in your local storage.
+You can now start [Creating a Galasa project](./setting-up-galasa-project.md).
 
 
 

@@ -2,20 +2,20 @@
 title: "Upgrading"
 ---
 
-## Upgrading the Galasa version (online)
+## Upgrading your Galasa version
 
 You can upgrade your version of Galasa by completing the following steps:
 
-1. Download the appropriate version of the Galasa CLI for your machine architecture from the [Galasa CLI repository](https://github.com/galasa-dev/galasa/releases){target="_blank"} in GitHub.
+1. Download the appropriate version of the Galasa CLI for your machine architecture from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} in GitHub.
 2. Re-name the your existing `galasactl` binary so that you can re-name the Galasa binary that you just downloaded to `galasactl` to replace it. 
 3. Set execute permission on the binary by running the `chmod +x galasactl` command in the directory containing `galasactl`.If you are using a Mac, you can set permission to open the Galasa CLI tool by running the `xattr -dr com.apple.quarantine galasactl` command in the directory containing `galasactl`. 
 
-If you have already added the Galasa CLI path to your shell's initialization file, as described in the [Installing the Galasa CLI online](../cli-command-reference/installing-cli-tool.md) topic, you should now be able to run the upgraded version of the Galasa CLI tool from any directory in your file system.
+If you have already added the Galasa CLI path to your shell's initialization file, as described in the [Installing the Galasa CLI](../cli-command-reference/installing-cli-tool.md) topic, you should now be able to run the upgraded version of the Galasa CLI tool from any directory in your file system.
 
 
-## Upgrading the Galasa zipped distribution version (offline)
+## Upgrading the Galasa zipped distribution version
 
-Download and extract the Galasa zip file to a directory of your choice and complete the steps documented in the [Installing the Galasa CLI offline](../cli-command-reference/installing-offline.md) topic.
+Download and extract the Galasa zip file to a directory of your choice and complete the steps documented in the [Installing Galasa offline](../using-galasa-offline/installing-offline.md) topic.
 
 
 ## Upgrading tests to compile using Gradle version 8
@@ -65,7 +65,7 @@ To upgrade to a Galasa version that uses the CLI when your previous Galasa versi
 
 1. Check that you have the software that you need installed by viewing the [CLI prerequisites](../cli-command-reference/cli-prereqs.md) topic.
 
-2. Complete the steps outlined in the [Installing the Galasa CLI online](../cli-command-reference/installing-cli-tool.md) topic to download and install the correct Galasa CLI binary file for your machine architecture.
+2. Complete the steps outlined in the [Installing the Galasa CLI](../cli-command-reference/installing-cli-tool.md) topic to download and install the correct Galasa CLI binary file for your machine architecture.
 
 3. Check that you have an OBR project for your test code. If not, you can create a project that uses the names that you want by using the `galasactl project create` command, and copying your test code into the correct places. For more information about the `galasactl project create` command, see the [Creating a Galasa project](../cli-command-reference/setting-up-galasa-project.md) topic.
 

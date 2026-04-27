@@ -115,21 +115,21 @@ galasactl properties get --namespace framework
 
 To retrieve a specific property from the `framework` namespace, specify the property name in the command by using the `-–name` flag. The following example retrives the `resultarchive.store` property from the framework `namespace` in raw format.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl properties get --namespace framework \
---name resultarchive.store \
---format raw
-```
+    ```shell
+    galasactl properties get --namespace framework \
+    --name resultarchive.store \
+    --format raw
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl properties get --namespace framework `
---name resultarchive.store `
---format raw
-```
+    ```powershell
+    galasactl properties get --namespace framework `
+    --name resultarchive.store `
+    --format raw
+    ```
  
 
 *Note:* The `-–name` flag cannot be used in conjunction with the `-–prefix`, `--suffix`, or `-–infix` flags.
@@ -147,13 +147,13 @@ galasactl properties get \
 --format yaml
 ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl properties get `
---namespace docker --prefix engine --suffix hostname --infix LOCAL,REMOTE `
---format yaml
-```
+    ```powershell
+    galasactl properties get `
+    --namespace docker --prefix engine --suffix hostname --infix LOCAL,REMOTE `
+    --format yaml
+    ```
 
 The `--prefix`, `--suffix` and `-–infix` flags can be used together or separately to retrieve all properties that match the provided criteria.
 

@@ -2,11 +2,33 @@
 title: "Exploring Galasa SimBank"
 ---
 
-Distributed with Galasa, SimBank is a component that simulates a mainframe application. It sits above another component called SimPlatform. As delivered, SimBank implements a sample banking application against which you can configure and run a set of provided tests in preparation for running your own tests against an *actual* mainframe application. You can also practice writing some new tests to run against the SimBank banking application.
+SimBank is a simulated mainframe banking application against which you can configure and run a set of provided sample tests in preparation for running your own tests against a real mainframe application. It provides a safe, local environment to practice writing and running tests, understand Galasa's core concepts, and verify your setup.
 
-By exercising the Galasa framework against SimBank, you can pre-empt a lot (but not all) of the work and learning necessary to eventually hook your own tests up with a genuine mainframe environment. If the provided SimBank tests do not work, then it is unlikely that you will be able to run your own tests on a mainframe application. In summary, SimBank helps you to understand Galasa's basic principles of operation before you learn how to connect Galasa to your own mainframe application-under-test. Start by installing Galasa Simbank, either using the 
-[Running Galasa SimBank online](./simbank-cli.md) documentation if you are working with the Galasa CLI repository in GitHub, or the [Running Galasa SimBank offline](./simbank-cli-offline.md) documentation if you are using the Galasa zipped distribution.
+## Why use SimBank?
 
-Galasa SimBank comes with a selection of prepared Galasa tests. You can find out more about these tests in the following sections. Follow the flow of logic in these classes and understand more about the Java that is used to create them, including how to use Galasa annotations and review documented test methods. A good place to start is with the [SimBank IVT](./simbank-IVT.md) documentation. You can then move on to look at the other tests that are provided with Galasa. Sample SimBank tests are available in the [Galasa simplatform repository](https://github.com/galasa-dev/simplatform/tree/main/galasa-simbank-tests/dev.galasa.simbank.tests/src/main/java/dev/galasa/simbank/tests){target="_blank"} in GitHub. 
+SimBank lets you:
 
+- Learn Galasa fundamentals and understand how Galasa tests work without needing mainframe access
+- Validate your setup, if the sample SimBank tests don't work, real tests likely won't either
+- Practice writing and experimenting with tests in a risk-free environment
+- Explore working sample tests before creating your own
+
+## What's included
+
+SimBank comes with:
+
+- A simulated banking application with account management and transfer capabilities
+- A collection of pre-written Galasa tests demonstrating different testing patterns
+- Sample code showing how to use Galasa annotations and test methods
+
+## Getting started
+
+1. [Launch the SimBank application](./simbank-cli.md) to start the simulated mainframe environment
+2. Explore the [SimBank IVT](./simbank-IVT.md) test to understand basic test structure
+3. [Run the provided SimBank tests](./running-simbank-tests-cli.md) to see Galasa in action
+4. Review additional sample tests in the [Galasa simplatform repository](https://github.com/galasa-dev/simplatform/tree/main/galasa-simbank-tests/dev.galasa.simbank.tests/src/main/java/dev/galasa/simbank/tests){target="_blank"}
+
+## Working without network access
+
+If you're using Galasa offline, you can still explore SimBank by following the [Launching the SimBank application offline](../using-galasa-offline/simbank-cli-offline.md) documentation.
 
