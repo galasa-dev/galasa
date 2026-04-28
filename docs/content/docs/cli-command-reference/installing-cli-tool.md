@@ -34,12 +34,12 @@ Choose your installation method:
     
     2. Install the latest version:
        ```bash
-       brew install --no-quarantine galasactl
+       brew install galasactl
        ```
        
        Or install a specific version (e.g., 0.48.0):
        ```bash
-       brew install --no-quarantine galasactl@0.48.0
+       brew install galasactl@0.48.0
        ```
     
     3. Check available versions:
@@ -47,6 +47,11 @@ Choose your installation method:
        brew tap-info galasa-dev/tap --json
        ```
        Look in the `"cask_tokens"` section of the output.
+
+    4. Remove quarantine attribute:
+       ```bash
+       xattr -dr com.apple.quarantine galasactl
+       ```
 
 === "Linux or macOS (manual download)"
 
