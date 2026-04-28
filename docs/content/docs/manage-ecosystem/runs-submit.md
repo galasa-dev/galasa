@@ -16,29 +16,29 @@ The following section provides a subset of examples of how you can use the `runs
 
 The following example assumes that you have created a `my_portfolio.yaml` portfolio by using the [runs prepare](./runs-prepare.md) command. The command submits tests from the `my_portfolio.yaml` portfolio, and specifies the following settings.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs submit \
-    --bootstrap http://example.com:30960/bootstrap \
-    --portfolio my_portfolio.yaml \
-    --poll 5 \
-    --progress 1 \
-    --throttle 5 \
-    --log -
-```
+    ```shell
+    galasactl runs submit \
+        --bootstrap http://example.com:30960/bootstrap \
+        --portfolio my_portfolio.yaml \
+        --poll 5 \
+        --progress 1 \
+        --throttle 5 \
+        --log -
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs submit `
-    --bootstrap http://example.com:30960/bootstrap `
-    --portfolio my_portfolio.yaml `
-    --poll 5 `
-    --progress 1 `
-    --throttle 5 `
-    --log -
-```
+    ```powershell
+    galasactl runs submit `
+        --bootstrap http://example.com:30960/bootstrap `
+        --portfolio my_portfolio.yaml `
+        --poll 5 `
+        --progress 1 `
+        --throttle 5 `
+        --log -
+    ```
 
 where:
 
@@ -55,27 +55,27 @@ You can use test class names to submit test runs without using a portfolio.
 
 The following command runs the `SimBankIVT` and `BasicAccountCreditTest` tests from the  `dev.galasa.simbank.tests` package.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs submit \
-    --bootstrap http://example.com:30960/bootstrap \
-    --class dev.galasa.simbank.tests/SimBankIVT \
-    --class dev.galasa.simbank.tests/BasicAccountCreditTest \
-    --stream BestSoFar \
-    --log -
-```
+    ```shell
+    galasactl runs submit \
+        --bootstrap http://example.com:30960/bootstrap \
+        --class dev.galasa.simbank.tests/SimBankIVT \
+        --class dev.galasa.simbank.tests/BasicAccountCreditTest \
+        --stream BestSoFar \
+        --log -
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs submit `
-    --bootstrap http://example.com:30960/bootstrap `
-    --class dev.galasa.simbank.tests/SimBankIVT `
-    --class dev.galasa.simbank.tests/BasicAccountCreditTest `
-    --stream BestSoFar `
-    --log -
-```
+    ```powershell
+    galasactl runs submit `
+        --bootstrap http://example.com:30960/bootstrap `
+        --class dev.galasa.simbank.tests/SimBankIVT `
+        --class dev.galasa.simbank.tests/BasicAccountCreditTest `
+        --stream BestSoFar `
+        --log -
+    ```
 
 
 ### Setting overrides for all tests during a run
@@ -84,25 +84,25 @@ Specifying overrides is useful if you want to run a set of tests against a parti
 
 The following command runs all the tests in the `my_portfolio.yaml` portfolio are on the z/OS LPAR `MYLPAR` in the `MYPLEX` cluster.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs submit \
-    --portfolio my_portfolio.yaml \
-    --override zos.default.lpar=MYLPAR \
-    --override zos.default.cluster=MYPLEX \
-    --log -
-```
+    ```shell
+    galasactl runs submit \
+        --portfolio my_portfolio.yaml \
+        --override zos.default.lpar=MYLPAR \
+        --override zos.default.cluster=MYPLEX \
+        --log -
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs submit `
-    --portfolio my_portfolio.yaml `
-    --override zos.default.lpar=MYLPAR `
-    --override zos.default.cluster=MYPLEX `
-    --log -
-```
+    ```powershell
+    galasactl runs submit `
+        --portfolio my_portfolio.yaml `
+        --override zos.default.lpar=MYLPAR `
+        --override zos.default.cluster=MYPLEX `
+        --log -
+    ```
 
 
 ### Overriding the test run 'user'
@@ -124,18 +124,18 @@ galasactl runs submit \
     --user my-tester-user
 ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs submit `
-    --bootstrap http://example.com:30960/bootstrap `
-    --portfolio my_portfolio.yaml `
-    --poll 5 `
-    --progress 1 `
-    --throttle 5 `
-    --log - \
-    --user my-tester-user
-```
+    ```powershell
+    galasactl runs submit `
+        --bootstrap http://example.com:30960/bootstrap `
+        --portfolio my_portfolio.yaml `
+        --poll 5 `
+        --progress 1 `
+        --throttle 5 `
+        --log - \
+        --user my-tester-user
+    ```
 
 ## Controlling how long tests are allowed to run for
 

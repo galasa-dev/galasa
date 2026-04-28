@@ -15,25 +15,25 @@ The following section provides a subset of examples that use the `runs prepare` 
 
 The following example command selects tests from a test stream called `BestSoFar` for inclusion in a portfolio called `my_portfolio.yaml`. All tests in the `dev.galasa.simbank.tests`  package within the `BestSoFar` test stream are added to the `my_portfolio.yaml` portfolio. Packages are selected if the name contains a specified string or matches the regex if --regex is specified.  
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs prepare \
-    --bootstrap http://example.com:30960/bootstrap \
-    --portfolio my_portfolio.yaml \
-    --stream BestSoFar \
-    --package dev.galasa.simbank.tests
-```
+    ```shell
+    galasactl runs prepare \
+        --bootstrap http://example.com:30960/bootstrap \
+        --portfolio my_portfolio.yaml \
+        --stream BestSoFar \
+        --package dev.galasa.simbank.tests
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs prepare `
-    --bootstrap http://example.com:30960/bootstrap `
-    --portfolio my_portfolio.yaml `
-    --stream BestSoFar `
-    --package dev.galasa.simbank.tests
-```
+    ```powershell
+    galasactl runs prepare `
+        --bootstrap http://example.com:30960/bootstrap `
+        --portfolio my_portfolio.yaml `
+        --stream BestSoFar `
+        --package dev.galasa.simbank.tests
+    ```
 
 ### Building a portfolio for multiple test packages
 
@@ -41,25 +41,25 @@ You can build a portfolio for multiple test package by using a comma separated l
 
 The following example command selects tests from the `dev.galasa.simbank.tests` and `dev.galasa.example.banking` test packages and adds these tests to the `my_portfolio.yaml` portfolio.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs prepare \
-    --bootstrap http://example.com:30960/bootstrap \
-    --portfolio my_portfolio.yaml \
-    --stream BestSoFar \
-    --package dev.galasa.simbank.tests,dev.galasa.example.banking
-```
+    ```shell
+    galasactl runs prepare \
+        --bootstrap http://example.com:30960/bootstrap \
+        --portfolio my_portfolio.yaml \
+        --stream BestSoFar \
+        --package dev.galasa.simbank.tests,dev.galasa.example.banking
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs prepare `
-    --bootstrap http://example.com:30960/bootstrap `
-    --portfolio my_portfolio.yaml `
-    --stream BestSoFar `
-    --package dev.galasa.simbank.tests,dev.galasa.example.banking
-```
+    ```powershell
+    galasactl runs prepare `
+        --bootstrap http://example.com:30960/bootstrap `
+        --portfolio my_portfolio.yaml `
+        --stream BestSoFar `
+        --package dev.galasa.simbank.tests,dev.galasa.example.banking
+    ```
 
 ### Selecting tests without a test stream
 
@@ -67,25 +67,25 @@ You can use test class names to build a portfolio when a test stream or test cat
 
 The following example command selects specified tests (`SimBankIVT` and `BasicAccountCreditTest`) from the `dev.galasa.simbank.tests` test package and adds these tests to the `my_portfolio.yaml` portfolio. 
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs prepare \
-    --bootstrap http://example.com:30960/bootstrap \
-    --portfolio my_portfolio.yaml \
-    --class dev.galasa.simbank.tests/SimBankIVT \
-    --class dev.galasa.simbank.tests/BasicAccountCreditTest
-```
+    ```shell
+    galasactl runs prepare \
+        --bootstrap http://example.com:30960/bootstrap \
+        --portfolio my_portfolio.yaml \
+        --class dev.galasa.simbank.tests/SimBankIVT \
+        --class dev.galasa.simbank.tests/BasicAccountCreditTest
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs prepare `
-    --bootstrap http://example.com:30960/bootstrap `
-    --portfolio my_portfolio.yaml `
-    --class dev.galasa.simbank.tests/SimBankIVT `
-    --class dev.galasa.simbank.tests/BasicAccountCreditTest
-```
+    ```powershell
+    galasactl runs prepare `
+        --bootstrap http://example.com:30960/bootstrap `
+        --portfolio my_portfolio.yaml `
+        --class dev.galasa.simbank.tests/SimBankIVT `
+        --class dev.galasa.simbank.tests/BasicAccountCreditTest
+    ```
 
 
 ### Setting test-specific overrides
@@ -96,29 +96,29 @@ The following example creates a portfolio called `my_portfolio.yaml` that contai
 
 All the tests in the `my_portfolio.yaml` portfolio will run on the z/OS LPAR `MYLPAR` in the `MYPLEX` cluster when the `galasactl runs submit --portfolio my_portfolio.yaml` command is run, regardless of the LPAR and cluster that is specified in the CPS properties file.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs prepare \
-    --bootstrap http://example.com:30960/bootstrap \
-    --portfolio my_portfolio.yaml \
-    --stream BestSoFar \
-    --package dev.galasa.simbank.tests \
-    --override zos.default.lpar=MYLPAR \
-    --override zos.default.cluster=MYPLEX
-```
+    ```shell
+    galasactl runs prepare \
+        --bootstrap http://example.com:30960/bootstrap \
+        --portfolio my_portfolio.yaml \
+        --stream BestSoFar \
+        --package dev.galasa.simbank.tests \
+        --override zos.default.lpar=MYLPAR \
+        --override zos.default.cluster=MYPLEX
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs prepare `
-    --bootstrap http://example.com:30960/bootstrap `
-    --portfolio my_portfolio.yaml `
-    --stream BestSoFar `
-    --package dev.galasa.simbank.tests `
-    --override zos.default.lpar=MYLPAR `
-    --override zos.default.cluster=MYPLEX
-```
+    ```powershell
+    galasactl runs prepare `
+        --bootstrap http://example.com:30960/bootstrap `
+        --portfolio my_portfolio.yaml `
+        --stream BestSoFar `
+        --package dev.galasa.simbank.tests `
+        --override zos.default.lpar=MYLPAR `
+        --override zos.default.cluster=MYPLEX
+    ```
 
 
 ### Building a portfolio over multiple selections and overrides
@@ -129,44 +129,44 @@ In the following example, the first command creates a portfolio called `my_portf
 
 All the tests in the `my_portfolio.yaml` portfolio from the `dev.galasa.simbank.tests` package will run on the z/OS LPAR `MYLPAR` in the `MYPLEX` cluster. The tests from the `dev.galasa.simbank.tests.two` package will run on the z/OS LPAR `MYLPAR2` in the `MYPLEX` cluster when the `galasactl runs submit --portfolio my_portfolio.yaml` command is run.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs prepare \
-    --bootstrap http://example.com:30960/bootstrap \
-    --portfolio my_portfolio.yaml \
-    --stream BestSoFar \
-    --package dev.galasa.simbank.tests \
-    --override zos.default.lpar=MYLPAR \
-    --override zos.default.cluster=MYPLEX \
-galasactl runs prepare \
-    --bootstrap http://example.com:30960/bootstrap \
-    --portfolio my_portfolio.yaml \
-    --append \
-    --stream BestSoFar \
-    --package dev.galasa.simbank.tests.two \
-    --override zos.default.lpar=MYLPAR2 \
-    --override zos.default.cluster=MYPLEX
-```
+    ```shell
+    galasactl runs prepare \
+        --bootstrap http://example.com:30960/bootstrap \
+        --portfolio my_portfolio.yaml \
+        --stream BestSoFar \
+        --package dev.galasa.simbank.tests \
+        --override zos.default.lpar=MYLPAR \
+        --override zos.default.cluster=MYPLEX \
+    galasactl runs prepare \
+        --bootstrap http://example.com:30960/bootstrap \
+        --portfolio my_portfolio.yaml \
+        --append \
+        --stream BestSoFar \
+        --package dev.galasa.simbank.tests.two \
+        --override zos.default.lpar=MYLPAR2 \
+        --override zos.default.cluster=MYPLEX
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs prepare `
-    --bootstrap http://example.com:30960/bootstrap `
-    --portfolio my_portfolio.yaml `
-    --stream BestSoFar `
-    --package dev.galasa.simbank.tests `
-    --override zos.default.lpar=MYLPAR `
-    --override zos.default.cluster=MYPLEX `
-galasactl runs prepare `
-    --bootstrap http://example.com:30960/bootstrap `
-    --portfolio my_portfolio.yaml `
-    --append `
-    --stream BestSoFar `
-    --package dev.galasa.simbank.tests.two `
-    --override zos.default.lpar=MYLPAR2 `
-    --override zos.default.cluster=MYPLEX
-```
+    ```powershell
+    galasactl runs prepare `
+        --bootstrap http://example.com:30960/bootstrap `
+        --portfolio my_portfolio.yaml `
+        --stream BestSoFar `
+        --package dev.galasa.simbank.tests `
+        --override zos.default.lpar=MYLPAR `
+        --override zos.default.cluster=MYPLEX `
+    galasactl runs prepare `
+        --bootstrap http://example.com:30960/bootstrap `
+        --portfolio my_portfolio.yaml `
+        --append `
+        --stream BestSoFar `
+        --package dev.galasa.simbank.tests.two `
+        --override zos.default.lpar=MYLPAR2 `
+        --override zos.default.cluster=MYPLEX
+    ```
 
 You can now run the tests in your portfolio by using the `runs submit` command.

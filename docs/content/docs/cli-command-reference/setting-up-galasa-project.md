@@ -63,31 +63,31 @@ This setup is designed as an example of how to create a project structure that m
 
 The following syntax examples assume a banking application is being tested. The banking application contains functionality that deals with `payee` and `account` object types, both of which can be manipulated.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl project create \
-        --package dev.galasa.example.banking \
-      	--features payee,account \
-   		--force \
-		--obr \
-		--log - \
-		--maven \
-		--gradle
-```
+    ```shell
+    galasactl project create \
+            --package dev.galasa.example.banking \
+            --features payee,account \
+            --force \
+            --obr \
+            --log - \
+            --maven \
+            --gradle
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl project create `
-        --package dev.galasa.example.banking `
-      	--features payee,account `
-   		--force `
-		--obr `
-		--log - `
-		--maven `
-		--gradle
-```
+    ```powershell
+    galasactl project create `
+            --package dev.galasa.example.banking `
+            --features payee,account `
+            --force `
+            --obr `
+            --log - `
+            --maven `
+            --gradle
+    ```
 
 where:
 

@@ -60,19 +60,19 @@ This is the default format. Use this format to get a quick, high-level update on
 
 The following example command returns test status in a summary format for tests that were requested by the user name _bobsmith_, and that ran between two weeks ago and one week ago:
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs get --bootstrap http://example.com:30960/bootstrap \ 
---requestor bobsmith --age 2w:1w
-```
+    ```shell
+    galasactl runs get --bootstrap http://example.com:30960/bootstrap \ 
+    --requestor bobsmith --age 2w:1w
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs get --bootstrap http://example.com:30960/bootstrap ` 
---requestor bobsmith --age 2w:1w
-``` 
+    ```powershell
+    galasactl runs get --bootstrap http://example.com:30960/bootstrap ` 
+    --requestor bobsmith --age 2w:1w
+    ``` 
 
 where:
 
@@ -103,19 +103,19 @@ Use this format to drill down to get more details on a particular test run. The 
 
 The following example command returns test status in a details format:
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-$galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap \
---format details 
-``` 
+    ```shell
+    $galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap \
+    --format details 
+    ``` 
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap `
---format details 
-``` 
+    ```powershell
+    galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap `
+    --format details 
+    ``` 
 
 where:
 - `--name` is the name of the test run 
@@ -151,19 +151,19 @@ Use this format if you want to parse test results using scripts. The raw format 
 
 The following example command returns test status in a raw format:
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap \
---format raw
-``` 
+    ```shell
+    galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap \
+    --format raw
+    ``` 
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap `
---format raw
-``` 
+    ```powershell
+    galasactl runs get --name U456 --bootstrap http://example.com:30960/bootstrap `
+    --format raw
+    ``` 
 
 where:
 - `--name` is the name of the test run 
@@ -182,19 +182,19 @@ U456|finished|Passed|2023-05-04T10:55:29.545323Z|2023-05-05T06:00:14.496953Z|202
 
 Use the following example command to return test information for test runs that ran the previous day and have a result of either _Failed_ or _EnvFail_.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs get --age 1d --result failed,envfail \
---bootstrap http://example.com:30960/bootstrap
-``` 
+    ```shell
+    galasactl runs get --age 1d --result failed,envfail \
+    --bootstrap http://example.com:30960/bootstrap
+    ``` 
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs get --age 1d --result failed,envfail `
---bootstrap http://example.com:30960/bootstrap
-``` 
+    ```powershell
+    galasactl runs get --age 1d --result failed,envfail `
+    --bootstrap http://example.com:30960/bootstrap
+    ``` 
 
 Results are returned on the terminal in the following example format:
 

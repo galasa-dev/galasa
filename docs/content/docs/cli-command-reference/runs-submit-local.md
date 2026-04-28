@@ -14,7 +14,7 @@ Local runs do not benefit from the features that are provided when running tests
 
 ## Working with the `runs submit local` command
 
-To use the `galasactl runs submit local` command, the `JAVA_HOME` environment variable must be set to reference the JVM in which you want the test to run, as described in the [CLI prerequisites online](./cli-prereqs.md) and [CLI prerequisites offline](./zipped-prerequisites.md) documentation. This is because the local java run-time environment is used to launch the test locally. To check that `JAVA_HOME` is set correctly, the tool checks that `$JAVA_HOME/bin/java` exists in Unix or Mac, and `%JAVA_HOME%\bin\java.exe` exists on Windows.
+To use the `galasactl runs submit local` command, the `JAVA_HOME` environment variable must be set to reference the JVM in which you want the test to run, as described in the [Prerequisites](./cli-prereqs.md) documentation. This is because the local java run-time environment is used to launch the test locally. To check that `JAVA_HOME` is set correctly, the tool checks that `$JAVA_HOME/bin/java` exists in Unix or Mac, and `%JAVA_HOME%\bin\java.exe` exists on Windows.
 
 The level of Java must match the supported level of the Galasa version that is being launched. Use the `galasactl --version` command to find the galasactl tool version. We currently support Java version 17 JDK. _Note:_ We do not currently support Java 21 or later.
 
@@ -25,21 +25,21 @@ To view the full list of options that are available, see the [galasactl runs sub
 
 Use the following command to run a Java test in the local JVM.
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs submit local --log - \
---obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr \
---class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
-```
+    ```shell
+    galasactl runs submit local --log - \
+    --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr \
+    --class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
+    ```
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs submit local --log - `
---obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr `
---class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
-```
+    ```powershell
+    galasactl runs submit local --log - `
+    --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr `
+    --class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
+    ```
 
 where:
 
@@ -52,20 +52,20 @@ where:
 
 Use the following command to run a Gherkin test in the local JVM. Note that the `--gherkin` flag is specified and that the `--obr` or `--class` flags are not required. 
 
-On Mac or Unix:
+=== "Linux or macOS"
 
-```shell
-galasactl runs submit local --log - \
---gherkin file:///path/to/gherkin/file.feature
-```
+    ```shell
+    galasactl runs submit local --log - \
+    --gherkin file:///path/to/gherkin/file.feature
+    ```
 
 
-On Windows (Powershell):
+=== "Windows (Powershell)"
 
-```powershell
-galasactl runs submit local --log - `   
---gherkin file:///path/to/gherkin/file.feature
-```
+    ```powershell
+    galasactl runs submit local --log - `   
+    --gherkin file:///path/to/gherkin/file.feature
+    ```
 
 where:
 
@@ -91,7 +91,7 @@ Use `Ctrl-C` to stop the Galasa CLI, ending all test activity. Note that this mi
 
 ## Troubleshooting
 
-If you have problems running the command, check that you have installed the correct version of Java installed and that you have set your JAVA_HOME environment variable, as described in the [CLI prerequisites](./cli-prereqs.md) and [CLI prerequisites offline](./zipped-prerequisites.md) documentation. Make sure you have added the Galasa CLI to your PATH and that you have [initialised your local environment](./initialising-home-folder.md) by running the `galasactl local init` command. Ensure that you have created and built the example project, as described in the [Creating a Galasa project](./setting-up-galasa-project.md) documentation. 
+If you have problems running the command, check that you have installed the correct version of Java installed and that you have set your JAVA_HOME environment variable, as described in the [CLI prerequisites](./cli-prereqs.md) documentation. Make sure you have added the Galasa CLI to your PATH and that you have [initialised your local environment](./initialising-home-folder.md) by running the `galasactl local init` command. Ensure that you have created and built the example project, as described in the [Creating a Galasa project](./setting-up-galasa-project.md) documentation. 
 
 
 ## Next steps

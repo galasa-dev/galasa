@@ -170,9 +170,7 @@ nav:
     - Getting started using the Galasa CLI:
       - docs/cli-command-reference/index.md
       - docs/cli-command-reference/cli-prereqs.md
-      - docs/cli-command-reference/zipped-prerequisites.md
       - docs/cli-command-reference/installing-cli-tool.md
-      - docs/cli-command-reference/installing-offline.md
       - docs/cli-command-reference/cli-command-reference-about.md  
       - docs/cli-command-reference/initialising-home-folder.md 
       - docs/cli-command-reference/setting-up-galasa-project.md
@@ -182,15 +180,18 @@ nav:
     - Exploring Galasa SimBank:
       - docs/running-simbank-tests/index.md
       - docs/running-simbank-tests/simbank-cli.md
-      - docs/running-simbank-tests/simbank-cli-offline.md
       - docs/running-simbank-tests/running-simbank-tests-cli.md
-      - docs/running-simbank-tests/running-simbank-tests-cli-offline.md 
       - docs/running-simbank-tests/simbank-IVT.md
       - docs/running-simbank-tests/basic-account-credit-test.md
       - docs/running-simbank-tests/provisioned-account-credit-tests.md
       - docs/running-simbank-tests/batch-accounts-open-test.md
       - docs/running-simbank-tests/web-app-integration-test.md
-      - docs/running-simbank-tests/writing-a-simbank-test.md
+    - Using Galasa offline:
+      - docs/using-galasa-offline/index.md
+      - docs/using-galasa-offline/installing-offline.md
+      - Simbank:
+        - docs/using-galasa-offline/simbank-cli-offline.md
+        - docs/using-galasa-offline/running-simbank-tests-cli-offline.md 
     - Writing your own independent Galasa tests:
       - docs/writing-own-tests/index.md
       - docs/writing-own-tests/writing-test-classes.md

@@ -2,7 +2,7 @@
 title: "Galasa CLI commands"
 ---
 
-Galasa CLI commands start with `galasactl`. Example commands are provided for running on Mac or Unix, and Windows Powershell. The Windows Powershell uses the backtick (`) for line continuation characters. If you are using Windows command-shell, the line continuation character is the caret (^). 
+Galasa CLI commands start with `galasactl`. Example commands are provided for running on Linux, macOS, and Windows Powershell. The Windows Powershell uses the backtick (`) for line continuation characters. If you are using Windows command-shell, the line continuation character is the caret (^). 
 
 You can view the Galasa CLI command syntax, including parameter descriptions, in the [CLI reference](../reference/cli-syntax/galasactl.md).
 

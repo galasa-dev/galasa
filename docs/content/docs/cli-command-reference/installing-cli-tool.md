@@ -1,82 +1,116 @@
 ---
-title: "Installing the Galasa CLI online"
+title: "Installing the Galasa CLI"
 ---
 
+Download and install the Galasa CLI tool from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} in GitHub.
 
-This section provides details about how to download and install the binary file for the Galasa CLI from the Galasa CLI respository in GitHub to your local machine, and tells you a little bit about getting started with the Galasa CLI commands. 
+## Prerequisites
 
+Before installing, ensure you have the required software installed. See the [Prerequisites](./cli-prereqs.md) documentation for details.
 
-## Downloading the Galasa CLI
+## Available downloads
 
-The following versions of the Galasa CLI are available to download for different operating systems and machine architectures:
+The following versions of the Galasa CLI are available for different operating systems and architectures:
 
-| Operating system  |  Architecture  | Download  |
-| :---- | :---- | :-------- | 
-| MacOSX | x86_64 | galasactl-darwin-x86_64 |
-| MacOSX | arm64 | galasactl-darwin-arm64 |
-| Linux | x86_64 | galasactl-linux-x86_64 | 
-| Linux arm64 | arm64 | galasactl-linux-arm64 | 
-| zLinux  | s390x| galasactl-linux-s390x | 
-| Windows | x86_64| galasactl-windows-x86_64.exe | 
+| Operating system | Architecture | Download                                                                                                                      |
+| :--------------- | :----------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| MacOSX           | x86_64       | [galasactl-darwin-x86_64](https://github.com/galasa-dev/galasa/releases/latest/download/galasactl-darwin-x86_64){target="_blank"}           |
+| MacOSX           | arm64        | [galasactl-darwin-arm64](https://github.com/galasa-dev/galasa/releases/latest/download/galasactl-darwin-arm64){target="_blank"}             |
+| Linux            | x86_64       | [galasactl-linux-x86_64](https://github.com/galasa-dev/galasa/releases/latest/download/galasactl-linux-x86_64){target="_blank"}             |
+| Linux arm64      | arm64        | [galasactl-linux-arm64](https://github.com/galasa-dev/galasa/releases/latest/download/galasactl-linux-arm64){target="_blank"}               |
+| zLinux           | s390x        | [galasactl-linux-s390x](https://github.com/galasa-dev/galasa/releases/latest/download/galasactl-linux-s390x){target="_blank"}               |
+| Windows          | x86_64       | [galasactl-windows-x86_64.exe](https://github.com/galasa-dev/galasa/releases/latest/download/galasactl-windows-x86_64.exe){target="_blank"} |
 
+## Installation
 
-## Installing the Galasa CLI
+Choose your installation method:
 
-Complete the following steps to install Galasa for using the command line:
+=== "macOS (Homebrew)"
 
-On Mac:
+    1. Connect Homebrew to the Galasa tap:
+       ```bash
+       brew tap galasa-dev/tap
+       ```
+    
+    2. Install the latest version:
+       ```bash
+       brew install galasactl
+       ```
+       
+       Or install a specific version (e.g., 0.48.0):
+       ```bash
+       brew install galasactl@0.48.0
+       ```
+    
+    3. Check available versions:
+       ```bash
+       brew tap-info galasa-dev/tap --json
+       ```
+       Look in the `"cask_tokens"` section of the output.
 
-1. On a Mac, the `homebrew` tool can be used to install the `galasactl` tool. Or you can follow the Unix instructions
-2. Connect `homebrew` to the 'tap' it can use: `brew tap galasa-dev/tap`
-3. Then you have a choice. Either install the latest version fo the `galasactl` tool, or install a specific version.
-    1. To install the latest version of `galasactl`: 
-    `brew install --no-quarantine galasactl`
-    2. To install a specific version of `galasactl` (version 0.48.0 for example): 
-    `brew install --no-quarantine galasactl@0.48.0`
-    Note: You can check to see what versions are available using this:
-    `brew tap-info galasa-dev/tap --json` and look in the `"cask_tokens"` part of the json file.
+    4. Remove quarantine attribute:
+       ```bash
+       xattr -dr com.apple.quarantine galasactl
+       ```
 
-On Mac or Unix:
+=== "Linux or macOS (manual download)"
 
-1. Find out the architecture of your machine by typing the command `uname -m` into your terminal.
-2. Download the appropriate binary of the Galasa CLI for your machine architecture from the [Galasa CLI repository](https://github.com/galasa-dev/galasa/releases){target="_blank"} in GitHub and re-name it to `galasactl`.
-3. Add the Galasa CLI to your PATH to enable you to run CLI commands from anywhere on your file system without having to specify the absolute path. To set the path permanently, you need add the Galasa CLI path to your shell's initialization file. For example, if you downloaded the galasactl executable to a folder called `~/tools` in your home directory, you need to add `~/tools` to the list of directories that your shell searches through when you enter a command. You can do this by adding the line ```export PATH=$PATH:$HOME/tools``` to your shell’s initialization file (for example `~/.bashrc` or `~/.zshrc`). 
-4. Set execute permission on the binary by running the `chmod +x galasactl` command in the directory containing `galasactl`.If you are using a Mac, you can set permission to open the Galasa CLI tool by running the `xattr -dr com.apple.quarantine galasactl` command in the directory containing `galasactl`. 
+    1. Find your machine architecture:
+       ```bash
+       uname -m
+       ```
+    
+    2. Download the appropriate binary from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} and rename it to `galasactl`
+    
+    3. Add the Galasa CLI to your PATH. For example, if you downloaded galasactl to `~/tools`, add this line to your shell's initialization file (`~/.bashrc` or `~/.zshrc`):
+       ```bash
+       export PATH=$PATH:$HOME/tools
+       ```
+    
+    4. Set execute permission:
+       ```bash
+       chmod +x galasactl
+       ```
+    
+    5. **macOS only**: Remove quarantine attribute:
+       ```bash
+       xattr -dr com.apple.quarantine galasactl
+       ```
 
-You can now run the Galasa CLI tool from any directory in your file system without having to specify the absolute path.
+=== "Windows (PowerShell)"
 
+    1. Download the Windows executable from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} and rename it to `galasactl.exe`
+    
+    2. Add the directory containing `galasactl.exe` to your PATH environment variable through System Properties → Environment Variables
+    
+    3. Open a command prompt and verify:
+       ```powershell
+       galasactl --version
+       ```
 
-On Windows (Powershell):
+You can now run the Galasa CLI from any directory without specifying the full path.
 
-1. Download the binary and re-name it to `galasactl`.
-2. Add the `galasactl` executable to your PATH to enable the tool to be called from the command line without having to specify the path to the directory in which it is stored. You can edit the PATH variable in your System environment variables to add the path to the directory in which you downloaded the `galasactl` executable.
-3. Open a command prompt and type `start galasactl.exe`.
+## Upgrading the Galasa CLI
 
-You can now run the Galasa CLI tool from any directory in your file system without having to specify the absolute path.
+=== "macOS (Homebrew)"
 
+    Update to the latest version:
+    ```bash
+    brew update
+    brew upgrade galasactl
+    ```
+    
+    The `brew update` command refreshes Homebrew's catalog, and `brew upgrade galasactl` updates the CLI.
 
-## Upgrading the Galasa CLI (on Mac)
+=== "Linux or macOS (manual)"
 
-To update your CLI to the latest version, run the following commands:
+    Download the latest binary from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} and replace your existing `galasactl` binary.
 
-```shell
-brew update 
-brew upgrade galasactl
-```
+=== "Windows"
 
-The ```brew update``` command refreshes Homebrew's internal catalog to the latest versions, and `brew upgrade galasactl` updates the CLI itself.
-
+    Download the latest executable from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} and replace your existing `galasactl.exe` file.
 
 ## Next steps
 
-
-Find out more about the Galasa CLI commands by reading the [Galasa CLI commands](./cli-command-reference-about.md) documentation.
-
-Move on to the [Initialising your local environment](./initialising-home-folder.md) documentation to help you to set up some basic file structures and files in your home folder so that you can start using Galasa.
-
-
-
-
-
-
-
+1. Learn about available commands in the [Galasa CLI commands](./cli-command-reference-about.md) documentation
+2. [Initialize your local environment](./initialising-home-folder.md) to set up the necessary file structures

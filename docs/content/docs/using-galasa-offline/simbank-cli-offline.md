@@ -1,5 +1,5 @@
 ---
-title: "Exploring Galasa SimBank offline"
+title: "Launching the SimBank application offline"
 ---
 
 SimBank applications and a set of sample SimBank tests are located in the `maven` directory of the `isolated.zip` downloadable file. 
@@ -47,19 +47,19 @@ When you launch SimBank, its banking application listens on port 2023 for incomi
 1. With the *Galasa SimBank* component still running, configure your 3270 terminal emulator to access port *2023* of *localhost* (or IP address 127.0.0.1 if the *localhost* alias has not been set up) via the Telnet protocol. No SSL configuration is required.
 1. Connect to the listening Telnet service with your 3270 emulator and review the logon screen:
 
-    ![SimBank logon screen](./simbank-logon.png)
+    ![SimBank logon screen](../running-simbank-tests/simbank-logon.png)
 
 1. Ensure that the cursor is in the `Userid` field - if it is not, use the TAB key to position it:
 
-    ![TAB to the userid field](./simbank-userid.png) 
+    ![TAB to the userid field](../running-simbank-tests/simbank-userid.png) 
 
 1. Enter the userid `IBMUSER`
 
-    ![Enter your userid](./simbank-ibmuser.png) 
+    ![Enter your userid](../running-simbank-tests/simbank-ibmuser.png) 
 
 1. Press TAB to move the cursor into the `Password` field, type the password `SYS1` and press your 3270 terminal emulator's ENTER key to logon and transfer to the SimBank main menu:
 
-    ![Banktest home screen](./simbank-banktest.png) 
+    ![Banktest home screen](../running-simbank-tests/simbank-banktest.png) 
 
     Depending on your 3270 terminal emulator, its ENTER key may not be mapped to the physical ENTER key on your computer. For example,
     on PCOMM, by default, the ENTER key is mapped to the host machine's right CTRL key. If you are unsure about this, review
@@ -67,12 +67,12 @@ When you launch SimBank, its banking application listens on port 2023 for incomi
 
 1. Press PF1:
 
-    ![CICS home screen](./simbank-cics.png) 
+    ![CICS home screen](../running-simbank-tests/simbank-cics.png) 
 
 1. Press your 3270 terminal emulator's CLEAR SCREEN key.
 1. Enter the transaction name `BANK` and press your 3270 terminal emulator's ENTER key once more to get to the SimBank main menu:
 
-    ![Main banking menu](./simbank-mainmenu.png) 
+    ![Main banking menu](../running-simbank-tests/simbank-mainmenu.png) 
 
 As you have been progressing through this process, selected events are logged to your terminal:
 
@@ -94,7 +94,7 @@ This is an example of log output that can be useful when running tests.
 1. Press TAB until the cursor is in the `Account Number` field, enter `123456789` and press ENTER. 
     The account details are populated and it is apparent that account number 123456789 is 56.72 in credit.
 
-    ![Account balance](./simbank-balance.png)
+    ![Account balance](../running-simbank-tests/simbank-balance.png)
 
 1. Press PF3 to return to the account menu screen.
 
@@ -105,7 +105,7 @@ This is an example of log output that can be useful when running tests.
 1. Press TAB until the cursor is in the `Transfer to Account Number` field and enter `987654321`.
 1. Press TAB until the cursor is in the `Transfer Amount` field and enter `1`
 
-    ![Inter-account transfer](./simbank-transfer.png)
+    ![Inter-account transfer](../running-simbank-tests/simbank-transfer.png)
 
 1. Press ENTER - a `Transfer Successful` message appears. A log message is also written to the terminal:
 
@@ -118,5 +118,5 @@ Press PF3 and once again browse the 123456789 account as described previously to
 Note that SimBank also offers a web services interface on port 2080, and although it is not exercised in this topic, it *is* used by two of the provided tests - `BasicAccountCreditTest.java` and `ProvisionedAccountCreditTests.java`.
 
 
-Having explored SimBank manually, it's a good time to run some or all of a small collection of automated tests that are provided with SimBank itself - to start, choose [Running the supplied SimBank tests offline](./running-simbank-tests-cli-offline.md).
+Having explored SimBank manually, it's a good time to run some or all of a small collection of automated tests that are provided with SimBank itself - to start, choose [Running the sample SimBank tests offline](./running-simbank-tests-cli-offline.md).
 
