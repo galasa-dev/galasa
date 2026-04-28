@@ -12,10 +12,6 @@ The Galasa CLI (galasactl) is a command-line tool that helps you manage and run 
 - Creating and running Galasa test projects
 - Viewing test results
 
-## Getting started
-
-Start by installing the necessary software prerequisites, then download and install the Galasa CLI from the [Galasa repository](https://github.com/galasa-dev/galasa/releases){target="_blank"} on GitHub. Once installed, you can initialize your local environment and begin creating, building, and running tests.
-
 ## Next steps
 
 1. Review the [Prerequisites](./cli-prereqs.md) to ensure you have the required software installed
@@ -23,7 +19,6 @@ Start by installing the necessary software prerequisites, then download and inst
 3. [Initialize your local environment](./initialising-home-folder.md) to prepare for running tests
 4. Create a Galasa project by following [Creating a Galasa project using the command line](./setting-up-galasa-project.md)
 5. Run your first test by following [Running a Galasa test using the command line](./runs-submit-local.md)
-
 
 ## Additional resources
 
