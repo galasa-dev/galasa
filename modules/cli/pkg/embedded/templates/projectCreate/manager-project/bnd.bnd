@@ -1,0 +1,15 @@
+Bundle-Name: {{.BundleName}}
+Bundle-SymbolicName: {{.BundleName}}
+Bundle-Version: 0.0.1.qualifier
+Export-Package: \
+    {{.BundleName}},\
+    {{.BundleName}}.spi
+Import-Package: \
+    dev.galasa,\
+    dev.galasa.framework.spi,\
+    org.osgi.service.component.annotations,\
+    org.apache.commons.logging,\
+    javax.validation.constraints,\
+    *
+-includeresource: \
+    META-INF/services=src/main/resources/META-INF/services

@@ -1,0 +1,53 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'biz.aQute.bnd.builder' version '7.0.0'
+}
+
+group = '{{.Coordinates.GroupId}}'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+    {{if .IsDevelopment}}
+    maven {
+        url 'https://development.galasa.dev/main/maven-repo/obr'
+    }
+    {{else}}
+    maven {
+        url 'https://repo.galasa.dev/repository/maven-release'
+    }
+    {{end}}
+}
+
+dependencies {
+    // Galasa Framework Dependencies
+    compileOnly 'dev.galasa:dev.galasa:{{.GalasaVersion}}'
+    compileOnly 'dev.galasa:dev.galasa.framework:{{.GalasaVersion}}'
+    
+    // Logging
+    compileOnly 'commons-logging:commons-logging:1.2'
+    
+    // OSGi
+    compileOnly 'org.osgi:org.osgi.service.component.annotations:1.3.0'
+    
+    // Validation
+    compileOnly 'javax.validation:validation-api:2.0.1.Final'
+    
+    // Test Dependencies
+    testImplementation 'junit:junit:4.13.2'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnit()
+}
+
