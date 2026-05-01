@@ -1043,7 +1043,7 @@ func assertManagerProjectCreated(t *testing.T, mockFileSystem spi.FileSystem, pa
 	assert.True(t, srcMainJavaDirExists, "Manager src/main/java directory should exist")
 
 	// Check key manager files exist
-	capitalizedManagerName := strings.Title(managerName)
+	capitalizedManagerName := capitalizeFirst(managerName)
 
 	// Public API files
 	assertJavaFileExists(t, mockFileSystem, srcMainJavaDir+"/"+capitalizedManagerName+"Resource.java", "Manager annotation")
