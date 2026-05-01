@@ -6,31 +6,20 @@
 package {{.PackageName}};
 
 /**
- * I{{.CapitalizedManagerName}}Resource Interface
- * 
- * This interface represents a {{.CapitalizedManagerName}} resource that can be injected into test classes.
- * Implement methods here that tests will use to interact with the resource.
- * 
- * Example methods you might add:
- * <pre>
- * String getResourceId();
- * void performAction() throws {{.CapitalizedManagerName}}ManagerException;
- * </pre>
+ * I{{.CapitalizedManagerName}}Resource
+ *
+ * Resource interface injected into test classes via @{{.CapitalizedManagerName}}Resource annotation.
+ * Add methods here that tests will use to interact with the resource.
  */
 public interface I{{.CapitalizedManagerName}}Resource {
     
     /**
      * Get the tag for this resource instance
-     * 
+     *
      * @return the resource tag
      */
     String getTag();
     
-    /**
-     * Example method - replace with your own resource-specific methods
-     * 
-     * @return a sample value
-     */
-    String getSampleValue();
+    // TODO: Add resource methods here
 }
 
