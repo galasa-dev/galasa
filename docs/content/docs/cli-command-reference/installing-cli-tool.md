@@ -4,6 +4,9 @@ title: "Installing the Galasa CLI"
 
 Download and install the Galasa CLI tool from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} in GitHub.
 
+!!! info "Installing Galasa offline"
+    If you would like to install Galasa in environments where internet access is restricted or unavailable, see [Installing Galasa offline](../using-galasa-offline/installing-offline.md) for instructions on using the offline distribution.
+
 ## Prerequisites
 
 Before installing, ensure you have the required software installed. See the [Prerequisites](./cli-prereqs.md) documentation for details.

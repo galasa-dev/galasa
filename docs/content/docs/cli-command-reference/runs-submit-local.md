@@ -4,26 +4,30 @@ title: "Running a test locally"
 
 # Running tests locally using the command line
 
-The `galasactl runs submit local` command submits tests to run within the local JVM, rather than dynamically deploying the tests to a remotely deployed Galasa Ecosystem. 
+The `galasactl runs submit local` command runs tests within your local JVM (Java Virtual Machine), rather than deploying them to a remote Galasa Ecosystem.
 
-You can submit a [Java test](#working-with-the-runs-submit-local-command) and a [Gherkin test](#running-a-gherkin-test-with-the-runs-submit-local-command) by using the command but must to specify different flags on the command line for each test type. Read on to find out more about how to submit each type of test on your local machine.
+You can run both [Java tests](#running-a-java-test-with-the-runs-submit-local-command) and [Gherkin tests](#running-a-gherkin-test-with-the-runs-submit-local-command) using this command, but each test type requires different command-line flags.
 
-Running tests locally should only be used during test development to verify that the test is behaving as expected. 
-Local runs do not benefit from the features that are provided when running tests within a Galasa Ecosystem. For example, resources are not cleaned-up in the event of a failure and scaling capabilities are limited by workstation resources. 
+**When to use local test runs:** Use local test runs during test development to verify that your test behaves as expected. Local runs do not provide the features available when running tests in a Galasa Ecosystem, such as automatic resource cleanup on failure and scaling capabilities.
 
 
-## Working with the `runs submit local` command
+## Prerequisites for the `runs submit local` command
 
-To use the `galasactl runs submit local` command, the `JAVA_HOME` environment variable must be set to reference the JVM in which you want the test to run, as described in the [Prerequisites](./cli-prereqs.md) documentation. This is because the local java run-time environment is used to launch the test locally. To check that `JAVA_HOME` is set correctly, the tool checks that `$JAVA_HOME/bin/java` exists in Unix or Mac, and `%JAVA_HOME%\bin\java.exe` exists on Windows.
+Before running tests locally, you must set the `JAVA_HOME` environment variable to point to your JVM installation. See the [Prerequisites](./cli-prereqs.md) documentation for details.
 
-The level of Java must match the supported level of the Galasa version that is being launched. Use the `galasactl --version` command to find the galasactl tool version. We currently support Java version 17 JDK. _Note:_ We do not currently support Java 21 or later.
+The tool verifies that `JAVA_HOME` is set correctly by checking for:
 
-To view the full list of options that are available, see the [galasactl runs submit local](../reference/cli-syntax/galasactl_runs_submit_local.md) command reference.
+- `$JAVA_HOME/bin/java` on Linux or macOS
+- `%JAVA_HOME%\bin\java.exe` on Windows
+
+**Java version requirements:** Your Java version must match the supported level for your Galasa version. Use `galasactl --version` to check your galasactl version. Currently, Galasa supports Java 17 JDK. Java 21 and later versions are not currently supported.
+
+For all available command options, see the [galasactl runs submit local](../reference/cli-syntax/galasactl_runs_submit_local.md) reference.
 
 
 ## Running a Java test with the `runs submit local` command
 
-Use the following command to run a Java test in the local JVM.
+Use this command to run a Java test in a local JVM:
 
 === "Linux or macOS"
 
@@ -41,16 +45,35 @@ Use the following command to run a Java test in the local JVM.
     --class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
     ```
 
-where:
+**Parameters explained:**
 
-- `--log` specifies that debugging information is directed somewhere, and the `-` means that it is sent to the console (stderr).
-- `--obr` specifies where the  CLI tool can find an OBR which refers to the bundle where the tests are stored. When running locally, all tests must exist in the OBR (or OBRs) that are passed to the tool. The `--obr` parameter specifies the Maven co-ordinates of the obr jar file, in the format `mvn:groupId/artifactId/version/classifier`.
-- `--class` specifies which test class to run. The string is in the format of `<osgi-bundle-id>/<fully-qualified-java-class>`. All test methods within the class are run. Use multiple flags to test multiple classes.
+- `--log -`: Sends debugging information to the console (stderr). The `-` directs output to the console.
 
+- `--obr`: Specifies where the CLI tool can find an OBR (OSGi Bundle Repository) that references the bundle containing your tests. When running locally, all tests must exist in the OBR (or OBRs) passed to the tool. The value uses Maven coordinates format: `mvn:groupId/artifactId/version/classifier`.
+
+- `--class`: Specifies which test class to run. Format: `<osgi-bundle-id>/<fully-qualified-java-class>`. All test methods within the class are executed. Use multiple `--class` flags to run multiple test classes.
+
+??? info "Overriding the default local Maven repository path"
+
+    Tests require compiled artifacts hosted in a Maven repository. These artifacts must be bundled as OSGi bundles. When you build a Galasa project locally, the built artifacts are placed in `.m2/` in your user home directory by default.
+
+    If you want to use a different location for your local Maven repository, specify the path using the `--localMaven` flag on the `galasactl runs submit local` command. This tells the CLI tool where to load Galasa bundles from on your local file system.
+
+    The path must be in URL format:
+
+    - Linux/macOS: `file:///Users/myuserid/mylocalrepository`
+    - Windows: `file:///C:/Users/myuserid/mylocalrepository`
+
+    **Important:** The repository referenced by `--localMaven` must contain all required OBRs (OSGi Bundle Repositories):
+
+    - Test OBRs
+    - Manager OBRs
+
+    Galasa uses OBRs to locate tests and all required Managers in the specified Maven repository.
 
 ## Running a Gherkin test with the `runs submit local` command
 
-Use the following command to run a Gherkin test in the local JVM. Note that the `--gherkin` flag is specified and that the `--obr` or `--class` flags are not required. 
+Use this command to run a Gherkin test in a local JVM. Note that the `--gherkin` flag is used instead of `--obr` or `--class` flags.
 
 === "Linux or macOS"
 
@@ -67,34 +90,48 @@ Use the following command to run a Gherkin test in the local JVM. Note that the 
     --gherkin file:///path/to/gherkin/file.feature
     ```
 
-where:
+**Parameters explained:**
 
-- `--log` specifies that debugging information is directed somewhere, and the `-` means that it is sent to the console (stderr).
-- `--gherkin` specifies the path where the  CLI tool can find the Gherkin file containing the Gherkin tests. The path must be specified in a URL form, ending in a `.feature` extension. For example,`file:///Users/myuserid/gherkin/MyGherkinFile.feature` or `file:///C:/Users/myuserid/gherkin/MyGherkinFile.feature`.
+- `--log -`: Sends debugging information to the console (stderr).
 
-For more information about the Gherkin support currently available, see the [Galasa CLI Gherkin documentation](https://github.com/galasa-dev/galasa/blob/main/modules/cli/gherkin-docs.md){target="_blank"}.
+- `--gherkin`: Specifies the path to the Gherkin file containing your tests. The path must be in URL format and end with a `.feature` extension. 
+  
+    Examples:
 
+    - Linux/macOS: `file:///Users/myuserid/gherkin/MyGherkinFile.feature`
+    - Windows: `file:///C:/Users/myuserid/gherkin/MyGherkinFile.feature`
 
-## Overriding the path to the default local Maven repository
-
-In order to run, tests require compiled artifacts to be hosted in a Maven repository. The artifacts must be bundled as an OSGI bundle. When you build a Galasa project locally, the built artifacts are placed by default in the `~/.m2/` repository in your home directory; the default location of the local Maven repository.  
-
-If you want to use a non-standard location for your local Maven repository when running a test locally, rather than the default `~/.m2/` repository, you can specify the path to your non-standard local Maven repository folder when launching a test by setting the  `--localMaven` flag on the `galasactl runs submit local` command. The `--localMaven` parameter tells the CLI tool where Galasa bundles can be loaded from on your local file system. The parameter value must be given in a URL form, for example, `file:///Users/myuserid/mylocalrepository` or `file:///C:/Users/myuserid/mylocalrepository`.
-
-*Note:* the repository that is referenced by the `--localMaven` flag must contain the test, Manager, and Galasa framework OBRs (OSGi Bundle Repositories) that the test needs in order to run. Galasa uses OBRs to locate tests in the specified Maven repository, along with all of the Managers that the test requires.
+For more information about Gherkin support, see the [Galasa CLI Gherkin documentation](https://github.com/galasa-dev/galasa/blob/main/modules/cli/gherkin-docs.md){target="_blank"}.
 
 
 ## Stopping a running test
 
-Use `Ctrl-C` to stop the Galasa CLI, ending all test activity. Note that this might leave the system under test with resources that are not cleaned-up.
+Press `Ctrl-C` to stop the Galasa CLI and end all test activity. 
+
+!!! warning
+
+    This might leave the system under test with resources that are not cleaned up.
+    
+    See [How to clean up resources after local runs exit abnormally](../writing-own-tests/running-resource-cleanup-locally.md) for instructions on cleaning up resources.
 
 
 ## Troubleshooting
 
-If you have problems running the command, check that you have installed the correct version of Java installed and that you have set your JAVA_HOME environment variable, as described in the [CLI prerequisites](./cli-prereqs.md) documentation. Make sure you have added the Galasa CLI to your PATH and that you have [initialised your local environment](./initialising-home-folder.md) by running the `galasactl local init` command. Ensure that you have created and built the example project, as described in the [Creating a Galasa project](./setting-up-galasa-project.md) documentation. 
+If you encounter problems running the command, verify the following:
+
+1. **Java installation:** Check that you have the correct Java version installed and that your `JAVA_HOME` environment variable is set correctly. See [CLI prerequisites](./cli-prereqs.md).
+
+2. **CLI setup:** Ensure that you have added the Galasa CLI to your PATH.
+
+3. **Local environment:** Verify that you have initialized your local environment by running `galasactl local init`. See [Initialising your local environment](./initialising-home-folder.md).
+
+4. **Project setup:** Confirm that you have created and built your example project. See [Creating a Galasa project](./setting-up-galasa-project.md).
 
 
 ## Next steps
 
-Once you have run a test, read the [Debugging a test locally](./runs-local-debug.md) documentation to find out how to connect your Galasa test with a Java debugger on a specified port, and configure your IDE to connect to that same port so that you can run your test locally in debug mode. 
+After running a test, read [Debugging a test locally](./runs-local-debug.md) to learn how to:
 
+- Connect your Galasa test with a Java debugger on a specified port
+- Configure your IDE to connect to that port
+- Run your test locally in debug mode

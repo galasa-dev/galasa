@@ -6,7 +6,7 @@ Writing your own tests (that is, tests within an independent project of your own
 
 - Using the Galasa CLI to create an appropriate project structure.
 
-- Leveraging a collection of organisational principles that will help guide you towards a clean implementation that can eventually be moved into CI/CD and full automation.
+- Leveraging a collection of organisational principles that will help guide you towards a clean and easily migratable implementation should you eventually wish to fully automate within a CI/CD pipeline.
 
 These two strands involve exploiting the features of a well-known and trusted Open Source application called Maven for project setup and dependency management.
 

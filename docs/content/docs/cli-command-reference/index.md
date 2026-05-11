@@ -4,14 +4,6 @@ title: "Getting started using the Galasa CLI"
 
 The Galasa CLI (galasactl) is a command-line tool that helps you manage and run Galasa tests. This section guides you through installing the CLI, setting up your local environment, and running your first tests.
 
-## What you'll learn
-
-- Installing the required software prerequisites
-- Downloading and installing the Galasa CLI
-- Initializing your local Galasa environment
-- Creating and running Galasa test projects
-- Viewing test results
-
 ## Next steps
 
 1. Review the [Prerequisites](./cli-prereqs.md) to ensure you have the required software installed
