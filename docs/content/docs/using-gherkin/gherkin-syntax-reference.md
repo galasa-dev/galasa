@@ -6,7 +6,7 @@ This page provides the formal grammar specification for Gherkin syntax supported
 
 ## Formal grammar
 
-The following [Backus-Naur Form (BNF)](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form) defines the grammar supported by the Galasa Gherkin parser:
+The following Backus-Naur Form (BNF) defines the grammar supported by the Galasa Gherkin parser:
 
 ```bnf
 <feature> ::= 'Feature:' <scenarioPartList> END_OF_FILE
