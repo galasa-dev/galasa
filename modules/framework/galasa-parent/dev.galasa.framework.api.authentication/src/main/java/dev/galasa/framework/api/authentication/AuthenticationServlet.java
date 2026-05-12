@@ -30,6 +30,7 @@ import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.auth.spi.AuthServiceFactory;
 import dev.galasa.framework.auth.spi.IAuthService;
 import dev.galasa.framework.auth.spi.IAuthServiceFactory;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -104,7 +105,14 @@ public class AuthenticationServlet extends BaseServlet {
         addRoute(new AuthRoute(getResponseBuilder(), oidcProvider, authService, env, dssService));
         addRoute(new AuthClientsRoute(getResponseBuilder(), authService, rbacService));
         addRoute(new AuthCallbackRoute(getResponseBuilder(), externalApiServerUrl, dssService));
-        addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, authService, timeService, rbacService, env ));
+
+        try {
+            addRoute(new AuthTokensRoute(getResponseBuilder(), oidcProvider, authService, timeService, rbacService, env,
+                    framework));
+        } catch (ConfigurationPropertyStoreException e) {
+            logger.error("Failed to initialise AuthTokensRoute due to configuration property store error", e);
+            throw new ServletException("Failed to initialise authentication servlet", e);
+        }
 
         addRoute(new AuthTokensDetailsRoute(getResponseBuilder(), authService, rbacService));
 

@@ -35,6 +35,7 @@ public enum Errors {
     ERROR_FAILED_TO_CREATE_TOKEN_DOCUMENT                            (6102,"GAL6102E: Failed to store auth token in the CouchDB tokens database. Cause: {0}"),
     ERROR_FAILED_TO_INITIALISE_AUTH_STORE                            (6103,"GAL6103E: Failed to initialise the Galasa CouchDB auth store. Cause: {0}"),
     ERROR_FAILED_TO_DELETE_TOKEN_DOCUMENT                            (6104,"GAL6104E: Failed to delete auth token from the CouchDB tokens database. Cause: {0}"),
+    ERROR_TOKEN_NOT_FOUND                                            (6105,"GAL6105E: Failed to get auth token from the CouchDB auth store. Cause: {0}"),
 
     ERROR_FAILED_TO_CREATE_USER_DOCUMENT                                (6201,"GAL6201E: Failed to store users token in the CouchDB users database. Cause: {0}"),
     ERROR_FAILED_TO_RETRIEVE_USERS                                      (6202,"GAL6202E: Failed to get user documents from the CouchDB users database. Cause: {0}"),

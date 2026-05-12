@@ -16,13 +16,16 @@ public class MockInternalAuthToken implements IInternalAuthToken {
     private String description;
     private String dexClientId;
     private Instant creationTime;
+    private Instant expiryTime;
     private IInternalUser owner;
 
-    public MockInternalAuthToken(String tokenId, String description, Instant creationTime, IInternalUser owner, String dexClientId) {
+    public MockInternalAuthToken(String tokenId, String description, Instant creationTime, Instant expiryTime,
+            IInternalUser owner, String dexClientId) {
         this.tokenId = tokenId;
         this.description = description;
         this.dexClientId = dexClientId;
         this.creationTime = creationTime;
+        this.expiryTime = expiryTime;
         this.owner = owner;
     }
 
@@ -44,6 +47,11 @@ public class MockInternalAuthToken implements IInternalAuthToken {
     @Override
     public Instant getCreationTime() {
         return creationTime;
+    }
+
+    @Override
+    public Instant getExpiryTime() {
+        return expiryTime;
     }
 
     @Override

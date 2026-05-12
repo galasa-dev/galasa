@@ -9,6 +9,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/galasa-dev/cli/pkg/api"
 	"github.com/galasa-dev/cli/pkg/embedded"
@@ -17,6 +18,8 @@ import (
 	"github.com/galasa-dev/cli/pkg/spi"
 )
 
+const DEFAULT_TOKEN_EXPIRY_WARNING_DAYS = 14
+
 type authenticatorImpl struct {
 	apiServerUrl string
 	fileSystem   spi.FileSystem
@@ -24,6 +27,7 @@ type authenticatorImpl struct {
 	timeService  spi.TimeService
 	env          spi.Environment
 	cache        JwtCache
+	console      spi.Console
 }
 
 func NewAuthenticator(
@@ -33,6 +37,7 @@ func NewAuthenticator(
 	timeService spi.TimeService,
 	env spi.Environment,
 	jwtCache JwtCache,
+	console spi.Console,
 ) spi.Authenticator {
 
 	authenticator := new(authenticatorImpl)
@@ -42,8 +47,8 @@ func NewAuthenticator(
 	authenticator.galasaHome = galasaHome
 	authenticator.fileSystem = fileSystem
 	authenticator.env = env
-
 	authenticator.cache = jwtCache
+	authenticator.console = console
 
 	return authenticator
 }
@@ -156,8 +161,40 @@ func (authenticator *authenticatorImpl) getJwtFromRestApi(apiServerUrl string, a
 		} else {
 			log.Println("Bearer token received from API server OK")
 			jwt = tokenResponse.GetJwt()
+
+			// Check if the token is approaching expiry and display a warning
+			if tokenResponse.HasTokenExpiryTime() {
+				warningDays := DEFAULT_TOKEN_EXPIRY_WARNING_DAYS
+				if tokenResponse.HasTokenExpiryWarningDays() {
+					warningDays = int(tokenResponse.GetTokenExpiryWarningDays())
+				}
+				authenticator.checkTokenExpiryAndWarn(tokenResponse.GetTokenExpiryTime(), warningDays)
+			}
 		}
 	}
 
 	return jwt, err
+}
+
+// checkTokenExpiryAndWarn checks if a token is approaching expiry and displays a warning
+func (authenticator *authenticatorImpl) checkTokenExpiryAndWarn(expiryTimeStr string, warningThresholdDays int) {
+
+	expiryTime, err := time.Parse(time.RFC3339, expiryTimeStr)
+	if err != nil {
+		log.Printf("Failed to parse token expiry time: %v", err)
+		return
+	}
+
+	now := authenticator.timeService.Now()
+	daysUntilExpiry := int(expiryTime.Sub(now).Hours() / 24)
+
+	if daysUntilExpiry <= warningThresholdDays && daysUntilExpiry > 0 {
+		warningMessage := galasaErrors.NewGalasaError(galasaErrors.GALASA_WARNING_PERSONAL_ACCESS_TOKEN_EXPIRING_SOON).Error()
+
+		if authenticator.console != nil {
+			authenticator.console.WriteString(warningMessage + "\n")
+		} else {
+			log.Println(warningMessage)
+		}
+	}
 }

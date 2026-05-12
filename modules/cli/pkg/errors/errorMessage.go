@@ -527,7 +527,8 @@ var (
 	GALASA_ERROR_UPDATE_RUN_INVALID_TAG_NAME         		= NewMessageType("GAL1282E: Invalid tag name '%s' provided. Tag names cannot be empty and must only contain characters in the Latin-1 character set.", 1282, STACK_TRACE_NOT_WANTED)
 	
 	// Warnings...
-	GALASA_WARNING_MAVEN_NO_GALASA_OBR_REPO = NewMessageType("GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '%s', and 'pre-release' repository is '%s'", 2000, STACK_TRACE_WANTED)
+	GALASA_WARNING_MAVEN_NO_GALASA_OBR_REPO 						= NewMessageType("GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '%s', and 'pre-release' repository is '%s'", 2000, STACK_TRACE_WANTED)
+	GALASA_WARNING_PERSONAL_ACCESS_TOKEN_EXPIRING_SOON 	= NewMessageType("GAL2001W: Your personal access token will expire soon. Once it expires, you will no longer be able to use it to contact your Galasa service. Create a new personal access token on your Galasa service's web user interface to continue to authenticate with the Galasa service.", 2001, STACK_TRACE_NOT_WANTED)
 
 	// Information messages...
 	GALASA_INFO_FOLDER_DOWNLOADED_TO = NewMessageType("GAL2501I: Downloaded %d artifacts to folder '%s'\n", 2501, STACK_TRACE_NOT_WANTED)

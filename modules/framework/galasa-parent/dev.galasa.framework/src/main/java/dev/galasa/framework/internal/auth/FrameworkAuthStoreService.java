@@ -46,8 +46,9 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public void storeToken(String clientId, String description, IInternalUser owner) throws AuthStoreException {
-        authStore.storeToken(clientId, description, owner);
+    public void storeToken(String clientId, String description, IInternalUser owner, int tokenLifespanDays)
+            throws AuthStoreException {
+        authStore.storeToken(clientId, description, owner, tokenLifespanDays);
     }
 
     @Override
@@ -93,5 +94,10 @@ public class FrameworkAuthStoreService implements IAuthStoreService {
     @Override
     public IFrontEndClient createClient(String clientName) {
         return authStore.createClient(clientName);
+    }
+
+    @Override
+    public IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException {
+        return authStore.getTokenByDexClientId(clientId);
     }
 }

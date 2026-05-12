@@ -58,11 +58,13 @@ public class MockAuthStoreService implements IAuthStoreService {
     }
 
     @Override
-    public void storeToken(String clientId, String description, IInternalUser owner) throws AuthStoreException {
+    public void storeToken(String clientId, String description, IInternalUser owner, int tokenLifespanDays) throws AuthStoreException {
         if (throwException) {
             throwAuthStoreException();
         }
-        tokens.add(new MockInternalAuthToken("token-" + tokenIdCounter, description, timeService.now(), owner, clientId));
+        Instant now = timeService.now();
+        Instant expiryTime = now.plus(tokenLifespanDays, java.time.temporal.ChronoUnit.DAYS);
+        tokens.add(new MockInternalAuthToken("token-" + tokenIdCounter, description, now, expiryTime, owner, clientId));
         tokenIdCounter++;
     }
 
@@ -124,14 +126,14 @@ public class MockAuthStoreService implements IAuthStoreService {
     @Override
     public void deleteUser(IUser user) throws AuthStoreException {
 
-        if(usersByLoginId.containsKey(user.getLoginId())){
+        if(usersByLoginId.containsKey(user.getLoginId())) {
             usersByLoginId.remove(user.getLoginId());
         }
 
     }
 
-  
-    private Map<String,IUser> usersByLoginId = new HashMap<String,IUser>();
+
+    private Map<String, IUser> usersByLoginId = new HashMap<String, IUser>();
 
     public void addUser(IUser user) {
         String loginId = user.getLoginId();
@@ -198,5 +200,22 @@ public class MockAuthStoreService implements IAuthStoreService {
     @Override
     public IFrontEndClient createClient (String clientName) {
         return new MockFrontEndClient(clientName);
+    }
+
+    @Override
+    public IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException {
+        if (throwException) {
+            throwAuthStoreException();
+        }
+
+        for (IInternalAuthToken token : tokens) {
+            if (token instanceof MockInternalAuthToken) {
+                MockInternalAuthToken mockToken = (MockInternalAuthToken) token;
+                if (clientId.equals(mockToken.getDexClientId())) {
+                    return token;
+                }
+            }
+        }
+        return null;
     }
 }

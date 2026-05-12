@@ -58,7 +58,8 @@ func (*RealFactory) GetTimeService() spi.TimeService {
 
 func (factory *RealFactory) GetAuthenticator(apiServerUrl string, galasaHome spi.GalasaHome) spi.Authenticator {
 	jwtCache := auth.NewJwtCache(factory.GetFileSystem(), galasaHome, factory.GetTimeService())
-	return auth.NewAuthenticator(apiServerUrl, factory.GetFileSystem(), galasaHome, factory.GetTimeService(), factory.GetEnvironment(), jwtCache)
+	console := factory.GetStdOutConsole()
+	return auth.NewAuthenticator(apiServerUrl, factory.GetFileSystem(), galasaHome, factory.GetTimeService(), factory.GetEnvironment(), jwtCache, console)
 }
 
 func (*RealFactory) GetByteReader() spi.ByteReader {

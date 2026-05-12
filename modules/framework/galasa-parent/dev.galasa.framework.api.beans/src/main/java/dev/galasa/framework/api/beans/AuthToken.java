@@ -20,13 +20,17 @@ public class AuthToken {
     @SerializedName("creation_time")
     private Instant creationTime;
 
+    @SerializedName("expiry_time")
+    private Instant expiryTime;
+
     @SerializedName("owner")
     private User owner;
 
-    public AuthToken(String tokenId, String description, Instant creationTime, User owner) {
+    public AuthToken(String tokenId, String description, Instant creationTime, Instant expiryTime, User owner) {
         this.tokenId = tokenId;
         this.description = description;
         this.creationTime = creationTime;
+        this.expiryTime = expiryTime;
         this.owner = owner;
     }
 
@@ -40,6 +44,10 @@ public class AuthToken {
 
     public Instant getCreationTime() {
         return creationTime;
+    }
+
+    public Instant getExpiryTime() {
+        return expiryTime;
     }
 
     public User getOwner() {

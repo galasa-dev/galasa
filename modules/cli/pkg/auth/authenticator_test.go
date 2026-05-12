@@ -64,7 +64,7 @@ func TestLoginWithNoGalasactlPropertiesFileReturnsError(t *testing.T) {
 	jwtCache := NewJwtCache(mockFileSystem, mockGalasaHome, mockTimeService)
 
 	// When...
-	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache)
+	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache, nil)
 	err := authenticator.Login()
 
 	// Then...
@@ -91,7 +91,7 @@ func TestLoginWithBadGalasactlPropertiesFileReturnsError(t *testing.T) {
 	jwtCache := NewJwtCache(mockFileSystem, mockGalasaHome, mockTimeService)
 
 	// When...
-	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache)
+	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache, nil)
 	err := authenticator.Login()
 
 	// Then...
@@ -124,7 +124,7 @@ func TestLoginCreatesBearerTokenJWTInCache(t *testing.T) {
 	jwtCache := NewJwtCache(mockFileSystem, mockGalasaHome, mockTimeService)
 
 	// When...
-	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache)
+	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache, nil)
 	err := authenticator.Login()
 
 	// Then...
@@ -163,7 +163,7 @@ func TestLoginWithFailedFileWriteReturnsError(t *testing.T) {
 
 	// When...
 
-	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, cache)
+	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, cache, nil)
 	err := authenticator.Login()
 
 	// Then...
@@ -194,7 +194,7 @@ func TestLoginWithFailedTokenRequestReturnsError(t *testing.T) {
 	cache := NewJwtCache(mockFileSystem, mockGalasaHome, mockTimeService)
 
 	// When...
-	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, cache)
+	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, cache, nil)
 	err := authenticator.Login()
 
 	// Then...
@@ -222,7 +222,7 @@ func TestLoginWithMissingAuthPropertyReturnsError(t *testing.T) {
 	cache := NewJwtCache(mockFileSystem, mockGalasaHome, mockTimeService)
 
 	// When...
-	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, cache)
+	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, cache, nil)
 	err := authenticator.Login()
 
 	// Then...
@@ -245,7 +245,7 @@ func TestGetAuthenticatedAPIClientWithBearerTokenFileReturnsClient(t *testing.T)
 	jwtCache := NewJwtCache(mockFileSystem, mockGalasaHome, mockTimeService)
 	jwtCache.Put(apiServerUrl, galasaToken, mockJwt)
 
-	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache)
+	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache, nil)
 
 	// When...
 	apiClient, err := authenticator.GetAuthenticatedAPIClient()
@@ -285,7 +285,7 @@ func TestGetAuthenticatedAPIClientWithMissingBearerTokenFileAttemptsLogin(t *tes
 	apiServerUrl := server.URL
 
 	// When...
-	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache)
+	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache, nil)
 	apiClient, err := authenticator.GetAuthenticatedAPIClient()
 
 	// Then...
@@ -315,7 +315,7 @@ func TestLogoutCallsCacheLogoutEverywhere(t *testing.T) {
 	jwtCache := NewJwtCache(mockFileSystem, mockGalasaHome, mockTimeService)
 
 	// When...
-	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache)
+	authenticator := NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache, nil)
 	err := authenticator.Login()
 
 	// Then...

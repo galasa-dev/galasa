@@ -7,7 +7,6 @@ package dev.galasa.framework.spi.auth;
 
 import java.util.List;
 
-
 public interface IAuthStore {
 
     /**
@@ -17,7 +16,6 @@ public interface IAuthStore {
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
     List<IInternalAuthToken> getTokens() throws AuthStoreException;
-
 
     /**
      * Returns a list of token records stored in the auth store that match a given login ID.
@@ -30,20 +28,31 @@ public interface IAuthStore {
     /**
      * Stores a new token record in the auth store's tokens database.
      *
-     * @param clientId    the ID of the Dex client that the token works with.
-     * @param description the user-provided description of the token.
-     * @param owner       the details of the user that the token belongs to.
+     * @param clientId          the ID of the Dex client that the token works with.
+     * @param description       the user-provided description of the token.
+     * @param owner             the details of the user that the token belongs to.
+     * @param tokenLifespanDays the number of days until the token expires (1-365).
      * @throws AuthStoreException if there is an issue accessing the auth store.
      */
-    void storeToken(String clientId, String description, IInternalUser owner) throws AuthStoreException;
+    void storeToken(String clientId, String description, IInternalUser owner, int tokenLifespanDays)
+            throws AuthStoreException;
 
     /**
      * Deletes an existing token record from the auth store's tokens database.
-     * 
+     *
      * @param tokenId the ID of the token record to delete.
      * @throws AuthStoreException if there was an issue accessing the auth store.
      */
     void deleteToken(String tokenId) throws AuthStoreException;
+
+    /**
+     * Gets a token record given its Dex client ID from the auth store.
+     *
+     * @param clientId the Dex client ID of the token record to retrieve
+     * @return an auth token given its client ID, or null if not found
+     * @throws AuthStoreException if there is an issue accessing the auth store
+     */
+    IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException;
 
     /**
      * Returns a list of all the users using the system.

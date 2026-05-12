@@ -26,6 +26,9 @@ public class TokenPayload {
     @SerializedName("description")
     private String description;
 
+    @SerializedName("token_lifespan_days")
+    private Integer tokenLifespanDays;
+
     public String getClientId() {
         return clientId;
     }
@@ -40,5 +43,9 @@ public class TokenPayload {
 
     public String getDescription() {
         return description;
+    }
+
+    public Integer getTokenLifespanDays() {
+        return tokenLifespanDays;
     }
 }

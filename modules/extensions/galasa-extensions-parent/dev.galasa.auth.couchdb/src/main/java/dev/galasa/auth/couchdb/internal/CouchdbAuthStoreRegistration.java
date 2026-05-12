@@ -53,7 +53,7 @@ public class CouchdbAuthStoreRegistration implements IAuthStoreRegistration {
      * This method checks that the auth store is a remote URL reference, and if true
      * registers a new couchdb auth store as the only auth store.
      *
-     * @param apiServerInitialisation Parameters this extension can use to to
+     * @param frameworkInitialisation Parameters this extension can use to to
      *                                initialise itself.
      * @throws AuthStoreException if there was a problem accessing the auth store.
      */

@@ -7,9 +7,11 @@ Before interacting with a Galasa Ecosystem using the Galasa command line tool (`
 Once the `galasactl` tool knows which Galasa service to contact, it needs to be configured to be able to authenticate to that service.
 To do that, the Galasa Web UI must be used to allocate a personal access token, which can be passed to the `galasactl` to be used.
 
-A personal access tokens is stored in the `GALASA_TOKEN` property in the `galasactl.properties` file in your Galasa home folder, or in the `GALASA_TOKEN` environment variable. The `galasactl.properties` file is created when you run the `galasa local init` command. Setting the `GALASA_TOKEN` property in this file with a valid token value allows the galasactl tool to access and communicate with an Ecosystem on behalf of the user.
+A personal access token is stored in the `GALASA_TOKEN` property in the `galasactl.properties` file in your Galasa home folder, or in the `GALASA_TOKEN` environment variable. The `galasactl.properties` file is created when you run the `galasa local init` command. Setting the `GALASA_TOKEN` property in this file with a valid token value allows the galasactl tool to access and communicate with an Ecosystem on behalf of the user.
 
 If you have [installed your Galasa Ecosystem](./ecosystem-installing-k8s.md) by using the Galasa Ecosystem Helm chart that is provided with Galasa, you will have access to the Galasa Web UI. To get a value for the `GALASA_TOKEN` property, log into the Galasa Web UI and request a personal access token (using the 'My Settings' page) which can be copied into the `GALASA_TOKEN` property. The instructions on how to do this are displayed in a dialog box in the Galasa Web UI. You can choose to set the token as an environmental variable but the value would not persist across terminals, so is only valid for that session.
+
+Personal access tokens have an expiry time associated with them, which is set on creation. Once a token expires, it can no longer be used to authenticate with the Galasa service and a new token must be created. The CLI will warn you when your token is approaching its expiry date.
 
 ## Authentication architecture
 
@@ -26,6 +28,8 @@ The `galasactl` tool will login implicitly when it needs to contact the remote G
 
 On a successful login using the `galasactl` tool, the `GALASA_TOKEN` will be used to create a new temporary bearer token, which is stored in the `bearer-tokens` folder in the Galasa home directory. This file contains a bearer token that galasactl uses to authenticate requests when communicating with a Galasa Ecosystem. If the bearer token expires, galasactl automatically attempts to re-authenticate with the Galasa Ecosystem using the configured `GALASA_TOKEN`.
 
+If your personal access token is approaching its expiry date, the CLI will display a warning message when you use it to authenticate. This gives you time to create a new token before the current one expires. Once a token expires, it can no longer be used to exchange for a JWT and becomes unusable. Note: JWTs may continue to be valid for a period of time determined by your Galasa service administrator, so you might find your token will still work for a short while after it expires.
+
 
 ### Logging in to a Galasa Ecosystem using the auth login command
 
@@ -41,13 +45,13 @@ To log out of a Galasa Ecosystem using galasactl, you can use the `galasactl aut
 
 You can retrieve a list of all active personal access tokens in the Ecosystem by using the `galasactl auth tokens get` command. This information is useful if you need to query active tokens with a view to revoking a particular token, for example, if a user moves to a new role, or loses a laptop with their access token on it.
 
-The token ID, creation date, username, and description information is returned, as shown in the following example:
+The token ID, creation date, expiry date, username, and description information is returned, as shown in the following example:
 
 ```console
 > galasactl auth tokens get 
-tokenid         created(YYYY/MM/DD)  user                description
-09823128318238  2024-02-03           m.smith@gmail.com   Ecosystem1 access 
-87a6s2y8hqwd27  2024-05-04           s_jones@gmail.com   CLI access from VSCode
+tokenid         created(YYYY/MM/DD)  expiry(YYYY-MM-DD)  user                description
+09823128318238  2024-02-03           2024-05-03          m.smith@gmail.com   Ecosystem1 access 
+87a6s2y8hqwd27  2024-05-04           2024-09-04          s_jones@gmail.com   CLI access from VSCode
 
 Total:2
 ```
@@ -58,8 +62,8 @@ You can also get tokens for a specific user
 
 ```console
 > galasactl auth tokens get --user m.smith@gmail.com
-tokenid         created(YYYY/MM/DD)  user                description
-09823128318238  2024-02-03           m.smith@gmail.com   Ecosystem1 access 
+tokenid         created(YYYY/MM/DD)  expiry(YYYY-MM-DD)  user                description
+09823128318238  2024-02-03           2024-05-03          m.smith@gmail.com   Ecosystem1 access 
 
 Total:1
 ```
@@ -73,7 +77,7 @@ id: m.smith@gmail.com
 
 ### Revoking personal access tokens
 
-If a user moves to a new role, or loses a laptop with their personal access token on it, you can log into the Galasa Ecosystem and revoke their access token by using the `galasactl auth tokens delete` command. This ensures that the Ecosystem and systems-under-test remain secure.
+If a user moves to a new role, or loses a laptop with their personal access token on it, you can log into the Galasa Ecosystem and revoke their access token by using the `galasactl auth tokens delete` command. This ensures that the Ecosystem and systems-under-test remain secure. Tokens are automatically revoked when they reach their expiry date.
 
 You can retrieve a list of available personal access tokens that have been created, along with their token IDs, by running the `galasactl auth tokens get` command, as described in the previous section. 
 
@@ -88,8 +92,8 @@ For example:
 
 ```console
 > galasactl auth tokens get --user m.smith@gmail.com
-tokenid         created(YYYY/MM/DD)  user                description
-09823128318238  2024-02-03           m.smith@gmail.com   Ecosystem1 access 
+tokenid         created(YYYY/MM/DD)  expiry(YYYY-MM-DD)  user                description
+09823128318238  2024-02-03           2024-05-03          m.smith@gmail.com   Ecosystem1 access 
 
 Total: 1
 > galasactl auth tokens delete --tokenid 09823128318238

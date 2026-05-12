@@ -33,7 +33,8 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
     }
 
     @Override
-    public void storeToken(String clientId, String description, IInternalUser owner) throws AuthStoreException {
+    public void storeToken(String clientId, String description, IInternalUser owner, int tokenLifespanDays)
+            throws AuthStoreException {
         throw new UnsupportedOperationException("Unimplemented method 'storeToken'");
     }
 
@@ -82,4 +83,8 @@ public class MockAuthStore implements IAuthStore, IAuthStoreService {
         throw new UnsupportedOperationException("Unimplemented method 'createClient'");
     }
 
+    @Override
+    public IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException {
+        throw new UnsupportedOperationException("Unimplemented method 'getTokenByDexClientId'");
+    }
 }

@@ -111,6 +111,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
                 expectedToken.getTokenId(),
                 expectedToken.getDescription(),
                 expectedToken.getCreationTime(),
+                expectedToken.getExpiryTime(),
                 new User(expectedToken.getOwner().getLoginId()));
 
             // Check that all the fields of the actual token match the fields of the expected token
@@ -119,19 +120,26 @@ public class AuthTokensRouteTest extends BaseServletTest {
     }
 
     @Test
-    public void testAuthTokensRouteRegexMatchesOnlyTokens(){
+    public void testAuthTokensRouteRegexMatchesOnlyTokens() {
         //Given...
         ResponseBuilder responseBuilder = null;
         IOidcProvider oidcProvider = null;
-        
+
         MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
 
         IAuthService authService = new AuthService(null, null, rbacService);    
         ITimeService timeService = null ;
         MockRBACService mockRBACService = createTestRBACKService();
         Environment env = null;
+        MockFramework mockFramework = new MockFramework();
 
-        String tokensRoutePath = new AuthTokensRoute(responseBuilder, oidcProvider, authService , timeService, mockRBACService, env).getPathRegex().toString();
+        String tokensRoutePath;
+        try {
+            tokensRoutePath = new AuthTokensRoute(responseBuilder, oidcProvider, authService, timeService,
+                    mockRBACService, env, mockFramework).getPathRegex().toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create AuthTokensRoute in test", e);
+        }
 
         //When...
         Pattern tokensRoutePattern = Pattern.compile(tokensRoutePath);
@@ -157,10 +165,11 @@ public class AuthTokensRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
+        Instant expiryTime = creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS);
         IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = List.of(
-            new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)
+            new MockInternalAuthToken(tokenId, description, creationTime, expiryTime, owner, clientId)
         );
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(new MockFramework(authStoreService));
@@ -195,10 +204,11 @@ public class AuthTokensRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
+        Instant expiryTime = creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS);
         IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = List.of(
-            new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)
+            new MockInternalAuthToken(tokenId, description, creationTime, expiryTime, owner, clientId)
         );
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(new MockFramework(authStoreService));
@@ -236,10 +246,11 @@ public class AuthTokensRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
+        Instant expiryTime = creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS);
         IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = List.of(
-            new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)
+            new MockInternalAuthToken(tokenId, description, creationTime, expiryTime, owner, clientId)
         );
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         authStoreService.setThrowException(true);
@@ -327,11 +338,14 @@ public class AuthTokensRouteTest extends BaseServletTest {
         Instant time1 = Instant.EPOCH;
         Instant time2 = Instant.ofEpochSecond(2000);
         Instant time3 = Instant.MAX;
+        Instant expiry1 = time1.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        Instant expiry2 = time2.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        Instant expiry3 = time3; // MAX stays MAX
 
-        MockInternalAuthToken token1 = new MockInternalAuthToken("token1", "creation time after epoch", time2, owner, clientId);
-        MockInternalAuthToken token2 = new MockInternalAuthToken("token2", "epoch creation time", time1, owner, clientId);
-        MockInternalAuthToken token3 = new MockInternalAuthToken("token3", "future creation time", time3, owner, clientId);
-        MockInternalAuthToken token4 = new MockInternalAuthToken("token4", "creation time after epoch, same as token1", time2, owner, clientId);
+        MockInternalAuthToken token1 = new MockInternalAuthToken("token1", "creation time after epoch", time2, expiry2, owner, clientId);
+        MockInternalAuthToken token2 = new MockInternalAuthToken("token2", "epoch creation time", time1, expiry1, owner, clientId);
+        MockInternalAuthToken token3 = new MockInternalAuthToken("token3", "future creation time", time3, expiry3, owner, clientId);
+        MockInternalAuthToken token4 = new MockInternalAuthToken("token4", "creation time after epoch, same as token1", time2, expiry2, owner, clientId);
 
         List<IInternalAuthToken> tokens = List.of(
             token1,
@@ -376,11 +390,14 @@ public class AuthTokensRouteTest extends BaseServletTest {
         Instant time1 = Instant.EPOCH;
         Instant time2 = Instant.ofEpochSecond(2000);
         Instant time3 = Instant.MAX;
+        Instant expiry1 = time1.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        Instant expiry2 = time2.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        Instant expiry3 = time3; // MAX stays MAX
 
-        MockInternalAuthToken token1 = new MockInternalAuthToken("token1", "creation time after epoch", time2, actualOwner, clientId);
-        MockInternalAuthToken token2 = new MockInternalAuthToken("token2", "epoch creation time", time1, someOtherUser, clientId);
-        MockInternalAuthToken token3 = new MockInternalAuthToken("token3", "future creation time", time3, actualOwner, clientId);
-        MockInternalAuthToken token4 = new MockInternalAuthToken("token4", "creation time after epoch, same as token1", time2, someOtherUser, clientId);
+        MockInternalAuthToken token1 = new MockInternalAuthToken("token1", "creation time after epoch", time2, expiry2, actualOwner, clientId);
+        MockInternalAuthToken token2 = new MockInternalAuthToken("token2", "epoch creation time", time1, expiry1, someOtherUser, clientId);
+        MockInternalAuthToken token3 = new MockInternalAuthToken("token3", "future creation time", time3, expiry3, actualOwner, clientId);
+        MockInternalAuthToken token4 = new MockInternalAuthToken("token4", "creation time after epoch, same as token1", time2, expiry2, someOtherUser, clientId);
 
         List<IInternalAuthToken> tokens = List.of(
             token1,
@@ -416,6 +433,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         String description = "test token";
         String clientId = "my-client";
         Instant creationTime = Instant.now();
+        Instant expiryTime = creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS);
         IInternalUser owner = new InternalUser("username", "dexId");
 
         Map<String, String[]> queryParams = new HashMap<>();
@@ -423,7 +441,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         queryParams.put("loginId", new String[] { "username" });
 
         List<IInternalAuthToken> tokens = List.of(
-            new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId)
+            new MockInternalAuthToken(tokenId, description, creationTime, expiryTime, owner, clientId)
         );
         MockAuthStoreService authStoreService = new MockAuthStoreService(tokens);
         authStoreService.setThrowException(true);
@@ -453,11 +471,14 @@ public class AuthTokensRouteTest extends BaseServletTest {
         Instant time1 = Instant.EPOCH;
         Instant time2 = Instant.ofEpochSecond(2000);
         Instant time3 = Instant.MAX;
+        Instant expiry1 = time1.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        Instant expiry2 = time2.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        Instant expiry3 = time3; // MAX stays MAX
 
-        MockInternalAuthToken token1 = new MockInternalAuthToken("token1", "creation time after epoch", time2, owner, clientId);
-        MockInternalAuthToken token2 = new MockInternalAuthToken("token2", "epoch creation time", time1, owner, clientId);
-        MockInternalAuthToken token3 = new MockInternalAuthToken("token3", "future creation time", time3, owner, clientId);
-        MockInternalAuthToken token4 = new MockInternalAuthToken("token4", "creation time after epoch, same as token1", time2, owner, clientId);
+        MockInternalAuthToken token1 = new MockInternalAuthToken("token1", "creation time after epoch", time2, expiry2, owner, clientId);
+        MockInternalAuthToken token2 = new MockInternalAuthToken("token2", "epoch creation time", time1, expiry1, owner, clientId);
+        MockInternalAuthToken token3 = new MockInternalAuthToken("token3", "future creation time", time3, expiry3, owner, clientId);
+        MockInternalAuthToken token4 = new MockInternalAuthToken("token4", "creation time after epoch, same as token1", time2, expiry2, owner, clientId);
 
         List<IInternalAuthToken> tokens = List.of(
             token1,
@@ -656,8 +677,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         MockTimeService mockTimeService = new MockTimeService(Instant.now());
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
         MockRBACService mockRBACService = createTestRBACKService();
-        MockFramework mockFramework = new MockFramework( (IAuthStoreService)mockAuthStoreService, (RBACService)mockRBACService);
-
+        MockFramework mockFramework = new MockFramework((IAuthStoreService) mockAuthStoreService, (RBACService) mockRBACService);
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient, mockFramework);
 
@@ -718,7 +738,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
 
         MockRBACService mockRBACService = createTestRBACKService();
-        MockFramework mockFramework = new MockFramework( (IAuthStoreService)mockAuthStoreService, (RBACService)mockRBACService);
+        MockFramework mockFramework = new MockFramework((IAuthStoreService) mockAuthStoreService, (RBACService) mockRBACService);
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient, mockFramework);
 
@@ -779,7 +799,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         MockAuthStoreService mockAuthStoreService = new MockAuthStoreService(mockTimeService);
 
         MockRBACService mockRBACService = createTestRBACKService();
-        MockFramework mockFramework = new MockFramework( (IAuthStoreService)mockAuthStoreService, (RBACService)mockRBACService);
+        MockFramework mockFramework = new MockFramework((IAuthStoreService) mockAuthStoreService, (RBACService) mockRBACService);
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient, mockFramework);
 
@@ -906,7 +926,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         MockAuthenticationServlet servlet = new MockAuthenticationServlet(mockOidcProvider, mockDexGrpcClient);
 
-        String payload = buildRequestPayload("dummy-id", "here-is-a-token", null);
+        String payload = buildRequestPayload("dummy-id", null, "here-is-a-token");
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("/tokens", payload, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
@@ -925,8 +945,6 @@ public class AuthTokensRouteTest extends BaseServletTest {
         checkErrorStructure(outStream.toString(), 5055, "GAL5055E", "Failed to get a JWT and a refresh token from the Galasa Dex server", "The Dex server did not respond with a JWT and refresh token");
     }
 
-
-
     @Test
     public void testRecordingUserJustLoggedInEventWhenUserAlreadyExistButClientDoesNotShouldUpdateExistingUserRecordClientLoginTime() throws Exception {
 
@@ -940,13 +958,12 @@ public class AuthTokensRouteTest extends BaseServletTest {
         String clientId = "myclient";
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
 
-
-        Instant now = Instant.MIN.plusMillis(3) ;
+        Instant now = Instant.MIN.plusMillis(3);
         MockTimeService mockTimeService = new MockTimeService(now);
 
         String userNumberInput = "567890";
         String versionInput = "98767898yhj";
-        
+
         MockUser mockUser = new MockUser();
         mockUser.loginId = "requestorId";
         mockUser.userNumber = userNumberInput;
@@ -963,6 +980,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient, rbacService);
 
         MockRBACService mockRBACService = createTestRBACKService();
+        MockFramework mockFramework = new MockFramework();
 
         AuthTokensRoute route = new AuthTokensRoute(
             responseBuilder,
@@ -970,12 +988,13 @@ public class AuthTokensRouteTest extends BaseServletTest {
             authService,
             mockTimeService,
             mockRBACService,
-            mockEnv);
+            mockEnv,
+            mockFramework);
 
         boolean isWebUiJustLoggedIn = true ;
 
         // When...
-        route.recordUserJustLoggedIn(isWebUiJustLoggedIn,dummyJwt, mockTimeService, mockEnv, false);
+        route.recordUserJustLoggedIn(isWebUiJustLoggedIn, dummyJwt, mockTimeService, mockEnv, false);
 
         // Then...
         IUser userGotBack = authStoreService.getUserByLoginId("requestorId");
@@ -986,7 +1005,6 @@ public class AuthTokensRouteTest extends BaseServletTest {
         IFrontEndClient clientGotBack = userGotBack.getClient("web-ui");
         assertThat(clientGotBack.getLastLogin()).isEqualTo(now);
     }
-
 
     @Test
     public void testRecordingUserJustLoggedInUsingTokenEventWhenUserAlreadyExistsAndClientDoesExistTooShouldUpdateExistingClientLoginTime() throws Exception {
@@ -1010,13 +1028,12 @@ public class AuthTokensRouteTest extends BaseServletTest {
         String clientId = "myclient";
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://issuer", clientId, "secret", "http://callback");
 
-        
         Instant now = Instant.MIN.plusMillis(3);
         MockTimeService mockTimeService = new MockTimeService(now);
 
         String userNumberInput = "567890";
         String versionInput = "98767898yhj";
-        
+
         MockUser mockUser = new MockUser();
         mockUser.loginId = "requestorId";
         mockUser.userNumber = userNumberInput;
@@ -1037,6 +1054,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient, rbacService);
 
         MockRBACService mockRBACService = createTestRBACKService();
+        MockFramework mockFramework = new MockFramework();
 
         AuthTokensRoute route = new AuthTokensRoute(
             responseBuilder,
@@ -1044,7 +1062,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
             authService,
             mockTimeService,
             mockRBACService,
-            mockEnv);
+            mockEnv,
+            mockFramework);
 
         // When...
         route.recordUserJustLoggedIn(isWebUiJustLoggedIn,dummyJwt, mockTimeService,mockEnv, false);
@@ -1058,7 +1077,6 @@ public class AuthTokensRouteTest extends BaseServletTest {
         IFrontEndClient clientGotBack = userGotBack.getClient(expectedClientName);
         assertThat(clientGotBack.getLastLogin()).isEqualTo(now);
     }
-
 
     @Test
     public void testRecordingUserJustLoggedInEventWhenUserDoesntExistCreatesNewUserRecord() throws Exception {
@@ -1077,7 +1095,6 @@ public class AuthTokensRouteTest extends BaseServletTest {
 
         Instant now = Instant.MIN.plusMillis(3) ;
         MockTimeService mockTimeService = new MockTimeService(now);
-        
 
         MockAuthStoreService authStoreService = new MockAuthStoreService(mockTimeService);
 
@@ -1089,6 +1106,7 @@ public class AuthTokensRouteTest extends BaseServletTest {
         IAuthService authService = new AuthService(authStoreService, mockDexGrpcClient, rbacService);
 
         MockRBACService mockRBACService = createTestRBACKService();
+        MockFramework mockFramework = new MockFramework();
 
         AuthTokensRoute route = new AuthTokensRoute(
             responseBuilder,
@@ -1096,7 +1114,8 @@ public class AuthTokensRouteTest extends BaseServletTest {
             authService,
             mockTimeService,
             mockRBACService,
-            mockEnv);
+            mockEnv,
+            mockFramework);
 
         boolean isWebUiJustLoggedIn = true ;
 

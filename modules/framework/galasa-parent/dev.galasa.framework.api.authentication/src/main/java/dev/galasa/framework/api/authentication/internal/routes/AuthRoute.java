@@ -54,8 +54,9 @@ public class AuthRoute extends AbstractAuthRoute {
     );
 
     // Fields in a payload of a POST request we parse for meaning.
-    private static final String JSON_FIELD_ID_TOKEN_KEY      = "id_token";
-    private static final String JSON_FIELD_REFRESH_TOKEN_KEY = "refresh_token";
+    private static final String JSON_FIELD_ID_TOKEN_KEY         = "id_token";
+    private static final String JSON_FIELD_REFRESH_TOKEN_KEY    = "refresh_token";
+    private static final int DEFAULT_TOKEN_EXPIRY_TIME_DAYS     = 90;
 
     // Regex to match endpoint /auth and /auth/
     private static final String PATH_PATTERN = "\\/?";
@@ -246,7 +247,7 @@ public class AuthRoute extends AbstractAuthRoute {
         IInternalUser user = new InternalUser(jwtWrapper.getUsername(), jwtWrapper.getSubject());
 
         try {
-            authStoreService.storeToken(clientId, description, user);
+            authStoreService.storeToken(clientId, description, user, DEFAULT_TOKEN_EXPIRY_TIME_DAYS);
         } catch (AuthStoreException e) {
             ServletError error = new ServletError(GAL5056_FAILED_TO_STORE_TOKEN_IN_AUTH_STORE, description);
             throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);

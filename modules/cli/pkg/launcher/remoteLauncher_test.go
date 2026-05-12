@@ -215,7 +215,7 @@ func TestGetRunsByGroupWithInvalidBearerTokenGetsNewTokenOk(t *testing.T) {
 	mockFileSystem.WriteTextFile(mockGalasaHome.GetUrlFolderPath()+"/galasactl.properties", "GALASA_TOKEN=my:token")
 	mockFileSystem.WriteTextFile(mockGalasaHome.GetUrlFolderPath()+"/bootstrap.properties", "")
 
-	authenticator := auth.NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache)
+	authenticator := auth.NewAuthenticator(apiServerUrl, mockFileSystem, mockGalasaHome, mockTimeService, mockEnvironment, jwtCache, nil)
 	mockFactory.Authenticator = authenticator
 
 	bootstrap := ""

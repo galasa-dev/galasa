@@ -78,7 +78,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         IInternalUser owner = new InternalUser(JWT_USERNAME, "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS), owner, clientId));
 
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
         mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
@@ -110,7 +110,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         IInternalUser owner = new InternalUser(JWT_USERNAME, "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS), owner, clientId));
 
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
         mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
@@ -145,7 +145,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         IInternalUser owner = new InternalUser(JWT_USERNAME, "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS), owner, clientId));
 
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
         mockDexGrpcClient.addDexClient(clientId, "my-secret", "http://a-callback-url");
@@ -181,7 +181,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         IInternalUser owner = new InternalUser("username", "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken("a-different-token", description, creationTime, owner, clientId));
+        tokens.add(new MockInternalAuthToken("a-different-token", description, creationTime, creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS), owner, clientId));
 
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
         mockDexGrpcClient.addDexClient("another-client", "my-secret", "http://a-callback-url");
@@ -213,7 +213,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         IInternalUser owner = new InternalUser(JWT_USERNAME, "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS), owner, clientId));
 
         // No Dex clients stored, so this should throw an error when trying to delete the Dex client associated with the refresh token
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
@@ -244,7 +244,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         IInternalUser owner = new InternalUser(JWT_USERNAME, "dexId");
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS), owner, clientId));
 
         // Simulate a scenario where no refresh tokens are stored in Dex, so this should throw an error when trying to revoke the refresh token
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");
@@ -275,7 +275,7 @@ public class AuthTokensDetailsRouteTest extends BaseServletTest {
         IInternalUser owner = new InternalUser(JWT_USERNAME, null);
 
         List<IInternalAuthToken> tokens = new ArrayList<>();
-        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, owner, clientId));
+        tokens.add(new MockInternalAuthToken(tokenId, description, creationTime, creationTime.plus(90, java.time.temporal.ChronoUnit.DAYS), owner, clientId));
 
         // Simulate a scenario where no refresh tokens are stored in Dex, so this should throw an error when trying to revoke the refresh token
         MockDexGrpcClient mockDexGrpcClient = new MockDexGrpcClient("http://my-issuer");

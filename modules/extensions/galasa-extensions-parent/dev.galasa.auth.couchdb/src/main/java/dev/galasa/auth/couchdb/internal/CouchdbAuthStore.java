@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import dev.galasa.extensions.common.api.LogFactory;
 import dev.galasa.extensions.common.couchdb.CouchdbException;
 import dev.galasa.extensions.common.couchdb.CouchdbStore;
 import dev.galasa.extensions.common.couchdb.CouchdbValidator;
+import dev.galasa.extensions.common.couchdb.pojos.IdRev;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
 import dev.galasa.extensions.common.couchdb.pojos.ViewResponse;
 import dev.galasa.extensions.common.couchdb.pojos.ViewRow;
@@ -67,6 +69,9 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     public static final String USERS_DB_VIEW_NAME = "loginId-view";
 
     private Log logger;
+
+    public static final int DEFAULT_TOKEN_LIFESPAN_DAYS = 90;
+
     private ITimeService timeService;
 
     public CouchdbAuthStore(
@@ -81,6 +86,137 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
         this.timeService = timeService;
 
         validator.checkCouchdbDatabaseIsValid(this.storeUri, this.httpClient, this.httpRequestFactory, timeService);
+
+        // One-off migration: Add expiry times to legacy tokens that don't have them
+        // This could be removed after Galasa 1.0.0 is released
+        // Note: Migration failures are logged but don't prevent auth store initialisation
+        try {
+            migrateLegacyTokens();
+        } catch (Exception e) {
+            logger.warn("Token expiry migration encountered an error but auth store initialisation will continue", e);
+        }
+    }
+
+    /**
+     * One-off initialisation method that adds expiry times to legacy tokens that
+     * don't have them. This migration runs during auth store initialisation to 
+     * ensure all tokens have expiry times set. If the migration fails, it logs 
+     * the error but does not prevent the auth store from initialising.
+     */
+    private void migrateLegacyTokens() {
+        logger.info("Starting token expiry migration during auth store initialisation");
+
+        int tokensProcessed = 0;
+        int tokensMigrated = 0;
+        int tokensFailed = 0;
+
+        List<IUser> users = null;
+        try {
+            users = getAllUsers();
+        } catch (AuthStoreException e) {
+            logger.warn("Failed to get users during token migration: " + e.getMessage());
+        }
+
+        // If there are no users, skip migration
+        if (users == null || users.isEmpty()) {
+            logger.info("No users found, skipping token expiry migration");
+            return;
+        }
+
+        // For each user, get their tokens
+        for (IUser user : users) {
+            String loginId = user.getLoginId();
+            String userNumber = user.getUserNumber();
+
+            List<IInternalAuthToken> tokens = null;
+            try {
+                tokens = getTokensByLoginId(loginId);
+            } catch (Exception e) {
+                logger.warn("Failed to retrieve tokens for user " + userNumber
+                        + ", skipping user and continuing with others: " + e.getMessage());
+                continue;
+            }
+
+            for (IInternalAuthToken token : tokens) {
+                tokensProcessed++;
+
+                if (token.getExpiryTime() == null) {
+                    // Calculate expiry time: current time + constant amount of days
+                    Instant newExpiryTime = timeService.now().plus(DEFAULT_TOKEN_LIFESPAN_DAYS, ChronoUnit.DAYS);
+                    logger.info("Setting expiry time to: " + newExpiryTime);
+
+                    // Update the token with the new expiry time
+                    try {
+                        updateTokenWithExpiryTime(token.getTokenId(), newExpiryTime);
+                    } catch (AuthStoreException e) {
+                        tokensFailed++;
+                        logger.warn("Failed to migrate token " + token.getTokenId() + " for user " + userNumber
+                                + ": " + e.getMessage());
+                        continue;
+                    }
+                    tokensMigrated++;
+
+                    logger.info("Successfully migrated token " + token.getTokenId());
+                }
+            }
+        }
+
+        logger.info("Token expiry migration complete. Processed " + tokensProcessed + " tokens, migrated "
+                + tokensMigrated + " tokens, " + tokensFailed + " tokens failed");
+    }
+
+    /**
+     * Internal method to update a token's expiry time. This is used only during
+     * the migration process and is not exposed via the IAuthStore interface.
+     */
+    private void updateTokenWithExpiryTime(String tokenId, Instant expiryTime) throws AuthStoreException {
+        try {
+            // Get the existing token document
+            CouchdbAuthToken existingToken = getDocumentFromDatabase(TOKENS_DATABASE_NAME, tokenId,
+                    CouchdbAuthToken.class);
+
+            if (existingToken == null) {
+                String errorMessage = ERROR_TOKEN_NOT_FOUND.getMessage("Token not found: " + tokenId);
+                throw new AuthStoreException(errorMessage);
+            }
+
+            // Create an updated token with the new expiry time
+            CouchdbAuthToken updatedToken = new CouchdbAuthToken(
+                    tokenId,
+                    existingToken.getDexClientId(),
+                    existingToken.getDescription(),
+                    existingToken.getCreationTime(),
+                    expiryTime,
+                    (CouchdbUser) existingToken.getOwner());
+
+            // Convert to JSON and update the document
+            String tokenJson = gson.toJson(updatedToken);
+
+            // Get the document revision for the update
+            IdRev tokenIdRev = getDocumentFromDatabase(TOKENS_DATABASE_NAME, tokenId, IdRev.class);
+            if (tokenIdRev == null || tokenIdRev._rev == null) {
+                String errorMessage = ERROR_FAILED_TO_RETRIEVE_TOKENS
+                        .getMessage("Could not get revision for token: " + tokenId);
+                throw new AuthStoreException(errorMessage);
+            }
+
+            // Build and send the update request
+            HttpPut request = httpRequestFactory
+                    .getHttpPutRequest(storeUri + "/" + TOKENS_DATABASE_NAME + "/" + tokenId);
+            request.setHeader("If-Match", tokenIdRev._rev);
+            request.setEntity(new StringEntity(tokenJson, StandardCharsets.UTF_8));
+
+            String responseEntity = sendHttpRequest(request, HttpStatus.SC_OK, HttpStatus.SC_CREATED, HttpStatus.SC_ACCEPTED);
+            PutPostResponse putResponse = gson.fromJson(responseEntity, PutPostResponse.class);
+
+            if (!putResponse.ok || putResponse.id == null || putResponse.rev == null) {
+                String errorMessage = ERROR_FAILED_TO_UPDATE_USER_DOCUMENT_INVALID_RESP.getMessage();
+                throw new AuthStoreException(errorMessage);
+            }
+        } catch (CouchdbException e) {
+            String errorMessage = ERROR_FAILED_TO_RETRIEVE_TOKENS.getMessage(e.getMessage());
+            throw new AuthStoreException(errorMessage, e);
+        }
     }
 
     @Override
@@ -142,10 +278,13 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     }
 
     @Override
-    public void storeToken(String clientId, String description, IInternalUser owner) throws AuthStoreException {
+    public void storeToken(String clientId, String description, IInternalUser owner, int tokenLifespanDays)
+            throws AuthStoreException {
         // Create the JSON payload representing the token to store
         CouchdbUser couchdbUser = new CouchdbUser(owner);
-        String tokenJson = gson.toJson(new CouchdbAuthToken(clientId, description, timeService.now(), couchdbUser));
+        Instant now = timeService.now();
+        Instant expiryTime = now.plus(tokenLifespanDays, ChronoUnit.DAYS);
+        String tokenJson = gson.toJson(new CouchdbAuthToken(clientId, description, now, expiryTime, couchdbUser));
 
         try {
             createDocument(TOKENS_DATABASE_NAME, tokenJson);
@@ -181,6 +320,30 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     }
 
     @Override
+    public IInternalAuthToken getTokenByDexClientId(String clientId) throws AuthStoreException {
+        logger.info("Retrieving token by Dex client ID from CouchDB");
+
+        IInternalAuthToken result = null;
+        try {
+            // Get all tokens and search for one with matching clientId
+            List<IInternalAuthToken> allTokens = getTokens();
+
+            for (IInternalAuthToken token : allTokens) {
+                if (clientId.equals(token.getDexClientId())) {
+                    result = token;
+                    break;
+                }
+            }
+
+        } catch (AuthStoreException e) {
+            String errorMessage = ERROR_FAILED_TO_RETRIEVE_TOKENS.getMessage(e.getMessage());
+            throw new AuthStoreException(errorMessage, e);
+        }
+
+        return result;
+    }
+
+    @Override
     public List<IUser> getAllUsers() throws AuthStoreException {
         logger.info("Retrieving all users from couchdb");
 
@@ -209,7 +372,7 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
     @Override
     public void createUser(String loginId, String clientName, String roleId) throws AuthStoreException {
 
-        logger.info("createUser: Creating user loginId:"+loginId+" clientName:"+clientName+" roleId:"+roleId );
+        logger.info("createUser: Creating user loginId:" + loginId + " clientName:" + clientName + " roleId:" + roleId);
         FrontEndClient client = new FrontEndClient();
 
         client.setClientName(clientName);

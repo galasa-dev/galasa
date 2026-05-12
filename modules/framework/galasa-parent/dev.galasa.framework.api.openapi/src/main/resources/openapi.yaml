@@ -113,6 +113,8 @@ paths:
                     error_code: 5400
                     error_message: "E: Error occurred when trying to execute request '/auth'. Check your request parameters or report the problem to your Galasa Ecosystem owner."
                   summary: One or more required body properties are missing
+        '401':
+          $ref: "#/components/responses/Unauthorized"
         '500':
           $ref: '#/components/responses/InternalServerError'
   /auth/callback:
@@ -2959,6 +2961,12 @@ components:
         description:
           type: string
           description: Optional. A single-line description to be associated with the Galasa personal access token being created for the first time.
+        token_lifespan_days:
+          type: integer
+          description: Optional. The number of days until the token expires. Must be between 1 and 365. Defaults to 90 days if not provided.
+          minimum: 1
+          maximum: 365
+          default: 90
     AuthTokens:
       type: object
       properties:
@@ -2975,6 +2983,9 @@ components:
         creation_time:
           type: string
           description: The creation date and time of the auth token (e.g. "2024-04-01T12:25:00.123Z").
+        expiry_time:
+          type: string
+          description: The expiry date and time of the auth token (e.g. "2024-06-30T12:25:00.123Z").
         owner:
           description: Details about the owner of the token.
           $ref: '#/components/schemas/User'
@@ -2996,6 +3007,12 @@ components:
         refresh_token:
           type: string
           description: A refresh token to allow the retrieval of new JWTs when authenticating with a Galasa ecosystem from a client tool.
+        token_expiry_time:
+          type: string
+          description: The expiry date and time of the personal access token used to obtain this JWT (e.g. "2024-06-30T12:25:00.123Z"). Only returned when exchanging a refresh token for a JWT.
+        token_expiry_warning_days:
+          type: integer
+          description: The number of days before token expiry when a warning should be displayed. Only returned when exchanging a refresh token for a JWT.
     CpsProperty:
       type: object
       properties:

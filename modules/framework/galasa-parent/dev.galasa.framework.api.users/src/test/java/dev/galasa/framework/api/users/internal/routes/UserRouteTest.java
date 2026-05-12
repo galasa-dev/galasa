@@ -186,7 +186,7 @@ public class UserRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();     
 
         IInternalUser owner = new InternalUser(JWT_USERNAME, "dexId");
-        authStoreService.storeToken("some-client-id", "test-token", owner);
+        authStoreService.storeToken("some-client-id", "test-token", owner, 90);
         
         MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
         authStoreService.addUser(mockUser1);
@@ -307,7 +307,7 @@ public class UserRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();     
 
         IInternalUser owner = new InternalUser("user-1", "dexId");
-        authStoreService.storeToken("some-client-id", "test-token", owner);
+        authStoreService.storeToken("some-client-id", "test-token", owner, 90);
         
         MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
         authStoreService.addUser(mockUser1);
@@ -356,7 +356,7 @@ public class UserRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();     
 
         IInternalUser owner = new InternalUser("user-1", "dexId");
-        authStoreService.storeToken("some-client-id", "test-token", owner);
+        authStoreService.storeToken("some-client-id", "test-token", owner, 90);
         
         MockUser mockUser1 = createMockUser("user-1", "user-1-number", "web-ui");
 
@@ -425,7 +425,7 @@ public class UserRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();     
 
         IInternalUser owner = new InternalUser("user-1", "dexId");
-        authStoreService.storeToken("some-client-id", "test-token", owner);
+        authStoreService.storeToken("some-client-id", "test-token", owner, 90);
         
         MockUser mockUser1 = createMockUser("user-1", "user-1-number", "web-ui");
 
@@ -467,7 +467,7 @@ public class UserRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();     
 
         IInternalUser owner = new InternalUser("user-1", "dexId");
-        authStoreService.storeToken("some-client-id", "test-token", owner);
+        authStoreService.storeToken("some-client-id", "test-token", owner, 90);
         
         MockUser mockUser1 = createMockUser("user-1", "user-1-number", "web-ui");
 
@@ -520,7 +520,7 @@ public class UserRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
         IInternalUser owner = new InternalUser(JWT_USERNAME, "dexId");
-        authStoreService.storeToken("some-client-id", "test-token", owner);
+        authStoreService.storeToken("some-client-id", "test-token", owner, 90);
        
         MockUser mockUser1 = createMockUser(JWT_USERNAME, "docid", "web-ui");
         authStoreService.addUser(mockUser1);
@@ -572,7 +572,7 @@ public class UserRouteTest extends BaseServletTest {
 
 
         IInternalUser owner = new InternalUser("user-1", "dexId");
-        authStoreService.storeToken("some-client-id", "test-token", owner);
+        authStoreService.storeToken("some-client-id", "test-token", owner, 90);
 
         MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
         authStoreService.addUser(mockUser1);
@@ -618,7 +618,7 @@ public class UserRouteTest extends BaseServletTest {
        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
        IInternalUser owner = new InternalUser("user-1", "dexId");
-       authStoreService.storeToken("some-client-id", "test-token", owner);
+       authStoreService.storeToken("some-client-id", "test-token", owner, 90);
        
        MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
        authStoreService.addUser(mockUser1);
@@ -659,7 +659,7 @@ public class UserRouteTest extends BaseServletTest {
        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
        IInternalUser owner = new InternalUser("user-1", "dexId");
-       authStoreService.storeToken("some-client-id", "test-token", owner);
+       authStoreService.storeToken("some-client-id", "test-token", owner, 90);
        
        MockUser mockUser1 = createMockUser("user-1", "docid", "web-ui");
        authStoreService.addUser(mockUser1);
@@ -706,7 +706,7 @@ public class UserRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();     
 
         IInternalUser owner = new InternalUser("user-1", "dexId");
-        authStoreService.storeToken("some-client-id", "test-token", owner);
+        authStoreService.storeToken("some-client-id", "test-token", owner, 90);
         
         MockUser mockUser1 = createMockUser("user-1", "user-1-number", "web-ui");
 
@@ -808,7 +808,7 @@ public class UserRouteTest extends BaseServletTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
         IInternalUser owner = new InternalUser("user-1", "dexId");
-        authStoreService.storeToken("some-client-id", "test-token", owner);
+        authStoreService.storeToken("some-client-id", "test-token", owner, 90);
 
         MockUser mockUser1 = createMockUser("user-1", "user-1-number", "web-ui");
 
