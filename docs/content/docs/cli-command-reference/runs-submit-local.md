@@ -71,38 +71,6 @@ Use this command to run a Java test in a local JVM:
 
     Galasa uses OBRs to locate tests and all required Managers in the specified Maven repository.
 
-## Running a Gherkin test with the `runs submit local` command
-
-Use this command to run a Gherkin test in a local JVM. Note that the `--gherkin` flag is used instead of `--obr` or `--class` flags.
-
-=== "Linux or macOS"
-
-    ```shell
-    galasactl runs submit local --log - \
-    --gherkin file:///path/to/gherkin/file.feature
-    ```
-
-
-=== "Windows (Powershell)"
-
-    ```powershell
-    galasactl runs submit local --log - `   
-    --gherkin file:///path/to/gherkin/file.feature
-    ```
-
-**Parameters explained:**
-
-- `--log -`: Sends debugging information to the console (stderr).
-
-- `--gherkin`: Specifies the path to the Gherkin file containing your tests. The path must be in URL format and end with a `.feature` extension. 
-  
-    Examples:
-
-    - Linux/macOS: `file:///Users/myuserid/gherkin/MyGherkinFile.feature`
-    - Windows: `file:///C:/Users/myuserid/gherkin/MyGherkinFile.feature`
-
-For more information about Gherkin support, see the [Galasa CLI Gherkin documentation](https://github.com/galasa-dev/galasa/blob/main/modules/cli/gherkin-docs.md){target="_blank"}.
-
 
 ## Stopping a running test
 

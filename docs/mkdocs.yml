@@ -200,6 +200,12 @@ nav:
       - docs/writing-own-tests/key-principles.md
       - docs/writing-own-tests/test-result-provider.md
       - docs/writing-own-tests/running-resource-cleanup-locally.md
+    - Behavior-Driven Development with Galasa:
+      - docs/using-gherkin/index.md
+      - docs/using-gherkin/writing-gherkin-tests.md
+      - docs/using-gherkin/running-gherkin-tests.md
+      - docs/using-gherkin/gherkin-step-definitions.md
+      - docs/using-gherkin/gherkin-syntax-reference.md
     - Configuring Credentials:
       - docs/configuring-local-credentials/index.md
       - docs/configuring-local-credentials/macos-keychain-store.md

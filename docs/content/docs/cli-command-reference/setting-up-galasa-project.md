@@ -12,7 +12,7 @@ This guide explains:
 - How to create and build an example project
 - The purpose of the generated files
 
-Once you have created and built your project, you can run tests locally. Both Java and Gherkin tests are supported. Learn more in [Running a test locally](./runs-submit-local.md).
+Once you have created and built your project, you can run tests locally. Learn more in [Running a test locally](./runs-submit-local.md).
 
 
 ## Getting started
