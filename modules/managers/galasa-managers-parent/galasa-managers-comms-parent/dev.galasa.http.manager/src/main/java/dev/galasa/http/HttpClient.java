@@ -26,4 +26,8 @@ import dev.galasa.http.internal.HttpManagerField;
 @ValidAnnotatedFields({ IHttpClient.class })
 public @interface HttpClient {
 
+    /**
+     * The length of time a connection or response will timeout (in milliseconds). Optional.
+     */
+    int timeout() default 0;
 }

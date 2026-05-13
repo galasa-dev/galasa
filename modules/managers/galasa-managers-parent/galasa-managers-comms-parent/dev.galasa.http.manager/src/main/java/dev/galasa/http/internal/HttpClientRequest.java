@@ -10,7 +10,9 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -21,12 +23,15 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.classic.methods.HttpPatch;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.FileEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIBuilder;
 import org.w3c.dom.Document;
 
@@ -206,6 +211,25 @@ public class HttpClientRequest {
      */
     public HttpClientRequest setJSONBody(JsonObject json) {
         return setBody(json.toString());
+    }
+
+    /**
+     * Set the body of the request as form-encoded data.
+     *
+     * <p>
+     * This method encodes the provided fields as application/x-www-form-urlencoded
+     * data, which is commonly used for HTML form submissions (e.g., login forms).
+     *
+     * @param fields - Map of form field names to values
+     * @return - the updated request
+     */
+    public HttpClientRequest setFormBody(Map<String, String> fields) {
+        List<NameValuePair> nvps = new ArrayList<>();
+        for (Entry<String, String> field : fields.entrySet()) {
+            nvps.add(new BasicNameValuePair(field.getKey(), field.getValue()));
+        }
+        this.content = new UrlEncodedFormEntity(nvps);
+        return this;
     }
 
     /**

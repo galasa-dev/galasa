@@ -18,6 +18,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
+import org.apache.hc.client5.http.ContextBuilder;
 import org.apache.hc.client5.http.auth.AuthCache;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.Credentials;
@@ -40,6 +42,7 @@ import org.apache.hc.client5.http.auth.CredentialsProvider;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
@@ -49,24 +52,36 @@ import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.auth.BasicScheme;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.util.Timeout;
 
@@ -90,8 +105,11 @@ public class HttpClientImpl implements IHttpClient {
     protected URI               host                 = null;
 
     private final List<Header>  commonHeaders        = new ArrayList<>();
+    private String[]            tlsVersions;
 
     private final int           timeout;
+    private Timeout             socketTimeout    = null;
+    private Timeout             connectTimeout   = null;
 
     private BasicCookieStore    cookieStore;
     private SSLContext          sslContext;
@@ -105,7 +123,10 @@ public class HttpClientImpl implements IHttpClient {
     private Log                 logger;
 
     private SSLTLSContextNameSelector nameSelector = new SSLTLSContextNameSelector();
-
+    
+    ContentType[] textContentTypes = new ContentType[] { ContentType.TEXT_PLAIN, ContentType.TEXT_EVENT_STREAM,
+        ContentType.TEXT_HTML, ContentType.TEXT_MARKDOWN, ContentType.TEXT_XML };
+    
     public HttpClientImpl(int timeout, Log log) {
         this(timeout, log, new HttpRequestExecutor());
     }
@@ -114,6 +135,7 @@ public class HttpClientImpl implements IHttpClient {
         this.timeout = timeout;
         this.logger = log;
         this.cookieStore = new BasicCookieStore();
+        this.tlsVersions = new String[] { "TLSv1.2" };
         this.httpRequestExecutor = httpRequestExecutor;
     }
 
@@ -256,7 +278,7 @@ public class HttpClientImpl implements IHttpClient {
     public HttpClientResponse<String> getText(String url) throws HttpClientException {
 
         HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(url, null).toString(),
-                new ContentType[] { ContentType.TEXT_PLAIN });
+            textContentTypes);
 
         return executeTextRequest(request);
     }
@@ -285,7 +307,7 @@ public class HttpClientImpl implements IHttpClient {
     public HttpClientResponse<String> putSOAP(String url, String xml) throws HttpClientException {
 
         HttpClientRequest request = HttpClientRequest.newPutRequest(buildUri(url, null).toString(),
-                new ContentType[] { ContentType.SOAP_XML }, ContentType.SOAP_XML);
+            new ContentType[] { ContentType.SOAP_XML }, ContentType.SOAP_XML);
         request.setBody(xml);
 
         return executeTextRequest(request);
@@ -295,7 +317,7 @@ public class HttpClientImpl implements IHttpClient {
     public HttpClientResponse<String> postSOAP(String url, String xml) throws HttpClientException {
 
         HttpClientRequest request = HttpClientRequest.newPostRequest(buildUri(url, null).toString(),
-                new ContentType[] { ContentType.SOAP_XML }, ContentType.SOAP_XML);
+            new ContentType[] { ContentType.SOAP_XML }, ContentType.SOAP_XML);
         request.setBody(xml);
 
         return executeTextRequest(request);
@@ -305,7 +327,7 @@ public class HttpClientImpl implements IHttpClient {
     public HttpClientResponse<String> putText(String url, String text) throws HttpClientException {
 
         HttpClientRequest request = HttpClientRequest.newPutRequest(buildUri(url, null).toString(),
-                new ContentType[] { ContentType.TEXT_PLAIN }, ContentType.TEXT_PLAIN);
+            textContentTypes, ContentType.TEXT_PLAIN);
         request.setBody(text);
 
         return executeTextRequest(request);
@@ -315,9 +337,17 @@ public class HttpClientImpl implements IHttpClient {
     public HttpClientResponse<String> postText(String url, String text) throws HttpClientException {
 
         HttpClientRequest request = HttpClientRequest.newPostRequest(buildUri(url, null).toString(),
-                new ContentType[] { ContentType.TEXT_PLAIN }, ContentType.TEXT_PLAIN);
+            textContentTypes, ContentType.TEXT_PLAIN);
         request.setBody(text);
 
+        return executeTextRequest(request);
+    }
+
+    @Override
+    public HttpClientResponse<String> postForm(String url, Map<String, String> fields) throws HttpClientException {
+        HttpClientRequest request = HttpClientRequest.newPostRequest(buildUri(url, null).toString(),
+            textContentTypes, ContentType.APPLICATION_FORM_URLENCODED);
+        request.setFormBody(fields);
         return executeTextRequest(request);
     }
 
@@ -325,7 +355,7 @@ public class HttpClientImpl implements IHttpClient {
     public HttpClientResponse<String> deleteText(String url) throws HttpClientException {
 
         HttpClientRequest request = HttpClientRequest.newDeleteRequest(buildUri(url, null).toString(),
-                new ContentType[] { ContentType.TEXT_PLAIN });
+            textContentTypes);
 
         return executeTextRequest(request);
     }
@@ -622,6 +652,30 @@ public class HttpClientImpl implements IHttpClient {
     }
 
     /**
+     * Set the socket timeout in seconds.
+     * This is the timeout for waiting for data after connection is established.
+     *
+     * @param seconds - timeout in seconds
+     */
+    @Override
+    public void setSocketTimeout(int seconds)
+    {
+        this.socketTimeout = Timeout.ofSeconds(seconds);
+    }
+
+    /**
+     * Set the connection timeout in seconds.
+     * This is the timeout for establishing the connection.
+     *
+     * @param seconds - timeout in seconds
+     */
+    @Override
+    public void setConnectTimeout(int seconds)
+    {
+        this.connectTimeout = Timeout.ofSeconds(seconds);
+    }
+
+    /**
      * Build the client
      * 
      * @return the built client
@@ -630,25 +684,52 @@ public class HttpClientImpl implements IHttpClient {
         RequestConfig.Builder requestBuilder = RequestConfig.custom();
         HttpClientBuilder builder = HttpClientBuilder.create();
         builder.setDefaultCookieStore(cookieStore);
+        builder.setRedirectStrategy(new BaseUriRedirectStrategy());
         requestBuilder.setCookieSpec(StandardCookieSpec.STRICT);
+        requestBuilder.setRedirectsEnabled(true);
+        requestBuilder.setCircularRedirectsAllowed(true);
         builder.setDefaultCredentialsProvider(credentialsProvider);
         builder.setDefaultHeaders(commonHeaders);
 
+        // Apply request-level timeouts if default timeout is set
         if (timeout > 0) {
             Timeout timeoutValue = Timeout.ofMilliseconds(timeout);
             requestBuilder.setConnectionRequestTimeout(timeoutValue)
                           .setResponseTimeout(timeoutValue);
         }
 
+        // Create connection manager and apply connection-level timeouts
+        PoolingHttpClientConnectionManagerBuilder cmBuilder = PoolingHttpClientConnectionManagerBuilder.create();
+        
         if (sslContext != null) {
-            TlsSocketStrategy tlsStrategy = new DefaultClientTlsStrategy(sslContext, hostnameVerifier);
-            HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
-                    .setTlsSocketStrategy(tlsStrategy)
-                    .build();
-            builder.setConnectionManager(cm);
+            TlsSocketStrategy tlsStrategy = ClientTlsStrategyBuilder.create().setSslContext(sslContext)
+                .setTlsVersions(String.join(",", tlsVersions)).setHostnameVerifier(hostnameVerifier).buildClassic();
+            cmBuilder.setTlsSocketStrategy(tlsStrategy);
         }
+        
+        PoolingHttpClientConnectionManager connectionManager = cmBuilder.build();
+        
+        // Apply connection-level timeouts (socket and connect) if set
+        if (socketTimeout != null || connectTimeout != null) {
+            ConnectionConfig.Builder connConfigBuilder = ConnectionConfig.custom();
+            
+            if (socketTimeout != null) {
+                connConfigBuilder.setSocketTimeout(socketTimeout);
+            }
+            
+            if (connectTimeout != null) {
+                connConfigBuilder.setConnectTimeout(connectTimeout);
+            }
+            
+            connectionManager.setDefaultConnectionConfig(connConfigBuilder.build());
+        }
+        
+        builder.setConnectionManager(connectionManager);
         builder.setDefaultRequestConfig(requestBuilder.build());
         httpClient = builder.build();
+        
+        httpContext = ContextBuilder.create().useCookieStore(cookieStore).useCredentialsProvider(credentialsProvider)
+            .build();
 
         return this;
     }
@@ -806,7 +887,7 @@ public class HttpClientImpl implements IHttpClient {
             return;
         }
 
-        if (!path.startsWith("/")) {
+        if (!path.startsWith("/") && !ub.toString().endsWith("/")) {
             path = "/" + path;
         }
 
@@ -967,4 +1048,48 @@ public class HttpClientImpl implements IHttpClient {
 
     }
 
+    @Override
+    public void clearCookies() {
+        this.cookieStore.clear();
+    }
+
+    @Override
+    public void setTlsVersions(String[] tlsVersions)
+    {
+        this.tlsVersions = Arrays.copyOf(tlsVersions, tlsVersions.length);
+    }
+
+    public String[] getTlsVersions()
+    {
+        return tlsVersions;
+    }
+
+
+    /**
+     * Custom redirect strategy that resolves relative redirect URIs against the base URI.
+     * This ensures that redirects like "/" are resolved as "/myapp/" instead of just "/".
+     */
+    private class BaseUriRedirectStrategy extends DefaultRedirectStrategy
+    {
+        @Override
+        public URI getLocationURI(HttpRequest request, HttpResponse response, HttpContext context)
+            throws org.apache.hc.core5.http.HttpException
+        {
+            // Get the redirect location from the response
+            URI locationUri = super.getLocationURI(request, response, context);
+
+            if (locationUri.toString().replace(HttpClientImpl.this.host.toString(), "").trim().isBlank()) {
+                try
+                {
+                    locationUri = new URI(locationUri.toString() + "/");
+                }
+                catch (URISyntaxException e)
+                {
+                    return locationUri;
+                }
+            }
+
+            return locationUri;
+        }
+    }
 }

@@ -18,6 +18,8 @@ public enum ContentType {
     APPLICATION_FORM_URLENCODED(org.apache.hc.core5.http.ContentType.APPLICATION_FORM_URLENCODED),
     TEXT_PLAIN(org.apache.hc.core5.http.ContentType.TEXT_PLAIN),
     TEXT_HTML(org.apache.hc.core5.http.ContentType.TEXT_HTML),
+    TEXT_MARKDOWN(org.apache.hc.core5.http.ContentType.TEXT_MARKDOWN),
+    TEXT_EVENT_STREAM(org.apache.hc.core5.http.ContentType.TEXT_EVENT_STREAM),
     TEXT_XML(org.apache.hc.core5.http.ContentType.TEXT_XML),
     RDF_XML("application/rdf+xml"),
     SOAP_XML("application/soap+xml");

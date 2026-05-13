@@ -36,7 +36,20 @@ public class HttpManagerImpl extends AbstractManager implements IHttpManagerSpi 
 
     @GenerateAnnotatedField(annotation = HttpClient.class)
     public IHttpClient generateHttpClient(Field field, List<Annotation> annotations) {
-        return newHttpClient();
+        HttpClient annotationHttpClient = field.getAnnotation(HttpClient.class);
+
+        int timeout = annotationHttpClient.timeout();
+
+        IHttpClient httpClient = null;
+        if (timeout > 0)
+        {
+            httpClient = newHttpClient(timeout);
+        }
+        else
+        {
+            httpClient = newHttpClient();
+        }
+        return httpClient;
     }
 
     @Override
