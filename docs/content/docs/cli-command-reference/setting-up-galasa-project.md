@@ -40,6 +40,63 @@ Maven is _opinionated_, meaning it expects your project to follow a specific str
 
 Maven projects use `pom.xml` (Project Object Model) files throughout. These XML files manage your project dependencies and build process.
 
+??? info "Key elements in pom.xml files"
+
+    #### Parent pom.xml elements
+
+    Standard Maven project elements:
+
+    ```xml
+    <groupId>dev.galasa.example.banking</groupId>
+    <artifactId>dev.galasa.example.banking</artifactId>
+    <version>0.0.1-SNAPSHOT</version>	
+    <packaging>pom</packaging>
+    ```
+
+    - `<groupId>`: Groups related Maven projects in a repository. All projects in a [test stream](../manage-ecosystem/test-streams.md) should share the same `groupId`.
+
+    - `<artifactId>`: Must be unique for each project under a `groupId`. Convention uses reversed domain names (like `dev.galasa.example.banking`) to avoid naming conflicts.
+
+    - `<version>`: Set to `0.1.0-SNAPSHOT` in this example.
+
+    - `<packaging>`: Set to `pom` for parent projects.
+
+    Sub-modules are listed in the parent pom.xml:
+
+    ```xml
+    <modules>
+        <module>dev.galasa.example.banking.payee</module>
+        <module>dev.galasa.example.banking.account</module>
+        <module>dev.galasa.example.banking.obr</module>
+    </modules>
+    ```
+
+    Other important parent pom.xml elements:
+
+    - `<distributionManagement>`: Controls where Maven deploys built projects. Uses variables so the same project can deploy to different test stream repositories.
+
+    - `<properties>`: Specifies file encoding and Java version numbers.
+
+    - `<dependencyManagement>`: Sets dependency versions for all sub-modules. Uses a BOM (Bill of Materials) project from the Galasa team that includes all released Manager versions.
+
+    - `<dependencies>`: Lists all Managers available to your tests. Maintaining this list in the parent pom.xml is easier than duplicating it in each sub-module.
+
+    - `<plugins>`: Identifies Maven plugins for the build process:
+    - `maven-bundle-plugin`: Builds OSGi bundles (indicated by `<packaging>bundle</packaging>`)
+    - `galasa-maven-plugin`: Builds test catalogs and OBR projects (indicated by `<packaging>galasa-obr</packaging>`)
+
+
+    #### Test project pom.xml elements
+
+    - `<parent>`: References the parent pom.xml, inheriting all properties and dependencies. This avoids duplication and ensures changes apply to all sub-projects.
+
+    - `<packaging>`: Set to `bundle` to build an OSGi bundle instead of a simple JAR.
+
+
+    #### OBR pom.xml elements
+
+    - `<packaging>`: Set to `galasa-obr` to trigger the Galasa Maven plugin to build the OBR project.
+
 
 ## A bit about Gradle
 
@@ -198,10 +255,7 @@ The `galasactl project create` command generates this folder structure:
 
 ## The parent project
 
-The top-level folder (`dev.galasa.example.banking`) is the parent project. It is a container for all generated files:
-
-- Maven uses `pom.xml` to build all sub-projects
-- Gradle uses `settings.gradle`
+The top-level folder (`dev.galasa.example.banking`) is the parent project. It is a container for all generated files.
 
 The parent project contains three OSGi bundle sub-projects:
 
@@ -236,61 +290,3 @@ Each test project (`payee` and `account`) contains:
 - Reading text file resources embedded in the test OSGi bundle
 - Using logging to debug test code
 - Capturing test-created files with other test results
-
-
-## Key elements in pom.xml files
-
-### Parent pom.xml elements
-
-Standard Maven project elements:
-
-```xml
-<groupId>dev.galasa.example.banking</groupId>
-<artifactId>dev.galasa.example.banking</artifactId>
-<version>0.0.1-SNAPSHOT</version>	
-<packaging>pom</packaging>
-```
-
-- `<groupId>`: Groups related Maven projects in a repository. All projects in a [test stream](../manage-ecosystem/test-streams.md) should share the same `groupId`.
-
-- `<artifactId>`: Must be unique for each project under a `groupId`. Convention uses reversed domain names (like `dev.galasa.example.banking`) to avoid naming conflicts.
-
-- `<version>`: Set to `0.1.0-SNAPSHOT` in this example.
-
-- `<packaging>`: Set to `pom` for parent projects.
-
-Sub-modules are listed in the parent pom.xml:
-
-```xml
-<modules>
-	<module>dev.galasa.example.banking.payee</module>
-	<module>dev.galasa.example.banking.account</module>
-	<module>dev.galasa.example.banking.obr</module>
-</modules>
-```
-
-Other important parent pom.xml elements:
-
-- `<distributionManagement>`: Controls where Maven deploys built projects. Uses variables so the same project can deploy to different test stream repositories.
-
-- `<properties>`: Specifies file encoding and Java version numbers.
-
-- `<dependencyManagement>`: Sets dependency versions for all sub-modules. Uses a BOM (Bill of Materials) project from the Galasa team that includes all released Manager versions.
-
-- `<dependencies>`: Lists all Managers available to your tests. Maintaining this list in the parent pom.xml is easier than duplicating it in each sub-module.
-
-- `<plugins>`: Identifies Maven plugins for the build process:
-  - `maven-bundle-plugin`: Builds OSGi bundles (indicated by `<packaging>bundle</packaging>`)
-  - `galasa-maven-plugin`: Builds test catalogs and OBR projects (indicated by `<packaging>galasa-obr</packaging>`)
-
-
-### Test project pom.xml elements
-
-- `<parent>`: References the parent pom.xml, inheriting all properties and dependencies. This avoids duplication and ensures changes apply to all sub-projects.
-
-- `<packaging>`: Set to `bundle` to build an OSGi bundle instead of a simple JAR.
-
-
-### OBR pom.xml elements
-
-- `<packaging>`: Set to `galasa-obr` to trigger the Galasa Maven plugin to build the OBR project.
