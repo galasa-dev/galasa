@@ -200,7 +200,7 @@ function upgrade_ecosystem_installing {
 function upgrade_running_simbank_offline {
     h1 "Upgrading the version in the running-simbank-tests-cli-offline.md file"
     
-    source_path=${BASEDIR}/content/docs/running-simbank-tests/running-simbank-tests-cli-offline.md
+    source_path=${BASEDIR}/content/docs/using-galasa-offline/running-simbank-tests-cli-offline.md
     temp_file=$temp_dir/running-simbank-tests-cli-offline.md
     # These lines need to change:
     #     The following example uses SimBank OBR version `0.43.0`.
@@ -287,6 +287,28 @@ function upgrade_web_app {
     success "Upgraded version in web-app-integration-test.md."    
 }
 
+function upgrade_setting_up_galasa_project {
+    h1 "Upgrading the version in the setting-up-galasa-project.md file"
+
+    source_path=${BASEDIR}/content/docs/cli-command-reference/setting-up-galasa-project.md
+    temp_file=$temp_dir/setting-up-galasa-project.md
+
+    info "Upgrading version in file $source_path"
+
+    cat $source_path \
+    | sed "s/'dev.galasa.tests'[ ]version[ ]'.*'/'dev.galasa.tests' version '$component_version'/1" \
+    | sed "s/'dev.galasa.obr'[ ]version[ ]'.*'/'dev.galasa.obr' version '$component_version'/1" \
+    | sed "s/'dev.galasa.testcatalog'[ ]version[ ]'.*'/'dev.galasa.testcatalog' version '$component_version'/1" \
+    | sed "s/galasa-bom[:].*/galasa-bom:$component_version')/g" \
+    > $temp_file
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace version in file $temp_file" ; exit 1 ; fi
+
+    cp $temp_file $source_path
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace master version file with the modified one." ; exit 1 ; fi
+
+    success "Upgraded version in setting-up-galasa-project.md."
+}
+
 upgrade_docs_build_gradle
 upgrade_index
 upgrade_installing_cli
@@ -295,3 +317,4 @@ upgrade_running_simbank_offline
 upgrade_running_simbank
 upgrade_simbank_cli
 upgrade_web_app
+upgrade_setting_up_galasa_project
