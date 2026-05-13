@@ -49,7 +49,7 @@ Maven projects use `pom.xml` (Project Object Model) files throughout. These XML 
     ```xml
     <groupId>dev.galasa.example.banking</groupId>
     <artifactId>dev.galasa.example.banking</artifactId>
-    <version>0.0.1-SNAPSHOT</version>	
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     ```
 
@@ -105,6 +105,137 @@ Gradle projects have a different structure than Maven projects:
 - `build.gradle` files declare dependencies and Maven coordinates for publishing
 - `bnd.bnd` files define OSGi Bundles for test projects and Managers
 - `settings.gradle` files tell Gradle where to find required dependencies and plugins
+
+??? info "Key elements in Gradle files"
+
+    #### Parent settings.gradle elements
+
+    The parent `settings.gradle` file defines the project structure and sub-modules:
+
+    ```gradle
+    pluginManagement {
+        repositories {
+            mavenLocal()
+            gradlePluginPortal()
+            mavenCentral()
+        }
+    }
+
+    include 'dev.galasa.example.banking.account'
+    include 'dev.galasa.example.banking.payee'
+    include 'dev.galasa.example.banking.obr'
+    ```
+
+    - `pluginManagement`: Tells Gradle where it should look to find the plugins that are part of the build
+    - `include`: Lists all sub-modules (sub-projects) that are part of the build
+
+    #### Test project build.gradle elements
+
+    The `build.gradle` file in test projects declares dependencies and publishing configuration:
+
+    ```gradle
+    plugins {
+        id 'java'
+        id 'maven-publish'
+        id 'dev.galasa.tests' version '0.48.0'
+        id 'biz.aQute.bnd.builder' version '6.4.0'
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    group = 'dev.galasa.example.banking'
+    version = '0.0.1-SNAPSHOT'
+
+    dependencies {
+        implementation platform('dev.galasa:galasa-bom:0.48.0')
+
+        implementation 'dev.galasa:dev.galasa'
+        implementation 'dev.galasa:dev.galasa.framework'
+        implementation 'dev.galasa:dev.galasa.core.manager'
+        implementation 'dev.galasa:dev.galasa.artifact.manager'
+        implementation 'commons-logging:commons-logging'
+        implementation 'org.assertj:assertj-core'
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+    ```
+
+    Key elements:
+
+    - `plugins`: Applies the Galasa Java plugin which configures the build for Galasa tests
+    - `version`: Sets the project version (should match across all modules)
+    - `dependencies`: Lists all Managers and libraries required by the tests
+
+    #### Test project bnd.bnd elements
+
+    The `bnd.bnd` file defines the OSGi bundle metadata:
+
+    ```
+    Bundle-Version: 0.0.1-SNAPSHOT
+    Bundle-Name: dev.galasa.example.banking.account
+    Import-Package: *
+    ```
+
+    Key elements:
+
+    - `Bundle-Name`: Human-readable name for the bundle
+    - `Bundle-Version`: Version of the bundle
+    - `Import-Package`: List of packages to import from other bundles
+
+    #### OBR build.gradle elements
+
+    The OBR project `build.gradle` file uses the Galasa OBR plugin:
+
+    ```gradle
+    plugins {
+        id 'base'
+        id 'maven-publish'
+        id 'dev.galasa.obr' version '0.48.0'
+        id 'dev.galasa.testcatalog' version '0.48.0'
+    }
+
+    group = 'dev.galasa.example.banking'
+    version = '0.0.1-SNAPSHOT'
+
+    dependencies {
+        bundle project(':dev.galasa.example.banking.account')
+        bundle project(':dev.galasa.example.banking.payee')
+    }
+
+    def testcatalog = file('build/testcatalog.json')
+    def obrFile = file('build/galasa.obr')
+
+    tasks.withType(PublishToMavenLocal) { task ->
+        task.dependsOn genobr
+        task.dependsOn mergetestcat
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact obrFile
+                artifact (testcatalog) {
+                    classifier "testcatalog"
+                    extension "json"
+                }
+            }
+        }
+    }
+    ```
+
+    Key elements:
+
+    - `plugins`: Applies the Galasa OBR plugin which builds the OSGi Bundle Repository
+    - `dependencies`: Lists all test bundles to include in the OBR using the `bundle` configuration
 
 
 ## Project Structure
@@ -163,11 +294,11 @@ The example assumes you are testing a banking application with `payee` and `acco
 **Parameters explained:**
 
 - `--package` (required): The Java package name. This influences folder names, OSGi bundle names, Maven coordinates, and Java package names. Must be lowercase letters and numbers (`a-z`, `0-9`) with `.` separators. Cannot use Java reserved words.
-  
+
   Example: `dev.galasa.example.banking` could represent your company (dev.galasa), application type (example), and application name (banking).
 
 - `--features` (optional): Comma-separated list of application features to test. Defaults to `test` if not specified. Influences folder names, OSGi bundles, Maven coordinates, and Java class names. Must be lowercase letters and numbers (`a-z`, `0-9`) with no special characters. Cannot use Java reserved words.
-  
+
   Example: `payee,account` creates separate test modules for these banking features.
 
 - `--force` (optional): Overwrites existing files without warning. Use carefully to avoid data loss. Without this flag, the command fails if files already exist.
@@ -181,7 +312,7 @@ The example assumes you are testing a banking application with `payee` and `acco
 - `--gradle`: Creates Gradle project files.
 
 
-## Building the example project 
+## Building the example project
 
 Navigate to the parent folder:
 
