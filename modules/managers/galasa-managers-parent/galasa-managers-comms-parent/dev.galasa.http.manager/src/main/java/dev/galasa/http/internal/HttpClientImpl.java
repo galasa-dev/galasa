@@ -661,7 +661,7 @@ public class HttpClientImpl implements IHttpClient {
      * @param seconds - timeout in seconds
      */
     @Override
-    public void setSocketTimeout(int seconds) 
+    public void setSocketTimeout(int seconds) {
         this.socketTimeout = Timeout.ofSeconds(seconds);
     }
 
