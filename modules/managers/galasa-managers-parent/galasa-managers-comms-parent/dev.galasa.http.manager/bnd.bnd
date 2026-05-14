@@ -17,16 +17,20 @@ Import-Package: com.google.gson,\
     org.apache.commons.logging,\
     org.apache.hc.core5.http,\
     org.apache.hc.core5.http.io.entity,\
+    org.apache.hc.core5.http.io.support,\
     org.apache.hc.core5.http.message,\
     org.apache.hc.core5.http.protocol,\
+    org.apache.hc.core5.http.ssl,\
     org.apache.hc.core5.net,\
     org.apache.hc.core5.util,\
+    org.apache.hc.client5.http,\
     org.apache.hc.client5.http.auth,\
     org.apache.hc.client5.http.classic.methods,\
     org.apache.hc.client5.http.config,\
     org.apache.hc.client5.http.cookie,\
     org.apache.hc.client5.http.entity,\
     org.apache.hc.client5.http.entity.mime,\
+    org.apache.hc.client5.http.impl,\
     org.apache.hc.client5.http.impl.auth,\
     org.apache.hc.client5.http.impl.classic,\
     org.apache.hc.client5.http.impl.io,\

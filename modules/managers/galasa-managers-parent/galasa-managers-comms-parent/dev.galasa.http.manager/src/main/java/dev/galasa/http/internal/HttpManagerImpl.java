@@ -41,12 +41,10 @@ public class HttpManagerImpl extends AbstractManager implements IHttpManagerSpi 
         int timeout = annotationHttpClient.timeout();
 
         IHttpClient httpClient = null;
-        if (timeout > 0)
-        {
+        if (timeout > 0) {
             httpClient = newHttpClient(timeout);
         }
-        else
-        {
+        else {
             httpClient = newHttpClient();
         }
         return httpClient;

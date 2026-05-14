@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManagerFactory;
@@ -93,6 +94,8 @@ import dev.galasa.http.HttpClientException;
 import dev.galasa.http.HttpClientResponse;
 import dev.galasa.http.HttpFileResponse;
 import dev.galasa.http.IHttpClient;
+import dev.galasa.http.TLS;
+
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.annotation.XmlType;
@@ -105,7 +108,7 @@ public class HttpClientImpl implements IHttpClient {
     protected URI               host                 = null;
 
     private final List<Header>  commonHeaders        = new ArrayList<>();
-    private String[]            tlsVersions;
+    private TLS[]               tlsVersions;
 
     private final int           timeout;
     private Timeout             socketTimeout    = null;
@@ -135,7 +138,7 @@ public class HttpClientImpl implements IHttpClient {
         this.timeout = timeout;
         this.logger = log;
         this.cookieStore = new BasicCookieStore();
-        this.tlsVersions = new String[] { "TLSv1.2" };
+        this.tlsVersions = new TLS[] { TLS.v1_2 };
         this.httpRequestExecutor = httpRequestExecutor;
     }
 
@@ -658,8 +661,7 @@ public class HttpClientImpl implements IHttpClient {
      * @param seconds - timeout in seconds
      */
     @Override
-    public void setSocketTimeout(int seconds)
-    {
+    public void setSocketTimeout(int seconds) 
         this.socketTimeout = Timeout.ofSeconds(seconds);
     }
 
@@ -670,8 +672,7 @@ public class HttpClientImpl implements IHttpClient {
      * @param seconds - timeout in seconds
      */
     @Override
-    public void setConnectTimeout(int seconds)
-    {
+    public void setConnectTimeout(int seconds) {
         this.connectTimeout = Timeout.ofSeconds(seconds);
     }
 
@@ -702,8 +703,13 @@ public class HttpClientImpl implements IHttpClient {
         PoolingHttpClientConnectionManagerBuilder cmBuilder = PoolingHttpClientConnectionManagerBuilder.create();
         
         if (sslContext != null) {
+            org.apache.hc.core5.http.ssl.TLS [] tlsApacheVersions = Arrays.asList(tlsVersions).stream()
+                .map(t -> t.getTls())
+                .collect(Collectors.toList())
+                .toArray(org.apache.hc.core5.http.ssl.TLS[]::new);
+            
             TlsSocketStrategy tlsStrategy = ClientTlsStrategyBuilder.create().setSslContext(sslContext)
-                .setTlsVersions(String.join(",", tlsVersions)).setHostnameVerifier(hostnameVerifier).buildClassic();
+                .setTlsVersions(tlsApacheVersions).setHostnameVerifier(hostnameVerifier).buildClassic();
             cmBuilder.setTlsSocketStrategy(tlsStrategy);
         }
         
@@ -1054,37 +1060,30 @@ public class HttpClientImpl implements IHttpClient {
     }
 
     @Override
-    public void setTlsVersions(String[] tlsVersions)
-    {
-        this.tlsVersions = Arrays.copyOf(tlsVersions, tlsVersions.length);
+    public void setTlsVersions(TLS[] tlsVersions) {
+        this.tlsVersions = tlsVersions;
     }
 
-    public String[] getTlsVersions()
-    {
+    public TLS[] getTlsVersions() {
         return tlsVersions;
     }
-
 
     /**
      * Custom redirect strategy that resolves relative redirect URIs against the base URI.
      * This ensures that redirects like "/" are resolved as "/myapp/" instead of just "/".
      */
-    private class BaseUriRedirectStrategy extends DefaultRedirectStrategy
-    {
+    private class BaseUriRedirectStrategy extends DefaultRedirectStrategy {
         @Override
         public URI getLocationURI(HttpRequest request, HttpResponse response, HttpContext context)
-            throws org.apache.hc.core5.http.HttpException
-        {
+            throws org.apache.hc.core5.http.HttpException {
             // Get the redirect location from the response
             URI locationUri = super.getLocationURI(request, response, context);
 
             if (locationUri.toString().replace(HttpClientImpl.this.host.toString(), "").trim().isBlank()) {
-                try
-                {
+                try {
                     locationUri = new URI(locationUri.toString() + "/");
                 }
-                catch (URISyntaxException e)
-                {
+                catch (URISyntaxException e) {
                     return locationUri;
                 }
             }

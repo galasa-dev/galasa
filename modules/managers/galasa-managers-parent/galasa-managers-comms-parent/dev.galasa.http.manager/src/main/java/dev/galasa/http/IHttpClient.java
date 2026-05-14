@@ -560,6 +560,6 @@ public interface IHttpClient {
      * @param tlsVersions
      *            TLS versions
      */
-    void setTlsVersions(String[] tlsVersions);
+    void setTlsVersions(TLS[] tlsVersions);
 
 }
