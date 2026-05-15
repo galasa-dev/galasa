@@ -16,9 +16,11 @@ This Manager provides a test with a Kubernetes Namespace to utilize. The test wi
 ### Configuration Requirements
 
 **Minimum required configuration:**
+
 - `kubernetes.cluster.K8S.url` - The Kubernetes API server URL
 
 **Authentication options:**
+
 1. **Token-based authentication** (for remote clusters): Provide `secure.credentials.K8S.token` credential
 2. **kubectl proxy mode** (for local testing): Use `http://localhost:8001` - no credentials required
 
