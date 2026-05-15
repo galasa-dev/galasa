@@ -208,6 +208,28 @@ public interface IHttpClient {
     HttpClientResponse<String> postText(String url, String text) throws HttpClientException;
 
     /**
+     * Issue an HTTP POST to the provided URL, sending form-encoded data
+     * and receiving a {@link String} in the response.
+     *
+     * <p>
+     * This is a convenience method for posting form data (e.g., login credentials).
+     * The data is encoded as application/x-www-form-urlencoded, which is the standard
+     * format for HTML form submissions.
+     * </p>
+     *
+     * <p>
+     * This method is commonly used for form-based authentication where credentials
+     * are posted as form fields (e.g., j_username, j_password for Java EE security).
+     * </p>
+     *
+     * @param url - URL path
+     * @param fields - Form fields as key-value pairs
+     * @return - {@link HttpClientResponse} with a {@link String} content type
+     * @throws HttpClientException if the request fails
+     */
+    HttpClientResponse<String> postForm(String url, Map<String, String> fields) throws HttpClientException;
+
+    /**
      * Issue an HTTP PUT to the provided URL, sending the provided {@link String}
      * and receiving a {@link String} in the response.
      * 
@@ -413,6 +435,24 @@ public interface IHttpClient {
     void addOkResponseCode(int responseCode);
 
     /**
+     * Set the socket timeout in seconds.
+     * This is the timeout for waiting for data after connection is established.
+     * Must be called before {@link #build()}.
+     *
+     * @param seconds - timeout in seconds
+     */
+    void setSocketTimeout(int seconds);
+
+    /**
+     * Set the connection timeout in seconds.
+     * This is the timeout for establishing the connection.
+     * Must be called before {@link #build()}.
+     *
+     * @param seconds - timeout in seconds
+     */
+    void setConnectTimeout(int seconds);
+
+    /**
      * Build the client
      * 
      * @return the built client
@@ -508,5 +548,18 @@ public interface IHttpClient {
      * @param host
      */
     void setURI(URI host);
+    
+    /**
+     * Clear the cookie store
+     */
+    void clearCookies();
+    
+    /**
+     * Set TLS versions required.
+     *
+     * @param tlsVersions
+     *            TLS versions
+     */
+    void setTlsVersions(TLS[] tlsVersions);
 
 }
