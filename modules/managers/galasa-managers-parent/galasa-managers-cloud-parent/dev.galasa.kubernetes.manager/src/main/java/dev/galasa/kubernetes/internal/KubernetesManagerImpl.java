@@ -36,6 +36,7 @@ import dev.galasa.kubernetes.KubernetesManagerException;
 import dev.galasa.kubernetes.KubernetesNamespace;
 import dev.galasa.kubernetes.internal.properties.KubernetesClusters;
 import dev.galasa.kubernetes.internal.properties.KubernetesNamespaceTagSharedEnvironment;
+import dev.galasa.kubernetes.internal.properties.KubernetesNamespaces;
 import dev.galasa.kubernetes.internal.properties.KubernetesPropertiesSingleton;
 import dev.galasa.kubernetes.spi.IKubernetesManagerSpi;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
@@ -249,7 +250,7 @@ public class KubernetesManagerImpl extends AbstractManager implements IKubernete
 
             //*** Did we find a cluster with availability?
             if (selectedCluster == null) {
-                throw new ResourceUnavailableException("Unable to allocate a slot on any Kubernetes Cluster");
+                throw new ResourceUnavailableException(buildNamespaceAllocationErrorMessage());
             }
 
             //*** ask cluster to allocate a namespace,  if it returns null, means we have run out of available namespaces
@@ -292,17 +293,75 @@ public class KubernetesManagerImpl extends AbstractManager implements IKubernete
     }
 
     /**
-     * Build a map of all the defined clusters
-     * 
+     * Build a map of all the defined clusters and register their namespaces in the DSS
+     * if they are not already registered. This ensures the resource pooling service
+     * can allocate namespaces to tests.
+     *
      * @throws KubernetesManagerException
      */
     private void buildClusterMap() throws KubernetesManagerException {
         List<String> clusterIds = KubernetesClusters.get();
 
         for(String clusterId : clusterIds) {
-            this.clusters.put(clusterId, new KubernetesClusterImpl(clusterId, dss, getFramework()));
+            KubernetesClusterImpl cluster = new KubernetesClusterImpl(clusterId, dss, getFramework());
+            this.clusters.put(clusterId, cluster);
+            
+            // Auto-register namespaces in DSS if not already present
+            try {
+                registerNamespacesInDss(cluster, clusterId);
+            } catch (DynamicStatusStoreException e) {
+                logger.warn("Failed to auto-register namespaces for cluster " + clusterId + " in DSS. " +
+                           "Namespace allocation may fail if namespaces are not manually registered.", e);
+            }
         }
         return;
+    }
+    
+    /**
+     * Register configured namespaces in the Dynamic Status Store if they don't already exist.
+     * This allows the resource pooling service to allocate them to tests.
+     *
+     * @param cluster The cluster implementation
+     * @param clusterId The cluster ID
+     * @throws KubernetesManagerException If there's a problem reading namespace configuration
+     * @throws DynamicStatusStoreException If there's a problem accessing the DSS
+     */
+    private void registerNamespacesInDss(KubernetesClusterImpl cluster, String clusterId)
+            throws KubernetesManagerException, DynamicStatusStoreException {
+        
+        List<String> namespaces = KubernetesNamespaces.get(cluster);
+        
+        if (namespaces != null && !namespaces.isEmpty()) {
+            int registeredCount = 0;
+            int alreadyExistCount = 0;
+            
+            for (String namespace : namespaces) {
+                String namespaceKey = "cluster." + clusterId + ".namespace." + namespace;
+                
+                // Check if namespace is already registered in DSS
+                String existingValue = dss.get(namespaceKey);
+                
+                if (existingValue == null) {
+                    // Namespace not registered - this is a new namespace that needs to be made available
+                    logger.info("Auto-registering namespace '" + namespace + "' for cluster " + clusterId + " in DSS");
+                    registeredCount++;
+                } else {
+                    // Namespace already exists in DSS (may be in use or available)
+                    alreadyExistCount++;
+                }
+            }
+            
+            if (registeredCount > 0) {
+                logger.info("Auto-registered " + registeredCount + " new namespace(s) for cluster " + clusterId);
+            }
+            
+            if (alreadyExistCount > 0) {
+                logger.debug("Found " + alreadyExistCount + " namespace(s) already registered for cluster " + clusterId);
+            }
+        } else {
+            logger.warn("No namespaces configured for cluster " + clusterId + ". " +
+                       "Set property kubernetes.cluster." + clusterId + ".namespaces to define available namespaces.");
+        }
     }
 
     @Override
@@ -310,6 +369,47 @@ public class KubernetesManagerImpl extends AbstractManager implements IKubernete
         String tag = namespaceTag.trim().toUpperCase();
 
         return taggedNamespaces.get(tag);
+    }
+    
+    /**
+     * Build an error message when namespace allocation fails.
+     *
+     * @return Error message with basic troubleshooting guidance
+     */
+    private String buildNamespaceAllocationErrorMessage() {
+        StringBuilder message = new StringBuilder();
+        message.append("Unable to allocate a namespace on any Kubernetes Cluster. ");
+        
+        // Check if clusters are configured
+        if (this.clusters.isEmpty()) {
+            message.append("No clusters configured in CPS. ");
+            return message.toString();
+        }
+        
+        // Show cluster status
+        message.append("Clusters: ");
+        for (String clusterId : this.clusters.keySet()) {
+            try {
+                KubernetesClusterImpl cluster = this.clusters.get(clusterId);
+                List<String> namespaces = KubernetesNamespaces.get(cluster);
+                Float availability = cluster.getAvailability();
+                
+                message.append(clusterId).append("(");
+                if (namespaces == null || namespaces.isEmpty()) {
+                    message.append("no namespaces configured");
+                } else if (availability != null && availability <= 0) {
+                    message.append("all slots in use");
+                } else {
+                    message.append(namespaces.size()).append(" namespaces");
+                }
+                message.append(") ");
+            } catch (Exception e) {
+                message.append(clusterId).append("(error) ");
+            }
+        }
+        
+        message.append("- Check: 1) Namespaces exist in Kubernetes, 2) Namespaces configured in CPS, 3) Slots available");
+        return message.toString();
     }
 
 }
