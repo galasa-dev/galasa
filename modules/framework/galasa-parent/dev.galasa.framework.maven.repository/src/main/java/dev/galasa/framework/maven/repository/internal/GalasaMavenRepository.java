@@ -19,6 +19,8 @@ public class GalasaMavenRepository implements IMavenRepository {
     private URL       localRepository;
     private List<URL> remoteRepositories = new ArrayList<URL>();
 
+    private MavenCredentials mavenCredentials = new MavenCredentials();
+
     @Override
     public URL getLocalRepository() {
         return this.localRepository;
@@ -38,5 +40,21 @@ public class GalasaMavenRepository implements IMavenRepository {
     @Override
     public void addRemoteRepository(URL remoteRepository) {
         this.remoteRepositories.add(0, remoteRepository);
+    }
+
+    @Override
+    public void setCredentials(String username, String password) {
+        mavenCredentials.setUsername(username);
+        mavenCredentials.setPassword(password);
+    }
+
+    @Override
+    public String getUsername() {
+        return mavenCredentials.getUsername();
+    }
+
+    @Override
+    public String getPassword() {
+        return mavenCredentials.getPassword();
     }
 }
