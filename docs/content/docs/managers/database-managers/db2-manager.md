@@ -387,7 +387,7 @@ The following properties are typically required for each DB2 instance:
 | Description: | The credentials ID for accessing the DB2 database. The credentials should be stored in the Galasa Credentials Store. |
 | Required:  | Yes |
 | Valid values: | A valid credentials ID |
-| Examples: | `db2.PRIMARY.credentials=DB2CREDS` |
+| Examples: | `db2.PRIMARY.credentials=...` |
 
 | Property: | DB2 Driver Class |
 | --------------------------------------- | :------------------------------------- |
