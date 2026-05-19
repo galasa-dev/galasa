@@ -137,7 +137,7 @@ Gradle projects have a different structure than Maven projects:
     plugins {
         id 'java'
         id 'maven-publish'
-        id 'dev.galasa.tests' version '0.48.0'
+        id 'dev.galasa.tests' version '0.48.1'
         id 'biz.aQute.bnd.builder' version '6.4.0'
     }
 
@@ -150,7 +150,7 @@ Gradle projects have a different structure than Maven projects:
     version = '0.0.1-SNAPSHOT'
 
     dependencies {
-        implementation platform('dev.galasa:galasa-bom:0.48.0')
+        implementation platform('dev.galasa:galasa-bom:0.48.1')
 
         implementation 'dev.galasa:dev.galasa'
         implementation 'dev.galasa:dev.galasa.framework'
@@ -199,8 +199,8 @@ Gradle projects have a different structure than Maven projects:
     plugins {
         id 'base'
         id 'maven-publish'
-        id 'dev.galasa.obr' version '0.48.0'
-        id 'dev.galasa.testcatalog' version '0.48.0'
+        id 'dev.galasa.obr' version '0.48.1'
+        id 'dev.galasa.testcatalog' version '0.48.1'
     }
 
     group = 'dev.galasa.example.banking'
