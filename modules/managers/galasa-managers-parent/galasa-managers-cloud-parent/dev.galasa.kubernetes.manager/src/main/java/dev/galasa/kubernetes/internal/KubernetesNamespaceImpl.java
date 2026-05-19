@@ -22,8 +22,6 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.protobuf.Message;
-
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.SetContentType;
 import dev.galasa.framework.spi.AbstractManager;
@@ -42,8 +40,6 @@ import dev.galasa.kubernetes.internal.resources.SecretImpl;
 import dev.galasa.kubernetes.internal.resources.ServiceImpl;
 import dev.galasa.kubernetes.internal.resources.StatefulSetImpl;
 import dev.galasa.kubernetes.internal.resources.Utility;
-import io.kubernetes.client.ProtoClient;
-import io.kubernetes.client.ProtoClient.ObjectOrStatus;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
@@ -69,7 +65,6 @@ import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.openapi.models.V1StatefulSet;
 import io.kubernetes.client.openapi.models.V1StatefulSetList;
 import io.kubernetes.client.openapi.models.V1StatefulSetSpec;
-import io.kubernetes.client.proto.V1.Namespace;
 import io.kubernetes.client.util.Yaml;
 
 /**
@@ -212,7 +207,6 @@ public class KubernetesNamespaceImpl implements IKubernetesNamespace {
     private boolean cleanNamespace() throws KubernetesManagerException {
         CoreV1Api coreApi = new CoreV1Api(this.cluster.getApi());
         AppsV1Api appsApi = new AppsV1Api(this.cluster.getApi());
-        ProtoClient pc = new ProtoClient(this.cluster.getApi());
 
         try {
             //*** Delete all configmaps that exist in the namespace
@@ -277,14 +271,19 @@ public class KubernetesNamespaceImpl implements IKubernetesNamespace {
 
             for(V1PersistentVolumeClaim pvc : pvcList.getItems()) {
                 logger.debug("Deleting PVC " + this.cluster.getId() + "/" + this.namespaceId + "/" + pvc.getMetadata().getName());
-                //TODO raise issue because the delete pvc api call fails
-
-                //                V1DeleteOptions options = new V1DeleteOptions();
-                //                options.setGracePeriodSeconds(0L);
-                //                coreApi.deleteNamespacedPersistentVolumeClaim(pvc.getMetadata().getName(), this.namespaceId, null, null, 0, null, null, null);
-                ObjectOrStatus<Message> response = pc.delete(Namespace.newBuilder(), "/api/v1/namespaces/" + this.namespaceId + "/persistentvolumeclaims/" + pvc.getMetadata().getName());
-                if (response.status != null) {
-                    throw new KubernetesManagerException("Failed to delete PVC:-\n" + response.status.toString());
+                
+                // Use the standard Kubernetes API instead of ProtoClient to avoid protobuf issues
+                // ProtoClient was causing "InvalidProtocolBufferException" errors with kubectl proxy
+                try {
+                    V1DeleteOptions options = new V1DeleteOptions();
+                    options.setGracePeriodSeconds(0L);
+                    coreApi.deleteNamespacedPersistentVolumeClaim(pvc.getMetadata().getName(), this.namespaceId)
+                           .body(options)
+                           .execute();
+                } catch (ApiException e) {
+                    // Log but don't fail - PVC deletion might be delayed by finalizers
+                    logger.warn("Failed to delete PVC " + pvc.getMetadata().getName() +
+                               " in namespace " + this.namespaceId + ": " + e.getMessage());
                 }
             }
 

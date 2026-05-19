@@ -105,15 +105,6 @@ managers:
     isolated:     true
     codecoverage: true
 
-  - artifact: dev.galasa.cloud.manager
-    version: 0.48.0
-    obr:          true
-    mvp:          true
-    bom:          true
-    javadoc:      true
-    isolated:     true
-    codecoverage: true
-
   - artifact: dev.galasa.docker.manager
     version: 0.48.0
     obr:          true

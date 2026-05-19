@@ -11,8 +11,6 @@ Import-Package: com.google.gson,\
     dev.galasa.framework.spi.language,\
     dev.galasa.framework.spi.utils,\
     dev.galasa.kubernetes,\
-    dev.galasa.cloud,\
-    dev.galasa.cloud.spi,\
     io.kubernetes.client,\
     io.kubernetes.client.custom,\
     io.kubernetes.client.proto,\

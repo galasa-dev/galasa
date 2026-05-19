@@ -174,10 +174,14 @@ public class KubernetesClusterImpl {
     }
     
     /**
-     * Create an APIClient for the Cluster.  Can't use the default way of doing this as we 
+     * Create an APIClient for the Cluster. Can't use the default way of doing this as we
      * could be talking to two or clusters at the same time.
-     * 
-     * @return An APIClient.  never null
+     *
+     * Supports two authentication modes:
+     * 1. Token-based authentication (requires credentials)
+     * 2. Unauthenticated mode for kubectl proxy (credentials optional)
+     *
+     * @return APIClient, never null
      * @throws KubernetesManagerException - If there is a problem with authentication or communication
      */
     @NotNull
@@ -187,37 +191,95 @@ public class KubernetesClusterImpl {
         }
         
         URL url = KubernetesUrl.get(this);
-        boolean validateCertificate = KubernetesValidateCertificate.get(this);
         String credentialsId = KubernetesCredentials.get(this);
+        boolean isKubectlProxy = isKubectlProxyUrl(url);
         
         ICredentials credentials = null;
         try {
             ICredentialsService creds = this.framework.getCredentialsService();
             credentials = creds.getCredentials(credentialsId);
         } catch (CredentialsException e) {
-            throw new KubernetesManagerException("Problem accessing credentials " + credentialsId, e);
+            if (!isKubectlProxy) {
+                throw new KubernetesManagerException("Problem accessing credentials " + credentialsId, e);
+            }
         }
         
         if (credentials == null) {
-            throw new KubernetesManagerException("Credentials " + credentialsId + " are missing");
+            if (!isKubectlProxy) {
+                throw new KubernetesManagerException("Credentials " + credentialsId + " are missing");
+            }
+            logger.info("No credentials found for cluster " + this.clusterId + ". Using unauthenticated mode for kubectl proxy at " + url);
+            this.apiClient = createUnauthenticatedClient(url);
+        } else {
+            if (!(credentials instanceof ICredentialsToken)) {
+                throw new KubernetesManagerException("Credentials " + credentialsId + " is not a token credential");
+            }
+            boolean validateCertificate = KubernetesValidateCertificate.get(this);
+            this.apiClient = createAuthenticatedClient(url, credentials, validateCertificate);
         }
+
+        //TODO do, raise issue because Quantity is not being serialized properly
+        applyNewGson(this.apiClient);
+        this.apiClient.setDebugging(false);
+
+        return this.apiClient;
+    }
+    
+    /**
+     * Check if the URL appears to be a kubectl proxy endpoint.
+     * kubectl proxy typically runs on localhost:8001 with HTTP (not HTTPS).
+     *
+     * @param url The Kubernetes API URL
+     * @return true if this looks like a kubectl proxy URL
+     */
+    private boolean isKubectlProxyUrl(URL url) {
+        String host = url.getHost();
+        int port = url.getPort();
+        String protocol = url.getProtocol();
         
-        if (!(credentials instanceof ICredentialsToken)) {
-            throw new KubernetesManagerException("Credentials " + credentialsId + " is not a token credentials");
-        }
+        // kubectl proxy defaults to localhost:8001 with HTTP
+        boolean isLocalhost = "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host);
+        boolean isProxyPort = (port == 8001);
+        boolean isHttp = "http".equalsIgnoreCase(protocol);
         
-        
+        return isLocalhost && isProxyPort && isHttp;
+    }
+
+    /**
+     * Create an authenticated API client for remote Kubernetes clusters.
+     *
+     * @param url The Kubernetes cluster URL
+     * @param credentials The credentials to use for authentication
+     * @param validateCertificate Whether to validate SSL certificates
+     * @return An authenticated ApiClient
+     * @throws KubernetesManagerException If client creation fails
+     */
+    private ApiClient createAuthenticatedClient(URL url, ICredentials credentials, boolean validateCertificate) throws KubernetesManagerException {
         try {
-            this.apiClient = Config.fromToken(url.toString(), new String(((ICredentialsToken)credentials).getToken()), validateCertificate);
-            //TODO do, raise issue because Quantity is not being serialized properly
-            applyNewGson(this.apiClient);
-            this.apiClient.setDebugging(false);
-            
-            return this.apiClient;
+            ApiClient client = Config.fromToken(url.toString(), new String(((ICredentialsToken) credentials).getToken()), validateCertificate);
+            logger.info("Created authenticated Kubernetes API client for cluster " + this.clusterId);
+            return client;
         } catch(Exception e) {
-            throw new KubernetesManagerException("Unable the initialise the Kubernetes API Client", e);
+            throw new KubernetesManagerException("Unable to initialise the Kubernetes API Client with token authentication", e);
         }
-        
+    }
+    
+    /**
+     * Create an unauthenticated API client for kubectl proxy mode.
+     * This is used when connecting to kubectl proxy which handles authentication.
+     *
+     * @param url The kubectl proxy URL
+     * @return An unauthenticated ApiClient
+     * @throws KubernetesManagerException If client creation fails
+     */
+    private ApiClient createUnauthenticatedClient(URL url) throws KubernetesManagerException {
+        try {
+            ApiClient client = Config.fromUrl(url.toString(), false); // false = don't verify SSL
+            logger.info("Created unauthenticated Kubernetes API client for kubectl proxy at " + url);
+            return client;
+        } catch(Exception e) {
+            throw new KubernetesManagerException("Unable to initialise unauthenticated Kubernetes API Client for kubectl proxy", e);
+        }
     }
 
     /**
