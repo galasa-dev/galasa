@@ -14,20 +14,25 @@ You can find the links to the Javadoc API documentation for all the Galasa Manag
 :   Provides CECI 3270 interaction - initially supporting containers and link programs.
 
 
-CEDA Manager
+[CEDA Manager](./cics-ts-managers/cics-ts-ceda-manager.md)
 
-:   Provides CEDA 3270 interaction.
+:   Provides CEDA 3270 interaction for creating, installing, and managing CICS resource definitions.
 
 
-CEMT Manager
+[CEMT Manager](./cics-ts-managers/cics-ts-cemt-manager.md)
 
-:   Provides CEMT 3270 interaction.
+:   Provides CEMT 3270 interaction for inquiring, setting, and managing CICS resources at runtime.
 
 
 [CICS TS Manager](./cics-ts-managers/cics-ts-manager.md)
 
 :   Provides configuration information for pre-existing CICS TS servers.
     Drives provisioning services from other managers, e.g. z/OS PT.
+
+
+[CICS TS Resource Manager](./cics-ts-managers/cics-ts-resource-manager.md)
+
+:   Provides management of CICS resources including CICS Bundles, JVM servers, and JVM profiles.
 
 
 ### IMS TM Managers
@@ -84,6 +89,42 @@ CEMT Manager
 
 :   The Core Manager provides tests with access to some of the core features within the Galasa Framework.
     The Core Manager is always initialised and included in a test run and contributes the logger, stored artefact root and test property annotations.
+
+
+[Text Scan Manager](./core-managers/text-scan-manager.md)
+
+:   Provides utility text scanning routines for searching and validating text content in logs, batch job outputs, and other text sources.
+
+
+### Database Managers
+
+[DB2 Manager](./database-managers/db2-manager.md)
+
+:   Provides connectivity to DB2 databases and enables tests to execute SQL statements, manage schemas, and retrieve query results.
+
+
+### Language Managers
+
+[Java Manager](./languages-managers/java-manager.md)
+
+:   Provides access to Java installations and manages Java-related resources for testing Java applications.
+
+
+[Java Ubuntu Manager](./languages-managers/java-ubuntu-manager.md)
+
+:   Provides Java installations on Ubuntu Linux images with automatic download, extraction, and configuration.
+
+
+[Java Windows Manager](./languages-managers/java-windows-manager.md)
+
+:   Provides Java installations on Windows images with automatic download, extraction, and configuration.
+
+
+### Windows Managers
+
+[Windows Manager](./windows-managers/windows-manager.md)
+
+:   Provides access to Windows images, enabling tests to connect to Windows systems, execute commands, and manage Windows-based resources.
 
 
 ### Logging Managers
