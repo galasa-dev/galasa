@@ -71,7 +71,6 @@ include 'galasa-managers-unix-parent:dev.galasa.linux.manager.ivt'
 // galasa-managers-windows-parent
 include 'galasa-managers-windows-parent:dev.galasa.windows.manager'
 // galasa-managers-cloud-parent
-include 'galasa-managers-cloud-parent:dev.galasa.cloud.manager'
 include 'galasa-managers-cloud-parent:dev.galasa.openstack.manager'
 include 'galasa-managers-cloud-parent:dev.galasa.docker.manager'
 include 'galasa-managers-cloud-parent:dev.galasa.docker.manager.ivt'

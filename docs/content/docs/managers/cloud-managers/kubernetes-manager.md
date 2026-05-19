@@ -9,9 +9,22 @@ You can view the [Javadoc documentation for the Manager](../../reference/javadoc
 
 This Manager provides a test with a Kubernetes Namespace to utilize. The test will provide YAML representations of the resources that the test requires.
 
-As an absolute minimum, the CPS property `kubernetes.cluster.K8S.url` must be provided as well as a credential `secure.credentials.K8S.token` for the API token.
+!!! warning
 
-The Kubernetes Manager supports Galasa Shared Environments. Shared environments provide  the ability to create a test environment that can be shared across multiple test runs  so you don't have to provision a test environment for each test.
+    The Kubernetes Manager does not create new namespaces. It allocates from a pool of pre-existing namespaces that must be created beforehand. After test completion, the manager **automatically deletes ALL resources** in allocated namespaces (Pods, Deployments, Services, ConfigMaps, Secrets, PVCs, etc.). Always use dedicated, empty namespaces for Galasa tests.
+
+### Configuration Requirements
+
+**Minimum required configuration:**
+
+- `kubernetes.cluster.K8S.url` - The Kubernetes API server URL
+
+**Authentication options:**
+
+1. **Token-based authentication** (for remote clusters): Provide `secure.credentials.K8S.token` credential
+2. **kubectl proxy mode** (for local testing): Use `http://localhost:8001` - no credentials required
+
+The Kubernetes Manager supports Galasa Shared Environments. Shared environments provide the ability to create a test environment that can be shared across multiple test runs so you don't have to provision a test environment for each test.
 
 ## Limitations
 
@@ -39,7 +52,7 @@ The following annotations are available with the Kubernetes Manager
 | Name: | @KubernetesNamespace |
 | Description: | The `@KubernetesNamespace` annotation requests the Kubernetes Manager to allocate a namespace on the infrastructure Kubernetes clusters.  The test can request as many namespaces as required so long as they  can be supported simultaneously by the Kubernetes Manager configuration. |
 | Attribute: `kubernetesNamespaceTag` |  The `kubernetesNamespaceTag` identifies the Kubernetes names to other Managers or Shared Environments.  If a test is using multiple  Kubernetes namespace, each separate Kubernetes namespace must have a unique tag.  If more than one Kubernetes namespace use the same tag, they will refer to the  same Kubernetes namespace. |
-| Syntax: | <pre lang="java">@KubernetesNamespace<br>public IKubernetesNamesapce namespace;<br> </pre> |
+| Syntax: | <pre lang="java">@KubernetesNamespace<br>public IKubernetesNamespace namespace;<br> </pre> |
 | Notes: | The `IKubernetesNamespace` interface gives the test access to create and manage resources on the Kubernetes cluster.  See [KubernetesNamespace](../../reference/javadoc/dev/galasa/kubernetes/KubernetesNamespace.html){target="_blank"} and [IKubernetesNamespace](../../reference/javadoc/dev/galasa/kubernetes/IKubernetesNamespace.html){target="_blank"} to find out more. |
 
 
@@ -48,16 +61,70 @@ The following annotations are available with the Kubernetes Manager
 Use the following code snippets to help you get started with the Kubernetes Manager.
  
 
-### Create Kubernetes namespaces for the Kubernetes Manager to use
+### Setup for Local Testing with kubectl proxy
 
-Note: Isolated namespaces must be provided for the Kubernetes Manager to use.  The Manager deletes any resources that 
-exist on the namespace once a test has finished.
+For local development and testing, you can use kubectl proxy to avoid certificate and authentication complexity:
 
-The following are example scripts and yaml files necessary to create namespaces:
+```bash
+# Start Minikube (or connect to your cluster)
+minikube start
 
-1. [Namespace creation script](https://github.com/galasa-dev/galasa/tree/main/modules/managers/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/namespaces.yaml){target="_blank"}
-1. [Create Service Account for the Manager to use (including api token)](https://github.com/galasa-dev/galasa/tree/main/modules/managers/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/account.sh){target="_blank"}
-1. [The RBAC rules to be applied to each namespace](https://github.com/galasa-dev/galasa/tree/main/modules/managers/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/rbac.yaml){target="_blank"}
+# Create namespaces for Galasa to use
+kubectl create namespace galasa1
+kubectl create namespace galasa2
+
+# Start kubectl proxy (provides unauthenticated HTTP access)
+kubectl proxy
+```
+
+Configure in `cps.properties`:
+```properties
+kubernetes.cluster.K8S.url=http://localhost:8001
+kubernetes.cluster.K8S.namespaces=galasa1,galasa2
+```
+
+No credentials are required when using kubectl proxy at `http://localhost:8001`.
+
+### Setup for Remote Kubernetes Clusters
+
+For production or remote clusters, you need to configure authentication and RBAC:
+
+**1. Find your cluster URL:**
+```bash
+kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'
+```
+
+**2. Create namespaces:**
+```bash
+kubectl create namespace galasa1
+kubectl create namespace galasa2
+```
+
+**3. Set up RBAC permissions:**
+
+Apply RBAC rules to each namespace - see [example RBAC configuration](https://github.com/galasa-dev/galasa/tree/main/modules/managers/galasa-managers-parent/galasa-managers-cloud-parent/dev.galasa.kubernetes.manager/examples/rbac.yaml){target="_blank"}
+
+**4. Create service account and token:**
+```bash
+# Create service account
+kubectl -n galasa1 create serviceaccount galasa
+
+# Generate token (Kubernetes 1.24+)
+kubectl -n galasa1 create token galasa --duration=8760h
+```
+
+**5. Configure Galasa:**
+
+In `cps.properties`:
+```properties
+kubernetes.cluster.K8S.url=https://your-cluster:6443
+kubernetes.cluster.K8S.namespaces=galasa1,galasa2
+```
+
+In `credentials.properties`:
+```properties
+secure.credentials.K8S.token=<your-token-here>
+```
 
 
 ### Obtain a Kubernetes Namespace
@@ -106,7 +173,69 @@ List<IPodLog> podLogs = statefulSet.getPodLogs("containername");
 
 ```
 
-As Deployments and StatefulSets can have multiple pods and therefore containers with the same name,  a List is returned containing all the current logs for all the named containers.
+As Deployments and StatefulSets can have multiple pods and therefore containers with the same name, a List is returned containing all the current logs for all the named containers.
+
+
+## Troubleshooting
+
+### SSL Certificate Errors (PKIX path building failed)
+
+If you encounter SSL certificate validation errors when connecting to remote Kubernetes clusters:
+
+```
+javax.net.ssl.SSLHandshakeException: PKIX path building failed:
+unable to find valid certification path to requested target
+```
+
+**Solution 1: Add cluster certificate to Java truststore (Recommended)**
+
+```bash
+# Export cluster certificate
+CLUSTER_URL=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+CLUSTER_HOST=$(echo $CLUSTER_URL | sed 's|https://||' | cut -d: -f1)
+CLUSTER_PORT=$(echo $CLUSTER_URL | sed 's|https://||' | cut -d: -f2)
+
+openssl s_client -showcerts -connect ${CLUSTER_HOST}:${CLUSTER_PORT} </dev/null 2>/dev/null | \
+  openssl x509 -outform PEM > cluster-cert.pem
+
+# Import into Java truststore
+JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 | grep 'java.home' | awk '{print $3}')
+sudo keytool -import -trustcacerts -alias k8s-cluster \
+  -file cluster-cert.pem \
+  -keystore $JAVA_HOME/lib/security/cacerts \
+  -storepass changeit -noprompt
+```
+
+**Solution 2: Disable certificate validation (Testing only)**
+
+Add to `cps.properties`:
+```properties
+kubernetes.cluster.K8S.validate.certificate=false
+```
+
+⚠️ **Warning:** Only use this for testing. It disables SSL validation and is not secure for production.
+
+### Namespace Allocation Errors
+
+If tests fail with "Unable to allocate a slot on any Kubernetes Cluster":
+
+1. Verify namespaces exist: `kubectl get namespaces | grep galasa`
+2. Check CPS configuration: `kubernetes.cluster.K8S.namespaces=galasa1,galasa2`
+3. Ensure kubectl proxy is running (if using localhost:8001)
+4. Increase max slots: `kubernetes.cluster.K8S.max.slots=5`
+
+### Namespace Already in Use
+
+If you see "The allocated namespace is dirty":
+
+```bash
+# Delete the galasa configmap
+kubectl -n galasa1 delete configmap galasa
+
+# Or recreate the namespace
+kubectl delete namespace galasa1
+kubectl create namespace galasa1
+```
 
 
 ## Configuration Properties
