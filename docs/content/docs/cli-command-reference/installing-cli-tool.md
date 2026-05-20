@@ -42,7 +42,7 @@ Choose your installation method:
        
        Or install a specific version (e.g., 0.48.0):
        ```bash
-       brew install galasactl@0.48.0
+       brew install galasactl@0.48.1`
        ```
     
     3. Check available versions:
