@@ -10,13 +10,16 @@ import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.SystemEnvironment;
 import dev.galasa.framework.api.streams.internal.routes.StreamsByNameRoute;
 import dev.galasa.framework.api.streams.internal.routes.StreamsRoute;
-import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.api.streams.internal.routes.StreamTestCatalogRoute;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.rbac.RBACService;
 import dev.galasa.framework.spi.streams.IStreamsService;
-import dev.galasa.framework.spi.streams.StreamsException;
+
+import java.net.http.HttpClient;
+import java.time.Duration;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -35,19 +38,27 @@ public class StreamsServlet extends BaseServlet {
     @Reference
     protected IFramework framework;
 
+    private static final Duration CONNECTION_TIMEOUT_SECONDS = Duration.ofSeconds(60);
+
     private static final long serialVersionUID = 1L;
     private Log logger = LogFactory.getLog(getClass());
 
     protected IConfigurationPropertyStoreService configurationPropertyStoreService;
     protected IStreamsService streamsService;
+    protected ICredentialsService credentialsService;
     protected RBACService rbacService;
+    protected HttpClient httpClient;
 
     public StreamsServlet() {
-        this(new SystemEnvironment());
+        this(new SystemEnvironment(), HttpClient.newBuilder()
+                .connectTimeout(CONNECTION_TIMEOUT_SECONDS)
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .build());
     }
 
-    public StreamsServlet(Environment env) {
+    public StreamsServlet(Environment env, HttpClient httpClient) {
         super(env);
+        this.httpClient = httpClient;
     }
 
     @Override
@@ -58,12 +69,15 @@ public class StreamsServlet extends BaseServlet {
 
             rbacService = framework.getRBACService();
             streamsService = framework.getStreamsService();
+            credentialsService = framework.getCredentialsService();
+
             configurationPropertyStoreService = framework.getConfigurationPropertyService("framework");
 
             addRoute(new StreamsRoute(getResponseBuilder(), env, streamsService, rbacService));
             addRoute(new StreamsByNameRoute(getResponseBuilder(), env, streamsService, rbacService));
+            addRoute(new StreamTestCatalogRoute(getResponseBuilder(), streamsService, credentialsService, rbacService, httpClient));
             
-        } catch ( RBACException | ConfigurationPropertyStoreException | StreamsException ex) {
+        } catch (FrameworkException ex) {
             throw new ServletException("Failed to initialise Streams service",ex);
         }
 

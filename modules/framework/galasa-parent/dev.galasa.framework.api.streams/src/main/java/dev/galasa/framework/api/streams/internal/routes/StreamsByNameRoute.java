@@ -11,7 +11,6 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +41,6 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
 
     // Regex to match endpoint /streams/{streamName}
     protected static final String path = "\\/([a-zA-Z0-9\\-\\_]+)\\/?";
-    protected Pattern pathPattern;
     protected String baseServletUrl;
 
     private StreamsTransform streamsTransform;
@@ -51,7 +49,6 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
             RBACService rbacService)
             throws StreamsException {
         super(responseBuilder, path, rbacService, streamsService);
-        this.pathPattern = getPathRegex();
         this.baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
         this.streamsTransform = new StreamsTransform();
     }
@@ -204,11 +201,6 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
             }
             stream.setObrs(obrs);
         }
-    }
-
-    private String getStreamName(String urlPath) throws InternalServletException {
-        StreamsUrlParameterExtractor parser = new StreamsUrlParameterExtractor(pathPattern);
-        return parser.getStreamName(urlPath);
     }
 
     private IStream getStreamByName(String streamName) throws InternalServletException, FrameworkException {
