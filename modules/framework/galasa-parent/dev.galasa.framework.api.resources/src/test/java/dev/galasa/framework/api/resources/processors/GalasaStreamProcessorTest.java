@@ -47,6 +47,18 @@ public class GalasaStreamProcessorTest extends ResourcesServletTest {
         String catalogUrl,
         JsonArray obrs
     ) {
+        return generateStreamJson(streamName, description, streamUrl, mavenUrl, null, catalogUrl, obrs);
+    }
+
+    private JsonObject generateStreamJson(
+        String streamName,
+        String description,
+        String streamUrl,
+        String mavenUrl,
+        String mavenSecretName,
+        String catalogUrl,
+        JsonArray obrs
+    ) {
         JsonObject streamJson = new JsonObject();
         streamJson.addProperty("apiVersion", "galasa-dev/v1alpha1");
         streamJson.addProperty("kind", "GalasaStream");
@@ -80,6 +92,9 @@ public class GalasaStreamProcessorTest extends ResourcesServletTest {
         if (mavenUrl != null) {
             JsonObject streamMavenRepo = new JsonObject();
             streamMavenRepo.addProperty("url", mavenUrl);
+            if (mavenSecretName != null) {
+                streamMavenRepo.addProperty("secretName", mavenSecretName);
+            }
             streamData.add("repository", streamMavenRepo);
         }
 
@@ -494,5 +509,137 @@ public class GalasaStreamProcessorTest extends ResourcesServletTest {
         // Then...
         assertThat(thrown).isNotNull();
         assertThat(thrown.getMessage()).contains("A stream with the provided name already exists");
+    }
+
+    @Test
+    public void testCanCreateStreamWithMavenSecretName() throws Exception {
+        // Given...
+        String streamName = "mystream";
+        String description = "This is a test stream";
+        String streamUrl = "http://localhost:8080/streams/mystream";
+        String mavenUrl = "http://my-maven-repo/tests";
+        String mavenSecretName = "maven-creds";
+        String catalogUrl = "http://my-maven-repo/testcatalog/testcatalog.json";
+        String requestUsername = "myuser";
+        String groupId = "myGroup";
+        String artifactId = "myArtifact";
+        String version = "myVersion";
+
+        JsonArray obrsArray = new JsonArray();
+        addObrJson(obrsArray, groupId, artifactId, version);
+
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        MockStreamsService streamService = new MockStreamsService(new ArrayList<>());
+        MockFramework mockFramework = new MockFramework();
+        mockFramework.setRBACService(mockRbacService);
+
+        RBACValidator rbacValidator = new RBACValidator(mockFramework.getRBACService());
+        GalasaStreamProcessor streamProcessor = new GalasaStreamProcessor(streamService, rbacValidator);
+
+        JsonObject streamJson = generateStreamJson(streamName, description, streamUrl, mavenUrl, mavenSecretName, catalogUrl, obrsArray);
+        
+        // When...
+        List<String> errors = streamProcessor.processResource(streamJson, CREATE, requestUsername);
+
+        // Then...
+        assertThat(errors).isEmpty();
+
+        List<IStream> streams = streamService.getStreams();
+        assertThat(streams).hasSize(1);
+        assertThat(streams.get(0).getName()).isEqualTo(streamName);
+        assertThat(streams.get(0).getMavenSecretName()).isEqualTo(mavenSecretName);
+    }
+
+    @Test
+    public void testCanApplyToCreateStreamWithMavenSecretName() throws Exception {
+        // Given...
+        String streamName = "mystream";
+        String description = "This is a test stream";
+        String streamUrl = "http://localhost:8080/streams/mystream";
+        String mavenUrl = "http://my-maven-repo/tests";
+        String mavenSecretName = "maven-creds";
+        String catalogUrl = "http://my-maven-repo/testcatalog/testcatalog.json";
+        String requestUsername = "myuser";
+        String groupId = "myGroup";
+        String artifactId = "myArtifact";
+        String version = "myVersion";
+
+        JsonArray obrsArray = new JsonArray();
+        addObrJson(obrsArray, groupId, artifactId, version);
+
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        List<IStream> streams = new ArrayList<>();
+        MockStreamsService streamService = new MockStreamsService(streams);
+        MockFramework mockFramework = new MockFramework();
+        mockFramework.setRBACService(mockRbacService);
+
+        RBACValidator rbacValidator = new RBACValidator(mockFramework.getRBACService());
+        GalasaStreamProcessor streamProcessor = new GalasaStreamProcessor(streamService, rbacValidator);
+
+        JsonObject streamJson = generateStreamJson(streamName, description, streamUrl, mavenUrl, mavenSecretName, catalogUrl, obrsArray);
+        
+        // When...
+        List<String> errors = streamProcessor.processResource(streamJson, APPLY, requestUsername);
+
+        // Then...
+        assertThat(errors).isEmpty();
+
+        List<IStream> streamsGotBack = streamService.getStreams();
+        assertThat(streamsGotBack).hasSize(1);
+        assertThat(streamsGotBack.get(0).getName()).isEqualTo(streamName);
+        assertThat(streamsGotBack.get(0).getMavenSecretName()).isEqualTo(mavenSecretName);
+    }
+
+    @Test
+    public void testCanUpdateStreamWithMavenSecretName() throws Exception {
+        // Given...
+        String streamName = "mystream";
+        String description = "This is a test stream";
+        String streamUrl = "http://localhost:8080/streams/mystream";
+        String mavenUrl = "http://my-maven-repo/tests";
+        String oldSecretName = "old-maven-creds";
+        String newSecretName = "new-maven-creds";
+        String catalogUrl = "http://my-maven-repo/testcatalog/testcatalog.json";
+        String requestUsername = "myuser";
+        String groupId = "myGroup";
+        String artifactId = "myArtifact";
+        String version = "myVersion";
+
+        JsonArray obrsArray = new JsonArray();
+        addObrJson(obrsArray, groupId, artifactId, version);
+
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        List<IStream> streams = new ArrayList<>();
+        MockStream mockStream = new MockStream();
+        mockStream.setName(streamName);
+        mockStream.setDescription(description);
+        mockStream.setMavenRepositoryUrl(mavenUrl);
+        mockStream.setMavenSecretName(oldSecretName);
+        mockStream.setTestCatalogUrl(catalogUrl);
+
+        streams.add(mockStream);
+
+        MockStreamsService streamService = new MockStreamsService(streams);
+        MockFramework mockFramework = new MockFramework();
+        mockFramework.setRBACService(mockRbacService);
+
+        RBACValidator rbacValidator = new RBACValidator(mockFramework.getRBACService());
+        GalasaStreamProcessor streamProcessor = new GalasaStreamProcessor(streamService, rbacValidator);
+
+        JsonObject streamJson = generateStreamJson(streamName, description, streamUrl, mavenUrl, newSecretName, catalogUrl, obrsArray);
+        
+        // When...
+        List<String> errors = streamProcessor.processResource(streamJson, UPDATE, requestUsername);
+
+        // Then...
+        assertThat(errors).isEmpty();
+
+        List<IStream> streamsGotBack = streamService.getStreams();
+        assertThat(streamsGotBack).hasSize(1);
+        assertThat(streamsGotBack.get(0).getName()).isEqualTo(streamName);
+        assertThat(streamsGotBack.get(0).getMavenSecretName()).isEqualTo(newSecretName);
     }
 }

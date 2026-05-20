@@ -385,6 +385,212 @@ public class GalasaStreamValidatorTest {
     }
 
     @Test
+    public void testApplyValidStreamWithMavenSecretNameHasNoValidationErrors() throws Exception {
+        // Given...
+        ResourceAction action = ResourceAction.APPLY;
+        GalasaStreamValidator validator = new GalasaStreamValidator(action);
+
+        JsonObject streamJson = new JsonObject();
+        streamJson.addProperty("apiVersion", GalasaStreamValidator.DEFAULT_API_VERSION);
+        streamJson.addProperty("kind", GalasaResourceType.GALASA_STREAM.toString());
+
+        JsonObject streamMetadata = new JsonObject();
+        streamMetadata.addProperty("name", "myStream");
+        streamMetadata.addProperty("description", "this is a stream description");
+
+        JsonObject streamData = new JsonObject();
+
+        JsonObject streamMavenRepo = new JsonObject();
+        streamMavenRepo.addProperty("url", "https://my-maven-repo");
+        streamMavenRepo.addProperty("secretName", "maven-creds");
+
+        JsonObject streamTestCatalog = new JsonObject();
+        streamTestCatalog.addProperty("url", "https://my-testcatalog/testcatalog.json");
+
+        JsonArray obrJsonArr = new JsonArray();
+        addObrJson(obrJsonArr, "mygroup", "mygroup.myartifact", "my-version");
+
+        streamData.add("repository", streamMavenRepo);
+        streamData.add("testCatalog", streamTestCatalog);
+        streamData.add("obrs", obrJsonArr);
+
+        streamJson.add("metadata", streamMetadata);
+        streamJson.add("data", streamData);
+
+        // When...
+        validator.validate(streamJson);
+
+        // Then...
+        assertThat(validator.getValidationErrors()).isEmpty();
+    }
+
+    @Test
+    public void testApplyStreamWithBlankMavenSecretNameHasValidationErrors() throws Exception {
+        // Given...
+        ResourceAction action = ResourceAction.APPLY;
+        GalasaStreamValidator validator = new GalasaStreamValidator(action);
+
+        JsonObject streamJson = new JsonObject();
+        streamJson.addProperty("apiVersion", GalasaStreamValidator.DEFAULT_API_VERSION);
+        streamJson.addProperty("kind", GalasaResourceType.GALASA_STREAM.toString());
+
+        JsonObject streamMetadata = new JsonObject();
+        streamMetadata.addProperty("name", "myStream");
+        streamMetadata.addProperty("description", "this is a stream description");
+
+        JsonObject streamData = new JsonObject();
+
+        JsonObject streamMavenRepo = new JsonObject();
+        streamMavenRepo.addProperty("url", "https://my-maven-repo");
+        streamMavenRepo.addProperty("secretName", "   ");
+
+        JsonObject streamTestCatalog = new JsonObject();
+        streamTestCatalog.addProperty("url", "https://my-testcatalog/testcatalog.json");
+
+        JsonArray obrJsonArr = new JsonArray();
+        addObrJson(obrJsonArr, "mygroup", "mygroup.myartifact", "my-version");
+
+        streamData.add("repository", streamMavenRepo);
+        streamData.add("testCatalog", streamTestCatalog);
+        streamData.add("obrs", obrJsonArr);
+
+        streamJson.add("metadata", streamMetadata);
+        streamJson.add("data", streamData);
+
+        // When...
+        validator.validate(streamJson);
+
+        // Then...
+        List<String> validationErrors = validator.getValidationErrors();
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.get(0)).contains("GAL5092E");
+    }
+
+    @Test
+    public void testApplyStreamWithMavenSecretNameContainingDotHasValidationErrors() throws Exception {
+        // Given...
+        ResourceAction action = ResourceAction.APPLY;
+        GalasaStreamValidator validator = new GalasaStreamValidator(action);
+
+        JsonObject streamJson = new JsonObject();
+        streamJson.addProperty("apiVersion", GalasaStreamValidator.DEFAULT_API_VERSION);
+        streamJson.addProperty("kind", GalasaResourceType.GALASA_STREAM.toString());
+
+        JsonObject streamMetadata = new JsonObject();
+        streamMetadata.addProperty("name", "myStream");
+        streamMetadata.addProperty("description", "this is a stream description");
+
+        JsonObject streamData = new JsonObject();
+
+        JsonObject streamMavenRepo = new JsonObject();
+        streamMavenRepo.addProperty("url", "https://my-maven-repo");
+        streamMavenRepo.addProperty("secretName", "maven.creds");
+
+        JsonObject streamTestCatalog = new JsonObject();
+        streamTestCatalog.addProperty("url", "https://my-testcatalog/testcatalog.json");
+
+        JsonArray obrJsonArr = new JsonArray();
+        addObrJson(obrJsonArr, "mygroup", "mygroup.myartifact", "my-version");
+
+        streamData.add("repository", streamMavenRepo);
+        streamData.add("testCatalog", streamTestCatalog);
+        streamData.add("obrs", obrJsonArr);
+
+        streamJson.add("metadata", streamMetadata);
+        streamJson.add("data", streamData);
+
+        // When...
+        validator.validate(streamJson);
+
+        // Then...
+        List<String> validationErrors = validator.getValidationErrors();
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.get(0)).contains("GAL5092E");
+    }
+
+    @Test
+    public void testApplyStreamWithMavenSecretNameContainingNonLatin1CharactersHasValidationErrors() throws Exception {
+        // Given...
+        ResourceAction action = ResourceAction.APPLY;
+        GalasaStreamValidator validator = new GalasaStreamValidator(action);
+
+        JsonObject streamJson = new JsonObject();
+        streamJson.addProperty("apiVersion", GalasaStreamValidator.DEFAULT_API_VERSION);
+        streamJson.addProperty("kind", GalasaResourceType.GALASA_STREAM.toString());
+
+        JsonObject streamMetadata = new JsonObject();
+        streamMetadata.addProperty("name", "myStream");
+        streamMetadata.addProperty("description", "this is a stream description");
+
+        JsonObject streamData = new JsonObject();
+
+        JsonObject streamMavenRepo = new JsonObject();
+        streamMavenRepo.addProperty("url", "https://my-maven-repo");
+        streamMavenRepo.addProperty("secretName", "maven-creds-™");
+
+        JsonObject streamTestCatalog = new JsonObject();
+        streamTestCatalog.addProperty("url", "https://my-testcatalog/testcatalog.json");
+
+        JsonArray obrJsonArr = new JsonArray();
+        addObrJson(obrJsonArr, "mygroup", "mygroup.myartifact", "my-version");
+
+        streamData.add("repository", streamMavenRepo);
+        streamData.add("testCatalog", streamTestCatalog);
+        streamData.add("obrs", obrJsonArr);
+
+        streamJson.add("metadata", streamMetadata);
+        streamJson.add("data", streamData);
+
+        // When...
+        validator.validate(streamJson);
+
+        // Then...
+        List<String> validationErrors = validator.getValidationErrors();
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.get(0)).contains("GAL5092E");
+    }
+
+    @Test
+    public void testApplyStreamWithoutMavenSecretNameHasNoValidationErrors() throws Exception {
+        // Given...
+        ResourceAction action = ResourceAction.APPLY;
+        GalasaStreamValidator validator = new GalasaStreamValidator(action);
+
+        JsonObject streamJson = new JsonObject();
+        streamJson.addProperty("apiVersion", GalasaStreamValidator.DEFAULT_API_VERSION);
+        streamJson.addProperty("kind", GalasaResourceType.GALASA_STREAM.toString());
+
+        JsonObject streamMetadata = new JsonObject();
+        streamMetadata.addProperty("name", "myStream");
+        streamMetadata.addProperty("description", "this is a stream description");
+
+        JsonObject streamData = new JsonObject();
+
+        JsonObject streamMavenRepo = new JsonObject();
+        streamMavenRepo.addProperty("url", "https://my-maven-repo");
+        // No secretName property
+
+        JsonObject streamTestCatalog = new JsonObject();
+        streamTestCatalog.addProperty("url", "https://my-testcatalog/testcatalog.json");
+
+        JsonArray obrJsonArr = new JsonArray();
+        addObrJson(obrJsonArr, "mygroup", "mygroup.myartifact", "my-version");
+
+        streamData.add("repository", streamMavenRepo);
+        streamData.add("testCatalog", streamTestCatalog);
+        streamData.add("obrs", obrJsonArr);
+
+        streamJson.add("metadata", streamMetadata);
+        streamJson.add("data", streamData);
+
+        // When...
+        validator.validate(streamJson);
+
+        // Then...
+        assertThat(validator.getValidationErrors()).isEmpty();
+    }
+
+    @Test
     public void testApplyStreamWithNoDataThrowsError() throws Exception {
         // Given...
         ResourceAction action = ResourceAction.APPLY;

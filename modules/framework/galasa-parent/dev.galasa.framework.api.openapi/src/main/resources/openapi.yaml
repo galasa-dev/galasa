@@ -3838,6 +3838,9 @@ components:
       properties:
         url:
           type: string
+        secretName:
+          type: string
+          description: Optional. The name of the Galasa secret containing Maven credentials to use when authenticating with this Maven repository.
     StreamTestCatalog:
       type: object
       properties:
@@ -3865,6 +3868,9 @@ components:
             url:
               type: string
               description: Maven repository URL
+            secretName:
+              type: string
+              description: Optional. The ID of the Galasa secret to use for authenticating with this Maven repository.
         obrs:
           type: array
           description: List of OBRs
@@ -3891,6 +3897,9 @@ components:
             url:
               type: string
               description: Maven repository URL
+            secretName:
+              type: string
+              description: Optional. The name of the Galasa secret containing Maven credentials to use when authenticating with this Maven repository.
         obrs:
           type: array
           description: List of OBRs
