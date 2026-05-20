@@ -42,7 +42,7 @@ func SetSecret(
 ) error {
 	var err error
 
-	secretName, err = validateSecretName(secretName)
+	secretName, err = ValidateSecretName(secretName)
 	if err == nil {
 		log.Printf("Secret name validated OK")
 		if description != "" {

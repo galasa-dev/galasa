@@ -69,7 +69,7 @@ func getSecretByName(
 ) (*galasaapi.GalasaSecret, error) {
 	var err error
 	var secret *galasaapi.GalasaSecret
-	secretName, err = validateSecretName(secretName)
+	secretName, err = ValidateSecretName(secretName)
 	if err == nil {
 		secret, err = getSecretFromRestApi(secretName, apiClient, byteReader)
 	}
