@@ -19,13 +19,17 @@ import dev.galasa.framework.ITestRunnerDataProvider;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.TestRunManagers;
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.language.GalasaTest;
+import dev.galasa.framework.spi.streams.IStreamsService;
 
 public class TestRunnerDataProvider implements ITestRunnerDataProvider {
 
     private IConfigurationPropertyStoreService cps;
     private IDynamicStatusStoreService         dss;
     private IResultArchiveStore                ras;
+    private ICredentialsService                credentialsService;
+    private IStreamsService                    streamsService;
     private IRun                               run;
     private IShuttableFramework                framework;
     private Properties                         overrideProperties;
@@ -42,6 +46,8 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
             framework = frameworkInitialisation.getShutableFramework();
             cps = framework.getConfigurationPropertyService("framework");
             dss = framework.getDynamicStatusStoreService("framework");
+            credentialsService = framework.getCredentialsService();
+            streamsService = framework.getStreamsService();
         } catch (Exception e) {
             throw new TestRunException("Unable to initialise the Framework Services", e);
         }
@@ -63,6 +69,11 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     @Override
     public IConfigurationPropertyStoreService getCPS() {
         return this.cps;
+    }
+
+    @Override
+    public ICredentialsService getCredentialsService() {
+        return this.credentialsService;
     }
     
     @Override
@@ -115,6 +126,11 @@ public class TestRunnerDataProvider implements ITestRunnerDataProvider {
     @Override 
     public ITestRunnerEventsProducer getEventsProducer() {
         return this.eventsProducer;
+    }
+
+    @Override
+    public IStreamsService getStreamsService() {
+        return this.streamsService;
     }
 
 }

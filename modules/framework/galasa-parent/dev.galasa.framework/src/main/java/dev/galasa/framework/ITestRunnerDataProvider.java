@@ -13,13 +13,17 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IShuttableFramework;
+import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.language.GalasaTest;
+import dev.galasa.framework.spi.streams.IStreamsService;
 
 public interface ITestRunnerDataProvider {
     public IRun getRun();
     public IConfigurationPropertyStoreService getCPS();
+    public ICredentialsService getCredentialsService();
     public IDynamicStatusStoreService getDSS();
     public IResultArchiveStore getRAS();
+    public IStreamsService getStreamsService();
     public IShuttableFramework getFramework();
     public IBundleManager getBundleManager();
     public IAnnotationExtractor getAnnotationExtractor();

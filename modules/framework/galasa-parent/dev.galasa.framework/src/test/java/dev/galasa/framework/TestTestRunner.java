@@ -23,7 +23,9 @@ import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.mocks.*;
 import dev.galasa.framework.mocks.MockTestRunnerEventsProducer.ProducedEvent;
 import dev.galasa.framework.spi.*;
+import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.language.GalasaTest;
+import dev.galasa.framework.spi.streams.IStreamsService;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 
 public class TestTestRunner {
@@ -97,6 +99,8 @@ public class TestTestRunner {
 
         MockShutableFramework framework = new MockShutableFramework(ras,dss,TEST_RUN_NAME, run, frameworkRuns );
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
+        ICredentialsService creds = new MockCredentialsService(new HashMap<>());
+        IStreamsService streamsService = new MockStreamsService(new ArrayList<>());
 
 
 
@@ -152,6 +156,8 @@ public class TestTestRunner {
         
         MockTestRunnerDataProvider testRunData = new MockTestRunnerDataProvider(
             cps,
+            creds,
+            streamsService,
             dss,
             ras,
             run,
@@ -332,7 +338,8 @@ public class TestTestRunner {
 
         MockShutableFramework framework = new MockShutableFramework(ras,dss,TEST_RUN_NAME, run, frameworkRuns );
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
-
+        ICredentialsService creds = new MockCredentialsService(new HashMap<>());
+        IStreamsService streamsService = new MockStreamsService(new ArrayList<>());
 
 
         IMavenRepository mockMavenRepo = new MockMavenRepository();
@@ -388,6 +395,8 @@ public class TestTestRunner {
 
         MockTestRunnerDataProvider testRunData = new MockTestRunnerDataProvider(
             cps,
+            creds,
+            streamsService,
             dss,
             ras,
             run,
@@ -480,6 +489,8 @@ public class TestTestRunner {
 
         MockShutableFramework framework = new MockShutableFramework(ras,dss,TEST_RUN_NAME, run, frameworkRuns );
         IConfigurationPropertyStoreService cps = new MockIConfigurationPropertyStoreService();
+        ICredentialsService creds = new MockCredentialsService(new HashMap<>());
+        IStreamsService streamsService = new MockStreamsService(new ArrayList<>());
 
         IMavenRepository mockMavenRepo = new MockMavenRepository();
 
@@ -533,6 +544,8 @@ public class TestTestRunner {
         
         MockTestRunnerDataProvider testRunData = new MockTestRunnerDataProvider(
             cps,
+            creds,
+            streamsService,
             dss,
             ras,
             run,

@@ -13,8 +13,8 @@ import java.util.Base64;
 
 import org.junit.Test;
 
-import dev.galasa.framework.maven.repository.internal.mocks.MockMavenRepository;
 import dev.galasa.framework.maven.repository.internal.mocks.MockURLConnection;
+import dev.galasa.framework.mocks.MockMavenRepository;
 
 public class GalasaMavenUrlHandlerServiceTest {
 

@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.api.common.mocks;
 
+import dev.galasa.framework.MockCredentialsService;
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.mocks.FilledMockRBACService;
 import dev.galasa.framework.spi.Api;

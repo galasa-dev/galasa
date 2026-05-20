@@ -14,13 +14,17 @@ import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IResultArchiveStore;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IShuttableFramework;
+import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.language.GalasaTest;
+import dev.galasa.framework.spi.streams.IStreamsService;
 
 public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
 
     private IConfigurationPropertyStoreService cps;
     private IDynamicStatusStoreService         dss;
     private IResultArchiveStore                ras;
+    private ICredentialsService                credentialsService;
+    private IStreamsService                    streamsService;
     private IRun                               run;
     private IShuttableFramework                 framework;
     private Properties                         overrideProperties;
@@ -37,6 +41,8 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
 
     public MockTestRunnerDataProvider(
         IConfigurationPropertyStoreService cps,
+        ICredentialsService                credentialsService,
+        IStreamsService                    streamsService,
         IDynamicStatusStoreService         dss,
         IResultArchiveStore                ras,
         IRun                               run,
@@ -51,6 +57,8 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
         this.cps = cps;
         this.dss = dss;
         this.ras = ras;
+        this.credentialsService = credentialsService;
+        this.streamsService = streamsService;
         this.framework = framework;
         this.run = run;
         this.overrideProperties = overrideProperties;
@@ -107,6 +115,16 @@ public class MockTestRunnerDataProvider implements ITestRunnerDataProvider {
     @Override
     public ITestRunnerEventsProducer getEventsProducer() {
         return this.eventsPublisher;
+    }
+
+    @Override
+    public ICredentialsService getCredentialsService() {
+        return this.credentialsService;
+    }
+
+    @Override
+    public IStreamsService getStreamsService() {
+        return this.streamsService;
     }
 
     public void setCps(IConfigurationPropertyStoreService cps) {

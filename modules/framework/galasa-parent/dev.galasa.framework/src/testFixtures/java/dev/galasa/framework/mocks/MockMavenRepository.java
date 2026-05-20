@@ -13,6 +13,9 @@ import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 
 public class MockMavenRepository implements IMavenRepository {
 
+    private String username;
+    private String password;
+
     List<URL> remoteRepoUrls = new ArrayList<>();
 
     @Override
@@ -37,17 +40,25 @@ public class MockMavenRepository implements IMavenRepository {
 
     @Override
     public void setCredentials(String username, String password) {
-        throw new UnsupportedOperationException("Unimplemented method 'setBootstrapCredentials'");
+        this.username = username;
+        this.password = password;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
     public String getUsername() {
-        throw new UnsupportedOperationException("Unimplemented method 'getUsername'");
+        return this.username;
     }
 
     @Override
     public String getPassword() {
-        throw new UnsupportedOperationException("Unimplemented method 'getPassword'");
+        return this.password;
     }
-    
 }
