@@ -733,9 +733,20 @@ public class HttpClientImpl implements IHttpClient {
         builder.setConnectionManager(connectionManager);
         builder.setDefaultRequestConfig(requestBuilder.build());
         httpClient = builder.build();
+
+        AuthCache existingAuthCache = null;
+        if (httpContext != null) {
+            existingAuthCache = httpContext.getAuthCache();
+        }
         
-        httpContext = ContextBuilder.create().useCookieStore(cookieStore).useCredentialsProvider(credentialsProvider)
+        httpContext = ContextBuilder.create()
+            .useCookieStore(cookieStore)
+            .useCredentialsProvider(credentialsProvider)
             .build();
+
+        if (existingAuthCache != null) {
+            httpContext.setAuthCache(existingAuthCache);
+        }
 
         return this;
     }
