@@ -36,6 +36,8 @@ import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.IShuttableFramework;
 import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
+import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.streams.IStreamsService;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -57,6 +59,8 @@ public class BaseTestRunner {
     protected IConfigurationPropertyStoreService cps;
     protected IDynamicStatusStoreService dss;
     protected IResultArchiveStore ras;
+    protected IStreamsService streamsService;
+    protected ICredentialsService credentialsService;
     protected IRun run;
 
     protected TestStructure testStructure ;
@@ -85,6 +89,9 @@ public class BaseTestRunner {
         this.cps = dataProvider.getCPS();
         this.ras = dataProvider.getRAS();
         this.dss = dataProvider.getDSS();
+        this.credentialsService = dataProvider.getCredentialsService();
+        this.streamsService = dataProvider.getStreamsService();
+
         this.bundleManager = dataProvider.getBundleManager();
         this.fileSystem = dataProvider.getFileSystem();
 

@@ -22,6 +22,8 @@ public interface IStream {
 
     boolean isEnabled();
 
+    String getMavenSecretName();
+
     void validate() throws StreamsException;
 
 }

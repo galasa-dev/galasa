@@ -24,9 +24,9 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import dev.galasa.ICredentials;
+import dev.galasa.framework.MockCredentialsService;
 import dev.galasa.framework.api.common.HttpMethod;
 import dev.galasa.framework.api.common.MimeType;
-import dev.galasa.framework.api.common.mocks.MockCredentialsService;
 import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;

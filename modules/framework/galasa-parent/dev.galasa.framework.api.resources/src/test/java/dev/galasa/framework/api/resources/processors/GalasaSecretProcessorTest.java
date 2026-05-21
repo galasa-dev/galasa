@@ -21,8 +21,8 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import dev.galasa.ICredentials;
+import dev.galasa.framework.MockCredentialsService;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.mocks.MockCredentialsService;
 import dev.galasa.framework.api.common.RBACValidator;
 import dev.galasa.framework.mocks.FilledMockRBACService;
 import dev.galasa.framework.mocks.MockRBACService;

@@ -67,7 +67,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         String username = galasaRepository.getUsername();
         String password = galasaRepository.getPassword();
 
-        if (username != null && password != null) {
+        if (username != null && password != null && !username.isBlank() && !password.isBlank()) {
             String auth = username + ":" + password;
             String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
             connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
