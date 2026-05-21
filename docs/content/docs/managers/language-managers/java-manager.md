@@ -73,7 +73,7 @@ The following are properties used to configure the Java Manager.
 | Name: | `java.default.version` |
 | Description: | Specifies the default Java version to use when no specific version is requested. |
 | Required:  | No |
-| Default value: | `v11` |
+| Default value: | `v17` |
 | Valid values: | `v8`, `v11`, `v17`, `v21`, or other valid Java version identifiers |
 | Examples: | `java.default.version=v11`<br>`java.default.version=v17` |
 
