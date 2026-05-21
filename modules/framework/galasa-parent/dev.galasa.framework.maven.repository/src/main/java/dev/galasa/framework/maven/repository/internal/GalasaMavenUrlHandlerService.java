@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,8 +46,35 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
             .getLog(GalasaMavenUrlHandlerService.class);
     private static final DateTimeFormatter dtf                   = DateTimeFormatter.ofPattern("uuuuMMddHHmmss");
 
+    private static final int FIVE_MINUTES_IN_MS_UNITS = 3000000;
+
     @Reference
     private IMavenRepository               galasaRepository;
+
+    public GalasaMavenUrlHandlerService() {
+    }
+
+    public GalasaMavenUrlHandlerService(IMavenRepository mavenRepository) {
+        this.galasaRepository = mavenRepository;
+    }
+
+    /**
+     * Adds Basic Authentication header to URLConnection if credentials are available
+     *
+     * @param connection The URLConnection to add authentication to
+     */
+    void addAuthenticationIfRequired(URLConnection connection) {
+        String username = galasaRepository.getUsername();
+        String password = galasaRepository.getPassword();
+
+        if (username != null && password != null) {
+            String auth = username + ":" + password;
+            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+            connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
+            logger.trace("Added Basic Authentication header for Maven repository");
+        }
+    }
+
 
     @Override
     public URLConnection openConnection(URL arg0) throws IOException {
@@ -255,10 +284,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
                 buildArtifactFilename(artifactid, snapshotSuffix, type));
         logger.debug("Attempting to download snapshot" + urlRemoteFile);
 
-        URLConnection connection = urlRemoteFile.openConnection();
-        connection.setConnectTimeout(300000);
-        connection.setReadTimeout(300000);
-        connection.setDoOutput(false);
+        URLConnection connection = createConnection(urlRemoteFile);
         connection.connect();
 
         try {
@@ -280,10 +306,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
           URL urlRemoteFile = buildArtifactUrl(repository, groupid, artifactid, version, "maven-metadata.xml");
           logger.debug("Attempting to download temporary metadata " + urlRemoteFile);
 
-          URLConnection connection = urlRemoteFile.openConnection();
-          connection.setConnectTimeout(300000);
-          connection.setReadTimeout(300000);
-          connection.setDoOutput(false);
+          URLConnection connection = createConnection(urlRemoteFile);
           connection.connect();
           Files.copy(connection.getInputStream(), tempMetadata, StandardCopyOption.REPLACE_EXISTING);
       } catch (FileNotFoundException e) {
@@ -291,6 +314,18 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
           return null;
       }
       return tempMetadata;
+    }
+
+
+    private URLConnection createConnection(URL urlRemoteFile) throws IOException {
+        URLConnection connection = urlRemoteFile.openConnection();
+
+        connection.setConnectTimeout(FIVE_MINUTES_IN_MS_UNITS);
+        connection.setReadTimeout(FIVE_MINUTES_IN_MS_UNITS);
+        connection.setDoOutput(false);
+        addAuthenticationIfRequired(connection);
+
+        return connection;
     }
 
     private URL fetchReleaseArtifact(Path localArtifact, String groupid, String artifactid, String version, String type)
@@ -309,8 +344,6 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
         return null;
     }
 
-    private static final int FIVE_MINUTES_IN_MS_UNITS = 3000000;
-
     private boolean getArtifact(URL repository, Path localArtifact, String groupid, String artifactid,
             String version) throws IOException {
         logger.debug("Checking " + repository);
@@ -324,11 +357,7 @@ public class GalasaMavenUrlHandlerService extends AbstractURLStreamHandlerServic
                     " with connection timeout of "+Integer.toString(connectionTimeoutMilliSecs)+"ms "+
                     "and read timeout of "+Integer.toString(readTimeoutMilliSecs)+"ms "
                     );
-        URLConnection connection = urlRemoteFile.openConnection();
-        connection.setDoOutput(false);
-
-        connection.setConnectTimeout(connectionTimeoutMilliSecs);
-        connection.setReadTimeout(readTimeoutMilliSecs);
+        URLConnection connection = createConnection(urlRemoteFile);
 
         try {
             logger.debug("Connecting now...");

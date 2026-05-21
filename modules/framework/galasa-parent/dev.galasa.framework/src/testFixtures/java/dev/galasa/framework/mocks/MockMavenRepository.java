@@ -34,5 +34,20 @@ public class MockMavenRepository implements IMavenRepository {
     public void addRemoteRepository(URL remoteRepository) {
         remoteRepoUrls.add(remoteRepository);
     }
+
+    @Override
+    public void setCredentials(String username, String password) {
+        throw new UnsupportedOperationException("Unimplemented method 'setBootstrapCredentials'");
+    }
+
+    @Override
+    public String getUsername() {
+        throw new UnsupportedOperationException("Unimplemented method 'getUsername'");
+    }
+
+    @Override
+    public String getPassword() {
+        throw new UnsupportedOperationException("Unimplemented method 'getPassword'");
+    }
     
 }

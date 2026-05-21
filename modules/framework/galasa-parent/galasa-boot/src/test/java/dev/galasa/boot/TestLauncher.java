@@ -331,4 +331,66 @@ public class TestLauncher {
 
         assertThat(mockEnv.getExitCode()).isEqualTo(-1);
     }
+
+    @Test
+    public void testCanSetMavenUsernameFromEnvironmentVariable() {
+        Launcher launcher  = new Launcher();
+        MockEnvironment mockEnv = new MockEnvironment();
+        Properties bootstrap = new Properties();
+
+        String mavenUsername = "myuser";
+        mockEnv.setenv("GALASA_MAVEN_USERNAME", mavenUsername);
+
+        launcher.setMavenCredentialsFromEnvironment(mockEnv, bootstrap);
+
+        assertThat(bootstrap.getProperty("maven.repository.username")).isEqualTo(mavenUsername);
+    }
+
+    @Test
+    public void testCanSetMavenPasswordFromEnvironmentVariable() {
+        Launcher launcher  = new Launcher();
+        MockEnvironment mockEnv = new MockEnvironment();
+        Properties bootstrap = new Properties();
+
+        String mavenPassword = "mypassword";
+        mockEnv.setenv("GALASA_MAVEN_PASSWORD", mavenPassword);
+
+        launcher.setMavenCredentialsFromEnvironment(mockEnv, bootstrap);
+
+        assertThat(bootstrap.getProperty("maven.repository.password")).isEqualTo(mavenPassword);
+    }
+
+    @Test
+    public void testMavenCredentialsCanBeLoadedFromEnvironmentVariables() {
+        Launcher launcher  = new Launcher();
+        MockEnvironment mockEnv = new MockEnvironment();
+        Properties bootstrap = new Properties();
+
+        String mavenUsername = "myuser";
+        String mavenPassword = "mypassword";
+        mockEnv.setenv("GALASA_MAVEN_USERNAME", mavenUsername);
+        mockEnv.setenv("GALASA_MAVEN_PASSWORD", mavenPassword);
+
+        launcher.setMavenCredentialsFromEnvironment(mockEnv, bootstrap);
+
+        assertThat(bootstrap.getProperty("maven.repository.username")).isEqualTo(mavenUsername);
+        assertThat(bootstrap.getProperty("maven.repository.password")).isEqualTo(mavenPassword);
+    }
+
+    @Test
+    public void testMavenCredentialsLoadedFromEnvironmentVariableAreTrimmed() {
+        Launcher launcher  = new Launcher();
+        MockEnvironment mockEnv = new MockEnvironment();
+        Properties bootstrap = new Properties();
+
+        String mavenUsername = "    myuser   ";
+        String mavenPassword = "mypassword     ";
+        mockEnv.setenv("GALASA_MAVEN_USERNAME", mavenUsername);
+        mockEnv.setenv("GALASA_MAVEN_PASSWORD", mavenPassword);
+
+        launcher.setMavenCredentialsFromEnvironment(mockEnv, bootstrap);
+
+        assertThat(bootstrap.getProperty("maven.repository.username")).isEqualTo(mavenUsername.trim());
+        assertThat(bootstrap.getProperty("maven.repository.password")).isEqualTo(mavenPassword.trim());
+    }
 }
