@@ -236,11 +236,11 @@ nav:
       - docs/managers/index.md
       - CICS TS Managers:
         - docs/managers/cics-ts-managers/index.md
+        - docs/managers/cics-ts-managers/cics-ts-manager.md
+        - docs/managers/cics-ts-managers/cics-ts-resource-manager.md
         - docs/managers/cics-ts-managers/cics-ts-ceci-manager.md
         - docs/managers/cics-ts-managers/cics-ts-ceda-manager.md
         - docs/managers/cics-ts-managers/cics-ts-cemt-manager.md
-        - docs/managers/cics-ts-managers/cics-ts-manager.md
-        - docs/managers/cics-ts-managers/cics-ts-resource-manager.md
       - IMS TM Managers:
         - docs/managers/ims-tm-managers/index.md
         - docs/managers/ims-tm-managers/ims-tm-manager.md

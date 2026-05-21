@@ -9,6 +9,17 @@ You can find the links to the Javadoc API documentation for all the Galasa Manag
 
 ### CICS TS Managers
 
+[CICS TS Manager](./cics-ts-managers/cics-ts-manager.md)
+
+:   Provides configuration information for pre-existing CICS TS servers.
+    Drives provisioning services from other managers, e.g. z/OS PT.
+
+
+[CICS TS Resource Manager](./cics-ts-managers/cics-ts-resource-manager.md)
+
+:   Provides management of CICS resources including CICS Bundles, JVM servers, and JVM profiles.
+
+
 [CECI Manager](./cics-ts-managers/cics-ts-ceci-manager.md)
     
 :   Provides CECI 3270 interaction - initially supporting containers and link programs.
@@ -22,17 +33,6 @@ You can find the links to the Javadoc API documentation for all the Galasa Manag
 [CEMT Manager](./cics-ts-managers/cics-ts-cemt-manager.md)
 
 :   Provides CEMT 3270 interaction for inquiring, setting, and managing CICS resources at runtime.
-
-
-[CICS TS Manager](./cics-ts-managers/cics-ts-manager.md)
-
-:   Provides configuration information for pre-existing CICS TS servers.
-    Drives provisioning services from other managers, e.g. z/OS PT.
-
-
-[CICS TS Resource Manager](./cics-ts-managers/cics-ts-resource-manager.md)
-
-:   Provides management of CICS resources including CICS Bundles, JVM servers, and JVM profiles.
 
 
 ### IMS TM Managers
