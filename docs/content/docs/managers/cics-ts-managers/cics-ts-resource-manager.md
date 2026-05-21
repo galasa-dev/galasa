@@ -2,7 +2,7 @@
 title: "CICS TS Resource Manager"
 ---
 
-You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/cicsts/package-summary.html){target="_blank"}.
+You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/cicsts/cicsresource/ICicsResource.html){target="_blank"}.
 
 
 ## Overview
@@ -10,18 +10,6 @@ You can view the [Javadoc documentation for the Manager](../../reference/javadoc
 The CICS TS Resource Manager provides Galasa tests with the capability to manage CICS resources such as CICS Bundles and JVM servers. This Manager enables tests to create, configure, deploy, enable, disable, and delete CICS resources programmatically.
 
 The CICS TS Resource Manager is an internal Manager and is enabled automatically by the CICS TS Manager when required. It provides comprehensive methods to manage the lifecycle of CICS resources including JVM servers, CICS bundles, and JVM profiles.
-
-
-## Dependencies
-
-The CICS TS Resource Manager has dependencies on the following Managers:
-
-- CICS TS Manager
-- z/OS File Manager
-- z/OS Liberty Manager
-- z/OS UNIX Command Manager
-- Text Scan Manager
-- Artifact Manager
 
 
 ## Annotations

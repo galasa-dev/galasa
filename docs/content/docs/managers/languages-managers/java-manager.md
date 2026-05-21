@@ -12,14 +12,6 @@ The Java Manager provides Galasa tests with access to Java installations. This M
 The Java Manager is a foundational Manager that works in conjunction with platform-specific managers (Java Ubuntu Manager, Java Windows Manager) to provide Java installations on different operating systems.
 
 
-## Dependencies
-
-The Java Manager works with the following Managers:
-
-- HTTP Client Manager (for downloading Java archives)
-- Platform-specific Java Managers (Java Ubuntu Manager, Java Windows Manager)
-
-
 ## Annotations
 
 The Java Manager does not provide direct annotations for test classes. Java installations are typically obtained through platform-specific managers like Java Ubuntu Manager or Java Windows Manager.

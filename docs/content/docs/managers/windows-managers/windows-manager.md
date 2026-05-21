@@ -12,13 +12,6 @@ The Windows Manager provides Galasa tests with access to Windows images. This Ma
 The Windows Manager provides provisioning capabilities for Windows images through either Developer Supplied Environment (DSE) provisioning or through cloud provisioners like OpenStack.
 
 
-## Dependencies
-
-The Windows Manager has a dependency on the following Managers:
-
-- IP Network Manager
-
-
 ## Annotations
 
 The following annotations are available with the Windows Manager.
@@ -297,89 +290,6 @@ The following are properties used to configure the Windows Manager.
 | Required:  | No |
 | Valid values: | A valid Galasa Manager package name or comma-separated list |
 | Examples: | `windows.bundle.extra.managers=dev.galasa.openstack.manager` |
-
-
-## Methods
-
-### IWindowsImage Methods
-
-```java
-String getImageID()
-```
-
-Returns the ID of the Windows image.
-
-**Returns:** The image ID
-
----
-
-```java
-IIpHost getIpHost()
-```
-
-Returns the IP Network Host details for the Windows image.
-
-**Returns:** The `IIpHost` object
-
----
-
-```java
-ICredentials getDefaultCredentials() throws WindowsManagerException
-```
-
-Returns the default credentials for accessing the Windows image.
-
-**Returns:** The credentials object
-
----
-
-```java
-ICommandShell getCommandShell() throws WindowsManagerException
-```
-
-Returns a command shell for executing commands on the Windows image.
-
-**Returns:** The command shell
-
----
-
-```java
-Path getRoot() throws WindowsManagerException
-```
-
-Returns the root directory path (typically C:\).
-
-**Returns:** The root path
-
----
-
-```java
-Path getHome() throws WindowsManagerException
-```
-
-Returns the home directory path for the current user.
-
-**Returns:** The home directory path
-
----
-
-```java
-Path getTmp() throws WindowsManagerException
-```
-
-Returns the temporary directory path.
-
-**Returns:** The temp directory path
-
----
-
-```java
-Path getRunDirectory() throws WindowsManagerException
-```
-
-Returns the test-specific run directory path.
-
-**Returns:** The run directory path
 
 
 ## Best Practices

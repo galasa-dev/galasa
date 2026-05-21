@@ -12,14 +12,6 @@ The Java Windows Manager provides Galasa tests with Java installations on Window
 The Java Windows Manager automatically downloads, extracts, and configures Java installations on Windows images, making them ready for use in tests.
 
 
-## Dependencies
-
-The Java Windows Manager has dependencies on the following Managers:
-
-- Java Manager
-- Windows Manager
-
-
 ## Annotations
 
 The following annotations are available with the Java Windows Manager.
@@ -273,49 +265,6 @@ jdk-11.0.12/
   conf/
     ...
 ```
-
-
-## Methods
-
-### IJavaWindowsInstallation Methods
-
-```java
-String getJavaCommand() throws JavaManagerException
-```
-
-Returns the full path to the Java command (java.exe), including any code coverage agent configuration if enabled.
-
-**Returns:** The Java command path
-
----
-
-```java
-Path retrieveArchive() throws JavaManagerException, ResourceUnavailableException
-```
-
-Retrieves the Java archive file.
-
-**Returns:** Path to the downloaded archive
-
----
-
-```java
-Path retrieveJacocoAgent() throws JavaManagerException, ResourceUnavailableException
-```
-
-Retrieves the Jacoco agent JAR file for code coverage.
-
-**Returns:** Path to the Jacoco agent
-
----
-
-```java
-String getArchiveFilename() throws JavaManagerException
-```
-
-Returns the filename of the Java archive.
-
-**Returns:** The archive filename
 
 
 ## Best Practices

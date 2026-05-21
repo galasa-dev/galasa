@@ -12,14 +12,6 @@ The Java Ubuntu Manager provides Galasa tests with Java installations on Ubuntu 
 The Java Ubuntu Manager automatically downloads, extracts, and configures Java installations on Ubuntu Linux images, making them ready for use in tests.
 
 
-## Dependencies
-
-The Java Ubuntu Manager has dependencies on the following Managers:
-
-- Java Manager
-- Linux Manager
-
-
 ## Annotations
 
 The following annotations are available with the Java Ubuntu Manager.
@@ -227,49 +219,6 @@ When a Java Ubuntu installation is requested, the Manager performs the following
 6. **Add Jacoco agent** - If code coverage is enabled, downloads and configures the Jacoco agent
 
 The installation is cached in the manager's home directory, so subsequent tests on the same image can reuse the installation.
-
-
-## Methods
-
-### IJavaUbuntuInstallation Methods
-
-```java
-String getJavaCommand() throws JavaManagerException
-```
-
-Returns the full path to the Java command, including any code coverage agent configuration if enabled.
-
-**Returns:** The Java command path
-
----
-
-```java
-Path retrieveArchive() throws JavaManagerException, ResourceUnavailableException
-```
-
-Retrieves the Java archive file.
-
-**Returns:** Path to the downloaded archive
-
----
-
-```java
-Path retrieveJacocoAgent() throws JavaManagerException, ResourceUnavailableException
-```
-
-Retrieves the Jacoco agent JAR file for code coverage.
-
-**Returns:** Path to the Jacoco agent
-
----
-
-```java
-String getArchiveFilename() throws JavaManagerException
-```
-
-Returns the filename of the Java archive.
-
-**Returns:** The archive filename
 
 
 ## Best Practices
