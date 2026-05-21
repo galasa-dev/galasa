@@ -75,6 +75,49 @@ Create a folder tree which has two bundles, each aiming to test different featur
 galasactl project create --package dev.galasa.example.banking --features payee,account --obr --log -
 ```
 
+### Creating a Manager Project
+
+Instead of creating a test project, you can create a Galasa manager project using the `--manager` flag. A manager is a reusable component that provides test infrastructure and can inject resources into test classes.
+
+Create a manager project:
+```
+galasactl project create --package dev.galasa.example.docker --manager
+```
+
+Create a manager project with a specific manager name:
+```
+galasactl project create --package dev.galasa.example.docker --manager --managerName docker
+```
+
+If `--managerName` is not specified, the tool will use the last part of the package name as the manager name.
+
+Create a manager project with an OBR:
+```
+galasactl project create --package dev.galasa.example.docker --manager --managerName docker --obr
+```
+
+**Note:** The `--manager` and `--features` flags are mutually exclusive. You cannot create both a manager project and a test project in the same command.
+
+#### What Gets Generated
+
+When you create a manager project, the tool generates:
+
+1. **Manager Annotation** (`@ExampleManager`) - Used to inject the manager into test classes
+2. **Manager Interface** (`IExampleManager`) - Public API for the manager
+3. **Manager Implementation** (`ExampleManagerImpl`) - Internal implementation with lifecycle methods:
+   - `initialise()` - Called when the manager is first loaded
+   - `youAreRequired()` - Called when a test needs this manager
+   - `provisionGenerate()` - Called before test execution to provision resources
+   - `provisionDiscard()` - Called after test execution to clean up resources
+4. **Resource Interface** (`IExampleResource`) - Public API for resources provided by the manager
+5. **Resource Implementation** (`ExampleResourceImpl`) - Implementation of the resource
+6. **Manager Field** (`ExampleManagerField`) - Handles annotation-based field injection
+7. **Manager Exception** (`ExampleManagerException`) - Custom exception for manager errors
+8. **Unit Test** (`ExampleManagerImplTest`) - Basic unit test for the manager implementation
+9. **Build Files** - Maven (`pom.xml`) and/or Gradle (`build.gradle`, `bnd.bnd`) configuration
+10. **OBR Project** (if `--obr` flag is used) - OSGi Bundle Repository configuration
+
+The generated manager follows best practices from existing Galasa managers and includes proper OSGi bundle configuration with Export-Package and Import-Package declarations.
 
 ### Building the example project
 
