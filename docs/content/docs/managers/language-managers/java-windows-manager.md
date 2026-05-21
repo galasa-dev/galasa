@@ -67,7 +67,7 @@ public IWindowsImage windowsImage;
 @JavaWindowsInstallation(
     javaTag = "JAVA11",
     imageTag = "PRIMARY",
-    javaVersion = JavaVersion.v11
+    javaVersion = JavaVersion.v17
 )
 public IJavaWindowsInstallation java11;
 
@@ -91,7 +91,7 @@ public IWindowsImage windowsImage;
 @JavaWindowsInstallation(
     javaTag = "JAVA11",
     imageTag = "PRIMARY",
-    javaVersion = JavaVersion.v11
+    javaVersion = JavaVersion.v17
 )
 public IJavaWindowsInstallation java11;
 
