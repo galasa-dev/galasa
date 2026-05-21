@@ -310,76 +310,22 @@ The following are properties used to configure the CICS TS Resource Manager.
 
 The main interface for creating CICS resources. Obtained from `ICicsRegion.cicsResource()`.
 
-**Key Methods:**
-- `newCicsBundle()` - Create a CICS Bundle resource
-- `newJvmserver()` - Create a JVM server resource
-- `newLibertyJvmserver()` - Create a Liberty JVM server resource
-- `newJvmprofile()` - Create a JVM profile
+[View ICicsResource Javadoc](../../reference/javadoc/dev/galasa/cicsts/cicsresource/ICicsResource.html)
 
 ### ICicsBundle
 
 Represents a CICS Bundle resource with methods to manage its lifecycle.
 
-**Key Methods:**
-- `build()` - Deploy and install the bundle
-- `deploy()` - Deploy bundle to zOS UNIX
-- `buildResourceDefinition()` - Create the CICS resource definition
-- `installResourceDefinition()` - Install the resource definition
-- `enable()` / `disable()` - Control bundle state
-- `waitForEnable()` / `waitForDisable()` - Wait for state changes
-- `disableDiscardInstall()` - Refresh the bundle
-- `delete()` - Remove bundle and files
-- `disableDiscardDelete()` - Complete cleanup
+[View ICicsBundle Javadoc](../../reference/javadoc/dev/galasa/cicsts/cicsresource/ICicsBundle.html)
 
 ### IJvmserver
 
 Represents a CICS JVM server resource with comprehensive lifecycle management.
 
-**Key Methods:**
-- `build()` - Create profile, definition, install and enable
-- `buildProfile()` - Create JVM profile file only
-- `buildResourceDefinition()` - Create CICS resource definition
-- `enable()` / `disable()` - Control JVM server state
-- `disableWithEscalate()` - Disable with automatic escalation
-- `waitForEnable()` / `waitForDisable()` - Wait for state changes
-- `setThreadLimit()` / `getThreadLimit()` - Manage thread limits
-- `getThreadCount()` - Get current thread usage
-- `getJvmLog()` / `getStdOut()` / `getStdErr()` / `getJvmTrace()` - Access logs
-- `checkpointLogs()` - Save log checkpoint
-- `saveToResultsArchive()` - Archive logs
-- `delete()` - Remove JVM server and files
-
-**JVM Server Types:**
-- `AXIS2` - Axis2 web services
-- `CLASSPATH` - Standard Java applications
-- `CMCI` - CICS Management Client Interface
-- `LIBERTY` - Liberty profile applications
-- `OSGI` - OSGi applications
-- `STS` - Secure Token Service
-
-**Purge Types:**
-- `PHASEOUT` - Graceful shutdown
-- `PURGE` - Force shutdown
-- `FORCEPURGE` - Immediate shutdown
-- `KILL` - Terminate process
-- `FAILED` - Shutdown failed
+[View IJvmserver Javadoc](../../reference/javadoc/dev/galasa/cicsts/cicsresource/IJvmserver.html)
 
 ### IJvmprofile
 
 Represents a JVM profile with methods to configure JVM options.
 
-**Key Methods:**
-- `setProfileValue(String key, String value)` - Set a profile option
-- `build()` - Create the profile file on zOS UNIX
-- `getJvmProfileDir()` - Get profile directory
-- `getJvmProfileFile()` - Get profile file
-
-**Common Profile Options:**
-- `JAVA_HOME` - Java installation directory
-- `WORK_DIR` - Working directory for the JVM
-- `CLASSPATH` - Java classpath
-- `-Xmx` - Maximum heap size
-- `-Xms` - Initial heap size
-- `-Xss` - Thread stack size
-- `WLP_USER_DIR` - Liberty user directory (for Liberty JVM servers)
-- `WLP_OUTPUT_DIR` - Liberty output directory (for Liberty JVM servers)
+[View IJvmprofile Javadoc](../../reference/javadoc/dev/galasa/cicsts/cicsresource/IJvmprofile.html)
