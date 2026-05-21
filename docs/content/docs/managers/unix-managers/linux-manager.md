@@ -30,7 +30,7 @@ The following annotations are available with the Linux Manager.
 | Attribute: `operatingSystem` |  The `operatingSystem` attribute provides the requested operating system of the image. |
 | Attribute: `capabilities` |  The `capabilities` attribute specifies the capabilities required of the image, if any, in an array. |
 | Syntax: | <pre lang="java">@LinuxImage(imageTag = "PRIMARY", operatingSystem = OperatingSystem.ubuntu)<br>public ILinuxImage linuxImage;<br></pre> |
-| Notes: | The `ILinuxImage` interface gives the test access to the IPv4/6 address of the image. It also provides paths for the root, home, tmp, run directory and archives directory. A command shell on the image is also available through the interface.<br><br> See [LinuxImage](https://galasa.dev/docs/reference/javadoc/dev/galasa/linux/LinuxImage.html){target="_blank"} and [ILinuxImage](https://galasa.dev/docs/reference/javadoc/dev/galasa/linux/ILinuxImage.html){target="_blank"} to find out more. |
+| Notes: | The `ILinuxImage` interface gives the test access to the IPv4/6 address of the image. It also provides paths for the root, home, tmp, run directory and archives directory. A command shell on the image is also available through the interface.<br><br> See [LinuxImage](../../reference/javadoc/dev/galasa/linux/LinuxImage.html){target="_blank"} and [ILinuxImage](../../reference/javadoc/dev/galasa/linux/ILinuxImage.html){target="_blank"} to find out more. |
 
 
 ### Linux IP Host
@@ -41,7 +41,7 @@ The following annotations are available with the Linux Manager.
 | Description: | The `@LinuxIpHost` annotation represents an IP Host for a Linux image that has been provisioned for the test. |
 | Attribute: `imageTag` |  The `imageTag` should match the `imageTag` of the `@LinuxImage` this variable is to be populated with. |
 | Syntax: | <pre lang="java">@LinuxIpHost(imageTag = "PRIMARY")<br>public IIpHost linuxHost;<br></pre> |
-| Notes: | The `IIpHost` interface gives the test access to the IPv4/6 address and information about the Telnet, FTP and SSH ports on the Linux image.<br><br> See [LinuxIpHost](https://galasa.dev/docs/reference/javadoc/dev/galasa/linux/LinuxIpHost.html){target="_blank"} and [IIpHost](https://galasa.dev/docs/reference/javadoc/dev/galasa/ipnetwork/IIpHost.html){target="_blank"} to find out more. |
+| Notes: | The `IIpHost` interface gives the test access to the IPv4/6 address and information about the Telnet, FTP and SSH ports on the Linux image.<br><br> See [LinuxIpHost](../../reference/javadoc/dev/galasa/linux/LinuxIpHost.html){target="_blank"} and [IIpHost](../../reference/javadoc/dev/galasa/ipnetwork/IIpHost.html){target="_blank"} to find out more. |
 
 
 ## Configuration Properties

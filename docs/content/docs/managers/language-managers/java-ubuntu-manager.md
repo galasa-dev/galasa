@@ -29,7 +29,7 @@ The following annotations are available with the Java Ubuntu Manager.
 | Attribute: `javaVersion` |  The Java version to install (e.g., v8, v11, v17). Default is determined by CPS properties. |
 | Attribute: `javaJvm` |  The JVM type (e.g., hotspot, openj9). Default is "hotspot". |
 | Syntax: | <pre lang="java">@JavaUbuntuInstallation(javaTag = "PRIMARY", imageTag = "PRIMARY")<br>public IJavaUbuntuInstallation javaInstallation;<br></pre> |
-| Notes: | The `IJavaUbuntuInstallation` interface provides access to the Java installation, including the Java command path and installation directories.<br><br> See [JavaUbuntuInstallation](https://galasa.dev/docs/reference/javadoc/dev/galasa/java/ubuntu/JavaUbuntuInstallation.html){target="_blank"} and [IJavaUbuntuInstallation](https://galasa.dev/docs/reference/javadoc/dev/galasa/java/ubuntu/IJavaUbuntuInstallation.html){target="_blank"} to find out more. |
+| Notes: | The `IJavaUbuntuInstallation` interface provides access to the Java installation, including the Java command path and installation directories.<br><br> See [JavaUbuntuInstallation](../../reference/javadoc/dev/galasa/java/ubuntu/JavaUbuntuInstallation.html){target="_blank"} and [IJavaUbuntuInstallation](../../reference/javadoc/dev/galasa/java/ubuntu/IJavaUbuntuInstallation.html){target="_blank"} to find out more. |
 
 
 ## Code Snippets

@@ -24,7 +24,7 @@ The following annotations are available with the Text Scan Manager.
 | Name: | `@TextScanner` |
 | Description: | The `@TextScanner` annotation requests the Text Scan Manager to provide a text scanner instance. The text scanner is stateless and can be reused across different text sources. |
 | Syntax: | <pre lang="java">@TextScanner<br>public ITextScanner textScanner;<br></pre> |
-| Notes: | The `ITextScanner` interface provides methods to scan strings, input streams, and scannable objects for regex patterns or literal text. It does not maintain state between scans.<br><br> See [TextScanner](https://galasa.dev/docs/reference/javadoc/dev/galasa/textscan/TextScanner.html){target="_blank"} and [ITextScanner](https://galasa.dev/docs/reference/javadoc/dev/galasa/textscan/ITextScanner.html){target="_blank"} to find out more. |
+| Notes: | The `ITextScanner` interface provides methods to scan strings, input streams, and scannable objects for regex patterns or literal text. It does not maintain state between scans.<br><br> See [TextScanner](../../reference/javadoc/dev/galasa/textscan/TextScanner.html){target="_blank"} and [ITextScanner](../../reference/javadoc/dev/galasa/textscan/ITextScanner.html){target="_blank"} to find out more. |
 
 
 ### Log Scanner
@@ -34,7 +34,7 @@ The following annotations are available with the Text Scan Manager.
 | Name: | `@LogScanner` |
 | Description: | The `@LogScanner` annotation requests the Text Scan Manager to provide a log scanner instance. The log scanner maintains state and remembers where it last scanned, making it ideal for monitoring growing logs. |
 | Syntax: | <pre lang="java">@LogScanner<br>public ILogScanner logScanner;<br></pre> |
-| Notes: | The `ILogScanner` interface extends `ITextScanner` and adds the ability to remember scan positions, making it suitable for continuously monitoring log files that grow over time.<br><br> See [LogScanner](https://galasa.dev/docs/reference/javadoc/dev/galasa/textscan/LogScanner.html){target="_blank"} and [ILogScanner](https://galasa.dev/docs/reference/javadoc/dev/galasa/textscan/ILogScanner.html){target="_blank"} to find out more. |
+| Notes: | The `ILogScanner` interface extends `ITextScanner` and adds the ability to remember scan positions, making it suitable for continuously monitoring log files that grow over time.<br><br> See [LogScanner](../../reference/javadoc/dev/galasa/textscan/LogScanner.html){target="_blank"} and [ILogScanner](../../reference/javadoc/dev/galasa/textscan/ILogScanner.html){target="_blank"} to find out more. |
 
 
 ## Code Snippets

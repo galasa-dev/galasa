@@ -25,7 +25,7 @@ The following annotations are available with the DB2 Manager.
 | Description: | The `@Db2Instance` annotation requests a connection to a DB2 database with a specified tag. This provides access to the database connection for executing SQL statements. |
 | Attribute: `tag` |  The tag identifies the DB2 instance. If multiple DB2 instances are required, each must have a unique tag. Default is "PRIMARY". |
 | Syntax: | <pre lang="java">@Db2Instance(tag = "PRIMARY")<br>public IDb2Instance db2;<br></pre> |
-| Notes: | The `IDb2Instance` interface provides access to a standard `java.sql.Connection` object. This connection can be used to interact with the DB2 database using standard JDBC operations.<br><br> See [Db2Instance](https://galasa.dev/docs/reference/javadoc/dev/galasa/db2/Db2Instance.html){target="_blank"} and [IDb2Instance](https://galasa.dev/docs/reference/javadoc/dev/galasa/db2/IDb2Instance.html){target="_blank"} to find out more. |
+| Notes: | The `IDb2Instance` interface provides access to a standard `java.sql.Connection` object. This connection can be used to interact with the DB2 database using standard JDBC operations.<br><br> See [Db2Instance](../../reference/javadoc/dev/galasa/db2/Db2Instance.html){target="_blank"} and [IDb2Instance](../../reference/javadoc/dev/galasa/db2/IDb2Instance.html){target="_blank"} to find out more. |
 
 
 ### DB2 Schema
@@ -40,7 +40,7 @@ The following annotations are available with the DB2 Manager.
 | Attribute: `resultSetType` |  The ResultSet type for queries. Default is `ResultSet.TYPE_SCROLL_INSENSITIVE`. |
 | Attribute: `resultSetConcurrency` |  The ResultSet concurrency mode. Default is `ResultSet.CONCUR_READ_ONLY`. |
 | Syntax: | <pre lang="java">@Db2Schema(tag = "PRIMARY", db2Tag = "PRIMARY", archive = true)<br>public IDb2Schema schema;<br></pre> |
-| Notes: | The `IDb2Schema` interface provides methods to execute SQL statements and retrieve results. Statements that don't specify a schema will use this schema as the default.<br><br> See [Db2Schema](https://galasa.dev/docs/reference/javadoc/dev/galasa/db2/Db2Schema.html){target="_blank"} and [IDb2Schema](https://galasa.dev/docs/reference/javadoc/dev/galasa/db2/IDb2Schema.html){target="_blank"} to find out more. |
+| Notes: | The `IDb2Schema` interface provides methods to execute SQL statements and retrieve results. Statements that don't specify a schema will use this schema as the default.<br><br> See [Db2Schema](../../reference/javadoc/dev/galasa/db2/Db2Schema.html){target="_blank"} and [IDb2Schema](../../reference/javadoc/dev/galasa/db2/IDb2Schema.html){target="_blank"} to find out more. |
 
 
 ## Code Snippets

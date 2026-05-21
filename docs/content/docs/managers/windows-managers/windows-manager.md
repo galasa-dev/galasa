@@ -26,7 +26,7 @@ The following annotations are available with the Windows Manager.
 | Attribute: `imageTag` |  The `imageTag` is used to identify the Windows image to other Managers. If a test is using multiple Windows images, each separate Windows image must have a unique tag. Default is "PRIMARY". |
 | Attribute: `capabilities` |  The `capabilities` attribute specifies any required capabilities of the image, if any, in an array. |
 | Syntax: | <pre lang="java">@WindowsImage(imageTag = "PRIMARY")<br>public IWindowsImage windowsImage;<br></pre> |
-| Notes: | The `IWindowsImage` interface gives the test access to the Windows image, including command shell access, file system paths, and credentials.<br><br> See [WindowsImage](https://galasa.dev/docs/reference/javadoc/dev/galasa/windows/WindowsImage.html){target="_blank"} and [IWindowsImage](https://galasa.dev/docs/reference/javadoc/dev/galasa/windows/IWindowsImage.html){target="_blank"} to find out more. |
+| Notes: | The `IWindowsImage` interface gives the test access to the Windows image, including command shell access, file system paths, and credentials.<br><br> See [WindowsImage](../../reference/javadoc/dev/galasa/windows/WindowsImage.html){target="_blank"} and [IWindowsImage](../../reference/javadoc/dev/galasa/windows/IWindowsImage.html){target="_blank"} to find out more. |
 
 
 ### Windows IP Host
@@ -37,7 +37,7 @@ The following annotations are available with the Windows Manager.
 | Description: | The `@WindowsIpHost` annotation represents an IP Host for a Windows image that has been provisioned for the test. |
 | Attribute: `imageTag` |  The `imageTag` should match the `imageTag` of the `@WindowsImage` this variable is to be populated with. |
 | Syntax: | <pre lang="java">@WindowsIpHost(imageTag = "PRIMARY")<br>public IIpHost windowsHost;<br></pre> |
-| Notes: | The `IIpHost` interface gives the test access to the IPv4/6 address and port information for the Windows image.<br><br> See [WindowsIpHost](https://galasa.dev/docs/reference/javadoc/dev/galasa/windows/WindowsIpHost.html){target="_blank"} and [IIpHost](https://galasa.dev/docs/reference/javadoc/dev/galasa/ipnetwork/IIpHost.html){target="_blank"} to find out more. |
+| Notes: | The `IIpHost` interface gives the test access to the IPv4/6 address and port information for the Windows image.<br><br> See [WindowsIpHost](../../reference/javadoc/dev/galasa/windows/WindowsIpHost.html){target="_blank"} and [IIpHost](../../reference/javadoc/dev/galasa/ipnetwork/IIpHost.html){target="_blank"} to find out more. |
 
 
 ## Code Snippets
@@ -166,7 +166,11 @@ public void testMultipleImages() throws Exception {
 }
 ```
 
-### Request specific capabilities
+<!-- "I think we need some extra explanation here - the way in which the test gets a Windows image with the requested capabilities is because of CPS properties... however when I've just gone to search for what we need I'm a little unsure now myself. I think this works in conjunction with the OpenStack Managers props.
+
+Until I'm confident in giving an example, can we comment out this example please?" - Jade Carino -->
+
+<!-- ### Request specific capabilities
 
 ```java
 @WindowsImage(imageTag = "PRIMARY", capabilities = {"desktop", "office"})
@@ -184,7 +188,7 @@ public void testWithCapabilities() throws Exception {
     
     logger.info("Office info: " + response);
 }
-```
+``` -->
 
 ### Get IP host information
 

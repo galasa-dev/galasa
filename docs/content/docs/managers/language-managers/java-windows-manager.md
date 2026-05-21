@@ -29,7 +29,7 @@ The following annotations are available with the Java Windows Manager.
 | Attribute: `javaVersion` |  The Java version to install (e.g., v8, v11, v17). Default is determined by CPS properties. |
 | Attribute: `javaJvm` |  The JVM type (e.g., hotspot, openj9). Default is "hotspot". |
 | Syntax: | <pre lang="java">@JavaWindowsInstallation(javaTag = "PRIMARY", imageTag = "PRIMARY")<br>public IJavaWindowsInstallation javaInstallation;<br></pre> |
-| Notes: | The `IJavaWindowsInstallation` interface provides access to the Java installation, including the Java command path and installation directories.<br><br> See [JavaWindowsInstallation](https://galasa.dev/docs/reference/javadoc/dev/galasa/java/windows/JavaWindowsInstallation.html){target="_blank"} and [IJavaWindowsInstallation](https://galasa.dev/docs/reference/javadoc/dev/galasa/java/windows/IJavaWindowsInstallation.html){target="_blank"} to find out more. |
+| Notes: | The `IJavaWindowsInstallation` interface provides access to the Java installation, including the Java command path and installation directories.<br><br> See [JavaWindowsInstallation](../../reference/javadoc/dev/galasa/java/windows/JavaWindowsInstallation.html){target="_blank"} and [IJavaWindowsInstallation](../../reference/javadoc/dev/galasa/java/windows/IJavaWindowsInstallation.html){target="_blank"} to find out more. |
 
 
 ## Code Snippets
