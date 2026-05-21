@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import dev.galasa.framework.api.beans.generated.Stream;
 import dev.galasa.framework.api.beans.generated.StreamOBRData;
 import dev.galasa.framework.api.beans.generated.StreamUpdateRequest;
+import dev.galasa.framework.api.beans.generated.StreamUpdateRequestrepository;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.HttpRequestContext;
@@ -159,6 +160,10 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
         if (existingStream.getMavenRepositoryUrl() != null) {
             stream.setMavenRepositoryUrl(existingStream.getMavenRepositoryUrl().toString());
         }
+
+        if (existingStream.getMavenSecretName() != null) {
+            stream.setMavenSecretName(existingStream.getMavenSecretName());
+        }
         
         if (existingStream.getTestCatalogUrl() != null) {
             stream.setTestCatalogUrl(existingStream.getTestCatalogUrl().toString());
@@ -183,10 +188,16 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
             stream.setDescription(updateRequest.getdescription());
         }
         
-        // Update repository URL if provided
-        if (updateRequest.getrepository() != null &&
-            updateRequest.getrepository().geturl() != null) {
-            stream.setMavenRepositoryUrl(updateRequest.getrepository().geturl());
+        // Update maven repo settings if provided
+        StreamUpdateRequestrepository mavenRepo = updateRequest.getrepository();
+        if (mavenRepo != null) {
+            if (mavenRepo.geturl() != null) {
+                stream.setMavenRepositoryUrl(mavenRepo.geturl());
+            }
+
+            if (mavenRepo.getSecretName() != null) {
+                stream.setMavenSecretName(mavenRepo.getSecretName());
+            }
         }
         
         // Update test catalog URL if provided

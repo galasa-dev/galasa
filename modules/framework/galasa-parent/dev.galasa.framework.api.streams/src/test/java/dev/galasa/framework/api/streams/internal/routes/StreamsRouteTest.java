@@ -443,4 +443,224 @@ public class StreamsRouteTest extends BaseServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(400);
         checkErrorStructure(output, 5437, "GAL5437E", "Expecting at least one OBR");
     }
+    
+    @Test
+    public void testPostStreamsCreatesNewStreamWithSecretName() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        MockStreamsService mockStreamsService = new MockStreamsService(new ArrayList<>());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
+        MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService("framework");
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+
+        MockStreamsServlet mockServlet = new MockStreamsServlet(mockFramework, env, mockIConfigurationPropertyStoreService);
+
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("name", "newStreamWithSecret");
+        requestJson.addProperty("description", "A new test stream with Maven secret");
+
+        JsonObject repository = new JsonObject();
+        repository.addProperty("url", "http://myrepo.com/maven");
+        repository.addProperty("secretName", "maven-repo-credentials");
+
+        JsonObject testCatalog = new JsonObject();
+        testCatalog.addProperty("url", "http://myrepo.com/testcatalog.yaml");
+
+        JsonObject obr = new JsonObject();
+        obr.addProperty("group-id", "dev.galasa");
+        obr.addProperty("artifact-id", "dev.galasa.obr");
+        obr.addProperty("version", "0.1.0");
+
+        JsonArray obrs = new JsonArray();
+        obrs.add(obr);
+
+        requestJson.add("repository", repository);
+        requestJson.add("testCatalog", testCatalog);
+        requestJson.add("obrs", obrs);
+
+        String requestBody = gson.toJson(requestJson);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("", requestBody, "POST", headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doPost(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(201);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+        Stream createdStream = gson.fromJson(output, Stream.class);
+        assertThat(createdStream.getmetadata().getname()).isEqualTo("newStreamWithSecret");
+        assertThat(createdStream.getmetadata().getdescription()).isEqualTo("A new test stream with Maven secret");
+        assertThat(createdStream.getdata().getrepository().getSecretName()).isEqualTo("maven-repo-credentials");
+    }
+
+    @Test
+    public void testPostStreamsWithBlankSecretNameReturnsError() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        MockStreamsService mockStreamsService = new MockStreamsService(new ArrayList<>());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
+        MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService("framework");
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+
+        MockStreamsServlet mockServlet = new MockStreamsServlet(mockFramework, env, mockIConfigurationPropertyStoreService);
+
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("name", "newStream");
+        requestJson.addProperty("description", "A test stream");
+
+        JsonObject repository = new JsonObject();
+        repository.addProperty("url", "http://myrepo.com/maven");
+        repository.addProperty("secretName", "   "); // Blank secret name
+
+        JsonObject testCatalog = new JsonObject();
+        testCatalog.addProperty("url", "http://myrepo.com/testcatalog.yaml");
+
+        JsonObject obr = new JsonObject();
+        obr.addProperty("group-id", "dev.galasa");
+        obr.addProperty("artifact-id", "dev.galasa.obr");
+        obr.addProperty("version", "0.1.0");
+
+        JsonArray obrs = new JsonArray();
+        obrs.add(obr);
+
+        requestJson.add("repository", repository);
+        requestJson.add("testCatalog", testCatalog);
+        requestJson.add("obrs", obrs);
+
+        String requestBody = gson.toJson(requestJson);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("", requestBody, "POST", headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doPost(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(output, 5092, "GAL5092E");
+    }
+
+    @Test
+    public void testPostStreamsWithSecretNameContainingDotReturnsError() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        MockStreamsService mockStreamsService = new MockStreamsService(new ArrayList<>());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
+        MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService("framework");
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+
+        MockStreamsServlet mockServlet = new MockStreamsServlet(mockFramework, env, mockIConfigurationPropertyStoreService);
+
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("name", "newStream");
+        requestJson.addProperty("description", "A test stream");
+
+        JsonObject repository = new JsonObject();
+        repository.addProperty("url", "http://myrepo.com/maven");
+        repository.addProperty("secretName", "maven.repo.creds"); // Contains dots
+
+        JsonObject testCatalog = new JsonObject();
+        testCatalog.addProperty("url", "http://myrepo.com/testcatalog.yaml");
+
+        JsonObject obr = new JsonObject();
+        obr.addProperty("group-id", "dev.galasa");
+        obr.addProperty("artifact-id", "dev.galasa.obr");
+        obr.addProperty("version", "0.1.0");
+
+        JsonArray obrs = new JsonArray();
+        obrs.add(obr);
+
+        requestJson.add("repository", repository);
+        requestJson.add("testCatalog", testCatalog);
+        requestJson.add("obrs", obrs);
+
+        String requestBody = gson.toJson(requestJson);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("", requestBody, "POST", headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doPost(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(output, 5092, "GAL5092E");
+    }
+
+    @Test
+    public void testPostStreamsWithSecretNameContainingNonLatin1CharactersReturnsError() throws Exception {
+        // Given...
+        Map<String, String> headerMap = Map.of("Authorization", "Bearer " + BaseServletTest.DUMMY_JWT);
+
+        MockStreamsService mockStreamsService = new MockStreamsService(new ArrayList<>());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+        MockFramework mockFramework = new MockFramework(mockRBACService, mockStreamsService);
+        MockIConfigurationPropertyStoreService mockIConfigurationPropertyStoreService = new MockIConfigurationPropertyStoreService("framework");
+
+        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+
+        MockStreamsServlet mockServlet = new MockStreamsServlet(mockFramework, env, mockIConfigurationPropertyStoreService);
+
+        JsonObject requestJson = new JsonObject();
+        requestJson.addProperty("name", "newStream");
+        requestJson.addProperty("description", "A test stream");
+
+        JsonObject repository = new JsonObject();
+        repository.addProperty("url", "http://myrepo.com/maven");
+        repository.addProperty("secretName", "maven-密码"); // Contains non-Latin1 characters
+
+        JsonObject testCatalog = new JsonObject();
+        testCatalog.addProperty("url", "http://myrepo.com/testcatalog.yaml");
+
+        JsonObject obr = new JsonObject();
+        obr.addProperty("group-id", "dev.galasa");
+        obr.addProperty("artifact-id", "dev.galasa.obr");
+        obr.addProperty("version", "0.1.0");
+
+        JsonArray obrs = new JsonArray();
+        obrs.add(obr);
+
+        requestJson.add("repository", repository);
+        requestJson.add("testCatalog", testCatalog);
+        requestJson.add("obrs", obrs);
+
+        String requestBody = gson.toJson(requestJson);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("", requestBody, "POST", headerMap);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        mockServlet.init();
+        mockServlet.doPost(mockRequest, servletResponse);
+
+        String output = outStream.toString();
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(output, 5092, "GAL5092E");
+    }
 }

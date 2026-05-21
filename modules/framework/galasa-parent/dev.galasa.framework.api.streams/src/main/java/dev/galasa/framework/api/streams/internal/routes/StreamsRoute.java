@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.beans.generated.Stream;
 import dev.galasa.framework.api.beans.generated.StreamCreateRequest;
+import dev.galasa.framework.api.beans.generated.StreamCreateRequestrepository;
 import dev.galasa.framework.api.beans.generated.StreamOBRData;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
@@ -126,8 +127,13 @@ public class StreamsRoute extends AbstractStreamsRoute {
             stream.setDescription(createRequest.getdescription());
         }
 
-        stream.setMavenRepositoryUrl(createRequest.getrepository().geturl());
+        StreamCreateRequestrepository mavenRepo = createRequest.getrepository();
+        stream.setMavenRepositoryUrl(mavenRepo.geturl());
         stream.setTestCatalogUrl(createRequest.getTestCatalog().geturl());
+
+        if (mavenRepo.getSecretName() != null) {
+            stream.setMavenSecretName(mavenRepo.getSecretName());
+        }
 
         List<IOBR> obrs = new ArrayList<>();
         for (StreamOBRData obrData : createRequest.getobrs()) {

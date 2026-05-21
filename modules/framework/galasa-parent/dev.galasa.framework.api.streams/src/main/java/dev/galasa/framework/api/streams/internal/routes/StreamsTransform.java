@@ -78,15 +78,20 @@ public class StreamsTransform {
         StreamData data = new StreamData();
         URL testCatalogUrl = stream.getTestCatalogUrl();
         URL mavenRepositoryUrl = stream.getMavenRepositoryUrl();
+        String mavenSecretName = stream.getMavenSecretName();
         List<IOBR> obrs = stream.getObrs();
 
         StreamRepository streamRepository = new StreamRepository();
-        if(mavenRepositoryUrl != null) {
+        if (mavenRepositoryUrl != null) {
             streamRepository.seturl(mavenRepositoryUrl.toString());
         }
 
+        if (mavenSecretName != null) {
+            streamRepository.setSecretName(mavenSecretName);
+        }
+
         StreamTestCatalog testCatalog = new StreamTestCatalog();
-        if(testCatalogUrl != null){
+        if (testCatalogUrl != null) {
             testCatalog.seturl(testCatalogUrl.toString());
         }
 

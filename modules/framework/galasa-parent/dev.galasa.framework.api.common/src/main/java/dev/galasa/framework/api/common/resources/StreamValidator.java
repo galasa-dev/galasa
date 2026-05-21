@@ -69,7 +69,7 @@ public class StreamValidator {
      * @param isRequired whether the field is required (true for create, false for update)
      * @throws InternalServletException if validation fails
      */
-    public void validateRepositoryUrl(String repositoryUrl, boolean isRequired) throws InternalServletException {
+    public void validateRepository(String repositoryUrl, String mavenSecretName, boolean isRequired) throws InternalServletException {
         if (repositoryUrl == null && isRequired) {
             ServletError error = new ServletError(GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS, MAVEN_REPOSITORY_KEY, "url");
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
@@ -77,6 +77,18 @@ public class StreamValidator {
 
         if (repositoryUrl != null) {
             validateUrl(MAVEN_REPOSITORY_KEY, repositoryUrl);
+        }
+
+        // The secret name in stream repositories is optional, so only validate it when it has been provided
+        if (mavenSecretName != null) {
+            validateMavenSecretName(mavenSecretName);
+        }
+    }
+
+    private void validateMavenSecretName(String mavenSecretName) throws InternalServletException {
+        if (mavenSecretName.isBlank() || mavenSecretName.contains(".") || !stringValidator.isLatin1(mavenSecretName)) {
+            ServletError error = new ServletError(GAL5092_INVALID_SECRET_NAME_PROVIDED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
