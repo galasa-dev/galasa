@@ -237,10 +237,18 @@ nav:
       - CICS TS Managers:
         - docs/managers/cics-ts-managers/index.md
         - docs/managers/cics-ts-managers/cics-ts-ceci-manager.md
+        - docs/managers/cics-ts-managers/cics-ts-ceda-manager.md
+        - docs/managers/cics-ts-managers/cics-ts-cemt-manager.md
         - docs/managers/cics-ts-managers/cics-ts-manager.md
+        - docs/managers/cics-ts-managers/cics-ts-resource-manager.md
       - IMS TM Managers:
         - docs/managers/ims-tm-managers/index.md
         - docs/managers/ims-tm-managers/ims-tm-manager.md
+      - Language Managers:
+        - docs/managers/language-managers/index.md
+        - docs/managers/language-managers/java-manager.md
+        - docs/managers/language-managers/java-ubuntu-manager.md
+        - docs/managers/language-managers/java-windows-manager.md
       - Cloud Managers:
         - docs/managers/cloud-managers/index.md
         - Docker Manager:
@@ -257,6 +265,10 @@ nav:
         - docs/managers/core-managers/index.md
         - docs/managers/core-managers/artifact-manager.md
         - docs/managers/core-managers/core-manager.md
+        - docs/managers/core-managers/text-scan-manager.md
+      - Database Managers:
+        - docs/managers/database-managers/index.md
+        - docs/managers/database-managers/db2-manager.md
       - Logging Managers:
         - docs/managers/logging-managers/index.md
         - docs/managers/logging-managers/elasticlog-manager.md
@@ -271,6 +283,9 @@ nav:
       - Unix Managers:
         - docs/managers/unix-managers/index.md
         - docs/managers/unix-managers/linux-manager.md
+      - Windows Managers:
+        - docs/managers/windows-managers/index.md
+        - docs/managers/windows-managers/windows-manager.md
       - Workflow Managers:
         - docs/managers/workflow-managers/index.md
         - docs/managers/workflow-managers/github-manager.md
