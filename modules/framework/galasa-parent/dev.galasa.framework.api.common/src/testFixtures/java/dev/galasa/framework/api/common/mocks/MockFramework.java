@@ -147,6 +147,10 @@ public class MockFramework implements IFramework {
         return this.creds;
     }
 
+    public void setCredentialsService(MockCredentialsService credentialsService) {
+        this.creds = credentialsService;
+    }
+
     @Override
     public @NotNull RBACService getRBACService() throws RBACException {
         return this.rbacService;

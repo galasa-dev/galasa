@@ -217,6 +217,15 @@ public enum ServletErrorMessage {
 
     // RAS Health API
     GAL5449_RAS_NOT_AVAILABLE                         (5449, "E: The RAS is not available for requests at this time. The RAS might be experiencing server issues. Contact your Galasa service administrator."),
+
+    // Stream Test Catalog Proxy API
+    GAL5455_ERROR_STREAM_NO_TEST_CATALOG              (5455, "E: Unable to retrieve the test catalog for the given stream. The stream does not have a test catalog URL configured."),
+    GAL5456_ERROR_INVALID_TEST_CATALOG_URL            (5456, "E: Invalid test catalog URL. The URL must be a valid HTTP or HTTPS URL."),
+    GAL5457_ERROR_TEST_CATALOG_URL_PRIVATE_NETWORK    (5457, "E: Invalid test catalog URL. The URL must not point to a private network address for security reasons."),
+    GAL5458_ERROR_TEST_CATALOG_REDIRECT_NOT_ALLOWED   (5458, "E: Failed to fetch test catalog. HTTP redirects are not allowed for security reasons."),
+    GAL5459_ERROR_FAILED_TO_FETCH_TEST_CATALOG        (5459, "E: Failed to fetch the test catalog from the configured URL. The remote server may be unavailable or experiencing issues."),
+    GAL5460_ERROR_TEST_CATALOG_TOO_LARGE              (5460, "E: Failed to fetch the test catalog. The response size exceeds the maximum allowed size of 10MB."),
+    GAL5461_ERROR_TEST_CATALOG_INVALID_CONTENT_TYPE   (5461, "E: Failed to fetch the test catalog. The response content type ''{0}'' is not valid JSON. Expected content type to contain ''{1}''."),
     ;
 
     // >>>
@@ -225,7 +234,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5455;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5462;
 
 
     private String template ;
