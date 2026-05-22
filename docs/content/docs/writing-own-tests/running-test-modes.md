@@ -21,7 +21,7 @@ The mode you choose depends on what you are trying to achieve. Use this guide to
     **Setup steps:**
 
     1. Request a personal access token from the Galasa Web UI
-    2. Store the token in the `GALASA_TOKEN` property in your `galasactl.properties` file (located in your Galasa home folder)
+    2. Store the token in the `GALASA_TOKEN` property in your `galasactl.properties` file (located in your Galasa home folder), or alternatively set the `GALASA_TOKEN` environment variable
 
     For detailed instructions, see [Configuring authentication](../ecosystem/ecosystem-authentication.md).
 
@@ -103,7 +103,7 @@ The mode you choose depends on what you are trying to achieve. Use this guide to
    - `https://my.ecosystem.url` is the URL of your Ecosystem Web UI
    - `framework.extra.bundles` loads the extension that handles `galasacps://` URLs
 
-2. Set the `GALASA_TOKEN` environment variable to a valid token for your Ecosystem
+2. Set the `GALASA_TOKEN` environment variable to a valid token for your Ecosystem, or alternatively add it to your `galasactl.properties` file
 
 3. Log in using: `galasactl auth login`
 
