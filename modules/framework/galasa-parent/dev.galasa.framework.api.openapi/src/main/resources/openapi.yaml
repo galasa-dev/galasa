@@ -692,6 +692,78 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /streams/{streamName}/testcatalog:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    get:
+      operationId: getStreamTestCatalog
+      summary: Get the test catalog for a stream
+      description: |
+        Retrieves the test catalog JSON for a given stream by fetching it from the stream's
+        configured test catalog URL. This endpoint acts as a proxy to the test catalog URL.
+      tags:
+      - Streams API
+      parameters:
+        - name: streamName
+          in: path
+          description: Name of the stream whose test catalog to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test catalog retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: The test catalog JSON content from the stream's test catalog URL
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                invalidurl:
+                  value:
+                    error_code: 5435
+                    error_message: "GAL5435E: Invalid test catalog URL. The URL must be a valid HTTP or HTTPS URL."
+                  summary: The stream's test catalog URL is invalid
+                privatenetwork:
+                  value:
+                    error_code: 5436
+                    error_message: "GAL5436E: Invalid test catalog URL. The URL must not point to a private network address for security reasons."
+                  summary: The stream's test catalog URL points to a private network
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+              examples:
+                redirectnotallowed:
+                  value:
+                    error_code: 5437
+                    error_message: "GAL5437E: Failed to fetch test catalog. HTTP redirects are not allowed for security reasons."
+                  summary: The test catalog URL returned a redirect
+                fetchfailed:
+                  value:
+                    error_code: 5438
+                    error_message: "GAL5438E: Failed to fetch the test catalog from the configured URL. The remote server may be unavailable or experiencing issues."
+                  summary: Failed to fetch the test catalog from the remote URL
+                toolarge:
+                  value:
+                    error_code: 5439
+                    error_message: "GAL5439E: Failed to fetch the test catalog. The response size exceeds the maximum allowed size of 10MB."
+                  summary: The test catalog response is too large
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 
 ##################################################################################
 # CPS API
