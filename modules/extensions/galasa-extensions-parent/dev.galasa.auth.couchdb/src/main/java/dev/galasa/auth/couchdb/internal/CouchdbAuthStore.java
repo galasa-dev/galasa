@@ -254,7 +254,13 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
 
         try {
             // Get all of the documents in the tokens database with include_docs=true
-            tokenDocuments = getAllDocsByLoginId(TOKENS_DATABASE_NAME, lowercaseLoginId, TOKENS_DB_VIEW_NAME, true);
+            ViewResponse viewResponse = getDocumentsFromDatabaseViewByKey(
+                TOKENS_DATABASE_NAME,
+                TOKENS_DB_VIEW_NAME,
+                lowercaseLoginId,
+                true
+            );
+            tokenDocuments = viewResponse.rows;
 
             // Build up a list of all the tokens using the documents from the view response
             for (ViewRow row : tokenDocuments) {
@@ -403,7 +409,13 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
             String lowerCaseLoginId = loginId.toLowerCase();
             
             // Fetch documents matching the lowercase loginId using the lowercase view with include_docs=true
-            userDocument = getAllDocsByLoginId(USERS_DATABASE_NAME, lowerCaseLoginId, USERS_DB_VIEW_NAME, true);
+            ViewResponse viewResponse = getDocumentsFromDatabaseViewByKey(
+                USERS_DATABASE_NAME,
+                USERS_DB_VIEW_NAME,
+                lowerCaseLoginId,
+                true
+            );
+            userDocument = viewResponse.rows;
 
             // Since loginIds are unique (case-insensitive), there should be only one document.
             if (userDocument != null && !userDocument.isEmpty()) {
@@ -439,53 +451,6 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
         UserImpl userImpl = new UserImpl(user);
         updateUser(httpClient, storeUri, userImpl);
         return userImpl;
-    }
-
-    /**
-     * Sends a GET request to CouchDB's
-     * /{db}/_design/docs/_view/loginId-view?key={loginId} endpoint and returns the
-     * "rows" list in the response,
-     * which corresponds to the list of documents within the given database.
-     *
-     * @param dbName  the name of the database to retrieve the documents of
-     * @param loginId the loginId of the user to retrieve the documents of
-     * @param viewName the name of the view to query
-     * @param includeDocs whether to include the full document in the response using include_docs=true
-     * @return a list of rows corresponding to documents within the database
-     * @throws CouchdbException if there was a problem accessing the
-     *                          CouchDB store or its response
-     */
-    protected List<ViewRow> getAllDocsByLoginId(String dbName, String loginId, String viewName, boolean includeDocs)
-            throws CouchdbException {
-        List<ViewRow> viewRows = null;
-
-        String viewRequestUriStr = storeUri + "/" + dbName + "/_design/docs/_view/" + viewName;
-        // String encodedLoginId = URLEncoder.encode("\"" + loginId + "\"", StandardCharsets.UTF_8);
-        
-        try {
-            URIBuilder uriBuilder = new URIBuilder(viewRequestUriStr);
-            uriBuilder.addParameter("key", '"' + loginId + '"');
-            if (includeDocs) {
-                uriBuilder.addParameter("include_docs", "true");
-            }
-    
-            HttpGet getDocs = httpRequestFactory.getHttpGetRequest(uriBuilder.build().toString());
-            getDocs.addHeader("Content-Type", "application/json");
-    
-            String responseEntity = sendHttpRequest(getDocs, HttpStatus.SC_OK);
-    
-            ViewResponse docByLoginId = gson.fromJson(responseEntity, ViewResponse.class);
-            viewRows = docByLoginId.rows;
-    
-            if (viewRows == null) {
-                String errorMessage = ERROR_FAILED_TO_GET_DOCUMENTS_FROM_DATABASE.getMessage(dbName);
-                throw new CouchdbException(errorMessage);
-            }
-        } catch (URISyntaxException e) {
-            String errorMessage = ERROR_URI_IS_INVALID.getMessage(viewRequestUriStr);
-            throw new CouchdbException(errorMessage, e);
-        }
-        return viewRows;
     }
 
     private void updateUser(CloseableHttpClient httpClient, URI couchdbUri, UserImpl user)

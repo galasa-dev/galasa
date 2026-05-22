@@ -167,6 +167,18 @@ public abstract class CouchdbStore {
         return response;
     }
 
+    /**
+     * Sends a GET request to CouchDB's /{db}/_design/docs/_view/{viewName}?key={queryKey} endpoint
+     * and returns the ViewResponse containing the "rows" list, which corresponds to the list of
+     * documents within the given database that match the specified key.
+     *
+     * @param dbName      the name of the database to retrieve the documents from
+     * @param viewName    the name of the view to query
+     * @param queryKey    the key value to search for in the view
+     * @param includeDocs whether to include the full document in the response using include_docs=true parameter
+     * @return a ViewResponse containing the rows that match the query key
+     * @throws CouchdbException if there was a problem accessing the CouchDB store or its response
+     */
     public ViewResponse getDocumentsFromDatabaseViewByKey(String dbName, String viewName, String queryKey, boolean includeDocs)
             throws CouchdbException {
         ViewResponse viewResponse = null;
@@ -182,9 +194,9 @@ public abstract class CouchdbStore {
                 uriBuilder.addParameter("include_docs", "true");
             }
 
-            HttpGet getRunsRequest = httpRequestFactory.getHttpGetRequest(uriBuilder.build().toString());
+            HttpGet getDocumentsRequest = httpRequestFactory.getHttpGetRequest(uriBuilder.build().toString());
 
-            String responseEntity = sendHttpRequest(getRunsRequest, HttpStatus.SC_OK);
+            String responseEntity = sendHttpRequest(getDocumentsRequest, HttpStatus.SC_OK);
             viewResponse = gson.fromJson(responseEntity, ViewResponse.class);
 
             if (viewResponse.rows == null) {
