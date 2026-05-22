@@ -42,8 +42,10 @@ public class CouchdbAuthStoreValidator extends CouchdbBaseValidator {
     private final LogFactory logFactory;
 
     // A couchDB view, it gets all the access tokens of a the user based on the loginId provided.
-    public static final String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), doc); } }";
-    public static final String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), doc); } }";
+    // Views emit null as the value to avoid storing duplicate document copies in the view index.
+    // Use include_docs=true query parameter when full documents are needed.
+    public static final String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), null); } }";
+    public static final String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), null); } }";
 
     public CouchdbAuthStoreValidator() {
         this(new LogFactory(){

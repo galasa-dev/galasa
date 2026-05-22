@@ -210,33 +210,24 @@ public class TestCouchdbAuthStore {
         URI authStoreUri = URI.create("couchdb:https://my-auth-store");
         MockLogFactory logFactory = new MockLogFactory();
 
+        Instant now = Instant.now();
+        Instant expiry = now.plus(90, java.time.temporal.ChronoUnit.DAYS);
+        CouchdbAuthToken mockToken = new CouchdbAuthToken("token1", "dex-client", "my test token", now, expiry,
+                        new CouchdbUser("johndoe", "dex-user-id"));
+
         ViewRow tokenDoc = new ViewRow();
         tokenDoc.id = "token1";
+        tokenDoc.doc = mockToken;  // Document is included in the view response when include_docs=true
         List<ViewRow> mockDocs = List.of(tokenDoc);
 
         ViewResponse mockAllDocsResponse = new ViewResponse();
         mockAllDocsResponse.rows = mockDocs;
 
-        Instant now = Instant.now();
-        Instant expiry = now.plus(90, java.time.temporal.ChronoUnit.DAYS);
-        CouchdbAuthToken mockToken = new CouchdbAuthToken("token1", "dex-client", "my test token", now, expiry,
-                        new CouchdbUser("johndoe", "dex-user-id"));
-        Instant now2 = Instant.now();
-        Instant expiry2 = now2.plus(90, java.time.temporal.ChronoUnit.DAYS);
-        CouchdbAuthToken mockToken2 = new CouchdbAuthToken("token2", "dex-client", "my test token",
-                        now2, expiry2,
-                        new CouchdbUser("notJohnDoe", "dex-user-id"));
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         addMigrationMockInteractions(interactions, authStoreUri.getSchemeSpecificPart());
         interactions.add(new GetAllDocumentsInteraction(
-                        "https://my-auth-store/galasa_tokens/_design/docs/_view/loginId-view?key=%22johndoe%22",
+                        "https://my-auth-store/galasa_tokens/_design/docs/_view/loginId-view?key=%22johndoe%22&include_docs=true",
                         HttpStatus.SC_OK, mockAllDocsResponse));
-        interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
-                        "https://my-auth-store/galasa_tokens/token1",
-                        HttpStatus.SC_OK, mockToken));
-        interactions.add(new GetDocumentInteraction<CouchdbAuthToken>(
-                        "https://my-auth-store/galasa_tokens/token1",
-                        HttpStatus.SC_OK, mockToken2));
 
         MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
@@ -264,7 +255,7 @@ public class TestCouchdbAuthStore {
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         addMigrationMockInteractions(interactions, authStoreUri.getSchemeSpecificPart());
         interactions.add(new GetAllDocumentsInteraction(
-                "https://my-auth-store/galasa_tokens/_design/docs/_view/loginId-view?key=%22johndoe%22",
+                "https://my-auth-store/galasa_tokens/_design/docs/_view/loginId-view?key=%22johndoe%22&include_docs=true",
                 HttpStatus.SC_INTERNAL_SERVER_ERROR, null));
 
         MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
@@ -631,28 +622,21 @@ public class TestCouchdbAuthStore {
         URI authStoreUri = URI.create("couchdb:https://my-auth-store");
         MockLogFactory logFactory = new MockLogFactory();
 
-        ViewRow userDoc1 = new ViewRow();
+        UserDoc mockUser = new UserDoc("johndoe", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
 
+        ViewRow userDoc1 = new ViewRow();
         userDoc1.id = "user1";
+        userDoc1.doc = mockUser;  // Document is included when include_docs=true
         List<ViewRow> mockDocs = List.of(userDoc1);
 
         ViewResponse mockAllDocsResponse = new ViewResponse();
         mockAllDocsResponse.rows = mockDocs;
 
-        FrontEndClient client = new FrontEndClient();
-
-        client.setClientName("web-ui");
-        client.setLastLogin(Instant.now());
-
-        UserDoc mockUser = new UserDoc("johndoe", List.of(client), "2");
-
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         addMigrationMockInteractions(interactions, authStoreUri.getSchemeSpecificPart());
         interactions.add(new GetAllDocumentsInteraction(
-                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22user1%22",
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22user1%22&include_docs=true",
                 HttpStatus.SC_OK, mockAllDocsResponse));
-        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
-                HttpStatus.SC_OK, mockUser));
 
         MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
@@ -675,23 +659,21 @@ public class TestCouchdbAuthStore {
         URI authStoreUri = URI.create("couchdb:https://my-auth-store");
         MockLogFactory logFactory = new MockLogFactory();
 
-        ViewRow userDoc1 = new ViewRow();
+        UserDoc mockUser = new UserDoc("johndoe", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
 
+        ViewRow userDoc1 = new ViewRow();
         userDoc1.id = "user1";
+        userDoc1.doc = mockUser;  // Document is included when include_docs=true
         List<ViewRow> mockDocs = List.of(userDoc1);
 
         ViewResponse mockAllDocsResponse = new ViewResponse();
         mockAllDocsResponse.rows = mockDocs;
 
-        UserDoc mockUser = new UserDoc("johndoe", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
-
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         addMigrationMockInteractions(interactions, authStoreUri.getSchemeSpecificPart());
         interactions.add(new GetAllDocumentsInteraction(
-                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22notjohndoe%22",
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22notjohndoe%22&include_docs=true",
                 HttpStatus.SC_OK, mockAllDocsResponse));
-        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
-                HttpStatus.SC_OK, mockUser));
 
         MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
@@ -713,27 +695,22 @@ public class TestCouchdbAuthStore {
         URI authStoreUri = URI.create("couchdb:https://my-auth-store");
         MockLogFactory logFactory = new MockLogFactory();
 
+        UserDoc mockUser = new UserDoc("JohnDoe", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
+
         ViewRow userDoc1 = new ViewRow();
         userDoc1.id = "user1";
+        userDoc1.doc = mockUser;  // Document is included when include_docs=true
         List<ViewRow> mockDocs = List.of(userDoc1);
 
         ViewResponse mockAllDocsResponse = new ViewResponse();
         mockAllDocsResponse.rows = mockDocs;
 
-        FrontEndClient client = new FrontEndClient();
-        client.setClientName("web-ui");
-        client.setLastLogin(Instant.now());
-
-        UserDoc mockUser = new UserDoc("JohnDoe", List.of(client), "2");
-
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         addMigrationMockInteractions(interactions, authStoreUri.getSchemeSpecificPart());
         // The lowercase view should be queried with the lowercase version of the loginId
         interactions.add(new GetAllDocumentsInteraction(
-                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22johndoe%22",
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22johndoe%22&include_docs=true",
                 HttpStatus.SC_OK, mockAllDocsResponse));
-        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
-                HttpStatus.SC_OK, mockUser));
 
         MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
@@ -758,27 +735,22 @@ public class TestCouchdbAuthStore {
         URI authStoreUri = URI.create("couchdb:https://my-auth-store");
         MockLogFactory logFactory = new MockLogFactory();
 
+        UserDoc mockUser = new UserDoc("JohnDoe", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
+
         ViewRow userDoc1 = new ViewRow();
         userDoc1.id = "user1";
+        userDoc1.doc = mockUser;  // Document is included when include_docs=true
         List<ViewRow> mockDocs = List.of(userDoc1);
 
         ViewResponse mockAllDocsResponse = new ViewResponse();
         mockAllDocsResponse.rows = mockDocs;
 
-        FrontEndClient client = new FrontEndClient();
-        client.setClientName("web-ui");
-        client.setLastLogin(Instant.now());
-
-        UserDoc mockUser = new UserDoc("JohnDoe", List.of(client), "2");
-
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         addMigrationMockInteractions(interactions, authStoreUri.getSchemeSpecificPart());
         // The lowercase view should be queried with the lowercase version of the loginId
         interactions.add(new GetAllDocumentsInteraction(
-                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22johndoe%22",
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22johndoe%22&include_docs=true",
                 HttpStatus.SC_OK, mockAllDocsResponse));
-        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
-                HttpStatus.SC_OK, mockUser));
 
         MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
@@ -803,23 +775,22 @@ public class TestCouchdbAuthStore {
         URI authStoreUri = URI.create("couchdb:https://my-auth-store");
         MockLogFactory logFactory = new MockLogFactory();
 
+        UserDoc mockUser = new UserDoc("admin", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
+
         ViewRow userDoc1 = new ViewRow();
         userDoc1.id = "user1";
+        userDoc1.doc = mockUser;  // Document is included when include_docs=true
         List<ViewRow> mockDocs = List.of(userDoc1);
 
         ViewResponse mockAllDocsResponse = new ViewResponse();
         mockAllDocsResponse.rows = mockDocs;
 
-        UserDoc mockUser = new UserDoc("admin", List.of(new FrontEndClient("web-ui", Instant.now())), "2");
-
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         addMigrationMockInteractions(interactions, authStoreUri.getSchemeSpecificPart());
         // The lowercase view should be queried with the lowercase version of the loginId
         interactions.add(new GetAllDocumentsInteraction(
-                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22admin%22",
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22admin%22&include_docs=true",
                 HttpStatus.SC_OK, mockAllDocsResponse));
-        interactions.add(new GetDocumentInteraction<UserDoc>("https://my-auth-store/galasa_users/user1",
-                HttpStatus.SC_OK, mockUser));
 
         MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
 
@@ -850,7 +821,7 @@ public class TestCouchdbAuthStore {
         List<HttpInteraction> interactions = new ArrayList<HttpInteraction>();
         addMigrationMockInteractions(interactions, authStoreUri.getSchemeSpecificPart());
         interactions.add(new GetAllDocumentsInteraction(
-                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22nonexistent%22",
+                "https://my-auth-store/galasa_users/_design/docs/_view/loginId-view?key=%22nonexistent%22&include_docs=true",
                 HttpStatus.SC_OK, mockEmptyResponse));
 
         MockCloseableHttpClient mockHttpClient = new MockCloseableHttpClient(interactions);
