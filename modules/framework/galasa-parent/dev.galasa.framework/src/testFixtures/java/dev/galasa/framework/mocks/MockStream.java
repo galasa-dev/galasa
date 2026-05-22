@@ -18,6 +18,7 @@ public class MockStream implements IStream {
     private String name;
     private String description;
     private URL mavenRepositoryUrl;
+    private String mavenSecretName;
     private URL testCatalogUrl;
     private List<IOBR> obrs;
     private boolean isEnabled = true;
@@ -36,6 +37,11 @@ public class MockStream implements IStream {
     @Override
     public URL getMavenRepositoryUrl() {
         return mavenRepositoryUrl;
+    }
+
+    @Override
+    public String getMavenSecretName() {
+        return mavenSecretName;
     }
 
     @Override
@@ -65,6 +71,10 @@ public class MockStream implements IStream {
         if(mavenRepositoryUrl != null) {
             this.mavenRepositoryUrl = new URL(mavenRepositoryUrl);
         }
+    }
+
+    public void setMavenSecretName(String mavenSecretName) {
+        this.mavenSecretName = mavenSecretName;
     }
 
     public void setTestCatalogUrl(String testCatalogUrl) throws MalformedURLException {

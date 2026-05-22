@@ -22,6 +22,7 @@ public class Stream implements IStream {
     private URL testCatalogUrl;
     private List<IOBR> obrs;
     private boolean isEnabled = true;
+    private String mavenSecretName;
 
     @Override
     public String getName() {
@@ -102,6 +103,15 @@ public class Stream implements IStream {
             }
         }
         this.obrs = formattedObrs;
+    }
+
+    @Override
+    public String getMavenSecretName() {
+        return this.mavenSecretName;
+    }
+
+    public void setMavenSecretName(String secretName) {
+        this.mavenSecretName = secretName;
     }
 
     @Override

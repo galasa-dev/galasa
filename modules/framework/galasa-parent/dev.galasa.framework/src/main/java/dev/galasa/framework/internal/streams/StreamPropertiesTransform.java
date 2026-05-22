@@ -22,6 +22,7 @@ public class StreamPropertiesTransform {
     private static final String TEST_STREAM_TESTCATALOG_SUFFIX = ".location";
     private static final String TEST_STREAM_OBR_SUFFIX = ".obr";
     private static final String TEST_STREAM_MAVEN_REPO_SUFFIX = ".repo";
+    private static final String TEST_STREAM_REPO_SECRET_NAME_SUFFIX = ".repo.secret.name";
 
     public Map<String, String> getStreamAsProperties(IStream stream) throws StreamsException {
         Map<String, String> streamProperties = new HashMap<>();
@@ -39,6 +40,11 @@ public class StreamPropertiesTransform {
 
         } else if (mavenRepoUrl == null) {
             throw new StreamsException("Unable to get stream properties, maven repository URL is not set");
+        }
+
+        String secretName = stream.getMavenSecretName();
+        if (secretName != null) {
+            streamProperties.put(getStreamPropertyKey(streamName, TEST_STREAM_REPO_SECRET_NAME_SUFFIX), secretName);
         }
 
         streamProperties.put(getStreamPropertyKey(streamName, TEST_STREAM_TESTCATALOG_SUFFIX), testCatalogUrl.toString());

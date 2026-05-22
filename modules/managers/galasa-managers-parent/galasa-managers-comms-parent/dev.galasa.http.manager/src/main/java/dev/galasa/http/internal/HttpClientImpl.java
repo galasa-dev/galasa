@@ -733,8 +733,10 @@ public class HttpClientImpl implements IHttpClient {
         builder.setConnectionManager(connectionManager);
         builder.setDefaultRequestConfig(requestBuilder.build());
         httpClient = builder.build();
-        
-        httpContext = ContextBuilder.create().useCookieStore(cookieStore).useCredentialsProvider(credentialsProvider)
+
+        httpContext = ContextBuilder.create()
+            .useCookieStore(cookieStore)
+            .useCredentialsProvider(credentialsProvider)
             .build();
 
         return this;

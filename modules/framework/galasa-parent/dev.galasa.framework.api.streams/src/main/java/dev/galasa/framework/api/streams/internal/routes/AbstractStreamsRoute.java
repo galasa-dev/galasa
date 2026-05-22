@@ -6,6 +6,7 @@
 
 package dev.galasa.framework.api.streams.internal.routes;
 
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.spi.rbac.RBACService;
@@ -20,6 +21,12 @@ public abstract class AbstractStreamsRoute extends ProtectedRoute {
             RBACService rbacService, IStreamsService streamsService) throws StreamsException {
         super(responseBuilder, path, rbacService);
         this.streamsService = streamsService;
+    }
+
+
+    protected String getStreamName(String urlPath) throws InternalServletException {
+        StreamsUrlParameterExtractor parser = new StreamsUrlParameterExtractor(getPathRegex());
+        return parser.getStreamName(urlPath);
     }
 
 }

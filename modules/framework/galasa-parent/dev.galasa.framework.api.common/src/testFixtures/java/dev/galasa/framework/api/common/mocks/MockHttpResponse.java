@@ -58,6 +58,10 @@ public class MockHttpResponse<T> implements HttpResponse<T> {
         return this.statusCode;
     }
 
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
     @Override
     public URI uri() {
         return this.uri;

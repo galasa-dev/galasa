@@ -27,6 +27,7 @@ import dev.galasa.framework.spi.Result;
 import dev.galasa.framework.spi.language.GalasaTest;
 import dev.galasa.framework.spi.language.gherkin.GherkinMethod;
 import dev.galasa.framework.spi.language.gherkin.GherkinTest;
+import dev.galasa.framework.spi.streams.IStream;
 
 /**
  * Run the supplied test class
@@ -77,8 +78,9 @@ public class GherkinTestRunner extends BaseTestRunner {
 
             try {
                 String streamName = AbstractManager.nulled(run.getStream());
-                new MavenRepositoryListBuilder(this.mavenRepository, this.cps)
-                    .addMavenRepositories(streamName, run.getRepository());
+                IStream stream = streamsService.getStreamByName(streamName);
+                new MavenRepositoryListBuilder(this.mavenRepository, this.credentialsService)
+                    .addMavenRepositories(stream, run.getRepository());
                 new FelixRepoAdminOBRAdder(this.repositoryAdmin, this.cps, this.timeService)
                     .addOBRsToRepoAdmin(streamName, run.getOBR());
 
