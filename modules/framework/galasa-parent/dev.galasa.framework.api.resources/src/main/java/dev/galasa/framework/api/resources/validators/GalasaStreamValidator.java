@@ -67,19 +67,27 @@ public class GalasaStreamValidator extends GalasaResourceValidator<JsonObject> {
 
         if (validationErrors.isEmpty()) {
             // Check that the URLs for the stream's maven repo and testcatalog are valid
-            String mavenRepoUrl = dataJson.get(MAVEN_REPOSITORY_KEY).getAsJsonObject().get("url").getAsString();
-            validateStreamUrl(MAVEN_REPOSITORY_KEY, mavenRepoUrl);
-   
-            String testCatalogUrl = dataJson.get(TESTCATALOG_KEY).getAsJsonObject().get("url").getAsString();
-            validateStreamUrl(TESTCATALOG_KEY, testCatalogUrl);
-        }
-    }
+            JsonObject repositoryJson = dataJson.get(MAVEN_REPOSITORY_KEY).getAsJsonObject();
 
-    private void validateStreamUrl(String fieldName, String urlToCheck) {
-        try {
-            streamValidator.validateUrl(fieldName, urlToCheck);
-        } catch (InternalServletException e) {
-            validationErrors.add(e.getMessage());
+            try {
+                String mavenRepoUrl = repositoryJson.get("url").getAsString();
+                String mavenSecretName = null;
+                if (repositoryJson.has("secretName")) {
+                    mavenSecretName = repositoryJson.get("secretName").getAsString();
+                }
+
+                streamValidator.validateRepository(mavenRepoUrl, mavenSecretName, action == CREATE);
+            } catch (InternalServletException e) {
+                validationErrors.add(e.getMessage());
+            }
+
+   
+            try {
+                String testCatalogUrl = dataJson.get(TESTCATALOG_KEY).getAsJsonObject().get("url").getAsString();
+                streamValidator.validateTestCatalogUrl(testCatalogUrl, action == CREATE);
+            } catch (InternalServletException e) {
+                validationErrors.add(e.getMessage());
+            }
         }
     }
 

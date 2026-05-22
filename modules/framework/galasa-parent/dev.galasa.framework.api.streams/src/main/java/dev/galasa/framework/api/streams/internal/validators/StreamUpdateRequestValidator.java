@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.streams.internal.validators;
 
 import dev.galasa.framework.api.beans.generated.StreamUpdateRequest;
+import dev.galasa.framework.api.beans.generated.StreamUpdateRequestrepository;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.resources.StreamValidator;
 
@@ -31,8 +32,11 @@ public class StreamUpdateRequestValidator {
     public void validate(StreamUpdateRequest updateRequest, boolean isCreatingNewStream) throws InternalServletException {
         // For update requests, we validate what's provided but don't require all fields
         String repositoryUrl = null;
-        if (updateRequest.getrepository() != null) {
-            repositoryUrl = updateRequest.getrepository().geturl();
+        String mavenSecretName = null;
+        StreamUpdateRequestrepository repository = updateRequest.getrepository();
+        if (repository != null) {
+            repositoryUrl = repository.geturl();
+            mavenSecretName = repository.getSecretName();
         }
 
         String testCatalogUrl = null;
@@ -40,7 +44,7 @@ public class StreamUpdateRequestValidator {
             testCatalogUrl = updateRequest.getTestCatalog().geturl();
         }
 
-        streamValidator.validateRepositoryUrl(repositoryUrl, isCreatingNewStream);
+        streamValidator.validateRepository(repositoryUrl, mavenSecretName, isCreatingNewStream);
         streamValidator.validateTestCatalogUrl(testCatalogUrl, isCreatingNewStream);
         streamValidator.validateObrs(updateRequest.getobrs(), isCreatingNewStream);
     }

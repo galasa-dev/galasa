@@ -6,6 +6,7 @@
 package dev.galasa.framework.api.streams.internal.validators;
 
 import dev.galasa.framework.api.beans.generated.StreamCreateRequest;
+import dev.galasa.framework.api.beans.generated.StreamCreateRequestrepository;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.resources.StreamValidator;
 
@@ -31,8 +32,11 @@ public class StreamCreateRequestValidator {
         streamValidator.validateStreamName(createRequest.getname());
 
         String repositoryUrl = null;
-        if (createRequest.getrepository() != null) {
-            repositoryUrl = createRequest.getrepository().geturl();
+        String mavenSecretName = null;
+        StreamCreateRequestrepository repository = createRequest.getrepository();
+        if (repository != null) {
+            repositoryUrl = repository.geturl();
+            mavenSecretName = repository.getSecretName();
         }
 
         String testCatalogUrl = null;
@@ -40,7 +44,7 @@ public class StreamCreateRequestValidator {
             testCatalogUrl = createRequest.getTestCatalog().geturl();
         }
 
-        streamValidator.validateRepositoryUrl(repositoryUrl, true);
+        streamValidator.validateRepository(repositoryUrl, mavenSecretName, true);
         streamValidator.validateTestCatalogUrl(testCatalogUrl, true);
         streamValidator.validateObrs(createRequest.getobrs(), true);
     }
