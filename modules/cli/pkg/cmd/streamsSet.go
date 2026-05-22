@@ -20,6 +20,7 @@ type StreamsSetCmdValues struct {
 	description string
     testCatalogUrl string
     mavenRepositoryUrl string
+    mavenSecretName string
     obrs []string
 }
 
@@ -97,16 +98,18 @@ func (cmd *StreamsSetCommand) createCobraCmd(
     descriptionFlag := "description"
     testCatalogUrlFlag := "testcatalog-url"
     mavenRepoUrlFlag := "maven-repo-url"
+    mavenSecretNameFlag := "maven-secret-name"
     obrFlag := "obr"
 
     streamsSetCobraCmd.Flags().StringVar(&cmd.values.description, descriptionFlag, "", "the description to associate with the test stream being created or updated")
     streamsSetCobraCmd.Flags().StringVar(&cmd.values.testCatalogUrl, testCatalogUrlFlag, "", "the URL to the test catalog for the test stream being created or updated. For example: https://my-maven-repository/path/to/testcatalog.json")
     streamsSetCobraCmd.Flags().StringVar(&cmd.values.mavenRepositoryUrl, mavenRepoUrlFlag, "", "the URL to the Maven repository containing test material for the test stream to use. For example: https://my-maven-repository")
+    streamsSetCobraCmd.Flags().StringVar(&cmd.values.mavenSecretName, mavenSecretNameFlag, "", "the name of the Galasa secret containing the Maven credentials to use when accessing the test stream's Maven repository. For example: MY_MAVEN_SECRET")
     streamsSetCobraCmd.Flags().StringSliceVar(&cmd.values.obrs, obrFlag, make([]string, 0), "The Maven coordinates of the OBR bundle(s) which refer to your test bundles. The format of this parameter is 'mvn:{OBR_GROUP_ID}/{OBR_ARTIFACT_ID}/{OBR_VERSION}/obr'. "+
         "Multiple instances of this flag can be used to describe multiple OBR bundles.")
 
     // streams set requires the name flag as well as one of the following: --description --testcatalog, --maven-repo-url, --obr
-	streamsSetCobraCmd.MarkFlagsOneRequired(descriptionFlag, testCatalogUrlFlag, mavenRepoUrlFlag, obrFlag)
+	streamsSetCobraCmd.MarkFlagsOneRequired(descriptionFlag, testCatalogUrlFlag, mavenRepoUrlFlag, obrFlag, mavenSecretNameFlag)
 
     streamsCommand.CobraCommand().AddCommand(streamsSetCobraCmd)
 
@@ -153,6 +156,7 @@ func (cmd *StreamsSetCommand) executeStreamsSet(
                         streamsCmdValues.name,
                         cmd.values.description,
                         cmd.values.mavenRepositoryUrl,
+                        cmd.values.mavenSecretName,
                         cmd.values.testCatalogUrl,
                         cmd.values.obrs,
                         apiClient,

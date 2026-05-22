@@ -7,12 +7,9 @@ package launcher
 
 import (
 	"context"
-	"encoding/json"
-	"io"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/galasa-dev/cli/pkg/api"
 	"github.com/galasa-dev/cli/pkg/embedded"
@@ -271,54 +268,29 @@ func (launcher *RemoteLauncher) GetTestCatalog(stream string) (TestCatalog, erro
 
 	var err error
 	var testCatalog TestCatalog
-	var cpsProperty []galasaapi.GalasaProperty
 	var restApiVersion string
 
 	restApiVersion, err = embedded.GetGalasactlRestApiVersion()
 
 	if err == nil {
-		var cpsResponse *http.Response
+		var testCatalogResponse *http.Response
 		err = launcher.commsClient.RunAuthenticatedCommandWithRateLimitRetries(func(apiClient *galasaapi.APIClient) error {
-			cpsProperty, cpsResponse, err = apiClient.ConfigurationPropertyStoreAPIApi.QueryCpsNamespaceProperties(context.TODO(), "framework").Prefix("test.stream." + stream).Suffix("location").ClientApiVersion(restApiVersion).Execute()
+			testCatalog, testCatalogResponse, err = apiClient.StreamsAPIApi.
+				GetStreamTestCatalog(context.TODO(), stream).
+				ClientApiVersion(restApiVersion).
+				Execute()
 
 			var statusCode int
-			if cpsResponse != nil {
-				defer cpsResponse.Body.Close()
-				statusCode = cpsResponse.StatusCode
+			if testCatalogResponse != nil {
+				defer testCatalogResponse.Body.Close()
+				statusCode = testCatalogResponse.StatusCode
 			}
 
 			if err != nil {
-				err = galasaErrors.NewGalasaErrorWithHttpStatusCode(statusCode, galasaErrors.GALASA_ERROR_PROPERTY_GET_FAILED, stream, err)
-			} else if len(cpsProperty) < 1 {
-				err = galasaErrors.NewGalasaErrorWithHttpStatusCode(statusCode, galasaErrors.GALASA_ERROR_CATALOG_NOT_FOUND, stream)
+				err = galasaErrors.NewGalasaErrorWithHttpStatusCode(statusCode, galasaErrors.GALASA_ERROR_GET_TEST_CATALOG_CONTENTS_FAILED, stream, err)
 			}
 			return err
 		})
-
-		if err == nil {
-			streamLocation := cpsProperty[0].Data.Value
-			catalogString := new(strings.Builder)
-			var resp *http.Response
-			resp, err = http.Get(*streamLocation)
-			if err != nil {
-				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_GET_TEST_CATALOG_CONTENTS_FAILED, *streamLocation, stream, err)
-			} else {
-				defer resp.Body.Close()
-
-				_, err = io.Copy(catalogString, resp.Body)
-				if err != nil {
-					err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_CATALOG_COPY_FAILED, *streamLocation, stream, err)
-				}
-			}
-
-			if err == nil {
-				err = json.Unmarshal([]byte(catalogString.String()), &testCatalog)
-				if err != nil {
-					err = galasaErrors.NewGalasaError(
-						galasaErrors.GALASA_ERROR_CATALOG_UNMARSHAL_FAILED, *streamLocation, stream, err)
-				}
-			}
-		}
 	}
 	
 		return testCatalog, err
