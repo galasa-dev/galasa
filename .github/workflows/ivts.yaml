@@ -166,7 +166,7 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/ivts-maven-artefacts
-    
+
       - name: Build IVTs image for development Maven registry
         id: build
         uses: docker/build-push-action@v5
@@ -180,25 +180,6 @@ jobs:
             baseVersion=latest
             dockerRepository=${{ env.REGISTRY }}
             branch=${{ env.BRANCH }}
-    
-      - name: Build Authenticated IVTs image for development Maven registry
-        id: build
-        uses: docker/build-push-action@v5
-        env:
-          MAVEN_REPO_USERNAME: ${{ secrets.GALASA_MAVEN_REPO_USERNAME }}
-          MAVEN_REPO_PASSWORD: ${{ secrets.GALASA_MAVEN_REPO_PASSWORD }}
-        with:
-          context: modules/ivts
-          file: modules/ivts/dockerfiles/dockerfile.ivts-auth
-          push: true
-          tags: ${{ steps.metadata.outputs.tags }}
-          labels: ${{ steps.metadata.outputs.labels }}
-          build-args: |
-            baseVersion=latest
-            dockerRepository=${{ env.REGISTRY }}
-            branch=${{ env.BRANCH }}
-            mavenUsername=${{ env.MAVEN_REPO_USERNAME }}
-            mavenPassword=${{ env.MAVEN_REPO_PASSWORD }}
 
       - name: Recycle 'ivts' application in ArgoCD
         # Skip this job for forks
@@ -221,27 +202,6 @@ jobs:
           echo "ArgoCD still uncontactable after 10 attempts."
           exit 1
 
-      - name: Recycle 'ivts-auth' application in ArgoCD
-        # Skip this job for forks
-        if: ${{ github.repository_owner == 'galasa-dev' }}
-        env:
-          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
-        run: |
-          for i in {1..10}; do
-            docker run \
-            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
-            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
-            app actions run ${{ env.BRANCH }}-ivts-auth restart \
-            --kind Deployment \
-            --resource-name ivts-auth-${{ env.BRANCH }} \
-            --server argocd.galasa.dev \
-            --grpc-web \
-            && exit 0 || sleep 10
-          done
-
-          echo "ArgoCD still uncontactable after 10 attempts."
-          exit 1
-
       - name: Wait for 'ivts' application health in ArgoCD
         # Skip this job for forks
         if: ${{ github.repository_owner == 'galasa-dev' }}
@@ -255,6 +215,52 @@ jobs:
             app wait ${{ env.BRANCH }}-ivts \
             --resource apps:Deployment:ivts-${{ env.BRANCH }} \
             --health \
+            --server argocd.galasa.dev \
+            --grpc-web \
+            && exit 0 || sleep 10
+          done
+
+          echo "ArgoCD still uncontactable after 10 attempts."
+          exit 1
+
+      - name: Extract metadata for authenticated IVTs
+        id: metadata-ivts-auth
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/ivts-auth-maven-artefacts
+    
+      - name: Build Authenticated IVTs image for development Maven registry
+        id: build
+        uses: docker/build-push-action@v5
+        env:
+          MAVEN_REPO_USERNAME: ${{ secrets.GALASA_MAVEN_REPO_USERNAME }}
+          MAVEN_REPO_PASSWORD: ${{ secrets.GALASA_MAVEN_REPO_PASSWORD }}
+        with:
+          context: modules/ivts
+          file: modules/ivts/dockerfiles/dockerfile.ivts-auth
+          push: true
+          tags: ${{ steps.metadata-ivts-auth.outputs.tags }}
+          labels: ${{ steps.metadata-ivts-auth.outputs.labels }}
+          build-args: |
+            baseVersion=latest
+            dockerRepository=${{ env.REGISTRY }}
+            branch=${{ env.BRANCH }}
+            mavenUsername=${{ env.MAVEN_REPO_USERNAME }}
+            mavenPassword=${{ env.MAVEN_REPO_PASSWORD }}
+
+      - name: Recycle 'ivts-auth' application in ArgoCD
+        # Skip this job for forks
+        if: ${{ github.repository_owner == 'galasa-dev' }}
+        env:
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          for i in {1..10}; do
+            docker run \
+            --env ARGOCD_AUTH_TOKEN=${{ env.ARGOCD_AUTH_TOKEN }} \
+            --rm ghcr.io/${{ env.NAMESPACE }}/argocdcli:main \
+            app actions run ${{ env.BRANCH }}-ivts-auth restart \
+            --kind Deployment \
+            --resource-name ivts-auth-${{ env.BRANCH }} \
             --server argocd.galasa.dev \
             --grpc-web \
             && exit 0 || sleep 10
