@@ -141,7 +141,7 @@ The `galasactl` tool can generate the following errors:
 - GAL1141E: Unable to compile the regex pattern for Galasa Property field '{}'. Reason: '{}'
 - GAL1142E: The {} field value, '{}', provided does not match formatting requirements. The {} field value must start with a character in the 'a-z' or 'A-Z' range, followed by any characters in the 'a'-'z', 'A'-'Z', '0'-'9', '.' (period), '-' (dash) or '_' (underscore) or '@' (at) ranges only.
 - GAL1143E: Could not query run results. Server returned a non-200 code ({})
-- GAL1144E: Could not use url '{}' to retrieve the contents of the test catalog from stream '{}'. Http error from the Galasa server is '{}'
+- GAL1144E: Could not retrieve the contents of the test catalog from stream '{}'. Check that your test stream is configured correctly. Http error from the Galasa server is '{}'
 - GAL1145E: Failed to create folder for bearer tokens at '{}'
 
 - GAL1146E: Could not get list of tokens from API server. Reason: '{}'. Ensure you have allocated a personal access token and configured your client program by setting your GALASA_TOKEN as an environment variable or by storing it in your galasactl.properties file
