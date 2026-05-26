@@ -2,7 +2,7 @@
 title: "CICS TS CECI Manager"
 ---
 
-You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/cicsts/package-summary.html){target="_blank"}.
+You can view the [Javadoc documentation for the Manager](../../reference/javadoc/dev/galasa/cicsts/iceci.html){target="_blank"}.
 
 
 ## Overview
