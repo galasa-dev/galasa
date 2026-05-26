@@ -28,7 +28,7 @@ When using the `galasactl resources` command, the `apply` sub-command will updat
 
 See the command reference for [galasactl streams set](../reference/cli-syntax/galasactl_streams_set.md) and [galasactl resources apply](../reference/cli-syntax/galasactl_resources_apply.md) for specific syntax help.
 
-Streams are explained in more detail, with an example [here](../ecosystem/ecosystem-manage-resources.md/#test-streams-as-galasastream-resources).
+Streams are explained in more detail, with an example [here](../ecosystem/ecosystem-manage-resources.md#test-streams-as-galasastream-resources).
 
 You can view all test streams in the `framework` namespace by using the `galasactl streams get` command, as shown in the following example:
 

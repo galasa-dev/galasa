@@ -2,91 +2,180 @@
 title: "Running a Galasa test"
 ---
 
-## Overview
+Galasa tests can run in three different modes, depending on your needs and environment setup.
 
-There are three modes in which you can run a Galasa test:
+## The three test modes
 
--  locally, with everything running on the local machine
--  locally but using a shared configuration that is hosted by the Galasa Ecosystem
--  remotely, by submitting the test to run in the Galasa Ecosystem
+**1. Locally** - Everything runs on your local machine
 
+**2. Locally with shared configuration** - Test runs locally but uses configuration from a Galasa Ecosystem
 
-If you are running a test locally but using a shared configuration that is hosted by the Galasa Ecosystem, or running a test remotely by submitting the test to run in the Galasa Ecosystem, you are interacting with the Galasa Ecosystem. 
+**3. Remotely** - Test runs in a Galasa Ecosystem
 
-Before you can interact with the Galasa Ecosystem, you must authenticate with it by using a personal access token. Tokens are stored in the `GALASA_TOKEN` in the `galasactl.properties` in your Galasa home folder. You can request a personal access token by using the Galasa Web UI. For more information about setting up authentication with an Ecosystem, see the [Configuring authentication](../ecosystem/ecosystem-authentication.md) documentation.
+The mode you choose depends on what you are trying to achieve. Use this guide to understand which mode is best for your scenario.
 
+!!! note "Authentication for Ecosystem access"
 
-The mode in which you choose to run a test depends on what you are trying to achieve. Use the following information to understand which mode is most appropriate for a given scenario. 
+    If you are using modes 2 or 3 (interacting with a Galasa Ecosystem), you must authenticate using a personal access token.
 
+    **Setup steps:**
 
-## Running a test locally
+    1. Request a personal access token from the Galasa Web UI
+    2. Store the token in the `GALASA_TOKEN` property in your `galasactl.properties` file (located in your Galasa home folder), or alternatively set the `GALASA_TOKEN` environment variable
 
-When you run a test locally, without using shared configuration, everything runs on your local machine. The Galasa bootstrap file is blank and makes no reference to an Ecosystem. The Galasa framework is launched within the JVM on the local machine and the local file system holds all the configuration that is used by the test. The test runs in the local JVM and all test results and artifacts are stored on the local disk. 
+    For detailed instructions, see [Configuring authentication](../ecosystem/ecosystem-authentication.md).
+
+## Mode 1: Running a test locally
+
+**When to use:** During test development and ad-hoc testing against non-production environments.
+
+**How it works:**
+
+- Everything runs on your local machine
+- The Galasa bootstrap file is blank (no Ecosystem reference)
+- Configuration comes from local files
+- Test runs in your local JVM
+- Results and artifacts are stored on your local disk
 
 ![running in local mode:](running-local.svg)
 
-You can run a test in this mode by using the [runs submit local](../reference/cli-syntax/galasactl_runs_submit_local.md) Galasa CLI command.
+**Command:** Use the [`galasactl runs submit local`](../reference/cli-syntax/galasactl_runs_submit_local.md) command.
 
+!!! note "Running tests stored on a remote Maven repository"
+    If your team publishes their tests to a remote Maven repository, you can run them in local mode by supplying the `--remoteMaven` option to the [`galasactl runs submit local`](../reference/cli-syntax/galasactl_runs_submit_local.md) command. This tells Galasa to download the test material from the given remote Maven repository if it is not already present in your local Maven repository.
 
-## Running a test in the Galasa Ecosystem
+    If your remote Maven repository requires authentication, you can supply a username and password to Galasa by setting the following properties in your `bootstrap.properties` file:
 
-To submit your test to an Ecosystem for remote execution, the Galasa bootstrap is set to the URL of the Galasa Ecosystem in which you want to run your test. The configuration of the test is also held within that Ecosystem, and Galasa starts up in a container in which the test code will run. The test results and artifacts are stored in a database within the specified Ecosystem, and users on client machines can view the test results. 
+    ```properties
+    maven.repository.username=yourusername
+    maven.repository.password=yourpassword
+    ```
 
-![running remotely:](run-remote.svg)
+    Alternatively, you can supply the username and password by setting the `GALASA_MAVEN_USERNAME` and `GALASA_MAVEN_PASSWORD` environment variables:
 
-After configuring authentication, you can run a test in this mode by setting up your bootstrap file to refer to the Ecosystem that you want to use and running the [runs submit](../reference/cli-syntax/galasactl_runs_submit.md) Galasa CLI command.
+    === "Linux or macOS"
+        ```bash
+        export GALASA_MAVEN_USERNAME=yourusername
+        export GALASA_MAVEN_PASSWORD=yourpassword
+        ```
 
+    === "Windows (PowerShell)"
+        ```powershell
+        set GALASA_MAVEN_USERNAME=yourusername
+        set GALASA_MAVEN_PASSWORD=yourpassword
+        ```
 
-## Running a test locally but using shared configuration
+**Advantages:**
 
-When you run a test locally, but using shared configuration, you need to run the `galasactl auth login` command to access the remote system using the Galasa bootstrap. You can then unset the bootstrap so that your local `bootstrap.properties` file is used, or alternatively you can refer explicitly to the local bootstrap file. For more information about the `galasactl auth login` command, see the [Configuring authentication](../ecosystem/ecosystem-authentication.md) documentation.
+- Quick setup for development
+- No network dependencies
+- Full control over configuration
 
-The Galasa framework is launched within the JVM on the local machine, but the framework consults the remote Ecosystem to read configuration data, but not the credentials properties as these are drawn from a local file. This is the key difference between running a test in this "hybrid" mode versus running a test locally without using shared configuration. In hybrid mode, the test still runs in the local JVM and all test results and artifacts are stored on the local disk. 
+**Limitations:**
+
+- Resources are not cleaned up if tests fail unexpectedly
+- Test results are stored locally (harder to share)
+- Cannot run many tests in parallel reliably
+
+## Mode 2: Running locally with shared configuration
+
+**When to use:** When you want to run tests locally but use configuration shared across your team.
+
+**How it works:**
+
+- Test runs in your local JVM
+- Configuration is read from a remote Ecosystem
+- Credentials still come from local files
+- Results and artifacts are stored on your local disk
 
 ![running in local mode with shared configuration:](hybridrunmode.svg)
 
-To run tests in hybrid mode, add the following properties into your local `bootstrap.properties` file:
+**Setup steps:**
 
-```properties
-framework.config.store=galasacps://my.ecosystem.url/api
-framework.extra.bundles=dev.galasa.cps.rest
-```
+1. Add these properties to your local `bootstrap.properties` file:
 
-where:
+   ```properties
+   framework.config.store=galasacps://my.ecosystem.url/api
+   framework.extra.bundles=dev.galasa.cps.rest
+   ```
 
-- `https://my.ecosystem.url` refers to the Web UI used to allocate tokens and
+   Where:
+   - `https://my.ecosystem.url` is the URL of your Ecosystem Web UI
+   - `framework.extra.bundles` loads the extension that handles `galasacps://` URLs
 
-- `framework.extra.bundles` tells the Galasa framework to load the `dev.galasa.cps.rest` extension. This extension tells the Galasa framework how to handle URLs that start with `galasacps` as the *scheme* part of the URL.
+2. Set the `GALASA_TOKEN` environment variable to a valid token for your Ecosystem, or alternatively add it to your `galasactl.properties` file
 
-After setting the `GALASA_TOKEN` to be a valid token for the Ecosystem from which the CPS property values will be drawn, log into the Ecosystem by running the `galasactl auth login` command. You can then run a test in hybrid mode by setting your bootstrap to refer to the Ecosystem in which the shared configuration is stored, and using the [galasactl runs submit local](../reference/cli-syntax/galasactl_runs_submit_local.md) Galasa CLI command. 
+3. Log in using: `galasactl auth login`
 
+**Command:** Use the [`galasactl runs submit local`](../reference/cli-syntax/galasactl_runs_submit_local.md) command with your bootstrap configured.
 
-## When to run a test in the Galasa Ecosystem
+**Advantages:**
 
-Running a test remotely is useful in the following scenarios:
+- Share configuration across your team
+- Run tests locally during development
+- Consistent test behavior across different machines
 
-### Tests need to run in bulk, in parallel, often submitted by different automation jobs or people, in an environment where resources are limited and need to be managed between tests. For example, ports, slots of processing capability, files, and sessions
+## Mode 3: Running a test in the Galasa Ecosystem
 
-If you are able to dynamically provision a system, then running tests from a local JVM can work well, as the system under test might have few resource contraints and can be used exclusively by the tests before being de-provisioned. However, if you want to run many test in parallet, you cannot do so reliably from a single system using the local JVM method on one user account. Any contention to name test runs uniquely, or other stateful changes in the test framework might cause the tests to clash, over-write each other, fail, or produce unexpected results. Running multiple tests in series can avoid some of these issues but running large numbers of tests in this way can take a long time. 
+**When to use:** For production testing, parallel test execution, and centralized result management.
 
-To reliably run many tests in parallel, deploy your tests to the Galasa Ecosystem, letting the Ecosystem manage the test runs, and the Galasa Manager components manage any shared or constrained resources. 
+**How it works:**
 
-### Test results and reports need gathering from a single point. For example, when test results need reporting or exporting to another report-generating system, or when bug investigation can proceed by independent inspection test results and artifacts
+- Test runs in a container within the Ecosystem
+- Configuration comes from the Ecosystem
+- Results and artifacts are stored in the Ecosystem database
+- Multiple users can view test results
 
-A problem faced in large-scale use of the local JVM method of test invocation is how to gather test results from disparate machines or environments, so that the test results can be combined and form test reports for system health monitoring. This is something that running tests within a Galasa Ecosystem handles well, as the results of each test are stored centrally. Test results can be shared with others, enabling independent inspection and debugging of run artifacts. 
+![running remotely:](run-remote.svg)
 
-### When the clean-up of resources in the system under test is an important requirement
+**Setup steps:**
 
-When you run tests in a Galasa Ecosystem, resources are cleaned up by the Managers that are called during abnormal test exit conditions. When a locally run test stops prematurely, the Manager code that handles the clean-up of allocated resources might not run, so resources are not cleaned up. Over time, this can result in performance degradation of the system under test. 
+1. Configure authentication (see above)
+2. Set your bootstrap file to the Ecosystem URL
 
+**Command:** Use the [`galasactl runs submit`](../reference/cli-syntax/galasactl_runs_submit.md) command.
 
-## When to run a test locally
+**Advantages:**
 
-Running a test locally is useful when you are doing the following types of task:
+- **Parallel execution**: Run many tests simultaneously with proper resource management
+- **Centralized results**: All test results stored in one place for easy access and reporting
+- **Resource cleanup**: Managers automatically clean up resources even when tests fail
+- **Scalability**: Handle large test suites efficiently
+- **Collaboration**: Share test results with team members for debugging
 
-- Developing tests, and running those tests against a non-production environment.
+## When to use each mode
 
-- Running ad-hoc tests against a development or non-production target system.
+### Use local mode when:
 
-- When there is time to find and share test run logs and artifacts with bug investigators, whenever a test fails and finds a bug.
+- Developing and debugging tests
+- Running ad-hoc tests against development environments
+- You have time to manually share test logs when issues occur
+- Testing against systems with unlimited resources
 
+### Use local mode with shared configuration when:
+
+- You want consistent configuration across your team
+- Developing tests that will eventually run in an Ecosystem
+- You need to test against shared environments but want local execution
+
+### Use Ecosystem mode when:
+
+- Running tests in bulk or in parallel
+- Multiple people or automation jobs need to run tests simultaneously
+- Resources are limited and need management (ports, sessions, processing capacity)
+- Test results need to be centrally stored and reported
+- Automatic resource cleanup is important
+- You need to integrate test results with other reporting systems
+- Bug investigation requires sharing test artifacts with others
+
+## Comparison table
+
+| Feature | Local | Local + Shared Config | Ecosystem |
+|---------|-------|----------------------|-----------|
+| **Execution location** | Local JVM | Local JVM | Ecosystem pod |
+| **Configuration source** | Local files | Ecosystem | Ecosystem |
+| **Results storage** | Local disk | Local disk | Ecosystem RAS |
+| **Resource cleanup** | Manual | Manual | Automatic |
+| **Parallel execution** | Limited | Limited | Full support |
+| **Result sharing** | Manual | Manual | Automatic |
+| **Best for** | Development | Team development | Production testing |

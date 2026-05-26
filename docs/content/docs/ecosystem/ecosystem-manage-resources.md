@@ -157,6 +157,7 @@ data:
     isEnabled: true
     repository:
         url: https://my-maven-repository/path/to/test/material
+        secretName: MY_MAVEN_REPOSITORY_SECRET
     obrs:
         - group-id: my.group
           artifact-id: my.group.ivts.obr
@@ -195,6 +196,7 @@ metadata:
 data:
     repository:
         url: https://my-maven-repository/path/to/test/material
+        secretName: MY_MAVEN_REPOSITORY_SECRET
     obrs:
         - group-id: my.group
           artifact-id: my.group.tests.obr
@@ -208,7 +210,7 @@ where:
 - `apiVersion` is the version of the API that you are using
 - `name` is the name of the test stream that you want to create or update
 - `description` is an optional description of the test stream being created or updated
-- `repository` is an object with a `url` property that points to the maven repository where your test material is stored
+- `repository` is an object with a `url` property that points to the maven repository where your test material is stored and an optional `secretName` property that points to a secret containing the credentials to access the maven repository
 - `obrs` is a list of OBRs consisting of a `group-id`, `artifact-id`, and `version` corresponding to the OBRs where your test bundles can be found within
 - `testCatalog` is an object with a `url` property that points to the `testcatalog.json` file used to identify the tests that are available to run using this test stream
 
