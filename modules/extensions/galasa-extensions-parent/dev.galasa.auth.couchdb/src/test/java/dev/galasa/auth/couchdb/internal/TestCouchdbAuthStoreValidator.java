@@ -137,7 +137,7 @@ public class TestCouchdbAuthStoreValidator {
         //   "language": "javascript"
         // }
         AuthStoreDBLoginView view = new AuthStoreDBLoginView();
-        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}";
+        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), null);\n  }\n}";
         AuthStoreDBViews views = new AuthStoreDBViews();
         views.loginIdView = view;
         AuthDBNameViewDesign designDocToPassBack = new AuthDBNameViewDesign();
@@ -210,7 +210,7 @@ public class TestCouchdbAuthStoreValidator {
         interactions.add(new CreateDatabaseInteraction(couchdbUriStr + "/" + usersDatabaseName, HttpStatus.SC_CREATED));
 
         AuthStoreDBLoginView view = new AuthStoreDBLoginView();
-        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}";
+        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), null);\n  }\n}";
         AuthStoreDBViews views = new AuthStoreDBViews();
         views.loginIdView = view;
         AuthDBNameViewDesign designDocToPassBack = new AuthDBNameViewDesign();
@@ -448,7 +448,7 @@ public class TestCouchdbAuthStoreValidator {
         //   "language": "javascript"
         // }
         AuthStoreDBLoginView view = new AuthStoreDBLoginView();
-        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}";
+        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), null);\n  }\n}";
         AuthStoreDBViews views = new AuthStoreDBViews();
         views.loginIdView = view;
         AuthDBNameViewDesign designDocToPassBack = new AuthDBNameViewDesign();
@@ -499,7 +499,7 @@ public class TestCouchdbAuthStoreValidator {
         //   "language": "javascript"
         // }
         AuthStoreDBLoginView view = new AuthStoreDBLoginView();
-        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), doc);\n  }\n}";
+        view.map = "function (doc) {\n  if (doc.owner && doc.owner.loginId) {\n    emit(doc.owner.loginId.toLowerCase(), null);\n  }\n}";
         AuthStoreDBViews views = new AuthStoreDBViews();
         views.loginIdView = view;
         AuthDBNameViewDesign designDocToPassBack = new AuthDBNameViewDesign();
@@ -534,7 +534,7 @@ public class TestCouchdbAuthStoreValidator {
 
         boolean isUpdated = validator.updateDesignDocToDesiredDesignDoc(tableDesign, dbName);
 
-        String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), doc); } }";
+        String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), null); } }";
 
         assertTrue(isUpdated);
         assertNotNull(tableDesign.views);
@@ -553,7 +553,7 @@ public class TestCouchdbAuthStoreValidator {
 
         boolean isUpdated = validator.updateDesignDocToDesiredDesignDoc(tableDesign, dbName);
 
-        String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), doc); } }";
+        String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), null); } }";
 
         assertTrue(isUpdated);
         assertNotNull(tableDesign.views);
@@ -567,7 +567,7 @@ public class TestCouchdbAuthStoreValidator {
         AuthDBNameViewDesign tableDesign = new AuthDBNameViewDesign();
         tableDesign.views = new AuthStoreDBViews();
         tableDesign.views.loginIdView = new AuthStoreDBLoginView();
-        // Set an old map function
+        // Set an old map function (emitting doc instead of null)
         tableDesign.views.loginIdView.map = "function (doc) { emit(doc.owner.loginId, doc); }";
         tableDesign.language = "javascript";
         
@@ -576,7 +576,7 @@ public class TestCouchdbAuthStoreValidator {
 
         boolean isUpdated = validator.updateDesignDocToDesiredDesignDoc(tableDesign, dbName);
 
-        String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), doc); } }";
+        String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), null); } }";
 
         assertTrue("View should be updated when map function is different", isUpdated);
         assertNotNull(tableDesign.views);
@@ -590,7 +590,7 @@ public class TestCouchdbAuthStoreValidator {
         AuthDBNameViewDesign tableDesign = new AuthDBNameViewDesign();
         tableDesign.views = new AuthStoreDBViews();
         tableDesign.views.loginIdView = new AuthStoreDBLoginView();
-        // Set an old map function
+        // Set an old map function (emitting doc instead of null)
         tableDesign.views.loginIdView.map = "function (doc) { if (doc['login-id']) { emit(doc['login-id'], doc); } }";
         tableDesign.language = "javascript";
         
@@ -599,7 +599,7 @@ public class TestCouchdbAuthStoreValidator {
 
         boolean isUpdated = validator.updateDesignDocToDesiredDesignDoc(tableDesign, dbName);
 
-        String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), doc); } }";
+        String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), null); } }";
 
         assertTrue("View should be updated when map function is different", isUpdated);
         assertNotNull(tableDesign.views);
@@ -614,7 +614,7 @@ public class TestCouchdbAuthStoreValidator {
         tableDesign.views = new AuthStoreDBViews();
         tableDesign.views.loginIdView = new AuthStoreDBLoginView();
         // Set the correct map function
-        String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), doc); } }";
+        String DB_TABLE_TOKENS_DESIGN = "function (doc) { if (doc.owner && doc.owner.loginId) {emit(doc.owner.loginId.toLowerCase(), null); } }";
         tableDesign.views.loginIdView.map = DB_TABLE_TOKENS_DESIGN;
         tableDesign.language = "javascript";
         
@@ -633,7 +633,7 @@ public class TestCouchdbAuthStoreValidator {
         tableDesign.views = new AuthStoreDBViews();
         tableDesign.views.loginIdView = new AuthStoreDBLoginView();
         // Set the correct map function
-        String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), doc); } }";
+        String DB_TABLE_USERS_DESIGN = "function (doc) { if (doc['login-id']) { emit(doc['login-id'].toLowerCase(), null); } }";
         tableDesign.views.loginIdView.map = DB_TABLE_USERS_DESIGN;
         tableDesign.language = "javascript";
         

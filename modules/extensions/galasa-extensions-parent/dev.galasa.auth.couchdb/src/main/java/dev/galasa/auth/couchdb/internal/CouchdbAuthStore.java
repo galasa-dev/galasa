@@ -9,6 +9,7 @@ import static dev.galasa.extensions.common.Errors.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -21,6 +22,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 
@@ -251,12 +253,19 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
         String lowercaseLoginId = loginId.toLowerCase();
 
         try {
-            // Get all of the documents in the tokens database
-            tokenDocuments = getAllDocsByLoginId(TOKENS_DATABASE_NAME, lowercaseLoginId, TOKENS_DB_VIEW_NAME);
+            // Get all of the documents in the tokens database with include_docs=true
+            ViewResponse viewResponse = getDocumentsFromDatabaseViewByKey(
+                TOKENS_DATABASE_NAME,
+                TOKENS_DB_VIEW_NAME,
+                lowercaseLoginId,
+                true
+            );
+            tokenDocuments = viewResponse.rows;
 
-            // Build up a list of all the tokens using the document IDs
+            // Build up a list of all the tokens using the documents from the view response
             for (ViewRow row : tokenDocuments) {
-                tokens.add(getAuthTokenFromDocument(row.id));
+                CouchdbAuthToken token = gson.fromJson(gson.toJson(row.doc), CouchdbAuthToken.class);
+                tokens.add(token);
             }
 
             logger.info("Tokens retrieved from CouchDB OK");
@@ -399,15 +408,20 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
             // Convert the loginId to lowercase for the lookup
             String lowerCaseLoginId = loginId.toLowerCase();
             
-            // Fetch documents matching the lowercase loginId using the lowercase view
-            userDocument = getAllDocsByLoginId(USERS_DATABASE_NAME, lowerCaseLoginId, USERS_DB_VIEW_NAME);
+            // Fetch documents matching the lowercase loginId using the lowercase view with include_docs=true
+            ViewResponse viewResponse = getDocumentsFromDatabaseViewByKey(
+                USERS_DATABASE_NAME,
+                USERS_DB_VIEW_NAME,
+                lowerCaseLoginId,
+                true
+            );
+            userDocument = viewResponse.rows;
 
             // Since loginIds are unique (case-insensitive), there should be only one document.
             if (userDocument != null && !userDocument.isEmpty()) {
                 ViewRow row = userDocument.get(0); // Get the first entry since loginId is unique
 
-                // Fetch the user document from the CouchDB using the ID from the row
-                UserDoc fetchedUser = getUserFromDocument(row.id);
+                UserDoc fetchedUser = gson.fromJson(gson.toJson(row.doc), UserDoc.class);
 
                 if (row.value != null) {
                     AuthDBNameViewDesign nameViewDesign = gson.fromJson(gson.toJson(row.value),
@@ -437,40 +451,6 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
         UserImpl userImpl = new UserImpl(user);
         updateUser(httpClient, storeUri, userImpl);
         return userImpl;
-    }
-
-    /**
-     * Sends a GET request to CouchDB's
-     * /{db}/_design/docs/_view/loginId-view?key={loginId} endpoint and returns the
-     * "rows" list in the response,
-     * which corresponds to the list of documents within the given database.
-     *
-     * @param dbName  the name of the database to retrieve the documents of
-     * @param loginId the loginId of the user to retrieve the doucemnts of
-     * @return a list of rows corresponding to documents within the database
-     * @throws CouchdbException if there was a problem accessing the
-     *                          CouchDB store or its response
-     */
-    protected List<ViewRow> getAllDocsByLoginId(String dbName, String loginId, String viewName)
-            throws CouchdbException {
-
-        String encodedLoginId = URLEncoder.encode("\"" + loginId + "\"", StandardCharsets.UTF_8);
-        String url = storeUri + "/" + dbName + "/_design/docs/_view/" + viewName + "?key=" + encodedLoginId;
-
-        HttpGet getDocs = httpRequestFactory.getHttpGetRequest(url);
-        getDocs.addHeader("Content-Type", "application/json");
-
-        String responseEntity = sendHttpRequest(getDocs, HttpStatus.SC_OK);
-
-        ViewResponse docByLoginId = gson.fromJson(responseEntity, ViewResponse.class);
-        List<ViewRow> viewRows = docByLoginId.rows;
-
-        if (viewRows == null) {
-            String errorMessage = ERROR_FAILED_TO_GET_DOCUMENTS_FROM_DATABASE.getMessage(dbName);
-            throw new CouchdbException(errorMessage);
-        }
-
-        return viewRows;
     }
 
     private void updateUser(CloseableHttpClient httpClient, URI couchdbUri, UserImpl user)
