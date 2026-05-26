@@ -230,7 +230,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/ivts-auth-maven-artefacts
     
       - name: Build Authenticated IVTs image for development Maven registry
-        id: build
+        id: build-ivts-auth
         uses: docker/build-push-action@v5
         env:
           MAVEN_REPO_USERNAME: ${{ secrets.GALASA_MAVEN_REPO_USERNAME }}
