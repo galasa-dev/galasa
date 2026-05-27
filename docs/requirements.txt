@@ -36,7 +36,7 @@ pathspec==0.12.1
 platformdirs==4.3.8
 pre_commit==4.2.0
 pycparser==2.22
-Pygments==2.19.1
+Pygments==2.20.0
 PyJWT==2.12.0
 pymdown-extensions==10.21.3
 pyparsing==3.2.3
