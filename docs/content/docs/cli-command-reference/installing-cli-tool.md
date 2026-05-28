@@ -82,11 +82,7 @@ Choose your installation method:
 
 === "Windows (Scoop)"
 
-    1. Install Scoop if not already installed:
-       ```powershell
-       Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-       Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
-       ```
+    1. Install [Scoop](https://scoop.sh/) if not already installed:
 
     2. Add Galasa bucket:
        ```powershell
@@ -115,7 +111,7 @@ Choose your installation method:
     2. Add the directory containing `galasactl.exe` to your PATH environment variable through System Properties → Environment Variables
     
 
-You can now run the Galasa CLI from any directory without specifying the full path. We reccommend opening a command prompt to verify it:
+You can now run the Galasa CLI from any directory without specifying the full path. We recommmend opening a command prompt to verify it:
  ```powershell
  galasactl --version
  ```
