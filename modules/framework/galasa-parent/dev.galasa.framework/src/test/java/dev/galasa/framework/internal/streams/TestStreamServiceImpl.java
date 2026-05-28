@@ -653,4 +653,153 @@ public class TestStreamServiceImpl {
         assertThat(mockCps.getProperty(streamPropertyPrefix, "location")).isEqualTo(streamTestCatalog);
     }
 
+    @Test
+    public void testGetStreamByNameWithSecretNameReturnsStreamWithSecretName() throws Exception {
+        // Given...
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+
+        String streamName1 = "stream1";
+        String streamDescription1 = "this is the first test stream!";
+        String streamObr1 = "mvn:my.company/my.company.obr/0.0.1/obr";
+        String streamMavenRepo1 = "https://my.company/maven/repository";
+        String streamTestCatalog1 = "https://my.company/maven/repository/testcatalog.json";
+        String streamSecretName1 = "my-maven-secret";
+
+        addStreamToCps(mockCps, streamName1, streamDescription1, streamMavenRepo1, streamObr1, streamTestCatalog1);
+        mockCps.setProperty("test.stream." + streamName1 + ".repo.secret.name", streamSecretName1);
+
+        StreamsServiceImpl streamsService = new StreamsServiceImpl(mockCps);
+
+        // When...
+        IStream stream = streamsService.getStreamByName(streamName1);
+
+        // Then...
+        assertThat(stream.getName()).isEqualTo(streamName1);
+        assertThat(stream.getDescription()).isEqualTo(streamDescription1);
+        assertThat(stream.getMavenRepositoryUrl()).isEqualTo(new URL(streamMavenRepo1));
+        assertThat(stream.getTestCatalogUrl()).isEqualTo(new URL(streamTestCatalog1));
+        assertThat(stream.getMavenSecretName()).isEqualTo(streamSecretName1);
+
+        List<IOBR> obrs = stream.getObrs();
+        assertThat(obrs).hasSize(1);
+
+        IOBR obr = obrs.get(0);
+        assertThat(obr.getGroupId()).isEqualTo("my.company");
+        assertThat(obr.getArtifactId()).isEqualTo("my.company.obr");
+        assertThat(obr.getVersion()).isEqualTo("0.0.1");
+    }
+
+    @Test
+    public void testGetStreamsWithSecretNameReturnsStreamsWithSecretName() throws Exception {
+        // Given...
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+
+        String streamName1 = "stream1";
+        String streamDescription1 = "this is the first test stream!";
+        String streamObr1 = "mvn:my.company/my.company.obr/0.0.1/obr";
+        String streamMavenRepo1 = "https://my.company/maven/repository";
+        String streamTestCatalog1 = "https://my.company/maven/repository/testcatalog.json";
+        String streamSecretName1 = "my-maven-secret";
+
+        String streamName2 = "stream2";
+        String streamDescription2 = "this is the second test stream!";
+        String streamObr2 = "mvn:my.0ther.company/my.0ther.company.obr/v1-SNAPSHOT/obr";
+        String streamMavenRepo2 = "https://my.other.company/maven/repository";
+        String streamTestCatalog2 = "https://my.other.company/maven/repository/testcatalog.json";
+        String streamSecretName2 = "another-secret";
+
+        addStreamToCps(mockCps, streamName1, streamDescription1, streamMavenRepo1, streamObr1, streamTestCatalog1);
+        mockCps.setProperty("test.stream." + streamName1 + ".repo.secret.name", streamSecretName1);
+
+        addStreamToCps(mockCps, streamName2, streamDescription2, streamMavenRepo2, streamObr2, streamTestCatalog2);
+        mockCps.setProperty("test.stream." + streamName2 + ".repo.secret.name", streamSecretName2);
+
+        StreamsServiceImpl streamsService = new StreamsServiceImpl(mockCps);
+
+        // When...
+        List<IStream> streams = streamsService.getStreams();
+
+        // Then...
+        assertThat(streams).hasSize(2);
+        
+        IStream stream1 = streams.stream().filter(s -> s.getName().equals(streamName1)).findFirst().orElse(null);
+        assertThat(stream1).isNotNull();
+        assertThat(stream1.getMavenSecretName()).isEqualTo(streamSecretName1);
+
+        IStream stream2 = streams.stream().filter(s -> s.getName().equals(streamName2)).findFirst().orElse(null);
+        assertThat(stream2).isNotNull();
+        assertThat(stream2.getMavenSecretName()).isEqualTo(streamSecretName2);
+    }
+
+    @Test
+    public void testSetStreamWithSecretNameSetsSecretNamePropertyIntoCps() throws Exception {
+        // Given...
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+
+        String streamName = "stream1";
+        String streamDescription = "this is the first test stream!";
+        String streamMavenRepo = "https://my.company/maven/repository";
+        String streamTestCatalog = "https://my.company/maven/repository/testcatalog.json";
+        String streamSecretName = "my-maven-secret";
+
+        List<IOBR> obrs = new ArrayList<>();
+        MockOBR obr = new MockOBR("my.company", "my.company.obr", "0.0.1");
+        obrs.add(obr);
+
+        MockStream stream = new MockStream();
+        stream.setName(streamName);
+        stream.setDescription(streamDescription);
+        stream.setObrs(obrs);
+        stream.setMavenRepositoryUrl(streamMavenRepo);
+        stream.setTestCatalogUrl(streamTestCatalog);
+        stream.setMavenSecretName(streamSecretName);
+
+        StreamsServiceImpl streamsService = new StreamsServiceImpl(mockCps);
+
+        // When...
+        streamsService.setStream(stream);
+
+        // Then...
+        String streamPropertyPrefix = "test.stream." + streamName;
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "description")).isEqualTo(streamDescription);
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "repo")).isEqualTo(streamMavenRepo);
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "location")).isEqualTo(streamTestCatalog);
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "repo.secret.name")).isEqualTo(streamSecretName);
+    }
+
+    @Test
+    public void testSetStreamWithoutSecretNameDoesNotSetSecretNamePropertyIntoCps() throws Exception {
+        // Given...
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+
+        String streamName = "stream1";
+        String streamDescription = "this is the first test stream!";
+        String streamMavenRepo = "https://my.company/maven/repository";
+        String streamTestCatalog = "https://my.company/maven/repository/testcatalog.json";
+
+        List<IOBR> obrs = new ArrayList<>();
+        MockOBR obr = new MockOBR("my.company", "my.company.obr", "0.0.1");
+        obrs.add(obr);
+
+        MockStream stream = new MockStream();
+        stream.setName(streamName);
+        stream.setDescription(streamDescription);
+        stream.setObrs(obrs);
+        stream.setMavenRepositoryUrl(streamMavenRepo);
+        stream.setTestCatalogUrl(streamTestCatalog);
+        stream.setMavenSecretName(null);
+
+        StreamsServiceImpl streamsService = new StreamsServiceImpl(mockCps);
+
+        // When...
+        streamsService.setStream(stream);
+
+        // Then...
+        String streamPropertyPrefix = "test.stream." + streamName;
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "description")).isEqualTo(streamDescription);
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "repo")).isEqualTo(streamMavenRepo);
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "location")).isEqualTo(streamTestCatalog);
+        assertThat(mockCps.getProperty(streamPropertyPrefix, "repo.secret.name")).isNull();
+    }
+
 }

@@ -1,4 +1,9 @@
-package dev.galasa.framework.api.common.mocks;
+/*
+ * Copyright contributors to the Galasa project
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package dev.galasa.framework;
 
 import java.util.HashMap;
 import java.util.Map;

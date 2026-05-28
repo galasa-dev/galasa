@@ -39,6 +39,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 
 import dev.galasa.boot.BootLogger;
+import dev.galasa.boot.Launcher;
 import dev.galasa.boot.LauncherException;
 import dev.galasa.boot.ResourceManagementConfiguration;
 
@@ -119,7 +120,7 @@ public class FelixFramework {
 
             installBundle("dev.galasa.framework.maven.repository.spi.jar", true);
             installBundle("dev.galasa.framework.maven.repository.jar", true);
-            loadMavenRepositories(localMavenRepo, remoteMavenRepos);
+            loadMavenRepositories(localMavenRepo, remoteMavenRepos, boostrapProperties);
 
             // Install and start the Felix OBR bundle
             obrBundle = installBundle("org.apache.felix.bundlerepository.jar", true);
@@ -166,7 +167,7 @@ public class FelixFramework {
         }
     }
 
-    private void loadMavenRepositories(URL localMavenRepo, List<URL> remoteMavenRepos) throws LauncherException {
+    private void loadMavenRepositories(URL localMavenRepo, List<URL> remoteMavenRepos, Properties bootstrapProperties) throws LauncherException {
 
         // Get the framework bundle
         Bundle frameWorkBundle = getBundle("dev.galasa.framework.maven.repository");
@@ -189,18 +190,41 @@ public class FelixFramework {
         }
 
         // Get the GalasaMavenRepositoryr#setRepositories() method
-        Method runTestMethod;
+        Method setRepositoriesMethod;
         try {
-            runTestMethod = service.getClass().getMethod("setRepositories", URL.class, List.class);
+            setRepositoriesMethod = service.getClass().getMethod("setRepositories", URL.class, List.class);
         } catch (NoSuchMethodException | SecurityException e) {
-            throw new LauncherException("Unable to get Framework Maven Repository method", e);
+            throw new LauncherException("Unable to get Framework Maven Repository setRepositories method", e);
         }
 
         // Invoke the setRepositories method
         try {
-            runTestMethod.invoke(service, localMavenRepo, remoteMavenRepos);
+            setRepositoriesMethod.invoke(service, localMavenRepo, remoteMavenRepos);
         } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
             throw new LauncherException(e.getCause());
+        }
+
+        setMavenCredentialsIfProvided(bootstrapProperties, service);
+    }
+
+    private void setMavenCredentialsIfProvided(Properties bootstrapProperties, Object service) throws LauncherException {
+        String mavenUsername = bootstrapProperties.getProperty(Launcher.MAVEN_USERNAME_BOOTSTRAP_PROPERTY);
+        String mavenPassword = bootstrapProperties.getProperty(Launcher.MAVEN_PASSWORD_BOOTSTRAP_PROPERTY);
+
+        if (mavenUsername != null && mavenPassword != null) {
+            logger.info("Configuring bootstrap Maven repository credentials");
+            Method setCredentialsMethod;
+            try {
+                setCredentialsMethod = service.getClass().getMethod("setCredentials", String.class, String.class);
+            } catch (NoSuchMethodException | SecurityException e) {
+                throw new LauncherException("Unable to get Framework Maven Repository setCredentials method", e);
+            }
+
+            try {
+                setCredentialsMethod.invoke(service, mavenUsername, mavenPassword);
+            } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+                throw new LauncherException("Failed to set bootstrap Maven credentials", e.getCause());
+            }
         }
     }
 

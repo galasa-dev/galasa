@@ -33,6 +33,7 @@ func TestSetStreamWithInvalidNameReturnsError(t *testing.T) {
 	streamName := ""
 	description := ""
 	mavenRepositoryUrl := ""
+	mavenSecretName := ""
 	testCatalogUrl := ""
 	obrs := []string{}
 
@@ -45,7 +46,7 @@ func TestSetStreamWithInvalidNameReturnsError(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -58,6 +59,7 @@ func TestSetStreamWithInvalidDescriptionReturnsError(t *testing.T) {
 	streamName := "mystream"
 	description := "     "
 	mavenRepositoryUrl := ""
+	mavenSecretName := ""
 	testCatalogUrl := ""
 	obrs := []string{}
 
@@ -70,7 +72,7 @@ func TestSetStreamWithInvalidDescriptionReturnsError(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -83,6 +85,7 @@ func TestSetStreamWithInvalidMavenUrlReturnsError(t *testing.T) {
 	streamName := "mystream"
 	description := "my description"
 	mavenRepositoryUrl := "not a valid url"
+	mavenSecretName := ""
 	testCatalogUrl := ""
 	obrs := []string{}
 
@@ -95,7 +98,7 @@ func TestSetStreamWithInvalidMavenUrlReturnsError(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -108,6 +111,7 @@ func TestSetStreamWithInvalidTestCatalogUrlReturnsError(t *testing.T) {
 	streamName := "mystream"
 	description := "my description"
 	mavenRepositoryUrl := ""
+	mavenSecretName := ""
 	testCatalogUrl := "not a valid url"
 	obrs := []string{}
 
@@ -120,7 +124,7 @@ func TestSetStreamWithInvalidTestCatalogUrlReturnsError(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -133,6 +137,7 @@ func TestSetStreamSendsCorrectRequest(t *testing.T) {
 	streamName := "mystream"
 	description := "my stream's description"
 	mavenRepositoryUrl := "https://maven.example.com/repo"
+	mavenSecretName := "MAVEN_SECRET"
 	testCatalogUrl := "https://maven.example.com/repo/testcatalog.json"
 	obrs := []string{}
 
@@ -159,7 +164,8 @@ func TestSetStreamSendsCorrectRequest(t *testing.T) {
 			},
 			"data": {
 				"repository": {
-					"url": "https://maven.example.com/repo"
+					"url": "https://maven.example.com/repo",
+					"secretName": "MAVEN_SECRET"
 				},
 				"testCatalog": {
 					"url": "https://maven.example.com/repo/testcatalog.json"
@@ -184,7 +190,7 @@ func TestSetStreamSendsCorrectRequest(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -195,6 +201,7 @@ func TestSetStreamWithObrsUpdatesObrData(t *testing.T) {
 	streamName := "mystream"
 	description := "my stream's description"
 	mavenRepositoryUrl := ""
+	mavenSecretName := ""
 	testCatalogUrl := ""
 	obrs := []string{"mvn:dev.galasa/dev.galasa.obr/0.1.0/obr"}
 
@@ -245,7 +252,7 @@ func TestSetStreamWithObrsUpdatesObrData(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.Nil(t, err)
@@ -256,6 +263,7 @@ func TestSetStreamWithTooManyObrPartsReturnsError(t *testing.T) {
 	streamName := "mystream"
 	description := "my stream's description"
 	mavenRepositoryUrl := ""
+	mavenSecretName := ""
 	testCatalogUrl := ""
 	obrs := []string{"mvn:/this/obr/has/too/many/parts/obr"}
 
@@ -269,7 +277,7 @@ func TestSetStreamWithTooManyObrPartsReturnsError(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -282,6 +290,7 @@ func TestSetStreamWithTooFewObrPartsReturnsError(t *testing.T) {
 	streamName := "mystream"
 	description := "my stream's description"
 	mavenRepositoryUrl := ""
+	mavenSecretName := ""
 	testCatalogUrl := ""
 	obrs := []string{"mvn:not-enough-parts/obr"}
 
@@ -295,7 +304,7 @@ func TestSetStreamWithTooFewObrPartsReturnsError(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -308,6 +317,7 @@ func TestSetStreamWithNoMavenPrefixReturnsError(t *testing.T) {
 	streamName := "mystream"
 	description := "my stream's description"
 	mavenRepositoryUrl := ""
+	mavenSecretName := ""
 	testCatalogUrl := ""
 	obrs := []string{"dev.galasa/dev.galasa.obr/0.1.0/obr"}
 
@@ -321,7 +331,7 @@ func TestSetStreamWithNoMavenPrefixReturnsError(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -334,6 +344,7 @@ func TestSetStreamWithNoObrSuffixReturnsError(t *testing.T) {
 	streamName := "mystream"
 	description := "my stream's description"
 	mavenRepositoryUrl := ""
+	mavenSecretName := ""
 	testCatalogUrl := ""
 	obrs := []string{"mvn:dev.galasa/dev.galasa.obr/0.1.0"}
 
@@ -347,7 +358,7 @@ func TestSetStreamWithNoObrSuffixReturnsError(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)
@@ -360,6 +371,7 @@ func TestSetStreamWithServerFailureGivesCorrectMessage(t *testing.T) {
 	streamName := "mystream"
 	description := "my stream's description"
 	mavenRepositoryUrl := ""
+	mavenSecretName := ""
 	testCatalogUrl := ""
 	obrs := []string{}
 
@@ -386,7 +398,7 @@ func TestSetStreamWithServerFailureGivesCorrectMessage(t *testing.T) {
 	apiClient := api.InitialiseAPI(apiServerUrl)
 
 	// When...
-	err := SetStream(streamName, description, mavenRepositoryUrl, testCatalogUrl, obrs, apiClient, mockByteReader)
+	err := SetStream(streamName, description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs, apiClient, mockByteReader)
 
 	// Then...
 	assert.NotNil(t, err)

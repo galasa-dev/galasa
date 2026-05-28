@@ -13,7 +13,7 @@ import (
 	"github.com/galasa-dev/cli/pkg/utils"
 )
 
-func validateSecretName(secretName string) (string, error) {
+func ValidateSecretName(secretName string) (string, error) {
     var err error
     secretName = strings.TrimSpace(secretName)
 

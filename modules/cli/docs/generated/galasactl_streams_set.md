@@ -13,12 +13,13 @@ galasactl streams set [flags]
 ### Options
 
 ```
-      --description string       the description to associate with the test stream being created or updated
-  -h, --help                     Displays the options for the 'streams set' command.
-      --maven-repo-url string    the URL to the Maven repository containing test material for the test stream to use. For example: https://my-maven-repository
-      --name string              A mandatory field indicating the name of a test stream.
-      --obr strings              The Maven coordinates of the OBR bundle(s) which refer to your test bundles. The format of this parameter is 'mvn:{OBR_GROUP_ID}/{OBR_ARTIFACT_ID}/{OBR_VERSION}/obr'. Multiple instances of this flag can be used to describe multiple OBR bundles.
-      --testcatalog-url string   the URL to the test catalog for the test stream being created or updated. For example: https://my-maven-repository/path/to/testcatalog.json
+      --description string         the description to associate with the test stream being created or updated
+  -h, --help                       Displays the options for the 'streams set' command.
+      --maven-repo-url string      the URL to the Maven repository containing test material for the test stream to use. For example: https://my-maven-repository
+      --maven-secret-name string   the name of the Galasa secret containing the Maven credentials to use when accessing the test stream's Maven repository. For example: MY_MAVEN_SECRET
+      --name string                A mandatory field indicating the name of a test stream.
+      --obr strings                The Maven coordinates of the OBR bundle(s) which refer to your test bundles. The format of this parameter is 'mvn:{OBR_GROUP_ID}/{OBR_ARTIFACT_ID}/{OBR_VERSION}/obr'. Multiple instances of this flag can be used to describe multiple OBR bundles.
+      --testcatalog-url string     the URL to the test catalog for the test stream being created or updated. For example: https://my-maven-repository/path/to/testcatalog.json
 ```
 
 ### Options inherited from parent commands

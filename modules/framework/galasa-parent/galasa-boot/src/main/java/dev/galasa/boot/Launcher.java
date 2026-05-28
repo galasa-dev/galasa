@@ -49,6 +49,9 @@ import dev.galasa.boot.felix.FelixFramework;
  */
 public class Launcher {
 
+    public static final String MAVEN_USERNAME_BOOTSTRAP_PROPERTY = "maven.repository.username";
+    public static final String MAVEN_PASSWORD_BOOTSTRAP_PROPERTY = "maven.repository.password";
+
     private static final String LOG4J2_PROPERTIES_FILE_OPTION = "log4j2-properties-file";
     private static final String LOG4J2_CONFIGURATION_FILE_PROPERTY_NAME = "log4j2.configurationFile";
     
@@ -345,6 +348,7 @@ public class Launcher {
         checkForBootstrap(commandLine);
         setStoresFromEnvironmentVariables(env,bootstrapProperties);
         setExtraBundlesFromEnvironment(env, bootstrapProperties);
+        setMavenCredentialsFromEnvironment(env, bootstrapProperties);
         checkForOverrides(commandLine);
         checkForBundles(commandLine);
         checkForMetricsPort(commandLine);
@@ -767,6 +771,25 @@ public class Launcher {
             extraBundles = extraBundles.trim();
             logger.info(String.format("Environment variable: %s used to set extra bundles", EXTRA_BUNDLES_ENV_VAR));
             bootstrap.setProperty("framework.extra.bundles", extraBundles);
+        }
+    }
+
+    void setMavenCredentialsFromEnvironment(Environment env, Properties bootstrap) {
+        String MAVEN_USERNAME_ENV_VAR = "GALASA_MAVEN_USERNAME";
+        String MAVEN_PASSWORD_ENV_VAR = "GALASA_MAVEN_PASSWORD";
+
+        String mavenUsername = env.getenv(MAVEN_USERNAME_ENV_VAR);
+        if ((mavenUsername != null) && (!mavenUsername.trim().isEmpty())) {
+            mavenUsername = mavenUsername.trim();
+            logger.info(String.format("Environment variable: %s used to set maven username", MAVEN_USERNAME_ENV_VAR));
+            bootstrap.setProperty(MAVEN_USERNAME_BOOTSTRAP_PROPERTY, mavenUsername);
+        }
+
+        String mavenPassword = env.getenv(MAVEN_PASSWORD_ENV_VAR);
+        if ((mavenPassword != null) && (!mavenPassword.trim().isEmpty())) {
+            mavenPassword = mavenPassword.trim();
+            logger.info(String.format("Environment variable: %s used to set maven password", MAVEN_PASSWORD_ENV_VAR));
+            bootstrap.setProperty(MAVEN_PASSWORD_BOOTSTRAP_PROPERTY, mavenPassword);
         }
     }
 }

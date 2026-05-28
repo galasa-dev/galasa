@@ -11,7 +11,6 @@ import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import dev.galasa.framework.api.beans.generated.Stream;
 import dev.galasa.framework.api.beans.generated.StreamOBRData;
 import dev.galasa.framework.api.beans.generated.StreamUpdateRequest;
+import dev.galasa.framework.api.beans.generated.StreamUpdateRequestrepository;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
 import dev.galasa.framework.api.common.HttpRequestContext;
@@ -42,7 +42,6 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
 
     // Regex to match endpoint /streams/{streamName}
     protected static final String path = "\\/([a-zA-Z0-9\\-\\_]+)\\/?";
-    protected Pattern pathPattern;
     protected String baseServletUrl;
 
     private StreamsTransform streamsTransform;
@@ -51,7 +50,6 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
             RBACService rbacService)
             throws StreamsException {
         super(responseBuilder, path, rbacService, streamsService);
-        this.pathPattern = getPathRegex();
         this.baseServletUrl = env.getenv(EnvironmentVariables.GALASA_EXTERNAL_API_URL);
         this.streamsTransform = new StreamsTransform();
     }
@@ -159,6 +157,10 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
         if (existingStream.getMavenRepositoryUrl() != null) {
             stream.setMavenRepositoryUrl(existingStream.getMavenRepositoryUrl().toString());
         }
+
+        if (existingStream.getMavenSecretName() != null) {
+            stream.setMavenSecretName(existingStream.getMavenSecretName());
+        }
         
         if (existingStream.getTestCatalogUrl() != null) {
             stream.setTestCatalogUrl(existingStream.getTestCatalogUrl().toString());
@@ -183,10 +185,16 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
             stream.setDescription(updateRequest.getdescription());
         }
         
-        // Update repository URL if provided
-        if (updateRequest.getrepository() != null &&
-            updateRequest.getrepository().geturl() != null) {
-            stream.setMavenRepositoryUrl(updateRequest.getrepository().geturl());
+        // Update maven repo settings if provided
+        StreamUpdateRequestrepository mavenRepo = updateRequest.getrepository();
+        if (mavenRepo != null) {
+            if (mavenRepo.geturl() != null) {
+                stream.setMavenRepositoryUrl(mavenRepo.geturl());
+            }
+
+            if (mavenRepo.getSecretName() != null) {
+                stream.setMavenSecretName(mavenRepo.getSecretName());
+            }
         }
         
         // Update test catalog URL if provided
@@ -204,11 +212,6 @@ public class StreamsByNameRoute extends AbstractStreamsRoute {
             }
             stream.setObrs(obrs);
         }
-    }
-
-    private String getStreamName(String urlPath) throws InternalServletException {
-        StreamsUrlParameterExtractor parser = new StreamsUrlParameterExtractor(pathPattern);
-        return parser.getStreamName(urlPath);
     }
 
     private IStream getStreamByName(String streamName) throws InternalServletException, FrameworkException {

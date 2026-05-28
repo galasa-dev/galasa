@@ -53,13 +53,16 @@ public class StreamValidator {
      * @param urlToCheck the URL string to validate
      * @throws InternalServletException if the URL is invalid
      */
-    public void validateUrl(String fieldName, String urlToCheck) throws InternalServletException {
+    public URL validateUrl(String fieldName, String urlToCheck) throws InternalServletException {
+        URL validatedUrl = null;
         try {
-            new URL(urlToCheck).toURI();
+            validatedUrl = new URL(urlToCheck);
+            validatedUrl.toURI();
         } catch (MalformedURLException | URISyntaxException e) {
             ServletError error = new ServletError(GAL5436_INVALID_STREAM_URL_PROVIDED, fieldName);
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
+        return validatedUrl;
     }
 
     /**
@@ -69,7 +72,7 @@ public class StreamValidator {
      * @param isRequired whether the field is required (true for create, false for update)
      * @throws InternalServletException if validation fails
      */
-    public void validateRepositoryUrl(String repositoryUrl, boolean isRequired) throws InternalServletException {
+    public void validateRepository(String repositoryUrl, String mavenSecretName, boolean isRequired) throws InternalServletException {
         if (repositoryUrl == null && isRequired) {
             ServletError error = new ServletError(GAL5434_INVALID_GALASA_STREAM_MISSING_FIELDS, MAVEN_REPOSITORY_KEY, "url");
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
@@ -77,6 +80,18 @@ public class StreamValidator {
 
         if (repositoryUrl != null) {
             validateUrl(MAVEN_REPOSITORY_KEY, repositoryUrl);
+        }
+
+        // The secret name in stream repositories is optional, so only validate it when it has been provided
+        if (mavenSecretName != null) {
+            validateMavenSecretName(mavenSecretName);
+        }
+    }
+
+    private void validateMavenSecretName(String mavenSecretName) throws InternalServletException {
+        if (mavenSecretName.isBlank() || mavenSecretName.contains(".") || !stringValidator.isLatin1(mavenSecretName)) {
+            ServletError error = new ServletError(GAL5092_INVALID_SECRET_NAME_PROVIDED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
@@ -93,8 +108,22 @@ public class StreamValidator {
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
+        URL validatedUrl = null;
         if (testCatalogUrl != null) {
-            validateUrl(TESTCATALOG_KEY, testCatalogUrl);
+            validatedUrl = validateUrl(TESTCATALOG_KEY, testCatalogUrl);
+
+            String protocol = validatedUrl.getProtocol().toLowerCase();
+            String host = validatedUrl.getHost();
+            if ((!protocol.equals("http") && !protocol.equals("https"))
+                || (host == null || host.isEmpty())) {
+                ServletError error = new ServletError(GAL5456_ERROR_INVALID_TEST_CATALOG_URL);
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+            }
+    
+            if (host.equals("localhost") || host.equals("127.0.0.1") || host.equals("0.0.0.0")) {
+                ServletError error = new ServletError(GAL5457_ERROR_TEST_CATALOG_URL_PRIVATE_NETWORK);
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+            }
         }
     }
 

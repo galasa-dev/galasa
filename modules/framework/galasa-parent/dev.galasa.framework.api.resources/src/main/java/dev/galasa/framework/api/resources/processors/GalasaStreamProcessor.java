@@ -22,6 +22,8 @@ import dev.galasa.framework.api.beans.generated.Stream;
 import dev.galasa.framework.api.beans.generated.StreamData;
 import dev.galasa.framework.api.beans.generated.StreamMetadata;
 import dev.galasa.framework.api.beans.generated.StreamOBRData;
+import dev.galasa.framework.api.beans.generated.StreamRepository;
+import dev.galasa.framework.api.beans.generated.StreamTestCatalog;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.RBACValidator;
 import dev.galasa.framework.api.common.ServletError;
@@ -123,8 +125,23 @@ public class GalasaStreamProcessor extends AbstractGalasaResourceProcessor imple
 
         stream.setName(metadata.getname());
         stream.setDescription(metadata.getdescription());
-        stream.setTestCatalogUrl(data.getTestCatalog().geturl());
-        stream.setMavenRepositoryUrl(data.getrepository().geturl());
+
+        StreamTestCatalog testCatalog = data.getTestCatalog();
+        if (testCatalog != null && testCatalog.geturl() != null) {
+            stream.setTestCatalogUrl(testCatalog.geturl());
+        }
+
+        StreamRepository mavenRepo = data.getrepository();
+        if (mavenRepo != null) {
+            if (mavenRepo.geturl() != null) {
+                stream.setMavenRepositoryUrl(mavenRepo.geturl());
+            }
+
+            if (mavenRepo.getSecretName() != null) {
+                stream.setMavenSecretName(mavenRepo.getSecretName());
+            }
+        }
+
         stream.setIsEnabled(data.getIsEnabled());
         stream.setObrs(transformGalasaStreamOBRsToOBRs(data.getobrs()));
 

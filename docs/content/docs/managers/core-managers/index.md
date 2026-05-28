@@ -11,3 +11,8 @@ title: "Core Managers"
 
 :   The Core Manager provides tests with access to some of the core features within the Galasa Framework.
     The Core Manager is always initialised and included in a test run and contributes the logger, stored artefact root and test property annotations.
+
+
+[Text Scan Manager](./text-scan-manager.md)
+
+:   Provides utility text scanning routines for searching and validating text content in logs, batch job outputs, and other text sources.
