@@ -56,6 +56,30 @@ Choose your installation method:
        xattr -dr com.apple.quarantine galasactl
        ```
 
+=== "Linux or macOS (manual download)"
+
+    1. Find your machine architecture:
+       ```bash
+       uname -m
+       ```
+    
+    2. Download the appropriate binary from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} and rename it to `galasactl`
+    
+    3. Add the Galasa CLI to your PATH. For example, if you downloaded galasactl to `~/tools`, add this line to your shell's initialization file (`~/.bashrc` or `~/.zshrc`):
+       ```bash
+       export PATH=$PATH:$HOME/tools
+       ```
+    
+    4. Set execute permission:
+       ```bash
+       chmod +x galasactl
+       ```
+    
+    5. **macOS only**: Remove quarantine attribute:
+       ```bash
+       xattr -dr com.apple.quarantine galasactl
+       ```
+
 === "Windows (Scoop)"
 
     1. Install Scoop if not already installed:
@@ -84,31 +108,7 @@ Choose your installation method:
        galasactl --version
        ```
 
-=== "Linux or macOS (manual download)"
-
-    1. Find your machine architecture:
-       ```bash
-       uname -m
-       ```
-    
-    2. Download the appropriate binary from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} and rename it to `galasactl`
-    
-    3. Add the Galasa CLI to your PATH. For example, if you downloaded galasactl to `~/tools`, add this line to your shell's initialization file (`~/.bashrc` or `~/.zshrc`):
-       ```bash
-       export PATH=$PATH:$HOME/tools
-       ```
-    
-    4. Set execute permission:
-       ```bash
-       chmod +x galasactl
-       ```
-    
-    5. **macOS only**: Remove quarantine attribute:
-       ```bash
-       xattr -dr com.apple.quarantine galasactl
-       ```
-
-=== "Windows (PowerShell)"
+=== "Windows PowerShell (manual download)"
 
     1. Download the Windows executable from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} and rename it to `galasactl.exe`
     
