@@ -163,16 +163,6 @@ jobs:
         run : |
           make all
 
-      # Calculate SHA-256 hash for Windows binary (for Scoop package manager)
-      - name: Calculate SHA-256 hash for Windows binary
-        working-directory: ./modules/cli
-        run: |
-          echo "Calculating SHA-256 hash for galasactl-windows-x86_64.exe..."
-          HASH=$(sha256sum bin/galasactl-windows-x86_64.exe | awk '{print $1}')
-          echo "SHA256_HASH=${HASH}" >> $GITHUB_ENV
-          echo "Windows binary SHA-256 hash: ${HASH}"
-          echo "This hash should be used in the Scoop manifest (modules/cli/scoop/galasactl.json)"
-
       # Generate the CLI syntax markdown documentation into a zip, published to maven
       - name: Package and publish the CLI syntax documentation
         working-directory: ./modules/cli
