@@ -11,8 +11,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
-	"net/http/httptest"
+	"slices"
 	"testing"
 	"time"
 
@@ -27,6 +28,42 @@ const (
 	// This is a dummy JWT that expires 1 hour after the Unix epoch
 	// This JWT has already expired if you compare it to the real time now.
 	mockExpiredJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjM2MDB9._j3Fchdx5IIqgGrdEGWXHxdgVyoBEyoD2-IBvhlxF1s" //pragma: allowlist secret
+
+	mockTestCatalogResponse = `
+{
+	"metadata": {
+		"generated": "2026-05-15T10:45:13.922391Z",
+		"name": "dev.galasa.ivts.obr"
+	},
+	"classes": {
+		"dev.galasa.ivts/dev.galasa.ivts.core.CoreManagerIVT": {
+			"name": "dev.galasa.ivts.core.CoreManagerIVT",
+			"bundle": "dev.galasa.ivts",
+			"shortName": "CoreManagerIVT",
+			"package": "dev.galasa.ivts.core",
+			"summary": "Ensure the basic functions are working in the Core Manager"
+		}
+	},
+	"packages": {
+		"dev.galasa.ivts.core": [
+			"dev.galasa.ivts/dev.galasa.ivts.core.CoreManagerIVT"
+		]
+	},
+	"bundles": {
+		"dev.galasa.ivts": {
+			"packages": {
+				"dev.galasa.ivts.core": [
+					"dev.galasa.ivts/dev.galasa.ivts.core.CoreManagerIVT"
+				]
+			}
+		}
+	},
+	"sharedEnvironments": {},
+	"gherkin": {},
+	"name": "dev.galasa.ivts.obr",
+	"build": "gradle",
+	"version": "0.48.0"
+}`
 )
 
 func createValidMockJwt() string {
@@ -95,37 +132,22 @@ func TestProcessingEmptyPropertiesListExtractsZeroStreamsOk(t *testing.T) {
 }
 
 func TestGetTestCatalogHttpErrorGetsReported(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("URL arrived at the mock test server: %s\n", r.RequestURI)
-		switch r.RequestURI {
-		case "/cps/framework/properties?prefix=test.stream.myStream&suffix=location":
 
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
+	streamName := "myStream"
+	getTestCatalogInteraction := utils.NewHttpInteraction("/streams/"+streamName+"/testcatalog", http.MethodGet)
+	
+	getTestCatalogInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte(`{}`))
+	}
 
-			name := "mycpsPropName"
-			value := "a duff value" // This is intentionally duff, which will cause an HTTP error when the production code tries to GET using this as a URL.
-			payload := []galasaapi.GalasaProperty{
-				{
-					Metadata: &galasaapi.GalasaPropertyMetadata{
-						Name: &name,
-					},
-					Data: &galasaapi.GalasaPropertyData{
-						Value: &value,
-					},
-				},
-			}
-			payloadBytes, _ := json.Marshal(payload)
-			w.Write(payloadBytes)
-
-			fmt.Printf("mock server sending payload: %s\n", string(payloadBytes))
-
-		}
-	}))
-	defer server.Close()
+	interactions := []utils.HttpInteraction{getTestCatalogInteraction}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
 
 	mockFactory := utils.NewMockFactory()
-	apiServerUrl := server.URL
+	apiServerUrl := server.Server.URL
 	apiClient := api.InitialiseAPI(apiServerUrl)
 	authenticator := utils.NewMockAuthenticatorWithAPIClient(apiClient)
 	mockFactory.Authenticator = authenticator
@@ -147,6 +169,55 @@ func TestGetTestCatalogHttpErrorGetsReported(t *testing.T) {
 
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "GAL1144E") // Failed to get the test catalog.
+}
+
+func TestGetTestCatalogWithOkResponseReturnsCorrectJson(t *testing.T) {
+
+	streamName := "myStream"
+	getTestCatalogInteraction := utils.NewHttpInteraction("/streams/"+streamName+"/testcatalog", http.MethodGet)
+	
+	getTestCatalogInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusOK)
+		writer.Write([]byte(mockTestCatalogResponse))
+	}
+
+	interactions := []utils.HttpInteraction{getTestCatalogInteraction}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	mockFactory := utils.NewMockFactory()
+	apiServerUrl := server.Server.URL
+	apiClient := api.InitialiseAPI(apiServerUrl)
+	authenticator := utils.NewMockAuthenticatorWithAPIClient(apiClient)
+	mockFactory.Authenticator = authenticator
+
+	mockFileSystem := mockFactory.GetFileSystem()
+	mockEnvironment := mockFactory.GetEnvironment()
+	mockGalasaHome, _ := utils.NewGalasaHome(mockFileSystem, mockEnvironment, "")
+	mockFileSystem.WriteTextFile(mockGalasaHome.GetUrlFolderPath()+"/bootstrap.properties", "")
+
+	bootstrap := ""
+	maxAttempts := 3
+	retryBackoffSeconds := 1
+
+	commsClient, _ := api.NewAPICommsClient(bootstrap, maxAttempts, float64(retryBackoffSeconds), mockFactory, mockGalasaHome)
+
+	launcher := NewRemoteLauncher(commsClient)
+
+	testCatalog, err := launcher.GetTestCatalog("myStream")
+	testCatalogKeys := slices.Collect(maps.Keys(testCatalog))
+
+	assert.Nil(t, err)
+	assert.Contains(t, testCatalogKeys, "metadata")
+	assert.Contains(t, testCatalogKeys, "classes")
+	assert.Contains(t, testCatalogKeys, "packages")
+	assert.Contains(t, testCatalogKeys, "bundles")
+	assert.Contains(t, testCatalogKeys, "sharedEnvironments")
+	assert.Contains(t, testCatalogKeys, "gherkin")
+	assert.Contains(t, testCatalogKeys, "name")
+	assert.Contains(t, testCatalogKeys, "build")
+	assert.Contains(t, testCatalogKeys, "version")
 }
 
 func TestGetRunsByGroupWithInvalidBearerTokenGetsNewTokenOk(t *testing.T) {

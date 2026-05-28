@@ -18,4 +18,16 @@ public interface IMavenRepository {
 
     void addRemoteRepository(URL remoteRepository);
 
+    /**
+     * Set credentials for basic maven repository authentication.
+     *
+     * @param username The maven repository username
+     * @param password The maven repository password
+     */
+    void setCredentials(String username, String password);
+
+    String getUsername();
+
+    String getPassword();
+
 }

@@ -10,26 +10,59 @@ import org.apache.commons.logging.LogFactory;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import dev.galasa.ICredentials;
+import dev.galasa.ICredentialsUsernamePassword;
 import dev.galasa.framework.TestRunException;
 import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 import dev.galasa.framework.spi.AbstractManager;
-import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
+import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.framework.spi.creds.ICredentialsService;
+import dev.galasa.framework.spi.streams.IStream;
 
 public class MavenRepositoryListBuilder {
 
     private Log logger = LogFactory.getLog(MavenRepositoryListBuilder.class);
     private IMavenRepository mavenRepo;
-    private IConfigurationPropertyStoreService cps;
+    private ICredentialsService credsService;
 
-    public MavenRepositoryListBuilder(IMavenRepository mavenRepo, IConfigurationPropertyStoreService cps) {
-        this.mavenRepo = mavenRepo; 
-        this.cps = cps;
+    public MavenRepositoryListBuilder(IMavenRepository mavenRepo, ICredentialsService credsService) {
+        this.mavenRepo = mavenRepo;
+        this.credsService = credsService;
     }
 
-    public  void addMavenRepositories( String streamName , String runRepositoryList) throws TestRunException {
-        String testRepository = getTestRepositoryUrlFromStream(streamName);
-        testRepository = getOverriddenValue(testRepository, runRepositoryList);
+    public void addMavenRepositories(IStream stream, String runRepositoryList) throws TestRunException {
+        String testRepository = null;
+        if (stream != null) {
+            testRepository = stream.getMavenRepositoryUrl().toString();
+
+            String streamCredentialsId = stream.getMavenSecretName();
+            if (streamCredentialsId != null) {
+                setMavenCredentials(streamCredentialsId);
+            }
+        } else {
+            testRepository = getOverriddenValue(testRepository, runRepositoryList);
+        }
         addMavenRepositories(mavenRepo, testRepository);
+    }
+
+    private void setMavenCredentials(String streamCredentialsId) throws TestRunException {
+        logger.debug("Loading maven credentials with ID " + streamCredentialsId);
+        
+        try {
+            ICredentials retrievedCreds = credsService.getCredentials(streamCredentialsId);
+            if (retrievedCreds == null) {
+                throw new TestRunException("Could not find credentials with ID: " + streamCredentialsId);
+            }
+
+            if (retrievedCreds instanceof ICredentialsUsernamePassword) {
+                ICredentialsUsernamePassword mavenUsernamePasswordCreds = (ICredentialsUsernamePassword) retrievedCreds;
+                mavenRepo.setCredentials(mavenUsernamePasswordCreds.getUsername(), mavenUsernamePasswordCreds.getPassword());
+            } else {
+                throw new TestRunException("Unsupported credentials type provided. Only username/password credentials are supported");
+            }
+        } catch (CredentialsException e) {
+            throw new TestRunException("Failed to load maven credentials with ID " + streamCredentialsId, e);
+        }
     }
 
     private String getOverriddenValue(String existingValue, String possibleOverrideValue) {
@@ -39,19 +72,6 @@ public class MavenRepositoryListBuilder {
             result = possibleNulledValue;
         }
         return result ;
-    }
-
-    private String getTestRepositoryUrlFromStream(String streamName) throws TestRunException {
-        String testRepository = null ;
-        if (streamName != null) {
-            logger.debug("Loading test stream " + streamName);
-            try {
-                testRepository = this.cps.getProperty("test.stream", "repo", streamName);
-            } catch (Exception e) {
-                throw new TestRunException("Unable to load stream " + streamName + " settings", e);
-            }
-        }
-        return testRepository;
     }
 
     private void addMavenRepositories(IMavenRepository mavenRepo, String testRepository) throws TestRunException {

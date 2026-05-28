@@ -85,6 +85,9 @@ public class StreamsServiceImpl implements IStreamsService {
                 case "repo":
                     streamBean.setMavenRepositoryUrl(value);
                     break;
+                case "repo.secret.name":
+                    streamBean.setMavenSecretName(value);
+                    break;
             }
         }
         return streamBean;

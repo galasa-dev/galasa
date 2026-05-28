@@ -13,6 +13,9 @@ import dev.galasa.framework.maven.repository.spi.IMavenRepository;
 
 public class MockMavenRepository implements IMavenRepository {
 
+    private String username;
+    private String password;
+
     List<URL> remoteRepoUrls = new ArrayList<>();
 
     @Override
@@ -34,5 +37,28 @@ public class MockMavenRepository implements IMavenRepository {
     public void addRemoteRepository(URL remoteRepository) {
         remoteRepoUrls.add(remoteRepository);
     }
-    
+
+    @Override
+    public void setCredentials(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/galasa-dev/cli/pkg/embedded"
 	galasaErrors "github.com/galasa-dev/cli/pkg/errors"
 	"github.com/galasa-dev/cli/pkg/galasaapi"
+	"github.com/galasa-dev/cli/pkg/secrets"
 	"github.com/galasa-dev/cli/pkg/spi"
 	"github.com/galasa-dev/cli/pkg/utils"
 )
@@ -22,6 +23,7 @@ func SetStream(
 	streamName string,
 	description string,
 	mavenRepositoryUrl string,
+	mavenSecretName string,
 	testCatalogUrl string,
 	obrs []string,
 	apiClient *galasaapi.APIClient,
@@ -38,6 +40,10 @@ func SetStream(
 
 		if mavenRepositoryUrl != "" {
 			mavenRepositoryUrl, err = validateUrl(mavenRepositoryUrl)
+		}
+
+		if mavenSecretName != "" {
+			mavenSecretName, err = secrets.ValidateSecretName(mavenSecretName)
 		}
 
 		if testCatalogUrl != "" {
@@ -58,6 +64,7 @@ func SetStream(
 				streamName,
 				description,
 				mavenRepositoryUrl,
+				mavenSecretName,
 				testCatalogUrl,
 				streamObrs,
 				apiClient,
@@ -72,6 +79,7 @@ func sendStreamUpdateToRestApi(
 	streamName string,
 	description string,
 	mavenRepositoryUrl string,
+	mavenSecretName string,
 	testCatalogUrl string,
 	obrs []galasaapi.StreamOBRData,
 	apiClient *galasaapi.APIClient,
@@ -84,7 +92,7 @@ func sendStreamUpdateToRestApi(
 
 	restApiVersion, err = embedded.GetGalasactlRestApiVersion()
 
-	streamSetRequest := buildStreamUpdateRequest(description, mavenRepositoryUrl, testCatalogUrl, obrs)
+	streamSetRequest := buildStreamUpdateRequest(description, mavenRepositoryUrl, mavenSecretName, testCatalogUrl, obrs)
 
 	apiCall := apiClient.StreamsAPIApi.UpdateStream(context, streamName).
 		StreamUpdateRequest(*streamSetRequest).
@@ -127,6 +135,7 @@ func sendStreamUpdateToRestApi(
 func buildStreamUpdateRequest(
 	description string,
 	mavenRepositoryUrl string,
+	mavenSecretName string,
 	testCatalogUrl string,
 	obrs []galasaapi.StreamOBRData,
 ) *galasaapi.StreamUpdateRequest {
@@ -136,9 +145,15 @@ func buildStreamUpdateRequest(
 		streamSetRequest.SetDescription(description)
 	}
 
+	repository := galasaapi.NewStreamUpdateRequestRepository()
 	if mavenRepositoryUrl != "" {
-		repository := galasaapi.NewStreamUpdateRequestRepository()
 		repository.SetUrl(mavenRepositoryUrl)
+
+		streamSetRequest.SetRepository(*repository)
+	}
+
+	if mavenSecretName != "" {
+		repository.SetSecretName(mavenSecretName)
 		streamSetRequest.SetRepository(*repository)
 	}
 

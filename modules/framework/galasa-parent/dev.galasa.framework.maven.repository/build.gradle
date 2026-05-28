@@ -12,6 +12,7 @@ dependencies {
     implementation 'org.codehaus.plexus:plexus-xml'
 
     testImplementation(testFixtures(project(':dev.galasa.framework')))
+    testImplementation project(':dev.galasa.framework.maven.repository.spi')
 }
 
 // Note: These values are consumed by the parent build process

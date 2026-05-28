@@ -1,0 +1,21 @@
+ARG baseVersion
+ARG dockerRepository
+FROM ${dockerRepository}/galasa-dev/base-image:${baseVersion}
+
+ARG branch
+ARG mavenUsername
+ARG mavenPassword
+
+# Create password file using build arguments
+# Using bcrypt encryption (-B flag)
+RUN htpasswd -cb /usr/local/apache2/conf/.htpasswd ${mavenUsername} ${mavenPassword}
+
+# Copy the authenticated httpd configuration
+COPY dockerfiles/httpdconf/httpd-auth.conf /usr/local/apache2/conf/httpd.conf
+
+# Replace placeholders in the config
+RUN sed -i "s/--branchname--/${branch}/" /usr/local/apache2/conf/httpd.conf
+RUN sed -i 's/--repositoryname--/ivts-auth/' /usr/local/apache2/conf/httpd.conf
+
+# Copy the Maven repository content
+COPY repo/ /usr/local/apache2/htdocs/
