@@ -80,18 +80,41 @@ Choose your installation method:
        xattr -dr com.apple.quarantine galasactl
        ```
 
-=== "Windows (PowerShell)"
+=== "Windows (Scoop)"
+
+    1. Install [Scoop](https://scoop.sh/) if not already installed
+
+    2. Add Galasa bucket:
+       ```powershell
+       scoop bucket add galasa https://github.com/galasa-dev/scoop-bucket
+       ```
+
+    3. Install latest:
+       ```powershell
+       scoop install galasactl
+       ```
+
+    4. Install a specific version:
+       ```powershell
+       scoop install galasactl@0.48.0
+       ```
+
+    5. Verify the installation:
+       ```powershell
+       galasactl --version
+       ```
+
+=== "Windows PowerShell (manual download)"
 
     1. Download the Windows executable from the [Galasa Releases page](https://github.com/galasa-dev/galasa/releases){target="_blank"} and rename it to `galasactl.exe`
     
     2. Add the directory containing `galasactl.exe` to your PATH environment variable through System Properties → Environment Variables
     
-    3. Open a command prompt and verify:
-       ```powershell
-       galasactl --version
-       ```
 
-You can now run the Galasa CLI from any directory without specifying the full path.
+You can now run the Galasa CLI from any directory without specifying the full path. We recommend opening a command prompt to verify it:
+ ```powershell
+ galasactl --version
+ ```
 
 ## Upgrading the Galasa CLI
 
