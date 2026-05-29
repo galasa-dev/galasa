@@ -791,7 +791,7 @@ func createManagerProject(
 	// Validate manager name
 	err = utils.ValidateJavaPackageName(managerName)
 	if err != nil {
-		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_INVALID_FEATURE_NAME, managerName, err.Error())
+		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_INVALID_MANAGER_NAME, managerName, err.Error())
 	}
 
 	log.Printf("Creating manager project: %s with manager name: %s\n", packageName, managerName)
@@ -851,9 +851,7 @@ func createManagerParentPom(
 	}
 
 	childModules := []string{managerBundleName}
-	if isOBRRequired {
-		childModules = append(childModules, packageName+".obr")
-	}
+	// Note: Do not add OBR to childModules here - the template handles it via IsOBRRequired flag
 
 	templateParameters := ParentPomParameters{
 		Coordinates:      MavenCoordinates{ArtifactId: packageName, GroupId: packageName, Name: packageName},
@@ -892,9 +890,7 @@ func createManagerParentSettingsGradle(
 	}
 
 	childModules := []string{managerBundleName}
-	if isOBRRequired {
-		childModules = append(childModules, packageName+".obr")
-	}
+	// Note: Do not add OBR to childModules here - the template handles it via IsOBRRequired flag
 
 	templateParameters := ParentGradleParameters{
 		Coordinates:      GradleCoordinates{GroupId: packageName, Name: packageName},
