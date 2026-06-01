@@ -141,7 +141,7 @@ func (cmd *ProjectCreateCommand) createCobraCommand(
 		"A comma-separated list of features you are testing. "+
 			"These must be able to form parts of a java package name. "+
 			"For example: \"payee,account\". "+
-			"Cannot be used with --manager flag.")
+			"Can be used with --manager flag to create both manager and test projects.")
 
 	projectCreateCmd.Flags().BoolVar(&cmd.values.useMaven, "maven", false, "Generate maven build artifacts. "+
 		"Can be used in addition to the --gradle flag. "+
@@ -149,8 +149,7 @@ func (cmd *ProjectCreateCommand) createCobraCommand(
 	projectCreateCmd.Flags().BoolVar(&cmd.values.useGradle, "gradle", false, "Generate gradle build artifacts. "+
 		"Can be used in addition to the --maven flag.")
 
-	// Make --manager and --features mutually exclusive
-	projectCreateCmd.MarkFlagsMutuallyExclusive("manager", "features")
+	// Note: --manager and --features can now be used together (like SimBank project)
 
 	projectCmd.CobraCommand().AddCommand(projectCreateCmd)
 
@@ -257,31 +256,69 @@ func createProject(
 			err = fileGenerator.CreateFolder(parentProjectFolder)
 
 			if err == nil {
+				// Validate manager name if creating a manager project
 				if isManagerProject {
-					// Creating a manager project
-					err = createManagerProject(fileGenerator, packageName, managerName, isOBRProjectRequired,
-						forceOverwrite, useMaven, useGradle, isDevelopment)
-				} else {
-					// Creating a test project (original behavior)
-					// Separate out the feature names from a string into a slice of strings.
-					var featureNames []string
+					if managerName == "" {
+						managerName = packageName[strings.LastIndex(packageName, ".")+1:]
+					}
+					err = utils.ValidateJavaPackageName(managerName)
+					if err != nil {
+						err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_INVALID_MANAGER_NAME, managerName, err.Error())
+					}
+				}
+
+				// Separate out the feature names if provided
+				var featureNames []string
+				var hasFeatures bool = featureNamesCommaSeparated != ""
+				
+				if err == nil && hasFeatures {
 					featureNames, err = separateFeatureNamesFromCommaSeparatedList(featureNamesCommaSeparated)
+				}
 
-					if err == nil {
-						err = createParentFolderContents(
-							fileGenerator, packageName, featureNames, isOBRProjectRequired,
-							forceOverwrite, useMaven, useGradle, isDevelopment)
-
-						if err == nil {
-							err = createTestProjects(fileGenerator, packageName, featureNames, forceOverwrite,
-								useMaven, useGradle, isDevelopment)
-							if err == nil {
-								if isOBRProjectRequired {
-									err = createOBRProject(fileGenerator, packageName, featureNames,
-										forceOverwrite, useMaven, useGradle)
-								}
-							}
+				if err == nil {
+					// Determine what modules we're creating
+					var allModuleNames []string
+					
+					if isManagerProject {
+						allModuleNames = append(allModuleNames, packageName+".manager")
+					}
+					
+					if hasFeatures {
+						for _, featureName := range featureNames {
+							allModuleNames = append(allModuleNames, packageName+"."+featureName)
 						}
+					}
+
+					// Create parent folder contents (pom.xml/settings.gradle) with all modules
+					if len(allModuleNames) > 0 {
+						err = createCombinedParentFolderContents(
+							fileGenerator, packageName, allModuleNames, isOBRProjectRequired,
+							forceOverwrite, useMaven, useGradle, isDevelopment)
+					}
+
+					// Create manager bundle if requested
+					if err == nil && isManagerProject {
+						err = createManagerBundle(fileGenerator, packageName, managerName, forceOverwrite,
+							useMaven, useGradle, isDevelopment)
+					}
+
+					// Create test projects if requested
+					if err == nil && hasFeatures {
+						err = createTestProjects(fileGenerator, packageName, featureNames, forceOverwrite,
+							useMaven, useGradle, isDevelopment)
+					}
+
+					// Create OBR project if requested (includes both manager and test modules)
+					if err == nil && isOBRProjectRequired {
+						var obrModules []string
+						if isManagerProject {
+							obrModules = append(obrModules, "manager")
+						}
+						if hasFeatures {
+							obrModules = append(obrModules, featureNames...)
+						}
+						err = createOBRProject(fileGenerator, packageName, obrModules,
+							forceOverwrite, useMaven, useGradle)
 					}
 				}
 			}
@@ -290,6 +327,114 @@ func createProject(
 
 	return err
 }
+// createCombinedParentFolderContents creates parent pom.xml/settings.gradle with specified module names
+// This allows combining manager and test modules in a single project (like SimBank)
+func createCombinedParentFolderContents(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	moduleNames []string,
+	isOBRProjectRequired bool,
+	forceOverwrite bool,
+	useMaven bool,
+	useGradle bool,
+	isDevelopment bool,
+) error {
+	var err error
+
+	if useMaven {
+		err = createCombinedParentPom(fileGenerator, packageName, moduleNames,
+			isOBRProjectRequired, forceOverwrite, isDevelopment)
+	}
+
+	if err == nil && useGradle {
+		err = createCombinedParentSettingsGradle(fileGenerator, packageName,
+			moduleNames, isOBRProjectRequired, forceOverwrite, isDevelopment)
+	}
+
+	if err == nil {
+		err = createGitIgnoreFile(packageName, fileGenerator, forceOverwrite, useMaven, useGradle)
+	}
+
+	return err
+}
+
+// createCombinedParentPom creates a parent pom.xml with the specified module names
+func createCombinedParentPom(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	moduleNames []string,
+	isOBRRequired bool,
+	forceOverwrite bool,
+	isDevelopment bool,
+) error {
+	type ParentPomParameters struct {
+		Coordinates      MavenCoordinates
+		GalasaVersion    string
+		IsOBRRequired    bool
+		ObrName          string
+		ChildModuleNames []string
+		IsDevelopment    bool
+	}
+
+	galasaVersion, err := embedded.GetGalasaVersion()
+	if err != nil {
+		return err
+	}
+
+	templateParameters := ParentPomParameters{
+		Coordinates:      MavenCoordinates{ArtifactId: packageName, GroupId: packageName, Name: packageName},
+		GalasaVersion:    galasaVersion,
+		IsOBRRequired:    isOBRRequired,
+		ObrName:          packageName + ".obr",
+		ChildModuleNames: moduleNames,
+		IsDevelopment:    isDevelopment,
+	}
+
+	targetFile := utils.GeneratedFileDef{
+		FileType:                 "pom",
+		TargetFilePath:           packageName + "/pom.xml",
+		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/pom.xml",
+		TemplateParameters:       templateParameters,
+	}
+
+	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
+}
+
+// createCombinedParentSettingsGradle creates a parent settings.gradle with the specified module names
+func createCombinedParentSettingsGradle(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	moduleNames []string,
+	isOBRRequired bool,
+	forceOverwrite bool,
+	isDevelopment bool,
+) error {
+	type ParentGradleParameters struct {
+		Coordinates      GradleCoordinates
+		IsOBRRequired    bool
+		ObrName          string
+		ChildModuleNames []string
+		IsDevelopment    bool
+	}
+
+	templateParameters := ParentGradleParameters{
+		Coordinates:      GradleCoordinates{GroupId: packageName, Name: packageName},
+		IsOBRRequired:    isOBRRequired,
+		ObrName:          packageName + ".obr",
+		ChildModuleNames: moduleNames,
+		IsDevelopment:    isDevelopment,
+	}
+
+	targetFile := utils.GeneratedFileDef{
+		FileType:                 "settings.gradle",
+		TargetFilePath:           packageName + "/settings.gradle",
+		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/settings.gradle.template",
+		TemplateParameters:       templateParameters,
+	}
+
+	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
+}
+
 
 func createParentFolderContents(
 	fileGenerator *utils.FileGenerator,

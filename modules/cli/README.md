@@ -96,7 +96,18 @@ Create a manager project with an OBR:
 galasactl project create --package dev.galasa.example.docker --manager --managerName docker --obr
 ```
 
-**Note:** The `--manager` and `--features` flags are mutually exclusive. You cannot create both a manager project and a test project in the same command.
+#### Combining Manager and Test Projects
+
+You can create both a manager and test projects in the same command, similar to the SimBank project structure:
+
+```
+galasactl project create --package dev.galasa.example --manager --managerName example --features banking,account --obr
+```
+
+This creates:
+- A manager bundle (`dev.galasa.example.manager`)
+- Test projects for each feature (`dev.galasa.example.banking`, `dev.galasa.example.account`)
+- A single OBR that includes both the manager and test bundles
 
 #### What Gets Generated
 

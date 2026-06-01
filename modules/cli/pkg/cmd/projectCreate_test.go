@@ -1011,19 +1011,35 @@ func TestProjectCreateManagerCommandLineWithoutManagerNameUsesDefault(t *testing
 	assert.True(t, managerDirExists, "Manager directory should be created with default name")
 }
 
-func TestProjectCreateManagerAndTestsTogetherFails(t *testing.T) {
+func TestProjectCreateManagerAndTestsTogether(t *testing.T) {
 	// Given...
 	factory := utils.NewMockFactory()
-	// Both --manager and --features should not be allowed together
-	var args []string = []string{"project", "create", "--package", "dev.galasa.example", "--manager", "--features", "test1", "--maven"}
+	// Both --manager and --features can now be used together (like SimBank)
+	var args []string = []string{"project", "create", "--package", "dev.galasa.example", "--manager", "--managerName", "example", "--features", "test1", "--maven"}
 
 	// When...
 	err := Execute(factory, args)
 
 	// Then...
-	assert.NotNil(t, err, "Should not allow both --manager and --features flags")
-	assert.Contains(t, err.Error(), "manager", "Error should mention manager flag")
-	assert.Contains(t, err.Error(), "features", "Error should mention features flag")
+	assert.Nil(t, err, "Should allow both --manager and --features flags together")
+	
+	// Verify both manager and test projects were created
+	fs := factory.GetFileSystem()
+	
+	// Check manager bundle exists
+	managerDir := "dev.galasa.example/dev.galasa.example.manager"
+	managerDirExists, _ := fs.DirExists(managerDir)
+	assert.True(t, managerDirExists, "Manager bundle should be created")
+	
+	// Check test project exists
+	testDir := "dev.galasa.example/dev.galasa.example.test1"
+	testDirExists, _ := fs.DirExists(testDir)
+	assert.True(t, testDirExists, "Test project should be created")
+	
+	// Check parent pom includes both modules
+	parentPomPath := "dev.galasa.example/pom.xml"
+	parentPomExists, _ := fs.Exists(parentPomPath)
+	assert.True(t, parentPomExists, "Parent pom.xml should exist")
 }
 
 // Helper function to assert manager project structure
