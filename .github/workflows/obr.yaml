@@ -861,46 +861,12 @@ jobs:
             dockerRepository=${{ env.REGISTRY }}
             jdkImage=ghcr.io/galasa-dev/openjdk:17
 
-  trigger-next-workflows:
-    # Skip this job for forks
-    if: ${{ github.repository_owner == 'galasa-dev' }}
-    name: Trigger next workflows in the build chain
-    needs: [build-obr, build-obr-generic, build-obr-javadocs, build-obr-galasabld-image]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Triggering helm build (github.ref is main)
-        if: ${{ env.BRANCH == 'main' }}
-        env:
-          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
-        run: |
-          gh workflow run build-helm.yaml --repo https://github.com/galasa-dev/automation --ref ${{ env.BRANCH }}
-
-      - name: Triggering integratedtests build (github.ref is main)
-        if: ${{ env.BRANCH == 'main' }}
-        env:
-          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
-        run: |
-          gh workflow run build.yaml --repo https://github.com/galasa-dev/integratedtests --ref ${{ env.BRANCH }}
-
-      - name: Triggering simplatform build
-        env:
-          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
-        run: |
-          gh workflow run build.yaml --repo https://github.com/galasa-dev/simplatform --ref ${{ env.BRANCH }}
-
-      - name: Triggering webui build
-        env:
-          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
-        run: |
-          gh workflow run build.yaml --repo https://github.com/galasa-dev/webui --ref ${{ env.BRANCH }}
-
   report-failure:
     # Skip this job for forks
     if: ${{ failure() && github.repository_owner == 'galasa-dev' }}
     name: Report failure in workflow
     runs-on: ubuntu-latest
-    needs: [log-github-ref, build-obr, build-obr-javadocs, build-obr-generic, trigger-next-workflows]
+    needs: [log-github-ref, build-obr, build-obr-javadocs, build-obr-generic]
 
     steps:
       - name: Report failure in workflow to Slack

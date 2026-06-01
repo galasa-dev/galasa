@@ -346,20 +346,6 @@ jobs:
           echo "ArgoCD still uncontactable after 10 attempts."
           exit 1
 
-  trigger-next-workflow:
-    # Skip this job for forks
-    if: ${{ github.repository_owner == 'galasa-dev' }}
-    name: Trigger next workflow in the build chain
-    needs: [log-github-ref, build-cli]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Triggering isolated build
-        env:
-            GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
-        run: |
-          gh workflow run build.yaml --repo https://github.com/galasa-dev/isolated --ref ${{ env.BRANCH }}
-
   report-failure:
     # Skip this job for forks
     if: ${{ failure() && github.repository_owner == 'galasa-dev' }}
