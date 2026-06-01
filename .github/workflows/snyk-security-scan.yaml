@@ -1,0 +1,112 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Snyk Security Scan
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+  push:
+    branches: [main]
+
+  workflow_dispatch:
+
+env:
+  BRANCH: ${{ github.ref_name }}
+
+jobs:
+  snyk-scan-all-projects:
+    name: Snyk scan for all projects
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Find Artifacts from the last successful Main Build
+        id: find-artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "workflow_for_artifact_download_id=$(gh run list \
+            --repo ${{ github.repository }} \
+            --workflow 'Main Build Orchestrator' \
+            --branch main \
+            --status success \
+            --limit 1 \
+            --json databaseId | jq '.[0].databaseId')" >> $GITHUB_OUTPUT
+
+      - name: Download All 'dev.galasa' Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: all-artifacts
+          path: /home/runner/.m2/repository/dev/galasa
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
+      - name: Setup Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk to check for vulnerabilities across all projects
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk test \
+            --remote-repo-url=https://github.com/${{ github.repository }} \
+            --all-projects \
+            --exclude=META-INF,tmp,test,temp,bin,docs,ivts,templates \
+            --sarif-file-output=snyk.sarif || true
+
+      - name: Split SARIF file if needed
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "snyk.sarif" ]; then
+            RUNS=$(jq '.runs | length' snyk.sarif)
+            echo "SARIF file has $RUNS runs"
+            if [ "$RUNS" -gt 20 ]; then
+              echo "Splitting SARIF file (more than 20 runs)..."
+              SCHEMA=$(jq -r '."$schema"' snyk.sarif)
+              VERSION=$(jq -r '.version' snyk.sarif)
+              NUM_FILES=$(( (RUNS + 19) / 20 ))
+              for ((i=0; i<NUM_FILES; i++)); do
+                START=$((i * 20))
+                END=$(( (i + 1) * 20 ))
+                OUTPUT="snyk-$((i+1)).sarif"
+                jq --arg schema "$SCHEMA" --arg version "$VERSION" --argjson start "$START" --argjson end "$END" \
+                  '{"$schema": $schema, "version": $version, "runs": .runs[$start:$end]}' snyk.sarif > "$OUTPUT"
+                echo "Created $OUTPUT with $(jq '.runs | length' $OUTPUT) runs"
+              done
+              rm snyk.sarif
+              echo "split_files=true" >> $GITHUB_OUTPUT
+            else
+              echo "split_files=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+        id: split-sarif
+
+      - name: Upload Snyk results to GitHub Code Scanning
+        if: always()
+        shell: bash
+        run: |
+          counter=1
+          for sarif_file in snyk*.sarif; do
+            if [ -f "$sarif_file" ]; then
+              echo "Uploading $sarif_file with category snyk-$counter"
+              gh api repos/${{ github.repository }}/code-scanning/sarifs \
+                -X POST \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2026-03-10" \
+                -f sarif="$(cat $sarif_file | gzip | base64 -w0)" \
+                -f ref="${{ github.ref }}" \
+                -f commit_sha="${{ github.sha }}" || true
+              counter=$((counter + 1))
+            fi
+          done
+        env:
+          GH_TOKEN: ${{ github.token }}
