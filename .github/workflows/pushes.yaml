@@ -10,6 +10,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  BRANCH: ${{ github.ref_name }}
+
 jobs:
 
   set-build-properties:
@@ -101,6 +104,40 @@ jobs:
     secrets: inherit
     with:
       galasa-version: "${{ needs.set-build-properties.outputs.galasa-version }}"
+
+  trigger-next-workflows:
+    # Skip this job for forks
+    if: ${{ github.repository_owner == 'galasa-dev' }}
+    name: Trigger next workflows
+    needs: [build-obr]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Triggering helm build (github.ref is main)
+        if: ${{ env.BRANCH == 'main' }}
+        env:
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build-helm.yaml --repo https://github.com/galasa-dev/automation --ref ${{ env.BRANCH }}
+
+      - name: Triggering integratedtests build (github.ref is main)
+        if: ${{ env.BRANCH == 'main' }}
+        env:
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/integratedtests --ref ${{ env.BRANCH }}
+
+      - name: Triggering simplatform build
+        env:
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/simplatform --ref ${{ env.BRANCH }}
+
+      - name: Triggering webui build
+        env:
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/webui --ref ${{ env.BRANCH }}
 
   # The IVTs are built after the OBR as they require the galasa-bom to get dependencies.
   build-ivts:
@@ -217,3 +254,16 @@ jobs:
     needs: [build-cli]
     uses: ./.github/workflows/docs.yaml
     secrets: inherit
+
+  trigger-isolated:
+    # Skip this job for forks
+    if: ${{ github.repository_owner == 'galasa-dev' }}
+    name: Trigger Isolated
+    needs: [build-docs]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Triggering Isolated
+        env:
+          GH_TOKEN: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yaml --repo https://github.com/galasa-dev/isolated --ref ${{ env.BRANCH }}
