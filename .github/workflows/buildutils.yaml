@@ -25,17 +25,17 @@ jobs:
           sparse-checkout: |
             modules/buildutils
 
-      - name: Setup up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
-        with: 
-          go-version: 1.22
+        with:
+          go-version: '1.25.10'
           cache-dependency-path: |
             modules/buildutils/go.sum
       
       - name: Build galasabld using the Makefile
         working-directory: modules/buildutils
         run: |
-          make all 
+          make all
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -150,10 +150,10 @@ jobs:
           sparse-checkout: |
             modules/buildutils
 
-      - name: Setup up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
-        with: 
-          go-version: 1.22
+        with:
+          go-version: '1.25.10'
           cache-dependency-path: |
             modules/buildutils/openapi2beans/go.sum
       
@@ -220,10 +220,10 @@ jobs:
           sparse-checkout: |
             modules/buildutils
 
-      - name: Setup up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
-        with: 
-          go-version: 1.22
+        with:
+          go-version: '1.25.10'
           cache-dependency-path: |
             modules/buildutils/go.sum
             modules/buildutils/openapi2beans/go.sum
@@ -231,7 +231,7 @@ jobs:
       - name: Build galasabld using the Makefile
         working-directory: modules/buildutils
         run: |
-          make all 
+          make all
 
       - name: Build openapi2beans using the Makefile
         working-directory: modules/buildutils

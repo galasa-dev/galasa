@@ -213,7 +213,7 @@ func processDependencyChain(submatches [][]string, cve, galasaArtifactString str
 
 		if count == maxLoops {
 			msg := fmt.Sprintf("Too many attempts to parse dependency chain from %s to %s\n", galasaArtifactString, vulnerability)
-			fmt.Printf(msg)
+			fmt.Printf("%s", msg)
 			panic(msg)
 		}
 
@@ -304,11 +304,11 @@ func createReport() *SecVulnYamlReport {
 						depChain = depChainMap[getGroupAndArtifact(innerProject)][getGroupArtifactVersion(vulnerableArtifact)][0]
 					} else if len(depChainMap[getGroupAndArtifact(innerProject)][getGroupArtifactVersion(vulnerableArtifact)]) > 1 {
 						msg := fmt.Sprintf("Multiple dependency chains found from %s to %s\n", innerProject, vulnerableArtifact)
-						fmt.Printf(msg)
+						fmt.Printf("%s", msg)
 						panic(msg)
 					} else if len(depChainMap[getGroupAndArtifact(innerProject)][getGroupArtifactVersion(vulnerableArtifact)]) == 0 {
 						msg := fmt.Sprintf("Unable to find dependency chain from %s to %s\n", innerProject, vulnerableArtifact)
-						fmt.Printf(msg)
+						fmt.Printf("%s", msg)
 						panic(msg)
 					}
 
@@ -325,11 +325,11 @@ func createReport() *SecVulnYamlReport {
 					directDepChain = depChainMap[getGroupAndArtifact(directProject)][getGroupArtifactVersion(vulnerableArtifact)][0]
 				} else if len(depChainMap[getGroupAndArtifact(directProject)][getGroupArtifactVersion(vulnerableArtifact)]) > 1 {
 					msg := fmt.Sprintf("Multiple dependency chains found from %s to %s\n", directProject, vulnerableArtifact)
-					fmt.Printf(msg)
+					fmt.Printf("%s", msg)
 					panic(msg)
 				} else if len(depChainMap[getGroupAndArtifact(directProject)][getGroupArtifactVersion(vulnerableArtifact)]) == 0 {
 					msg := fmt.Sprintf("Unable to find dependency chain from %s to %s\n", directProject, vulnerableArtifact)
-					fmt.Printf(msg)
+					fmt.Printf("%s", msg)
 					panic(msg)
 				}
 

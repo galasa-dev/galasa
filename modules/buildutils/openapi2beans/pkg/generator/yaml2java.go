@@ -74,7 +74,7 @@ func handleErrList(errList map[string]error) error {
 	for _, individualError := range errList {
 		errorString += individualError.Error()
 	}
-	err = openapi2beans_errors.NewError(errorString)
+	err = openapi2beans_errors.NewError("%s", errorString)
 	return err
 }
 
