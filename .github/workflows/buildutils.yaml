@@ -25,10 +25,10 @@ jobs:
           sparse-checkout: |
             modules/buildutils
 
-      - name: Setup up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.25
+          go-version: '1.25.10'
           cache-dependency-path: |
             modules/buildutils/go.sum
       
@@ -150,10 +150,10 @@ jobs:
           sparse-checkout: |
             modules/buildutils
 
-      - name: Setup up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.25
+          go-version: '1.25.10'
           cache-dependency-path: |
             modules/buildutils/openapi2beans/go.sum
       
@@ -220,10 +220,10 @@ jobs:
           sparse-checkout: |
             modules/buildutils
 
-      - name: Setup up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.25
+          go-version: '1.25.10'
           cache-dependency-path: |
             modules/buildutils/go.sum
             modules/buildutils/openapi2beans/go.sum
