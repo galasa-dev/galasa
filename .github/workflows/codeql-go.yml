@@ -105,6 +105,8 @@ jobs:
     - name: Building Buildutils (manually)
       shell: bash
       working-directory: ${{ github.workspace }}/modules/buildutils
+      env:
+        GOTOOLCHAIN: go1.25.10+auto
       run: |
         make all
         make all -C openapi2beans
@@ -112,6 +114,8 @@ jobs:
     - name: Building CLI (manually)
       shell: bash
       working-directory: ${{ github.workspace }}/modules/cli
+      env:
+        GOTOOLCHAIN: go1.25.10+auto
       run: |
         set -o pipefail
         gradle installJarsIntoTemplates --info \
