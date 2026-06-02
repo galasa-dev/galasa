@@ -12,6 +12,8 @@ import java.net.URI;
 
 import org.junit.Test;
 
+import dev.galasa.creds.os.internal.windows.MockCredentialManager;
+import dev.galasa.creds.os.internal.windows.WindowsCredentialManagerStore;
 import dev.galasa.extensions.common.mocks.MockEnvironment;
 import dev.galasa.extensions.common.mocks.MockFrameworkInitialisation;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
@@ -103,16 +105,32 @@ public class OsCredentialsStoreRegistrationTest {
     public void testInitialiseWithWindowsUri() throws Exception {
         // Given
         OperatingSystemDetector detector = new OperatingSystemDetector();
+        
+        // Create a mock factory that returns a Windows store with mock command
+        OsCredentialsStoreFactory mockFactory = new OsCredentialsStoreFactory() {
+            @Override
+            public OsCredentialsStore createStore(OperatingSystem os) throws OsCredentialsException {
+                MockCredentialManager mockCredManager = new MockCredentialManager();
+                WindowsCredentialManagerStore mockWindowsStore = new WindowsCredentialManagerStore(mockCredManager);
+                return new OsCredentialsStore(os, mockWindowsStore);
+            }
+        };
+        
         URI uri = new URI("os:windows");
         MockFrameworkInitialisation mockInit = new MockFrameworkInitialisation();
         mockInit.setCredentialsStoreUri(uri);
-        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration(detector);
+        OsCredentialsStoreRegistration registration = new OsCredentialsStoreRegistration(detector, mockFactory);
 
-        // When/Then
-        assertThatThrownBy(() -> registration.initialise(mockInit))
-            .as("Should throw exception for unsupported Windows")
-            .isInstanceOf(OsCredentialsException.class)
-            .hasMessageContaining("Windows Credential Manager is not yet implemented");
+        // When
+        registration.initialise(mockInit);
+
+        // Then
+        ICredentialsStore registeredStore = mockInit.getRegisteredCredentialsStore();
+        assertThat(registeredStore).as("Credentials store should be registered").isNotNull();
+        assertThat(registeredStore).as("Should be OsCredentialsStore").isInstanceOf(OsCredentialsStore.class);
+
+        OsCredentialsStore osStore = (OsCredentialsStore) registeredStore;
+        assertThat(osStore.getOperatingSystem()).as("Should be Windows").isEqualTo(OperatingSystem.WINDOWS);
     }
 
     @Test

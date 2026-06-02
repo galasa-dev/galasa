@@ -6,9 +6,11 @@
 package dev.galasa.creds.os.internal;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import dev.galasa.ICredentials;
 import dev.galasa.creds.os.internal.macos.MacOsKeychainStore;
+import dev.galasa.creds.os.internal.windows.WindowsCredentialManagerStore;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.ICredentialsStore;
 
@@ -17,12 +19,19 @@ import dev.galasa.framework.spi.creds.ICredentialsStore;
  */
 public class OsCredentialsStore implements ICredentialsStore {
 
+    /**
+     * Pattern for validating credential names.
+     * Allows alphanumeric characters, dots, underscores, hyphens, and @ symbols.
+     */
+    public static final Pattern VALID_CREDENTIAL_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9._@-]+$");
+
     private final ICredentialsStore delegate;
     private final OperatingSystem os;
 
+
     /**
      * Creates an OS credentials store for the specified operating system.
-     * 
+     *
      * @param os the operating system to use
      * @throws OsCredentialsException if the operating system is not supported
      */
@@ -31,14 +40,24 @@ public class OsCredentialsStore implements ICredentialsStore {
         this.delegate = createDelegate(os);
     }
 
+    /**
+     * Creates an OS credentials store with a specific delegate.
+     * Package-private constructor for testing.
+     *
+     * @param os the operating system
+     * @param delegate the credentials store delegate
+     */
+    OsCredentialsStore(OperatingSystem os, ICredentialsStore delegate) {
+        this.os = os;
+        this.delegate = delegate;
+    }
+
     private ICredentialsStore createDelegate(OperatingSystem os) throws OsCredentialsException {
         switch (os) {
             case MACOS:
                 return new MacOsKeychainStore();
             case WINDOWS:
-                throw new OsCredentialsException(
-                    "Windows Credential Manager is not yet implemented. " +
-                    "Please use a different credentials store.");
+                return new WindowsCredentialManagerStore();
             case LINUX:
                 throw new OsCredentialsException(
                     "Linux Secret Service is not yet implemented. " +
@@ -47,7 +66,7 @@ public class OsCredentialsStore implements ICredentialsStore {
             default:
                 throw new OsCredentialsException(
                     "Unsupported operating system: " + os.getDisplayName() + ". " +
-                    "Supported operating systems are: macOS");
+                    "Supported operating systems are: macOS, Windows");
         }
     }
 
