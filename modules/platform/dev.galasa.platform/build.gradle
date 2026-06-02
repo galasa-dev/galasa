@@ -230,8 +230,8 @@ dependencies {
 
         api 'org.apache.httpcomponents.core5:httpcore5:5.0.2' // bnd.bnd only
 
-        api 'org.apache.kafka:kafka-clients:3.9.0'
-        api 'org.apache.kafka:kafka-server-common:3.9.0'
+        api 'org.apache.kafka:kafka-clients:4.0.2'
+        api 'org.apache.kafka:kafka-server-common:4.0.2'
 
         api 'org.apache.logging.log4j:log4j-api:2.25.4' // If updating, also update in galasa-boot build.gradle.
         api 'org.apache.logging.log4j:log4j-core:2.25.4' // If updating, also update in galasa-boot build.gradle.
