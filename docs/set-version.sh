@@ -140,13 +140,16 @@ function upgrade_installing_cli {
     source_path=${BASEDIR}/content/docs/cli-command-reference/installing-cli-tool.md
     temp_file=$temp_dir/installing-cli-tool.md
     # These lines need to change
-    #    (version 0.43.0 for example)
+    #    (version 1.0.0 for example)
+    #    (e.g., 1.0.0)
     #    `brew install --no-quarantine galasactl@0.43.0`
+    #    scoop install galasactl@1.0.0`
     info "Upgrading version in file $source_path"
 
     cat $source_path \
     | sed "s/(version[ ].*/(version $component_version for example): /1" \
-    | sed "s/galasactl@.*/galasactl@$component_version\`/1" \
+    | sed "s/(e\.g\., [0-9.]*):/(e.g., $component_version):/g" \
+    | sed "s/galasactl@[0-9.]*\`/galasactl@$component_version\`/g" \
     > $temp_file
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to replace version in file $temp_file" ; exit 1 ; fi
 
