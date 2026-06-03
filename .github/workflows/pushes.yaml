@@ -249,9 +249,15 @@ jobs:
     uses: ./.github/workflows/cli.yaml
     secrets: inherit
 
+  test-creds-store:
+    name: Test credentials store implementations
+    needs: [build-ivts, build-cli]
+    uses: ./.github/workflows/test-creds-store.yaml
+    secrets: inherit
+
   build-docs:
-    name: Build the Galasa documentation 
-    needs: [build-cli]
+    name: Build the Galasa documentation
+    needs: [build-cli, test-creds-store]
     uses: ./.github/workflows/docs.yaml
     secrets: inherit
 

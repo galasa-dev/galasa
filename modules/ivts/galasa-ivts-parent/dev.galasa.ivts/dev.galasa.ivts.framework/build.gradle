@@ -1,0 +1,14 @@
+// This section tells gradle which gradle plugins to use to build this project.
+plugins {
+    id 'galasa.ivt'
+}
+
+// Set the variables which will control what the built OSGi bundle will be called
+// and the name it will be published under in the maven repository.
+description = 'Galasa Framework Validation IVTs'
+
+// What are the dependencies of the test code ? 
+// When more managers and dependencies are added, this list will need to grow.
+dependencies {
+    implementation 'dev.galasa:dev.galasa.core.manager'
+}

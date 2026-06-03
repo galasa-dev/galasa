@@ -22,6 +22,7 @@ include 'dev.galasa.ivts:dev.galasa.ivts.artifact'
 include 'dev.galasa.ivts:dev.galasa.ivts.compilation'
 include 'dev.galasa.ivts:dev.galasa.ivts.core'
 include 'dev.galasa.ivts:dev.galasa.ivts.docker'
+include 'dev.galasa.ivts:dev.galasa.ivts.framework'
 include 'dev.galasa.ivts:dev.galasa.ivts.http'
 
 include 'dev.galasa.zos.ivts:dev.galasa.zos.ivts.ceci'
