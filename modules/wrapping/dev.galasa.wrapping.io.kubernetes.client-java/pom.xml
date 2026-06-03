@@ -148,6 +148,11 @@
             <artifactId>dev.galasa.wrapping.gson</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- Security fix: Override transitive netty-codec version to address CVE -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
