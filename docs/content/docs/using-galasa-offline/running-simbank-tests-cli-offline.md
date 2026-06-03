@@ -50,7 +50,7 @@ In order to run the Galasa SimBanks tests you need to add some configuration inf
 
 ## Running the SimBank IVT test class by using the CLI
 
-The SimBank tests are located in the `maven` directory of the `isolated.zip` downloadable file. Complete the following steps to run the SimBankIVT test that is provided with Galasa. The following example uses SimBank OBR version `0.48.1`.
+The SimBank tests are located in the `maven` directory of the `isolated.zip` downloadable file. Complete the following steps to run the SimBankIVT test that is provided with Galasa. The following example uses SimBank OBR version `1.0.0`.
 
 Remember to initialise your local environment by running the `galasactl local init` command and to start the SimPlatform server by running the `run-simplatform.sh` script, as described in the [Launching the SimBank application offline](./simbank-cli-offline.md) documentation.
 
@@ -62,7 +62,7 @@ You are now ready to run a local Galasa test offline with just the contents of t
 
     ```shell
     galasactl runs submit local --log - \
-    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.48.1/obr \
+    --obr mvn:dev.galasa/dev.galasa.simbank.obr/1.0.0/obr \
     --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.SimBankIVT \
     --localMaven file:////Users/youruserid/Downloads/isolated/maven
     ```
@@ -71,7 +71,7 @@ You are now ready to run a local Galasa test offline with just the contents of t
 
     ```powershell
     galasactl runs submit local --log - `
-    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.48.1/obr `
+    --obr mvn:dev.galasa/dev.galasa.simbank.obr/1.0.0/obr `
     --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.SimBankIVT `
     --localMaven file:////Users/youruserid/Downloads/isolated/maven
     ```
@@ -87,7 +87,7 @@ To run other SimBank tests, for example `BasicAccountCreditTest`, replace the te
 
     ```shell
     galasactl runs submit local --log - \
-    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.48.1/obr \
+    --obr mvn:dev.galasa/dev.galasa.simbank.obr/1.0.0/obr \
     --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.BasicAccountCreditTest \
     --localMaven file:////Users/youruserid/Downloads/isolated/maven
     ```
@@ -96,7 +96,7 @@ To run other SimBank tests, for example `BasicAccountCreditTest`, replace the te
 
     ```powershell
     galasactl runs submit local --log - `
-    --obr mvn:dev.galasa/dev.galasa.simbank.obr/0.48.1/obr `
+    --obr mvn:dev.galasa/dev.galasa.simbank.obr/1.0.0/obr `
     --class dev.galasa.simbank.tests/dev.galasa.simbank.tests.BasicAccountCreditTest `
     --localMaven file:////Users/youruserid/Downloads/isolated/maven
     ```
