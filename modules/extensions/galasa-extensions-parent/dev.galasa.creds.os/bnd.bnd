@@ -9,3 +9,5 @@ Import-Package: \
     dev.galasa.framework.spi,\
     dev.galasa.framework.spi.creds,\
     org.apache.commons.logging
+-includeresource: jna-platform-*.jar; lib:=true,\
+    jna-*.jar; lib:=true
