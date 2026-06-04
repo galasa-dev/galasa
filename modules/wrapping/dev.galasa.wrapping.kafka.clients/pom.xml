@@ -29,6 +29,11 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.36</version>
 		</dependency>
+        <!-- Security fix: Override transitive jackson-core version from kafka-server-common to address CVE -->
+        <dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

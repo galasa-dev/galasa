@@ -18,6 +18,8 @@ dependencies {
     implementation 'org.apache.commons:commons-compress'
     implementation 'org.bouncycastle:bcpkix-jdk18on'
     implementation 'org.bouncycastle:bcprov-jdk18on'
+    // Security fix: Override transitive jackson-core version from docker-java-core to address CVE
+    implementation 'com.fasterxml.jackson.core:jackson-core'
 }
 
 // Note: These values are consumed by the parent build process
