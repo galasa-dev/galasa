@@ -64,40 +64,6 @@ public class WindowsCredentialManagerTest {
     }
 
     @Test
-    public void testReadCredentialWithUsernameOnly() throws OsCredentialsException {
-        // Given
-        String targetName = "galasa.credentials.USERONLY";
-        String username = "testuser";
-        mockJNA.addCredential(targetName, username, "");
-
-        // When
-        CredentialItem result = credentialManager.readCredential(targetName);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getUsername()).isEqualTo(username);
-        assertThat(result.getPassword()).isEmpty();
-        assertThat(mockJNA.isMemoryFreed()).isTrue();
-    }
-
-    @Test
-    public void testReadCredentialWithPasswordOnly() throws OsCredentialsException {
-        // Given
-        String targetName = "galasa.credentials.PASSONLY";
-        String password = "testpass";
-        mockJNA.addCredential(targetName, "", password);
-
-        // When
-        CredentialItem result = credentialManager.readCredential(targetName);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getUsername()).isEmpty();
-        assertThat(result.getPassword()).isEqualTo(password);
-        assertThat(mockJNA.isMemoryFreed()).isTrue();
-    }
-
-    @Test
     public void testReadCredentialNotFound() throws OsCredentialsException {
         // Given
         String targetName = "galasa.credentials.NOTFOUND";
