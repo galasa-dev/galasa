@@ -403,9 +403,17 @@ jobs:
       changed: ${{ needs.get-changed-modules.outputs.cli_changed }}
       artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
+  pr-test-creds-store:
+    name: Test credentials store implementations
+    needs: [find-artifacts, download-artifacts-for-codeql, pr-build-cli]
+    uses: ./.github/workflows/test-creds-store.yaml
+    secrets: inherit
+    with:
+      artifact-id: ${{ needs.find-artifacts.outputs.workflow_for_artifact_download_id }}
+
   pr-build-docs:
     name: Build the 'docs' module
-    needs: [get-changed-modules, find-artifacts, pr-build-cli]
+    needs: [get-changed-modules, find-artifacts, pr-build-cli, pr-test-creds-store]
     uses: ./.github/workflows/pr-docs.yaml
     secrets: inherit
 
@@ -417,7 +425,7 @@ jobs:
   # This job is set in the branch protection rules as required to merge a Pull Request.
   end-pull-request-build:
     name: Pull Request build was successful
-    needs: [pr-build-ivts, pr-build-docs, detect-secrets]
+    needs: [pr-build-ivts, pr-test-creds-store, pr-build-docs, detect-secrets]
     runs-on: ubuntu-latest
 
     steps:
