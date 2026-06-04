@@ -33,14 +33,23 @@ import dev.galasa.framework.spi.creds.ICredentialsStoreRegistration;
 public class OsCredentialsStoreRegistration implements ICredentialsStoreRegistration {
 
     private final OperatingSystemDetector osDetector;
+    private final OsCredentialsStoreFactory storeFactory;
 
     public OsCredentialsStoreRegistration() {
         this.osDetector = new OperatingSystemDetector();
+        this.storeFactory = new OsCredentialsStoreFactory();
     }
 
     // Package-private constructor for testing
     OsCredentialsStoreRegistration(OperatingSystemDetector osDetector) {
         this.osDetector = osDetector;
+        this.storeFactory = new OsCredentialsStoreFactory();
+    }
+
+    // Package-private constructor for testing with custom factory
+    OsCredentialsStoreRegistration(OperatingSystemDetector osDetector, OsCredentialsStoreFactory storeFactory) {
+        this.osDetector = osDetector;
+        this.storeFactory = storeFactory;
     }
 
     @Override
@@ -56,7 +65,7 @@ public class OsCredentialsStoreRegistration implements ICredentialsStoreRegistra
                     "Supported values are: auto, macOS, windows, linux");
             }
 
-            OsCredentialsStore store = new OsCredentialsStore(os);
+            OsCredentialsStore store = storeFactory.createStore(os);
             frameworkInitialisation.registerCredentialsStore(store);
         }
     }
