@@ -194,7 +194,8 @@ dependencies {
 
         api 'net.bytebuddy:byte-buddy:1.18.3'
 
-        api 'net.java.dev.jna:jna:5.12.1' // bnd.bnd only
+        api 'net.java.dev.jna:jna:5.18.1'
+        api 'net.java.dev.jna:jna-platform:5.18.1'
 
         api 'org.apache.bcel:bcel:6.11.0'
 

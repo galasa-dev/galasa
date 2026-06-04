@@ -6,7 +6,7 @@ This extension provides OS-native credentials store implementations for Galasa, 
 
 The OS credentials store extension enables Galasa to read credentials from:
 - **macOS**: Keychain Access (fully implemented)
-- **Windows**: Windows Credential Manager (planned)
+- **Windows**: Windows Credential Manager (fully implemented)
 - **Linux**: Secret Service API (planned)
 
 ## Architecture
@@ -21,6 +21,10 @@ The OS credentials store extension enables Galasa to read credentials from:
 ### macOS Implementation
 
 - **`MacOsKeychainStore`**: Implements `ICredentialsStore` using the macOS `security` CLI tool to manage credentials in the Keychain.
+
+### Windows Implementation
+
+- **`WindowsCredentialManagerStore`**: Implements `ICredentialsStore` using JNA to access the Windows Credential Manager API.
 
 ## How It Works
 
@@ -39,13 +43,13 @@ The `os:` URI scheme triggers the registration of this credentials store. The va
 
 Credentials are stored in the OS's native credential manager with a consistent format:
 
-- **Keychain Item Name**: `galasa.credentials.{CREDENTIALS-ID}`
-- **Account Name**: Varies by credential type (see below)
+- **Service/Target Name**: `galasa.credentials.{CREDENTIALS-ID}`
+- **Account/User Name**: Varies by credential type (see below)
 - **Password**: The actual password or token value
 
 #### Credential Types
 
-The macOS Keychain store supports multiple credential types, distinguished by the account name format:
+Both macOS and Windows implementations support multiple credential types, distinguished by the account/username format:
 
 1. **Username + Password**:
    - Account Name: Plain username (e.g., `IBMUSER`)
@@ -153,6 +157,65 @@ Using Keychain Access.app:
 ```bash
 base64 -i mykeystore.jks | tr -d '\n'
 ```
+
+### Adding Credentials (Windows)
+
+#### Username + Password
+
+Using Windows Credential Manager GUI:
+1. Open Control Panel → User Accounts → Credential Manager
+2. Click "Add a generic credential"
+3. Set "Internet or network address": `galasa.credentials.SIMBANK`
+4. Set "User name": `IBMUSER`
+5. Set "Password": `SYS1`
+6. Click "OK"
+
+Using command line (cmdkey):
+```cmd
+cmdkey /generic:galasa.credentials.SIMBANK /user:IBMUSER /pass:SYS1
+```
+
+#### Username Only
+
+Using command line:
+```cmd
+cmdkey /generic:galasa.credentials.MYUSER /user:username:IBMUSER /pass:""
+```
+
+#### Token Only
+
+Using command line:
+```cmd
+cmdkey /generic:galasa.credentials.GITHUB /user:token /pass:ghp_abc123xyz789
+```
+
+#### Username + Token
+
+Using command line:
+```cmd
+cmdkey /generic:galasa.credentials.GITLAB /user:username-token:myuser /pass:glpat-abc123xyz789
+```
+
+#### KeyStore (JSON Format)
+
+Using command line:
+```cmd
+cmdkey /generic:galasa.credentials.MYKEYSTORE /user:JSON /pass:"{\"keystore\":\"base64-content\",\"password\":\"keystorepass\",\"type\":\"JKS\"}"
+```
+
+Using Windows Credential Manager GUI:
+1. Open Control Panel → User Accounts → Credential Manager
+2. Click "Add a generic credential"
+3. Set "Internet or network address": `galasa.credentials.MYKEYSTORE`
+4. Set "User name": `JSON`
+5. Set "Password": `{"keystore":"base64-encoded-keystore","password":"keystorepass","type":"JKS"}`
+6. Click "OK"
+
+**Note**: The keystore content must be base64-encoded. You can encode a keystore file using:
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("mykeystore.jks"))
+```
+
 
 ## Implementation Notes
 

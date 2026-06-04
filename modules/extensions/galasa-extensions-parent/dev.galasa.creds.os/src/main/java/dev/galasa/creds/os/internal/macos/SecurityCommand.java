@@ -7,9 +7,9 @@ package dev.galasa.creds.os.internal.macos;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import dev.galasa.creds.os.internal.OsCredentialsException;
+import dev.galasa.creds.os.internal.OsCredentialsStore;
 
 /**
  * A class that provides functions to exceute macOS security command-line tool commands.
@@ -19,8 +19,6 @@ public class SecurityCommand {
     public static final int SECURITY_CLI_SUCCESS_CODE = 0;
     public static final int SECURITY_CLI_ERROR_ITEM_NOT_FOUND_CODE = 44;
     public static final int SECURITY_CLI_ERROR_USER_CANCELLED_CODE = 128;
-
-    private static final Pattern VALID_SERVICE_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9._@-]+$");
 
     private final CommandExecutor commandExecutor;
 
@@ -57,7 +55,7 @@ public class SecurityCommand {
             throw new OsCredentialsException("Service name cannot be null or empty");
         }
 
-        if (!VALID_SERVICE_NAME_PATTERN.matcher(serviceName).matches()) {
+        if (!OsCredentialsStore.VALID_CREDENTIAL_NAME_PATTERN.matcher(serviceName).matches()) {
             throw new OsCredentialsException(
                 "Credentials ID contains invalid characters. "+
                 "Only alphanumeric characters, dots (.), underscores (_), hyphens (_), and at symbols (@) are allowed");
