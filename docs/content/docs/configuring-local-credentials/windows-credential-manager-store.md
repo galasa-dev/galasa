@@ -7,7 +7,7 @@ The Windows Credential Manager Store extension allows Galasa to securely read te
 ## Prerequisites
 
 - Windows 10 or later
-- Galasa 0.48.1 or later
+- Galasa 1.0.0 or later
 
 ## Configuration
 
