@@ -20,14 +20,15 @@ Starting from Galasa 0.47.0, the OS Credentials Store bundle (`dev.galasa.creds.
 To enable the OS Credentials Store, add the following properties to your `{GALASA_HOME}/bootstrap.properties` file:
 
 ```properties
-framework.credentials.store=os:[macOS|auto]
+framework.credentials.store=os:[macOS|windows|auto]
 framework.extra.bundles=dev.galasa.creds.os
 ```
 
-The `os:auto` value automatically detects your operating system and uses the appropriate credentials store implementation. At the moment, only a macOS Keychain implementation is available.
+The `os:auto` value automatically detects your operating system and uses the appropriate credentials store implementation.
 
 ### Platform-Specific Documentation
 
 See the platform-specific documentation for more information:
 
 - [macOS Keychain Store](./macos-keychain-store.md)
+- [Windows Credential Manager Store](./windows-credential-manager-store.md)
