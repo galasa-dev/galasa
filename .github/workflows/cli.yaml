@@ -188,6 +188,12 @@ jobs:
           name: cli
           path: modules/cli/repo
 
+      - name: Upload CLI binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-binaries
+          path: modules/cli/bin
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:

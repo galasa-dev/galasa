@@ -1,0 +1,108 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Test Credentials Store Implementations
+
+on:
+  workflow_call:
+    inputs:
+      artifact-id:
+        description: 'The Workflow Run ID of the last workflow containing artifacts to download'
+        required: false
+        type: string
+  workflow_dispatch:
+
+jobs:
+  test-windows-credentials-store:
+    name: Run TestCredentialsStoreAccess on Windows Runner
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            build.properties
+            modules/ivts
+
+      - name: Download CLI binaries from this workflow
+        id: download-cli-binaries
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: cli-binaries
+          path: tools/galasactl
+
+      - name: Download CLI binaries from last successful workflow
+        if: ${{ steps.download-cli-binaries.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: cli-binaries
+          path: tools/galasactl
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.artifact-id }}
+
+      - name: Download All 'dev.galasa' Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: all-artifacts
+          path: modules/artifacts/dev/galasa
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 9.0.0
+          cache-disabled: true
+
+      - name: Setup galasactl
+        shell: powershell
+        run: |
+          Copy-Item "tools/galasactl/galasactl-windows-x86_64.exe" "tools/galasactl/galasactl.exe"
+          Add-Content $env:GITHUB_PATH "$pwd\tools\galasactl"
+
+      - name: Create test credentials in Windows Credential Manager
+        shell: powershell
+        run: |
+          Write-Host "Creating test credentials in Windows Credential Manager..."
+
+          cmdkey /generic:"galasa.credentials.TEST_USERNAME_PASSWORD" /user:"testuser1" /pass:"testpass1"
+          cmdkey /generic:"galasa.credentials.TEST_USERNAME" /user:"username:useronly" /pass:""
+          cmdkey /generic:"galasa.credentials.TEST_TOKEN" /user:"token" /pass:"ghp_test123token456"
+          cmdkey /generic:"galasa.credentials.TEST_USERNAME_TOKEN" /user:"username-token:tokenuser" /pass:"tokenvalue123"
+
+          Write-Host "Test credentials created successfully"
+
+      - name: Initialise Galasa local environment
+        shell: powershell
+        run: |
+          galasactl.exe local init --development --log -
+
+      - name: Run TestCredentialsStoreAccess
+        shell: powershell
+        env:
+          GALASA_CREDENTIALS_STORE: os:auto
+          GALASA_EXTRA_BUNDLES: dev.galasa.creds.os
+        run: |
+          $galasaVersion = (Get-Content build.properties | Select-String '^GALASA_VERSION=').ToString().Split('=')[1]
+          galasactl.exe runs submit local --localMaven file:///${{ github.workspace }}/modules/artifacts --class dev.galasa.ivts/dev.galasa.ivts.framework.TestCredentialsStoreAccess --obr "mvn:dev.galasa/dev.galasa.ivts.obr/$galasaVersion/obr" --log -
+
+  report-failure:
+    if: ${{ failure() && github.repository_owner == 'galasa-dev' && github.event_name == 'push' }}
+    name: Report failure in workflow
+    runs-on: ubuntu-latest
+    needs: [test-windows-credentials-store]
+
+    steps:
+      - name: Report failure in workflow to Slack
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          docker run --rm ghcr.io/galasa-dev/galasabld-ibm:main slackpost workflows --repo "galasa" --module "ivts-windows-creds" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" --ref "${{ github.ref_name }}" --hook "${{ env.SLACK_WEBHOOK }}"

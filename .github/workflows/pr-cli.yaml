@@ -253,6 +253,12 @@ jobs:
         run : |
           make all
 
+      - name: Upload CLI binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-binaries
+          path: modules/cli/bin
+
       # Generate the CLI syntax markdown documentation into a zip, published to maven
       - name: Package and publish the CLI syntax documentation
         working-directory: ./modules/cli

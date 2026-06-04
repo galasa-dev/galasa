@@ -134,7 +134,7 @@ jobs:
 
   deploy-docs-pr-preview-to-github-pages:
 
-    if: ${{ (github.ref_name == 'main') }}
+    if: ${{ github.ref_name == 'main' && github.repository_owner == 'galasa-dev' }}
 
     # Add a dependency to the build job
     needs: build-docs
