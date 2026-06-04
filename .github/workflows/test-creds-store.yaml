@@ -95,7 +95,7 @@ jobs:
           galasactl.exe runs submit local --localMaven file:///${{ github.workspace }}/modules/artifacts --class dev.galasa.ivts/dev.galasa.ivts.framework.TestCredentialsStoreAccess --obr "mvn:dev.galasa/dev.galasa.ivts.obr/$galasaVersion/obr" --log -
 
   report-failure:
-    if: ${{ failure() && github.repository_owner == 'galasa-dev' }}
+    if: ${{ failure() && github.repository_owner == 'galasa-dev' && github.event_name == 'push' }}
     name: Report failure in workflow
     runs-on: ubuntu-latest
     needs: [test-windows-credentials-store]
