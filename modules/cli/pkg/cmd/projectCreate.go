@@ -1092,6 +1092,13 @@ func createManagerBundle(
 		return err
 	}
 
+	// Create properties directory
+	propertiesDir := internalDir + "/properties"
+	err = fileGenerator.CreateFolder(propertiesDir)
+	if err != nil {
+		return err
+	}
+
 	// Create test directory structure
 	srcTestJavaDir := managerDir + "/src/test/java/" + strings.ReplaceAll(packageName, ".", "/") + "/internal"
 	err = fileGenerator.CreateFolder(srcTestJavaDir)
@@ -1181,6 +1188,21 @@ func createManagerJavaFiles(
 			name:         "Manager Unit Test",
 			templatePath: "templates/projectCreate/manager-project/internal/ManagerImplTest.java",
 			targetPath:   srcTestJavaDir + "/" + capitalizedManagerName + "ManagerImplTest.java",
+		},
+		{
+			name:         "Resource Management",
+			templatePath: "templates/projectCreate/manager-project/internal/ResourceManagement.java",
+			targetPath:   internalDir + "/" + capitalizedManagerName + "ResourceManagement.java",
+		},
+		{
+			name:         "Properties Singleton",
+			templatePath: "templates/projectCreate/manager-project/internal/properties/PropertiesSingleton.java",
+			targetPath:   internalDir + "/properties/" + capitalizedManagerName + "PropertiesSingleton.java",
+		},
+		{
+			name:         "Example Property",
+			templatePath: "templates/projectCreate/manager-project/internal/properties/ExampleProperty.java",
+			targetPath:   internalDir + "/properties/" + capitalizedManagerName + "ExampleProperty.java",
 		},
 	}
 

@@ -1072,6 +1072,12 @@ func assertManagerProjectCreated(t *testing.T, mockFileSystem spi.FileSystem, pa
 	assertJavaFileExists(t, mockFileSystem, internalDir+"/"+capitalizedManagerName+"ManagerImpl.java", "Manager implementation")
 	assertJavaFileExists(t, mockFileSystem, internalDir+"/"+capitalizedManagerName+"ResourceImpl.java", "Resource implementation")
 	assertJavaFileExists(t, mockFileSystem, internalDir+"/"+capitalizedManagerName+"ManagerField.java", "Manager field annotation")
+	assertJavaFileExists(t, mockFileSystem, internalDir+"/"+capitalizedManagerName+"ResourceManagement.java", "Resource management")
+
+	// Properties files
+	propertiesDir := internalDir + "/properties"
+	assertJavaFileExists(t, mockFileSystem, propertiesDir+"/"+capitalizedManagerName+"PropertiesSingleton.java", "Properties singleton")
+	assertJavaFileExists(t, mockFileSystem, propertiesDir+"/"+capitalizedManagerName+"ExampleProperty.java", "Example property")
 
 	// Check build files
 	if isMaven {
