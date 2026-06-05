@@ -18,6 +18,7 @@ import {{.PackageName}}.{{.CapitalizedManagerName}}ManagerException;
 import {{.PackageName}}.{{.CapitalizedManagerName}}Resource;
 import {{.PackageName}}.I{{.CapitalizedManagerName}}Manager;
 import {{.PackageName}}.I{{.CapitalizedManagerName}}Resource;
+import {{.PackageName}}.internal.properties.{{.CapitalizedManagerName}}PropertiesSingleton;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.AnnotatedField;
 import dev.galasa.framework.spi.GenerateAnnotatedField;
@@ -75,6 +76,13 @@ public class {{.CapitalizedManagerName}}ManagerImpl extends AbstractManager impl
     public void initialise(@NotNull IFramework framework, @NotNull List<IManager> allManagers,
             @NotNull List<IManager> activeManagers, @NotNull GalasaTest galasaTest) throws ManagerException {
         super.initialise(framework, allManagers, activeManagers, galasaTest);
+        
+        // Initialize the Configuration Property Store for this manager
+        try {
+            {{.CapitalizedManagerName}}PropertiesSingleton.setCps(framework.getConfigurationPropertyService(NAMESPACE));
+        } catch (Exception e) {
+            throw new ManagerException("Unable to initialise CPS for {{.CapitalizedManagerName}} Manager", e);
+        }
         
         if (galasaTest.isJava()) {
             List<AnnotatedField> ourFields = findAnnotatedFields({{.CapitalizedManagerName}}ManagerField.class);
