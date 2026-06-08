@@ -1302,11 +1302,13 @@ func createManagerGradleFiles(
 
 	// Create bnd.bnd
 	type BndParameters struct {
-		BundleName string
+		BundleName  string // OSGi bundle symbolic name (e.g., dev.galasa.example.docker.manager)
+		PackageName string // Java package name (e.g., dev.galasa.example.docker)
 	}
 
 	bndParams := BndParameters{
-		BundleName: managerBundleName,
+		BundleName:  managerBundleName,
+		PackageName: packageName,
 	}
 
 	bndFile := utils.GeneratedFileDef{

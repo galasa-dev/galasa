@@ -14,7 +14,7 @@ galasactl project create [flags]
 
 ```
       --development          Use bleeding-edge galasa versions and repositories.
-      --features string      A comma-separated list of features you are testing. These must be able to form parts of a java package name. For example: "payee,account". Cannot be used with --manager flag. (default "feature1")
+      --features string      A comma-separated list of features you are testing. These must be able to form parts of a java package name. For example: "payee,account". Can be used with --manager flag to create both manager and test projects. (default "feature1")
       --force                Force-overwrite files which already exist.
       --gradle               Generate gradle build artifacts. Can be used in addition to the --maven flag.
   -h, --help                 Displays the options for the 'project create' command.

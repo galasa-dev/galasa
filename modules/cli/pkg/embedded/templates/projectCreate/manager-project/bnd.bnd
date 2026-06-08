@@ -1,16 +1,7 @@
 Bundle-Name: {{.BundleName}}
 Bundle-SymbolicName: {{.BundleName}}
 Bundle-Version: 0.0.1.qualifier
-Export-Package: \
-    {{.BundleName}},\
-    {{.BundleName}}.spi
-Private-Package: \
-    {{.BundleName}}.internal
-Import-Package: \
-    dev.galasa,\
-    dev.galasa.framework.spi,\
-    org.osgi.service.component.annotations,\
-    javax.validation.constraints,\
+Export-Package: {{.PackageName}},\
+    {{.PackageName}}.spi
+Import-Package: !javax.validation.constraints,\
     *
--includeresource: \
-    META-INF/services=src/main/resources/META-INF/services
