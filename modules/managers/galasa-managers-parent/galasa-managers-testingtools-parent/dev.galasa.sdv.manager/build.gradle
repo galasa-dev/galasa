@@ -9,7 +9,7 @@ description = 'Galasa SDV Manager'
 
 checkstyle {
     configFile = file("config/checkstyle/checkstyle.xml") 
-    toolVersion = "10.14.2"
+    toolVersion = "12.3.1"
 }
 
 // Apply a workaround to get checkstyle working with Gradle 6.x,
