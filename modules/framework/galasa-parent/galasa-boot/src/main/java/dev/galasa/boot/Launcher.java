@@ -445,7 +445,7 @@ public class Launcher {
                     this.remoteMavenRepos.add(new URL(option.replaceFirst("/*$", "")));
                 }
             }
-            this.remoteMavenRepos.add(new URL("https://repo.maven.apache.org/maven2"));
+            // No longer automatically adding Maven Central - users must explicitly opt-in via --remotemaven
         } catch (MalformedURLException e) {
             logger.error("invalid remote maven urls", e);
             commandLineError(null);

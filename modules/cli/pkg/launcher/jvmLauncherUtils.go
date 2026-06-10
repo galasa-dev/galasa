@@ -103,11 +103,6 @@ func getBaseCommandSyntax(
 			args = append(args, obrMvnPath)
 		}
 
-		// --obr mvn:dev.galasa/dev.galasa.uber.obr/${OBR_VERSION}/obr
-		args = append(args, "--obr")
-		galasaUberObrPath := "mvn:dev.galasa/dev.galasa.uber.obr/" + galasaVersionToRun + "/obr"
-		args = append(args, galasaUberObrPath)
-
 		if isTraceEnabled {
 			args = append(args, "--trace")
 		}
