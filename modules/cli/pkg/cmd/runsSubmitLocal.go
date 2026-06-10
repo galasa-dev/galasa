@@ -99,9 +99,9 @@ func (cmd *RunsSubmitLocalCommand) createRunsSubmitLocalCobraCmd(
 	//currentUserName := runs.GetCurrentSystemUserName()
 
 	runsSubmitLocalCobraCmd.Flags().StringVar(&cmd.values.runsSubmitLocalCmdParams.RemoteMaven, "remoteMaven",
-		"https://repo.maven.apache.org/maven2",
-		"the url of the remote maven where galasa bundles can be loaded from. "+
-			"Defaults to maven central.")
+		"",
+		"the url of the remote maven repository where galasa bundles can be loaded from. "+
+			"If not specified, no remote Maven repository will be used and mvn: URIs in OBRs will fail to resolve.")
 
 	runsSubmitLocalCobraCmd.Flags().StringVar(&cmd.values.runsSubmitLocalCmdParams.LocalMaven, "localMaven", "",
 		"The url of a local maven repository are where galasa bundles can be loaded from on your local file system. Defaults to your home .m2/repository file. Please note that this should be in a URL form e.g. 'file:///Users/myuserid/.m2/repository', or 'file://C:/Users/myuserid/.m2/repository'")
