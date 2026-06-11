@@ -1,0 +1,86 @@
+#
+# Copyright contributors to the Galasa project
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+name: Release Galasa CLI Binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseBranch:
+        description: 'The branch to use for the CLI release'
+        required: false
+        default: 'release'
+
+env:
+  NAMESPACE: ${{ github.repository_owner }}
+
+jobs:
+  get-galasa-version:
+    name: Get Galasa Version
+    runs-on: ubuntu-latest
+
+    # if: ${{ github.repository_owner == 'galasa-dev' }}
+
+    steps:
+      - name: Checkout 'galasa' repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.NAMESPACE }}/galasa
+          path: ${{ github.workspace }}/galasa
+          sparse-checkout: |
+            build.properties
+
+      - name: Get Galasa Version from build.properties file
+        id: get-galasa-version
+        run: |
+          cat ${{ github.workspace }}/galasa/build.properties | grep "=" >> $GITHUB_OUTPUT
+
+    outputs:
+      galasa-version: ${{ steps.get-galasa-version.outputs.GALASA_VERSION }}
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    needs: [get-galasa-version]
+
+    permissions:
+      contents: write
+
+    env:
+      GALASA_VERSION: ${{ needs.get-galasa-version.outputs.galasa-version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make temp directory
+        run: |
+          mkdir ${{ github.workspace }}/temp
+
+      - name: Download CLI binaries
+        run: |
+          ${{ github.workspace }}/tools/download-cli-binaries.sh ${{ inputs.releaseBranch }} ${{ github.workspace }}/temp
+
+      - name: Create GitHub Release
+        working-directory: ${{ github.workspace }}/temp
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Build the release command with all downloaded binaries
+          RELEASE_CMD="gh release create v${{ env.GALASA_VERSION }} \
+            --repo ${{ github.repository }} \
+            --title \"v${{ env.GALASA_VERSION }}\" \
+            --generate-notes"
+          
+          # Add all downloaded files to the release
+          for file in *; do
+            if [ -f "$file" ]; then
+              RELEASE_CMD="$RELEASE_CMD $file"
+            fi
+          done
+          
+          # Execute the release command
+          eval $RELEASE_CMD
