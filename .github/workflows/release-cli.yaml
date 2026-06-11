@@ -21,8 +21,6 @@ jobs:
     name: Get Galasa Version
     runs-on: ubuntu-latest
 
-    # if: ${{ github.repository_owner == 'galasa-dev' }}
-
     steps:
       - name: Checkout 'galasa' repository
         uses: actions/checkout@v4
