@@ -12,6 +12,13 @@ on:
         description: 'The branch to use for the CLI release'
         required: false
         default: 'release'
+  workflow_call:
+    inputs:
+      releaseBranch:
+        description: 'The branch to use for the CLI release'
+        required: false
+        default: 'release'
+        type: string
 
 env:
   NAMESPACE: ${{ github.repository_owner }}
