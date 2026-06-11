@@ -20,20 +20,24 @@
 BASEDIR=$(dirname "$0");pushd $BASEDIR 2>&1 >> /dev/null ;BASEDIR=$(pwd);popd 2>&1 >> /dev/null
 export ORIGINAL_DIR=$(pwd)
 
-#-----------------------------------------------------------------------------------------
-#
-# Set Colors using ANSI escape codes (only if running in a terminal)
-#
-#-----------------------------------------------------------------------------------------
-bold="\033[1m"
-underline="\033[4m"
-reset="\033[0m"
+if [ -z "$TERM" ]; then
+    export TERM="xterm-256color"
+fi
 
-red="\033[31m"
-green="\033[32m"
-white="\033[37m"
-tan="\033[33m"
-blue="\033[34m"
+#-----------------------------------------------------------------------------------------
+#
+# Set Colors
+#
+#-----------------------------------------------------------------------------------------
+bold=$(tput bold)
+underline=$(tput sgr 0 1)
+reset=$(tput sgr0)
+
+red=$(tput setaf 1)
+green=$(tput setaf 76)
+white=$(tput setaf 7)
+tan=$(tput setaf 202)
+blue=$(tput setaf 25)
 
 #-----------------------------------------------------------------------------------------
 #
