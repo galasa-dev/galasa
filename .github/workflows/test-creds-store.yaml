@@ -94,11 +94,110 @@ jobs:
           $galasaVersion = (Get-Content build.properties | Select-String '^GALASA_VERSION=').ToString().Split('=')[1]
           galasactl.exe runs submit local --localMaven file:///${{ github.workspace }}/modules/artifacts --class dev.galasa.ivts/dev.galasa.ivts.framework.TestCredentialsStoreAccess --obr "mvn:dev.galasa/dev.galasa.ivts.obr/$galasaVersion/obr" --log -
 
+  test-macos-credentials-store:
+    name: Run TestCredentialsStoreAccess on macOS Runner
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            build.properties
+            modules/ivts
+
+      - name: Download CLI binaries from this workflow
+        id: download-cli-binaries
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: cli-binaries
+          path: tools/galasactl
+
+      - name: Download CLI binaries from last successful workflow
+        if: ${{ steps.download-cli-binaries.outcome == 'failure' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: cli-binaries
+          path: tools/galasactl
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.artifact-id }}
+
+      - name: Download All 'dev.galasa' Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: all-artifacts
+          path: modules/artifacts/dev/galasa
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'semeru'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 9.0.0
+          cache-disabled: true
+
+      - name: Setup galasactl
+        run: |
+          chmod +x tools/galasactl/galasactl-darwin-x86_64
+          cp tools/galasactl/galasactl-darwin-x86_64 tools/galasactl/galasactl
+          echo "$PWD/tools/galasactl" >> $GITHUB_PATH
+
+      - name: Create test credentials in macOS Keychain
+        run: |
+          echo "Creating test credentials in macOS Keychain..."
+
+          # Username + Password credentials
+          security add-generic-password \
+            -s "galasa.credentials.TEST_USERNAME_PASSWORD" \
+            -a "testuser1" \
+            -w "testpass1" \
+            -U
+
+          # Username only credentials
+          security add-generic-password \
+            -s "galasa.credentials.TEST_USERNAME" \
+            -a "username:useronly" \
+            -w "" \
+            -U
+
+          # Token only credentials
+          security add-generic-password \
+            -s "galasa.credentials.TEST_TOKEN" \
+            -a "token" \
+            -w "ghp_test123token456" \
+            -U
+
+          # Username + Token credentials
+          security add-generic-password \
+            -s "galasa.credentials.TEST_USERNAME_TOKEN" \
+            -a "username-token:tokenuser" \
+            -w "tokenvalue123" \
+            -U
+
+          echo "Test credentials created successfully"
+
+      - name: Initialise Galasa local environment
+        run: |
+          galasactl local init --development --log -
+
+      - name: Run TestCredentialsStoreAccess
+        env:
+          GALASA_CREDENTIALS_STORE: os:auto
+          GALASA_EXTRA_BUNDLES: dev.galasa.creds.os
+        run: |
+          galasaVersion=$(grep '^GALASA_VERSION=' build.properties | cut -d'=' -f2)
+          galasactl runs submit local --localMaven file:///${{ github.workspace }}/modules/artifacts --class dev.galasa.ivts/dev.galasa.ivts.framework.TestCredentialsStoreAccess --obr "mvn:dev.galasa/dev.galasa.ivts.obr/$galasaVersion/obr" --log -
+
   report-failure:
     if: ${{ failure() && github.repository_owner == 'galasa-dev' && github.event_name == 'push' }}
     name: Report failure in workflow
     runs-on: ubuntu-latest
-    needs: [test-windows-credentials-store]
+    needs: [test-windows-credentials-store, test-macos-credentials-store]
 
     steps:
       - name: Report failure in workflow to Slack
