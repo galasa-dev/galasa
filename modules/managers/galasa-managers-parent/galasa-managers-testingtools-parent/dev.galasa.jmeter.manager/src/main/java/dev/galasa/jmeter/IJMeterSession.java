@@ -45,7 +45,7 @@ public interface IJMeterSession {
      * Start the JMeter test execution with a specified timeout.
      * All results are automatically stored in the Result Archive Store (RAS).
      *
-     * @param timeout The maximum time in seconds to wait for test completion
+     * @param timeout The maximum time in milliseconds to wait for test completion
      * @throws JMeterManagerException if the test fails to start, execute, or times out
      */
     public void startJmeter(int timeout) throws JMeterManagerException;

@@ -95,11 +95,11 @@ public class JMeterLocalSessionImpl extends AbstractJMeterSession {
             throw new JMeterManagerException("No JMX test plan file has been set for session " + sessionID + ". Call setDefaultGeneratedJmxFile() first.");
         }
         
-        logger.info("Starting JMeter test execution for session " + sessionID);
+        logger.info("Starting JMeter test execution for session " + sessionID + " with timeout " + timeout + "ms");
         
         try {
-            // Execute JMeter binary
-            exitCode = executor.executeTestPlan(jmxFilePath, resultsFilePath, logFilePath, jmeterProperties);
+            // Execute JMeter binary with timeout
+            exitCode = executor.executeTestPlan(jmxFilePath, resultsFilePath, logFilePath, jmeterProperties, timeout);
             testStarted = true;
             
             // Store results in RAS

@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -99,16 +100,17 @@ public class JMeterBinaryExecutor {
     }
     
     /**
-     * Execute a JMeter test plan
-     * 
+     * Execute a JMeter test plan with timeout
+     *
      * @param testPlanPath Path to the JMX test plan file
      * @param resultsPath Path where results should be written
      * @param logPath Path where JMeter log should be written
      * @param properties Additional JMeter properties to set
+     * @param timeoutMillis Maximum time in milliseconds to wait for completion
      * @return Exit code from JMeter execution
-     * @throws JMeterManagerException if execution fails
+     * @throws JMeterManagerException if execution fails or times out
      */
-    public int executeTestPlan(Path testPlanPath, Path resultsPath, Path logPath, Map<String, String> properties) 
+    public int executeTestPlan(Path testPlanPath, Path resultsPath, Path logPath, Map<String, String> properties, long timeoutMillis)
             throws JMeterManagerException {
         
         if (!Files.exists(testPlanPath)) {
@@ -126,16 +128,30 @@ public class JMeterBinaryExecutor {
             
             Process process = processBuilder.start();
             
-            // Capture and log output
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    logger.info("[JMeter] " + line);
+            // Capture and log output in a separate thread
+            Thread outputThread = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        logger.info("[JMeter] " + line);
+                    }
+                } catch (IOException e) {
+                    logger.warn("Error reading JMeter output", e);
                 }
+            });
+            outputThread.setDaemon(true);
+            outputThread.start();
+            
+            // Wait for process with timeout
+            boolean completed = process.waitFor(timeoutMillis, TimeUnit.MILLISECONDS);
+            
+            if (!completed) {
+                process.destroyForcibly();
+                throw new JMeterManagerException("JMeter execution timed out after " + timeoutMillis + "ms");
             }
             
-            int exitCode = process.waitFor();
+            int exitCode = process.exitValue();
             
             if (exitCode == 0) {
                 logger.info("JMeter execution completed successfully");

@@ -59,7 +59,7 @@ public abstract class AbstractJMeterSession implements IJMeterSession {
      */
     @Override
     public void startJmeter() throws JMeterManagerException {
-        startJmeter(JMeterConstants.DEFAULT_TIMEOUT_SECONDS);
+        startJmeter(JMeterConstants.DEFAULT_TIMEOUT_MILLISECONDS);
     }
     
     /**

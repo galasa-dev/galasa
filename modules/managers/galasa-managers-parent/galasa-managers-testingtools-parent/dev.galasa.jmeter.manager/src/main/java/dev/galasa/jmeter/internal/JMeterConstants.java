@@ -15,7 +15,7 @@ public final class JMeterConstants {
     public static final String JTL_EXTENSION = ".jtl";
     public static final String LOG_EXTENSION = ".log";
     // Timeout values
-    public static final int DEFAULT_TIMEOUT_SECONDS = 60;
+    public static final int DEFAULT_TIMEOUT_MILLISECONDS = 60000;
     
     
     // Directory names
