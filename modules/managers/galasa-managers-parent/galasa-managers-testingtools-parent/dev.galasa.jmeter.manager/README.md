@@ -32,8 +32,8 @@ public class MyPerformanceTest {
         InputStream jmx = getClass().getResourceAsStream("/test-plan.jmx");
         jmeter.setChangedParametersJmxFile(jmx, params);
         
-        // Execute test
-        jmeter.startJmeter(120); // 120 second timeout
+        // Execute test with 120 second (120000ms) timeout
+        jmeter.startJmeter(120000);
         
         // Verify success
         assertTrue(jmeter.isTestSuccessful());
@@ -69,7 +69,8 @@ Runs JMeter in Docker containers using `galasadev/galasa-jmeter:latest` image.
 **Configuration:**
 ```properties
 jmeter.mode.execution=DOCKER
-docker.engine.LOCAL.hostname=localhost
+docker.default.engines=PRIMARY
+docker.engine.PRIMARY.hostname=localhost
 docker.engine.port=2375
 ```
 
@@ -127,8 +128,8 @@ galasactl runs submit local --log - \
 
 ### LOCAL Mode
 
-**Issue:** JMeter execution timeout  
-**Solution:** Increase timeout: `jmeter.startJmeter(180)` (3 minutes)
+**Issue:** JMeter execution timeout
+**Solution:** Increase timeout: `jmeter.startJmeter(180000)` (3 minutes = 180000ms)
 
 **Issue:** Permission denied on JMeter script  
 **Solution:** Manager automatically sets execute permissions on Unix/Linux/Mac
