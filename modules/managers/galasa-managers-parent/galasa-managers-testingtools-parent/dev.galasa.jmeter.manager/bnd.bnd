@@ -2,9 +2,10 @@
 Bundle-Name: Galasa JMeter Manager
 Export-Package: dev.galasa.jmeter
 Import-Package: dev.galasa,\
-    dev.galasa.docker,\
-    dev.galasa.docker.spi,\
+    dev.galasa.docker;resolution:=optional,\
+    dev.galasa.docker.spi;resolution:=optional,\
     dev.galasa.framework.spi,\
+    dev.galasa.framework.spi.cps,\
     dev.galasa.framework.spi.language,\
     dev.galasa.jmeter,\
     javax.validation.constraints;resolution:=optional,\
