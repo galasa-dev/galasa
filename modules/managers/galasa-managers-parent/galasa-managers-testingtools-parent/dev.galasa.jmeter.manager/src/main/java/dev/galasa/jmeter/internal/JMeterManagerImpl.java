@@ -53,7 +53,13 @@ public class JMeterManagerImpl extends AbstractManager {
     private boolean required = false;
 
     private int sessionID = 0;
-
+    
+    private static final String MODE_LOCAL = "LOCAL";
+    private static final String MODE_DOCKER = "DOCKER";
+    
+    // Execution mode retrieved once from CPS during initialize()
+    // Default is LOCAL
+    private String executionMode = MODE_LOCAL;
 
     /**
      * The actual method for provisioning the JMeter session.
@@ -81,19 +87,11 @@ public class JMeterManagerImpl extends AbstractManager {
 
         logger.info("JMX Path: " + this.jmxPath);
         logger.info("Properties Path: " + this.propPath);
-
-        // Determine execution mode from CPS property
-        String mode = "LOCAL";
-        try {
-            mode = JMeterMode.get();
-        } catch (JMeterManagerException e) {
-            logger.warn("Failed to get JMeter mode from CPS, defaulting to LOCAL mode", e);
-        }
-        logger.info("JMeter execution mode: " + mode);
+        logger.info("Using JMeter execution mode: " + this.executionMode);
 
         IJMeterSession session;
 
-        if ("DOCKER".equalsIgnoreCase(mode)) {
+        if (MODE_DOCKER.equalsIgnoreCase(this.executionMode)) {
             // Docker mode - requires Docker Manager
             session = createDockerSession();
         } else {
@@ -175,6 +173,13 @@ public class JMeterManagerImpl extends AbstractManager {
             throw new ManagerException("Failed to initialize JMeter CPS", e);
         }
         
+        try {
+            this.executionMode = JMeterMode.get();
+            logger.info("JMeter execution mode set to: " + this.executionMode);
+        } catch (JMeterManagerException e) {
+            logger.warn("Failed to get JMeter mode from CPS, using default " + MODE_LOCAL + " mode", e);
+        }
+        
         if(galasaTest.isJava()) {
             List<AnnotatedField> ourFields = findAnnotatedFields(JMeterManagerField.class);
             if (ourFields.isEmpty() && this.required) {
@@ -195,13 +200,7 @@ public class JMeterManagerImpl extends AbstractManager {
     @Override
     public boolean areYouProvisionalDependentOn(@NotNull IManager otherManager) {
         // Only depend on Docker Manager if running in Docker mode
-        String mode = "LOCAL";
-        try {
-            mode = JMeterMode.get();
-        } catch (JMeterManagerException e) {
-            logger.warn("Failed to get JMeter mode, defaulting to LOCAL", e);
-        }
-        if ("DOCKER".equalsIgnoreCase(mode) && otherManager instanceof IDockerManager) {
+        if (MODE_DOCKER.equalsIgnoreCase(this.executionMode) && otherManager instanceof IDockerManager) {
             return true;
         }
 
@@ -220,20 +219,13 @@ public class JMeterManagerImpl extends AbstractManager {
         activeManagers.add(this);
         
         // Only add Docker Manager dependency if running in Docker mode
-        String mode = "LOCAL";
-        try {
-            mode = JMeterMode.get();
-        } catch (JMeterManagerException e) {
-            logger.warn("Failed to get JMeter mode from CPS, defaulting to LOCAL mode", e);
-        }
-        
-        if ("DOCKER".equalsIgnoreCase(mode)) {
+        if (MODE_DOCKER.equalsIgnoreCase(this.executionMode)) {
             dockerManager = addDependentManager(allManagers, activeManagers, galasaTest, IDockerManagerSpi.class);
             if (dockerManager == null) {
-                logger.warn("Docker mode requested but Docker Manager not available. Consider using LOCAL mode.");
+                logger.warn("Docker mode requested but Docker Manager not available. Consider using " + MODE_LOCAL + " mode.");
             }
         } else {
-            logger.info("Running in LOCAL mode - Docker Manager not required");
+            logger.info("Running in " + MODE_LOCAL + " mode - Docker Manager not required");
         }
     }
 
