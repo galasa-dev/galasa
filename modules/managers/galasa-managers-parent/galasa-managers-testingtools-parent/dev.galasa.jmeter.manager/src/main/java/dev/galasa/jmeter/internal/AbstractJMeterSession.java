@@ -63,6 +63,17 @@ public abstract class AbstractJMeterSession implements IJMeterSession {
     }
     
     /**
+     * Deprecated method - delegates to isTestSuccessful()
+     *
+     * @deprecated Use {@link #isTestSuccessful()} instead
+     */
+    @Override
+    @Deprecated
+    public boolean statusTest() throws JMeterManagerException {
+        return isTestSuccessful();
+    }
+    
+    /**
      * Validate timeout parameter
      *
      * @param timeout The timeout value to validate

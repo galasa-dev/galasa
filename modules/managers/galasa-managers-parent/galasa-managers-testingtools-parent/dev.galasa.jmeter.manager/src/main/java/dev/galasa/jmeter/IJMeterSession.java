@@ -121,6 +121,16 @@ public interface IJMeterSession {
     /**
      * Check whether the JMeter test executed successfully.
      *
+     * @return true if the test completed successfully, false otherwise
+     * @throws JMeterManagerException if the test status cannot be determined or the test failed
+     * @deprecated Use {@link #isTestSuccessful()} instead. This method will be removed in a future release.
+     */
+    @Deprecated
+    public boolean statusTest() throws JMeterManagerException;
+
+    /**
+     * Check whether the JMeter test executed successfully.
+     *
      * <p>For LOCAL mode: Returns true if exit code is 0
      * <p>For DOCKER mode: Returns true if log contains expected completion markers
      *
