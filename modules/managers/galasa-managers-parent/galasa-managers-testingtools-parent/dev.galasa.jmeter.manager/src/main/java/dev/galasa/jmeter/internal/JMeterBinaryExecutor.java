@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,60 +38,48 @@ public class JMeterBinaryExecutor {
         try {
             String configuredPath = JMeterBinaryPath.get();
             
-            // Check if the configured path is directly to the binary or to JMeter home
-            File configuredFile = new File(configuredPath);
+            // The configured path must point directly to the JMeter binary
+            File binaryFile = new File(configuredPath);
             
-            if (configuredFile.isFile() && configuredFile.canExecute()) {
-                // Direct path to binary (e.g., /opt/homebrew/bin/jmeter)
-                this.jmeterBinary = configuredPath;
-                // Extract home directory (parent of bin directory)
-                File binDir = configuredFile.getParentFile();
-                if (binDir != null && binDir.getName().equals("bin")) {
-                    this.jmeterHome = binDir.getParent();
-                } else {
-                    this.jmeterHome = binDir != null ? binDir.getAbsolutePath() : configuredPath;
-                }
-                logger.info("Using direct JMeter binary path: " + jmeterBinary);
-            } else if (configuredFile.isDirectory()) {
-                // Path to JMeter home directory (e.g., /opt/apache-jmeter-5.6.3)
-                this.jmeterHome = configuredPath;
-                
-                // Determine the JMeter binary path based on OS
-                String os = System.getProperty("os.name").toLowerCase();
-                if (os.contains("win")) {
-                    this.jmeterBinary = Paths.get(jmeterHome, "bin", "jmeter.bat").toString();
-                } else {
-                    this.jmeterBinary = Paths.get(jmeterHome, "bin", "jmeter").toString();
-                }
-                
-                // Validate that the binary exists
-                File binaryFile = new File(jmeterBinary);
-                if (!binaryFile.exists()) {
-                    throw new JMeterManagerException(
-                        "JMeter binary not found at: " + jmeterBinary +
-                        ". Please ensure jmeter.binary.path points to either:\n" +
-                        "  1. A JMeter home directory (e.g., /opt/apache-jmeter-5.6.3), or\n" +
-                        "  2. The direct path to the jmeter binary (e.g., /opt/homebrew/bin/jmeter)"
-                    );
-                }
-                
-                if (!binaryFile.canExecute()) {
-                    throw new JMeterManagerException(
-                        "JMeter binary is not executable: " + jmeterBinary +
-                        ". Please check file permissions."
-                    );
-                }
-                logger.info("Using JMeter home directory: " + jmeterHome);
-            } else {
+            if (!binaryFile.exists()) {
                 throw new JMeterManagerException(
-                    "Invalid jmeter.binary.path: " + configuredPath +
-                    ". Path must be either:\n" +
-                    "  1. A JMeter home directory (e.g., /opt/apache-jmeter-5.6.3), or\n" +
-                    "  2. The direct path to the jmeter binary (e.g., /opt/homebrew/bin/jmeter)"
+                    "JMeter binary not found at: " + configuredPath +
+                    ". Please ensure jmeter.binary.path points to the JMeter binary file.\n" +
+                    "Examples:\n" +
+                    "  - Unix/Linux/Mac: /opt/apache-jmeter-5.6.3/bin/jmeter\n" +
+                    "  - Windows: C:\\apache-jmeter-5.6.3\\bin\\jmeter.bat"
                 );
             }
             
-            logger.info("JMeter binary executor initialized with binary: " + jmeterBinary);
+            if (!binaryFile.isFile()) {
+                throw new JMeterManagerException(
+                    "jmeter.binary.path must point to the JMeter binary file, not a directory: " + configuredPath +
+                    "\nExamples:\n" +
+                    "  - Unix/Linux/Mac: /opt/apache-jmeter-5.6.3/bin/jmeter\n" +
+                    "  - Windows: C:\\apache-jmeter-5.6.3\\bin\\jmeter.bat"
+                );
+            }
+            
+            if (!binaryFile.canExecute()) {
+                throw new JMeterManagerException(
+                    "JMeter binary is not executable: " + configuredPath +
+                    ". Please check file permissions."
+                );
+            }
+            
+            this.jmeterBinary = configuredPath;
+            
+            // Extract home directory (parent of bin directory)
+            File binDir = binaryFile.getParentFile();
+            if (binDir != null && binDir.getName().equals("bin")) {
+                this.jmeterHome = binDir.getParent();
+            } else {
+                this.jmeterHome = binDir != null ? binDir.getAbsolutePath() : configuredPath;
+            }
+            
+            logger.info("JMeter binary executor initialized");
+            logger.info("  Binary: " + jmeterBinary);
+            logger.info("  Home: " + jmeterHome);
             
         } catch (ConfigurationPropertyStoreException e) {
             throw new JMeterManagerException("Failed to retrieve JMeter binary path from CPS", e);

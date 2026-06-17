@@ -9,7 +9,7 @@ You can view the [Javadoc documentation for the Manager](../../reference/javadoc
 
 This Manager enables JMeter performance tests to run within Galasa tests. The JMeter Manager supports two execution modes:
 
-- **LOCAL mode (default)** - Runs JMeter using an external JMeter installation on the local machine. This mode is simpler to configure and faster to start, making it ideal for development and CI/CD environments.
+- **LOCAL mode (default)** - Runs JMeter using an external JMeter binary on the local machine. This mode is simpler to configure and faster to start, making it ideal for development and CI/CD environments.
 - **DOCKER mode** - Runs JMeter inside a Docker container provisioned by the Docker Manager. This mode provides better isolation and consistency across different environments.
 
 The test can access all JMeter-generated files (log files, JTL results files) without worrying about how JMeter is provisioned, maintained, or shut down at the end of the test.
@@ -19,18 +19,20 @@ The test can access all JMeter-generated files (log files, JTL results files) wi
 
 ### LOCAL Mode (Default)
 
-LOCAL mode runs JMeter using an external JMeter installation. This is the recommended mode for most use cases.
+LOCAL mode runs JMeter using an external JMeter binary. This is the recommended mode for most use cases.
 
 **Configuration:**
 
-Set the path to your JMeter installation in the Configuration Property Store (CPS):
+Set the path to your JMeter binary in the Configuration Property Store (CPS):
 
 ```properties
-jmeter.mode.execution=LOCAL
-jmeter.binary.path=/path/to/apache-jmeter-5.6.3
+jmeter.execution.mode=LOCAL
+jmeter.binary.path=/path/to/apache-jmeter-5.6.3/bin/jmeter
 ```
 
-The `jmeter.binary.path` must point to a valid JMeter installation directory containing `bin/jmeter.sh` (Unix/Linux/Mac) or `bin/jmeter.bat` (Windows).
+The `jmeter.binary.path` must point directly to the JMeter binary file:
+- Unix/Linux/Mac: `/path/to/apache-jmeter-x.x.x/bin/jmeter`
+- Windows: `C:\path\to\apache-jmeter-x.x.x\bin\jmeter.bat`
 
 **Advantages:**
 
@@ -47,7 +49,7 @@ DOCKER mode runs JMeter in a Docker container. This mode requires the Docker Man
 
 === "Local Docker Engine"
 ```properties
-jmeter.mode.execution=DOCKER
+jmeter.execution.mode=DOCKER
 docker.engine.PRIMARY.hostname=localhost
 docker.engine.port=2375
 ```
@@ -55,7 +57,7 @@ docker.engine.port=2375
 === "Remote Docker Engine"
 
 ```properties
-jmeter.mode.execution=DOCKER
+jmeter.execution.mode=DOCKER
 docker.default.engines=PRIMARY
 docker.engine.PRIMARY.hostname=1.10.100.100
 docker.engine.PRIMARY.port=2376
@@ -86,7 +88,7 @@ The following snippet shows the minimum code that is required to request a JMete
 public IJMeterSession session;
 ```
 
-This code requests a JMeter session. In LOCAL mode, JMeter runs using your configured JMeter installation. In DOCKER mode, a container is provisioned with JMeter binaries installed. The container is discarded when the test finishes. You can also provision your JMX file via the Artifact Manager and point it to the bundle resources, the location of which is specified in the input stream of your JMX file.
+This code requests a JMeter session. In LOCAL mode, JMeter runs using your configured JMeter binary. In DOCKER mode, a container is provisioned with JMeter binaries installed. The container is discarded when the test finishes. You can also provision your JMX file via the Artifact Manager and point it to the bundle resources, the location of which is specified in the input stream of your JMX file.
 
 The following snippet enables you to add a personal properties file to the test by pointing the Artifact Manager at the JMeter properties file.
 

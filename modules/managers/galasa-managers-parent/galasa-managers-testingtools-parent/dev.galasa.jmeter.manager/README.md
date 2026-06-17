@@ -52,8 +52,8 @@ Runs JMeter using external binary installation. No Docker required.
 
 **Configuration:**
 ```properties
-jmeter.mode.execution=LOCAL
-jmeter.binary.path=/path/to/jmeter  # Required - path to JMeter installation
+jmeter.execution.mode=LOCAL
+jmeter.binary.path=/opt/apache-jmeter-5.6.3/bin/jmeter  # Required - path to JMeter binary
 ```
 
 **Advantages:**
@@ -68,7 +68,7 @@ Runs JMeter in Docker containers using `galasadev/galasa-jmeter:latest` image.
 
 **Configuration:**
 ```properties
-jmeter.mode.execution=DOCKER
+jmeter.execution.mode=DOCKER
 docker.default.engines=PRIMARY
 docker.engine.PRIMARY.hostname=localhost
 docker.engine.port=2375
@@ -76,7 +76,7 @@ docker.engine.port=2375
 
 Or when using a remote Docker engine:
 ```properties
-jmeter.mode.execution=DOCKER
+jmeter.execution.mode=DOCKER
 docker.default.engines=PRIMARY
 docker.engine.PRIMARY.hostname=1.10.100.100
 docker.engine.PRIMARY.port=2376
@@ -94,25 +94,25 @@ docker.engine.PRIMARY.max.slots=3
 
 ## Configuration Properties
 
-### jmeter.mode.execution
+### jmeter.execution.mode
 
 Controls execution mode.
 
 **Values:** `LOCAL` (default) | `DOCKER`
 
 ```properties
-jmeter.mode.execution=LOCAL
+jmeter.execution.mode=LOCAL
 ```
 
 ### jmeter.binary.path
 
-Path to JMeter installation (LOCAL mode only, required).
+Path to JMeter binary (LOCAL mode only, required).
 
 ```properties
-jmeter.binary.path=/opt/apache-jmeter-5.6.3
+jmeter.binary.path=/opt/apache-jmeter-5.6.3/bin/jmeter
 ```
 
-Must point to a valid JMeter installation directory containing `bin/jmeter.sh` (Unix/Linux/Mac) or `bin/jmeter.bat` (Windows).
+Must point to a valid JMeter binary such as `jmeter` (Unix/Linux/Mac) or `jmeter.bat` (Windows).
 
 ## Testing
 

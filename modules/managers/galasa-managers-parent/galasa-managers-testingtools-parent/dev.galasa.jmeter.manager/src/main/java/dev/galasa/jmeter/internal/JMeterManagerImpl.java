@@ -64,7 +64,7 @@ public class JMeterManagerImpl extends AbstractManager {
     /**
      * The actual method for provisioning the JMeter session.
      *
-     * Supports two execution modes controlled by CPS property jmeter.mode.execution:
+     * Supports two execution modes controlled by CPS property jmeter.execution.mode:
      * - LOCAL: Runs JMeter using external binary installation (requires jmeter.binary.path)
      * - DOCKER: Runs JMeter in a Docker container (requires Docker Manager)
      *
