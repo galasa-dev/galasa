@@ -194,4 +194,39 @@ public interface ICemt {
     boolean isResourceEnabled(ICicsTerminal terminal, String resourceType, String resourceName)
         throws CemtException;
 
+    /**
+     * Set a system property using CEMT SET command with property name and value.
+     * This method is useful for setting system-level properties that do not have specific resource names.
+     *
+     * @param cemtTerminal an {@link ICicsTerminal} object logged on to the CICS region.
+     * @param systemArea a {@link String} specifying the system area.
+     * @param propertyName a {@link String} specifying the property to set.
+     * @param newValue a {@link String} specifying the new value for the property.
+     * @param expectedResponse a {@link String} specifying the expected response text to validate success.
+     * @return boolean true if the expected response was found, false otherwise.
+     * @throws CemtException if the expected response is not found or if there is an error executing the command.
+     */
+    public boolean setSystemProperty(@NotNull ICicsTerminal cemtTerminal,
+                                     @NotNull String systemArea,
+                                     @NotNull String propertyName,
+                                     @NotNull String newValue,
+                                     @NotNull String expectedResponse) throws CemtException;
+
+    /**
+     * Set a system property using CEMT SET command with a complete set request.
+     * This method is useful for setting system-level properties like IRC, VTAM, etc.
+     * that do not have specific resource names.
+     *
+     * @param cemtTerminal an {@link ICicsTerminal} object logged on to the CICS region.
+     * @param systemArea a {@link String} specifying the system area (e.g., "IRC", "VTAM").
+     * @param setRequest a {@link String} specifying the complete set request (e.g., "OPEN").
+     * @param expectedResponse a {@link String} specifying the expected response text to validate success.
+     * @return boolean true if the expected response was found, false otherwise.
+     * @throws CemtException if the expected response is not found or if there is an error executing the command.
+     */
+    public boolean setSystemProperty(@NotNull ICicsTerminal cemtTerminal,
+                                     @NotNull String systemArea,
+                                     @NotNull String setRequest,
+                                     @NotNull String expectedResponse) throws CemtException;
+
 }
