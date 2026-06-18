@@ -149,8 +149,6 @@ func (cmd *ProjectCreateCommand) createCobraCommand(
 	projectCreateCmd.Flags().BoolVar(&cmd.values.useGradle, "gradle", false, "Generate gradle build artifacts. "+
 		"Can be used in addition to the --maven flag.")
 
-	// Note: --manager and --features can now be used together (like SimBank project)
-
 	projectCmd.CobraCommand().AddCommand(projectCreateCmd)
 
 	return projectCreateCmd, err
@@ -328,7 +326,6 @@ func createProject(
 	return err
 }
 // createCombinedParentFolderContents creates parent pom.xml/settings.gradle with specified module names
-// This allows combining manager and test modules in a single project (like SimBank)
 func createCombinedParentFolderContents(
 	fileGenerator *utils.FileGenerator,
 	packageName string,
@@ -996,7 +993,6 @@ func createManagerParentPom(
 	}
 
 	childModules := []string{managerBundleName}
-	// Note: Do not add OBR to childModules here - the template handles it via IsOBRRequired flag
 
 	templateParameters := ParentPomParameters{
 		Coordinates:      MavenCoordinates{ArtifactId: packageName, GroupId: packageName, Name: packageName},
@@ -1035,7 +1031,6 @@ func createManagerParentSettingsGradle(
 	}
 
 	childModules := []string{managerBundleName}
-	// Note: Do not add OBR to childModules here - the template handles it via IsOBRRequired flag
 
 	templateParameters := ParentGradleParameters{
 		Coordinates:      GradleCoordinates{GroupId: packageName, Name: packageName},

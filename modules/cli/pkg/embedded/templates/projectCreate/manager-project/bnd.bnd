@@ -1,7 +1,6 @@
+-snapshot: ${tstamp}
 Bundle-Name: {{.BundleName}}
-Bundle-SymbolicName: {{.BundleName}}
-Bundle-Version: 0.0.1.qualifier
 Export-Package: {{.PackageName}},\
     {{.PackageName}}.spi
 Import-Package: !javax.validation.constraints,\
-    *
+                *
