@@ -601,5 +601,104 @@ public class CemtImpl implements ICemt {
         return this.inquireResource(terminal, resourceType, resourceName, " Ena ");
     }
 
+    @Override
+    public boolean setSystemProperty(ICicsTerminal terminal, String systemArea,
+            String propertyName, String newValue, String expectedResponse)
+            throws CemtException
+    {
+        if (expectedResponse == null)
+        {
+            throw new CemtException("Expected Response cannot be null");
+        }
+
+        if (cicsRegion != terminal.getCicsRegion())
+        {
+            throw new CemtException("Terminal provided does not match CICS region.");
+        }
+
+        if (!terminal.isClearScreen())
+        {
+            try
+            {
+                terminal.resetAndClear();
+            }
+            catch (CicstsManagerException e)
+            {
+                throw new CemtException("Problem reset and clearing screen for CEMT transaction", e);
+            }
+        }
+
+        String cemtCmd = "CEMT SET " + systemArea + " ";
+        cemtCmd += propertyName + "(" + newValue + ")";
+
+        try
+        {
+            terminal.type(cemtCmd).enter().waitForKeyboard();
+            boolean success = false;
+            String response = terminal.retrieveScreen();
+            if (response != null)
+            {
+                success = response.contains(expectedResponse);
+            }
+            terminal.reportScreen();
+            if (!success)
+            {
+                throw new CemtException("Expected Response from CEMT SET not found. Expected: " + expectedResponse);
+            }
+            return success;
+        }
+        catch (FieldNotFoundException | KeyboardLockedException | TerminalInterruptedException |
+               NetworkException | TimeoutException | CicstsManagerException e)
+        {
+            throw new CemtException(e);
+        }
+    }
+
+    @Override
+    public boolean setSystemProperty(ICicsTerminal terminal, String systemArea,
+            String setRequest, String expectedResponse) throws CemtException
+    {
+        if (expectedResponse == null)
+        {
+            throw new CemtException("Expected Response cannot be null");
+        }
+
+        if (cicsRegion != terminal.getCicsRegion())
+        {
+            throw new CemtException("Terminal provided does not match CICS region.");
+        }
+
+        if (!terminal.isClearScreen())
+        {
+            try
+            {
+                terminal.resetAndClear();
+            }
+            catch (CicstsManagerException e)
+            {
+                throw new CemtException("Problem reset and clearing screen for CEMT transaction", e);
+            }
+        }
+
+        String cemtCmd = "CEMT SET " + systemArea + " ";
+        cemtCmd += setRequest;
+
+        try
+        {
+            terminal.type(cemtCmd).enter().waitForKeyboard();
+            boolean success = terminal.searchText(expectedResponse);
+            terminal.reportScreen();
+            if (!success)
+            {
+                throw new CemtException("Expected Response from CEMT SET not found. Expected: " + expectedResponse);
+            }
+            return success;
+        }
+        catch (FieldNotFoundException | KeyboardLockedException | TerminalInterruptedException |
+               NetworkException | TimeoutException | CicstsManagerException e)
+        {
+            throw new CemtException(e);
+        }
+    }
 
 }
