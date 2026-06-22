@@ -78,7 +78,15 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         // repeatedly query the CPS when sorting the queued runs.
         Map<String, Tag> queuedRunTags = getAllQueuedRunTagsFromCps(queuedRuns);
 
-        queuedRuns.sort(getPriorityComparator(queuedRunTags));
+        // Pre-compute each run's total priority score once, before sorting begins.
+        Map<String, Double> queuedRunScores = new HashMap<>();
+        for (IRun run : queuedRuns) {
+            double score = getQueuedRunTotalPriorityPoints(run, queuedRunTags);
+            queuedRunScores.put(run.getName(), score);
+            logger.trace("Scheduling: run '" + run.getName() + "' pre-computed priority score: " + score);
+        }
+
+        queuedRuns.sort(getPriorityComparator(queuedRunScores));
         return queuedRuns;
     }
 
@@ -102,8 +110,8 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         return tagsFromCps;
     }
 
-    private Comparator<IRun> getPriorityComparator(Map<String, Tag> queuedRunTags) {
-        return (a, b) -> Double.compare(getQueuedRunTotalPriorityPoints(b, queuedRunTags), getQueuedRunTotalPriorityPoints(a, queuedRunTags));
+    private Comparator<IRun> getPriorityComparator(Map<String, Double> queuedRunScores) {
+        return (a, b) -> Double.compare(queuedRunScores.get(b.getName()), queuedRunScores.get(a.getName()));
     }
 
     private List<IRun> getQueuedRemoteRuns() throws FrameworkException {
@@ -120,9 +128,16 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
     }
 
     double getQueuedRunTotalPriorityPoints(IRun run, Map<String, Tag> queuedRunTags) {
-        double totalPriorityPoints = getPriorityPointsFromQueuedTime(run.getQueued());
-        totalPriorityPoints += getRequestorPriorityPoints(run.getRequestor());
-        totalPriorityPoints += getPriorityPointsFromTags(run.getTags(), queuedRunTags);
+        double timePoints = getPriorityPointsFromQueuedTime(run.getQueued());
+        double requestorPoints = getRequestorPriorityPoints(run.getRequestor());
+        double tagPoints = getPriorityPointsFromTags(run.getTags(), queuedRunTags);
+        double totalPriorityPoints = timePoints + requestorPoints + tagPoints;
+
+        logger.trace("Scheduling: run '" + run.getName() + "' score breakdown:"
+            + " time=" + timePoints
+            + " requestor=" + requestorPoints
+            + " tags=" + tagPoints
+            + " total=" + totalPriorityPoints);
 
         return totalPriorityPoints;
     }
