@@ -251,7 +251,7 @@ jobs:
 
   test-creds-store:
     name: Test credentials store implementations
-    needs: [build-ivts, build-cli]
+    needs: [build-ivts, build-cli, download-artifacts-for-codeql]
     uses: ./.github/workflows/test-creds-store.yaml
     secrets: inherit
 
