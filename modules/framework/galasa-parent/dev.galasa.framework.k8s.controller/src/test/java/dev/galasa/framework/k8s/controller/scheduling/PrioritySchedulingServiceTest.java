@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
 
@@ -29,6 +30,7 @@ import dev.galasa.framework.mocks.MockUser;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.tags.Tag;
+import dev.galasa.framework.spi.utils.ITimeService;
 
 public class PrioritySchedulingServiceTest {
 
@@ -452,5 +454,49 @@ public class PrioritySchedulingServiceTest {
         // Then...
         // Check that both tag priorities have been added to the run's total priority
         assertThat(runPriority).isEqualTo(220);
+    }
+
+    @Test
+    public void testSortDoesNotThrowWhenClockAdvancesBetweenComparisons() throws Exception {
+        // Given...
+        // A time service whose now() advances by 1 second on every call.
+        Instant startTime = Instant.EPOCH;
+        AtomicLong callCount = new AtomicLong(0);
+        ITimeService advancingTimeService = new ITimeService() {
+            @Override
+            public Instant now() {
+                return startTime.plusSeconds(callCount.getAndIncrement());
+            }
+            @Override
+            public void sleepMillis(long millisToSleep) throws InterruptedException {}
+        };
+
+        Instant queuedBase = Instant.EPOCH.minusSeconds(300);
+        List<IRun> runs = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            MockRun run = new MockRun(null, null, "run" + i, null, null, null, null, false);
+            run.setQueued(queuedBase.plusSeconds(i * 10));
+            run.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+            runs.add(run);
+        }
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(runs);
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(
+            mockFrameworkRuns, mockCps, mockRBACService, advancingTimeService, mockTagsService);
+
+        // When...
+        List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
+
+        // Then...
+        // run0 was queued earliest so has the most elapsed time and highest priority
+        assertThat(runsGotBack).hasSize(10);
+        assertThat(runsGotBack.get(0).getName()).isEqualTo("run0");
+
+        // run9 was queued latest so has the least elapsed time and lowest priority
+        assertThat(runsGotBack.get(9).getName()).isEqualTo("run9");
     }
 }
