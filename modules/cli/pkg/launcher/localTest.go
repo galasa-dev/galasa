@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -16,6 +17,30 @@ import (
 	"github.com/galasa-dev/cli/pkg/galasaapi"
 	"github.com/galasa-dev/cli/pkg/spi"
 )
+
+// windowsDrivePattern matches one or more leading slashes followed by a Windows
+// drive letter and colon, e.g. "/C:/" or "//C:/".
+var windowsDrivePattern = regexp.MustCompile(`^/+([A-Za-z]:/.*)`)
+
+// fileUrlToPath converts a file:// URL string to a native filesystem path that
+// works on both Unix and Windows regardless of how many slashes the JVM emits
+// after "file:".
+//
+//   - Unix:    "file:///home/user/.galasa/ras"   →  "/home/user/.galasa/ras"
+//   - Unix:    "file:////home/user/.galasa/ras"  →  "/home/user/.galasa/ras"
+//   - Windows: "file:///C:/Users/.galasa/ras"    →  "C:/Users/.galasa/ras"
+func fileUrlToPath(fileUrl string) string {
+	// Strip the scheme, leaving one or more leading slashes.
+	path := strings.TrimPrefix(fileUrl, "file:")
+	// On Windows the path looks like "///C:/..." — strip all leading slashes and
+	// return the drive-letter path (e.g. "C:/...").
+	if m := windowsDrivePattern.FindStringSubmatch(path); m != nil {
+		return m[1]
+	}
+	// On Unix collapse any run of leading slashes down to a single "/".
+	path = "/" + strings.TrimLeft(path, "/")
+	return path
+}
 
 // A local test which gets run.
 type LocalTest struct {
@@ -201,13 +226,13 @@ func (localTest *LocalTest) updateTestStatusFromRasFile() error {
 		log.Printf("Don't have enough information to find the structure.json in the RAS folder yet. Test JVM is starting up.\n")
 	} else {
 
-		jsonFilePath := strings.TrimPrefix(localTest.rasFolderPathUrl, "file:///") + "/" + localTest.runId + "/structure.json"
+		jsonFilePath := fileUrlToPath(localTest.rasFolderPathUrl) + "/" + localTest.runId + "/structure.json"
 		log.Printf("Reading latest test status from '%s'\n", jsonFilePath)
 
 		var testRun *galasaapi.TestRun
 		testRun, err = readTestRunFromJsonFile(localTest.fileSystem, jsonFilePath)
 
-		if err == nil {
+		if err == nil && testRun != nil {
 			localTest.testRun = testRun
 		}
 	}

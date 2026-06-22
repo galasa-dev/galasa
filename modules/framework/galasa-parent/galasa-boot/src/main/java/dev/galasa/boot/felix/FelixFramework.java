@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 import java.text.*;
 
 import org.apache.commons.io.FileUtils;
@@ -82,9 +83,10 @@ public class FelixFramework {
         logger.debug("Building Felix Framework...");
 
         File galasaDirectory = new File(galasaHome);
-        String cacheDirectory = "felix-cache";
-        
-        this.felixCache = new File(galasaDirectory, cacheDirectory);
+        File cacheParent = new File(galasaDirectory, "cache");
+        String cacheDirectory = "felix-cache-" + UUID.randomUUID().toString();
+
+        this.felixCache = new File(cacheParent, cacheDirectory);
         try {
             FileUtils.deleteDirectory(felixCache);
             
