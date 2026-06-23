@@ -146,6 +146,14 @@ public class MockFileSystemProvider extends FileSystemProvider {
     }
 
     @Override
+    public void checkAccess(Path path, AccessMode... modes) throws IOException {
+        // If file exists, assume all access modes are granted
+        if (!mockFS.exists(path)) {
+            throw new IOException("File does not exist: " + path);
+        }
+    }
+
+    @Override
     public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
         throw new UnsupportedOperationException("Unimplemented method 'newFileSystem'");
     }
@@ -188,11 +196,6 @@ public class MockFileSystemProvider extends FileSystemProvider {
     @Override
     public FileStore getFileStore(Path path) throws IOException {
         throw new UnsupportedOperationException("Unimplemented method 'getFileStore'");
-    }
-
-    @Override
-    public void checkAccess(Path path, AccessMode... modes) throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'checkAccess'");
     }
 
     @Override
