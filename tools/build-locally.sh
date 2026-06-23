@@ -274,7 +274,7 @@ function build_module() {
     done
 }
 
-# clean_local_m2
+clean_local_m2
 build_module $module_input $chain
 
 if [[ "${is_setup_minikube_requested}" == "true" ]]; then
