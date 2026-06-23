@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,8 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import dev.galasa.framework.FileSystem;
+import dev.galasa.framework.IFileSystem;
+import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.jmeter.JMeterManagerException;
+import dev.galasa.jmeter.internal.properties.JMeterBinaryPath;
 
 /**
  * Implementation of IJMeterSession that uses an external JMeter binary.
@@ -28,6 +33,7 @@ public class JMeterLocalSessionImpl extends AbstractJMeterSession {
     
     private final Path workingDirectory;
     private final JMeterBinaryExecutor executor;
+    private final IFileSystem fileSystem;
     
     private Path jmxFilePath;
     private Path resultsFilePath;
@@ -41,7 +47,23 @@ public class JMeterLocalSessionImpl extends AbstractJMeterSession {
             String jmxPath, String propPath) throws JMeterManagerException {
         super(sessionID, framework);
         this.workingDirectory = workingDirectory;
-        this.executor = new JMeterBinaryExecutor();
+        this.fileSystem = new FileSystem();
+        
+        // Get binary path from CPS
+        String binaryPath;
+        try {
+            binaryPath = JMeterBinaryPath.get();
+        } catch (ConfigurationPropertyStoreException e) {
+            throw new JMeterManagerException("Failed to retrieve JMeter binary path from CPS", e);
+        }
+        
+        // Create validator and validate binary before creating executor
+        IJMeterBinaryValidator validator = new JMeterBinaryValidator(fileSystem);
+        validator.validate(Paths.get(binaryPath));
+        
+        // Create process executor and binary executor with validated path
+        IProcessExecutor processExecutor = new ProcessExecutorImpl();
+        this.executor = new JMeterBinaryExecutor(fileSystem, processExecutor, binaryPath);
         
         // Initialize file paths using original filenames
         this.jmxFilePath = workingDirectory.resolve(jmxPath);
@@ -91,7 +113,7 @@ public class JMeterLocalSessionImpl extends AbstractJMeterSession {
             throw new JMeterManagerException("JMeter test has already been started for session " + sessionID);
         }
         
-        if (jmxFilePath == null || !Files.exists(jmxFilePath)) {
+        if (jmxFilePath == null || !fileSystem.exists(jmxFilePath)) {
             throw new JMeterManagerException("No JMX test plan file has been set for session " + sessionID + ". Call setDefaultGeneratedJmxFile() first.");
         }
         
