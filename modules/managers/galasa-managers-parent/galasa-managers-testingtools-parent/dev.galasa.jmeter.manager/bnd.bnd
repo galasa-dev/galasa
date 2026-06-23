@@ -4,6 +4,7 @@ Export-Package: dev.galasa.jmeter
 Import-Package: dev.galasa,\
     dev.galasa.docker;resolution:=optional,\
     dev.galasa.docker.spi;resolution:=optional,\
+    dev.galasa.framework,\
     dev.galasa.framework.spi,\
     dev.galasa.framework.spi.cps,\
     dev.galasa.framework.spi.language,\

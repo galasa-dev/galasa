@@ -51,6 +51,11 @@ public class MockProcessExecutor implements IProcessExecutor {
         this.exceptionMessage = message;
     }
 
+    public void setThrowException(JMeterManagerException exception) {
+        this.shouldThrowException = true;
+        this.exceptionMessage = exception.getMessage();
+    }
+
     public List<List<String>> getExecutedCommands() {
         return new ArrayList<>(executedCommands);
     }
