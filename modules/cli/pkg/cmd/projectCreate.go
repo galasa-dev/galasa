@@ -18,8 +18,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// capitalizeFirst capitalizes the first letter of a string, leaving the rest unchanged.
+// This replaces the deprecated strings.Title function with predictable behavior
+func capitalizeFirst(s string) string {
+	if s == "" {
+		return s
+	}
+	return strings.ToUpper(s[:1]) + s[1:]
+}
+
 // MavenCoordinates holds common substitution parameters a pom.xml file
-// template uses.
+// template uses
 type MavenCoordinates struct {
 	GroupId    string
 	ArtifactId string
@@ -27,7 +36,7 @@ type MavenCoordinates struct {
 }
 
 // GradleCoordinates holds common substitution parameters .gradle file
-// templates use.
+// templates use
 type GradleCoordinates struct {
 	GroupId string
 	Name    string
@@ -41,6 +50,8 @@ type ProjectCreateCmdValues struct {
 	useMaven                   bool
 	useGradle                  bool
 	isDevelopmentProjectCreate bool
+	isManagerProject           bool
+	managerName                string
 }
 
 type ProjectCreateCommand struct {
@@ -118,10 +129,19 @@ func (cmd *ProjectCreateCommand) createCobraCommand(
 
 	projectCreateCmd.Flags().BoolVar(&cmd.values.force, "force", false, "Force-overwrite files which already exist.")
 	projectCreateCmd.Flags().BoolVar(&cmd.values.isOBRProjectRequired, "obr", false, "An OSGi Object Bundle Resource (OBR) project is needed.")
+
+	projectCreateCmd.Flags().BoolVar(&cmd.values.isManagerProject, "manager", false, "Create a Galasa manager project instead of a test project. "+
+		"A manager provides reusable test infrastructure and can inject resources into test classes.")
+	projectCreateCmd.Flags().StringVar(&cmd.values.managerName, "managerName", "", "Name of the manager to create. "+
+		"If not specified, defaults to the last part of the package name. "+
+		"For example, 'example' for package 'dev.galasa.example'. "+
+		"Must be a valid Java identifier.")
+
 	projectCreateCmd.Flags().StringVar(&cmd.values.featureNamesCommaSeparated, "features", "feature1",
 		"A comma-separated list of features you are testing. "+
 			"These must be able to form parts of a java package name. "+
-			"For example: \"payee,account\"")
+			"For example: \"payee,account\". "+
+			"Can be used with --manager flag to create both manager and test projects.")
 
 	projectCreateCmd.Flags().BoolVar(&cmd.values.useMaven, "maven", false, "Generate maven build artifacts. "+
 		"Can be used in addition to the --gradle flag. "+
@@ -156,6 +176,8 @@ func (cmd *ProjectCreateCommand) executeCreateProject(factory spi.Factory, rootC
 			cmd.values.useMaven,
 			cmd.values.useGradle,
 			cmd.values.isDevelopmentProjectCreate,
+			cmd.values.isManagerProject,
+			cmd.values.managerName,
 		)
 	}
 	return err
@@ -206,6 +228,8 @@ func createProject(
 	useMaven bool,
 	useGradle bool,
 	isDevelopment bool,
+	isManagerProject bool,
+	managerName string,
 ) error {
 
 	log.Printf("Creating project using packageName:%s\n", packageName)
@@ -221,32 +245,78 @@ func createProject(
 
 		fileGenerator := utils.NewFileGenerator(fileSystem, embeddedFileSystem)
 
-		// Separate out the feature names from a string into a slice of strings.
-		var featureNames []string
-		featureNames, err = separateFeatureNamesFromCommaSeparatedList(featureNamesCommaSeparated)
-
+		// Validate package name
+		err = utils.ValidateJavaPackageName(packageName)
 		if err == nil {
-			err = utils.ValidateJavaPackageName(packageName)
+
+			// Create the parent folder
+			parentProjectFolder := packageName
+			err = fileGenerator.CreateFolder(parentProjectFolder)
+
 			if err == nil {
+				// Validate manager name if creating a manager project
+				if isManagerProject {
+					if managerName == "" {
+						managerName = packageName[strings.LastIndex(packageName, ".")+1:]
+					}
+					err = utils.ValidateJavaPackageName(managerName)
+					if err != nil {
+						err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_INVALID_MANAGER_NAME, managerName, err.Error())
+					}
+				}
 
-				// Create the parent folder
-				parentProjectFolder := packageName
-				err = fileGenerator.CreateFolder(parentProjectFolder)
-
-				if err == nil {
-					err = createParentFolderContents(
-						fileGenerator, packageName, featureNames, isOBRProjectRequired,
-						forceOverwrite, useMaven, useGradle, isDevelopment)
+				// Separate out the feature names if provided
+				var featureNames []string
+				var hasFeatures bool = featureNamesCommaSeparated != ""
+				
+				if err == nil && hasFeatures {
+					featureNames, err = separateFeatureNamesFromCommaSeparatedList(featureNamesCommaSeparated)
 				}
 
 				if err == nil {
-					err = createTestProjects(fileGenerator, packageName, featureNames, forceOverwrite,
-						useMaven, useGradle, isDevelopment)
-					if err == nil {
-						if isOBRProjectRequired {
-							err = createOBRProject(fileGenerator, packageName, featureNames,
-								forceOverwrite, useMaven, useGradle)
+					// Determine what modules we're creating
+					var allModuleNames []string
+					
+					if isManagerProject {
+						allModuleNames = append(allModuleNames, packageName+".manager")
+					}
+					
+					if hasFeatures {
+						for _, featureName := range featureNames {
+							allModuleNames = append(allModuleNames, packageName+"."+featureName)
 						}
+					}
+
+					// Create parent folder contents (pom.xml/settings.gradle) with all modules
+					if len(allModuleNames) > 0 {
+						err = createCombinedParentFolderContents(
+							fileGenerator, packageName, allModuleNames, isOBRProjectRequired,
+							forceOverwrite, useMaven, useGradle, isDevelopment)
+					}
+
+					// Create manager bundle if requested
+					if err == nil && isManagerProject {
+						err = createManagerBundle(fileGenerator, packageName, managerName, forceOverwrite,
+							useMaven, useGradle, isDevelopment)
+					}
+
+					// Create test projects if requested
+					if err == nil && hasFeatures {
+						err = createTestProjects(fileGenerator, packageName, featureNames, forceOverwrite,
+							useMaven, useGradle, isDevelopment)
+					}
+
+					// Create OBR project if requested (includes both manager and test modules)
+					if err == nil && isOBRProjectRequired {
+						var obrModules []string
+						if isManagerProject {
+							obrModules = append(obrModules, "manager")
+						}
+						if hasFeatures {
+							obrModules = append(obrModules, featureNames...)
+						}
+						err = createOBRProject(fileGenerator, packageName, obrModules,
+							forceOverwrite, useMaven, useGradle)
 					}
 				}
 			}
@@ -255,6 +325,113 @@ func createProject(
 
 	return err
 }
+// createCombinedParentFolderContents creates parent pom.xml/settings.gradle with specified module names
+func createCombinedParentFolderContents(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	moduleNames []string,
+	isOBRProjectRequired bool,
+	forceOverwrite bool,
+	useMaven bool,
+	useGradle bool,
+	isDevelopment bool,
+) error {
+	var err error
+
+	if useMaven {
+		err = createCombinedParentPom(fileGenerator, packageName, moduleNames,
+			isOBRProjectRequired, forceOverwrite, isDevelopment)
+	}
+
+	if err == nil && useGradle {
+		err = createCombinedParentSettingsGradle(fileGenerator, packageName,
+			moduleNames, isOBRProjectRequired, forceOverwrite, isDevelopment)
+	}
+
+	if err == nil {
+		err = createGitIgnoreFile(packageName, fileGenerator, forceOverwrite, useMaven, useGradle)
+	}
+
+	return err
+}
+
+// createCombinedParentPom creates a parent pom.xml with the specified module names
+func createCombinedParentPom(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	moduleNames []string,
+	isOBRRequired bool,
+	forceOverwrite bool,
+	isDevelopment bool,
+) error {
+	type ParentPomParameters struct {
+		Coordinates      MavenCoordinates
+		GalasaVersion    string
+		IsOBRRequired    bool
+		ObrName          string
+		ChildModuleNames []string
+		IsDevelopment    bool
+	}
+
+	galasaVersion, err := embedded.GetGalasaVersion()
+	if err != nil {
+		return err
+	}
+
+	templateParameters := ParentPomParameters{
+		Coordinates:      MavenCoordinates{ArtifactId: packageName, GroupId: packageName, Name: packageName},
+		GalasaVersion:    galasaVersion,
+		IsOBRRequired:    isOBRRequired,
+		ObrName:          packageName + ".obr",
+		ChildModuleNames: moduleNames,
+		IsDevelopment:    isDevelopment,
+	}
+
+	targetFile := utils.GeneratedFileDef{
+		FileType:                 "pom",
+		TargetFilePath:           packageName + "/pom.xml",
+		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/pom.xml",
+		TemplateParameters:       templateParameters,
+	}
+
+	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
+}
+
+// createCombinedParentSettingsGradle creates a parent settings.gradle with the specified module names
+func createCombinedParentSettingsGradle(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	moduleNames []string,
+	isOBRRequired bool,
+	forceOverwrite bool,
+	isDevelopment bool,
+) error {
+	type ParentGradleParameters struct {
+		Coordinates      GradleCoordinates
+		IsOBRRequired    bool
+		ObrName          string
+		ChildModuleNames []string
+		IsDevelopment    bool
+	}
+
+	templateParameters := ParentGradleParameters{
+		Coordinates:      GradleCoordinates{GroupId: packageName, Name: packageName},
+		IsOBRRequired:    isOBRRequired,
+		ObrName:          packageName + ".obr",
+		ChildModuleNames: moduleNames,
+		IsDevelopment:    isDevelopment,
+	}
+
+	targetFile := utils.GeneratedFileDef{
+		FileType:                 "settings.gradle",
+		TargetFilePath:           packageName + "/settings.gradle",
+		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/settings.gradle.template",
+		TemplateParameters:       templateParameters,
+	}
+
+	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
+}
+
 
 func createParentFolderContents(
 	fileGenerator *utils.FileGenerator,
@@ -728,4 +905,428 @@ func createOBRFolderBuildGradle(fileGenerator *utils.FileGenerator, targetOBRFol
 		err = fileGenerator.CreateFile(targetFile, forceOverwrite, true)
 	}
 	return err
+}
+
+// ========================================
+// Manager Project Creation Functions
+// ========================================
+
+// createManagerProject creates a Galasa manager project structure
+func createManagerProject(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	managerName string,
+	isOBRProjectRequired bool,
+	forceOverwrite bool,
+	useMaven bool,
+	useGradle bool,
+	isDevelopment bool,
+) error {
+	var err error
+
+	// If manager name is not provided, use the last part of the package name
+	if managerName == "" {
+		parts := strings.Split(packageName, ".")
+		managerName = parts[len(parts)-1]
+	}
+
+	// Validate manager name
+	err = utils.ValidateJavaPackageName(managerName)
+	if err != nil {
+		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_INVALID_MANAGER_NAME, managerName, err.Error())
+	}
+
+	log.Printf("Creating manager project: %s with manager name: %s\n", packageName, managerName)
+
+	// Create parent folder contents (pom.xml, settings.gradle, .gitignore)
+	managerBundleName := packageName + ".manager"
+	// For OBR, pass just "manager" as the feature name, not the full bundle name
+	// createOBRProject will construct the full name as packageName + "." + featureName
+	var managerModules []string = []string{"manager"}
+
+	if useMaven {
+		err = createManagerParentPom(fileGenerator, packageName, managerBundleName, isOBRProjectRequired, forceOverwrite, isDevelopment)
+	}
+
+	if err == nil && useGradle {
+		err = createManagerParentSettingsGradle(fileGenerator, packageName, managerBundleName, isOBRProjectRequired, forceOverwrite, isDevelopment)
+	}
+
+	if err == nil {
+		err = createGitIgnoreFile(packageName, fileGenerator, forceOverwrite, useMaven, useGradle)
+	}
+
+	// Create the manager bundle
+	if err == nil {
+		err = createManagerBundle(fileGenerator, packageName, managerName, forceOverwrite, useMaven, useGradle, isDevelopment)
+	}
+
+	// Create OBR if required
+	if err == nil && isOBRProjectRequired {
+		err = createManagerOBRProject(fileGenerator, packageName, managerModules, forceOverwrite, useMaven, useGradle)
+	}
+
+	return err
+}
+
+// createManagerParentPom creates the parent pom.xml for a manager project
+func createManagerParentPom(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	managerBundleName string,
+	isOBRRequired bool,
+	forceOverwrite bool,
+	isDevelopment bool,
+) error {
+	type ParentPomParameters struct {
+		Coordinates      MavenCoordinates
+		GalasaVersion    string
+		IsOBRRequired    bool
+		ObrName          string
+		ChildModuleNames []string
+		IsDevelopment    bool
+	}
+
+	galasaVersion, err := embedded.GetGalasaVersion()
+	if err != nil {
+		return err
+	}
+
+	childModules := []string{managerBundleName}
+
+	templateParameters := ParentPomParameters{
+		Coordinates:      MavenCoordinates{ArtifactId: packageName, GroupId: packageName, Name: packageName},
+		GalasaVersion:    galasaVersion,
+		IsOBRRequired:    isOBRRequired,
+		ObrName:          packageName + ".obr",
+		ChildModuleNames: childModules,
+		IsDevelopment:    isDevelopment,
+	}
+
+	targetFile := utils.GeneratedFileDef{
+		FileType:                 "pom",
+		TargetFilePath:           packageName + "/pom.xml",
+		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/pom.xml",
+		TemplateParameters:       templateParameters,
+	}
+
+	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
+}
+
+// createManagerParentSettingsGradle creates the parent settings.gradle for a manager project
+func createManagerParentSettingsGradle(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	managerBundleName string,
+	isOBRRequired bool,
+	forceOverwrite bool,
+	isDevelopment bool,
+) error {
+	type ParentGradleParameters struct {
+		Coordinates      GradleCoordinates
+		IsOBRRequired    bool
+		ObrName          string
+		ChildModuleNames []string
+		IsDevelopment    bool
+	}
+
+	childModules := []string{managerBundleName}
+
+	templateParameters := ParentGradleParameters{
+		Coordinates:      GradleCoordinates{GroupId: packageName, Name: packageName},
+		IsOBRRequired:    isOBRRequired,
+		ObrName:          packageName + ".obr",
+		ChildModuleNames: childModules,
+		IsDevelopment:    isDevelopment,
+	}
+
+	targetFile := utils.GeneratedFileDef{
+		FileType:                 "settings.gradle",
+		TargetFilePath:           packageName + "/settings.gradle",
+		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/settings.gradle.template",
+		TemplateParameters:       templateParameters,
+	}
+
+	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
+}
+
+// createManagerBundle creates the manager bundle with all necessary files
+func createManagerBundle(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	managerName string,
+	forceOverwrite bool,
+	useMaven bool,
+	useGradle bool,
+	isDevelopment bool,
+) error {
+	var err error
+
+	managerBundleName := packageName + ".manager"
+	managerDir := packageName + "/" + managerBundleName
+
+	// Create manager directory
+	err = fileGenerator.CreateFolder(managerDir)
+	if err != nil {
+		return err
+	}
+
+	// Capitalize manager name for class names (first letter uppercase, rest unchanged)
+	capitalizedManagerName := capitalizeFirst(managerName)
+
+	// Create source directory structure
+	srcMainJavaDir := managerDir + "/src/main/java/" + strings.ReplaceAll(packageName, ".", "/")
+	err = fileGenerator.CreateFolder(srcMainJavaDir)
+	if err != nil {
+		return err
+	}
+
+	internalDir := srcMainJavaDir + "/internal"
+	err = fileGenerator.CreateFolder(internalDir)
+	if err != nil {
+		return err
+	}
+
+	// Create properties directory
+	propertiesDir := internalDir + "/properties"
+	err = fileGenerator.CreateFolder(propertiesDir)
+	if err != nil {
+		return err
+	}
+
+	// Create test directory structure
+	srcTestJavaDir := managerDir + "/src/test/java/" + strings.ReplaceAll(packageName, ".", "/") + "/internal"
+	err = fileGenerator.CreateFolder(srcTestJavaDir)
+	if err != nil {
+		return err
+	}
+
+	// Create manager Java files
+	if err == nil {
+		err = createManagerJavaFiles(fileGenerator, packageName, capitalizedManagerName, srcMainJavaDir, internalDir, srcTestJavaDir, forceOverwrite)
+	}
+
+	// Create build files
+	if err == nil && useMaven {
+		err = createManagerPom(fileGenerator, packageName, managerBundleName, managerDir, forceOverwrite, isDevelopment)
+	}
+
+	if err == nil && useGradle {
+		err = createManagerGradleFiles(fileGenerator, packageName, managerBundleName, managerDir, forceOverwrite, isDevelopment)
+	}
+
+	return err
+}
+
+// createManagerJavaFiles creates all the Java source files for the manager
+func createManagerJavaFiles(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	capitalizedManagerName string,
+	srcMainJavaDir string,
+	internalDir string,
+	srcTestJavaDir string,
+	forceOverwrite bool,
+) error {
+	type ManagerTemplateParameters struct {
+		PackageName            string
+		CapitalizedManagerName string
+	}
+
+	params := ManagerTemplateParameters{
+		PackageName:            packageName,
+		CapitalizedManagerName: capitalizedManagerName,
+	}
+
+	// Public API files
+	files := []struct {
+		name         string
+		templatePath string
+		targetPath   string
+	}{
+		{
+			name:         "Manager Annotation",
+			templatePath: "templates/projectCreate/manager-project/ManagerAnnotation.java",
+			targetPath:   srcMainJavaDir + "/" + capitalizedManagerName + "Resource.java",
+		},
+		{
+			name:         "Resource Interface",
+			templatePath: "templates/projectCreate/manager-project/IManagerResource.java",
+			targetPath:   srcMainJavaDir + "/I" + capitalizedManagerName + "Resource.java",
+		},
+		{
+			name:         "Manager Interface",
+			templatePath: "templates/projectCreate/manager-project/IManager.java",
+			targetPath:   srcMainJavaDir + "/I" + capitalizedManagerName + "Manager.java",
+		},
+		{
+			name:         "Manager Exception",
+			templatePath: "templates/projectCreate/manager-project/ManagerException.java",
+			targetPath:   srcMainJavaDir + "/" + capitalizedManagerName + "ManagerException.java",
+		},
+		{
+			name:         "Manager Field Annotation",
+			templatePath: "templates/projectCreate/manager-project/internal/ManagerField.java",
+			targetPath:   internalDir + "/" + capitalizedManagerName + "ManagerField.java",
+		},
+		{
+			name:         "Manager Implementation",
+			templatePath: "templates/projectCreate/manager-project/internal/ManagerImpl.java",
+			targetPath:   internalDir + "/" + capitalizedManagerName + "ManagerImpl.java",
+		},
+		{
+			name:         "Resource Implementation",
+			templatePath: "templates/projectCreate/manager-project/internal/ResourceImpl.java",
+			targetPath:   internalDir + "/" + capitalizedManagerName + "ResourceImpl.java",
+		},
+		{
+			name:         "Manager Unit Test",
+			templatePath: "templates/projectCreate/manager-project/internal/ManagerImplTest.java",
+			targetPath:   srcTestJavaDir + "/" + capitalizedManagerName + "ManagerImplTest.java",
+		},
+		{
+			name:         "Resource Management",
+			templatePath: "templates/projectCreate/manager-project/internal/ResourceManagement.java",
+			targetPath:   internalDir + "/" + capitalizedManagerName + "ResourceManagement.java",
+		},
+		{
+			name:         "Properties Singleton",
+			templatePath: "templates/projectCreate/manager-project/internal/properties/PropertiesSingleton.java",
+			targetPath:   internalDir + "/properties/" + capitalizedManagerName + "PropertiesSingleton.java",
+		},
+		{
+			name:         "Example Property",
+			templatePath: "templates/projectCreate/manager-project/internal/properties/ExampleProperty.java",
+			targetPath:   internalDir + "/properties/" + capitalizedManagerName + "ExampleProperty.java",
+		},
+	}
+
+	for _, file := range files {
+		targetFile := utils.GeneratedFileDef{
+			FileType:                 "java",
+			TargetFilePath:           file.targetPath,
+			EmbeddedTemplateFilePath: file.templatePath,
+			TemplateParameters:       params,
+		}
+
+		err := fileGenerator.CreateFile(targetFile, forceOverwrite, true)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// createManagerPom creates the pom.xml for the manager bundle
+func createManagerPom(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	managerBundleName string,
+	managerDir string,
+	forceOverwrite bool,
+	isDevelopment bool,
+) error {
+	type ManagerPomParameters struct {
+		Coordinates   MavenCoordinates
+		Parent        MavenCoordinates
+		GalasaVersion string
+		IsDevelopment bool
+	}
+
+	galasaVersion, err := embedded.GetGalasaVersion()
+	if err != nil {
+		return err
+	}
+
+	templateParameters := ManagerPomParameters{
+		Coordinates:   MavenCoordinates{ArtifactId: managerBundleName, GroupId: packageName, Name: managerBundleName},
+		Parent:        MavenCoordinates{ArtifactId: packageName, GroupId: packageName, Name: packageName},
+		GalasaVersion: galasaVersion,
+		IsDevelopment: isDevelopment,
+	}
+
+	targetFile := utils.GeneratedFileDef{
+		FileType:                 "pom",
+		TargetFilePath:           managerDir + "/pom.xml",
+		EmbeddedTemplateFilePath: "templates/projectCreate/manager-project/pom.xml",
+		TemplateParameters:       templateParameters,
+	}
+
+	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
+}
+
+// createManagerGradleFiles creates build.gradle and bnd.bnd for the manager bundle
+func createManagerGradleFiles(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	managerBundleName string,
+	managerDir string,
+	forceOverwrite bool,
+	isDevelopment bool,
+) error {
+	type ManagerGradleParameters struct {
+		Coordinates   GradleCoordinates
+		GalasaVersion string
+		IsDevelopment bool
+	}
+
+	galasaVersion, err := embedded.GetGalasaVersion()
+	if err != nil {
+		return err
+	}
+
+	// Create build.gradle
+	buildGradleParams := ManagerGradleParameters{
+		Coordinates:   GradleCoordinates{GroupId: packageName, Name: managerBundleName},
+		GalasaVersion: galasaVersion,
+		IsDevelopment: isDevelopment,
+	}
+
+	buildGradleFile := utils.GeneratedFileDef{
+		FileType:                 "build.gradle",
+		TargetFilePath:           managerDir + "/build.gradle",
+		EmbeddedTemplateFilePath: "templates/projectCreate/manager-project/build.gradle",
+		TemplateParameters:       buildGradleParams,
+	}
+
+	err = fileGenerator.CreateFile(buildGradleFile, forceOverwrite, true)
+	if err != nil {
+		return err
+	}
+
+	// Create bnd.bnd
+	type BndParameters struct {
+		BundleName  string // OSGi bundle symbolic name (e.g., dev.galasa.example.docker.manager)
+		PackageName string // Java package name (e.g., dev.galasa.example.docker)
+	}
+
+	bndParams := BndParameters{
+		BundleName:  managerBundleName,
+		PackageName: packageName,
+	}
+
+	bndFile := utils.GeneratedFileDef{
+		FileType:                 "bnd.bnd",
+		TargetFilePath:           managerDir + "/bnd.bnd",
+		EmbeddedTemplateFilePath: "templates/projectCreate/manager-project/bnd.bnd",
+		TemplateParameters:       bndParams,
+	}
+
+	return fileGenerator.CreateFile(bndFile, forceOverwrite, true)
+}
+
+// createManagerOBRProject creates the OBR project for a manager
+func createManagerOBRProject(
+	fileGenerator *utils.FileGenerator,
+	packageName string,
+	managerModules []string,
+	forceOverwrite bool,
+	useMaven bool,
+	useGradle bool,
+) error {
+	// Reuse existing OBR creation logic but with manager modules
+	// For now, we'll create a simple stub that calls the existing function
+	// In a real implementation, we'd adapt createOBRProject to handle managers
+	return createOBRProject(fileGenerator, packageName, managerModules, forceOverwrite, useMaven, useGradle)
 }
