@@ -428,6 +428,76 @@ func TestCanGetRunGroupStatus(t *testing.T) {
 	}
 }
 
+func TestGetRunsByGroupRetainsRunNameWhenStructureJsonAbsent(t *testing.T) {
+	// Given...
+	env := utils.NewMockEnv()
+	env.EnvVars["JAVA_HOME"] = "/java"
+
+	fs := files.NewMockFileSystem()
+	utils.AddJavaRuntimeToMock(fs, "/java")
+
+	galasaHome, _ := utils.NewGalasaHome(fs, env, "")
+
+	jvmLaunchParams := getBasicJvmLaunchParams()
+	timeService := utils.NewMockTimeService()
+
+	mockProcess := NewMockProcess()
+	mockProcessFactory := NewMockProcessFactory(mockProcess)
+
+	bootstrapProps := getBasicBootstrapProperties()
+
+	mockFactory := &utils.MockFactory{
+		Env:         env,
+		FileSystem:  fs,
+		TimeService: timeService,
+	}
+
+	launcher, err := NewJVMLauncher(
+		mockFactory,
+		bootstrapProps, embedded.GetReadOnlyFileSystem(),
+		jvmLaunchParams, mockProcessFactory, galasaHome, utils.NewRealTimedSleeper(),
+	)
+	if err != nil {
+		assert.Fail(t, "Launcher should have been created OK")
+	}
+
+	isTraceEnabled := true
+	var overrides map[string]interface{} = make(map[string]interface{})
+	var tags []string
+
+	launcher.SubmitTestRun(
+		"myGroup",
+		"galasa.dev.example.banking.account/galasa.dev.example.banking.account.TestAccount",
+		"myRequestType-UnitTest",
+		"myRequestor",
+		"myRequestor",
+		"unitTestStream",
+		"mvn:myGroup/myArtifact/myClassifier/obr",
+		isTraceEnabled,
+		"", // No Gherkin URL supplied
+		"", // No Gherkin Feature supplied
+		overrides,
+		tags,
+	)
+
+	// Simulate the JVM process exiting WITHOUT writing structure.json to disk
+	mockProcess.Wait()
+
+	// structure.json is deliberately NOT written to fs here.
+
+	// When...
+	testRuns, err := launcher.GetRunsByGroup("myGroup")
+
+	// Then...
+	assert.Nil(t, err, "GetRunsByGroup should not return an error")
+	assert.NotNil(t, testRuns, "Returned test runs should not be nil")
+	assert.Len(t, testRuns.Runs, 1, "Should have exactly one run")
+
+	// The run name must be the one allocated by the JVM ("L12345"), not "".
+	assert.Equal(t, "L12345", testRuns.Runs[0].GetName(),
+		"Run name must be preserved even when structure.json has not been written yet")
+}
+
 func TestJvmLauncherSetsRASStoreOverride(t *testing.T) {
 	overrides := make(map[string]interface{})
 	fs := files.NewMockFileSystem()

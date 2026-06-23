@@ -153,6 +153,9 @@ func (cmd *RunsSubmitLocalCommand) createRunsSubmitLocalCobraCmd(
 	runsSubmitLocalCobraCmd.MarkFlagsOneRequired("class", "gherkin")
 	runsSubmitLocalCobraCmd.MarkFlagsMutuallyExclusive("methods", "gherkin")
 
+	runsSubmitLocalCobraCmd.Flags().IntVar(&runsSubmitCmd.Values().(*utils.RunsSubmitCmdValues).Throttle, "throttle", runs.DEFAULT_LOCAL_THROTTLE_TESTS_AT_ONCE,
+		"how many test runs can be submitted in parallel, 0 or less will disable throttling. 1 causes tests to be run sequentially.")
+
 	runsSubmitCmd.CobraCommand().AddCommand(runsSubmitLocalCobraCmd)
 
 	return runsSubmitLocalCobraCmd, err

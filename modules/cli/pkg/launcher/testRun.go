@@ -7,7 +7,6 @@ package launcher
 
 import (
 	"encoding/json"
-	"net/url"
 
 	"github.com/galasa-dev/cli/pkg/galasaapi"
 	"github.com/galasa-dev/cli/pkg/spi"
@@ -60,54 +59,50 @@ func readTestRunFromJsonFile(
 	log.Printf("readTestRunFromJsonFile entered. Reading file '%s'\n", jsonFilePath)
 
 	var testRunData *galasaapi.TestRun = nil
-	url, err := url.Parse(jsonFilePath)
+	var err error
+
+	isExists, err := fileSystem.Exists(jsonFilePath)
 	if err != nil {
-		log.Printf("Failed to parse json file path '%s' into a URL.", jsonFilePath)
+		log.Printf("Failed to check whether the file '%s' exists. Can't read status.", jsonFilePath)
 	} else {
-		var isExists bool
-		isExists, err = fileSystem.Exists(url.Path)
-		if err != nil {
-			log.Printf("Failed to check whether the file '%s' exists. Can't read status.", url.Path)
+		if !isExists {
+			log.Printf("readTestRunFromJsonFile file '%s' does not exist.", jsonFilePath)
 		} else {
-			if !isExists {
-				log.Printf("readTestRunFromJsonFile file '%s' does not exist.", url.Path)
+			var jsonContent string
+			jsonContent, err = fileSystem.ReadTextFile(jsonFilePath)
+			if err != nil {
+				log.Printf("readTestRunFromJsonFile file '%s' could not be read.", jsonFilePath)
 			} else {
-				var jsonContent string
-				jsonContent, err = fileSystem.ReadTextFile(url.Path)
-				if err != nil {
-					log.Printf("readTestRunFromJsonFile file '%s' could not be read.", url.Path)
+				if len(jsonContent) <= 0 {
+					log.Printf("readTestRunFromJsonFile file '%s' is empty. Status could not be read.", jsonFilePath)
 				} else {
-					if len(jsonContent) <= 0 {
-						log.Printf("readTestRunFromJsonFile file '%s' is empty. Status could not be read.", url.Path)
+					var f interface{}
+					err = json.Unmarshal([]byte(jsonContent), &f)
+
+					if err != nil {
+						log.Printf("readTestRunFromJsonFile file '%s' could not be parsed from json. status could not be read.", jsonFilePath)
 					} else {
-						var f interface{}
-						err = json.Unmarshal([]byte(jsonContent), &f)
+						fields := f.(map[string]interface{})
 
-						if err != nil {
-							log.Printf("readTestRunFromJsonFile file '%s' could not be parsed from json. status could not be read.", jsonFilePath)
-						} else {
-							fields := f.(map[string]interface{})
+						testRunData = galasaapi.NewTestRun()
 
-							testRunData = galasaapi.NewTestRun()
+						testRunData.Name = getStringField(fields, "runName")
+						testRunData.Test = getStringField(fields, "testShortName")
+						testRunData.BundleName = getStringField(fields, "bundle")
+						testRunData.TestName = getStringField(fields, "testName")
+						testRunData.Status = getStringField(fields, "status")
+						testRunData.Result = getStringField(fields, "result")
+						testRunData.Queued = getStringField(fields, "queued")
+						testRunData.Requestor = getStringField(fields, "requestor")
+						testRunData.User = getStringField(fields, "user")
+						testRunData.RasRunId = getStringField(fields, "runName")
 
-							testRunData.Name = getStringField(fields, "runName")
-							testRunData.Test = getStringField(fields, "testShortName")
-							testRunData.BundleName = getStringField(fields, "bundle")
-							testRunData.TestName = getStringField(fields, "testName")
-							testRunData.Status = getStringField(fields, "status")
-							testRunData.Result = getStringField(fields, "result")
-							testRunData.Queued = getStringField(fields, "queued")
-							testRunData.Requestor = getStringField(fields, "requestor")
-							testRunData.User = getStringField(fields, "user")
-							testRunData.RasRunId = getStringField(fields, "runName")
-
-							log.Printf("readTestRunFromJsonFile Test %s status %s result %s\n", *testRunData.Name, *testRunData.Status, *testRunData.Result)
-							// testRunData.Stream = stream
-							// testRunData.Local = isLocal
-							// testRunData.Trace = isTraceEnabled
-							// testRunData.Type = testType
-							// testRunData.Group = group
-						}
+						log.Printf("readTestRunFromJsonFile Test %s status %s result %s\n", *testRunData.Name, *testRunData.Status, *testRunData.Result)
+						// testRunData.Stream = stream
+						// testRunData.Local = isLocal
+						// testRunData.Trace = isTraceEnabled
+						// testRunData.Type = testType
+						// testRunData.Group = group
 					}
 				}
 			}

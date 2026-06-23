@@ -47,4 +47,5 @@ const (
 	MAX_INT                                  int = int(^uint(0) >> 1)
 	DEFAULT_PROGRESS_REPORT_INTERVAL_MINUTES int = 5
 	DEFAULT_THROTTLE_TESTS_AT_ONCE           int = 3
+	DEFAULT_LOCAL_THROTTLE_TESTS_AT_ONCE     int = 1
 )

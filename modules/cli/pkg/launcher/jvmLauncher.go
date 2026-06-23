@@ -471,7 +471,7 @@ func (launcher *JvmLauncher) GetRunsByGroup(groupName string) (*galasaapi.TestRu
 
 	log.Printf("JvmLauncher: GetRunsByGroup(groupName=%s) exiting. isComplete:%v testRuns returned:%v\n", groupName, *testRuns.Complete, len(testRuns.Runs))
 	for _, testRun := range testRuns.Runs {
-		log.Printf("JvmLauncher: GetRunsByGroup test name:%s status:%s result:%s\n", *testRun.Name, *testRun.Status, *testRun.Result)
+		log.Printf("JvmLauncher: GetRunsByGroup test name:%s status:%s result:%s\n", testRun.GetName(), testRun.GetStatus(), testRun.GetResult())
 	}
 	return &testRuns, nil
 }
@@ -523,7 +523,7 @@ func createRunFromLocalTest(localTest *LocalTest) (*galasaapi.Run, error) {
 		err = fmt.Errorf("createRunFromLocalTest - Don't have enough information to find the structure.json in the RAS folder")
 		log.Printf("%v", err.Error())
 	} else {
-		jsonFilePath := strings.TrimPrefix(localTest.rasFolderPathUrl, "file:///") + "/" + localTest.runId + "/structure.json"
+		jsonFilePath := fileUrlToPath(localTest.rasFolderPathUrl) + "/" + localTest.runId + "/structure.json"
 		log.Printf("createRunFromLocalTest - Reading latest test status from '%s'\n", jsonFilePath)
 
 		err = setTestStructureFromRasFile(run, jsonFilePath, localTest.fileSystem)
