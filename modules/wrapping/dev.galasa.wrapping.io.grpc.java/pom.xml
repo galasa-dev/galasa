@@ -42,31 +42,11 @@
 			<version>1.76.0</version>
 		</dependency>
 
-		<!--
-		This dependency is relied upon by io.grpc:grpc-protobuf
-		but we need to depend on it directly to avoid OSGi issues.
-		-->
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.25.8</version>
-		</dependency>
-
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-protobuf-lite</artifactId>
 			<version>1.76.0</version>
 		</dependency>
-
-		<!--
-		This dependency is relied upon by io.grpc:grpc-protobuf-lite
-		but we need to depend on it directly to avoid OSGi issues.
-		-->
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-javalite</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-stub</artifactId>
@@ -76,66 +56,6 @@
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-util</artifactId>
 			<version>1.76.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.perfmark</groupId>
-			<artifactId>perfmark-api</artifactId>
-			<version>0.26.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.android</groupId>
-			<artifactId>annotations</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.api.grpc</groupId>
-			<artifactId>proto-google-common-protos</artifactId>
-			<version>2.22.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.errorprone</groupId>
-			<artifactId>error_prone_annotations</artifactId>
-			<version>2.20.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>32.0.1-jre</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>failureaccess</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<!-- Required by guava - see https://mvnrepository.com/artifact/com.google.guava/guava/32.0.1-jre -->
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>listenablefuture</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.j2objc</groupId>
-			<artifactId>j2objc-annotations</artifactId>
-			<version>2.8</version>
-		</dependency>
-
-
-
-
-		<dependency>
-			<groupId>org.checkerframework</groupId>
-			<artifactId>checker-qual</artifactId>
-			<version>3.33.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>animal-sniffer-annotations</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -149,7 +69,8 @@
 					<supportedProjectTypes>bundle</supportedProjectTypes>
 					<instructions>
 						<Bundle-SymbolicName>dev.galasa.io.grpc.java</Bundle-SymbolicName>
-						<Embed-Dependency>*;scope=compile</Embed-Dependency>
+						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
 						<Import-Package>
 							javax.net.ssl,
 							javax.security.cert
