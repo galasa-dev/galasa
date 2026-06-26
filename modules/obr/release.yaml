@@ -140,11 +140,6 @@ external:
     mvp: true
     isolated: true
 
-  - artifact: dev.galasa.wrapping.velocity-engine-core
-    obr: true
-    mvp: true
-    isolated: true
-
   - group: dev.galasa
     artifact: dev.galasa.wrapping.kafka.clients
     obr: true
@@ -387,6 +382,12 @@ external:
 
   - group: org.apache.logging.log4j
     artifact: log4j-slf4j-impl
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: org.apache.velocity
+    artifact: velocity-engine-core
     obr: true
     mvp: true
     isolated: true

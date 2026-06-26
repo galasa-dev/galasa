@@ -33,7 +33,8 @@
                     <supportedProjectTypes>bundle</supportedProjectTypes>
                     <instructions>
                         <Bundle-SymbolicName>dev.galasa.wrapping.protobuf-java</Bundle-SymbolicName>
-                        <Embed-Dependency>*;scope=compile</Embed-Dependency>
+                        <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
                         <Export-Package>com.google.protobuf</Export-Package>
                     </instructions>
                 </configuration>

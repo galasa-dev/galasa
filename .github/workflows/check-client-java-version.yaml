@@ -164,8 +164,6 @@ jobs:
                   `This PR updates the Kubernetes client-java dependency and documentation.\n\n` +
                   `**Changes:**\n` +
                   `- Updated \`io.kubernetes:client-java\` from ${current} to ${latest}\n` +
-                  `- Updated \`io.kubernetes:client-java-api\` from ${current} to ${latest}\n` +
-                  `- Updated \`io.kubernetes:client-java-proto\` from ${current} to ${latest}\n` +
                   `- Added Galasa ${galasaVersion} with Kubernetes ${minK8s}-${maxK8s} compatibility to documentation\n\n` +
                   `**Maven Central:** https://central.sonatype.com/artifact/io.kubernetes/client-java/${latest}\n\n` +
                   `**Estimated supported Kubernetes versions:** ${minK8s} - ${maxK8s}\n\n` +
@@ -252,13 +250,9 @@ jobs:
 
               // Update the version in build.gradle with validation
               const clientJavaRegex = /io\.kubernetes:client-java:\d+\.\d+\.\d+/g;
-              const clientJavaApiRegex = /io\.kubernetes:client-java-api:\d+\.\d+\.\d+/g;
-              const clientJavaProtoRegex = /io\.kubernetes:client-java-proto:\d+\.\d+\.\d+/g;
 
               let updatedBuildGradle = buildGradleContent
                 .replace(clientJavaRegex, `io.kubernetes:client-java:${latest}`)
-                .replace(clientJavaApiRegex, `io.kubernetes:client-java-api:${latest}`)
-                .replace(clientJavaProtoRegex, `io.kubernetes:client-java-proto:${latest}`);
 
               // Validate that replacements occurred
               if (updatedBuildGradle === buildGradleContent) {
