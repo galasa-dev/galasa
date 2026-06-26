@@ -31,7 +31,7 @@
 
         <!-- Security fix: Override transitive jackson-databind version to address CVE -->
         <dependency>
-            <groupId>tools.jackson.core</groupId>
+            <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
