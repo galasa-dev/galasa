@@ -10,7 +10,7 @@ dependencies {
     implementation project(':dev.galasa.framework.api.common')
     implementation project(':dev.galasa.framework.api.beans')
 
-    implementation 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java'
+    implementation 'io.kubernetes:client-java'
 
     testImplementation(testFixtures(project(':dev.galasa.framework.api.common')))
     testImplementation(testFixtures(project(':dev.galasa.framework')))

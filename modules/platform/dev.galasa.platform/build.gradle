@@ -98,7 +98,6 @@ dependencies {
         api 'dev.galasa:dev.galasa.wrapping.httpclient-osgi:'+version // If updating, also update in obr/release.yaml.
         api 'dev.galasa:dev.galasa.wrapping.httpclient5:'+version // If updating, also update in obr/release.yaml.
         api 'dev.galasa:dev.galasa.wrapping.io.grpc.java:'+version
-        api 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java:'+version
         api 'dev.galasa:dev.galasa.wrapping.jta:'+version
         api 'dev.galasa:dev.galasa.wrapping.kafka.clients:'+version
         api 'dev.galasa:dev.galasa.wrapping.protobuf-java:'+version

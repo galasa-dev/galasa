@@ -8,9 +8,9 @@ description = 'Galasa Kubernetes Controller'
 dependencies {
     implementation project(':dev.galasa')
     implementation project(':dev.galasa.framework')
-    implementation 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java'
     implementation 'dev.galasa:dev.galasa.wrapping.gson'
     implementation 'io.prometheus:simpleclient'
+    implementation 'io.kubernetes:client-java'
 
     testImplementation(testFixtures(project(':dev.galasa.framework')))
 }
