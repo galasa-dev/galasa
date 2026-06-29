@@ -40,7 +40,6 @@
         <module>dev.galasa.wrapping.httpclient-osgi</module>
         <module>dev.galasa.wrapping.httpclient5</module>
 		<module>dev.galasa.wrapping.io.grpc.java</module>
-		<module>dev.galasa.wrapping.io.kubernetes.client-java</module>
 		<module>dev.galasa.wrapping.protobuf-java</module>
 		<module>dev.galasa.wrapping.jta</module>
 		<module>dev.galasa.wrapping.kafka.clients</module>

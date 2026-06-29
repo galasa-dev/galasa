@@ -7,7 +7,7 @@ description = 'Galasa Kubernetes Manager'
 dependencies {
     implementation 'dev.galasa:dev.galasa.wrapping.gson'
     implementation 'dev.galasa:dev.galasa.wrapping.protobuf-java'
-    implementation 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java'
+    implementation 'io.kubernetes:client-java'
 }
 
 

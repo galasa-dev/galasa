@@ -123,12 +123,6 @@ external:
     isolated: true
 
   - group: dev.galasa
-    artifact: dev.galasa.wrapping.io.kubernetes.client-java
-    obr: true
-    mvp: true
-    isolated: true
-
-  - group: dev.galasa
     artifact: dev.galasa.wrapping.protobuf-java
     obr: true
     mvp: true
@@ -145,6 +139,12 @@ external:
     obr: true
     mvp: false      # Only used in Kafka extension - not needed.
     isolated: false # Only used in Kafka extension - not needed.
+
+  - group: io.kubernetes
+    artifact: client-java
+    obr: true
+    mvp: true
+    isolated: true
 
   # io.opentelemetry dependencies are transitive dependencies of selenium 4.27.0 required for isolated and MVP
   - group: io.opentelemetry
