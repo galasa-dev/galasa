@@ -101,6 +101,7 @@ dependencies {
         api 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java:'+version
         api 'dev.galasa:dev.galasa.wrapping.jta:'+version
         api 'dev.galasa:dev.galasa.wrapping.kafka.clients:'+version
+        api 'dev.galasa:dev.galasa.wrapping.velocity-engine-core:'+version
         api 'dev.galasa:dev.galasa.wrapping.protobuf-java:'+version
         api 'dev.galasa:galasa-boot:'+version
         api 'dev.galasa:galasa-testharness:'+version

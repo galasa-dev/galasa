@@ -146,6 +146,12 @@ external:
     mvp: false      # Only used in Kafka extension - not needed.
     isolated: false # Only used in Kafka extension - not needed.
 
+  - group: dev.galasa
+    artifact: dev.galasa.wrapping.velocity-engine-core
+    obr: true
+    mvp: true
+    isolated: true
+
   # io.opentelemetry dependencies are transitive dependencies of selenium 4.27.0 required for isolated and MVP
   - group: io.opentelemetry
     artifact: opentelemetry-api
@@ -382,12 +388,6 @@ external:
 
   - group: org.apache.logging.log4j
     artifact: log4j-slf4j-impl
-    obr: true
-    mvp: true
-    isolated: true
-
-  - group: org.apache.velocity
-    artifact: velocity-engine-core
     obr: true
     mvp: true
     isolated: true
