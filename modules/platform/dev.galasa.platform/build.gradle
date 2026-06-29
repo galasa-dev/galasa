@@ -211,10 +211,6 @@ dependencies {
         api 'org.apache.httpcomponents:httpcore-osgi:4.4.14' // If updating, also update in obr/release.yaml.
         api 'org.apache.httpcomponents:httpmime:4.5.14'
 
-        api 'org.apache.httpcomponents.httpclient:httpclient5:5.0.3' // bnd.bnd only
-
-        api 'org.apache.httpcomponents.core5:httpcore5:5.0.2' // bnd.bnd only
-
         api 'org.apache.kafka:kafka-clients:4.0.2'
         api 'org.apache.kafka:kafka-server-common:4.0.2'
 
