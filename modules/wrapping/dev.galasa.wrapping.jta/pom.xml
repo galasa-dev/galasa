@@ -39,7 +39,8 @@
 					<supportedProjectTypes>bundle</supportedProjectTypes>
 					<instructions>
 						<Bundle-SymbolicName>dev.galasa.wrapping.jta</Bundle-SymbolicName>
-						<Embed-Dependency>*;scope=compile</Embed-Dependency>
+						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
 						<Export-Package>javax.transaction,
 							javax.transaction.*,
 							javax.enterprise.util,

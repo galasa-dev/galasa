@@ -20,16 +20,6 @@
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents.core5</groupId>
-            <artifactId>httpcore5</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents.core5</groupId>
-            <artifactId>httpcore5-h2</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -42,7 +32,8 @@
                     <supportedProjectTypes>bundle</supportedProjectTypes>
                     <instructions>
                         <Bundle-SymbolicName>dev.galasa.wrapping.httpclient5</Bundle-SymbolicName>
-                        <Embed-Dependency>*;scope=compile</Embed-Dependency>
+                        <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package>
                             javax.crypto,
                             javax.crypto.spec,

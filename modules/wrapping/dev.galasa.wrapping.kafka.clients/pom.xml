@@ -36,11 +36,7 @@
                 </exclusion>
             </exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.36</version>
-		</dependency>
+
         <!-- Security fix: Override transitive jackson-core version from kafka-server-common to address CVE -->
         <dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -64,7 +60,8 @@
 					<supportedProjectTypes>bundle</supportedProjectTypes>
 					<instructions>
 						<Bundle-SymbolicName>dev.galasa.wrapping.kafka.clients</Bundle-SymbolicName>
-						<Embed-Dependency>*;scope=compile</Embed-Dependency>
+						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
 						<Import-Package>
 						    org.ietf.jgss,
 							javax.management,
