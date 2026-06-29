@@ -50,7 +50,7 @@ public class Terminal implements ITerminal {
     private volatile NetworkThread networkThread;
     private volatile boolean connected = false;
 
-    private int           defaultWaitTime = 120_000;
+    protected int           defaultWaitTime = 120_000;
 
     private Log           logger          = LogFactory.getLog(getClass());
     
@@ -846,93 +846,6 @@ public class Terminal implements ITerminal {
         
         logger.error("Failed to detect VAMP or USS screen");
         throw new Zos3270Exception("Unable to locate VAMP or USS");
-    }
-    
-    @Override
-    public void connectApplid(String host, String applid) throws Zos3270Exception {
-        logger.debug("Connecting to APPLID '" + applid + "' on host '" + host + "'");
-        
-        long startTime = System.currentTimeMillis();
-        
-        while (true) {
-            // Connect to the host if not already connected
-            if (!isConnected()) {
-                connect();
-            }
-            
-            // Detect VAMP or USS screen
-            detectVamp();
-            
-            // Attempt to logon to CICS
-            if (logonCICS(applid)) {
-                logger.debug("Successfully logged on to APPLID '" + applid + "'");
-                break;
-            }
-            
-            // Check if we've exceeded the timeout
-            if ((System.currentTimeMillis() - startTime) > defaultWaitTime) {
-                logger.error("Failed to detect welcome screen for APPLID '" + applid + "'");
-                throw new Zos3270Exception("Unable to locate Welcome screen for APPLID: " + applid);
-            }
-            
-            // Wait before retrying
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new TerminalInterruptedException("Terminal thread interrupted while connecting to APPLID", e);
-            }
-        }
-        
-        logger.debug("Logon to '" + applid + "' complete");
-    }
-    
-    /**
-     * Attempt to logon to a CICS region by APPLID.
-     *
-     * @param applid the CICS APPLID to logon to
-     * @return true if logon was successful, false otherwise
-     * @throws TerminalInterruptedException if interrupted during logon
-     * @throws TimeoutException if timeout occurs during logon
-     * @throws KeyboardLockedException if keyboard is locked during logon
-     * @throws FieldNotFoundException if required fields are not found
-     * @throws NetworkException if network error occurs
-     */
-    private boolean logonCICS(String applid) throws TimeoutException, KeyboardLockedException, TerminalInterruptedException, NetworkException, FieldNotFoundException {
-        logger.debug("Attempting to logon to region " + applid);
-        
-        // Send the logon command
-        type("LOGON APPLID(" + applid + ")").enter().waitForKeyboard();
-        
-        logger.debug("Detecting welcome screen");
-        
-        long welcomeWait = System.currentTimeMillis() + defaultWaitTime;
-
-        while(System.currentTimeMillis() < welcomeWait) {
-
-            if (searchText("******\\  ******\\  ******\\   ******\\(R)", 1) ||
-                    searchText("Security is not active", 1)) {
-                clear();
-                return true;
-            }
-            if (searchText("Signon to CICS", 1)) {
-                return true;
-            }
-
-            if (searchText("SIGNON FAILED, REASON CODE=0080,SENSE=08010000",1)) {
-                logger.warn("Signon to " + applid + " rejected because the region is not ready to accept connections, will retry in 5 seconds");
-                disconnect();
-                return false;
-            }
-
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                throw new TerminalInterruptedException("Terminal thread interrupted", e);
-            }
-        }
-
-        return false;
     }
 
 }
