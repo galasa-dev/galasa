@@ -9,6 +9,8 @@ import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
@@ -53,6 +55,8 @@ public class Terminal implements ITerminal {
     private Log           logger          = LogFactory.getLog(getClass());
     
     private volatile boolean       autoReconnect   = false;
+    
+    private String screenApplid;
     
     private List<String>  deviceTypes;
     private String        requestedDeviceName;
@@ -794,6 +798,141 @@ public class Terminal implements ITerminal {
 
     protected void setCurrentTerminal(dev.galasa.zos3270.common.screens.Terminal currentTerminal) {
         this.currentTerminal = currentTerminal;
+    }
+    
+    @Override
+    public void detectVamp() throws Zos3270Exception {
+        
+        screenApplid = null; 
+        
+        long endTime = System.currentTimeMillis() + 5000;
+        logger.debug("Detecting VAMP or USS screen");
+        
+        int cols = getScreen().getNoOfColumns();
+
+        while (System.currentTimeMillis() < endTime) {
+            
+            String screenAsString = getScreen().retrieveFlatScreen();
+            String firstLine = screenAsString.substring(0, cols);
+            
+            // Check for USS screen
+            if (firstLine.contains("USSTAB:")) {
+                Pattern pattern = Pattern.compile("LUNAME:\\s(\\w+)");
+                Matcher matcher = pattern.matcher(screenAsString);
+                if (matcher.find()) {
+                    this.screenApplid = matcher.group(1);
+                }
+                return;
+            }
+            
+            // Check for VAMP screen
+            if (firstLine.contains("HIT ENTER FOR LATEST STATUS")) {
+                String screenText = retrieveScreen();
+                Pattern pattern = Pattern.compile("HIT ENTER FOR LATEST STATUS\\s+SCREEN\\s+(\\w+)");
+                Matcher matcher = pattern.matcher(screenText);
+                if (matcher.find()) {
+                    this.screenApplid = matcher.group(1);
+                }
+                return;
+            }
+            
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new TerminalInterruptedException("Interrupted while detecting VAMP/USS screen", e);
+            }
+        }
+        
+        logger.error("Failed to detect VAMP or USS screen");
+        throw new Zos3270Exception("Unable to locate VAMP or USS");
+    }
+    
+    @Override
+    public void connectApplid(String host, String applid) throws Zos3270Exception {
+        logger.debug("Connecting to APPLID '" + applid + "' on host '" + host + "'");
+        
+        long startTime = System.currentTimeMillis();
+        
+        while (true) {
+            // Connect to the host if not already connected
+            if (!isConnected()) {
+                connect();
+            }
+            
+            // Detect VAMP or USS screen
+            detectVamp();
+            
+            // Attempt to logon to CICS
+            if (logonCICS(applid)) {
+                logger.debug("Successfully logged on to APPLID '" + applid + "'");
+                break;
+            }
+            
+            // Check if we've exceeded the timeout
+            if ((System.currentTimeMillis() - startTime) > defaultWaitTime) {
+                logger.error("Failed to detect welcome screen for APPLID '" + applid + "'");
+                throw new Zos3270Exception("Unable to locate Welcome screen for APPLID: " + applid);
+            }
+            
+            // Wait before retrying
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new TerminalInterruptedException("Terminal thread interrupted while connecting to APPLID", e);
+            }
+        }
+        
+        logger.debug("Logon to '" + applid + "' complete");
+    }
+    
+    /**
+     * Attempt to logon to a CICS region by APPLID.
+     *
+     * @param applid the CICS APPLID to logon to
+     * @return true if logon was successful, false otherwise
+     * @throws TerminalInterruptedException if interrupted during logon
+     * @throws TimeoutException if timeout occurs during logon
+     * @throws KeyboardLockedException if keyboard is locked during logon
+     * @throws FieldNotFoundException if required fields are not found
+     * @throws NetworkException if network error occurs
+     */
+    private boolean logonCICS(String applid) throws TimeoutException, KeyboardLockedException, TerminalInterruptedException, NetworkException, FieldNotFoundException {
+        logger.debug("Attempting to logon to region " + applid);
+        
+        // Send the logon command
+        type("LOGON APPLID(" + applid + ")").enter().waitForKeyboard();
+        
+        logger.debug("Detecting welcome screen");
+        
+        long welcomeWait = System.currentTimeMillis() + defaultWaitTime;
+
+        while(System.currentTimeMillis() < welcomeWait) {
+
+            if (searchText("******\\  ******\\  ******\\   ******\\(R)", 1) ||
+                    searchText("Security is not active", 1)) {
+                clear();
+                return true;
+            }
+            if (searchText("Signon to CICS", 1)) {
+                return true;
+            }
+
+            if (searchText("SIGNON FAILED, REASON CODE=0080,SENSE=08010000",1)) {
+                logger.warn("Signon to " + applid + " rejected because the region is not ready to accept connections, will retry in 5 seconds");
+                disconnect();
+                return false;
+            }
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new TerminalInterruptedException("Terminal thread interrupted", e);
+            }
+        }
+
+        return false;
     }
 
 }

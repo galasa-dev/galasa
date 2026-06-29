@@ -318,5 +318,26 @@ public interface ITerminal {
      */
     String toJsonString();
     
+    /**
+     * Detects whether the terminal is displaying a VAMP (VTAM Application Menu Program) or USS (UNIX System Services) screen.
+     * This method will retry for up to 5 seconds to detect either screen type.
+     *
+     * @throws Zos3270Exception if neither VAMP nor USS screen is detected
+     */
+    void detectVamp() throws TerminalInterruptedException, Zos3270Exception;
+    
+    /**
+     * Connect to a CICS region by APPLID. This method will:
+     * 1. Connect to the specified host
+     * 2. Detect the VAMP or USS screen
+     * 3. Attempt to logon to the specified APPLID
+     *
+     * The method will retry for up to the default wait time if the welcome screen is not detected.
+     *
+     * @param host the hostname to connect to
+     * @param applid the CICS APPLID to logon to
+     * @throws Zos3270Exception if unable to locate welcome screen
+     */
+    void connectApplid(String host, String applid) throws Zos3270Exception;
 
 }
