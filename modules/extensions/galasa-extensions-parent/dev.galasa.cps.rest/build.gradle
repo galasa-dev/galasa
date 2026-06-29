@@ -8,7 +8,7 @@ description = 'Galasa CPS access over http - Provides the CPS stores via the pub
 dependencies {
 
     // Not required for compile,  but required to force the download of the jars to embed by bnd
-    implementation ('dev.galasa:dev.galasa.wrapping.gson')
+    implementation ('com.google.code.gson:gson')
     implementation ('dev.galasa:dev.galasa.framework.api.beans')
     implementation (project(':dev.galasa.extensions.common'))
     implementation 'commons-io:commons-io'
