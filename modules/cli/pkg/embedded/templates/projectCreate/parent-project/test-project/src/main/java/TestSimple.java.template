@@ -14,7 +14,7 @@ import dev.galasa.core.manager.*;
 import dev.galasa.Test;
 
 /**
- * A sample galasa test class 
+ * A sample galasa test class
  */
 @Test
 public class {{.ClassName}} {
@@ -30,5 +30,15 @@ public class {{.ClassName}} {
 	public void simpleSampleTest() {
 		assertThat(core).isNotNull();
 	}
+
+	// TODO: To use a manager you have created with --manager, add a field like:
+	//
+	//   @<ManagerName>Resource
+	//   public I<ManagerName>Resource resource;
+	//
+	// and then reference it in your test methods, e.g.:
+	//
+	//   assertThat(resource).isNotNull();
+	//   assertThat(resource.getTag()).isEqualTo("PRIMARY");
 
 }

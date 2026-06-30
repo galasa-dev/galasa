@@ -41,3 +41,13 @@ test {
     useJUnitPlatform()
 }
 
+// Tell gradle to publish the built OSGi bundle as a maven artifact into
+// the local maven repository.
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+

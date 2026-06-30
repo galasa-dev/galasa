@@ -303,7 +303,7 @@ func createProject(
 					// Create test projects if requested
 					if err == nil && hasFeatures {
 						err = createTestProjects(fileGenerator, packageName, featureNames, forceOverwrite,
-							useMaven, useGradle, isDevelopment)
+							useMaven, useGradle, isDevelopment, isManagerProject)
 					}
 
 					// Create OBR project if requested (includes both manager and test modules)
@@ -433,37 +433,6 @@ func createCombinedParentSettingsGradle(
 }
 
 
-func createParentFolderContents(
-	fileGenerator *utils.FileGenerator,
-	packageName string,
-	featureNames []string,
-	isOBRProjectRequired bool,
-	forceOverwrite bool,
-	useMaven bool,
-	useGradle bool,
-	isDevelopment bool,
-) error {
-	var err error
-
-	if useMaven {
-		err = createParentFolderPom(fileGenerator, packageName, featureNames,
-			isOBRProjectRequired, forceOverwrite, isDevelopment)
-	}
-
-	if err == nil {
-		if useGradle {
-			err = createParentFolderSettingsGradle(fileGenerator, packageName,
-				featureNames, isOBRProjectRequired, forceOverwrite, isDevelopment)
-		}
-	}
-
-	if err == nil {
-		err = createGitIgnoreFile(packageName, fileGenerator, forceOverwrite, useMaven, useGradle)
-	}
-
-	return err
-}
-
 func createGitIgnoreFile(
 	packageName string,
 	fileGenerator *utils.FileGenerator,
@@ -514,98 +483,7 @@ func separateFeatureNamesFromCommaSeparatedList(featureNamesCommaSeparated strin
 	return featureNames, err
 }
 
-// Creates a pom.xml file in the parent project folder for Maven projects.
-func createParentFolderPom(
-	fileGenerator *utils.FileGenerator,
-	packageName string,
-	featureNames []string,
-	isOBRRequired bool,
-	forceOverwrite bool,
-	IsDevelopment bool,
-) error {
-
-	type ParentPomParameters struct {
-		Coordinates MavenCoordinates
-
-		// Version of Galasa we are targetting
-		GalasaVersion string
-
-		IsOBRRequired    bool
-		ObrName          string
-		ChildModuleNames []string
-		IsDevelopment    bool
-	}
-
-	galasaVersion, err := embedded.GetGalasaVersion()
-	if err == nil {
-
-		templateParameters := ParentPomParameters{
-			Coordinates:      MavenCoordinates{ArtifactId: packageName, GroupId: packageName, Name: packageName},
-			GalasaVersion:    galasaVersion,
-			IsOBRRequired:    isOBRRequired,
-			ObrName:          packageName + ".obr",
-			ChildModuleNames: make([]string, len(featureNames)),
-			IsDevelopment:    IsDevelopment,
-		}
-		// Populate the child module names
-		for index, featureName := range featureNames {
-			templateParameters.ChildModuleNames[index] = packageName + "." + featureName
-		}
-
-		targetFile := utils.GeneratedFileDef{
-			FileType:                 "pom",
-			TargetFilePath:           packageName + "/pom.xml",
-			EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/pom.xml",
-			TemplateParameters:       templateParameters}
-
-		err = fileGenerator.CreateFile(targetFile, forceOverwrite, true)
-	}
-	return err
-}
-
-// Creates the settings.gradle file in the parent project folder for Gradle projects.
-func createParentFolderSettingsGradle(
-	fileGenerator *utils.FileGenerator,
-	packageName string,
-	featureNames []string,
-	isOBRRequired bool,
-	forceOverwrite bool,
-	isDevelopment bool,
-) error {
-
-	type ParentGradleParameters struct {
-		Coordinates GradleCoordinates
-
-		IsOBRRequired    bool
-		ObrName          string
-		ChildModuleNames []string
-		IsDevelopment    bool
-	}
-
-	templateParameters := ParentGradleParameters{
-		Coordinates:      GradleCoordinates{GroupId: packageName, Name: packageName},
-		IsOBRRequired:    isOBRRequired,
-		ObrName:          packageName + ".obr",
-		ChildModuleNames: make([]string, len(featureNames)),
-		IsDevelopment:    isDevelopment,
-	}
-
-	// Populate the child module names
-	for index, featureName := range featureNames {
-		templateParameters.ChildModuleNames[index] = packageName + "." + featureName
-	}
-
-	targetFile := utils.GeneratedFileDef{
-		FileType:                 "gradle",
-		TargetFilePath:           packageName + "/settings.gradle",
-		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/settings.gradle.template",
-		TemplateParameters:       templateParameters}
-
-	err := fileGenerator.CreateFile(targetFile, forceOverwrite, true)
-	return err
-}
-
-// createTestProjects - creates a number of projects, each of whichh containing tests which test a feature.
+// createTestProjects - creates a number of projects, each of which containing tests which test a feature.
 func createTestProjects(
 	fileGenerator *utils.FileGenerator,
 	packageName string,
@@ -614,11 +492,12 @@ func createTestProjects(
 	useMaven bool,
 	useGradle bool,
 	isDevelopment bool,
+	isManagerProject bool,
 ) error {
 
 	var err error
 	for _, featureName := range featureNames {
-		err = createTestProject(fileGenerator, packageName, featureName, forceOverwrite, useMaven, useGradle, isDevelopment)
+		err = createTestProject(fileGenerator, packageName, featureName, forceOverwrite, useMaven, useGradle, isDevelopment, isManagerProject)
 		if err != nil {
 			break
 		}
@@ -635,6 +514,7 @@ func createTestProject(
 	useMaven bool,
 	useGradle bool,
 	isDevelopment bool,
+	isManagerProject bool,
 ) error {
 
 	targetFolderPath := packageName + "/" + packageName + "." + featureName
@@ -644,11 +524,11 @@ func createTestProject(
 	err := fileGenerator.CreateFolder(targetFolderPath)
 	if err == nil {
 		if useMaven {
-			err = createTestFolderPom(fileGenerator, targetFolderPath, packageName, featureName, forceOverwrite)
+			err = createTestFolderPom(fileGenerator, targetFolderPath, packageName, featureName, forceOverwrite, isManagerProject)
 		}
 
 		if useGradle {
-			err = createTestFolderGradle(fileGenerator, targetFolderPath, packageName, featureName, forceOverwrite, isDevelopment)
+			err = createTestFolderGradle(fileGenerator, targetFolderPath, packageName, featureName, forceOverwrite, isDevelopment, isManagerProject)
 		}
 	}
 
@@ -772,18 +652,23 @@ func createJavaSourceFile(fileGenerator *utils.FileGenerator, targetSrcFolderPat
 
 // Creates a pom.xml file in a Maven test project directory.
 func createTestFolderPom(fileGenerator *utils.FileGenerator, targetTestFolderPath string,
-	packageName string, featureName string, forceOverwrite bool) error {
+	packageName string, featureName string, forceOverwrite bool, isManagerProject bool) error {
 
 	type TestPomParameters struct {
-		Parent      MavenCoordinates
-		Coordinates MavenCoordinates
-		FeatureName string
+		Parent           MavenCoordinates
+		Coordinates      MavenCoordinates
+		FeatureName      string
+		IsManagerProject bool
+		ManagerArtifactId string
 	}
 
 	pomTemplateParameters := TestPomParameters{
-		Parent:      MavenCoordinates{GroupId: packageName, ArtifactId: packageName, Name: packageName},
-		Coordinates: MavenCoordinates{GroupId: packageName, ArtifactId: packageName + "." + featureName, Name: packageName + "." + featureName},
-		FeatureName: featureName}
+		Parent:            MavenCoordinates{GroupId: packageName, ArtifactId: packageName, Name: packageName},
+		Coordinates:       MavenCoordinates{GroupId: packageName, ArtifactId: packageName + "." + featureName, Name: packageName + "." + featureName},
+		FeatureName:       featureName,
+		IsManagerProject:  isManagerProject,
+		ManagerArtifactId: packageName + ".manager",
+	}
 
 	targetFile := utils.GeneratedFileDef{
 		FileType:                 "pom",
@@ -797,24 +682,29 @@ func createTestFolderPom(fileGenerator *utils.FileGenerator, targetTestFolderPat
 
 // Creates a build.gradle and a bnd.bnd file in a Gradle test project directory.
 func createTestFolderGradle(fileGenerator *utils.FileGenerator, targetTestFolderPath string,
-	packageName string, featureName string, forceOverwrite bool, isDevelopment bool) error {
+	packageName string, featureName string, forceOverwrite bool, isDevelopment bool, isManagerProject bool) error {
 
 	type TestGradleParameters struct {
 		Parent      GradleCoordinates
 		Coordinates GradleCoordinates
 		// Version of Galasa we are targetting
-		GalasaVersion string
-		IsDevelopment bool
+		GalasaVersion    string
+		IsDevelopment    bool
+		IsManagerProject bool
+		ManagerName      string
 	}
 
 	galasaVersion, err := embedded.GetGalasaVersion()
 
 	if err == nil {
 		gradleProjectTemplateParameters := TestGradleParameters{
-			Parent:        GradleCoordinates{GroupId: packageName, Name: packageName},
-			Coordinates:   GradleCoordinates{GroupId: packageName, Name: packageName + "." + featureName},
-			GalasaVersion: galasaVersion,
-			IsDevelopment: isDevelopment}
+			Parent:           GradleCoordinates{GroupId: packageName, Name: packageName},
+			Coordinates:      GradleCoordinates{GroupId: packageName, Name: packageName + "." + featureName},
+			GalasaVersion:    galasaVersion,
+			IsDevelopment:    isDevelopment,
+			IsManagerProject: isManagerProject,
+			ManagerName:      packageName + ".manager",
+		}
 
 		buildGradleFile := utils.GeneratedFileDef{
 			FileType:                 "gradle",
@@ -905,149 +795,6 @@ func createOBRFolderBuildGradle(fileGenerator *utils.FileGenerator, targetOBRFol
 		err = fileGenerator.CreateFile(targetFile, forceOverwrite, true)
 	}
 	return err
-}
-
-// ========================================
-// Manager Project Creation Functions
-// ========================================
-
-// createManagerProject creates a Galasa manager project structure
-func createManagerProject(
-	fileGenerator *utils.FileGenerator,
-	packageName string,
-	managerName string,
-	isOBRProjectRequired bool,
-	forceOverwrite bool,
-	useMaven bool,
-	useGradle bool,
-	isDevelopment bool,
-) error {
-	var err error
-
-	// If manager name is not provided, use the last part of the package name
-	if managerName == "" {
-		parts := strings.Split(packageName, ".")
-		managerName = parts[len(parts)-1]
-	}
-
-	// Validate manager name
-	err = utils.ValidateJavaPackageName(managerName)
-	if err != nil {
-		return galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_INVALID_MANAGER_NAME, managerName, err.Error())
-	}
-
-	log.Printf("Creating manager project: %s with manager name: %s\n", packageName, managerName)
-
-	// Create parent folder contents (pom.xml, settings.gradle, .gitignore)
-	managerBundleName := packageName + ".manager"
-	// For OBR, pass just "manager" as the feature name, not the full bundle name
-	// createOBRProject will construct the full name as packageName + "." + featureName
-	var managerModules []string = []string{"manager"}
-
-	if useMaven {
-		err = createManagerParentPom(fileGenerator, packageName, managerBundleName, isOBRProjectRequired, forceOverwrite, isDevelopment)
-	}
-
-	if err == nil && useGradle {
-		err = createManagerParentSettingsGradle(fileGenerator, packageName, managerBundleName, isOBRProjectRequired, forceOverwrite, isDevelopment)
-	}
-
-	if err == nil {
-		err = createGitIgnoreFile(packageName, fileGenerator, forceOverwrite, useMaven, useGradle)
-	}
-
-	// Create the manager bundle
-	if err == nil {
-		err = createManagerBundle(fileGenerator, packageName, managerName, forceOverwrite, useMaven, useGradle, isDevelopment)
-	}
-
-	// Create OBR if required
-	if err == nil && isOBRProjectRequired {
-		err = createManagerOBRProject(fileGenerator, packageName, managerModules, forceOverwrite, useMaven, useGradle)
-	}
-
-	return err
-}
-
-// createManagerParentPom creates the parent pom.xml for a manager project
-func createManagerParentPom(
-	fileGenerator *utils.FileGenerator,
-	packageName string,
-	managerBundleName string,
-	isOBRRequired bool,
-	forceOverwrite bool,
-	isDevelopment bool,
-) error {
-	type ParentPomParameters struct {
-		Coordinates      MavenCoordinates
-		GalasaVersion    string
-		IsOBRRequired    bool
-		ObrName          string
-		ChildModuleNames []string
-		IsDevelopment    bool
-	}
-
-	galasaVersion, err := embedded.GetGalasaVersion()
-	if err != nil {
-		return err
-	}
-
-	childModules := []string{managerBundleName}
-
-	templateParameters := ParentPomParameters{
-		Coordinates:      MavenCoordinates{ArtifactId: packageName, GroupId: packageName, Name: packageName},
-		GalasaVersion:    galasaVersion,
-		IsOBRRequired:    isOBRRequired,
-		ObrName:          packageName + ".obr",
-		ChildModuleNames: childModules,
-		IsDevelopment:    isDevelopment,
-	}
-
-	targetFile := utils.GeneratedFileDef{
-		FileType:                 "pom",
-		TargetFilePath:           packageName + "/pom.xml",
-		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/pom.xml",
-		TemplateParameters:       templateParameters,
-	}
-
-	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
-}
-
-// createManagerParentSettingsGradle creates the parent settings.gradle for a manager project
-func createManagerParentSettingsGradle(
-	fileGenerator *utils.FileGenerator,
-	packageName string,
-	managerBundleName string,
-	isOBRRequired bool,
-	forceOverwrite bool,
-	isDevelopment bool,
-) error {
-	type ParentGradleParameters struct {
-		Coordinates      GradleCoordinates
-		IsOBRRequired    bool
-		ObrName          string
-		ChildModuleNames []string
-		IsDevelopment    bool
-	}
-
-	childModules := []string{managerBundleName}
-
-	templateParameters := ParentGradleParameters{
-		Coordinates:      GradleCoordinates{GroupId: packageName, Name: packageName},
-		IsOBRRequired:    isOBRRequired,
-		ObrName:          packageName + ".obr",
-		ChildModuleNames: childModules,
-		IsDevelopment:    isDevelopment,
-	}
-
-	targetFile := utils.GeneratedFileDef{
-		FileType:                 "settings.gradle",
-		TargetFilePath:           packageName + "/settings.gradle",
-		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/settings.gradle.template",
-		TemplateParameters:       templateParameters,
-	}
-
-	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
 }
 
 // createManagerBundle creates the manager bundle with all necessary files
@@ -1316,17 +1063,3 @@ func createManagerGradleFiles(
 	return fileGenerator.CreateFile(bndFile, forceOverwrite, true)
 }
 
-// createManagerOBRProject creates the OBR project for a manager
-func createManagerOBRProject(
-	fileGenerator *utils.FileGenerator,
-	packageName string,
-	managerModules []string,
-	forceOverwrite bool,
-	useMaven bool,
-	useGradle bool,
-) error {
-	// Reuse existing OBR creation logic but with manager modules
-	// For now, we'll create a simple stub that calls the existing function
-	// In a real implementation, we'd adapt createOBRProject to handle managers
-	return createOBRProject(fileGenerator, packageName, managerModules, forceOverwrite, useMaven, useGradle)
-}

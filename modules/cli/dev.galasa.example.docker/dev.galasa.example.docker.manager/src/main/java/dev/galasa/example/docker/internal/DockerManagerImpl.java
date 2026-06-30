@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package {{.PackageName}}.internal;
+package dev.galasa.example.docker.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -14,11 +14,11 @@ import javax.validation.constraints.NotNull;
 import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.ManagerException;
-import {{.PackageName}}.{{.CapitalizedManagerName}}ManagerException;
-import {{.PackageName}}.{{.CapitalizedManagerName}}Resource;
-import {{.PackageName}}.I{{.CapitalizedManagerName}}Manager;
-import {{.PackageName}}.I{{.CapitalizedManagerName}}Resource;
-import {{.PackageName}}.internal.properties.{{.CapitalizedManagerName}}PropertiesSingleton;
+import dev.galasa.example.docker.DockerManagerException;
+import dev.galasa.example.docker.DockerResource;
+import dev.galasa.example.docker.IDockerManager;
+import dev.galasa.example.docker.IDockerResource;
+import dev.galasa.example.docker.internal.properties.DockerPropertiesSingleton;
 import dev.galasa.framework.spi.AbstractManager;
 import dev.galasa.framework.spi.AnnotatedField;
 import dev.galasa.framework.spi.GenerateAnnotatedField;
@@ -28,11 +28,11 @@ import dev.galasa.framework.spi.ResourceUnavailableException;
 import dev.galasa.framework.spi.language.GalasaTest;
 
 /**
- * {{.CapitalizedManagerName}} Manager Implementation
+ * Docker Manager Implementation
  *
- * This manager provides {{.CapitalizedManagerName}} resources to Galasa tests through the
- * @{{.CapitalizedManagerName}}Resource annotation. It handles the lifecycle of
- * {{.CapitalizedManagerName}} resources including provisioning, allocation, and cleanup.
+ * This manager provides Docker resources to Galasa tests through the
+ * @DockerResource annotation. It handles the lifecycle of
+ * Docker resources including provisioning, allocation, and cleanup.
  *
  * The manager follows the standard Galasa manager lifecycle:
  * 1. initialise - Called during framework initialization to detect if this manager is needed
@@ -43,24 +43,24 @@ import dev.galasa.framework.spi.language.GalasaTest;
  *
  * This is an OSGi component that is automatically discovered and registered by the Galasa framework.
  *
- * @see I{{.CapitalizedManagerName}}Manager
- * @see {{.CapitalizedManagerName}}Resource
- * @see I{{.CapitalizedManagerName}}Resource
+ * @see IDockerManager
+ * @see DockerResource
+ * @see IDockerResource
  */
 @Component(service = { IManager.class })
-public class {{.CapitalizedManagerName}}ManagerImpl extends AbstractManager implements I{{.CapitalizedManagerName}}Manager {
+public class DockerManagerImpl extends AbstractManager implements IDockerManager {
     
     /**
      * The Configuration Property Store (CPS) namespace for this manager.
      * All configuration properties for this manager should be prefixed with this namespace.
      */
-    protected static final String NAMESPACE = "{{.PackageName}}";
+    protected static final String NAMESPACE = "dev.galasa.example.docker";
 
     /**
      * Initialize the manager during framework startup.
      *
      * This method is called by the Galasa framework during initialization. It checks if any
-     * test fields are annotated with @{{.CapitalizedManagerName}}Resource. If so, it calls
+     * test fields are annotated with @DockerResource. If so, it calls
      * youAreRequired to register this manager as active.
      *
      * This is the first phase of the manager lifecycle and determines whether this manager
@@ -79,13 +79,13 @@ public class {{.CapitalizedManagerName}}ManagerImpl extends AbstractManager impl
         
         // Initialize the Configuration Property Store for this manager
         try {
-            {{.CapitalizedManagerName}}PropertiesSingleton.setCps(framework.getConfigurationPropertyService(NAMESPACE));
+            DockerPropertiesSingleton.setCps(framework.getConfigurationPropertyService(NAMESPACE));
         } catch (Exception e) {
-            throw new ManagerException("Unable to initialise CPS for {{.CapitalizedManagerName}} Manager", e);
+            throw new ManagerException("Unable to initialise CPS for Docker Manager", e);
         }
         
         if (galasaTest.isJava()) {
-            List<AnnotatedField> ourFields = findAnnotatedFields({{.CapitalizedManagerName}}ManagerField.class);
+            List<AnnotatedField> ourFields = findAnnotatedFields(DockerManagerField.class);
             if (!ourFields.isEmpty()) {
                 youAreRequired(allManagers, activeManagers, galasaTest);
             }
@@ -96,7 +96,7 @@ public class {{.CapitalizedManagerName}}ManagerImpl extends AbstractManager impl
      * Register this manager as active and required for the test run.
      *
      * This method is called when the manager is needed, either because test fields are annotated
-     * with @{{.CapitalizedManagerName}}Resource or because another manager depends on this one.
+     * with @DockerResource or because another manager depends on this one.
      * It adds this manager to the active managers list if not already present.
      *
      * This method is idempotent - calling it multiple times has no additional effect.
@@ -116,10 +116,10 @@ public class {{.CapitalizedManagerName}}ManagerImpl extends AbstractManager impl
     }
 
     /**
-     * Generate a {{.CapitalizedManagerName}} resource instance for an annotated field.
+     * Generate a Docker resource instance for an annotated field.
      *
      * This method is called by the Galasa framework when it encounters a field annotated with
-     * @{{.CapitalizedManagerName}}Resource. It creates and returns a new resource instance
+     * @DockerResource. It creates and returns a new resource instance
      * that will be injected into the test field.
      *
      * The resource tag from the annotation is used to identify and configure the resource.
@@ -127,20 +127,20 @@ public class {{.CapitalizedManagerName}}ManagerImpl extends AbstractManager impl
      *
      * Example usage in a test:
      * <pre>
-     * @{{.CapitalizedManagerName}}Resource(resourceTag = "PRIMARY")
-     * public I{{.CapitalizedManagerName}}Resource resource;
+     * @DockerResource(resourceTag = "PRIMARY")
+     * public IDockerResource resource;
      * </pre>
      *
      * @param field the field to be populated with the resource
      * @param annotations all annotations on the field
-     * @return a new {{.CapitalizedManagerName}} resource instance
-     * @throws {{.CapitalizedManagerName}}ManagerException if resource generation fails
+     * @return a new Docker resource instance
+     * @throws DockerManagerException if resource generation fails
      */
-    @GenerateAnnotatedField(annotation = {{.CapitalizedManagerName}}Resource.class)
-    public I{{.CapitalizedManagerName}}Resource generate{{.CapitalizedManagerName}}Resource(Field field, List<Annotation> annotations)
-            throws {{.CapitalizedManagerName}}ManagerException {
-        {{.CapitalizedManagerName}}Resource annotation = field.getAnnotation({{.CapitalizedManagerName}}Resource.class);
-        return new {{.CapitalizedManagerName}}ResourceImpl(annotation.resourceTag());
+    @GenerateAnnotatedField(annotation = DockerResource.class)
+    public IDockerResource generateDockerResource(Field field, List<Annotation> annotations)
+            throws DockerManagerException {
+        DockerResource annotation = field.getAnnotation(DockerResource.class);
+        return new DockerResourceImpl(annotation.resourceTag());
     }
 
     /**
@@ -163,7 +163,7 @@ public class {{.CapitalizedManagerName}}ManagerImpl extends AbstractManager impl
      */
     @Override
     public void provisionGenerate() throws ManagerException, ResourceUnavailableException {
-        generateAnnotatedFields({{.CapitalizedManagerName}}ManagerField.class);
+        generateAnnotatedFields(DockerManagerField.class);
     }
 
     /**
