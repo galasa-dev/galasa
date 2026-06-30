@@ -135,12 +135,6 @@ external:
     isolated: true
 
   - group: dev.galasa
-    artifact: dev.galasa.wrapping.jta
-    obr: true
-    mvp: true
-    isolated: true
-
-  - group: dev.galasa
     artifact: dev.galasa.wrapping.kafka.clients
     obr: true
     mvp: false      # Only used in Kafka extension - not needed.

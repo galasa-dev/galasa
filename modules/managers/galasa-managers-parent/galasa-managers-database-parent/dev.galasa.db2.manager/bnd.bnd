@@ -2,10 +2,10 @@
 Bundle-Name: Galasa Db2 Manager
 Export-Package: dev.galasa.db2,\
                 dev.galasa.db2.spi
-Import-Package: jakarta.transaction, \
-                jakarta.transaction.xa, \
-                javax.transaction, \
-                javax.transaction.xa, \
+Import-Package: javax.transaction;resolution:=optional, \
+                javax.transaction.xa;resolution:=optional, \
+                !jakarta.transaction, \
+                !jakarta.transaction.xa, \
                 !jakarta.enterprise.util, \
                 !jakarta.interceptor, \
                 !jakarta.enterprise.context, \
