@@ -303,7 +303,7 @@ func createProject(
 					// Create test projects if requested
 					if err == nil && hasFeatures {
 						err = createTestProjects(fileGenerator, packageName, featureNames, forceOverwrite,
-							useMaven, useGradle, isDevelopment, isManagerProject)
+							useMaven, useGradle, isDevelopment, isManagerProject, managerName)
 					}
 
 					// Create OBR project if requested (includes both manager and test modules)
@@ -493,11 +493,12 @@ func createTestProjects(
 	useGradle bool,
 	isDevelopment bool,
 	isManagerProject bool,
+	managerName string,
 ) error {
 
 	var err error
 	for _, featureName := range featureNames {
-		err = createTestProject(fileGenerator, packageName, featureName, forceOverwrite, useMaven, useGradle, isDevelopment, isManagerProject)
+		err = createTestProject(fileGenerator, packageName, featureName, forceOverwrite, useMaven, useGradle, isDevelopment, isManagerProject, managerName)
 		if err != nil {
 			break
 		}
@@ -515,6 +516,7 @@ func createTestProject(
 	useGradle bool,
 	isDevelopment bool,
 	isManagerProject bool,
+	managerName string,
 ) error {
 
 	targetFolderPath := packageName + "/" + packageName + "." + featureName
@@ -533,7 +535,7 @@ func createTestProject(
 	}
 
 	if err == nil {
-		err = createJavaSourceFolder(fileGenerator, targetFolderPath, packageName, featureName, forceOverwrite)
+		err = createJavaSourceFolder(fileGenerator, targetFolderPath, packageName, featureName, forceOverwrite, isManagerProject, managerName)
 	}
 
 	if err == nil {
@@ -575,7 +577,7 @@ func createOBRProject(
 	return err
 }
 
-func createJavaSourceFolder(fileGenerator *utils.FileGenerator, testFolderPath string, packageName string, featureName string, forceOverwrite bool) error {
+func createJavaSourceFolder(fileGenerator *utils.FileGenerator, testFolderPath string, packageName string, featureName string, forceOverwrite bool, isManagerProject bool, managerName string) error {
 
 	// The folder is the package name but with slashes.
 	// eg: my.package becomes my/package
@@ -587,14 +589,14 @@ func createJavaSourceFolder(fileGenerator *utils.FileGenerator, testFolderPath s
 		classNameNoClassSuffix := "Test" + utils.UppercaseFirstLetter(featureName)
 		templateBundlePath := "templates/projectCreate/parent-project/test-project/src/main/java/TestSimple.java.template"
 		err = createJavaSourceFile(fileGenerator, targetSrcFolderPath, packageName,
-			featureName, forceOverwrite, classNameNoClassSuffix, templateBundlePath)
+			featureName, forceOverwrite, classNameNoClassSuffix, templateBundlePath, isManagerProject, managerName)
 
 		if err == nil {
 			// Create our second test java source file. To show that you can have multiples.
 			classNameNoClassSuffix = "Test" + utils.UppercaseFirstLetter(featureName) + "Extended"
 			templateBundlePath := "templates/projectCreate/parent-project/test-project/src/main/java/TestExtended.java.template"
 			err = createJavaSourceFile(fileGenerator, targetSrcFolderPath, packageName,
-				featureName, forceOverwrite, classNameNoClassSuffix, templateBundlePath)
+				featureName, forceOverwrite, classNameNoClassSuffix, templateBundlePath, false, "")
 		}
 	}
 	return err
@@ -627,18 +629,25 @@ func createTestResourceFolder(
 
 func createJavaSourceFile(fileGenerator *utils.FileGenerator, targetSrcFolderPath string,
 	packageName string, featureName string, forceOverwrite bool,
-	classNameNoClassSuffix string, templateBundlePath string) error {
+	classNameNoClassSuffix string, templateBundlePath string, isManagerProject bool, managerName string) error {
 
 	// JavaTestTemplateSubstitutionParameters holds all the substitution parameters a java test file
 	// template uses
 	type JavaTestTemplateSubstitutionParameters struct {
-		Package   string
-		ClassName string
+		Package                string
+		ClassName              string
+		IsManagerProject       bool
+		ManagerPackageName     string
+		CapitalizedManagerName string
 	}
 
 	templateParameters := JavaTestTemplateSubstitutionParameters{
-		Package:   packageName + "." + featureName,
-		ClassName: classNameNoClassSuffix}
+		Package:                packageName + "." + featureName,
+		ClassName:              classNameNoClassSuffix,
+		IsManagerProject:       isManagerProject,
+		ManagerPackageName:     packageName,
+		CapitalizedManagerName: capitalizeFirst(managerName),
+	}
 
 	targetFile := utils.GeneratedFileDef{
 		FileType:                 "JavaSourceFile",
@@ -850,7 +859,7 @@ func createManagerBundle(
 
 	// Create manager Java files
 	if err == nil {
-		err = createManagerJavaFiles(fileGenerator, packageName, capitalizedManagerName, srcMainJavaDir, internalDir, srcTestJavaDir, forceOverwrite)
+		err = createManagerJavaFiles(fileGenerator, packageName, managerName, capitalizedManagerName, srcMainJavaDir, internalDir, srcTestJavaDir, forceOverwrite)
 	}
 
 	// Create build files
@@ -869,6 +878,7 @@ func createManagerBundle(
 func createManagerJavaFiles(
 	fileGenerator *utils.FileGenerator,
 	packageName string,
+	managerName string,
 	capitalizedManagerName string,
 	srcMainJavaDir string,
 	internalDir string,
@@ -878,11 +888,13 @@ func createManagerJavaFiles(
 	type ManagerTemplateParameters struct {
 		PackageName            string
 		CapitalizedManagerName string
+		ManagerNamespace       string
 	}
 
 	params := ManagerTemplateParameters{
 		PackageName:            packageName,
 		CapitalizedManagerName: capitalizedManagerName,
+		ManagerNamespace:       managerName,
 	}
 
 	// Public API files

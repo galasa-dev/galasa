@@ -8,7 +8,7 @@ import dev.galasa.example.docker.DockerResource;
 import dev.galasa.example.docker.IDockerResource;
 
 /**
- * A sample galasa test class 
+ * A sample galasa test class
  */
 @Test
 public class TestFeature1 {
@@ -19,7 +19,7 @@ public class TestFeature1 {
 
 	// Galasa will inject a Docker resource instance via the DockerManager
 	@DockerResource
-	public IDockerResource dockerResource;
+	public IDockerResource resource;
 
 	/**
 	 * Test which demonstrates that the managers have been injected ok.
@@ -27,8 +27,8 @@ public class TestFeature1 {
 	@Test
 	public void simpleSampleTest() {
 		assertThat(core).isNotNull();
-		assertThat(dockerResource).isNotNull();
-		assertThat(dockerResource.getTag()).isEqualTo("PRIMARY");
+		assertThat(resource).isNotNull();
+		assertThat(resource.getTag()).isEqualTo("PRIMARY");
 	}
 
 }

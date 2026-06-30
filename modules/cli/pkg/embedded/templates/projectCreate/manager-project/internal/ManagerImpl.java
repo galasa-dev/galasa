@@ -54,7 +54,7 @@ public class {{.CapitalizedManagerName}}ManagerImpl extends AbstractManager impl
      * The Configuration Property Store (CPS) namespace for this manager.
      * All configuration properties for this manager should be prefixed with this namespace.
      */
-    protected static final String NAMESPACE = "{{.PackageName}}";
+    protected static final String NAMESPACE = "{{.ManagerNamespace}}";
 
     /**
      * Initialize the manager during framework startup.

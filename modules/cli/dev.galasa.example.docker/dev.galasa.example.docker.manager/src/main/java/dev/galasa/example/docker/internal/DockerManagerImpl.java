@@ -54,7 +54,7 @@ public class DockerManagerImpl extends AbstractManager implements IDockerManager
      * The Configuration Property Store (CPS) namespace for this manager.
      * All configuration properties for this manager should be prefixed with this namespace.
      */
-    protected static final String NAMESPACE = "dev.galasa.example.docker";
+    protected static final String NAMESPACE = "docker";
 
     /**
      * Initialize the manager during framework startup.

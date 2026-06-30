@@ -77,11 +77,8 @@
                         <Bundle-SymbolicName>dev.galasa.example.docker.manager</Bundle-SymbolicName>
                         <Export-Package>dev.galasa.example.docker,dev.galasa.example.docker.spi</Export-Package>
                         <Import-Package>
-                            dev.galasa,
-                            dev.galasa.framework.spi,
-                            org.osgi.service.component.annotations,
-                            org.apache.commons.logging,
-                            javax.validation.constraints,
+                            !javax.validation.constraints,
+                            !org.osgi.service.component.annotations,
                             *
                         </Import-Package>
                     </instructions>
