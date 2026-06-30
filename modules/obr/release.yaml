@@ -135,6 +135,12 @@ external:
     isolated: true
 
   - group: dev.galasa
+    artifact: dev.galasa.wrapping.jetcd-core
+    obr: true
+    mvp: false      # Only used in etcd extension - not needed.
+    isolated: false # Only used in etcd extension - not needed.
+
+  - group: dev.galasa
     artifact: dev.galasa.wrapping.kafka.clients
     obr: true
     mvp: false      # Only used in Kafka extension - not needed.

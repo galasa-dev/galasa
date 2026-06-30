@@ -6,59 +6,8 @@ plugins {
 description = 'Galasa etcd3 for CPS, DSS and Credentials - Provides the CPS, DSS and Credential stores from a etcd3 server'
 
 dependencies {
-    implementation ('io.etcd:jetcd-core') 
-    // {
-    //     exclude group: com.google.code.gson ,module: gson
-    // }
-    // We don't want to use their gson implementation.
-    implementation ('com.google.code.gson:gson')
-    
-    // Not required for compile,  but required to force the download of the jars to embed by bnd
-    implementation('com.fasterxml.jackson.core:jackson-core')
-    implementation('com.google.api.grpc:proto-google-common-protos:2.59.2')
-    implementation('com.google.guava:failureaccess')
-    implementation('com.google.guava:guava')
-    implementation('com.google.guava:listenablefuture')
-    implementation('com.google.protobuf:protobuf-java-util')
-    implementation('com.google.protobuf:protobuf-java:3.25.8')
-    implementation('dev.failsafe:failsafe')
-    implementation('io.etcd:jetcd-api')
-    implementation('io.etcd:jetcd-common')
-    implementation('io.etcd:jetcd-core')
-    implementation('io.etcd:jetcd-grpc')
-    implementation('io.grpc:grpc-api:1.76.0')
-    implementation('io.grpc:grpc-context:1.76.0')
-    implementation('io.grpc:grpc-core:1.76.0')
-    implementation('io.grpc:grpc-grpclb:1.76.0')
-    implementation('io.grpc:grpc-netty:1.76.0')
-    implementation('io.grpc:grpc-protobuf-lite:1.76.0')
-    implementation('io.grpc:grpc-protobuf:1.76.0')
-    implementation('io.grpc:grpc-stub:1.76.0')
-    implementation('io.grpc:grpc-util:1.76.0')
-    implementation('io.netty:netty-buffer')
-    implementation('io.netty:netty-codec-dns')
-    implementation('io.netty:netty-codec-http2')
-    implementation('io.netty:netty-codec-http')
-    implementation('io.netty:netty-codec-socks')
-    implementation('io.netty:netty-codec')
-    implementation('io.netty:netty-common')
-    implementation('io.netty:netty-handler-proxy')
-    implementation('io.netty:netty-handler')
-    implementation('io.netty:netty-resolver-dns')
-    implementation('io.netty:netty-resolver')
-    implementation('io.netty:netty-transport-native-unix-common')
-    implementation('io.netty:netty-transport')
-    implementation('io.perfmark:perfmark-api:0.27.0')
-    implementation('io.vertx:vertx-core')
-    implementation('io.vertx:vertx-grpc')
-    implementation('javax.annotation:javax.annotation-api')
-    implementation('javax.validation:validation-api')
-    // logging is already embedded inside the framework bundle....
-    //  implementation('org.apache.logging.log4j:log4j-api:2.17.1')
-    //  implementation('org.apache.logging.log4j:log4j-core:2.17.1')
-    //  implementation('org.apache.logging.log4j:log4j-slf4j-impl:2.17.1')
-    implementation('org.checkerframework:checker-qual')
-    implementation('org.slf4j:slf4j-api:2.0.17')
+    implementation 'dev.galasa:dev.galasa.wrapping.jetcd-core'
+    implementation 'com.google.code.gson:gson'
 
     testImplementation(testFixtures(project(':dev.galasa.extensions.common')))
 }
