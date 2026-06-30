@@ -1,0 +1,11 @@
+plugins {
+    id 'galasa.ivt'
+}
+
+description = 'Galasa JMeter Manager IVT'
+
+dependencies {
+    implementation 'dev.galasa:dev.galasa.jmeter.manager'
+    implementation 'dev.galasa:dev.galasa.core.manager'
+    implementation 'dev.galasa:dev.galasa.artifact.manager'
+}
