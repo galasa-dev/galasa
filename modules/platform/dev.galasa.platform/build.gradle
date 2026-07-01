@@ -53,8 +53,6 @@ dependencies {
 
         api 'com.google.guava:guava:33.5.0-jre'
 
-        api 'com.google.j2objc:j2objc-annotations:3.1'
-
         api 'com.ibm.db2.jcc:db2jcc:db2jcc4'
 
         api 'com.ibm.mq:com.ibm.mq.allclient:9.4.5.0'
@@ -226,7 +224,6 @@ dependencies {
         api 'org.seleniumhq.selenium:selenium-ie-driver:4.27.0'
         api 'org.seleniumhq.selenium:selenium-java:4.27.0'
         api 'org.seleniumhq.selenium:selenium-remote-driver:4.27.0'
-        api 'org.seleniumhq.selenium:selenium-safari-driver:4.27.0' // bnd.bnd only
 
         api 'org.slf4j:slf4j-api:1.7.36'
 

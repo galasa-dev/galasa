@@ -104,7 +104,7 @@ CALLED_BY_MAIN="true"
 
 
 
-source ${BASEDIR}/test-scripts/calculate-galasactl-executables.sh
+source ${BASEDIR}/test-scripts/calculate-galasactl-executables.sh --bootstrap "${bootstrap}"
 calculate_galasactl_executable
 
 source ${BASEDIR}/test-scripts/auth-tests.sh --bootstrap "${bootstrap}"
