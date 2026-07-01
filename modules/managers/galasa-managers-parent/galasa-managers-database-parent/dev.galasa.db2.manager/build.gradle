@@ -6,7 +6,6 @@ description = 'Galasa Db2 Manager'
 
 dependencies {
     implementation 'com.ibm.db2.jcc:db2jcc'
-    implementation 'dev.galasa:dev.galasa.wrapping.jta'
 }
 
 // Note: These values are consumed by the parent build process
