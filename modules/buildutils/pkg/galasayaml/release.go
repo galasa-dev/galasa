@@ -41,4 +41,10 @@ type Bundle struct {
 	Javadoc      bool
 	Managerdoc   bool
 	Codecoverage bool
+	Exclusions   []Exclusion
+}
+
+type Exclusion struct {
+	GroupId    string `yaml:"groupId"`
+	ArtifactId string `yaml:"artifactId"`
 }
