@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>dev.galasa.example.docker</groupId>
+        <artifactId>dev.galasa.example.docker</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>dev.galasa.example.docker</groupId>
+    <artifactId>dev.galasa.example.docker.manager</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+
+    <name>dev.galasa.example.docker.manager</name>
+    <description>Galasa Manager - dev.galasa.example.docker.manager</description>
+
+    <dependencies>
+        <!-- Galasa Framework Dependencies -->
+        <dependency>
+            <groupId>dev.galasa</groupId>
+            <artifactId>dev.galasa</artifactId>
+            <version>0.48.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.galasa</groupId>
+            <artifactId>dev.galasa.framework</artifactId>
+            <version>0.48.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- OSGi -->
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+            <version>1.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Validation -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.9</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>dev.galasa.example.docker.manager</Bundle-SymbolicName>
+                        <Export-Package>dev.galasa.example.docker,dev.galasa.example.docker.spi</Export-Package>
+                        <Import-Package>
+                            !javax.validation.constraints,
+                            !org.osgi.service.component.annotations,
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+

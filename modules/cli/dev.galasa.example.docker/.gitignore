@@ -1,0 +1,12 @@
+
+# Ignore Mac metadata files.
+**/.DS_Store
+# Ignore anything built by maven
+**/target/
+
+# Ignore any built java artifacts
+**/*.class
+**/*.jar
+
+# Ignore any temporary folder locally
+temp/

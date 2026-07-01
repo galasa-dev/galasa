@@ -2,25 +2,15 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
-{{/*
-	This template expects the following parameters:
-
-	type TestPomParameters struct {
-		Parent             MavenCoordinates
-		Coordinates        MavenCoordinates
-		FeatureName        string
-		IsManagerProject   bool
-		ManagerArtifactId  string
-	}
-*/}}
+   
     <parent>
-        <groupId>{{.Parent.GroupId}}</groupId>
-        <artifactId>{{.Parent.ArtifactId}}</artifactId>
+        <groupId>dev.galasa.example.docker</groupId>
+        <artifactId>dev.galasa.example.docker</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>{{.Coordinates.ArtifactId}}</artifactId>
-    <name>{{.Coordinates.Name}}</name>
+    <artifactId>dev.galasa.example.docker.feature1</artifactId>
+    <name>dev.galasa.example.docker.feature1</name>
 
     <packaging>bundle</packaging>
 
@@ -37,16 +27,16 @@
         </dependency>
 
         <dependency>
-		    <groupId>dev.galasa</groupId>
-		    <artifactId>dev.galasa.framework</artifactId>
-	    </dependency>
-        {{if .IsManagerProject}}
+      <groupId>dev.galasa</groupId>
+      <artifactId>dev.galasa.framework</artifactId>
+     </dependency>
+
         <dependency>
-            <groupId>{{.Parent.GroupId}}</groupId>
-            <artifactId>{{.ManagerArtifactId}}</artifactId>
+            <groupId>dev.galasa.example.docker</groupId>
+            <artifactId>dev.galasa.example.docker.manager</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        {{end}}
+        
     </dependencies>
   
 </project>
