@@ -318,5 +318,12 @@ public interface ITerminal {
      */
     String toJsonString();
     
+    /**
+     * Detects whether the terminal is displaying a VAMP (VTAM Application Menu Program) or USS (UNIX System Services) screen.
+     * This method will retry for up to 5 seconds to detect either screen type.
+     *
+     * @throws Zos3270Exception if neither VAMP nor USS screen is detected
+     */
+    void detectVamp() throws TerminalInterruptedException, Zos3270Exception;
 
 }

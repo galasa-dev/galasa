@@ -9,6 +9,8 @@ import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
@@ -38,6 +40,9 @@ public class Terminal implements ITerminal {
     // we have closed the network. Units are milliseconds. 
     public static final long MAX_MILLISECS_TO_WAIT_FOR_NETWORK_THREAD_TO_FINISH = 20 * 1000 ; // 20 seconds
 
+    private static final Pattern USS_LUNAME_PATTERN = Pattern.compile("LUNAME:\\s(\\w+)");
+    private static final Pattern VAMP_SCREEN_PATTERN = Pattern.compile("HIT ENTER FOR LATEST STATUS\\s+SCREEN\\s+(\\w+)");
+    
 	public ITextScannerManagerSpi textScan;
 
     private final TerminalJsonTransform terminalJsonTransform = new TerminalJsonTransform();
@@ -48,11 +53,13 @@ public class Terminal implements ITerminal {
     private volatile NetworkThread networkThread;
     private volatile boolean connected = false;
 
-    private int           defaultWaitTime = 120_000;
+    protected int           defaultWaitTime = 120_000;
 
     private Log           logger          = LogFactory.getLog(getClass());
     
     private volatile boolean       autoReconnect   = false;
+    
+    private String screenApplid;
     
     private List<String>  deviceTypes;
     private String        requestedDeviceName;
@@ -794,6 +801,52 @@ public class Terminal implements ITerminal {
 
     protected void setCurrentTerminal(dev.galasa.zos3270.common.screens.Terminal currentTerminal) {
         this.currentTerminal = currentTerminal;
+    }
+    
+    @Override
+    public void detectVamp() throws Zos3270Exception {
+        
+        screenApplid = null; 
+        
+        long endTime = System.currentTimeMillis() + 5000;
+        logger.debug("Detecting VAMP or USS screen");
+        
+        int cols = getScreen().getNoOfColumns();
+
+        while (System.currentTimeMillis() < endTime) {
+            
+            String screenAsString = getScreen().retrieveFlatScreen();
+            String firstLine = screenAsString.substring(0, cols);
+            
+            // Check for USS screen
+            if (firstLine.contains("USSTAB:")) {
+                Matcher matcher = USS_LUNAME_PATTERN.matcher(screenAsString);
+                if (matcher.find()) {
+                    this.screenApplid = matcher.group(1);
+                }
+                return;
+            }
+            
+            // Check for VAMP screen
+            if (firstLine.contains("HIT ENTER FOR LATEST STATUS")) {
+                String screenText = retrieveScreen();
+                Matcher matcher = VAMP_SCREEN_PATTERN.matcher(screenText);
+                if (matcher.find()) {
+                    this.screenApplid = matcher.group(1);
+                }
+                return;
+            }
+            
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new TerminalInterruptedException("Interrupted while detecting VAMP/USS screen", e);
+            }
+        }
+        
+        logger.error("Failed to detect VAMP or USS screen");
+        throw new Zos3270Exception("Unable to locate VAMP or USS");
     }
 
 }
