@@ -50,6 +50,11 @@ type artifact struct {
 	ArtifactId string
 	Version    string
 	Type       string
+	Exclusions []exclusion
+}
+type exclusion struct {
+	GroupId    string
+	ArtifactId string
 }
 
 func init() {
@@ -67,6 +72,19 @@ func init() {
 
 	rootCmd.AddCommand(templateCmd)
 }
+
+
+func bundleExclusions(yamlExclusions []galasayaml.Exclusion) []exclusion {
+	if len(yamlExclusions) == 0 {
+		return nil
+	}
+	result := make([]exclusion, len(yamlExclusions))
+	for i, e := range yamlExclusions {
+		result[i] = exclusion{GroupId: e.GroupId, ArtifactId: e.ArtifactId}
+	}
+	return result
+}
+
 
 func templateExecute(cmd *cobra.Command, args []string) {
 	fmt.Printf("Galasa Build - Template - version %v\n", rootCmd.Version)
@@ -202,6 +220,7 @@ func templateExecute(cmd *cobra.Command, args []string) {
 				ArtifactId: bundle.Artifact,
 				Version:    bundle.Version,
 				Type:       bundle.Type,
+				Exclusions: bundleExclusions(bundle.Exclusions),
 			}
 
 			t.Artifacts = append(t.Artifacts, artifact)
@@ -244,6 +263,7 @@ func templateExecute(cmd *cobra.Command, args []string) {
 				ArtifactId: bundle.Artifact,
 				Version:    bundle.Version,
 				Type:       bundle.Type,
+				Exclusions: bundleExclusions(bundle.Exclusions),
 			}
 
 			t.Artifacts = append(t.Artifacts, artifact)
@@ -281,6 +301,7 @@ func templateExecute(cmd *cobra.Command, args []string) {
 				ArtifactId: bundle.Artifact,
 				Version:    bundle.Version,
 				Type:       bundle.Type,
+				Exclusions: bundleExclusions(bundle.Exclusions),
 			}
 
 			t.Artifacts = append(t.Artifacts, artifact)
@@ -318,6 +339,7 @@ func templateExecute(cmd *cobra.Command, args []string) {
 				ArtifactId: bundle.Artifact,
 				Version:    bundle.Version,
 				Type:       bundle.Type,
+				Exclusions: bundleExclusions(bundle.Exclusions),
 			}
 
 			t.Artifacts = append(t.Artifacts, artifact)

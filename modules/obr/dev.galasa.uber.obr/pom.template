@@ -68,7 +68,13 @@
         <dependency>
             <groupId>{{.GroupId}}</groupId>
             <artifactId>{{.ArtifactId}}</artifactId>{{if .Version}}
-            <version>{{.Version}}</version>{{end}}
+            <version>{{.Version}}</version>{{end}}{{if .Exclusions}}
+            <exclusions>{{range .Exclusions}}
+                <exclusion>
+                    <groupId>{{.GroupId}}</groupId>
+                    <artifactId>{{.ArtifactId}}</artifactId>
+                </exclusion>{{end}}
+            </exclusions>{{end}}
         </dependency>
     {{end}}
 	</dependencies>
