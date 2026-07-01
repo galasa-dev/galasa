@@ -164,10 +164,11 @@ public class CicsTerminalImpl extends Zos3270TerminalImpl implements ICicsTermin
   }
   
   @Override
-  public void connectApplid(String host, String applid)
+  public void connectApplid(String applid)
       throws CicstsManagerException
   {
-      logger.debug("Connecting to APPLID '" + applid + "' on host '" + host + "'");
+      logger.debug("Connecting to APPLID '" + applid + "' on host '"
+          + this.cicsRegion.getZosImage().getIpHost().getIpv4Hostname() + "'");
 
       try
       {
@@ -212,7 +213,7 @@ public class CicsTerminalImpl extends Zos3270TerminalImpl implements ICicsTermin
       }
       catch (Zos3270Exception e)
       {
-          throw new CicstsManagerException("Unable to locate Welcome screen for APPLID: " + applid);
+          throw new CicstsManagerException("Unable to locate Welcome screen for APPLID: " + applid, e);
       }
 
       logger.debug("Logon to '" + applid + "' complete");

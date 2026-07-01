@@ -40,6 +40,9 @@ public class Terminal implements ITerminal {
     // we have closed the network. Units are milliseconds. 
     public static final long MAX_MILLISECS_TO_WAIT_FOR_NETWORK_THREAD_TO_FINISH = 20 * 1000 ; // 20 seconds
 
+    private static final Pattern USS_LUNAME_PATTERN = Pattern.compile("LUNAME:\\s(\\w+)");
+    private static final Pattern VAMP_SCREEN_PATTERN = Pattern.compile("HIT ENTER FOR LATEST STATUS\\s+SCREEN\\s+(\\w+)");
+    
 	public ITextScannerManagerSpi textScan;
 
     private final TerminalJsonTransform terminalJsonTransform = new TerminalJsonTransform();
@@ -817,8 +820,7 @@ public class Terminal implements ITerminal {
             
             // Check for USS screen
             if (firstLine.contains("USSTAB:")) {
-                Pattern pattern = Pattern.compile("LUNAME:\\s(\\w+)");
-                Matcher matcher = pattern.matcher(screenAsString);
+                Matcher matcher = USS_LUNAME_PATTERN.matcher(screenAsString);
                 if (matcher.find()) {
                     this.screenApplid = matcher.group(1);
                 }
@@ -828,8 +830,7 @@ public class Terminal implements ITerminal {
             // Check for VAMP screen
             if (firstLine.contains("HIT ENTER FOR LATEST STATUS")) {
                 String screenText = retrieveScreen();
-                Pattern pattern = Pattern.compile("HIT ENTER FOR LATEST STATUS\\s+SCREEN\\s+(\\w+)");
-                Matcher matcher = pattern.matcher(screenText);
+                Matcher matcher = VAMP_SCREEN_PATTERN.matcher(screenText);
                 if (matcher.find()) {
                     this.screenApplid = matcher.group(1);
                 }

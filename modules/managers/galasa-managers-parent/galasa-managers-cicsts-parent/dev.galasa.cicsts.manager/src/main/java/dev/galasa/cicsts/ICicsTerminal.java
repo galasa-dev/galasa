@@ -34,7 +34,7 @@ public interface ICicsTerminal extends ITerminal {
     
     /**
      * Connect to a CICS region by APPLID. This method will:
-     * 1. Connect to the specified host
+     * 1. Connect to the host belonging to this terminal's z/OS image
      * 2. Detect the VAMP or USS screen
      * 3. Attempt to logon to the specified APPLID
      *
@@ -44,6 +44,6 @@ public interface ICicsTerminal extends ITerminal {
      * @param applid the CICS APPLID to logon to
      * @throws CicstsManagerException if unable to locate welcome screen
      */
-    void connectApplid(String host, String applid) throws CicstsManagerException;
+    void connectApplid(String applid) throws CicstsManagerException;
 
 }
