@@ -41,6 +41,7 @@
         <module>dev.galasa.wrapping.httpclient5</module>
 		<module>dev.galasa.wrapping.io.grpc.java</module>
 		<module>dev.galasa.wrapping.io.kubernetes.client-java</module>
+		<module>dev.galasa.wrapping.jetcd-core</module>
 		<module>dev.galasa.wrapping.protobuf-java</module>
 		<module>dev.galasa.wrapping.kafka.clients</module>
 		<module>dev.galasa.wrapping.velocity-engine-core</module>
