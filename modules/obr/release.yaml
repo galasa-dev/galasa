@@ -53,6 +53,19 @@ external:
     mvp: true
     isolated: true
 
+  # JNA is used by the creds OS extension
+  - group: net.java.dev.jna
+    artifact: jna
+    obr: true
+    mvp: true
+    isolated: true
+
+  - group: net.java.dev.jna
+    artifact: jna-platform
+    obr: true
+    mvp: true
+    isolated: true
+
   - group: com.sun.xml.bind
     artifact: jaxb-osgi
     obr: true
@@ -272,6 +285,12 @@ external:
     mvp: true
     isolated: true
 
+  - group: javax.jms
+    artifact: javax.jms-api
+    obr: true
+    mvp: false
+    isolated: true
+
   - group: javax.validation
     artifact: validation-api
     version: 2.0.1.Final
@@ -435,6 +454,12 @@ external:
   - group: org.jspecify
     artifact: jspecify
     mvp: true
+    isolated: true
+
+  - group: org.json
+    artifact: json
+    obr: true
+    mvp: false
     isolated: true
 
   - group: org.osgi

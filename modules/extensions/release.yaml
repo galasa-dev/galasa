@@ -52,10 +52,10 @@ framework:
   - artifact: dev.galasa.creds.os
     version: 1.0.0
     obr:          true
-    mvp:          false
+    mvp:          true
     bom:          false
-    javadoc:      false
-    isolated:     false
+    javadoc:      true
+    isolated:     true
     codecoverage: true
 
   - artifact: dev.galasa.events.kafka
