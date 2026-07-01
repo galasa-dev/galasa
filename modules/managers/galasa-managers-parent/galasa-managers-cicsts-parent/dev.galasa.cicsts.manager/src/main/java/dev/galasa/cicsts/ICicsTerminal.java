@@ -31,5 +31,19 @@ public interface ICicsTerminal extends ITerminal {
     public boolean isUppercaseTranslation() throws CicstsManagerException;
 
     String getLoginCredentialsTag();
+    
+    /**
+     * Connect to a CICS region by APPLID. This method will:
+     * 1. Connect to the host belonging to this terminal's z/OS image
+     * 2. Detect the VAMP or USS screen
+     * 3. Attempt to logon to the specified APPLID
+     *
+     * The method will retry for up to the default wait time if the welcome screen is not detected.
+     *
+     * @param host the hostname to connect to
+     * @param applid the CICS APPLID to logon to
+     * @throws CicstsManagerException if unable to locate welcome screen
+     */
+    void connectApplid(String applid) throws CicstsManagerException;
 
 }
