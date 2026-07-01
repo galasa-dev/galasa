@@ -20,6 +20,19 @@ release:
 
 external:
   bundles:
+
+  # 
+  # Example of bundle with exclusions in the generated pom.xml:
+  # 
+  # - artifact: some-artifact
+  #   version: 1.2.3
+  #   isolated: true
+  #   exclusions:
+  #     - groupId: org.unwanted
+  #       artifactId: transitive-dep
+  #     - groupId: org.also-unwanted
+  #       artifactId: another-dep
+
   - group: com.github.mwiede
     artifact: jsch
     obr: true
