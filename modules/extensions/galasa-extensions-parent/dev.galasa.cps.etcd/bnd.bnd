@@ -10,50 +10,7 @@ Import-Package: \
     dev.galasa.framework.spi.creds,\
     javax.net.ssl,\
     javax.security.cert,\
-    org.apache.commons.logging
-Embed-Transitive: true
-Embed-Dependency: *;scope=compile|runtime
--includeresource: \
-    checker-qual-*.jar; lib:=true,\
-    failsafe-*.jar; lib:=true,\
-    failureaccess-*.jar; lib:=true,\
-    grpc-api-1.76.0.jar; lib:=true,\
-    grpc-context-1.76.0.jar; lib:=true,\
-    grpc-core-1.76.0.jar; lib:=true,\
-    grpc-grpclb-1.76.0.jar; lib:=true,\
-    grpc-netty-1.76.0.jar; lib:=true,\
-    grpc-protobuf-1.76.0.jar; lib:=true,\
-    grpc-protobuf-lite-1.76.0.jar; lib:=true,\
-    grpc-stub-1.76.0.jar; lib:=true,\
-    grpc-util-1.76.0.jar; lib:=true,\
-    gson-*.jar; lib:=true,\
-    guava-*.jar; lib:=true,\
-    jackson-core-*.jar; lib:=true,\
-    javax.annotation-api-*.jar; lib:=true,\
-    jetcd-api-*.jar; lib:=true,\
-    jetcd-common-*.jar; lib:=true,\
-    jetcd-core-*.jar; lib:=true,\
-    jetcd-grpc-*.jar; lib:=true,\
-    listenablefuture-*.jar; lib:=true,\
-    netty-buffer-*.jar; lib:=true,\
-    netty-codec-*.jar; lib:=true,\
-    netty-codec-dns-*.jar; lib:=true,\
-    netty-codec-http-*.jar; lib:=true,\
-    netty-codec-http2-*.jar; lib:=true,\
-    netty-codec-socks-*.jar; lib:=true,\
-    netty-common-*.jar; lib:=true,\
-    netty-handler-*.jar; lib:=true,\
-    netty-handler-proxy-*.jar; lib:=true,\
-    netty-resolver-*.jar; lib:=true,\
-    netty-resolver-dns-*.jar; lib:=true,\
-    netty-transport-*.jar; lib:=true,\
-    netty-transport-native-unix-common-*.jar; lib:=true,\
-    perfmark-api-0.27.0.jar; lib:=true,\
-    proto-google-common-protos-2.59.2.jar; lib:=true,\
-    protobuf-java-3.25.8.jar; lib:=true,\
-    protobuf-java-util-*.jar; lib:=true,\
-    slf4j-api-2.0.17.jar; lib:=true,\
-    validation-api-*.jar; lib:=true,\
-    vertx-core-*.jar; lib:=true,\
-    vertx-grpc-*.jar; lib:=true
--fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning
+    org.apache.commons.logging,\
+    io.etcd.jetcd.*,\
+    io.vertx.core,\
+    io.vertx.core.file

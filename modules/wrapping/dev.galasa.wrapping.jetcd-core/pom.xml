@@ -9,16 +9,16 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>dev.galasa.wrapping.httpclient5</artifactId>
+    <artifactId>dev.galasa.wrapping.jetcd-core</artifactId>
     <version>1.0.0</version>
     <packaging>bundle</packaging>
 
-    <name>Galasa wrapped version of org.apache.httpcomponents.client5:httpclient5</name>
+    <name>Galasa wrapped version of jetcd-core</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
+            <groupId>io.etcd</groupId>
+            <artifactId>jetcd-core</artifactId>
         </dependency>
     </dependencies>
 
@@ -31,19 +31,18 @@
                 <configuration>
                     <supportedProjectTypes>bundle</supportedProjectTypes>
                     <instructions>
-                        <Bundle-SymbolicName>dev.galasa.wrapping.httpclient5</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>dev.galasa.wrapping.jetcd-core</Bundle-SymbolicName>
                         <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package>
-                            javax.crypto,
-                            javax.crypto.spec,
-                            javax.net,
-                            javax.net.ssl,
-                            javax.security.auth.x500,
-                            jdk.net,
-                            org.slf4j
+							javax.net.ssl,
+							javax.security.cert,
+                            org.apache.commons.logging
                         </Import-Package>
-                        <Export-Package>org.apache.hc.*</Export-Package>
+                        <Export-Package>
+                            io.etcd.*,
+                            io.vertx.*
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

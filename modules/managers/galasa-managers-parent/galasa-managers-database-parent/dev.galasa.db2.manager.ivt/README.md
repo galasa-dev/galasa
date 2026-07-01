@@ -18,10 +18,23 @@ Since the Db2 Community Edition Docker image is only built for x86-based machine
 
 To do this:
 
-1. Install colima with `brew install colima`
+1. Install colima and the additional Lima guest agents with:
+    ```bash
+    brew install colima lima-additional-guestagents
+    ```
+    > **Note:** `lima-additional-guestagents` is required on Lima 2.x to provide the x86_64 guest agent binary. Without it, `colima start` will fail with a `guest agent binary could not be found` error.
 2. Start the x86_64 Docker environment by running:
     ```bash
     colima start --arch x86_64 --vm-type=vz --vz-rosetta
+    ```
+    This takes a few minutes. If successful, the output will look like this:
+    ```
+    INFO[0000] starting colima
+    INFO[0000] runtime: docker
+    INFO[0002] starting ...                                  context=vm
+    INFO[0180] provisioning ...                              context=docker
+    INFO[0205] starting ...                                  context=docker
+    INFO[0210] done
     ```
 3. Verify that your Docker context is set to the new `colima` context using `docker context ls`. The output should look like this:
    ```bash
