@@ -5,8 +5,8 @@ plugins {
 description = 'Galasa Kubernetes Manager'
 
 dependencies {
-    implementation 'dev.galasa:dev.galasa.wrapping.gson'
-    implementation 'dev.galasa:dev.galasa.wrapping.protobuf-java'
+    implementation 'com.google.code.gson:gson'
+    implementation 'com.google.protobuf:protobuf-java'
     implementation 'dev.galasa:dev.galasa.wrapping.io.kubernetes.client-java'
 }
 
