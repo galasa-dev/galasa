@@ -41,7 +41,13 @@ external:
 
   - group: com.google.code.gson
     artifact: gson
-    version: 2.10.1
+    obr: true
+    bom: true
+    mvp: true
+    isolated: true
+
+  - group: com.google.protobuf
+    artifact: protobuf-java
     obr: true
     bom: true
     mvp: true
@@ -108,14 +114,6 @@ external:
     mvp: false      # Only used for Authentication - not needed.
     isolated: false # Only used for Authentication - not needed.
 
-  - group: dev.galasa
-    artifact: dev.galasa.wrapping.gson
-    version: 1.0.0
-    obr: true
-    bom: true
-    mvp: true
-    isolated: true
-
   - artifact: dev.galasa.wrapping.httpclient5
     version: 1.0.0
     obr: true
@@ -138,12 +136,6 @@ external:
 
   - group: dev.galasa
     artifact: dev.galasa.wrapping.io.kubernetes.client-java
-    obr: true
-    mvp: true
-    isolated: true
-
-  - group: dev.galasa
-    artifact: dev.galasa.wrapping.protobuf-java
     obr: true
     mvp: true
     isolated: true
