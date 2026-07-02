@@ -111,7 +111,7 @@ public class SeleniumManagerIVT {
         page.sendKeysToElementByCssSelector(".auto-search-input", "galasa")
             .clickElementByLinkText("galasa").takeScreenShot()
             .waitForElementByLinkText("modules");
-        assertThat(page.getTitle()).contains("The Galasa source code");
+        assertThat(page.getTitle()).contains("Source for the core Galasa framework");
         page.quit();
     }
 
@@ -122,7 +122,7 @@ public class SeleniumManagerIVT {
         assertThat(page.getTitle()).containsOnlyOnce(DUCKDUCKGO_TITLE);
         page.takeScreenShot().sendKeysToElementById(DUCKDUCKGO_SEARCH_ID, "galasa dev github").takeScreenShot()
             .sendKeysToElementById(DUCKDUCKGO_SEARCH_ID, Keys.RETURN).takeScreenShot()
-            .clickElementByPartialLinkText("The Galasa source code").takeScreenShot();
+            .clickElementByPartialLinkText("Source for the core Galasa framework").takeScreenShot();
         assertThat(page.findElementsByLinkText("tools")).isNotEmpty();
         page.quit();
     }
