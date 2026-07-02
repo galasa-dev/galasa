@@ -107,7 +107,7 @@ dependencies {
 
         api 'io.etcd:jetcd-core:0.8.6'
 
-        api 'io.kubernetes:client-java:26.0.1'
+        api 'io.kubernetes:client-java:27.0.0'
 
         api 'io.netty:netty-codec:4.2.13.Final'
 
