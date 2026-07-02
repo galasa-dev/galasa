@@ -66,7 +66,6 @@ public class Launcher {
     private static final String     RESOURCEMANAGEMENT_OPTION = "resourcemanagement";
     private static final String     K8SCONTROLLER_OPTION      = "k8scontroller";
     private static final String     API_OPTION                = "api";
-    private static final String     DOCKERCONTROLLER_OPTION   = "dockercontroller";
     private static final String     METRICSERVER_OPTION       = "metricserver";
     private static final String     TEST_OPTION               = "test";
     private static final String     RUN_OPTION                = "run";
@@ -104,7 +103,6 @@ public class Launcher {
     private boolean                 isTestRun;
     private boolean                 isResourceManagement;
     private boolean                 isK8sController;
-    private boolean                 isDockerController;
     private boolean                 isMetricsServer;
     private boolean                 isApiServer;
     private boolean                 isDryRun;
@@ -211,9 +209,6 @@ public class Launcher {
             } else if (isK8sController) {
                 logger.debug("Kubernetes Controller");
                 felixFramework.runK8sController(bootstrapProperties, overridesProperties, bundles, metrics, health);
-            } else if (isDockerController) {
-                logger.debug("Docker Controller");
-                felixFramework.runDockerController(bootstrapProperties, overridesProperties, bundles, metrics, health);
             } else if (isMetricsServer) {
                 logger.debug("Metrics Server");
                 felixFramework.runMetricsServer(bootstrapProperties, overridesProperties, bundles, metrics, health);
@@ -283,7 +278,6 @@ public class Launcher {
         options.addOption(null, RESOURCEMANAGEMENT_OPTION, false, "A Resource Management server");
         options.addOption(null, K8SCONTROLLER_OPTION, false, "A k8s Controller server");
         options.addOption(null, API_OPTION, false, "A Web App server, list bundles to load or ALL");
-        options.addOption(null, DOCKERCONTROLLER_OPTION, false, "A Docker Controller server");
         options.addOption(null, METRICSERVER_OPTION, false, "A Metrics server");
         options.addOption(null, TEST_OPTION, true, "The test to run");
         options.addOption(null, RUN_OPTION, true, "The run name");
@@ -361,7 +355,6 @@ public class Launcher {
         isTestRun = commandLine.hasOption(TEST_OPTION) || commandLine.hasOption(RUN_OPTION) || commandLine.hasOption(GHERKIN_OPTION);
         isResourceManagement = commandLine.hasOption(RESOURCEMANAGEMENT_OPTION);
         isK8sController = commandLine.hasOption(K8SCONTROLLER_OPTION);
-        isDockerController = commandLine.hasOption(DOCKERCONTROLLER_OPTION);
         isMetricsServer = commandLine.hasOption(METRICSERVER_OPTION);
         isApiServer = commandLine.hasOption(API_OPTION);
         isDryRun = commandLine.hasOption(DRY_RUN_OPTION);
@@ -400,10 +393,6 @@ public class Launcher {
         }
 
         if (isK8sController) {
-            return;
-        }
-
-        if (isDockerController) {
             return;
         }
 

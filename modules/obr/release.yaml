@@ -362,24 +362,6 @@ external:
     mvp: true
     isolated: true
 
-  - group: org.bouncycastle
-    artifact: bcpkix-jdk18on
-    obr: true
-    mvp: false      # Only used for Docker controller - not needed.
-    isolated: false # Only used for Docker controller - not needed.
-
-  - group: org.bouncycastle
-    artifact: bcprov-jdk18on
-    obr: true
-    mvp: false      # Only used for Docker controller - not needed.
-    isolated: false # Only used for Docker controller - not needed.
-
-  - group: org.bouncycastle
-    artifact: bcutil-jdk18on
-    obr: true
-    mvp: false      # Only used for Docker controller - not needed.
-    isolated: false # Only used for Docker controller - not needed.
-
   - group: org.osgi
     artifact: org.osgi.service.component.annotations
     version: 1.3.0

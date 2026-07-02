@@ -49,15 +49,6 @@ framework:
     isolated:     true
     codecoverage: true
 
-  - artifact: dev.galasa.framework.docker.controller
-    version: 1.0.0
-    obr:          true
-    mvp:          false
-    bom:          false
-    javadoc:      false
-    isolated:     true
-    codecoverage: true
-
   - artifact: dev.galasa.framework.k8s.controller
     version: 1.0.0
     obr:          true
