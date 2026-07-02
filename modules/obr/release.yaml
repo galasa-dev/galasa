@@ -48,7 +48,6 @@ external:
 
   - group: com.google.protobuf
     artifact: protobuf-java
-    version: 4.34.1
     obr: true
     bom: true
     mvp: true
