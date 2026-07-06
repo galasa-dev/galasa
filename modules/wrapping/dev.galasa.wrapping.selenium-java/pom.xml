@@ -9,17 +9,16 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>dev.galasa.wrapping.protobuf-java</artifactId>
+    <artifactId>dev.galasa.wrapping.selenium-java</artifactId>
     <version>1.0.0</version>
     <packaging>bundle</packaging>
 
-    <name>Galasa wrapped version of protobuf-java</name>
+    <name>Galasa wrapped version of selenium-java</name>
 
     <dependencies>
         <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>4.34.1</version>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
         </dependency>
     </dependencies>
 
@@ -32,10 +31,17 @@
                 <configuration>
                     <supportedProjectTypes>bundle</supportedProjectTypes>
                     <instructions>
-                        <Bundle-SymbolicName>dev.galasa.wrapping.protobuf-java</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>dev.galasa.wrapping.selenium-java</Bundle-SymbolicName>
                         <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Export-Package>com.google.protobuf</Export-Package>
+                        <Import-Package>
+                            javax.net,
+                            javax.net.ssl,
+                            org.apache.commons.logging
+                        </Import-Package>
+                        <Export-Package>
+                            org.openqa.selenium.*
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
