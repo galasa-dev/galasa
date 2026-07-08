@@ -350,6 +350,19 @@ galasactl runs submit local --log -
 
 To configure a JVM with special options, such as `-Xms20m` and other JVM options, you can set the optional parameter `framework.jvm.local.launch.options` in your bootstrap properties to hold a space-separated list of extra options which will be used when the JVM running your test in a local JVM is launched.
 
+### Running tests offline (no network access)
+
+If your environment has no access to remote Maven repositories, use the `--offline` flag to prevent the JVM from contacting any remote repository during bundle resolution. All required bundles must already be present in your local Maven cache (typically `~/.m2/repository`).
+
+```
+galasactl runs submit local --log -
+          --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr
+          --class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
+          --offline
+```
+
+The `--offline` flag and `--remoteMaven` flag are mutually exclusive. Use `galasactl runs prepare local` (see below) to pre-populate the local Maven cache before running offline.
+
 ### Debugging a single test which runs in the local JVM
 The `galasactl runs submit local` command has an option `--debug` which causes the test to be launched in 'debug mode'.
 The test will attempt to connect with a JDB java debugger based on some configuration parameters.
@@ -500,6 +513,31 @@ The following command provides an OBR `my.company.group/my.company.group.obr/0.0
 ```
 galasactl runs cleanup local --obr my.company.group/my.company.group.obr/0.0.1/obr --remoteMaven https://my-company/maven-repo --includes-pattern "my.company.*" --excludes-pattern "*MyUnwantedCleanupProviderClass" --log -
 ```
+
+## runs prepare local
+
+The `galasactl runs prepare local` command pre-fetches all OSGi bundle dependencies for a set of OBRs to the local Maven cache, without running any tests. This is useful for preparing a machine for offline test execution — run `runs prepare local` once while online, then use `galasactl runs submit local --offline` repeatedly without a network connection.
+
+### Examples
+
+Pre-fetch all dependencies for a test OBR:
+
+```
+galasactl runs prepare local --log -
+          --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr
+          --galasaVersion 1.0.0
+```
+
+Once the command completes successfully all required Galasa framework bundles and test bundles are present in `~/.m2/repository`. You can then run the tests without network access:
+
+```
+galasactl runs submit local --log -
+          --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr
+          --class dev.galasa.example.banking.account/dev.galasa.example.banking.account.TestAccount
+          --offline
+```
+
+A complete list of supported parameters for the `runs prepare local` command is available [here](./docs/generated/galasactl_runs_prepare_local.md)
 
 ## monitors set
 
