@@ -98,6 +98,15 @@ dependencies {
 
         api 'io.netty:netty-codec:4.2.13.Final'
 
+        // Override transitive dependencies for jetcd-core:0.8.6 to address CVEs
+        api 'io.netty:netty-resolver-dns:4.2.15.Final'
+        api 'io.netty:netty-handler:4.2.15.Final'
+        api 'io.netty:netty-codec-http:4.2.15.Final'
+        api 'io.netty:netty-codec-http2:4.2.15.Final'
+        api 'io.netty:netty-codec-compression:4.2.15.Final'
+        api 'io.netty:netty-codec-dns:4.2.15.Final'
+        api 'io.vertx:vertx-core:5.0.12'
+        
         // Most bundles before implementing the Platform used 0.6.0 other than dev.galasa.framework.k8s.controller.
         // Upgrading all to 0.16.0 by using the Platform.
         api 'io.prometheus:simpleclient:0.16.0'
