@@ -375,7 +375,7 @@ public class FelixFramework {
      * @param boostrapProperties  the bootstrap properties
      * @param overridesProperties the override properties
      * @param extraBundles a list of extra bundles to load
-     * @param ResourceManagementConfiguration the config containing details on the resource management providers to load
+     * @param resourceManagementConfig the config containing details on the resource management providers to load
      * @throws LauncherException if there was an issue launching the resource management process
      */
     public void runLocalResourceManagement(
@@ -451,8 +451,31 @@ public class FelixFramework {
     }
 
     /**
+     * Prepare dependencies - load all bundles from all registered OBR repositories
+     * to populate the local Maven cache, without running any tests.
+     *
+     * @throws LauncherException if a bundle cannot be loaded
+     */
+    public void runPrepare() throws LauncherException {
+        logger.debug("Running dependency preparation - loading all bundles from registered OBR repositories");
+
+        for (Repository repository : repositoryAdmin.listRepositories()) {
+            Resource[] resources = repository.getResources();
+            if (resources != null) {
+                for (Resource resource : resources) {
+                    String symbolicName = resource.getSymbolicName();
+                    logger.debug("Loading bundle: " + symbolicName);
+                    loadBundle(symbolicName);
+                }
+            }
+        }
+
+        logger.debug("Dependency preparation complete");
+    }
+
+    /**
      * Run the Metrics Server Server
-     * 
+     *
      * @param boostrapProperties  the bootstrap properties
      * @param overridesProperties the override properties
      * @param bundles

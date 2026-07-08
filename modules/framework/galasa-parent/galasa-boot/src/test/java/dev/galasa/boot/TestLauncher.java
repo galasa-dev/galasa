@@ -378,6 +378,76 @@ public class TestLauncher {
     }
 
     @Test
+    public void testOfflineFlagSuppressesAllRemoteMavenRepos() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setenv("GALASA_HOME", "/tmp/galasa-test-home");
+        Launcher launcher = new Launcher(mockEnv);
+        launcher.env = mockEnv;
+        launcher.galasaHome = launcher.getGalasaHome(mockEnv);
+
+        // When...
+        launcher.processCommandLine(new String[]{"--offline", "--prepare"});
+
+        // Then...
+        assertThat(launcher.getRemoteMavenRepos()).isEmpty();
+        assertThat(launcher.isOffline()).isTrue();
+    }
+
+    @Test
+    public void testWithoutOfflineFlagMavenCentralIsAdded() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setenv("GALASA_HOME", "/tmp/galasa-test-home");
+        Launcher launcher = new Launcher(mockEnv);
+        launcher.env = mockEnv;
+        launcher.galasaHome = launcher.getGalasaHome(mockEnv);
+
+        // When...
+        launcher.processCommandLine(new String[]{"--prepare"});
+
+        // Then...
+        assertThat(launcher.getRemoteMavenRepos()).isNotEmpty();
+        assertThat(launcher.getRemoteMavenRepos()).anyMatch(url -> url.toString().contains("repo.maven.apache.org"));
+        assertThat(launcher.isOffline()).isFalse();
+    }
+
+    @Test
+    public void testPrepareFlagIsRecognisedAsValidLaunchMode() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setenv("GALASA_HOME", "/tmp/galasa-test-home");
+        Launcher launcher = new Launcher(mockEnv);
+        launcher.env = mockEnv;
+        launcher.galasaHome = launcher.getGalasaHome(mockEnv);
+
+        // When...
+        launcher.processCommandLine(new String[]{"--prepare"});
+
+        // Then - no commandLineError should have been called (exit code still 0)
+        assertThat(mockEnv.getExitCode()).isEqualTo(0);
+        assertThat(launcher.isPrepareRequested()).isTrue();
+    }
+
+    @Test
+    public void testOfflineFlagAloneDoesNotTriggerCommandLineError() throws Exception {
+        // Given...
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setenv("GALASA_HOME", "/tmp/galasa-test-home");
+        Launcher launcher = new Launcher(mockEnv);
+        launcher.env = mockEnv;
+        launcher.galasaHome = launcher.getGalasaHome(mockEnv);
+
+        // When - --offline alone is not a valid launch mode by itself, but combined with --prepare it is
+        launcher.processCommandLine(new String[]{"--offline", "--prepare"});
+
+        // Then - no error exit
+        assertThat(mockEnv.getExitCode()).isEqualTo(0);
+        assertThat(launcher.isOffline()).isTrue();
+        assertThat(launcher.isPrepareRequested()).isTrue();
+    }
+
+    @Test
     public void testMavenCredentialsLoadedFromEnvironmentVariableAreTrimmed() {
         Launcher launcher  = new Launcher();
         MockEnvironment mockEnv = new MockEnvironment();

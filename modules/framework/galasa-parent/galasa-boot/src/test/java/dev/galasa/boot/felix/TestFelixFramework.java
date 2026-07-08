@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.Resource;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
@@ -27,7 +28,9 @@ import dev.galasa.boot.mocks.MockEnvironment;
 import dev.galasa.boot.mocks.MockFelixFramework;
 import dev.galasa.boot.mocks.MockOsgiFramework;
 import dev.galasa.boot.mocks.MockRepositoryAdmin;
+import dev.galasa.boot.mocks.MockRepository;
 import dev.galasa.boot.mocks.MockResolver;
+import dev.galasa.boot.mocks.MockResource;
 import dev.galasa.boot.mocks.MockServiceReference;
 
 public class TestFelixFramework {
@@ -115,9 +118,9 @@ public class TestFelixFramework {
         bootstrapProperties.put("api.extra.bundles", extraBundleName);
 
         // When...
-        LauncherException err = catchThrowableOfType(() -> {
+        LauncherException err = catchThrowableOfType(LauncherException.class, () -> {
             felixFramework.runWebApiServer(bootstrapProperties, overridesProperties, new ArrayList<>(), 0, 0);
-        }, LauncherException.class);
+        });
 
         // Then...
         assertThat(err).isNotNull();
@@ -266,5 +269,96 @@ public class TestFelixFramework {
 
         assertThat(addedResourceIds).contains("dev.galasa.framework.resource.management");
         assertThat(addedResourceIds).contains(extraBundleName);
+    }
+
+    @Test
+    public void testRunPrepareLoadsAllBundlesFromRegisteredRepositories() throws Exception {
+        // Given - two bundles in the OBR
+        String bundle1 = "my.test.bundle";
+        String bundle2 = "another.bundle";
+
+        MockResolver mockResolver = new MockResolver();
+
+        Resource[] repoResources = new Resource[] {
+            new MockResource(bundle1, bundle1, "uri:" + bundle1),
+            new MockResource(bundle2, bundle2, "uri:" + bundle2),
+        };
+        Repository mockRepo = new MockRepository(repoResources);
+        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(mockResolver, new Repository[]{ mockRepo });
+
+        // Both bundles are in the framework as ACTIVE, so the post-deploy isBundleActive check passes
+        Bundle[] availableBundles = new Bundle[] {
+            new MockBundle(bundle1),
+            new MockBundle(bundle2),
+        };
+        MockBundleContext mockBundleContext = new MockBundleContext(availableBundles);
+        MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
+
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
+
+        // When...
+        felixFramework.runPrepare();
+
+        // Then - both bundles from the OBR should have been passed to the resolver
+        List<String> addedResourceIds = mockResolver.getAllResources()
+            .stream()
+            .map(Resource::getId)
+            .collect(Collectors.toList());
+
+        assertThat(addedResourceIds).contains(bundle1);
+        assertThat(addedResourceIds).contains(bundle2);
+    }
+
+    @Test
+    public void testRunPrepareLoadsAllBundlesAcrossMultipleRepositories() throws Exception {
+        // Given - bundles spread across two OBR repositories
+        String bundle1 = "bundle.from.repo.one";
+        String bundle2 = "bundle.from.repo.two";
+
+        MockResolver mockResolver = new MockResolver();
+
+        Repository mockRepo1 = new MockRepository(new Resource[]{ new MockResource(bundle1, bundle1, "uri:" + bundle1) });
+        Repository mockRepo2 = new MockRepository(new Resource[]{ new MockResource(bundle2, bundle2, "uri:" + bundle2) });
+        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(mockResolver, new Repository[]{ mockRepo1, mockRepo2 });
+
+        // Both bundles are in the framework as ACTIVE so the post-deploy isBundleActive check passes
+        Bundle[] availableBundles = new Bundle[] {
+            new MockBundle(bundle1),
+            new MockBundle(bundle2),
+        };
+        MockBundleContext mockBundleContext = new MockBundleContext(availableBundles);
+        MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
+
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
+
+        // When...
+        felixFramework.runPrepare();
+
+        // Then - bundles from both repositories should have been passed to the resolver
+        List<String> addedResourceIds = mockResolver.getAllResources()
+            .stream()
+            .map(Resource::getId)
+            .collect(Collectors.toList());
+
+        assertThat(addedResourceIds).contains(bundle1);
+        assertThat(addedResourceIds).contains(bundle2);
+    }
+
+    @Test
+    public void testRunPrepareWithNoRepositoriesDoesNothing() throws Exception {
+        // Given...
+        MockResolver mockResolver = new MockResolver();
+        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(mockResolver, new Repository[0]);
+
+        MockBundleContext mockBundleContext = new MockBundleContext(new Bundle[0]);
+        MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
+
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
+
+        // When...
+        felixFramework.runPrepare();
+
+        // Then - no bundles should have been loaded
+        assertThat(mockResolver.getAllResources()).isEmpty();
     }
 }
