@@ -101,9 +101,14 @@ public class CredentialsKeyStore extends AbstractCredentials implements ICredent
         // Decode the base64 KeyStore data to get actual KeyStore bytes
         this.keyStoreBytes = decodeBase64(this.keyStoreString);
 
-        // Decode password if it was encrypted
+        // Decode password if it was encrypted; default to "" if absent
         if (this.keyStorePassword == null) {
-            this.keyStorePassword = new String(decode(keyStorePassword), StandardCharsets.UTF_8);
+            // this.keyStorePassword = new String(decode(keyStorePassword), StandardCharsets.UTF_8);
+            if (keyStorePassword != null) {
+                this.keyStorePassword = new String(decode(keyStorePassword), StandardCharsets.UTF_8);
+            } else {
+                this.keyStorePassword = "";
+            }
         }
 
         // Decode type if it was encrypted

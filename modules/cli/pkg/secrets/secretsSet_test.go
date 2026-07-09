@@ -1991,8 +1991,10 @@ func TestUpdateKeystoreSecretWithBothPasswordAndBase64PasswordThrowsError(t *tes
 	assert.Contains(t, errorMsg, "Invalid flag combination provided")
 }
 
-func TestCreateKeystoreSecretWithoutPasswordThrowsError(t *testing.T) {
+func TestCanCreateAKeystoreSecretWithoutPasswordOmitsPasswordField(t *testing.T) {
 	// Given...
+	// No --password provided — keystorePassword is omitted from the request entirely.
+	// The server defaults to "" (no password) on create, or keeps the existing value on update.
 	secretName := "KEYSTORE_NO_PASSWORD"
 	username := ""
 	password := ""
@@ -2005,8 +2007,24 @@ func TestCreateKeystoreSecretWithoutPasswordThrowsError(t *testing.T) {
 
 	keystoreValues := NewSecretsSetKeystoreValues("", "S2V5c3RvcmVXaXRob3V0UGFzc3dvcmQ9", password, base64Password, "JKS")
 
-	// Validation should fail, so no HTTP interactions should take place
-	interactions := []utils.HttpInteraction{}
+	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
+	createSecretInteraction.ValidateRequestFunc = func(t *testing.T, req *http.Request) {
+		secretRequest := readSecretRequestBody(req)
+		assert.Equal(t, secretRequest.GetName(), secretName)
+
+		requestKeystore := secretRequest.GetKeystore()
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
+
+		// keystorePassword must be absent — the server handles the default on create/update
+		assert.False(t, secretRequest.GetKeystorePassword().HasValue())
+
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
+	}
+	createSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.WriteHeader(http.StatusCreated)
+	}
+
+	interactions := []utils.HttpInteraction{createSecretInteraction}
 
 	server := utils.NewMockHttpServer(t, interactions)
 	defer server.Server.Close()
@@ -2035,14 +2053,78 @@ func TestCreateKeystoreSecretWithoutPasswordThrowsError(t *testing.T) {
 		mockFileSystem)
 
 	// Then...
-	assert.NotNil(t, err, "SetSecret did not return an error as expected")
-	errorMsg := err.Error()
-	assert.Contains(t, errorMsg, "GAL1292E")
-	assert.Contains(t, errorMsg, "Missing required keystore password")
+	assert.Nil(t, err, "SetSecret returned an unexpected error")
+	assert.Empty(t, console.ReadText(), "Expected no output when --password is omitted")
 }
 
-func TestCreateKeystoreSecretWithBlankPasswordThrowsError(t *testing.T) {
+func TestCanCreateAKeystoreSecretWithExplicitEmptyPasswordSendsPasswordField(t *testing.T) {
 	// Given...
+	secretName := "KEYSTORE_EXPLICIT_EMPTY_PASSWORD"
+	username := ""
+	password := ""
+	token := ""
+	base64Username := ""
+	base64Password := ""
+	base64Token := ""
+	secretType := ""
+	description := "Keystore with explicit empty-string password"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "S2V5c3RvcmVFbXB0eVBhc3N3b3JkPQ==", password, base64Password, "PKCS12")
+
+	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
+	createSecretInteraction.ValidateRequestFunc = func(t *testing.T, req *http.Request) {
+		secretRequest := readSecretRequestBody(req)
+		assert.Equal(t, secretRequest.GetName(), secretName)
+
+		requestKeystore := secretRequest.GetKeystore()
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
+
+		// keystorePassword is sent with value "" when explicitly provided
+		requestKeystorePassword := secretRequest.GetKeystorePassword()
+		assert.Equal(t, "", requestKeystorePassword.GetValue())
+
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
+	}
+	createSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.WriteHeader(http.StatusCreated)
+	}
+
+	interactions := []utils.HttpInteraction{createSecretInteraction}
+
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	console := utils.NewMockConsole()
+	apiServerUrl := server.Server.URL
+	apiClient := api.InitialiseAPI(apiServerUrl)
+	mockByteReader := utils.NewMockByteReader()
+	mockFileSystem := files.NewMockFileSystem()
+
+	// When...
+	err := SetSecret(
+		secretName,
+		username,
+		password,
+		token,
+		base64Username,
+		base64Password,
+		base64Token,
+		keystoreValues,
+		secretType,
+		description,
+		console,
+		apiClient,
+		mockByteReader,
+		mockFileSystem)
+
+	// Then...
+	assert.Nil(t, err, "SetSecret returned an unexpected error")
+	assert.Empty(t, console.ReadText(), "The console was written to on a successful creation, it should be empty")
+}
+
+func TestCanCreateAKeystoreSecretWithBlankPassword(t *testing.T) {
+	// Given...
+	// A whitespace-only password is a valid user intent (e.g. to set a blank password)
 	secretName := "KEYSTORE_BLANK_PASSWORD"
 	username := ""
 	password := "    "
@@ -2055,8 +2137,25 @@ func TestCreateKeystoreSecretWithBlankPasswordThrowsError(t *testing.T) {
 
 	keystoreValues := NewSecretsSetKeystoreValues("", "S2V5c3RvcmVXaXRoQmxhbmtQYXNzd29yZD0=", password, base64Password, "PKCS12")
 
-	// Validation should fail, so no HTTP interactions should take place
-	interactions := []utils.HttpInteraction{}
+	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
+	createSecretInteraction.ValidateRequestFunc = func(t *testing.T, req *http.Request) {
+		secretRequest := readSecretRequestBody(req)
+		assert.Equal(t, secretRequest.GetName(), secretName)
+
+		requestKeystore := secretRequest.GetKeystore()
+		assert.Equal(t, requestKeystore.GetValue(), keystoreValues.Base64KeystoreEncoded)
+
+		// keystorePassword should be set to the whitespace value as-is (user's intent)
+		requestKeystorePassword := secretRequest.GetKeystorePassword()
+		assert.Equal(t, requestKeystorePassword.GetValue(), password)
+
+		assert.Equal(t, secretRequest.GetKeystoreType(), keystoreValues.KeystoreType)
+	}
+	createSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.WriteHeader(http.StatusCreated)
+	}
+
+	interactions := []utils.HttpInteraction{createSecretInteraction}
 
 	server := utils.NewMockHttpServer(t, interactions)
 	defer server.Server.Close()
@@ -2085,10 +2184,8 @@ func TestCreateKeystoreSecretWithBlankPasswordThrowsError(t *testing.T) {
 		mockFileSystem)
 
 	// Then...
-	assert.NotNil(t, err, "SetSecret did not return an error as expected")
-	errorMsg := err.Error()
-	assert.Contains(t, errorMsg, "GAL1292E")
-	assert.Contains(t, errorMsg, "Missing required keystore password")
+	assert.Nil(t, err, "SetSecret returned an unexpected error")
+	assert.Empty(t, console.ReadText(), "The console was written to on a successful creation, it should be empty")
 }
 
 func TestCreateKeystoreSecretFromNonExistentFileThrowsError(t *testing.T) {

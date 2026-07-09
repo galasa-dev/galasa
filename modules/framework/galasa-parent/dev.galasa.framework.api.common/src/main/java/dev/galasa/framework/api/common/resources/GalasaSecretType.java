@@ -6,18 +6,20 @@
 package dev.galasa.framework.api.common.resources;
 
 public enum GalasaSecretType {
-    USERNAME_PASSWORD("UsernamePassword", "username", "password"),
-    USERNAME_TOKEN("UsernameToken", "username", "token"),
-    USERNAME("Username", "username"),
-    TOKEN("Token", "token"),
-    KEYSTORE("KeyStore", "keystore", "keystorePassword", "keystoreType");
+    USERNAME_PASSWORD("UsernamePassword", new String[]{ "username", "password" }, null),
+    USERNAME_TOKEN("UsernameToken", new String[]{ "username", "token" }, null),
+    USERNAME("Username", new String[]{ "username" }, null),
+    TOKEN("Token", new String[]{ "token" }, null),
+    KEYSTORE("KeyStore", new String[]{ "keystore", "keystoreType" }, new String[]{ "keystorePassword", "password"});
 
     private String name;
     private String[] requiredDataFields;
+    private String[] optionalDataFields;
 
-    private GalasaSecretType(String type, String... requiredDataFields) {
+    private GalasaSecretType(String type, String[] requiredDataFields, String[] optionalDataFields) {
         this.name = type;
         this.requiredDataFields = requiredDataFields;
+        this.optionalDataFields = optionalDataFields;
     }
 
     public static GalasaSecretType getFromString(String typeAsString) {
@@ -38,5 +40,9 @@ public enum GalasaSecretType {
 
     public String[] getRequiredDataFields() {
         return requiredDataFields;
+    }
+
+    public String[] getOptionalDataFields() {
+        return optionalDataFields;
     }
 }

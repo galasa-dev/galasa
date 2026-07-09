@@ -34,24 +34,8 @@ func NewSecretsSetKeystoreValues(
 }
 
 func (k SecretsSetKeystoreValues) Validate() error {
-    var err error
-    err = k.validateKeystorePassword()
-    if err == nil {
-        err = k.validateKeystoreType()
-    }
-    return err
+    return k.validateKeystoreType()
 }
-
-func (k SecretsSetKeystoreValues) validateKeystorePassword() error {
-    var err error
-    trimmedPassword := strings.TrimSpace(k.KeystorePassword)
-    hasValidPassword := k.Base64KeystorePassword != "" || (k.KeystorePassword != "" && trimmedPassword != "")
-    if !hasValidPassword {
-        err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_MISSING_KEYSTORE_PASSWORD)
-    }
-    return err
-}
-
 
 func (k SecretsSetKeystoreValues) validateKeystoreType() error {
     var err error

@@ -7,6 +7,7 @@ package dev.galasa.framework.api.secrets.internal;
 
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -134,8 +135,16 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
             .collect(Collectors.toSet());
 
         List<String> requiredTypeFields = Arrays.asList(secretType.getRequiredDataFields());
+
+        // Build the full set of allowed fields (required + optional)
+        List<String> allowedTypeFields = new ArrayList<>(requiredTypeFields);
+        String[] optionalFields = secretType.getOptionalDataFields();
+        if (optionalFields != null) {
+            allowedTypeFields.addAll(Arrays.asList(optionalFields));
+        }
+
         for (String field : secretRequestFields) {
-            if (!requiredTypeFields.contains(field)) {
+            if (!allowedTypeFields.contains(field)) {
                 ServletError error = new ServletError(GAL5100_ERROR_UNEXPECTED_SECRET_FIELD_PROVIDED, secretType.toString(), String.join(", ", requiredTypeFields));
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }

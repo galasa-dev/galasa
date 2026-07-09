@@ -9,6 +9,8 @@ import static org.assertj.core.api.Assertions.*;
 import static dev.galasa.framework.api.common.resources.ResourceAction.*;
 import static dev.galasa.framework.spi.rbac.BuiltInAction.*;
 
+import java.io.ByteArrayOutputStream;
+import java.security.KeyStore;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
@@ -880,5 +882,98 @@ public class GalasaSecretProcessorTest extends ResourcesServletTest {
         // Then...
         assertThat(thrown).isNotNull();
         checkErrorStructure(thrown.getMessage(), 5125, "GAL5125E", "SECRETS_DELETE");
+    }
+
+    private String createValidEmptyPasswordKeyStoreBytes(String keystoreType) {
+        try {
+            KeyStore keyStore = KeyStore.getInstance(keystoreType);
+            keyStore.load(null, new char[0]);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            keyStore.store(baos, new char[0]);
+            return Base64.getEncoder().encodeToString(baos.toByteArray());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create empty-password test KeyStore: " + e.getMessage(), e);
+        }
+    }
+
+    // --- Empty-password KeyStore tests ---
+
+    private JsonObject generateKeystoreSecretJson(
+        String secretName,
+        String keystoreData,
+        String keystorePassword,
+        String keystoreType
+    ) {
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("apiVersion", "galasa-dev/v1alpha1");
+        secretJson.addProperty("kind", "GalasaSecret");
+
+        JsonObject secretMetadata = new JsonObject();
+        secretMetadata.addProperty("name", secretName);
+        secretMetadata.addProperty("type", "KeyStore");
+        secretJson.add("metadata", secretMetadata);
+
+        JsonObject secretData = new JsonObject();
+        if (keystoreData != null) {
+            secretData.addProperty("keystore", keystoreData);
+        }
+        if (keystorePassword != null) {
+            secretData.addProperty("keystorePassword", keystorePassword);
+        }
+        if (keystoreType != null) {
+            secretData.addProperty("keystoreType", keystoreType);
+        }
+        secretJson.add("data", secretData);
+
+        return secretJson;
+    }
+
+    @Test
+    public void testApplyKeystoreSecretWithNoPasswordPassesValidation() throws Exception {
+        // Given...
+        // keystorePassword is optional — absent means the server defaults to "".
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
+        MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
+        String requestUsername = "myuser";
+        String secretName = "EMPTY_PASSWORD_KEYSTORE";
+
+        // keystoreData and keystoreType present, keystorePassword absent (server defaults to "")
+        JsonObject secretJson = generateKeystoreSecretJson(secretName, createValidEmptyPasswordKeyStoreBytes("PKCS12"), null, "PKCS12");
+
+        // When...
+        List<String> errors = secretProcessor.processResource(secretJson, APPLY, requestUsername);
+
+        // Then...
+        assertThat(errors).isEmpty();
+    }
+
+    @Test
+    public void testApplyKeystoreSecretWithMissingKeystoreFieldReturnsError() throws Exception {
+        // Given...
+        // The 'keystore' field itself is still required — only 'keystorePassword' is optional
+        MockTimeService mockTimeService = new MockTimeService(Instant.EPOCH);
+        MockCredentialsService mockCreds = new MockCredentialsService(new HashMap<>());
+        MockRBACService mockRbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
+
+        RBACValidator rbacValidator = new RBACValidator(mockRbacService);
+        GalasaSecretProcessor secretProcessor = new GalasaSecretProcessor(mockCreds, mockTimeService, rbacValidator);
+        String requestUsername = "myuser";
+        String secretName = "MISSING_KEYSTORE_FIELD";
+
+        // Both keystore and keystorePassword absent — should error on missing 'keystore'
+        JsonObject secretJson = generateKeystoreSecretJson(secretName, null, null, "PKCS12");
+
+        // When...
+        List<String> errors = secretProcessor.processResource(secretJson, APPLY, requestUsername);
+
+        // Then...
+        assertThat(errors).hasSize(1);
+        checkErrorStructure(errors.get(0), 5072,
+            "The 'KeyStore' type was provided but the following fields are missing from the 'data' field:",
+            "[keystore]");
     }
 }

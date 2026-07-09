@@ -41,10 +41,14 @@ public class CredentialsKeyStoreTest {
     private byte[] testKeyStoreBytes;
     private String encodedKeyStore;
 
+    // A separate KeyStore sealed with an empty-string password, representing a "no password" keystore
+    private byte[] emptyPasswordKeyStoreBytes;
+    private String encodedEmptyPasswordKeyStore;
+
     @Before
     public void setup() throws Exception {
         // Create a simple test KeyStore with a secret key (no certificates needed)
-        testKeyStore = createSimpleTestKeyStore();
+        testKeyStore = createSimpleTestKeyStore(testPassword);
         
         // Convert KeyStore to bytes
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -52,6 +56,14 @@ public class CredentialsKeyStoreTest {
         testKeyStoreBytes = baos.toByteArray();
 
         encodedKeyStore = Base64.getEncoder().encodeToString(testKeyStoreBytes);
+
+        // Create a KeyStore sealed with an empty-string password — the supported "no password" mode.
+        // Both the entry-level and store-level password are "" so the fixture is self-consistent.
+        KeyStore emptyPasswordKeyStore = createSimpleTestKeyStore("");
+        ByteArrayOutputStream emptyPasswordBaos = new ByteArrayOutputStream();
+        emptyPasswordKeyStore.store(emptyPasswordBaos, new char[0]);
+        emptyPasswordKeyStoreBytes = emptyPasswordBaos.toByteArray();
+        encodedEmptyPasswordKeyStore = Base64.getEncoder().encodeToString(emptyPasswordKeyStoreBytes);
     }
 
     /**
@@ -195,11 +207,95 @@ public class CredentialsKeyStoreTest {
             .hasMessageContaining("Failed to load KeyStore");
     }
 
+    // --- Empty-password keystore tests ---
+
+    /**
+     * Test creating a KeyStore credential with an empty-string password via the 3-arg constructor.
+     * An empty string "" is the supported "no password" mode — getKeyStorePassword() returns "".
+     */
+    @Test
+    public void testCreateEmptyPasswordKeyStoreCredentialReturnsEmptyPassword() throws Exception {
+        // When...
+        CredentialsKeyStore creds = new CredentialsKeyStore(encodedEmptyPasswordKeyStore, "", "PKCS12");
+
+        // Then...
+        assertThat(creds.getKeyStorePassword()).isEqualTo("");
+        assertThat(creds.getKeyStoreType()).isEqualTo("PKCS12");
+        assertThat(creds.getEncodedKeyStore()).isEqualTo(encodedEmptyPasswordKeyStore);
+    }
+
+    /**
+     * Test that an empty-password KeyStore can be loaded successfully via getKeyStore().
+     */
+    @Test
+    public void testGetKeyStoreOnEmptyPasswordCredentialLoadsSuccessfully() throws Exception {
+        // Given...
+        CredentialsKeyStore creds = new CredentialsKeyStore(encodedEmptyPasswordKeyStore, "", "PKCS12");
+
+        // When...
+        KeyStore loadedKeyStore = creds.getKeyStore();
+
+        // Then...
+        assertThat(loadedKeyStore).isNotNull();
+    }
+
+    /**
+     * Test that toProperties() always writes the password property, even when it is "".
+     */
+    @Test
+    public void testToPropertiesWithEmptyPasswordWritesEmptyPasswordProperty() throws Exception {
+        // Given...
+        CredentialsKeyStore creds = new CredentialsKeyStore(encodedEmptyPasswordKeyStore, "", "PKCS12");
+
+        // When...
+        Properties props = creds.toProperties("TESTCREDS");
+
+        // Then...
+        assertThat(props.getProperty("secure.credentials.TESTCREDS.keystore")).isNotNull();
+        assertThat(props.getProperty("secure.credentials.TESTCREDS.type")).isEqualTo("PKCS12");
+        assertThat(props.getProperty("secure.credentials.TESTCREDS.password")).isEqualTo("");
+    }
+
+    /**
+     * Test creating an empty-password KeyStore via the 4-arg constructor (storage path)
+     * with a null encryption key (file-based, unencrypted). A null stored password defaults to "".
+     */
+    @Test
+    public void testCreateEmptyPasswordKeyStoreCredentialViaStorageConstructor() throws Exception {
+        // When...
+        // null key = file-based (not etcd), null password in store = default to ""
+        CredentialsKeyStore creds = new CredentialsKeyStore(null, encodedEmptyPasswordKeyStore, null, "PKCS12");
+
+        // Then...
+        assertThat(creds.getKeyStorePassword()).isEqualTo("");
+        assertThat(creds.getKeyStoreType()).isEqualTo("PKCS12");
+        assertThat(creds.getEncodedKeyStore()).isEqualTo(encodedEmptyPasswordKeyStore);
+    }
+
+    /**
+     * Test that getKeyStore() works on an empty-password credential created via the 4-arg constructor.
+     */
+    @Test
+    public void testGetKeyStoreOnEmptyPasswordStorageCredentialLoadsSuccessfully() throws Exception {
+        // Given...
+        CredentialsKeyStore creds = new CredentialsKeyStore(null, encodedEmptyPasswordKeyStore, null, "PKCS12");
+
+        // When...
+        KeyStore loadedKeyStore = creds.getKeyStore();
+
+        // Then...
+        assertThat(loadedKeyStore).isNotNull();
+    }
+
+    // --- Helpers ---
+
     /**
      * Create a simple test KeyStore with a secret key.
+     * The entry is protected with the given password. The store-level password is
+     * controlled by the caller when invoking keyStore.store().
      * This avoids the complexity of certificate generation.
      */
-    private KeyStore createSimpleTestKeyStore() throws Exception {
+    private KeyStore createSimpleTestKeyStore(String password) throws Exception {
         // Create an empty PKCS12 KeyStore
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         keyStore.load(null, null);
@@ -209,10 +305,10 @@ public class CredentialsKeyStoreTest {
         keyGen.init(256);
         SecretKey secretKey = keyGen.generateKey();
         
-        // Store the secret key in the KeyStore
+        // Store the secret key in the KeyStore, always protected with the test password at the entry level.
+        // The store-level password (passed to keyStore.store()) is controlled by the caller.
         KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(secretKey);
-        KeyStore.ProtectionParameter protectionParam = 
-            new KeyStore.PasswordProtection(testPassword.toCharArray());
+        KeyStore.ProtectionParameter protectionParam = new KeyStore.PasswordProtection(password.toCharArray());
         keyStore.setEntry("test-secret-key", secretKeyEntry, protectionParam);
 
         return keyStore;

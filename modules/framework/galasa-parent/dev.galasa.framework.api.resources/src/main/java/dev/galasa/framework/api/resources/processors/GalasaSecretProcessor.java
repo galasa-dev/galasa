@@ -31,6 +31,8 @@ import dev.galasa.framework.api.common.resources.ResourceAction;
 import dev.galasa.framework.api.common.resources.Secret;
 import dev.galasa.framework.api.common.RBACValidator;
 import dev.galasa.framework.api.resources.validators.GalasaSecretValidator;
+import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
 import dev.galasa.framework.spi.creds.CredentialsUsernamePassword;
@@ -143,7 +145,7 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
         GalasaSecretType secretType,
         GalasaSecretdata decodedData,
         GalasaSecretmetadata metadata
-    ) {
+    ) throws InternalServletException {
         ICredentials credentials = null;
         switch (secretType) {
             case USERNAME:
@@ -157,6 +159,23 @@ public class GalasaSecretProcessor extends AbstractGalasaResourceProcessor imple
                 break;
             case USERNAME_TOKEN:
                 credentials = new CredentialsUsernameToken(decodedData.getusername(), decodedData.gettoken());
+                break;
+            case KEYSTORE:
+                try {
+                    // keystorePassword is optional — default to "" (no password) if absent
+                    String keystorePassword = decodedData.getpassword();
+                    if (keystorePassword == null) {
+                        keystorePassword = "";
+                    }
+                    credentials = new CredentialsKeyStore(
+                        decodedData.getkeystore(),
+                        keystorePassword,
+                        decodedData.getKeystoreType()
+                    );
+                } catch (CredentialsException | IllegalArgumentException e) {
+                    ServletError error = new ServletError(GAL5450_FAILED_TO_CREATE_KEYSTORE_CREDENTIALS);
+                    throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+                }
                 break;
             default:
                 break;

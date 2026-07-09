@@ -187,11 +187,13 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         }
         
         SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
-        if (keystorePassword == null) {
-            ServletError error = new ServletError(GAL5453_MISSING_KEYSTORE_PASSWORD_FIELD);
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        String decodedKeystorePassword = "";
+        if (keystorePassword != null) {
+            decodedKeystorePassword = decodeSecretValue(keystorePassword.getvalue(), keystorePassword.getencoding());
+            if (decodedKeystorePassword == null) {
+                decodedKeystorePassword = "";
+            }
         }
-        String decodedKeystorePassword = decodeSecretValue(keystorePassword.getvalue(), keystorePassword.getencoding());
         
         String type = secretRequest.getKeystoreType();
         

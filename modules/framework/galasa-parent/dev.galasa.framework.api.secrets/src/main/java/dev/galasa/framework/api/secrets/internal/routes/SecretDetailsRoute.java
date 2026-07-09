@@ -292,8 +292,9 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
         String overriddenKeystorePassword = existingKeystorePassword;
         if (requestKeystorePassword != null) {
             String possiblyDecodedKeystorePassword = decodeSecretValue(requestKeystorePassword.getvalue(), requestKeystorePassword.getencoding());
-            overriddenKeystorePassword = getOverriddenValue(existingKeystorePassword, possiblyDecodedKeystorePassword);
+            return (possiblyDecodedKeystorePassword != null) ? possiblyDecodedKeystorePassword : "";
         }
+        // keystorePassword field was absent — keep the existing password unchanged.
         return overriddenKeystorePassword;
     }
 

@@ -66,11 +66,10 @@ func SetSecret(
 				}
 				
 				if err == nil {
-					if requestKeystore.GetValue() != "" {
-						requestKeystorePassword = createSecretRequestKeystorePassword(password, base64Password)
-					} else {
-						requestPassword = createSecretRequestPassword(password, base64Password)
-					}
+					// Send both password and keystorePassword to server
+					// Server will work out based on secret type which to use
+					requestKeystorePassword = createSecretRequestKeystorePassword(password, base64Password)
+					requestPassword = createSecretRequestPassword(password, base64Password)
 				}
 
 				var secretTypeValue galasaapi.NullableGalasaSecretType
@@ -159,7 +158,8 @@ func createSecretRequestKeystorePassword(keystorePassword string, base64Keystore
 	if base64KeystorePassword != "" {
 		requestKeystorePassword.SetValue(base64KeystorePassword)
 		requestKeystorePassword.SetEncoding(BASE64_ENCODING)
-	} else if keystorePassword != "" {
+	} else {
+		// Always set the value — even "" means "empty-string password" (i.e. no password)
 		requestKeystorePassword.SetValue(keystorePassword)
 	}
 	return requestKeystorePassword
@@ -191,7 +191,8 @@ func createSecretRequest(
 		secretRequest.SetUsername(username)
 	}
 
-	if password.GetValue() != "" {
+	// GetValue() != ""
+	if password.HasValue() {
 		secretRequest.SetPassword(password)
 	}
 
@@ -203,7 +204,7 @@ func createSecretRequest(
 		secretRequest.SetKeystore(keystore)
 	}
 
-	if keystorePassword.GetValue() != "" {
+	if keystorePassword.HasValue() {
 		secretRequest.SetKeystorePassword(keystorePassword)
 	}
 

@@ -3344,7 +3344,7 @@ components:
                 Currently, base64 is the only supported encoding scheme
         password:
           type: object
-          description: The password to create or update in the Credentials Store. Cannot be used alongside 'token'
+          description: The password to create or update in the Credentials Store. For UsernamePassword secrets, cannot be used alongside 'token'. For KeyStore secrets, used as the keystore password alongside 'keystore'; omitting defaults to an empty-string password on create or keeps the existing password on update.
           properties:
             value:
               type: string
@@ -3356,7 +3356,7 @@ components:
                 Currently, base64 is the only supported encoding scheme
         token:
           type: object
-          description: The token to create or update in the Credentials Store. Cannot be used alongside 'password', 'keystore', or 'keystorePassword'
+          description: The token to create or update in the Credentials Store. Cannot be used alongside 'password' or 'keystore'
           properties:
             value:
               type: string
@@ -3368,7 +3368,7 @@ components:
                 Currently, base64 is the only supported encoding scheme
         keystore:
           type: object
-          description: The keystore to create or update in the Credentials Store. Cannot be used alongside 'password' or 'token'
+          description: The keystore to create or update in the Credentials Store. Cannot be used alongside 'token'. Use 'password' alongside 'keystore' to set the keystore password.
           properties:
             value:
               type: string
