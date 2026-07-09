@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.text.*;
 
@@ -51,6 +52,8 @@ public class FelixFramework {
 
     private static final String EXTRA_FRAMEWORK_BUNDLES_PROP  = "framework.extra.bundles";
     private static final String EXTRA_API_SERVER_BUNDLES_PROP = "api.extra.bundles";
+
+    private static final String UBER_OBR_ARTIFACT_ID = "dev.galasa.uber.obr";
 
     protected Framework framework;
 
@@ -451,23 +454,74 @@ public class FelixFramework {
     }
 
     /**
-     * Prepare dependencies - load all bundles from all registered OBR repositories
-     * to populate the local Maven cache, without running any tests.
+     * Prepare dependencies by resolving only the bundles in registered OBR
+     * repositories that are <em>not</em> the Galasa uber OBR, then installing the resolved
+     * set via the bundle context to trigger the Maven URL handler and populate the
+     * local Maven cache. Bundles are installed but not started.
      *
-     * @throws LauncherException if a bundle cannot be loaded
+     * @throws LauncherException if resolution fails
      */
     public void runPrepare() throws LauncherException {
-        logger.debug("Running dependency preparation - loading all bundles from registered OBR repositories");
+        logger.debug("Running dependency preparation - resolving test OBR bundles and their dependencies");
 
+        Resolver resolver = repositoryAdmin.resolver();
+
+        List<Repository> testRepositories = new ArrayList<>();
         for (Repository repository : repositoryAdmin.listRepositories()) {
-            Resource[] resources = repository.getResources();
-            if (resources != null) {
-                for (Resource resource : resources) {
-                    String symbolicName = resource.getSymbolicName();
-                    logger.debug("Loading bundle: " + symbolicName);
-                    loadBundle(symbolicName);
+            String repoUri = repository.getURI() != null ? repository.getURI().toString() : "";
+            if (repoUri.contains(UBER_OBR_ARTIFACT_ID)) {
+                logger.debug("Skipping uber OBR as resolver root: " + repoUri);
+            } else {
+                testRepositories.add(repository);
+                Resource[] resources = repository.getResources();
+                if (resources != null) {
+                    for (Resource resource : resources) {
+                        logger.debug("Adding test bundle as resolver root: " + resource.getSymbolicName());
+                        resolver.add(resource);
+                    }
                 }
             }
+        }
+
+        if (resolver.resolve()) {
+            Set<String> urisToInstall = new HashSet<>();
+
+            // Collect required dependencies resolved from the dependency-provider OBRs
+            for (Resource resource : resolver.getRequiredResources()) {
+                if (resource.getURI() != null && !resource.getURI().startsWith("reference:")) {
+                    urisToInstall.add(resource.getURI());
+                }
+            }
+
+            // Also install the root test-OBR bundles themselves
+            for (Repository repository : testRepositories) {
+                Resource[] resources = repository.getResources();
+                if (resources != null) {
+                    for (Resource resource : resources) {
+                        if (resource.getURI() != null && !resource.getURI().startsWith("reference:")) {
+                            urisToInstall.add(resource.getURI());
+                        }
+                    }
+                }
+            }
+
+            for (String uri : urisToInstall) {
+                logger.debug("Installing bundle to cache: " + uri);
+                try {
+                    framework.getBundleContext().installBundle(uri);
+                } catch (BundleException e) {
+                    // A bundle may fail to install due to unsatisfied OSGi wiring in this
+                    // minimal environment. The JAR is still downloaded - that is the goal.
+                    logger.info("Skipping bundle " + uri + " (install failed): " + e.getMessage());
+                }
+            }
+        } else {
+            Reason[] unsatisfied = resolver.getUnsatisfiedRequirements();
+            StringBuilder sb = new StringBuilder("Unable to resolve test OBR dependencies for prepare:");
+            for (Reason reason : unsatisfied) {
+                sb.append("\n  ").append(reason.getRequirement());
+            }
+            throw new LauncherException(sb.toString());
         }
 
         logger.debug("Dependency preparation complete");

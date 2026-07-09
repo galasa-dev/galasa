@@ -11,9 +11,15 @@ import org.apache.felix.bundlerepository.Resource;
 public class MockRepository implements Repository {
 
     private Resource[] resources;
+    private String uri;
 
     public MockRepository(Resource[] resources) {
+        this(resources, "mock://repository");
+    }
+
+    public MockRepository(Resource[] resources, String uri) {
         this.resources = resources;
+        this.uri = uri;
     }
 
     @Override
@@ -23,7 +29,7 @@ public class MockRepository implements Repository {
 
     @Override
     public String getURI() {
-        return "mock://repository";
+        return uri;
     }
 
     @Override

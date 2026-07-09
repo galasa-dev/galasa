@@ -272,83 +272,25 @@ public class TestFelixFramework {
     }
 
     @Test
-    public void testRunPrepareLoadsAllBundlesFromRegisteredRepositories() throws Exception {
-        // Given - two bundles in the OBR
-        String bundle1 = "my.test.bundle";
-        String bundle2 = "another.bundle";
+    public void testRunPrepareInstallsTestBundleButNotUberObrBundles() throws Exception {
+        // Given - a test OBR and the Galasa uber OBR (identified by its artifact ID in the URI).
+        // Only the test OBR's resources are added as resolver roots; the uber OBR is registered
+        // so the resolver can find dependencies but its bundles are not installed wholesale.
+        String testBundleUri = "mvn:my.test/bundle1/1.0.0/jar";
+        String testBundle = "my.test.bundle";
 
-        MockResolver mockResolver = new MockResolver();
+        // Test OBR - plain URI, not the uber OBR
+        Repository testRepo = new MockRepository(new Resource[]{
+            new MockResource(testBundle, testBundle, testBundleUri),
+        });
+        // Uber OBR - URI contains "dev.galasa.uber.obr", so it is skipped as a resolver root
+        String uberBundleUri = "mvn:dev.galasa/uber.bundle/1.0.0/jar";
+        String uberRepoUri = "mvn:dev.galasa/dev.galasa.uber.obr/1.0.0/obr";
+        Repository uberRepo = new MockRepository(new Resource[]{
+            new MockResource("uber.bundle", "uber.bundle", uberBundleUri),
+        }, uberRepoUri);
 
-        Resource[] repoResources = new Resource[] {
-            new MockResource(bundle1, bundle1, "uri:" + bundle1),
-            new MockResource(bundle2, bundle2, "uri:" + bundle2),
-        };
-        Repository mockRepo = new MockRepository(repoResources);
-        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(mockResolver, new Repository[]{ mockRepo });
-
-        // Both bundles are in the framework as ACTIVE, so the post-deploy isBundleActive check passes
-        Bundle[] availableBundles = new Bundle[] {
-            new MockBundle(bundle1),
-            new MockBundle(bundle2),
-        };
-        MockBundleContext mockBundleContext = new MockBundleContext(availableBundles);
-        MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
-
-        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
-
-        // When...
-        felixFramework.runPrepare();
-
-        // Then - both bundles from the OBR should have been passed to the resolver
-        List<String> addedResourceIds = mockResolver.getAllResources()
-            .stream()
-            .map(Resource::getId)
-            .collect(Collectors.toList());
-
-        assertThat(addedResourceIds).contains(bundle1);
-        assertThat(addedResourceIds).contains(bundle2);
-    }
-
-    @Test
-    public void testRunPrepareLoadsAllBundlesAcrossMultipleRepositories() throws Exception {
-        // Given - bundles spread across two OBR repositories
-        String bundle1 = "bundle.from.repo.one";
-        String bundle2 = "bundle.from.repo.two";
-
-        MockResolver mockResolver = new MockResolver();
-
-        Repository mockRepo1 = new MockRepository(new Resource[]{ new MockResource(bundle1, bundle1, "uri:" + bundle1) });
-        Repository mockRepo2 = new MockRepository(new Resource[]{ new MockResource(bundle2, bundle2, "uri:" + bundle2) });
-        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(mockResolver, new Repository[]{ mockRepo1, mockRepo2 });
-
-        // Both bundles are in the framework as ACTIVE so the post-deploy isBundleActive check passes
-        Bundle[] availableBundles = new Bundle[] {
-            new MockBundle(bundle1),
-            new MockBundle(bundle2),
-        };
-        MockBundleContext mockBundleContext = new MockBundleContext(availableBundles);
-        MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
-
-        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
-
-        // When...
-        felixFramework.runPrepare();
-
-        // Then - bundles from both repositories should have been passed to the resolver
-        List<String> addedResourceIds = mockResolver.getAllResources()
-            .stream()
-            .map(Resource::getId)
-            .collect(Collectors.toList());
-
-        assertThat(addedResourceIds).contains(bundle1);
-        assertThat(addedResourceIds).contains(bundle2);
-    }
-
-    @Test
-    public void testRunPrepareWithNoRepositoriesDoesNothing() throws Exception {
-        // Given...
-        MockResolver mockResolver = new MockResolver();
-        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(mockResolver, new Repository[0]);
+        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(new MockResolver(), new Repository[]{ testRepo, uberRepo });
 
         MockBundleContext mockBundleContext = new MockBundleContext(new Bundle[0]);
         MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
@@ -358,7 +300,82 @@ public class TestFelixFramework {
         // When...
         felixFramework.runPrepare();
 
-        // Then - no bundles should have been loaded
-        assertThat(mockResolver.getAllResources()).isEmpty();
+        // Then - the test bundle is installed; the uber OBR bundle is not
+        List<String> installed = mockBundleContext.getInstalledBundleLocations();
+        assertThat(installed).contains(testBundleUri);
+        assertThat(installed).doesNotContain(uberBundleUri);
+    }
+
+    @Test
+    public void testRunPrepareInstallsBundlesAcrossMultipleTestRepositories() throws Exception {
+        // Given - two test OBRs and one uber OBR (identified by its URI)
+        String uri1 = "mvn:repo.one/bundle/1.0.0/jar";
+        String uri2 = "mvn:repo.two/bundle/1.0.0/jar";
+        String uberBundleUri = "mvn:dev.galasa/uber/1.0.0/jar";
+        String uberRepoUri = "mvn:dev.galasa/dev.galasa.uber.obr/1.0.0/obr";
+
+        Repository testRepo1 = new MockRepository(new Resource[]{ new MockResource("b1", "b1", uri1) });
+        Repository testRepo2 = new MockRepository(new Resource[]{ new MockResource("b2", "b2", uri2) });
+        Repository uberRepo  = new MockRepository(new Resource[]{ new MockResource("uber", "uber", uberBundleUri) }, uberRepoUri);
+
+        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(new MockResolver(),
+            new Repository[]{ testRepo1, testRepo2, uberRepo });
+
+        MockBundleContext mockBundleContext = new MockBundleContext(new Bundle[0]);
+        MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
+
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
+
+        // When...
+        felixFramework.runPrepare();
+
+        // Then - both test OBR bundles are installed but the uber OBR bundle is not
+        List<String> installed = mockBundleContext.getInstalledBundleLocations();
+        assertThat(installed).contains(uri1);
+        assertThat(installed).contains(uri2);
+        assertThat(installed).doesNotContain(uberBundleUri);
+    }
+
+    @Test
+    public void testRunPrepareSkipsReferenceUris() throws Exception {
+        // Given - one reference: bundle (already local, skip) and one mvn: bundle (download)
+        String refUri = "reference:file:/some/local/bundle.jar";
+        String mvnUri = "mvn:my.test/bundle/1.0.0/jar";
+
+        Repository testRepo = new MockRepository(new Resource[]{
+            new MockResource("local.bundle", "local.bundle", refUri),
+            new MockResource("remote.bundle", "remote.bundle", mvnUri),
+        });
+        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(new MockResolver(), new Repository[]{ testRepo });
+
+        MockBundleContext mockBundleContext = new MockBundleContext(new Bundle[0]);
+        MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
+
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
+
+        // When...
+        felixFramework.runPrepare();
+
+        // Then - reference: URI is skipped, only mvn: URI is installed
+        List<String> installed = mockBundleContext.getInstalledBundleLocations();
+        assertThat(installed).doesNotContain(refUri);
+        assertThat(installed).contains(mvnUri);
+    }
+
+    @Test
+    public void testRunPrepareWithNoRepositoriesDoesNothing() throws Exception {
+        // Given...
+        MockRepositoryAdmin mockRepoAdmin = new MockRepositoryAdmin(new MockResolver(), new Repository[0]);
+
+        MockBundleContext mockBundleContext = new MockBundleContext(new Bundle[0]);
+        MockOsgiFramework mockOsgiFramework = new MockOsgiFramework(mockBundleContext);
+
+        FelixFramework felixFramework = new MockFelixFramework(mockOsgiFramework, mockRepoAdmin);
+
+        // When...
+        felixFramework.runPrepare();
+
+        // Then - nothing should have been installed
+        assertThat(mockBundleContext.getInstalledBundleLocations()).isEmpty();
     }
 }
