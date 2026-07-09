@@ -258,24 +258,26 @@ public class SecretsServletTest extends BaseServletTest {
     }
 
     /**
-     * Creates a valid empty PKCS12 KeyStore for testing.
-     * This generates actual KeyStore binary data that can be loaded without errors.
+     * Creates a valid empty KeyStore for testing, sealed with the given password.
+     * Pass {@code ""} for {@code password} to create a no-password (empty-string) KeyStore.
+     * Only two password modes are supported: {@code ""} (no password) or a real non-empty value.
      *
-     * @param password The password to protect the KeyStore
-     * @param keystoreType The type of KeyStore ("PKCS12" or "JKS")
+     * @param password     The password to protect the KeyStore (use {@code ""} for no password)
+     * @param keystoreType The type of KeyStore (e.g. "PKCS12" or "JKS")
      * @return Base64-encoded KeyStore bytes
      */
     protected String createValidKeyStoreBytes(String password, String keystoreType) {
         try {
+            char[] passwordChars = password.toCharArray();
             // Create an empty KeyStore
             KeyStore keyStore = KeyStore.getInstance(keystoreType);
-            keyStore.load(null, password.toCharArray());
-            
+            keyStore.load(null, passwordChars);
+
             // Serialize the KeyStore to bytes
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            keyStore.store(baos, password.toCharArray());
+            keyStore.store(baos, passwordChars);
             byte[] keystoreBytes = baos.toByteArray();
-            
+
             // Return base64-encoded bytes
             return Base64.getEncoder().encodeToString(keystoreBytes);
         } catch (Exception e) {

@@ -81,7 +81,12 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
         }
 
         if (keystorePassword != null) {
-            validateField(keystorePassword.getvalue(), keystorePassword.getencoding());
+            // "" is valid (no-password keystore), but whitespace-only is not
+            validateEncoding(keystorePassword.getencoding());
+            if (keystorePassword.getvalue() != null && !keystorePassword.getvalue().isEmpty() && keystorePassword.getvalue().isBlank()) {
+                ServletError error = new ServletError(GAL5096_ERROR_MISSING_SECRET_VALUE);
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+            }
         }
 
         if (keystoreType != null) {
@@ -90,13 +95,17 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
     }
 
     private void validateField(String value, String encoding) throws InternalServletException {
-        if (encoding != null && !SUPPORTED_ENCODING_SCHEMES.contains(encoding)) {
-            ServletError error = new ServletError(GAL5073_UNSUPPORTED_GALASA_SECRET_ENCODING, String.join(", ", SUPPORTED_ENCODING_SCHEMES));
-            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
-        }
+        validateEncoding(encoding);
 
         if (value == null || value.isBlank()) {
             ServletError error = new ServletError(GAL5096_ERROR_MISSING_SECRET_VALUE);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
+    private void validateEncoding(String encoding) throws InternalServletException {
+        if (encoding != null && !SUPPORTED_ENCODING_SCHEMES.contains(encoding)) {
+            ServletError error = new ServletError(GAL5073_UNSUPPORTED_GALASA_SECRET_ENCODING, String.join(", ", SUPPORTED_ENCODING_SCHEMES));
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }
