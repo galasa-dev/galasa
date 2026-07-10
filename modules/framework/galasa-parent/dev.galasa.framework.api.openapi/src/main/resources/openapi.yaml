@@ -3368,7 +3368,9 @@ components:
                 Currently, base64 is the only supported encoding scheme
         keystore:
           type: object
-          description: The keystore to create or update in the Credentials Store. Cannot be used alongside 'password' or 'token'
+          description: |
+            The keystore to create or update in the Credentials Store. Cannot be used alongside 'password' or 'token'.
+            When 'keystore' is provided on an update request, 'keystorePassword' must also be provided.
           properties:
             value:
               type: string
@@ -3380,11 +3382,13 @@ components:
                 Currently, base64 is the only supported encoding scheme
         keystorePassword:
           type: object
-          description: The password for the KeyStore. Optional - can be null or empty for password-less KeyStores. Only used when 'keystore' is provided.
+          description: |
+            The password for the KeyStore. When 'keystorePassword' is provided on an update request, 'keystore'
+            must also be provided. An empty string ("") is a valid value indicating a password-less KeyStore.
           properties:
             value:
               type: string
-              description: The password value for the KeyStore
+              description: The password value for the KeyStore. May be an empty string to indicate no password.
             encoding:
               type: string
               description: |
@@ -3394,7 +3398,7 @@ components:
           type: string
           description: |
             The type of the KeyStore. Optional, defaults to 'PKCS12' if not specified.
-            Supported values are 'PKCS12' and 'JKS'. Only used when 'keystore' is provided.
+            Supported values are 'PKCS12' and 'JKS'. Can be supplied on its own to update only the keystore type.
     TagCreateRequest:
       type: object
       properties:
