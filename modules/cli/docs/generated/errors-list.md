@@ -291,7 +291,7 @@ The `galasactl` tool can generate the following errors:
 - GAL1289E: An attempt to set stream '{}' failed. Unexpected http status code {} received from the server. Error details from the server are: '{}'
 - GAL1290E: An attempt to set stream '{}' failed. Unexpected http status code {} received from the server. Error details from the server are not in the json format.
 - GAL1291E: Invalid keystore type provided. The keystore type must be either 'JKS' or 'PKCS12'. Use the --help flag for more information.
-- GAL1292E: Missing required keystore password. When creating a keystore secret using --keystore-file or --base64-keystore-encoded, you must also provide --password or --base64-password. Use the --help flag for more information.
+- GAL1292E: Invalid keystore password provided. When creating a keystore secret using --keystore-file or --base64-keystore-encoded, you must also provide --password or --base64-password. An empty string "" is valid and means no password. Use the --help flag for more information.
 - GAL1293E: Invalid keystore flag combination provided. --keystore-file cannot be provided with --base64-keystore-encoded, and --password cannot be provided with --base64-password. Use the --help flag for more information.
 - GAL1294E: Empty keystore file provided. The keystore file '{}' contains 0 bytes. Please provide a valid keystore file. Use the --help flag for more information.
 - GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'

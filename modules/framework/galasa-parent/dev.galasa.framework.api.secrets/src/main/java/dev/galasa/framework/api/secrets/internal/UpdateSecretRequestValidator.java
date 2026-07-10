@@ -98,6 +98,10 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
             // The user intends to update an existing secret without changing its type
             // so make sure that the relevant fields have been supplied
             checkProvidedSecretFieldsAreRelevant(existingSecretType, secretRequest);
+
+            if (existingSecretType == GalasaSecretType.KEYSTORE) {
+                validateKeystoreAndPasswordProvidedTogether(secretRequest);
+            }
         } else if (requestedType != null) {
             GalasaSecretType secretType = GalasaSecretType.getFromString(requestedType.toString());
             if (secretType == null) {
@@ -139,6 +143,16 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
                 ServletError error = new ServletError(GAL5100_ERROR_UNEXPECTED_SECRET_FIELD_PROVIDED, secretType.toString(), String.join(", ", requiredTypeFields));
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
             }
+        }
+    }
+
+    private void validateKeystoreAndPasswordProvidedTogether(SecretRequest secretRequest) throws InternalServletException {
+        boolean hasKeystore = secretRequest.getkeystore() != null;
+        boolean hasKeystorePassword = secretRequest.getKeystorePassword() != null;
+
+        if (hasKeystore != hasKeystorePassword) {
+            ServletError error = new ServletError(GAL5462_KEYSTORE_AND_PASSWORD_MUST_BE_PROVIDED_TOGETHER);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 }

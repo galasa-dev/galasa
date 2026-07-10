@@ -792,15 +792,15 @@ galasactl secrets set --name SYSTEM1 --username "my-base64-username" --base64-to
 
 #### Keystore Secrets
 
-Keystore secrets can be created to store Java keystores (JKS or PKCS12 format) for use in Galasa tests. To create a keystore secret, you must provide the keystore file path or encoded keystore data, keystore password, and optionally the keystore type (defaults to 'PKCS12' if not provided).
+Keystore secrets can be created to store Java keystores (JKS or PKCS12 format) for use in Galasa tests. To create a keystore secret, you must provide the keystore file path or encoded keystore data, along with `--password` for the keystore password, and optionally `--keystore-type` (defaults to `PKCS12` if not provided).
 
-For example, to create a JKS keystore secret:
+For example, to create a JKS keystore secret from a file:
 
 ```
 galasactl secrets set --name MYKEYSTORE --keystore-file /path/to/keystore.jks --password "keystore-password" --keystore-type JKS
 ```
 
-To create a PKCS12 keystore secret:
+To create a PKCS12 keystore secret from a file:
 
 ```
 galasactl secrets set --name MYKEYSTORE --keystore-file /path/to/keystore.p12 --password "keystore-password" --keystore-type PKCS12
@@ -808,13 +808,25 @@ galasactl secrets set --name MYKEYSTORE --keystore-file /path/to/keystore.p12 --
 
 The keystore file will be read and base64-encoded before being stored in the Galasa Ecosystem's credentials store. The supported keystore types are `JKS` and `PKCS12`.
 
-Alternatively, if you wish to provide the data from the keystore file already base64 encoded, you can provide it directly using the `--base64-keystore-encoded` flag:
+To create a keystore secret with no integrity-check password (i.e. an unprotected keystore), pass an empty string for `--password`:
+
+```
+galasactl secrets set --name MYKEYSTORE --keystore-file /path/to/keystore.p12 --password "" --keystore-type PKCS12
+```
+
+Alternatively, if you already have the keystore data base64-encoded, you can provide it directly using the `--base64-keystore-encoded` flag:
 
 ```
 galasactl secrets set --name MYKEYSTORE --base64-keystore-encoded "dGVzdC1rZXlzdG9yZS1kYXRh" --password "keystore-password" --keystore-type JKS
 ```
 
-A base64-encoded versions of the password can be supplied using the `--base64-password` flag to avoid sending unencoded passwords on the command-line.
+A base64-encoded version of the password can be supplied using the `--base64-password` flag to avoid sending unencoded passwords on the command line.
+
+To update an existing keystore secret, you must always provide `--keystore-file` (or `--base64-keystore-encoded`) and `--password` together — they cannot be supplied independently. To update only the keystore type, supply `--keystore-type` on its own:
+
+```
+galasactl secrets set --name MYKEYSTORE --keystore-type JKS
+```
 
 #### Changing Secret Types
 

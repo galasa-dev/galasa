@@ -44,8 +44,10 @@ func (k SecretsSetKeystoreValues) Validate() error {
 
 func (k SecretsSetKeystoreValues) validateKeystorePassword() error {
     var err error
+    // "" (empty string) is valid - it means no integrity-check password on the keystore.
+    // Whitespace-only is not valid. A base64-encoded password is always valid.
     trimmedPassword := strings.TrimSpace(k.KeystorePassword)
-    hasValidPassword := k.Base64KeystorePassword != "" || (k.KeystorePassword != "" && trimmedPassword != "")
+    hasValidPassword := k.Base64KeystorePassword != "" || k.KeystorePassword == "" || trimmedPassword != ""
     if !hasValidPassword {
         err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_MISSING_KEYSTORE_PASSWORD)
     }

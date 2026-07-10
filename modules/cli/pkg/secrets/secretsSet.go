@@ -159,7 +159,8 @@ func createSecretRequestKeystorePassword(keystorePassword string, base64Keystore
 	if base64KeystorePassword != "" {
 		requestKeystorePassword.SetValue(base64KeystorePassword)
 		requestKeystorePassword.SetEncoding(BASE64_ENCODING)
-	} else if keystorePassword != "" {
+	} else {
+		// Always set the value, even when it is "" (empty string = no password on the keystore)
 		requestKeystorePassword.SetValue(keystorePassword)
 	}
 	return requestKeystorePassword
@@ -201,9 +202,7 @@ func createSecretRequest(
 
 	if keystore.GetValue() != "" {
 		secretRequest.SetKeystore(keystore)
-	}
-
-	if keystorePassword.GetValue() != "" {
+		// Always include keystorePassword alongside keystore, even when the password is ""
 		secretRequest.SetKeystorePassword(keystorePassword)
 	}
 
