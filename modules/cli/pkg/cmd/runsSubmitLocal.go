@@ -139,6 +139,10 @@ func (cmd *RunsSubmitLocalCommand) createRunsSubmitLocalCobraCmd(
 			"The connection is established using the --debugMode and --debugPort values.",
 	)
 
+	runsSubmitLocalCobraCmd.Flags().BoolVar(&cmd.values.runsSubmitLocalCmdParams.IsOffline, "offline", false,
+		"When set, the JVM will not contact any remote Maven repository during bundle resolution. "+
+			"Useful in restricted network environments. Cannot be used with --remoteMaven.")
+
 	runsSubmitLocalCobraCmd.Flags().StringSliceVar(&cmd.values.runsSubmitLocalCmdParams.TestMethods, "methods", make([]string, 0),
 		"Optional. The names of the Java test methods from the test class provided via the --class option that you wish to run."+
 		" Method names must start with a letter (a-z, A-Z), can contain letters, numbers, and underscores, and must not be a Java reserved keyword."+
@@ -152,6 +156,7 @@ func (cmd *RunsSubmitLocalCommand) createRunsSubmitLocalCobraCmd(
 
 	runsSubmitLocalCobraCmd.MarkFlagsOneRequired("class", "gherkin")
 	runsSubmitLocalCobraCmd.MarkFlagsMutuallyExclusive("methods", "gherkin")
+	runsSubmitLocalCobraCmd.MarkFlagsMutuallyExclusive("offline", "remoteMaven")
 
 	runsSubmitLocalCobraCmd.Flags().IntVar(&runsSubmitCmd.Values().(*utils.RunsSubmitCmdValues).Throttle, "throttle", runs.DEFAULT_LOCAL_THROTTLE_TESTS_AT_ONCE,
 		"how many test runs can be submitted in parallel, 0 or less will disable throttling. 1 causes tests to be run sequentially.")

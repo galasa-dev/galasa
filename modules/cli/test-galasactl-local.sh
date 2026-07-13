@@ -409,6 +409,92 @@ function check_ignored_tests_in_json_report {
     success "The correct number of test methods were marked as Ignored in JSON report"
 }
 
+# Prepare all OBR bundle dependencies into the local Maven cache (no test run)
+function prepare_local_deps {
+
+    h2 "Preparing OBR dependencies into the local Maven cache"
+
+    cd ${BASEDIR}/temp/*banking
+
+    OBR_GROUP_ID=$1
+    OBR_ARTIFACT_ID=$2
+    OBR_VERSION=$3
+
+    export REMOTE_MAVEN="https://development.galasa.dev/main/maven-repo/obr/"
+
+    export GALASACTL="${BASEDIR}/bin/${binary}"
+
+    ${GALASACTL} runs prepare local \
+    --obr mvn:${OBR_GROUP_ID}/${OBR_ARTIFACT_ID}/${OBR_VERSION}/obr \
+    --remoteMaven ${REMOTE_MAVEN} \
+    --log -
+
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then
+        error "Failed to prepare local dependencies"
+        exit 1
+    fi
+
+    # Assert that the core manager bundle was downloaded by --prepare.
+    # This JAR is always resolved as a dependency of the generated example tests
+    local core_manager_jar
+    core_manager_jar=$(find ~/.m2/repository/dev/galasa/dev.galasa.core.manager -name "*.jar" 2>/dev/null | head -1)
+    if [[ -z "${core_manager_jar}" ]]; then
+        error "prepare_local_deps ran but dev.galasa.core.manager was not found in the local Maven cache - --prepare may have been ignored"
+        exit 1
+    fi
+    info "Core manager bundle cached at: ${core_manager_jar}"
+    success "Dependency preparation complete"
+}
+
+# Run a test using the galasactl locally in a JVM with --offline (no remote Maven)
+function submit_local_test_offline {
+
+    h2 "Submitting an offline local test using galasactl"
+
+    cd ${BASEDIR}/temp/*banking
+
+    BUNDLE=$1
+    JAVA_CLASS=$2
+    OBR_GROUP_ID=$3
+    OBR_ARTIFACT_ID=$4
+    OBR_VERSION=$5
+
+    export GALASACTL="${BASEDIR}/bin/${binary}"
+
+    ${GALASACTL} runs submit local \
+    --obr mvn:${OBR_GROUP_ID}/${OBR_ARTIFACT_ID}/${OBR_VERSION}/obr \
+    --offline \
+    --class ${BUNDLE}/${JAVA_CLASS} \
+    --throttle 1 \
+    --requesttype automated-test \
+    --poll 10 \
+    --progress 1 \
+    --log - \
+    --reportjson offlineJsonReport.json
+
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then
+        error "Failed to run the offline test"
+        exit 1
+    fi
+
+    check_json_report "simpleSampleTest" "Passed" "offlineJsonReport.json"
+    success "Offline test ran OK"
+}
+
+function run_offline_test_locally_using_galasactl {
+
+    export TEST_BUNDLE="dev.galasa.example.banking.payee"
+    export TEST_JAVA_CLASS="dev.galasa.example.banking.payee.TestPayee"
+    export TEST_OBR_GROUP_ID="dev.galasa.example.banking"
+    export TEST_OBR_ARTIFACT_ID="dev.galasa.example.banking.obr"
+    export TEST_OBR_VERSION="0.0.1-SNAPSHOT"
+
+    prepare_local_deps $TEST_OBR_GROUP_ID $TEST_OBR_ARTIFACT_ID $TEST_OBR_VERSION
+    submit_local_test_offline $TEST_BUNDLE $TEST_JAVA_CLASS $TEST_OBR_GROUP_ID $TEST_OBR_ARTIFACT_ID $TEST_OBR_VERSION
+}
+
 function cleanup_local_maven_repo {
     rm -fr ~/.m2/repository/dev/galasa/example
 }
@@ -426,6 +512,7 @@ build_generated_source
 
 run_test_locally_using_galasactl
 run_selected_test_method_locally_using_galasactl
+run_offline_test_locally_using_galasactl
 
 CALLED_BY_MAIN="true"
 source ${BASEDIR}/test-scripts/gherkin-runs-tests.sh

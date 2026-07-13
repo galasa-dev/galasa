@@ -7,8 +7,10 @@ package dev.galasa.boot.mocks;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -29,6 +31,7 @@ public class MockBundleContext implements BundleContext{
 
     private Map<String,MockServiceReference<?>> services;
     private Bundle[] bundles;
+    private List<String> installedBundleLocations = new ArrayList<>();
 
     /**
      * @param services A map. The key is the interface/class name.
@@ -116,7 +119,12 @@ public class MockBundleContext implements BundleContext{
 
     @Override
     public Bundle installBundle(String location) throws BundleException {
-        throw new UnsupportedOperationException("Unimplemented method 'installBundle'");
+        installedBundleLocations.add(location);
+        return new MockBundle(location);
+    }
+
+    public List<String> getInstalledBundleLocations() {
+        return installedBundleLocations;
     }
 
     @Override

@@ -52,6 +52,7 @@ const (
 	COMMAND_NAME_RUNS_DOWNLOAD            = "runs download"
 	COMMAND_NAME_RUNS_GET                 = "runs get"
 	COMMAND_NAME_RUNS_PREPARE             = "runs prepare"
+	COMMAND_NAME_RUNS_PREPARE_LOCAL       = "runs prepare local"
 	COMMAND_NAME_RUNS_SUBMIT              = "runs submit"
 	COMMAND_NAME_RUNS_SUBMIT_LOCAL        = "runs submit local"
 	COMMAND_NAME_RUNS_RESET               = "runs reset"
@@ -343,6 +344,7 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 	var runsDownloadCommand spi.GalasaCommand
 	var runsGetCommand spi.GalasaCommand
 	var runsPrepareCommand spi.GalasaCommand
+	var runsPrepareLocalCommand spi.GalasaCommand
 	var runsSubmitCommand spi.GalasaCommand
 	var runsSubmitLocalCommand spi.GalasaCommand
 	var runsResetCommand spi.GalasaCommand
@@ -360,6 +362,8 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 			if err == nil {
 				runsPrepareCommand, err = NewRunsPrepareCommand(factory, runsCommand, commsFlagSet)
 				if err == nil {
+					runsPrepareLocalCommand, err = NewRunsPrepareLocalCommand(factory, runsPrepareCommand, commsFlagSet)
+					if err == nil {
 					runsSubmitCommand, err = NewRunsSubmitCommand(factory, runsCommand, commsFlagSet)
 					if err == nil {
 						runsSubmitLocalCommand, err = NewRunsSubmitLocalCommand(factory, runsSubmitCommand, runsCommand, commsFlagSet)
@@ -377,6 +381,7 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 						}
 					}
 				}
+				}
 			}
 		}
 		if err == nil {
@@ -392,6 +397,7 @@ func (commands *commandCollectionImpl) addRunsCommands(factory spi.Factory, root
 		commands.commandMap[runsDownloadCommand.Name()] = runsDownloadCommand
 		commands.commandMap[runsGetCommand.Name()] = runsGetCommand
 		commands.commandMap[runsPrepareCommand.Name()] = runsPrepareCommand
+		commands.commandMap[runsPrepareLocalCommand.Name()] = runsPrepareLocalCommand
 		commands.commandMap[runsSubmitCommand.Name()] = runsSubmitCommand
 		commands.commandMap[runsSubmitLocalCommand.Name()] = runsSubmitLocalCommand
 		commands.commandMap[runsResetCommand.Name()] = runsResetCommand

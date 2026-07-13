@@ -18,9 +18,16 @@ import org.osgi.framework.InvalidSyntaxException;
 public class MockRepositoryAdmin implements RepositoryAdmin {
 
     private MockResolver resolver;
+    private Repository[] repositories;
 
     public MockRepositoryAdmin(MockResolver resolver) {
         this.resolver = resolver;
+        this.repositories = new Repository[0];
+    }
+
+    public MockRepositoryAdmin(MockResolver resolver, Repository[] repositories) {
+        this.resolver = resolver;
+        this.repositories = repositories;
     }
 
     @Override
@@ -62,7 +69,7 @@ public class MockRepositoryAdmin implements RepositoryAdmin {
 
     @Override
     public Repository[] listRepositories() {
-        throw new UnsupportedOperationException("Unimplemented method 'listRepositories'");
+        return repositories;
     }
 
     @Override
