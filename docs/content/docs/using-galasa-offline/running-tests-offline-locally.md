@@ -4,14 +4,14 @@ title: "Running tests locally in an offline environment"
 
 # Running tests locally in an offline environment
 
-In restricted network environments — such as air-gapped systems or corporate networks that block access to Maven Central — you can run Galasa tests locally without any outbound network connectivity by combining two commands:
+In restricted network environments, such as air-gapped systems or corporate networks that block access to Maven Central, you can run Galasa tests locally without any outbound network connectivity by combining two commands:
 
 1. **`galasactl runs prepare local`** — run once, while online, to pre-fetch all required bundle dependencies to your local Maven cache.
 2. **`galasactl runs submit local --offline`** — run repeatedly, without a network connection, to execute tests using only the locally cached bundles.
 
 ## Step 1: Pre-fetch dependencies
 
-Use the `galasactl runs prepare local` command to download all OSGi bundle dependencies for your test OBRs to the local Maven cache (typically `~/.m2/repository`). No tests are executed by this command.
+Use the `galasactl runs prepare local` command to download all OSGi bundle dependencies for your test OBRs to the local Maven cache (typically `{USER_HOME}/.m2/repository`). No tests are executed by this command.
 
 Run this command on a machine that has access to Maven Central (or your internal Maven mirror), before moving to the restricted environment.
 
@@ -19,8 +19,7 @@ Run this command on a machine that has access to Maven Central (or your internal
 
     ```shell
     galasactl runs prepare local --log - \
-    --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr \
-    --galasaVersion 1.0.0
+    --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr
     ```
 
 === "Windows (PowerShell)"
@@ -28,16 +27,14 @@ Run this command on a machine that has access to Maven Central (or your internal
     ```powershell
     galasactl runs prepare local --log - `
     --obr mvn:dev.galasa.example.banking/dev.galasa.example.banking.obr/0.0.1-SNAPSHOT/obr `
-    --galasaVersion 1.0.0
     ```
 
 **Parameters explained:**
 
 - `--obr`: The Maven coordinates of the OBR that references your test bundles. Repeat the flag for each OBR you need.
-- `--galasaVersion`: The version of Galasa to download. This must match the version your test bundles were built against.
 - `--log -`: Sends progress information to the console.
 
-When the command completes, all required Galasa framework bundles and test bundles are cached locally. You can then copy or transfer the local Maven repository to any offline machine.
+When the command completes, all required bundles are cached locally. You can then copy or transfer the local Maven repository to any offline machine.
 
 ## Step 2: Run tests offline
 
