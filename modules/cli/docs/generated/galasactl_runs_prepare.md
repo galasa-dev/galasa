@@ -40,4 +40,5 @@ galasactl runs prepare [flags]
 ### SEE ALSO
 
 * [galasactl runs](galasactl_runs.md)	 - Manage test runs in the ecosystem
+* [galasactl runs prepare local](galasactl_runs_prepare_local.md)	 - download test bundle dependencies to a local Maven cache
 

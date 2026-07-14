@@ -1527,62 +1527,80 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
 
+    // --- Empty-password KeyStore tests ---
+
     @Test
-    public void testUpdateKeyStorePasswordOnlyUpdatesSecretOk() throws Exception {
+    public void testGetEmptyPasswordKeyStoreSecretReturnsSecretWithPasswordField() throws Exception {
         // Given...
         Map<String, ICredentials> creds = new HashMap<>();
-        String secretName = "DOCKER_KEYSTORE";
-        String oldKeystorePassword = "oldpassword";
+        String secretName = "EMPTY_PASSWORD_KEYSTORE";
+        String emptyPassword = "";
         String keystoreType = "PKCS12";
-        
-        String newKeystorePassword = "newpassword";
 
-        // Create keystore with old password
-        String keystoreData = createValidKeyStoreBytes(oldKeystorePassword, keystoreType);
-        
-        // Re-create keystore with new password for update
-        String newKeystoreData = createValidKeyStoreBytes(newKeystorePassword, keystoreType);
+        String keystoreData = createValidKeyStoreBytes("", keystoreType);
 
-        // Put an existing keystore secret into the credentials store
-        ICredentials oldKeystore = new CredentialsKeyStore(
-            keystoreData,
-            oldKeystorePassword,
-            keystoreType
-        );
-        creds.put(secretName, oldKeystore);
-
-        JsonObject secretJson = new JsonObject();
-        // Update with new keystore and password, keep type the same
-        secretJson.add("keystore", createSecretJson(newKeystoreData));
-        secretJson.add("keystorePassword", createSecretJson(newKeystorePassword));
-        secretJson.addProperty("keystoreType", keystoreType);
-        String secretJsonStr = gson.toJson(secretJson);
+        ICredentials keystore = new CredentialsKeyStore(keystoreData, emptyPassword, keystoreType);
+        creds.put(secretName, keystore);
 
         MockCredentialsService credsService = new MockCredentialsService(creds);
         MockFramework mockFramework = new MockFramework(credsService);
-
         MockTimeService timeService = new MockTimeService(Instant.EPOCH);
         MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
 
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
-
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ServletOutputStream outStream = servletResponse.getOutputStream();
 
         // When...
         servlet.init();
-        servlet.doPut(mockRequest, servletResponse);
+        servlet.doGet(mockRequest, servletResponse);
 
         // Then...
-        assertThat(servletResponse.getStatus()).isEqualTo(204);
-        assertThat(outStream.toString()).isEmpty();
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        String expectedJson = gson.toJson(generateKeyStoreSecretJson(
+            secretName, keystoreData, emptyPassword, keystoreType, BASE64_ENCODING, null, null, null
+        ));
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
 
-        assertThat(credsService.getAllCredentials()).hasSize(1);
-        CredentialsKeyStore updatedCredentials = (CredentialsKeyStore) credsService.getCredentials(secretName);
-        assertThat(updatedCredentials).isNotNull();
-        assertThat(updatedCredentials.getKeyStore()).isNotNull();
-        assertThat(updatedCredentials.getKeyStorePassword()).isEqualTo(newKeystorePassword);
-        assertThat(updatedCredentials.getKeyStoreType()).isEqualTo(keystoreType);
+    @Test
+    public void testGetEmptyPasswordKeyStoreSecretWithRedactionReturnsRedactedPasswordField() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "EMPTY_PASSWORD_KEYSTORE";
+        String emptyPassword = "";
+        String keystoreType = "PKCS12";
+
+        String keystoreData = createValidKeyStoreBytes("", keystoreType);
+
+        ICredentials keystore = new CredentialsKeyStore(keystoreData, emptyPassword, keystoreType);
+        creds.put(secretName, keystore);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+
+        List<Action> actions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, actions);
+
+        MockFramework mockFramework = new MockFramework(credsService);
+        mockFramework.setRBACService(rbacService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        String expectedJson = gson.toJson(generateKeyStoreSecretJson(
+            secretName, REDACTED_SECRET_VALUE, REDACTED_SECRET_VALUE, keystoreType, null, null, null, null
+        ));
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
 
     @Test
@@ -1752,6 +1770,213 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(credsService.getAllCredentials()).hasSize(1);
         CredentialsKeyStore originalCredentials = (CredentialsKeyStore) credsService.getCredentials(secretName);
         assertThat(originalCredentials.getKeyStorePassword()).isEqualTo(correctPassword);
+    }
+
+    @Test
+    public void testUpdateKeyStoreTypeOnlyWithoutKeystoreOrPasswordUpdatesSecretOk() throws Exception {
+        // Given...
+        // keystoreType alone is a valid partial update - keystore and keystorePassword need not be provided
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "DOCKER_KEYSTORE";
+        String keystorePassword = "password";
+        String oldKeystoreType = "JKS";
+        String newKeystoreType = "PKCS12";
+
+        String oldKeystoreData = createValidKeyStoreBytes(keystorePassword, oldKeystoreType);
+        String newKeystoreData = createValidKeyStoreBytes(keystorePassword, newKeystoreType);
+
+        ICredentials oldKeystore = new CredentialsKeyStore(oldKeystoreData, keystorePassword, oldKeystoreType);
+        creds.put(secretName, oldKeystore);
+
+        // Only supply keystoreType - no keystore or keystorePassword
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("keystoreType", newKeystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsKeyStore updatedCredentials = (CredentialsKeyStore) credsService.getCredentials(secretName);
+        assertThat(updatedCredentials).isNotNull();
+        // keystoreType updated, keystore bytes and password preserved from existing secret
+        assertThat(updatedCredentials.getKeyStoreType()).isEqualTo(newKeystoreType);
+        assertThat(updatedCredentials.getKeyStorePassword()).isEqualTo(keystorePassword);
+    }
+
+    @Test
+    public void testUpdateKeyStoreSecretWithKeystoreButNoPasswordReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "DOCKER_KEYSTORE";
+        String keystorePassword = "correctpassword";
+        String keystoreType = "PKCS12";
+
+        String keystoreData = createValidKeyStoreBytes(keystorePassword, keystoreType);
+        String newKeystoreData = createValidKeyStoreBytes(keystorePassword, keystoreType);
+
+        // Put an existing keystore secret into the credentials store
+        ICredentials oldKeystore = new CredentialsKeyStore(
+            keystoreData,
+            keystorePassword,
+            keystoreType
+        );
+        creds.put(secretName, oldKeystore);
+
+        // Try to update with a keystore but no keystorePassword
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("keystore", createSecretJson(newKeystoreData));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5462,
+            "GAL5462E",
+            "When updating a KeyStore credential, the 'keystore' and 'keystorePassword' fields must be provided together"
+        );
+
+        // Original keystore should still be in the store
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsKeyStore originalCredentials = (CredentialsKeyStore) credsService.getCredentials(secretName);
+        assertThat(originalCredentials.getKeyStorePassword()).isEqualTo(keystorePassword);
+    }
+
+    @Test
+    public void testUpdateKeyStoreSecretWithPasswordButNoKeystoreReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "DOCKER_KEYSTORE";
+        String keystorePassword = "correctpassword";
+        String newKeystorePassword = "newpassword";
+        String keystoreType = "PKCS12";
+
+        String keystoreData = createValidKeyStoreBytes(keystorePassword, keystoreType);
+
+        // Put an existing keystore secret into the credentials store
+        ICredentials oldKeystore = new CredentialsKeyStore(
+            keystoreData,
+            keystorePassword,
+            keystoreType
+        );
+        creds.put(secretName, oldKeystore);
+
+        // Try to update with a keystorePassword but no keystore
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("keystorePassword", createSecretJson(newKeystorePassword));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5462,
+            "GAL5462E",
+            "When updating a KeyStore credential, the 'keystore' and 'keystorePassword' fields must be provided together"
+        );
+
+        // Original keystore should still be in the store
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsKeyStore originalCredentials = (CredentialsKeyStore) credsService.getCredentials(secretName);
+        assertThat(originalCredentials.getKeyStorePassword()).isEqualTo(keystorePassword);
+    }
+
+    @Test
+    public void testUpdateKeyStoreSecretWithEmptyStringPasswordUpdatesSecretOk() throws Exception {
+        // Given...
+        // An empty string ("") is a valid keystorePassword meaning no integrity-check password.
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "DOCKER_KEYSTORE";
+        String oldPassword = "oldpassword";
+        String newPassword = "";
+        String keystoreType = "PKCS12";
+
+        String oldKeystoreData = createValidKeyStoreBytes(oldPassword, keystoreType);
+        String newKeystoreData = createValidKeyStoreBytes(newPassword, keystoreType);
+
+        ICredentials oldKeystore = new CredentialsKeyStore(oldKeystoreData, oldPassword, keystoreType);
+        creds.put(secretName, oldKeystore);
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("keystore", createSecretJson(newKeystoreData));
+        secretJson.add("keystorePassword", createSecretJson(newPassword));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsKeyStore updatedCredentials = (CredentialsKeyStore) credsService.getCredentials(secretName);
+        assertThat(updatedCredentials).isNotNull();
+        assertThat(updatedCredentials.getKeyStore()).isNotNull();
+        assertThat(updatedCredentials.getKeyStorePassword()).isEqualTo(newPassword);
+        assertThat(updatedCredentials.getKeyStoreType()).isEqualTo(keystoreType);
     }
 
     @Test

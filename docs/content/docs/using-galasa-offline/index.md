@@ -13,3 +13,5 @@ The Galasa zipped distribution (_isolated.zip_) provides a complete, self-contai
 - **Offline development**: Working in locations or situations where internet connectivity is unreliable or unavailable
 
 The offline distribution includes the Galasa CLI binaries, Maven dependencies, Javadoc API documentation, and optional Docker images for hosting the artifacts on an internal server. This ensures that you have everything needed to develop, build, and run Galasa tests without external network dependencies.
+
+If you have already built your own tests and want to run them in a restricted network environment without using the full `isolated.zip` distribution, you can use the `galasactl runs prepare local` command to pre-fetch all required bundle dependencies while online, and then use `galasactl runs submit local --offline` to run tests without any network connectivity. See [Running tests locally in an offline environment](./running-tests-offline-locally.md) for details.

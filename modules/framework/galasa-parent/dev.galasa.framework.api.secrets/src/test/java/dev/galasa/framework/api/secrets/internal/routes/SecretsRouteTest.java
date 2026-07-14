@@ -1608,4 +1608,49 @@ public class SecretsRouteTest extends SecretsServletTest {
         );
         assertThat(credsService.getAllCredentials()).isEmpty();
     }
+
+    @Test
+    public void testCreateKeyStoreSecretWithEmptyStringPasswordCreatesSecretOk() throws Exception {
+        // Given...
+        // An empty string ("") is a valid keystorePassword meaning no integrity-check password.
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "NO_PASSWORD_KEYSTORE";
+        String emptyPassword = "";
+        String keystoreType = "PKCS12";
+
+        String keystoreData = createValidKeyStoreBytes(emptyPassword, keystoreType);
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("keystore", createSecretJson(keystoreData));
+        secretJson.add("keystorePassword", createSecretJson(emptyPassword));
+        secretJson.addProperty("keystoreType", keystoreType);
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", secretJsonStr, HttpMethod.POST.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsKeyStore createdCredentials = (CredentialsKeyStore) credsService.getCredentials(secretName);
+        assertThat(createdCredentials).isNotNull();
+        assertThat(createdCredentials.getKeyStore()).isNotNull();
+        assertThat(createdCredentials.getKeyStorePassword()).isEqualTo(emptyPassword);
+        assertThat(createdCredentials.getKeyStoreType()).isEqualTo(keystoreType);
+    }
 }
