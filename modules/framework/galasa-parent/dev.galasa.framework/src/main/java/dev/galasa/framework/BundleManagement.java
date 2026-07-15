@@ -109,7 +109,7 @@ public class BundleManagement {
      * @throws LauncherException
      */
     private static void addResource(BundleContext bundleContext, String bundleSymbolicName, Resolver resolver, Resource resource) throws FrameworkException {
-        logger.trace("Resouce: " + resource);
+        logger.trace("Resource: " + resource);
         resolver.add(resource);
 
         boolean resourceHasReferenceUrl = false;
