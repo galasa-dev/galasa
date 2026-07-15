@@ -17,6 +17,7 @@ import org.osgi.service.component.annotations.Component;
 
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.Environment;
+import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IDynamicStatusStoreRegistration;
 import dev.galasa.framework.spi.IFrameworkInitialisation;
 import dev.galasa.framework.spi.SystemEnvironment;
@@ -67,11 +68,19 @@ public class Etcd3DynamicStatusStoreRegistration implements IDynamicStatusStoreR
             try {
                 URI uri = new URI(dss.toString().substring(5));
                 setMaxgRPCMessageSizeFromEnvironmentOrDefault();
-                frameworkInitialisation.registerDynamicStatusStore(new Etcd3DynamicStatusStore(uri, this.maxgRPCMessageSize));
+                Etcd3DynamicStatusStore store = createStore(uri);
+                store.checkEtcdConnectivity(uri);
+                frameworkInitialisation.registerDynamicStatusStore(store);
             } catch (URISyntaxException e) {
                 throw new DynamicStatusStoreException("Could not create URI", e);
+            } catch (FrameworkException e) {
+                throw new DynamicStatusStoreException("Could not connect to etcd DSS store", e);
             }
         }
+    }
+
+    protected Etcd3DynamicStatusStore createStore(URI uri) {
+        return new Etcd3DynamicStatusStore(uri, this.maxgRPCMessageSize);
     }
 
     /**

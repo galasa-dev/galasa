@@ -6,6 +6,7 @@
 package dev.galasa.etcd.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import static dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStoreRegistration.DEFAULT_MAX_GRPC_MESSAGE_SIZE;
 import static dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStoreRegistration.MAX_GRPC_MESSAGE_SIZE_ENV_VAR;
@@ -14,11 +15,58 @@ import java.net.URI;
 
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+
+import dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStore;
 import dev.galasa.cps.etcd.internal.Etcd3DynamicStatusStoreRegistration;
+import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.Environment;
 import dev.galasa.extensions.common.mocks.MockEnvironment;
 import dev.galasa.extensions.common.mocks.MockFrameworkInitialisation;
+import dev.galasa.etcd.internal.mocks.MockEtcdClient;
+import dev.galasa.etcd.internal.mocks.MockEtcdKvClient;
+import io.etcd.jetcd.ByteSequence;
+import io.etcd.jetcd.KV;
+import io.etcd.jetcd.kv.GetResponse;
 
 public class Etcd3DynamicStatusStoreRegistrationTest {
+
+    /**
+     * Subclass that creates the store using a responsive MockEtcdClient, bypassing
+     * any real network connection while still exercising the probe path.
+     */
+    private static class RegistrationWithMockedStore extends Etcd3DynamicStatusStoreRegistration {
+        public RegistrationWithMockedStore() { super(); }
+        public RegistrationWithMockedStore(Environment env) { super(env); }
+
+        @Override
+        protected Etcd3DynamicStatusStore createStore(URI uri) {
+            return new Etcd3DynamicStatusStore(new MockEtcdClient(new HashMap<>()));
+        }
+    }
+
+    /**
+     * Subclass that creates the store using a KV client whose get() future
+     * completes exceptionally, so the probe always fails immediately.
+     */
+    private static class RegistrationWithFailingStore extends Etcd3DynamicStatusStoreRegistration {
+        @Override
+        protected Etcd3DynamicStatusStore createStore(URI uri) {
+            KV failingKvClient = new MockEtcdKvClient(new HashMap<>()) {
+                @Override
+                public CompletableFuture<GetResponse> get(ByteSequence key) {
+                    CompletableFuture<GetResponse> future = new CompletableFuture<>();
+                    future.completeExceptionally(new Exception("connection refused"));
+                    return future;
+                }
+            };
+            return new Etcd3DynamicStatusStore(new MockEtcdClient(new HashMap<>()) {
+                @Override
+                public KV getKVClient() { return failingKvClient; }
+            });
+        }
+    }
 
     @Test
     public void testCanCreateARegistrationOK() {
@@ -28,7 +76,7 @@ public class Etcd3DynamicStatusStoreRegistrationTest {
     @Test
     public void testWhenRemoteRunCanInitialiseARegistrationOK() throws Exception {
         // Given...
-        Etcd3DynamicStatusStoreRegistration registration = new Etcd3DynamicStatusStoreRegistration();
+        Etcd3DynamicStatusStoreRegistration registration = new RegistrationWithMockedStore();
 
         URI cps = new URI("etcd://my.server/api");
         URI dss = new URI("etcd://my.server/api");
@@ -48,7 +96,7 @@ public class Etcd3DynamicStatusStoreRegistrationTest {
         String validValue = Integer.toString(Integer.MAX_VALUE);
         mockEnvironment.setenv(MAX_GRPC_MESSAGE_SIZE_ENV_VAR, validValue);
 
-        Etcd3DynamicStatusStoreRegistration registration = new Etcd3DynamicStatusStoreRegistration(mockEnvironment);
+        Etcd3DynamicStatusStoreRegistration registration = new RegistrationWithMockedStore(mockEnvironment);
 
         URI cps = new URI("etcd://my.server/api");
         URI dss = new URI("etcd://my.server/api");
@@ -68,7 +116,7 @@ public class Etcd3DynamicStatusStoreRegistrationTest {
         MockEnvironment mockEnvironment = new MockEnvironment();
         mockEnvironment.setenv(MAX_GRPC_MESSAGE_SIZE_ENV_VAR, null);
 
-        Etcd3DynamicStatusStoreRegistration registration = new Etcd3DynamicStatusStoreRegistration(mockEnvironment);
+        Etcd3DynamicStatusStoreRegistration registration = new RegistrationWithMockedStore(mockEnvironment);
 
         URI cps = new URI("etcd://my.server/api");
         URI dss = new URI("etcd://my.server/api");
@@ -88,7 +136,7 @@ public class Etcd3DynamicStatusStoreRegistrationTest {
         MockEnvironment mockEnvironment = new MockEnvironment();
         mockEnvironment.setenv(MAX_GRPC_MESSAGE_SIZE_ENV_VAR, "    ");
 
-        Etcd3DynamicStatusStoreRegistration registration = new Etcd3DynamicStatusStoreRegistration(mockEnvironment);
+        Etcd3DynamicStatusStoreRegistration registration = new RegistrationWithMockedStore(mockEnvironment);
 
         URI cps = new URI("etcd://my.server/api");
         URI dss = new URI("etcd://my.server/api");
@@ -109,7 +157,7 @@ public class Etcd3DynamicStatusStoreRegistrationTest {
         String invalidNegativeValue = Integer.toString(-1);
         mockEnvironment.setenv(MAX_GRPC_MESSAGE_SIZE_ENV_VAR, invalidNegativeValue);
 
-        Etcd3DynamicStatusStoreRegistration registration = new Etcd3DynamicStatusStoreRegistration(mockEnvironment);
+        Etcd3DynamicStatusStoreRegistration registration = new RegistrationWithMockedStore(mockEnvironment);
 
         URI cps = new URI("etcd://my.server/api");
         URI dss = new URI("etcd://my.server/api");
@@ -130,7 +178,7 @@ public class Etcd3DynamicStatusStoreRegistrationTest {
         String invalidValue = "2147483648"; // This is an invalid integer as bigger than 2147483647.
         mockEnvironment.setenv(MAX_GRPC_MESSAGE_SIZE_ENV_VAR, invalidValue);
 
-        Etcd3DynamicStatusStoreRegistration registration = new Etcd3DynamicStatusStoreRegistration(mockEnvironment);
+        Etcd3DynamicStatusStoreRegistration registration = new RegistrationWithMockedStore(mockEnvironment);
 
         URI cps = new URI("etcd://my.server/api");
         URI dss = new URI("etcd://my.server/api");
@@ -142,6 +190,22 @@ public class Etcd3DynamicStatusStoreRegistrationTest {
         // Then...
         // We should have been able to initialise the registration OK still, and the env var should have been ignored.
         assertThat(registration.getMaxgRPCMessageSize()).isEqualTo(DEFAULT_MAX_GRPC_MESSAGE_SIZE);
+    }
+
+    @Test
+    public void testWhenEtcdUnreachableInitialisationThrowsDynamicStatusStoreException() throws Exception {
+        // Given...
+        Etcd3DynamicStatusStoreRegistration registration = new RegistrationWithFailingStore();
+
+        URI cps = new URI("etcd://my.server/api");
+        URI dss = new URI("etcd://my.server/api");
+        MockFrameworkInitialisation mockFrameworkInit = new MockFrameworkInitialisation(cps, dss);
+
+        // When / Then...
+        // The etcd server at my.server is not reachable, so the connectivity probe should throw
+        assertThatThrownBy(() -> registration.initialise(mockFrameworkInit))
+            .isInstanceOf(DynamicStatusStoreException.class)
+            .hasMessageContaining("Failed to connect to etcd");
     }
 
 }

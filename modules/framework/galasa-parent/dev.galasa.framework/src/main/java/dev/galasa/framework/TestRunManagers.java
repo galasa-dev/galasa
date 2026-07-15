@@ -302,7 +302,7 @@ public class TestRunManagers implements ITestRunManagers {
      */
     private void addResource(String bundleSymbolicName, Resolver resolver, Resource resource)
             throws FrameworkException {
-        logger.trace("Resouce: " + resource);
+        logger.trace("Resource: " + resource);
 
         if (isBundleActive(bundleSymbolicName)) {
             logger.trace(resource + " already active");
