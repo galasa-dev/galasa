@@ -690,6 +690,7 @@ func TestCommandIncludesTraceWhenTraceIsEnabled(t *testing.T) {
 	isDebugEnabled := false
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	cmd, args, err := getCommandSyntax(
 		bootstrapProps,
@@ -706,6 +707,7 @@ func TestCommandIncludesTraceWhenTraceIsEnabled(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, cmd)
@@ -731,6 +733,7 @@ func TestCommandDoesNotIncludeTraceWhenTraceIsDisabled(t *testing.T) {
 	isDebugEnabled := false
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	cmd, args, err := getCommandSyntax(
 		bootstrapProps, galasaHome, fs, javaHome,
@@ -744,6 +747,7 @@ func TestCommandDoesNotIncludeTraceWhenTraceIsDisabled(t *testing.T) {
 		"", // No Gherkin URL supplied
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode, BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, cmd)
@@ -770,6 +774,7 @@ func TestCommandSyntaxContainsJavaHomeUnixSlashes(t *testing.T) {
 	isDebugEnabled := false
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	cmd, args, err := getCommandSyntax(
 		bootstrapProps, galasaHome, fs, javaHome,
@@ -784,6 +789,7 @@ func TestCommandSyntaxContainsJavaHomeUnixSlashes(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, cmd)
@@ -812,6 +818,7 @@ func TestCommandSyntaxContainsJavaHomeWindowsSlashes(t *testing.T) {
 	isDebugEnabled := false
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	cmd, args, err := getCommandSyntax(
 		bootstrapProps, galasaHome, fs, javaHome,
@@ -826,6 +833,7 @@ func TestCommandSyntaxContainsJavaHomeWindowsSlashes(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, cmd)
@@ -885,6 +893,7 @@ func TestCommandIncludesGALASA_HOMESystemProperty(t *testing.T) {
 	isDebugEnabled := false
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	cmd, args, err := getCommandSyntax(
 		bootstrapProps,
@@ -903,6 +912,7 @@ func TestCommandIncludesGALASA_HOMESystemProperty(t *testing.T) {
 		debugPort,
 		debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, cmd)
@@ -929,6 +939,7 @@ func TestCommandAllDashDSystemPropertiesPassedAppearBeforeTheDashJar(t *testing.
 	isDebugEnabled := false
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	cmd, args, err := getCommandSyntax(
 		bootstrapProps,
@@ -947,6 +958,7 @@ func TestCommandAllDashDSystemPropertiesPassedAppearBeforeTheDashJar(t *testing.
 		debugPort,
 		debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, cmd)
@@ -1012,6 +1024,7 @@ func TestCommandIncludesFlagsFromBootstrapProperties(t *testing.T) {
 	isDebugEnabled := false
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	cmd, args, err := getCommandSyntax(
 		bootstrapProps, galasaHome, fs, javaHome,
@@ -1026,6 +1039,7 @@ func TestCommandIncludesFlagsFromBootstrapProperties(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, cmd)
@@ -1053,6 +1067,7 @@ func TestCommandIncludesTwoFlagsFromBootstrapProperties(t *testing.T) {
 	isDebugEnabled := false
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	cmd, args, err := getCommandSyntax(
 		bootstrapProps, galasaHome, fs, javaHome,
@@ -1067,6 +1082,7 @@ func TestCommandIncludesTwoFlagsFromBootstrapProperties(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, cmd)
@@ -1094,6 +1110,7 @@ func TestCommandIncludesDefaultDebugPortAndMode(t *testing.T) {
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	command, args, err := getCommandSyntax(
 		bootstrapProps, galasaHome, fs, javaHome,
@@ -1108,6 +1125,7 @@ func TestCommandIncludesDefaultDebugPortAndMode(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, command)
@@ -1134,6 +1152,7 @@ func TestCommandDrawsValidDebugPortFromBootstrap(t *testing.T) {
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	bootstrapProps[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_DEBUG_PORT] = "345"
 
@@ -1150,6 +1169,7 @@ func TestCommandDrawsValidDebugPortFromBootstrap(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, command)
@@ -1176,6 +1196,7 @@ func TestCommandDrawsInvalidDebugPortFromBootstrap(t *testing.T) {
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	bootstrapProps[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_DEBUG_PORT] = "-456"
 
@@ -1192,6 +1213,7 @@ func TestCommandDrawsInvalidDebugPortFromBootstrap(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, err)
@@ -1218,6 +1240,7 @@ func TestCommandDrawsValidDebugModeFromBootstrap(t *testing.T) {
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	bootstrapProps[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_DEBUG_MODE] = "attach"
 
@@ -1234,6 +1257,7 @@ func TestCommandDrawsValidDebugModeFromBootstrap(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, command)
@@ -1266,6 +1290,7 @@ func TestCommandDrawsInvalidDebugModeFromBootstrap(t *testing.T) {
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	bootstrapProps[api.BOOTSTRAP_PROPERTY_NAME_LOCAL_JVM_LAUNCH_DEBUG_MODE] = "shout" //  << Invalid !
 
@@ -1282,6 +1307,7 @@ func TestCommandDrawsInvalidDebugModeFromBootstrap(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, err)
@@ -1308,6 +1334,7 @@ func TestCommandDrawsValidDebugModeListenFromCommandLine(t *testing.T) {
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
 	var debugPort uint32 = 0
 	debugMode := "listen"
+	isOffline := false
 
 	command, args, err := getCommandSyntax(
 		bootstrapProps, galasaHome, fs, javaHome,
@@ -1322,6 +1349,7 @@ func TestCommandDrawsValidDebugModeListenFromCommandLine(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, command)
@@ -1354,6 +1382,7 @@ func TestCommandDrawsValidDebugModeAttachFromCommandLine(t *testing.T) {
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
 	var debugPort uint32 = 0
 	debugMode := "attach"
+	isOffline := false
 
 	command, args, err := getCommandSyntax(
 		bootstrapProps, galasaHome, fs, javaHome,
@@ -1368,6 +1397,7 @@ func TestCommandDrawsValidDebugModeAttachFromCommandLine(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, command)
@@ -1400,6 +1430,7 @@ func TestCommandDrawsInvalidDebugModeFromCommandLine(t *testing.T) {
 	isDebugEnabled := true // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
 	var debugPort uint32 = 0
 	debugMode := "invalidMode"
+	isOffline := false
 
 	_, _, err := getCommandSyntax(
 		bootstrapProps, galasaHome, fs, javaHome,
@@ -1414,6 +1445,7 @@ func TestCommandDrawsInvalidDebugModeFromCommandLine(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	assert.NotNil(t, err)
@@ -1441,6 +1473,7 @@ func TestLocalMavenNotSetDefaults(t *testing.T) {
 	isDebugEnabled := false // <<<< Debug is turned on. No overrides to debugPort in either boostrap or explicit command option.
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	// When...
 	_, args, err := getCommandSyntax(
@@ -1456,6 +1489,7 @@ func TestLocalMavenNotSetDefaults(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	// Then...
@@ -1484,6 +1518,7 @@ func TestLocalMavenSet(t *testing.T) {
 	var debugPort uint32 = 0
 	debugMode := ""
 	localMaven := "mavenRepo"
+	isOffline := false
 
 	// When...
 	_, args, err := getCommandSyntax(
@@ -1499,6 +1534,7 @@ func TestLocalMavenSet(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	// Then...
@@ -1524,9 +1560,10 @@ func TestMethodsAreSetWhenProvided(t *testing.T) {
 		
 	testMethods := []string{"method1", "method2"}
 	isTraceEnabled := false
-	isDebugEnabled := false 
+	isDebugEnabled := false
 	var debugPort uint32 = 0
 	debugMode := ""
+	isOffline := false
 
 	// When...
 	_, args, err := getCommandSyntax(
@@ -1542,6 +1579,7 @@ func TestMethodsAreSetWhenProvided(t *testing.T) {
 		isTraceEnabled,
 		isDebugEnabled, debugPort, debugMode,
 		BLANK_JWT,
+		isOffline,
 	)
 
 	// Then...
@@ -2006,4 +2044,90 @@ func TestLaunchOptionsEscapeAtEnd(t *testing.T) {
 	assert.NotNil(t, launchOptions)
 	assert.Len(t, launchOptions, 1)
 	assert.Equal(t, "-Dtest.property=Finishing with an escape and forgot to close\\", launchOptions[0])
+}
+
+func TestOfflineFlagAppearsInArgsAndRemoteMavenDoesNot(t *testing.T) {
+	// For...
+	bootstrapProps,
+		_, galasaHome, fs,
+		javaHome,
+		testObrs,
+		testLocation,
+		remoteMaven,
+		localMaven,
+		galasaVersionToRun,
+		overridesFilePath,
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
+
+	isTraceEnabled := false
+	isDebugEnabled := false
+	var debugPort uint32 = 0
+	debugMode := ""
+	isOffline := true
+
+	// When...
+	_, args, err := getCommandSyntax(
+		bootstrapProps, galasaHome, fs, javaHome,
+		testObrs,
+		testLocation,
+		testMethods,
+		remoteMaven,
+		localMaven,
+		galasaVersionToRun,
+		overridesFilePath,
+		"", // No Gherkin URL supplied
+		isTraceEnabled,
+		isDebugEnabled, debugPort, debugMode,
+		BLANK_JWT,
+		isOffline,
+	)
+
+	// Then...
+	assert.Nil(t, err)
+	assert.Contains(t, args, "--offline")
+	assert.NotContains(t, args, "--remotemaven")
+}
+
+func TestWithoutOfflineFlagRemoteMavenAppearsAndOfflineDoesNot(t *testing.T) {
+	// For...
+	bootstrapProps,
+		_, galasaHome, fs,
+		javaHome,
+		testObrs,
+		testLocation,
+		remoteMaven,
+		localMaven,
+		galasaVersionToRun,
+		overridesFilePath,
+		_,
+		testMethods := getDefaultCommandSyntaxTestParameters()
+
+	isTraceEnabled := false
+	isDebugEnabled := false
+	var debugPort uint32 = 0
+	debugMode := ""
+	isOffline := false
+
+	// When...
+	_, args, err := getCommandSyntax(
+		bootstrapProps, galasaHome, fs, javaHome,
+		testObrs,
+		testLocation,
+		testMethods,
+		remoteMaven,
+		localMaven,
+		galasaVersionToRun,
+		overridesFilePath,
+		"", // No Gherkin URL supplied
+		isTraceEnabled,
+		isDebugEnabled, debugPort, debugMode,
+		BLANK_JWT,
+		isOffline,
+	)
+
+	// Then...
+	assert.Nil(t, err)
+	assert.NotContains(t, args, "--offline")
+	assert.Contains(t, args, "--remotemaven")
 }

@@ -114,6 +114,9 @@ type RunsSubmitLocalCmdParameters struct {
 
 	// A list of strings containing a selection of test methods to be run.
 	TestMethods []string
+
+	// When true, no remote Maven repositories are contacted during bundle resolution.
+	IsOffline bool
 }
 
 const (
@@ -300,6 +303,7 @@ func (launcher *JvmLauncher) SubmitTestRun(
 							launcher.cmdParams.DebugPort,
 							launcher.cmdParams.DebugMode,
 							jwt,
+							launcher.cmdParams.IsOffline,
 						)
 						if err == nil {
 							log.Printf("Launching command '%s' '%v'\n", cmd, args)
@@ -635,11 +639,17 @@ func getCommandSyntax(
 	debugPort uint32,
 	debugMode string,
 	jwt string,
+	isOffline bool,
 ) (string, []string, error) {
 
 	var cmd string = ""
 	var args []string = make([]string, 0)
 	var err error
+
+	remoteMavenRepos := []string{remoteMaven}
+	if isOffline {
+		remoteMavenRepos = []string{}
+	}
 
 	cmd, args, err = getBaseCommandSyntax(
 		bootstrapProperties,
@@ -647,7 +657,7 @@ func getCommandSyntax(
 		fileSystem,
 		javaHome,
 		testObrs,
-		[]string{remoteMaven},
+		remoteMavenRepos,
 		localMaven,
 		galasaVersionToRun,
 		isTraceEnabled,
@@ -656,6 +666,10 @@ func getCommandSyntax(
 		debugMode,
 		jwt,
 	)
+
+	if err == nil && isOffline {
+		args = append(args, "--offline")
+	}
 
 	if err == nil {
 

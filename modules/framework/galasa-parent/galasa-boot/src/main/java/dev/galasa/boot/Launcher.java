@@ -58,6 +58,8 @@ public class Launcher {
     private static final String LOCAL_RESOURCE_MANAGEMENT_OPTION = "local-resource-management";
     private static final String INCLUDES_MONITOR_PATTERN_OPTION  = "includes-monitor-pattern";
     private static final String EXCLUDES_MONITOR_PATTERN_OPTION  = "excludes-monitor-pattern";
+    private static final String OFFLINE_OPTION                   = "offline";
+    private static final String PREPARE_OPTION                   = "prepare";
 
     private static final String     OBR_OPTION                = "obr";
     private static final String     METHODS_OPTION            = "methods";
@@ -94,7 +96,7 @@ public class Launcher {
     private String                  runName;
     private String                  gherkinName;
 
-    private String                  galasaHome;
+    String                          galasaHome;
 
     private FelixFramework          felixFramework;
 
@@ -111,6 +113,8 @@ public class Launcher {
     private boolean                 setupEco;
     private boolean                 validateEco;
     private boolean                 isLocalResourceManagement;
+    private boolean                 isOffline;
+    private boolean                 isPrepareRequested;
 
     private Integer                 metrics;
     private Integer                 health;
@@ -208,6 +212,10 @@ public class Launcher {
                 logger.debug("Local Resource Management");
                 ResourceManagementConfiguration resourceManagementConfig = new ResourceManagementConfiguration(includeMonitorGlobPatterns, excludeMonitorGlobPatterns, env);
                 felixFramework.runLocalResourceManagement(bootstrapProperties, overridesProperties, bundles, resourceManagementConfig);
+            } else if (isPrepareRequested) {
+                logger.debug("Prepare dependencies");
+                felixFramework.runPrepare();
+                logger.info("Dependency preparation complete. All artifacts downloaded.");
             } else if (isK8sController) {
                 logger.debug("Kubernetes Controller");
                 felixFramework.runK8sController(bootstrapProperties, overridesProperties, bundles, metrics, health);
@@ -269,7 +277,7 @@ public class Launcher {
      * @param args supplied arguments
      * @throws ParseException
      */
-    private void processCommandLine(String[] args) throws ParseException {
+    void processCommandLine(String[] args) throws ParseException {
 
         logger.debug(logCommandLineArguments(args));
 
@@ -300,6 +308,8 @@ public class Launcher {
         options.addOption(null, VALIDATEECO_OPTION, false, "Validate the Galasa Ecosystem");
         options.addOption(null, LOG4J2_PROPERTIES_FILE_OPTION, true, "Optional. Path to a custom log4j2 properties file. Overrides the --trace option.");
         options.addOption(null, LOCAL_RESOURCE_MANAGEMENT_OPTION, false, "Starts a local resource management process.");
+        options.addOption(null, OFFLINE_OPTION, false, "Disables all remote Maven repository access. Cannot be used with --" + REMOTEMAVEN_OPTION + ".");
+        options.addOption(null, PREPARE_OPTION, false, "Downloads all OBR bundle dependencies to the local Maven cache without running any tests.");
         options.addOption(null, INCLUDES_MONITOR_PATTERN_OPTION, true, "Optional. Used alongside " + LOCAL_RESOURCE_MANAGEMENT_OPTION + ". " +
                 "A list of Java class glob patterns representing the resource monitors that the framework should load. "+
                 "To use multiple patterns, this flag can be supplied multiple times or by providing a comma-separated list of patterns. "+
@@ -353,8 +363,13 @@ public class Launcher {
         checkForBundles(commandLine);
         checkForMetricsPort(commandLine);
         checkForHealthPort(commandLine);
+        // Set isOffline before checkForRemoteMaven so the guard takes effect
+        isOffline = commandLine.hasOption(OFFLINE_OPTION);
         checkForLocalMaven(commandLine);
-        checkForRemoteMaven(commandLine);
+
+        if (!isOffline) {
+            checkForRemoteMaven(commandLine);
+        }
         checkForResourceMonitorIncludesAndExcludes(commandLine);
         checkForTestMethods(commandLine);
 
@@ -368,6 +383,7 @@ public class Launcher {
         setupEco = commandLine.hasOption(SETUPECO_OPTION);
         validateEco = commandLine.hasOption(VALIDATEECO_OPTION);
         isLocalResourceManagement = commandLine.hasOption(LOCAL_RESOURCE_MANAGEMENT_OPTION);
+        isPrepareRequested = commandLine.hasOption(PREPARE_OPTION);
 
         if (isTestRun) {
             runName = commandLine.getOptionValue(RUN_OPTION);
@@ -420,6 +436,10 @@ public class Launcher {
         }
 
         if (validateEco) {
+            return;
+        }
+
+        if (isPrepareRequested) {
             return;
         }
 
@@ -772,6 +792,18 @@ public class Launcher {
             logger.info(String.format("Environment variable: %s used to set extra bundles", EXTRA_BUNDLES_ENV_VAR));
             bootstrap.setProperty("framework.extra.bundles", extraBundles);
         }
+    }
+
+    List<URL> getRemoteMavenRepos() {
+        return this.remoteMavenRepos;
+    }
+
+    boolean isOffline() {
+        return this.isOffline;
+    }
+
+    boolean isPrepareRequested() {
+        return this.isPrepareRequested;
     }
 
     void setMavenCredentialsFromEnvironment(Environment env, Properties bootstrap) {
