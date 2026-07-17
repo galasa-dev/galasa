@@ -3210,7 +3210,7 @@ components:
               $ref: '#/components/schemas/GalasaSecretType'
               description: |
                 The type of the Galasa Secret resource. Supported types are 'UsernamePassword', 'Username',
-                'UsernameToken', 'Token', 'KeyStore'.
+                'UsernameToken', 'Token', 'KeyStore', 'Binary'.
         data:
           type: object
           properties:
@@ -3251,10 +3251,16 @@ components:
               description: |
                 The type of the KeyStore. Optional, defaults to 'PKCS12' if not specified.
                 Supported values are 'PKCS12' and 'JKS'. Only used when the Secret 'type' is set to 'KeyStore'.
+            data:
+              type: string
+              description: |
+                A binary value (e.g. a licence JAR file). Required if the Secret 'type' is set to 'Binary'.
+                If the 'encoding' has been set in the metadata, this value must already be encoded with
+                the given encoding scheme (e.g. base64).
     GalasaSecretType:
       type: string
       description: The type of a Galasa Secret
-      enum: [UsernamePassword, Username, UsernameToken, Token, KeyStore]
+      enum: [UsernamePassword, Username, UsernameToken, Token, KeyStore, Binary]
     
     GalasaTag:
       type: object
@@ -3399,6 +3405,20 @@ components:
           description: |
             The type of the KeyStore. Optional, defaults to 'PKCS12' if not specified.
             Supported values are 'PKCS12' and 'JKS'. Can be supplied on its own to update only the keystore type.
+        binary:
+          type: object
+          description: |
+            A binary value to create or update in the Credentials Store. Cannot be used alongside 'username',
+            'password', 'token', 'keystore', 'keystoreType' or 'keystorePassword'.
+          properties:
+            value:
+              type: string
+              description: The base64-encoded binary value to set into the secret
+            encoding:
+              type: string
+              description: |
+                The character encoding scheme that has been applied to the binary value.
+                Currently, base64 is the only supported encoding scheme
     TagCreateRequest:
       type: object
       properties:

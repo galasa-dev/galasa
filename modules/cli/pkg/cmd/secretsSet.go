@@ -27,6 +27,7 @@ type SecretsSetCmdValues struct {
     token string
 	description string
 	keystoreValues *secrets.SecretsSetKeystoreValues
+	binaryValues   *secrets.SecretsSetBinaryValues
 }
 
 type SecretsSetCommand struct {
@@ -70,7 +71,10 @@ func (cmd *SecretsSetCommand) Values() interface{} {
 func (cmd *SecretsSetCommand) init(factory spi.Factory, secretsCommand spi.GalasaCommand, commsFlagSet GalasaFlagSet) error {
     var err error
 
-    cmd.values = &SecretsSetCmdValues{ keystoreValues: &secrets.SecretsSetKeystoreValues{}, }
+    cmd.values = &SecretsSetCmdValues{
+        keystoreValues: &secrets.SecretsSetKeystoreValues{},
+        binaryValues:   &secrets.SecretsSetBinaryValues{},
+    }
     cmd.cobraCommand, err = cmd.createCobraCmd(factory, secretsCommand, commsFlagSet.Values().(*CommsFlagSetValues))
 
     return err
@@ -109,9 +113,11 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     keystoreFileFlag := "keystore-file"
     base64KeystoreEncodedFlag := "base64-keystore-encoded"
     keystoreTypeFlag := "keystore-type"
-    
- 	descriptionFlag := "description"
 
+    binaryFileFlag := "binary-file"
+    base64BinaryEncodedFlag := "base64-binary-encoded"
+
+    descriptionFlag := "description"
 
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.secretType, "type", "", fmt.Sprintf("the desired secret type to convert an existing secret into. Supported types are: %v.", galasaapi.AllowedGalasaSecretTypeEnumValues))
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.description, descriptionFlag, "", "the description to associate with the secret being created or updated")
@@ -127,17 +133,26 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreValues.KeystoreType, keystoreTypeFlag, "", "the type of keystore (PKCS12 or JKS). Defaults to PKCS12 if not specified")
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreValues.Base64KeystoreEncoded, base64KeystoreEncodedFlag, "", "a base64-encoded keystore to set into a secret")
 
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.binaryValues.BinaryFile, binaryFileFlag, "", "the path to a binary file (e.g. a .jar or certificate) to set into a secret")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.binaryValues.Base64BinaryEncoded, base64BinaryEncodedFlag, "", "a base64-encoded binary value to set into a secret")
+
     // A non-encoded credential cannot be provided alongside an encoded credential
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(usernameFlag, base64UsernameFlag)
 
     // Keystore file and keystore encoded are mutually exclusive (can only provide one way to specify keystore)
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(keystoreFileFlag, base64KeystoreEncodedFlag)
 
+    // Binary file and binary encoded are mutually exclusive (can only provide one way to specify binary data)
+    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(binaryFileFlag, base64BinaryEncodedFlag)
+
     // A password cannot be provided alongside a token
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(passwordFlag, tokenFlag, base64PasswordFlag, base64TokenFlag)
 
     // A token cannot be provided alongside a keystore
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
+
+    // Binary cannot be provided alongside any other credential field
+    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(binaryFileFlag, base64BinaryEncodedFlag, usernameFlag, base64UsernameFlag, passwordFlag, base64PasswordFlag, tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
 
     // A secret must have a name and at least one of the credentials flags
     secretsSetCobraCmd.MarkFlagsOneRequired(
@@ -150,6 +165,8 @@ func (cmd *SecretsSetCommand) createCobraCmd(
         keystoreFileFlag,
         base64KeystoreEncodedFlag,
         keystoreTypeFlag,
+        binaryFileFlag,
+        base64BinaryEncodedFlag,
         descriptionFlag,
     )
 
@@ -212,6 +229,7 @@ func (cmd *SecretsSetCommand) executeSecretsSet(
                         cmd.values.base64Password,
                         cmd.values.base64Token,
                         cmd.values.keystoreValues,
+                        cmd.values.binaryValues,
                         cmd.values.secretType,
                         cmd.values.description,
                         console,

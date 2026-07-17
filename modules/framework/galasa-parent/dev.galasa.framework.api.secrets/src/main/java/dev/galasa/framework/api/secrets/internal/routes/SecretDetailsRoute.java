@@ -18,8 +18,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.ICredentials;
+import dev.galasa.ICredentialsBinary;
 import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.beans.generated.SecretRequestbinary;
 import dev.galasa.framework.api.beans.generated.SecretRequestKeystorePassword;
 import dev.galasa.framework.api.beans.generated.SecretRequestkeystore;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
@@ -34,6 +36,7 @@ import dev.galasa.framework.api.common.resources.GalasaSecretType;
 import dev.galasa.framework.api.secrets.internal.SecretRequestValidator;
 import dev.galasa.framework.api.secrets.internal.UpdateSecretRequestValidator;
 import dev.galasa.framework.spi.FrameworkException;
+import dev.galasa.framework.spi.creds.CredentialsBinary;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
@@ -236,6 +239,15 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
                 ServletError error = new ServletError(GAL5450_FAILED_TO_CREATE_KEYSTORE_CREDENTIALS);
                 throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
             }
+        } else if (existingSecretType == BINARY) {
+            ICredentialsBinary binarySecret = (ICredentialsBinary) existingSecret;
+            String overriddenBinary = getOverriddenBinary(binarySecret.getEncodedData(), secretRequest.getbinary());
+            try {
+                overriddenSecret = new CredentialsBinary(overriddenBinary);
+            } catch (CredentialsException e) {
+                ServletError error = new ServletError(GAL5452_INVALID_BASE64_ENCODING, "binary");
+                throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
+            }
         } else {
             // The credentials are in an unknown format, throw an error
             ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);
@@ -304,5 +316,18 @@ public class SecretDetailsRoute extends AbstractSecretsRoute {
             overriddenKeystoreType = getOverriddenValue(existingKeystoreType, possiblyDecodedKeystoreType);
         }
         return overriddenKeystoreType;
+    }
+
+    private String getOverriddenBinary(String existingBinary, SecretRequestbinary requestBinary) throws InternalServletException {
+        String overriddenBinary = existingBinary;
+        if (requestBinary != null) {
+            // Binary values are stored as-is (already base64); encoding flag means double-encoded
+            String value = requestBinary.getvalue();
+            if (requestBinary.getencoding() != null) {
+                value = decodeSecretValue(value, requestBinary.getencoding());
+            }
+            overriddenBinary = getOverriddenValue(existingBinary, value);
+        }
+        return overriddenBinary;
     }
 }

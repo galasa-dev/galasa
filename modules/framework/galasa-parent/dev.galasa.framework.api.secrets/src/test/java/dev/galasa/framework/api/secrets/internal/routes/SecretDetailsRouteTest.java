@@ -36,6 +36,7 @@ import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.api.secrets.internal.SecretsServletTest;
 import dev.galasa.framework.api.secrets.mocks.MockSecretsServlet;
+import dev.galasa.framework.spi.creds.CredentialsBinary;
 import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
@@ -2016,6 +2017,318 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(servletResponse.getStatus()).isEqualTo(204);
         assertThat(outStream.toString()).isEmpty();
         assertThat(credsService.getAllCredentials()).isEmpty();
+    }
+
+    @Test
+    public void testGetBinarySecretByNameReturnsSecretOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "MY_LICENSE_JAR";
+        String binaryData = Base64.getEncoder().encodeToString("fake jar binary content".getBytes());
+
+        ICredentials binaryCredentials = new CredentialsBinary(binaryData);
+        creds.put(secretName, binaryCredentials);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        String expectedJson = gson.toJson(generateBinarySecretJson(
+            secretName, binaryData, BASE64_ENCODING, null, null, null
+        ));
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
+
+    @Test
+    public void testGetBinarySecretWithMissingPermissionsReturnsRedactedSecret() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "MY_LICENSE_JAR";
+        String binaryData = Base64.getEncoder().encodeToString("fake jar binary content".getBytes());
+
+        ICredentials binaryCredentials = new CredentialsBinary(binaryData);
+        creds.put(secretName, binaryCredentials);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+
+        List<Action> actions = List.of(GENERAL_API_ACCESS.getAction());
+        MockRBACService rbacService = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME, actions);
+
+        MockFramework mockFramework = new MockFramework(credsService);
+        mockFramework.setRBACService(rbacService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        String expectedJson = gson.toJson(generateBinarySecretJson(
+            secretName, REDACTED_SECRET_VALUE, null, null, null, null
+        ));
+        assertThat(outStream.toString()).isEqualTo(expectedJson);
+    }
+
+    @Test
+    public void testCreateBinarySecretCreatesSecretOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "NEW_LICENSE_JAR";
+        String binaryData = Base64.getEncoder().encodeToString("some binary content".getBytes());
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("binary", createSecretJson(binaryData));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsBinary createdCredentials = (CredentialsBinary) credsService.getCredentials(secretName);
+        assertThat(createdCredentials).isNotNull();
+        assertThat(createdCredentials.getEncodedData()).isEqualTo(binaryData);
+        assertThat(createdCredentials.getData()).isEqualTo(Base64.getDecoder().decode(binaryData));
+    }
+
+    @Test
+    public void testUpdateBinarySecretUpdatesSecretOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "MY_LICENSE_JAR";
+        String oldBinaryData = Base64.getEncoder().encodeToString("old binary content".getBytes());
+        String newBinaryData = Base64.getEncoder().encodeToString("new binary content".getBytes());
+
+        creds.put(secretName, new CredentialsBinary(oldBinaryData));
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("binary", createSecretJson(newBinaryData));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(204);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsBinary updatedCredentials = (CredentialsBinary) credsService.getCredentials(secretName);
+        assertThat(updatedCredentials).isNotNull();
+        assertThat(updatedCredentials.getEncodedData()).isEqualTo(newBinaryData);
+    }
+
+    @Test
+    public void testCreateBinarySecretWithInvalidBase64ReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "INVALID_BINARY";
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("binary", createSecretJson("not-valid-base64!!!"));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5452,
+            "GAL5452E",
+            "Invalid binary value provided"
+        );
+        assertThat(credsService.getAllCredentials()).isEmpty();
+    }
+
+    @Test
+    public void testCreateBinarySecretWithUsernameFieldReturnsError() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "INVALID_BINARY_WITH_USERNAME";
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("binary", createSecretJson(Base64.getEncoder().encodeToString("data".getBytes())));
+        secretJson.add("username", createSecretJson("someuser"));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5463,
+            "GAL5463E",
+            "binary"
+        );
+    }
+
+    @Test
+    public void testGetBinarySecretResponseBodyContainsBase64EncodedData() throws Exception {
+        // Given...
+        // The raw binary bytes we want to store (simulating e.g. a licence JAR header)
+        byte[] rawBytes = new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x00, 0x01, 0x02 };
+        String binaryData = Base64.getEncoder().encodeToString(rawBytes);
+        String secretName = "LICENSE_JAR";
+
+        Map<String, ICredentials> creds = new HashMap<>();
+        creds.put(secretName, new CredentialsBinary(binaryData));
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, REQUEST_HEADERS);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+
+        // The response data.data field must be the base64-encoded form of binaryData
+        // (i.e. base64(binaryData)), so that decoding it twice yields the original raw bytes
+        String responseBody = outStream.toString();
+        String expectedJson = gson.toJson(generateBinarySecretJson(
+            secretName, binaryData, BASE64_ENCODING, null, null, null
+        ));
+        assertThat(responseBody).isEqualTo(expectedJson);
+
+        // Verify the data field can be decoded back to the original raw bytes via two base64 decodes:
+        // 1st decode: unwrap the response-level base64 encoding -> binaryData (the stored base64 string)
+        // 2nd decode: unwrap the stored base64 encoding -> rawBytes
+        JsonObject parsed = gson.fromJson(responseBody, JsonObject.class);
+        String doubleEncodedData = parsed.getAsJsonObject("data").get("data").getAsString();
+        byte[] onceDecoded = Base64.getDecoder().decode(doubleEncodedData); // -> binaryData bytes
+        byte[] twiceDecoded = Base64.getDecoder().decode(onceDecoded);      // -> rawBytes
+        assertThat(twiceDecoded).isEqualTo(rawBytes);
+    }
+
+    @Test
+    public void testUpdateBinarySecretFieldOnNonBinarySecretWithoutTypeReturnsError() throws Exception {
+        // Given...
+        // An existing Username secret
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "MY_CREDS";
+        creds.put(secretName, new CredentialsUsername("alice"));
+
+        // A PUT request that sends a binary field but no 'type' override
+        String binaryData = Base64.getEncoder().encodeToString("some binary content".getBytes());
+        JsonObject secretJson = new JsonObject();
+        secretJson.add("binary", createSecretJson(binaryData));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        // The server must reject the request because 'binary' is not a valid field for a Username secret
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5100,
+            "GAL5100E",
+            "Username"
+        );
+
+        // The original secret must be unchanged
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        assertThat(credsService.getCredentials(secretName)).isInstanceOf(CredentialsUsername.class);
     }
 }
 

@@ -17,6 +17,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.ICredentials;
+import dev.galasa.ICredentialsBinary;
 import dev.galasa.ICredentialsKeyStore;
 import dev.galasa.ICredentialsToken;
 import dev.galasa.ICredentialsUsername;
@@ -26,6 +27,7 @@ import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.GalasaSecretdata;
 import dev.galasa.framework.api.beans.generated.GalasaSecretmetadata;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.beans.generated.SecretRequestbinary;
 import dev.galasa.framework.api.beans.generated.SecretRequestkeystore;
 import dev.galasa.framework.api.beans.generated.SecretRequestKeystorePassword;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
@@ -37,6 +39,7 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
 import dev.galasa.framework.api.common.resources.GalasaSecretType;
+import dev.galasa.framework.spi.creds.CredentialsBinary;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
@@ -58,7 +61,8 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         CredentialsToken.class, GalasaSecretType.TOKEN,
         CredentialsUsernamePassword.class, GalasaSecretType.USERNAME_PASSWORD,
         CredentialsUsernameToken.class, GalasaSecretType.USERNAME_TOKEN,
-        CredentialsKeyStore.class, GalasaSecretType.KEYSTORE
+        CredentialsKeyStore.class, GalasaSecretType.KEYSTORE,
+        CredentialsBinary.class, GalasaSecretType.BINARY
     );
 
     public AbstractSecretsRoute(
@@ -114,7 +118,7 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
     private ICredentials decodeCredentialsFromSecretPayload(SecretRequest secretRequest) throws InternalServletException {
         ICredentials credentials = null;
         SecretRequestusername username = secretRequest.getusername();
-        
+
         if (username != null) {
             credentials = decodeUsernameBasedCredentials(secretRequest, username);
         } else {
@@ -125,6 +129,11 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
                 SecretRequesttoken token = secretRequest.gettoken();
                 if (token != null) {
                     credentials = decodeTokenCredentials(token);
+                } else {
+                    SecretRequestbinary binary = secretRequest.getbinary();
+                    if (binary != null) {
+                        credentials = decodeBinaryCredentials(binary);
+                    }
                 }
             }
         }
@@ -216,6 +225,34 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         return new CredentialsToken(decodedToken);
     }
 
+    /**
+     * Decodes binary credentials from the request payload.
+     *
+     * The binary value must be base64-encoded. If encoding is "base64" the value
+     * is treated as double-encoded (base64-of-base64) and decoded once to yield
+     * the stored base64 representation.
+     *
+     * @param binary the binary request object
+     * @return decoded binary credentials
+     * @throws InternalServletException if decoding or construction fails
+     */
+    private ICredentials decodeBinaryCredentials(SecretRequestbinary binary) throws InternalServletException {
+        String binaryValue = binary.getvalue();
+        String binaryEncoding = binary.getencoding();
+
+        // If the value is base64-encoded on top of the already-base64 content, decode once
+        if (binaryEncoding != null && binaryEncoding.equalsIgnoreCase(DEFAULT_RESPONSE_ENCODING)) {
+            binaryValue = decodeSecretValue(binaryValue, binaryEncoding);
+        }
+
+        try {
+            return new CredentialsBinary(binaryValue);
+        } catch (CredentialsException e) {
+            ServletError error = new ServletError(GAL5452_INVALID_BASE64_ENCODING, "binary");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
+        }
+    }
+
     protected String decodeSecretValue(String possiblyEncodedValue, String encoding) throws InternalServletException {
         String decodedValue = possiblyEncodedValue;
         if (encoding != null && possiblyEncodedValue != null) {
@@ -255,6 +292,9 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
             // KeyStore type is not sensitive, so don't redact it
             data.setKeystoreType(keyStoreCredentials.getKeyStoreType());
             metadata.settype(KEY_STORE);
+        } else if (secretType == GalasaSecretType.BINARY) {
+            data.setdata(REDACTED_SECRET_VALUE);
+            metadata.settype(Binary);
         } else {
             // The credentials are in an unknown format, throw an error
             ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);
@@ -291,8 +331,13 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
             data.setkeystore(encodeValue(keyStoreCredentials.getEncodedKeyStore()));
             data.setKeystorePassword(encodeValue(keyStoreCredentials.getKeyStorePassword()));
             data.setKeystoreType(keyStoreCredentials.getKeyStoreType());
-            
+
             metadata.settype(KEY_STORE);
+        } else if (secretType == GalasaSecretType.BINARY) {
+            ICredentialsBinary binaryCredentials = (ICredentialsBinary) credentials;
+            // getEncodedData() returns base64 without prefix, so we encode it again for the response
+            data.setdata(encodeValue(binaryCredentials.getEncodedData()));
+            metadata.settype(Binary);
         } else {
             // The credentials are in an unknown format, throw an error
             ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.beans.generated.SecretRequestbinary;
 import dev.galasa.framework.api.beans.generated.SecretRequestKeystorePassword;
 import dev.galasa.framework.api.beans.generated.SecretRequestkeystore;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
@@ -53,8 +54,12 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
         SecretRequestkeystore keystore = secretRequest.getkeystore();
         SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
         String keystoreType = secretRequest.getKeystoreType();
+        SecretRequestbinary binary = secretRequest.getbinary();
 
         validateDescription(secretRequest.getdescription());
+
+        // Validate binary mutual exclusivity with all other fields
+        validateBinaryMutualExclusivity(secretRequest);
 
         // Validate keystore mutual exclusivity
         validateKeystoreMutualExclusivity(secretRequest);
@@ -71,7 +76,7 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        validateSecretRequestFields(username, password, token, keystore, keystorePassword, keystoreType);
+        validateSecretRequestFields(username, password, token, keystore, keystorePassword, keystoreType, binary);
     }
 
     private void validateUpdateSecretRequest(SecretRequest secretRequest) throws InternalServletException {
@@ -81,8 +86,12 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
         SecretRequestkeystore keystore = secretRequest.getkeystore();
         SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
         String keystoreType = secretRequest.getKeystoreType();
+        SecretRequestbinary binary = secretRequest.getbinary();
 
         validateDescription(secretRequest.getdescription());
+
+        // Validate binary mutual exclusivity with all other fields
+        validateBinaryMutualExclusivity(secretRequest);
 
         // Validate keystore mutual exclusivity
         validateKeystoreMutualExclusivity(secretRequest);
@@ -117,7 +126,7 @@ public class UpdateSecretRequestValidator extends SecretRequestValidator {
             validateSecretTypeFields(secretType, secretRequest);
             checkProvidedSecretFieldsAreRelevant(secretType, secretRequest);
         }
-        validateSecretRequestFields(username, password, token, keystore, keystorePassword, keystoreType);
+        validateSecretRequestFields(username, password, token, keystore, keystorePassword, keystoreType, binary);
     }
 
     private void validateSecretTypeFields(GalasaSecretType secretType, SecretRequest secretRequest) throws InternalServletException {

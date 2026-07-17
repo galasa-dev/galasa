@@ -93,6 +93,7 @@ func TestCanCreateAUsernameSecret(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -169,6 +170,7 @@ func TestCanCreateAUsernamePasswordSecret(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -244,6 +246,7 @@ func TestCanCreateAUsernameTokenSecret(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -319,6 +322,7 @@ func TestCanCreateATokenSecret(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -394,6 +398,7 @@ func TestCanUpdateASecret(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -469,6 +474,7 @@ func TestCanUpdateAUsernamePasswordSecretInBase64Format(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -544,6 +550,7 @@ func TestCanUpdateATokenSecretInBase64Format(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -619,6 +626,7 @@ func TestCanUpdateASecretsTypeOk(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -667,6 +675,7 @@ func TestUpdateSecretWithNoNameThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -717,6 +726,7 @@ func TestUpdateSecretWithNonLatin1NameThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -767,6 +777,7 @@ func TestUpdateSecretWithNonLatin1DescriptionThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -817,6 +828,7 @@ func TestUpdateSecretWithBlankDescriptionThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -867,6 +879,7 @@ func TestUpdateSecretWithUnknownTypeThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -918,6 +931,7 @@ func TestUpdateSecretWithInvalidFlagCombinationThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -975,6 +989,7 @@ func TestSetSecretFailsWithNoExplanationErrorPayloadGivesCorrectMessage(t *testi
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1035,6 +1050,7 @@ func TestSetSecretFailsWithNonJsonContentTypeExplanationErrorPayloadGivesCorrect
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1096,6 +1112,7 @@ func TestSetSecretFailsWithBadlyFormedJsonContentExplanationErrorPayloadGivesCor
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1166,6 +1183,7 @@ func TestSetSecretFailsWithValidErrorResponsePayloadGivesCorrectMessage(t *testi
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1227,6 +1245,7 @@ func TestSecretsSetFailsWithFailureToReadResponseBodyGivesCorrectMessage(t *test
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1311,6 +1330,7 @@ func TestCanCreateAKeystoreSecretWithJKSType(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1391,6 +1411,7 @@ func TestCanCreateAKeystoreSecretWithPKCS12Type(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1469,6 +1490,7 @@ func TestCanCreateAKeystoreSecretFromFile(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1541,6 +1563,7 @@ func TestCanCreateAKeystoreSecretWithBase64EncodedKeystore(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1613,6 +1636,7 @@ func TestCanCreateAKeystoreSecretWithBase64EncodedPassword(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1685,6 +1709,7 @@ func TestCanUpdateAKeystoreSecretWithNewKeystoreData(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1757,6 +1782,7 @@ func TestCanUpdateAKeystoreSecretWithNewPassword(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1829,6 +1855,7 @@ func TestCanUpdateAKeystoreSecretType(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1877,6 +1904,7 @@ func TestUpdateKeystoreSecretWithInvalidTypeThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1927,6 +1955,7 @@ func TestUpdateKeystoreSecretWithBothEncodedAndFileThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -1977,6 +2006,7 @@ func TestUpdateKeystoreSecretWithBothPasswordAndBase64PasswordThrowsError(t *tes
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -2043,6 +2073,7 @@ func TestCreateKeystoreSecretWithEmptyPasswordSendsRequestOk(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -2091,6 +2122,7 @@ func TestCreateKeystoreSecretWithWhitespaceOnlyPasswordThrowsError(t *testing.T)
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -2140,6 +2172,7 @@ func TestCreateKeystoreSecretFromNonExistentFileThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -2195,6 +2228,7 @@ func TestCreateKeystoreSecretFromUnreadableFileThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -2251,6 +2285,7 @@ func TestCreateKeystoreSecretFromEmptyFileThrowsError(t *testing.T) {
 		base64Password,
 		base64Token,
 		keystoreValues,
+		&SecretsSetBinaryValues{},
 		secretType,
 		description,
 		console,
@@ -2264,4 +2299,262 @@ func TestCreateKeystoreSecretFromEmptyFileThrowsError(t *testing.T) {
 	assert.Contains(t, errorMsg, "GAL1294E")
 	assert.Contains(t, errorMsg, "Empty keystore file provided")
 	assert.Contains(t, errorMsg, keystoreValues.KeystoreFile)
+}
+
+func TestCanCreateABinarySecretFromBase64EncodedValue(t *testing.T) {
+	// Given...
+	secretName := "MY_LICENSE_JAR"
+	username := ""
+	password := ""
+	token := ""
+	base64Username := ""
+	base64Password := ""
+	base64Token := ""
+	secretType := ""
+	description := "a licence JAR file"
+	// A small valid base64 value representing binary content
+	base64Binary := "VGhpc0lzQmluYXJ5RGF0YUZvclRlc3Rpbmc="
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
+	binaryValues := &SecretsSetBinaryValues{Base64BinaryEncoded: base64Binary}
+
+	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
+	createSecretInteraction.ValidateRequestFunc = func(t *testing.T, req *http.Request) {
+		secretRequest := readSecretRequestBody(req)
+		assert.Equal(t, secretRequest.GetName(), secretName)
+		assert.Equal(t, secretRequest.GetDescription(), description)
+
+		requestBinary := secretRequest.GetBinary()
+		assert.Equal(t, requestBinary.GetValue(), base64Binary)
+		assert.Empty(t, requestBinary.GetEncoding())
+
+		// Verify all other fields are empty
+		requestUsername := secretRequest.GetUsername()
+		assert.Empty(t, requestUsername.GetValue())
+		requestPassword := secretRequest.GetPassword()
+		assert.Empty(t, requestPassword.GetValue())
+		requestToken := secretRequest.GetToken()
+		assert.Empty(t, requestToken.GetValue())
+		requestKeystore := secretRequest.GetKeystore()
+		assert.Empty(t, requestKeystore.GetValue())
+	}
+	createSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.WriteHeader(http.StatusCreated)
+	}
+
+	interactions := []utils.HttpInteraction{createSecretInteraction}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	console := utils.NewMockConsole()
+	apiClient := api.InitialiseAPI(server.Server.URL)
+	mockByteReader := utils.NewMockByteReader()
+	mockFileSystem := files.NewMockFileSystem()
+
+	// When...
+	err := SetSecret(
+		secretName,
+		username,
+		password,
+		token,
+		base64Username,
+		base64Password,
+		base64Token,
+		keystoreValues,
+		binaryValues,
+		secretType,
+		description,
+		console,
+		apiClient,
+		mockByteReader,
+		mockFileSystem)
+
+	// Then...
+	assert.Nil(t, err, "SetSecret returned an unexpected error")
+	assert.Empty(t, console.ReadText(), "The console was written to on a successful creation, it should be empty")
+}
+
+func TestCanCreateABinarySecretFromFile(t *testing.T) {
+	// Given...
+	secretName := "MY_LICENSE_JAR"
+	username := ""
+	password := ""
+	token := ""
+	base64Username := ""
+	base64Password := ""
+	base64Token := ""
+	secretType := ""
+	description := "a licence JAR file from disk"
+	binaryFilePath := "/path/to/my_license.jar"
+	binaryFileContent := []byte("fake jar binary content")
+	expectedBase64 := "ZmFrZSBqYXIgYmluYXJ5IGNvbnRlbnQ=" // base64 of the above
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
+	binaryValues := &SecretsSetBinaryValues{BinaryFile: binaryFilePath}
+
+	createSecretInteraction := utils.NewHttpInteraction("/secrets/"+secretName, http.MethodPut)
+	createSecretInteraction.ValidateRequestFunc = func(t *testing.T, req *http.Request) {
+		secretRequest := readSecretRequestBody(req)
+		assert.Equal(t, secretRequest.GetName(), secretName)
+
+		requestBinary := secretRequest.GetBinary()
+		assert.Equal(t, requestBinary.GetValue(), expectedBase64)
+		assert.Empty(t, requestBinary.GetEncoding())
+	}
+	createSecretInteraction.WriteHttpResponseFunc = func(writer http.ResponseWriter, req *http.Request) {
+		writer.WriteHeader(http.StatusCreated)
+	}
+
+	interactions := []utils.HttpInteraction{createSecretInteraction}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	console := utils.NewMockConsole()
+	apiClient := api.InitialiseAPI(server.Server.URL)
+	mockByteReader := utils.NewMockByteReader()
+	mockFileSystem := files.NewMockFileSystem()
+
+	mockFS := mockFileSystem.(*files.MockFileSystem)
+	mockFS.VirtualFunction_ReadBinaryFile = func(filePath string) ([]byte, error) {
+		return binaryFileContent, nil
+	}
+
+	// When...
+	err := SetSecret(
+		secretName,
+		username,
+		password,
+		token,
+		base64Username,
+		base64Password,
+		base64Token,
+		keystoreValues,
+		binaryValues,
+		secretType,
+		description,
+		console,
+		apiClient,
+		mockByteReader,
+		mockFileSystem)
+
+	// Then...
+	assert.Nil(t, err, "SetSecret returned an unexpected error")
+	assert.Empty(t, console.ReadText(), "The console was written to on a successful creation, it should be empty")
+}
+
+func TestCreateBinarySecretFromEmptyFileThrowsError(t *testing.T) {
+	// Given...
+	secretName := "MY_LICENSE_JAR"
+	binaryFilePath := "/path/to/empty.jar"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
+	binaryValues := &SecretsSetBinaryValues{BinaryFile: binaryFilePath}
+
+	interactions := []utils.HttpInteraction{}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	console := utils.NewMockConsole()
+	apiClient := api.InitialiseAPI(server.Server.URL)
+	mockByteReader := utils.NewMockByteReader()
+	mockFileSystem := files.NewMockFileSystem()
+
+	mockFS := mockFileSystem.(*files.MockFileSystem)
+	mockFS.VirtualFunction_ReadBinaryFile = func(filePath string) ([]byte, error) {
+		return []byte{}, nil
+	}
+
+	// When...
+	err := SetSecret(
+		secretName, "", "", "", "", "", "",
+		keystoreValues,
+		binaryValues,
+		"", "",
+		console,
+		apiClient,
+		mockByteReader,
+		mockFileSystem)
+
+	// Then...
+	assert.NotNil(t, err, "SetSecret did not return an error as expected")
+	assert.Contains(t, err.Error(), "GAL1295E")
+	assert.Contains(t, err.Error(), "Empty binary file provided")
+	assert.Contains(t, err.Error(), binaryFilePath)
+}
+
+func TestCreateBinarySecretWithBothFileAndEncodedFlagsThrowsError(t *testing.T) {
+	// Given...
+	secretName := "MY_LICENSE_JAR"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
+	binaryValues := &SecretsSetBinaryValues{
+		BinaryFile:          "/path/to/file.jar",
+		Base64BinaryEncoded: "VGhpc0lzQmluYXJ5",
+	}
+
+	interactions := []utils.HttpInteraction{}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	console := utils.NewMockConsole()
+	apiClient := api.InitialiseAPI(server.Server.URL)
+	mockByteReader := utils.NewMockByteReader()
+	mockFileSystem := files.NewMockFileSystem()
+
+	// When...
+	err := SetSecret(
+		secretName, "", "", "", "", "", "",
+		keystoreValues,
+		binaryValues,
+		"", "",
+		console,
+		apiClient,
+		mockByteReader,
+		mockFileSystem)
+
+	// Then...
+	assert.NotNil(t, err, "SetSecret did not return an error as expected")
+	assert.Contains(t, err.Error(), "GAL1296E")
+	assert.Contains(t, err.Error(), "--binary-file cannot be provided with --base64-binary-encoded")
+}
+
+func TestCreateBinarySecretFromNonExistentFileThrowsError(t *testing.T) {
+	// Given...
+	secretName := "MY_LICENSE_JAR"
+	binaryFilePath := "/path/to/nonexistent/file.jar"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
+	binaryValues := &SecretsSetBinaryValues{BinaryFile: binaryFilePath}
+
+	// Validation should fail before any HTTP call is made
+	interactions := []utils.HttpInteraction{}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	console := utils.NewMockConsole()
+	apiClient := api.InitialiseAPI(server.Server.URL)
+	mockByteReader := utils.NewMockByteReader()
+	mockFileSystem := files.NewMockFileSystem()
+
+	// Override ReadBinaryFile to simulate a file-not-found error
+	mockFS := mockFileSystem.(*files.MockFileSystem)
+	mockFS.VirtualFunction_ReadBinaryFile = func(filePath string) ([]byte, error) {
+		return nil, fmt.Errorf("open %s: no such file or directory", filePath)
+	}
+
+	// When...
+	err := SetSecret(
+		secretName, "", "", "", "", "", "",
+		keystoreValues,
+		binaryValues,
+		"", "",
+		console,
+		apiClient,
+		mockByteReader,
+		mockFileSystem)
+
+	// Then...
+	assert.NotNil(t, err, "SetSecret did not return an error as expected")
+	assert.Contains(t, err.Error(), "no such file or directory")
+	assert.Contains(t, err.Error(), binaryFilePath)
 }

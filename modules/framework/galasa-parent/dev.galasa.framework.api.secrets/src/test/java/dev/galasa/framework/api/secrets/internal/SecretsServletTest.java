@@ -143,6 +143,26 @@ public class SecretsServletTest extends BaseServletTest {
         return secretJson;
     }
 
+    protected JsonObject generateBinarySecretJson(
+        String secretName,
+        String data,
+        String encoding,
+        String description,
+        String lastUpdatedUser,
+        Instant lastUpdatedTime
+    ) {
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("apiVersion", GalasaResourceValidator.DEFAULT_API_VERSION);
+
+        String type = "Binary";
+        secretJson.add("metadata", generateExpectedMetadata(secretName, type, encoding, description, lastUpdatedUser, lastUpdatedTime));
+        secretJson.add("data", generateExpectedBinaryData(data, encoding));
+
+        secretJson.addProperty("kind", "GalasaSecret");
+
+        return secretJson;
+    }
+
     private JsonObject generateExpectedMetadata(
         String secretName,
         String type,
@@ -228,6 +248,19 @@ public class SecretsServletTest extends BaseServletTest {
         data.addProperty("password", password);
 
         return data;
+    }
+
+    private JsonObject generateExpectedBinaryData(String data, String encoding) {
+        JsonObject dataObj = new JsonObject();
+
+        if (encoding != null && encoding.equals("base64")) {
+            Encoder encoder = Base64.getEncoder();
+            data = encoder.encodeToString(data.getBytes());
+        }
+
+        dataObj.addProperty("data", data);
+
+        return dataObj;
     }
 
     private JsonObject generateExpectedKeyStoreData(String keystore, String keystorePassword, String keystoreType, String encoding) {

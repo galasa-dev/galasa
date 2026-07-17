@@ -865,6 +865,32 @@ To update an existing keystore secret, you must always provide `--keystore-file`
 galasactl secrets set --name MYKEYSTORE --keystore-type JKS
 ```
 
+#### Binary Secrets
+
+Binary secrets can be used to store arbitrary binary data in the Galasa Ecosystem's credentials store — for example, a licence JAR file such as `my_license.jar` that a test needs to provide dynamically to a manager at runtime.
+
+To create a binary secret from a file on disk, use the `--binary-file` flag. The file's contents are automatically base64-encoded before being stored:
+
+```
+galasactl secrets set --name LICENSE_JAR --binary-file /path/to/my_license.jar
+```
+
+If you already have the binary data base64-encoded (for example, from a CI/CD pipeline secret or a previous export), use the `--base64-binary-encoded` flag instead:
+
+```
+galasactl secrets set --name LICENSE_JAR --base64-binary-encoded "UEsDBAAAAAA..."
+```
+
+The `--binary-file` and `--base64-binary-encoded` flags are mutually exclusive — only one may be provided at a time.
+
+Binary secrets are completely independent of all other credential fields (`--username`, `--password`, `--token`, `--keystore-file`, etc.). Those flags cannot be combined with `--binary-file` or `--base64-binary-encoded`.
+
+To update the binary data in an existing binary secret, supply the same flags with the new content:
+
+```
+galasactl secrets set --name LICENSE_JAR --binary-file /path/to/new_my_license.jar
+```
+
 #### Changing Secret Types
 
 Once a secret has been created, you can change the type of the secret by supplying your desired secret type using the `--type` flag. When supplying the `--type` flag, all credentials for the new secret type must be provided. To find out what secret types are supported, run `galasactl secrets set --help`.
