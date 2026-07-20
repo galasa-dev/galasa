@@ -81,9 +81,6 @@ func SetSecret(
 						requestBinary, err = createSecretRequestBinary(binaryValues.BinaryFile, binaryValues.Base64BinaryEncoded, fileSystem)
 					}
 				}
-				// if err == nil && (binaryValues.BinaryFile != "" || binaryValues.Base64BinaryEncoded != "") {
-				// 	requestBinary, err = createSecretRequestBinary(binaryValues.BinaryFile, binaryValues.Base64BinaryEncoded, fileSystem)
-				// }
 
 				var secretTypeValue galasaapi.NullableGalasaSecretType
 				if err == nil && secretType != "" {
@@ -171,7 +168,7 @@ func createSecretRequestKeystore(keystoreFile string, base64KeystoreEncoded stri
 		// Already base64 encoded
 		requestKeystore.SetValue(base64KeystoreEncoded)
 		// while it is base64 encoded, it does not need encoding set
-		// requestKeystore.SetEncoding(BASE64_ENCODING) 
+		// requestKeystore.SetEncoding(BASE64_ENCODING)
 	} else if keystoreFile != "" {
 		// Read file and base64 encode it
 		var fileBytes []byte
@@ -353,4 +350,3 @@ func validateFlagCombination(
 
 	return err
 }
-

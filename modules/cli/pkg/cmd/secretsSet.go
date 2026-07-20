@@ -142,9 +142,6 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     // Keystore file and keystore encoded are mutually exclusive (can only provide one way to specify keystore)
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(keystoreFileFlag, base64KeystoreEncodedFlag)
 
-    // Binary file and binary encoded are mutually exclusive (can only provide one way to specify binary data)
-    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(binaryFileFlag, base64BinaryEncodedFlag)
-
     // A password cannot be provided alongside a token
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(passwordFlag, tokenFlag, base64PasswordFlag, base64TokenFlag)
 
