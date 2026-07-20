@@ -885,6 +885,8 @@ The `--secret-file` and `--base64-secret` flags are mutually exclusive — only 
 
 Opaque secrets are completely independent of all other credential fields (`--username`, `--password`, `--token`, `--keystore-file`, etc.). Those flags cannot be combined with `--secret-file` or `--base64-secret`.
 
+> **Size limit:** The maximum raw file size accepted by `--secret-file` is **760 KB**. Base64 encoding inflates the payload by ~33%, so a 760 KB file encodes to ~1,013 KB. Files larger than 760 KB are rejected by the server. Typical use-cases such as licence JAR files (usually a few KB to a few hundred KB) are well within this bound.
+
 To update the opaque data in an existing opaque secret, supply the same flags with the new content:
 
 ```

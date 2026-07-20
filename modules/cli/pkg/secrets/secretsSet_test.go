@@ -2482,6 +2482,50 @@ func TestCreateOpaqueSecretFromEmptyFileThrowsError(t *testing.T) {
 	assert.Contains(t, err.Error(), opaqueFilePath)
 }
 
+
+func TestCreateOpaqueSecretFromOversizedFileThrowsError(t *testing.T) {
+	// Given...
+	secretName := "MY_LICENSE_JAR"
+	opaqueFilePath := "/path/to/huge.jar"
+
+	keystoreValues := NewSecretsSetKeystoreValues("", "", "", "", "")
+	opaqueValues := &SecretsSetOpaqueValues{SecretFile: opaqueFilePath}
+
+	interactions := []utils.HttpInteraction{}
+	server := utils.NewMockHttpServer(t, interactions)
+	defer server.Server.Close()
+
+	console := utils.NewMockConsole()
+	apiClient := api.InitialiseAPI(server.Server.URL)
+	mockByteReader := utils.NewMockByteReader()
+	mockFileSystem := files.NewMockFileSystem()
+
+	// Return a byte slice that is exactly 1 byte over the 760 KB limit
+	oversizedContent := make([]byte, MAX_SECRET_FILE_SIZE_BYTES+1)
+	mockFS := mockFileSystem.(*files.MockFileSystem)
+	mockFS.VirtualFunction_ReadBinaryFile = func(filePath string) ([]byte, error) {
+		return oversizedContent, nil
+	}
+
+	// When...
+	err := SetSecret(
+		secretName, "", "", "", "", "", "",
+		keystoreValues,
+		opaqueValues,
+		"", "",
+		console,
+		apiClient,
+		mockByteReader,
+		mockFileSystem)
+
+	// Then...
+	assert.NotNil(t, err, "SetSecret did not return an error as expected")
+	assert.Contains(t, err.Error(), "GAL1297E")
+	assert.Contains(t, err.Error(), "Secret file too large")
+	assert.Contains(t, err.Error(), opaqueFilePath)
+}
+
+
 func TestCreateOpaqueSecretWithBothFileAndEncodedFlagsThrowsError(t *testing.T) {
 	// Given...
 	secretName := "MY_LICENSE_JAR"

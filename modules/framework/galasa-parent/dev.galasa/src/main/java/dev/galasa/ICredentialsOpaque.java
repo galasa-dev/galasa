@@ -34,9 +34,9 @@ public interface ICredentialsOpaque extends ICredentials {
     /**
      * Returns the opaque content as a base64-encoded string.
      *
-     * <p>This is the canonical storage form used in the Credentials Store and
-     * the value exposed in the {@code opaqueData} field of the
-     * {@code GET /secrets/{name}} REST response.
+     * <p>This is the stored base64 value and is returned as-is in the
+     * {@code opaqueData} field of the {@code GET /secrets/{name}} REST response.
+     * Callers can base64-decode it once to obtain the original raw bytes.
      *
      * @return base64-encoded representation of the opaque data; never {@code null}
      */

@@ -1685,7 +1685,7 @@ public class SecretsRouteTest extends SecretsServletTest {
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
 
         JsonArray expectedJson = new JsonArray();
-        expectedJson.add(generateOpaqueSecretJson(secretName, secretData, BASE64_ENCODING, null, null, null));
+        expectedJson.add(generateOpaqueSecretJson(secretName, secretData, null, null, null, null));
 
         String output = outStream.toString();
         assertThat(output).isEqualTo(gson.toJson(expectedJson));

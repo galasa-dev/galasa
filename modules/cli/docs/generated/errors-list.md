@@ -296,6 +296,7 @@ The `galasactl` tool can generate the following errors:
 - GAL1294E: Empty keystore file provided. The keystore file '{}' contains 0 bytes. Please provide a valid keystore file. Use the --help flag for more information.
 - GAL1295E: Empty secret file provided. The secret file '{}' contains 0 bytes. Please provide a valid secret file. Use the --help flag for more information.
 - GAL1296E: Invalid flag combination provided. --secret-file cannot be provided with --base64-secret. Use the --help flag for more information.
+- GAL1297E: Secret file too large. The secret file '{}' is {} bytes. The maximum supported size is 760 KB (778,240 bytes). Use the --help flag for more information.
 - GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'
 - GAL2001W: Your personal access token will expire soon. Once it expires, you will no longer be able to use it to contact your Galasa service. Create a new personal access token on your Galasa service's web user interface to continue to authenticate with the Galasa service.
 - GAL2501I: Downloaded {} artifacts to folder '{}'

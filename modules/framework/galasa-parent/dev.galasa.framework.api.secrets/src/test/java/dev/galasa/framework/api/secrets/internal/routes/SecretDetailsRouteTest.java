@@ -2049,7 +2049,7 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(servletResponse.getContentType()).isEqualTo("application/json");
 
         String expectedJson = gson.toJson(generateOpaqueSecretJson(
-            secretName, secretData, BASE64_ENCODING, null, null, null
+            secretName, secretData, null, null, null, null
         ));
         assertThat(outStream.toString()).isEqualTo(expectedJson);
     }
@@ -2274,18 +2274,15 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         // (i.e. base64(secretData)), so that decoding it twice yields the original raw bytes
         String responseBody = outStream.toString();
         String expectedJson = gson.toJson(generateOpaqueSecretJson(
-            secretName, secretData, BASE64_ENCODING, null, null, null
+            secretName, secretData, null, null, null, null
         ));
         assertThat(responseBody).isEqualTo(expectedJson);
 
-        // Verify the opaqueData field can be decoded back to the original raw bytes via two base64 decodes:
-        // 1st decode: unwrap the response-level base64 encoding -> opaqueData (the stored base64 string)
-        // 2nd decode: unwrap the stored base64 encoding -> rawBytes
+        // Verify the opaqueData field decodes directly back to the original raw bytes (single decode)
         JsonObject parsed = gson.fromJson(responseBody, JsonObject.class);
-        String doubleEncodedData = parsed.getAsJsonObject("data").get("opaqueData").getAsString();
-        byte[] onceDecoded = Base64.getDecoder().decode(doubleEncodedData); // -> opaqueData bytes
-        byte[] twiceDecoded = Base64.getDecoder().decode(onceDecoded);      // -> rawBytes
-        assertThat(twiceDecoded).isEqualTo(rawBytes);
+        String encodedData = parsed.getAsJsonObject("data").get("opaqueData").getAsString();
+        byte[] decoded = Base64.getDecoder().decode(encodedData);
+        assertThat(decoded).isEqualTo(rawBytes);
     }
 
     @Test

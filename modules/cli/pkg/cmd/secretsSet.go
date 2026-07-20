@@ -133,7 +133,7 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreValues.KeystoreType, keystoreTypeFlag, "", "the type of keystore (PKCS12 or JKS). Defaults to PKCS12 if not specified")
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreValues.Base64KeystoreEncoded, base64KeystoreEncodedFlag, "", "a base64-encoded keystore to set into a secret")
 
-    secretsSetCobraCmd.Flags().StringVar(&cmd.values.opaqueValues.SecretFile, opaqueFileFlag, "", "the path to a file (e.g. a .jar or certificate) to set into a secret")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.opaqueValues.SecretFile, opaqueFileFlag, "", "the path to a file (e.g. a .jar or certificate) to set into a secret. The file's raw bytes are base64-encoded before storing. Maximum raw file size: 760 KB")
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.opaqueValues.Base64Secret, base64OpaqueEncodedFlag, "", "a base64-encoded value to set into a secret")
 
     // A non-encoded credential cannot be provided alongside an encoded credential

@@ -24,7 +24,7 @@ galasactl secrets set [flags]
       --keystore-type string             the type of keystore (PKCS12 or JKS). Defaults to PKCS12 if not specified
       --name string                      A mandatory flag that identifies the secret to be created or manipulated.
       --password string                  a password to set into a secret
-      --secret-file string               the path to a file (e.g. a .jar or certificate) to set into a secret
+      --secret-file string               the path to a file (e.g. a .jar or certificate) to set into a secret. The file's raw bytes are base64-encoded before storing. Maximum raw file size: 760 KB
       --token string                     a token to set into a secret
       --type string                      the desired secret type to convert an existing secret into. Supported types are: [UsernamePassword Username UsernameToken Token KeyStore Opaque].
       --username string                  a username to set into a secret

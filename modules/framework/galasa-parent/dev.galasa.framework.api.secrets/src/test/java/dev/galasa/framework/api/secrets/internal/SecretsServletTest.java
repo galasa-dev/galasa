@@ -156,7 +156,7 @@ public class SecretsServletTest extends BaseServletTest {
 
         String type = "Opaque";
         secretJson.add("metadata", generateExpectedMetadata(secretName, type, encoding, description, lastUpdatedUser, lastUpdatedTime));
-        secretJson.add("data", generateExpectedOpaqueData(data, encoding));
+        secretJson.add("data", generateExpectedOpaqueData(data));
 
         secretJson.addProperty("kind", "GalasaSecret");
 
@@ -250,16 +250,9 @@ public class SecretsServletTest extends BaseServletTest {
         return data;
     }
 
-    private JsonObject generateExpectedOpaqueData(String data, String encoding) {
+    private JsonObject generateExpectedOpaqueData(String data) {
         JsonObject dataObj = new JsonObject();
-
-        if (encoding != null && encoding.equals("base64")) {
-            Encoder encoder = Base64.getEncoder();
-            data = encoder.encodeToString(data.getBytes());
-        }
-
         dataObj.addProperty("opaqueData", data);
-
         return dataObj;
     }
 

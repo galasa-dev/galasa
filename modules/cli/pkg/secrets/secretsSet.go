@@ -137,6 +137,11 @@ func createSecretRequestToken(token string, base64Token string) galasaapi.Secret
 	return requestToken
 }
 
+// MAX_SECRET_FILE_SIZE_BYTES is the maximum allowed raw file size for an opaque secret.
+// Base64 encoding inflates the payload by ~33%, so a 760 KB raw file encodes to ~1,013 KB
+// Empirical testing confirmed 760 KB passes and 768 KB triggers an HTTP 413.
+const MAX_SECRET_FILE_SIZE_BYTES = 760 * 1024 // 760 KB
+
 func createSecretRequestOpaque(opaqueFile string, base64OpaqueEncoded string, fileSystem spi.FileSystem) (galasaapi.SecretRequestOpaque, error) {
 	var err error
 	requestOpaque := *galasaapi.NewSecretRequestOpaque()
@@ -151,6 +156,8 @@ func createSecretRequestOpaque(opaqueFile string, base64OpaqueEncoded string, fi
 		if err == nil {
 			if len(fileBytes) == 0 {
 				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_EMPTY_OPAQUE_FILE, opaqueFile)
+			} else if len(fileBytes) > MAX_SECRET_FILE_SIZE_BYTES {
+				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SECRET_FILE_TOO_LARGE, opaqueFile, len(fileBytes))
 			} else {
 				encodedOpaque := base64.StdEncoding.EncodeToString(fileBytes)
 				requestOpaque.SetValue(encodedOpaque)
