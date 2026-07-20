@@ -958,7 +958,7 @@ public class FelixFramework {
      * @throws LauncherException
      */
     private void addResource(String bundleSymbolicName, Resolver resolver, Resource resource) throws LauncherException {
-        logger.trace("Resouce: " + resource);
+        logger.trace("Resource: " + resource);
         resolver.add(resource);
 
         boolean resourceHasReferenceUrl = false;

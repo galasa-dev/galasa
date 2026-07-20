@@ -52,7 +52,7 @@ public class DockerContainerResourceMonitor implements Runnable {
 
     @Override
     public void run() {
-        logger.info("Docker container resouce check started");
+        logger.info("Docker container resource check started");
 
         updateDockerEngines();
 

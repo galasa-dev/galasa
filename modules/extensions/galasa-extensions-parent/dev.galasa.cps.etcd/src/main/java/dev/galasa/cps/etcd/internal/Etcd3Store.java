@@ -17,9 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import dev.galasa.framework.spi.FrameworkException;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
@@ -41,6 +47,10 @@ import io.vertx.core.file.FileSystemOptions;
  */
 public abstract class Etcd3Store {
 
+    public static final int ETCD_CONNECT_TIMEOUT_SECONDS = 10;
+
+    private final Log logger = LogFactory.getLog(getClass());
+
     protected final Client client;
     protected final KV kvClient;
 
@@ -58,6 +68,31 @@ public abstract class Etcd3Store {
 
     public Etcd3Store(URI etcdUri) {
         this(etcdUri, DEFAULT_MAX_GRPC_MESSAGE_SIZE);
+    }
+
+    /**
+     * Performs a time-bounded connectivity probe against the etcd server.
+     *
+     * @param etcdUri the URI of the etcd server, used in error messages
+     * @throws FrameworkException if the probe fails or times out
+     */
+    protected void checkEtcdConnectivity(URI etcdUri) throws FrameworkException {
+        logger.debug("Checking connection to etcd at " + etcdUri.toString());
+
+        ByteSequence probeKey = ByteSequence.from("\0", UTF_8);
+        CompletableFuture<GetResponse> future = kvClient.get(probeKey);
+        try {
+            future.get(ETCD_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw new FrameworkException("Timed out connecting to etcd at " + etcdUri + " after " + ETCD_CONNECT_TIMEOUT_SECONDS + " seconds", e);
+        } catch (ExecutionException e) {
+            throw new FrameworkException("Failed to connect to etcd at " + etcdUri, e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new FrameworkException("Interrupted while connecting to etcd at " + etcdUri, e);
+        }
+        logger.debug("Connection to etcd at " + etcdUri.toString() + " successful");
     }
 
     /**
