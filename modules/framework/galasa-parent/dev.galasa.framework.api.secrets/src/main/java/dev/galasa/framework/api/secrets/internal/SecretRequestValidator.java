@@ -181,14 +181,23 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
     }
 
     /**
-     * Validates that the opaque field contains a non-empty, valid base64-encoded value.
+     * Validates that the opaque field contains a non-empty, valid base64-encoded value
+     * and that no encoding scheme has been set.
      *
      * @param opaque the opaque request object to validate
      * @throws InternalServletException if validation fails
      */
     private void validateOpaqueField(SecretRequestopaque opaque) throws InternalServletException {
-        validateField(opaque.getvalue(), opaque.getencoding());
-        // Validate that it is valid base64
+        // Encoding must not be set for opaque secrets
+        if (opaque.getencoding() != null) {
+            ServletError error = new ServletError(GAL5464_OPAQUE_ENCODING_NOT_ALLOWED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        if (opaque.getvalue() == null || opaque.getvalue().isBlank()) {
+            ServletError error = new ServletError(GAL5096_ERROR_MISSING_SECRET_VALUE);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        // Validate that the value is valid base64
         try {
             Base64.getDecoder().decode(opaque.getvalue());
         } catch (IllegalArgumentException e) {

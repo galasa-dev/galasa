@@ -2206,6 +2206,48 @@ public class SecretDetailsRouteTest extends SecretsServletTest {
         assertThat(credsService.getAllCredentials()).isEmpty();
     }
 
+
+    @Test
+    public void testCreateOpaqueSecretWithEncodingSetReturnsError() throws Exception {
+        // Given...
+        // An opaque request where encoding is incorrectly set to "base64".
+        // The opaque value IS the base64 data — setting encoding would cause the server
+        // to double-decode it, so the server must reject such a request.
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "INVALID_OPAQUE_ENCODING";
+        String validBase64 = Base64.getEncoder().encodeToString("some binary data".getBytes());
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("opaque", createSecretJson(validBase64, "base64"));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/" + secretName, secretJsonStr, HttpMethod.PUT.toString(), REQUEST_HEADERS);
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPut(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            outStream.toString(),
+            5464,
+            "GAL5464E",
+            "encoding"
+        );
+        assertThat(credsService.getAllCredentials()).isEmpty();
+    }
+
+
     @Test
     public void testCreateOpaqueSecretWithUsernameFieldReturnsError() throws Exception {
         // Given...

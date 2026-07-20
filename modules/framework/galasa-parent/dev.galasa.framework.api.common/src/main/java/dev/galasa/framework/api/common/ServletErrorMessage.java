@@ -165,6 +165,7 @@ public enum ServletErrorMessage {
     GAL5453_MISSING_KEYSTORE_PASSWORD_FIELD           (5453, "E: Invalid secret payload provided. The ''keystorePassword'' field is missing. An empty string \"\" is a valid value to indicate no password. Check your request payload and try again."),
     GAL5462_KEYSTORE_AND_PASSWORD_MUST_BE_PROVIDED_TOGETHER (5462, "E: Invalid secret payload provided. When updating a KeyStore credential, the ''keystore'' and ''keystorePassword'' fields must be provided together. Check your request payload and try again."),
     GAL5463_MUTUALLY_EXCLUSIVE_OPAQUE_FIELD_PROVIDED        (5463, "E: Invalid secret payload provided. The ''opaque'' field cannot be used alongside ''{0}'' credentials. Opaque credentials only accept the ''opaque'' field. Check your request payload and try again."),
+    GAL5464_OPAQUE_ENCODING_NOT_ALLOWED                     (5464, "E: Invalid secret payload provided. The ''encoding'' field must not be set on an opaque secret. The opaque value is already base64-encoded data; setting an encoding would cause the server to incorrectly decode it. Remove the ''encoding'' field from your request and try again."),
 
     // Auth callback API...
     GAL5103_UNEXPECTED_STATE_PARAMETER_PROVIDED       (5103, "E: Unexpected ''state'' query parameter value provided. The provided ''state'' parameter value does not match the stored state identifier or the auth request has timed out. Try to log in again."),
@@ -236,7 +237,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5464;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5465;
 
 
     private String template ;
