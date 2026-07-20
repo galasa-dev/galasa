@@ -850,67 +850,6 @@ public class FelixFramework {
     }
 
     /**
-     * Run the Docker Controller Server
-     * 
-     * @param boostrapProperties  the bootstrap properties
-     * @param overridesProperties the override properties
-     * @param bundles
-     * @param health
-     * @param metrics
-     * @throws LauncherException
-     */
-    public void runDockerController(Properties boostrapProperties, Properties overridesProperties, List<String> bundles,
-            Integer metrics, Integer health) throws LauncherException {
-
-        // Get the framework bundle
-        Bundle frameWorkBundle = getBundle("dev.galasa.framework");
-        loadBundle("dev.galasa.framework.docker.controller");
-
-        // *** Set up ports if present
-        if (metrics != null) {
-            overridesProperties.put("framework.controller.metrics.port", metrics.toString());
-        }
-        if (health != null) {
-            overridesProperties.put("framework.controller.health.port", health.toString());
-        }
-
-        // Get the dev.galasa.framework.TestRunner class service
-        String classString = "dev.galasa.framework.docker.controller.DockerController";
-        String filterString = "(" + Constants.OBJECTCLASS + "=" + classString + ")";
-        ServiceReference<?>[] serviceReferences;
-        try {
-            serviceReferences = frameWorkBundle.getBundleContext().getServiceReferences(classString, filterString);
-        } catch (InvalidSyntaxException e) {
-            throw new LauncherException("Unable to get framework service reference", e);
-        }
-        if (serviceReferences == null || serviceReferences.length != 1) {
-            throw new LauncherException("Unable to get single reference to DockerController service: "
-                    + ((serviceReferences == null) ? 0 : serviceReferences.length) + " service(s) returned");
-        }
-        Object service = frameWorkBundle.getBundleContext().getService(serviceReferences[0]);
-        if (service == null) {
-            throw new LauncherException("Unable to get DockerController service");
-        }
-
-        // Get the run method
-        Method runTestMethod;
-        try {
-            runTestMethod = service.getClass().getMethod("run", Properties.class, Properties.class);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new LauncherException("Unable to get DockerController run method", e);
-        }
-
-        // Invoke the runTest method
-        logger.debug("Invoking Docker controller run()");
-        try {
-            runTestMethod.invoke(service, boostrapProperties, overridesProperties);
-        } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
-            throw new LauncherException(e.getCause());
-        }
-
-    }
-
-    /**
      * Stop the Felix framework
      * 
      * @throws LauncherException
