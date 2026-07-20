@@ -294,8 +294,8 @@ The `galasactl` tool can generate the following errors:
 - GAL1292E: Invalid keystore password provided. When creating a keystore secret using --keystore-file or --base64-keystore-encoded, you must also provide --password or --base64-password. An empty string "" is valid and means no password. Use the --help flag for more information.
 - GAL1293E: Invalid keystore flag combination provided. --keystore-file cannot be provided with --base64-keystore-encoded, and --password cannot be provided with --base64-password. Use the --help flag for more information.
 - GAL1294E: Empty keystore file provided. The keystore file '{}' contains 0 bytes. Please provide a valid keystore file. Use the --help flag for more information.
-- GAL1295E: Empty binary file provided. The binary file '{}' contains 0 bytes. Please provide a valid binary file. Use the --help flag for more information.
-- GAL1296E: Invalid binary flag combination provided. --binary-file cannot be provided with --base64-binary-encoded. Use the --help flag for more information.
+- GAL1295E: Empty secret file provided. The secret file '{}' contains 0 bytes. Please provide a valid secret file. Use the --help flag for more information.
+- GAL1296E: Invalid flag combination provided. --secret-file cannot be provided with --base64-secret. Use the --help flag for more information.
 - GAL2000W: Warning: Maven configuration file settings.xml should contain a reference to a Galasa repository so that the galasa OBR can be resolved. The official release repository is '{}', and 'pre-release' repository is '{}'
 - GAL2001W: Your personal access token will expire soon. Once it expires, you will no longer be able to use it to contact your Galasa service. Create a new personal access token on your Galasa service's web user interface to continue to authenticate with the Galasa service.
 - GAL2501I: Downloaded {} artifacts to folder '{}'

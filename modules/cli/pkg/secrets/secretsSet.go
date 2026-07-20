@@ -33,7 +33,7 @@ func SetSecret(
 	base64Password string,
 	base64Token string,
 	keystoreValues *SecretsSetKeystoreValues,
-	binaryValues *SecretsSetBinaryValues,
+	opaqueValues *SecretsSetOpaqueValues,
 	secretType string,
 	description string,
 	console spi.Console,
@@ -51,7 +51,7 @@ func SetSecret(
 		}
 
 		if err == nil {
-			err = validateFlagCombination(username, password, token, base64Username, base64Password, base64Token, keystoreValues, binaryValues)
+			err = validateFlagCombination(username, password, token, base64Username, base64Password, base64Token, keystoreValues, opaqueValues)
 
 			if err == nil {
 				requestUsername := createSecretRequestUsername(username, base64Username)
@@ -60,7 +60,7 @@ func SetSecret(
 				var requestKeystore galasaapi.SecretRequestKeystore
 				var requestKeystorePassword galasaapi.SecretRequestKeystorePassword
 				var requestPassword galasaapi.SecretRequestPassword
-				var requestBinary galasaapi.SecretRequestBinary
+				var requestOpaque galasaapi.SecretRequestOpaque
 
 				// Handle keystore data - either from file or encoded string
 				if keystoreValues.KeystoreFile != "" || keystoreValues.Base64KeystoreEncoded != "" {
@@ -75,10 +75,10 @@ func SetSecret(
 					}
 				}
 
-				// Handle binary data - either from file or encoded string
+				// Handle opaque data - either from file or encoded string
 				if err == nil {
-					if binaryValues.BinaryFile != "" || binaryValues.Base64BinaryEncoded != "" {
-						requestBinary, err = createSecretRequestBinary(binaryValues.BinaryFile, binaryValues.Base64BinaryEncoded, fileSystem)
+					if opaqueValues.SecretFile != "" || opaqueValues.Base64Secret != "" {
+						requestOpaque, err = createSecretRequestOpaque(opaqueValues.SecretFile, opaqueValues.Base64Secret, fileSystem)
 					}
 				}
 
@@ -88,7 +88,7 @@ func SetSecret(
 				}
 
 				if err == nil {
-					secretRequest := createSecretRequest(secretName, requestUsername, requestPassword, requestToken, requestKeystore, requestKeystorePassword, keystoreValues.KeystoreType, requestBinary, secretTypeValue, description)
+					secretRequest := createSecretRequest(secretName, requestUsername, requestPassword, requestToken, requestKeystore, requestKeystorePassword, keystoreValues.KeystoreType, requestOpaque, secretTypeValue, description)
 					err = sendSetSecretRequest(secretRequest, apiClient, byteReader)
 				}
 			}
@@ -137,27 +137,27 @@ func createSecretRequestToken(token string, base64Token string) galasaapi.Secret
 	return requestToken
 }
 
-func createSecretRequestBinary(binaryFile string, base64BinaryEncoded string, fileSystem spi.FileSystem) (galasaapi.SecretRequestBinary, error) {
+func createSecretRequestOpaque(opaqueFile string, base64OpaqueEncoded string, fileSystem spi.FileSystem) (galasaapi.SecretRequestOpaque, error) {
 	var err error
-	requestBinary := *galasaapi.NewSecretRequestBinary()
+	requestOpaque := *galasaapi.NewSecretRequestOpaque()
 
-	if base64BinaryEncoded != "" {
+	if base64OpaqueEncoded != "" {
 		// Already base64 encoded
-		requestBinary.SetValue(base64BinaryEncoded)
-	} else if binaryFile != "" {
+		requestOpaque.SetValue(base64OpaqueEncoded)
+	} else if opaqueFile != "" {
 		// Read file and base64 encode it
 		var fileBytes []byte
-		fileBytes, err = fileSystem.ReadBinaryFile(binaryFile)
+		fileBytes, err = fileSystem.ReadBinaryFile(opaqueFile)
 		if err == nil {
 			if len(fileBytes) == 0 {
-				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_EMPTY_BINARY_FILE, binaryFile)
+				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_EMPTY_OPAQUE_FILE, opaqueFile)
 			} else {
-				encodedBinary := base64.StdEncoding.EncodeToString(fileBytes)
-				requestBinary.SetValue(encodedBinary)
+				encodedOpaque := base64.StdEncoding.EncodeToString(fileBytes)
+				requestOpaque.SetValue(encodedOpaque)
 			}
 		}
 	}
-	return requestBinary, err
+	return requestOpaque, err
 }
 
 func createSecretRequestKeystore(keystoreFile string, base64KeystoreEncoded string, fileSystem spi.FileSystem) (galasaapi.SecretRequestKeystore, error) {
@@ -206,7 +206,7 @@ func createSecretRequest(
 	keystore galasaapi.SecretRequestKeystore,
 	keystorePassword galasaapi.SecretRequestKeystorePassword,
 	keystoreType string,
-	binary galasaapi.SecretRequestBinary,
+	opaque galasaapi.SecretRequestOpaque,
 	secretType galasaapi.NullableGalasaSecretType,
 	description string,
 ) *galasaapi.SecretRequest {
@@ -243,8 +243,8 @@ func createSecretRequest(
 		secretRequest.SetKeystoreType(keystoreType)
 	}
 
-	if binary.GetValue() != "" {
-		secretRequest.SetBinary(binary)
+	if opaque.GetValue() != "" {
+		secretRequest.SetOpaque(opaque)
 	}
 
 	return secretRequest
@@ -319,7 +319,7 @@ func validateFlagCombination(
 	base64Password string,
 	base64Token string,
 	keystoreValues *SecretsSetKeystoreValues,
-	binaryValues *SecretsSetBinaryValues,
+	opaqueValues *SecretsSetOpaqueValues,
 ) error {
 	var err error
 
@@ -335,9 +335,9 @@ func validateFlagCombination(
 		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_SET_SECRET_INVALID_KEYSTORE_FLAGS)
 	}
 
-	// Make sure binaryFile and base64BinaryEncoded aren't both provided
-	if binaryValues.BinaryFile != "" && binaryValues.Base64BinaryEncoded != "" {
-		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_SET_SECRET_INVALID_BINARY_FLAGS)
+	// Make sure secretFile and base64Secret aren't both provided
+	if opaqueValues.SecretFile != "" && opaqueValues.Base64Secret != "" {
+		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_SET_SECRET_INVALID_OPAQUE_FLAGS)
 	}
 
 	if err == nil {

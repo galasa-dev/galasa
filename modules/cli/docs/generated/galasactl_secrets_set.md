@@ -13,20 +13,20 @@ galasactl secrets set [flags]
 ### Options
 
 ```
-      --base64-binary-encoded string     a base64-encoded binary value to set into a secret
       --base64-keystore-encoded string   a base64-encoded keystore to set into a secret
       --base64-password string           a base64-encoded password to set into a secret
+      --base64-secret string             a base64-encoded value to set into a secret
       --base64-token string              a base64-encoded token to set into a secret
       --base64-username string           a base64-encoded username to set into a secret
-      --binary-file string               the path to a binary file (e.g. a .jar or certificate) to set into a secret
       --description string               the description to associate with the secret being created or updated
   -h, --help                             Displays the options for the 'secrets set' command.
       --keystore-file string             the path to a keystore file (.p12 or .jks) to set into a secret
       --keystore-type string             the type of keystore (PKCS12 or JKS). Defaults to PKCS12 if not specified
       --name string                      A mandatory flag that identifies the secret to be created or manipulated.
       --password string                  a password to set into a secret
+      --secret-file string               the path to a file (e.g. a .jar or certificate) to set into a secret
       --token string                     a token to set into a secret
-      --type string                      the desired secret type to convert an existing secret into. Supported types are: [UsernamePassword Username UsernameToken Token KeyStore Binary].
+      --type string                      the desired secret type to convert an existing secret into. Supported types are: [UsernamePassword Username UsernameToken Token KeyStore Opaque].
       --username string                  a username to set into a secret
 ```
 

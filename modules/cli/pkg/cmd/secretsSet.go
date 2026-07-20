@@ -27,7 +27,7 @@ type SecretsSetCmdValues struct {
     token string
 	description string
 	keystoreValues *secrets.SecretsSetKeystoreValues
-	binaryValues   *secrets.SecretsSetBinaryValues
+	opaqueValues   *secrets.SecretsSetOpaqueValues
 }
 
 type SecretsSetCommand struct {
@@ -73,7 +73,7 @@ func (cmd *SecretsSetCommand) init(factory spi.Factory, secretsCommand spi.Galas
 
     cmd.values = &SecretsSetCmdValues{
         keystoreValues: &secrets.SecretsSetKeystoreValues{},
-        binaryValues:   &secrets.SecretsSetBinaryValues{},
+        opaqueValues:   &secrets.SecretsSetOpaqueValues{},
     }
     cmd.cobraCommand, err = cmd.createCobraCmd(factory, secretsCommand, commsFlagSet.Values().(*CommsFlagSetValues))
 
@@ -114,8 +114,8 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     base64KeystoreEncodedFlag := "base64-keystore-encoded"
     keystoreTypeFlag := "keystore-type"
 
-    binaryFileFlag := "binary-file"
-    base64BinaryEncodedFlag := "base64-binary-encoded"
+    opaqueFileFlag := "secret-file"
+    base64OpaqueEncodedFlag := "base64-secret"
 
     descriptionFlag := "description"
 
@@ -133,8 +133,8 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreValues.KeystoreType, keystoreTypeFlag, "", "the type of keystore (PKCS12 or JKS). Defaults to PKCS12 if not specified")
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreValues.Base64KeystoreEncoded, base64KeystoreEncodedFlag, "", "a base64-encoded keystore to set into a secret")
 
-    secretsSetCobraCmd.Flags().StringVar(&cmd.values.binaryValues.BinaryFile, binaryFileFlag, "", "the path to a binary file (e.g. a .jar or certificate) to set into a secret")
-    secretsSetCobraCmd.Flags().StringVar(&cmd.values.binaryValues.Base64BinaryEncoded, base64BinaryEncodedFlag, "", "a base64-encoded binary value to set into a secret")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.opaqueValues.SecretFile, opaqueFileFlag, "", "the path to a file (e.g. a .jar or certificate) to set into a secret")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.opaqueValues.Base64Secret, base64OpaqueEncodedFlag, "", "a base64-encoded value to set into a secret")
 
     // A non-encoded credential cannot be provided alongside an encoded credential
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(usernameFlag, base64UsernameFlag)
@@ -148,8 +148,8 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     // A token cannot be provided alongside a keystore
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
 
-    // Binary cannot be provided alongside any other credential field
-    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(binaryFileFlag, base64BinaryEncodedFlag, usernameFlag, base64UsernameFlag, passwordFlag, base64PasswordFlag, tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
+    // Opaque cannot be provided alongside any other credential field
+    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(opaqueFileFlag, base64OpaqueEncodedFlag, usernameFlag, base64UsernameFlag, passwordFlag, base64PasswordFlag, tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
 
     // A secret must have a name and at least one of the credentials flags
     secretsSetCobraCmd.MarkFlagsOneRequired(
@@ -162,8 +162,8 @@ func (cmd *SecretsSetCommand) createCobraCmd(
         keystoreFileFlag,
         base64KeystoreEncodedFlag,
         keystoreTypeFlag,
-        binaryFileFlag,
-        base64BinaryEncodedFlag,
+        opaqueFileFlag,
+        base64OpaqueEncodedFlag,
         descriptionFlag,
     )
 
@@ -226,7 +226,7 @@ func (cmd *SecretsSetCommand) executeSecretsSet(
                         cmd.values.base64Password,
                         cmd.values.base64Token,
                         cmd.values.keystoreValues,
-                        cmd.values.binaryValues,
+                        cmd.values.opaqueValues,
                         cmd.values.secretType,
                         cmd.values.description,
                         console,

@@ -12,14 +12,14 @@ import java.util.Properties;
 
 import org.junit.Test;
 
-import dev.galasa.ICredentialsBinary;
-import dev.galasa.framework.spi.creds.CredentialsBinary;
+import dev.galasa.ICredentialsOpaque;
+import dev.galasa.framework.spi.creds.CredentialsOpaque;
 import dev.galasa.framework.spi.creds.CredentialsException;
 
 /**
- * Unit tests for {@link CredentialsBinary}.
+ * Unit tests for {@link CredentialsOpaque}.
  */
-public class CredentialsBinaryTest {
+public class CredentialsOpaqueTest {
 
     private static final byte[] SAMPLE_BYTES = new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x00, 0x01, 0x02 }; // ZIP magic + filler
     private static final String ENCODED_SAMPLE = Base64.getEncoder().encodeToString(SAMPLE_BYTES);
@@ -34,7 +34,7 @@ public class CredentialsBinaryTest {
     @Test
     public void testConstructWithValidBase64ReturnsDecodedBytes() throws Exception {
         // When...
-        CredentialsBinary creds = new CredentialsBinary(ENCODED_SAMPLE);
+        CredentialsOpaque creds = new CredentialsOpaque(ENCODED_SAMPLE);
 
         // Then...
         assertThat(creds.getData()).isEqualTo(SAMPLE_BYTES);
@@ -46,7 +46,7 @@ public class CredentialsBinaryTest {
     @Test
     public void testGetEncodedDataReturnsOriginalBase64String() throws Exception {
         // When...
-        CredentialsBinary creds = new CredentialsBinary(ENCODED_SAMPLE);
+        CredentialsOpaque creds = new CredentialsOpaque(ENCODED_SAMPLE);
 
         // Then...
         assertThat(creds.getEncodedData()).isEqualTo(ENCODED_SAMPLE);
@@ -61,9 +61,9 @@ public class CredentialsBinaryTest {
      */
     @Test
     public void testConstructWithNullDataThrowsCredentialsException() {
-        assertThatThrownBy(() -> new CredentialsBinary(null))
+        assertThatThrownBy(() -> new CredentialsOpaque(null))
             .isInstanceOf(CredentialsException.class)
-            .hasMessageContaining("Binary credential data cannot be null or empty");
+            .hasMessageContaining("Opaque credential data cannot be null or empty");
     }
 
     /**
@@ -71,9 +71,9 @@ public class CredentialsBinaryTest {
      */
     @Test
     public void testConstructWithEmptyStringThrowsCredentialsException() {
-        assertThatThrownBy(() -> new CredentialsBinary(""))
+        assertThatThrownBy(() -> new CredentialsOpaque(""))
             .isInstanceOf(CredentialsException.class)
-            .hasMessageContaining("Binary credential data cannot be null or empty");
+            .hasMessageContaining("Opaque credential data cannot be null or empty");
     }
 
     /**
@@ -81,9 +81,9 @@ public class CredentialsBinaryTest {
      */
     @Test
     public void testConstructWithBlankStringThrowsCredentialsException() {
-        assertThatThrownBy(() -> new CredentialsBinary("   "))
+        assertThatThrownBy(() -> new CredentialsOpaque("   "))
             .isInstanceOf(CredentialsException.class)
-            .hasMessageContaining("Binary credential data cannot be null or empty");
+            .hasMessageContaining("Opaque credential data cannot be null or empty");
     }
 
     /**
@@ -91,9 +91,9 @@ public class CredentialsBinaryTest {
      */
     @Test
     public void testConstructWithInvalidBase64ThrowsCredentialsException() {
-        assertThatThrownBy(() -> new CredentialsBinary("this is not valid base64!!!"))
+        assertThatThrownBy(() -> new CredentialsOpaque("this is not valid base64!!!"))
             .isInstanceOf(CredentialsException.class)
-            .hasMessageContaining("Failed to base64-decode binary credential data");
+            .hasMessageContaining("Failed to base64-decode opaque credential data");
     }
 
     // -------------------------------------------------------------------------
@@ -107,7 +107,7 @@ public class CredentialsBinaryTest {
     @Test
     public void testStorageConstructorWithNullKeyTreatsValueAsPlainBase64() throws Exception {
         // When...
-        CredentialsBinary creds = new CredentialsBinary(null, ENCODED_SAMPLE);
+        CredentialsOpaque creds = new CredentialsOpaque(null, ENCODED_SAMPLE);
 
         // Then...
         assertThat(creds.getData()).isEqualTo(SAMPLE_BYTES);
@@ -119,9 +119,9 @@ public class CredentialsBinaryTest {
      */
     @Test
     public void testStorageConstructorWithNullKeyAndNullDataThrowsCredentialsException() {
-        assertThatThrownBy(() -> new CredentialsBinary(null, null))
+        assertThatThrownBy(() -> new CredentialsOpaque(null, null))
             .isInstanceOf(CredentialsException.class)
-            .hasMessageContaining("Binary credential data cannot be null or empty");
+            .hasMessageContaining("Opaque credential data cannot be null or empty");
     }
 
     /**
@@ -129,9 +129,9 @@ public class CredentialsBinaryTest {
      */
     @Test
     public void testStorageConstructorWithNullKeyAndInvalidBase64ThrowsCredentialsException() {
-        assertThatThrownBy(() -> new CredentialsBinary(null, "!!!invalid!!!"))
+        assertThatThrownBy(() -> new CredentialsOpaque(null, "!!!invalid!!!"))
             .isInstanceOf(CredentialsException.class)
-            .hasMessageContaining("Failed to base64-decode binary credential data");
+            .hasMessageContaining("Failed to base64-decode opaque credential data");
     }
 
     // -------------------------------------------------------------------------
@@ -144,7 +144,7 @@ public class CredentialsBinaryTest {
     @Test
     public void testToPropertiesWritesDataUnderExpectedKey() throws Exception {
         // Given...
-        CredentialsBinary creds = new CredentialsBinary(ENCODED_SAMPLE);
+        CredentialsOpaque creds = new CredentialsOpaque(ENCODED_SAMPLE);
 
         // When...
         Properties props = creds.toProperties("MY_LICENSE");
@@ -160,7 +160,7 @@ public class CredentialsBinaryTest {
     @Test
     public void testToPropertiesContainsOnlyDataKey() throws Exception {
         // Given...
-        CredentialsBinary creds = new CredentialsBinary(ENCODED_SAMPLE);
+        CredentialsOpaque creds = new CredentialsOpaque(ENCODED_SAMPLE);
 
         // When...
         Properties props = creds.toProperties("MY_LICENSE");
@@ -175,7 +175,7 @@ public class CredentialsBinaryTest {
     @Test
     public void testToPropertiesStoredValueDecodesBackToOriginalBytes() throws Exception {
         // Given...
-        CredentialsBinary creds = new CredentialsBinary(ENCODED_SAMPLE);
+        CredentialsOpaque creds = new CredentialsOpaque(ENCODED_SAMPLE);
         Properties props = creds.toProperties("MY_LICENSE");
 
         // When...
@@ -196,7 +196,7 @@ public class CredentialsBinaryTest {
     @Test
     public void testMetadataDescriptionCanBeSetAndRetrieved() throws Exception {
         // Given...
-        CredentialsBinary creds = new CredentialsBinary(ENCODED_SAMPLE);
+        CredentialsOpaque creds = new CredentialsOpaque(ENCODED_SAMPLE);
 
         // When...
         creds.setDescription("My license JAR");
@@ -213,7 +213,7 @@ public class CredentialsBinaryTest {
     @Test
     public void testGetMetadataPropertiesReturnsDescriptionUnderExpectedKey() throws Exception {
         // Given...
-        CredentialsBinary creds = new CredentialsBinary(ENCODED_SAMPLE);
+        CredentialsOpaque creds = new CredentialsOpaque(ENCODED_SAMPLE);
         creds.setDescription("My license JAR");
         creds.setLastUpdatedByUser("operator");
 

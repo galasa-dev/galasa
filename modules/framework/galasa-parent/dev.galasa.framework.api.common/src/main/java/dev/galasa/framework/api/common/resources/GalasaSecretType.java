@@ -11,7 +11,7 @@ public enum GalasaSecretType {
     USERNAME("Username", "username"),
     TOKEN("Token", "token"),
     KEYSTORE("KeyStore", "keystore", "keystorePassword", "keystoreType"),
-    BINARY("Binary", "binary");
+    OPAQUE("Opaque", "opaque");
 
     private String name;
     private String[] requiredDataFields;

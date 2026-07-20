@@ -21,9 +21,9 @@ type SecretsSetKeystoreValues struct {
 	KeystoreType string
 }
 
-type SecretsSetBinaryValues struct {
-	BinaryFile            string
-	Base64BinaryEncoded   string
+type SecretsSetOpaqueValues struct {
+	SecretFile          string
+	Base64Secret        string
 }
 
 func NewSecretsSetKeystoreValues(

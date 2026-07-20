@@ -25,7 +25,7 @@ import dev.galasa.ICredentials;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.creds.CredentialsException;
-import dev.galasa.framework.spi.creds.CredentialsBinary;
+import dev.galasa.framework.spi.creds.CredentialsOpaque;
 import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
@@ -189,7 +189,7 @@ public class Etcd3CredentialsStore extends Etcd3Store implements ICredentialsSto
             
             credentials = new CredentialsKeyStore(key, keystore, keystorePassword, type);
         } else if (data != null) {
-            credentials = new CredentialsBinary(key, data);
+            credentials = new CredentialsOpaque(key, data);
         } else {
             String token = credProperties.get(keyPrefix + ".token");
             String username = credProperties.get(keyPrefix + ".username");

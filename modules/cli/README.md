@@ -865,30 +865,30 @@ To update an existing keystore secret, you must always provide `--keystore-file`
 galasactl secrets set --name MYKEYSTORE --keystore-type JKS
 ```
 
-#### Binary Secrets
+#### Opaque Secrets
 
-Binary secrets can be used to store arbitrary binary data in the Galasa Ecosystem's credentials store — for example, a licence JAR file such as `my_license.jar` that a test needs to provide dynamically to a manager at runtime.
+Opaque secrets can be used to store arbitrary opaque data in the Galasa Ecosystem's credentials store — for example, a licence JAR file such as `my_license.jar` that a test needs to provide dynamically to a manager at runtime.
 
-To create a binary secret from a file on disk, use the `--binary-file` flag. The file's contents are automatically base64-encoded before being stored:
-
-```
-galasactl secrets set --name LICENSE_JAR --binary-file /path/to/my_license.jar
-```
-
-If you already have the binary data base64-encoded (for example, from a CI/CD pipeline secret or a previous export), use the `--base64-binary-encoded` flag instead:
+To create an opaque secret from a file on disk, use the `--secret-file` flag. The file's contents are automatically base64-encoded before being stored:
 
 ```
-galasactl secrets set --name LICENSE_JAR --base64-binary-encoded "UEsDBAAAAAA..."
+galasactl secrets set --name LICENSE_JAR --secret-file /path/to/my_license.jar
 ```
 
-The `--binary-file` and `--base64-binary-encoded` flags are mutually exclusive — only one may be provided at a time.
-
-Binary secrets are completely independent of all other credential fields (`--username`, `--password`, `--token`, `--keystore-file`, etc.). Those flags cannot be combined with `--binary-file` or `--base64-binary-encoded`.
-
-To update the binary data in an existing binary secret, supply the same flags with the new content:
+If you already have the data base64-encoded (for example, from a CI/CD pipeline secret or a previous export), use the `--base64-secret` flag instead:
 
 ```
-galasactl secrets set --name LICENSE_JAR --binary-file /path/to/new_my_license.jar
+galasactl secrets set --name LICENSE_JAR --base64-secret "UEsDBAAAAAA..."
+```
+
+The `--secret-file` and `--base64-secret` flags are mutually exclusive — only one may be provided at a time.
+
+Opaque secrets are completely independent of all other credential fields (`--username`, `--password`, `--token`, `--keystore-file`, etc.). Those flags cannot be combined with `--secret-file` or `--base64-secret`.
+
+To update the opaque data in an existing opaque secret, supply the same flags with the new content:
+
+```
+galasactl secrets set --name LICENSE_JAR --secret-file /path/to/new_my_license.jar
 ```
 
 #### Changing Secret Types

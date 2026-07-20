@@ -164,7 +164,7 @@ public enum ServletErrorMessage {
     GAL5452_INVALID_BASE64_ENCODING                   (5452, "E: Invalid {0} value provided. The {0} value must be valid base64-encoded data. Check your request payload and try again."),
     GAL5453_MISSING_KEYSTORE_PASSWORD_FIELD           (5453, "E: Invalid secret payload provided. The ''keystorePassword'' field is missing. An empty string \"\" is a valid value to indicate no password. Check your request payload and try again."),
     GAL5462_KEYSTORE_AND_PASSWORD_MUST_BE_PROVIDED_TOGETHER (5462, "E: Invalid secret payload provided. When updating a KeyStore credential, the ''keystore'' and ''keystorePassword'' fields must be provided together. Check your request payload and try again."),
-    GAL5463_MUTUALLY_EXCLUSIVE_BINARY_FIELD_PROVIDED        (5463, "E: Invalid secret payload provided. The ''binary'' field cannot be used alongside ''{0}'' credentials. Binary credentials only accept the ''binary'' field. Check your request payload and try again."),
+    GAL5463_MUTUALLY_EXCLUSIVE_OPAQUE_FIELD_PROVIDED        (5463, "E: Invalid secret payload provided. The ''opaque'' field cannot be used alongside ''{0}'' credentials. Opaque credentials only accept the ''opaque'' field. Check your request payload and try again."),
 
     // Auth callback API...
     GAL5103_UNEXPECTED_STATE_PARAMETER_PROVIDED       (5103, "E: Unexpected ''state'' query parameter value provided. The provided ''state'' parameter value does not match the stored state identifier or the auth request has timed out. Try to log in again."),
