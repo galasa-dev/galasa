@@ -10,7 +10,8 @@ public enum CredentialType {
     USERNAME_TOKEN("UsernameToken"),
     USERNAME("Username"),
     TOKEN("Token"),
-    KEYSTORE("KeyStore");
+    KEYSTORE("KeyStore"),
+    OPAQUE("Opaque");
 
     private String name;
 

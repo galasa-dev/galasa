@@ -143,6 +143,26 @@ public class SecretsServletTest extends BaseServletTest {
         return secretJson;
     }
 
+    protected JsonObject generateOpaqueSecretJson(
+        String secretName,
+        String data,
+        String encoding,
+        String description,
+        String lastUpdatedUser,
+        Instant lastUpdatedTime
+    ) {
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("apiVersion", GalasaResourceValidator.DEFAULT_API_VERSION);
+
+        String type = "Opaque";
+        secretJson.add("metadata", generateExpectedMetadata(secretName, type, encoding, description, lastUpdatedUser, lastUpdatedTime));
+        secretJson.add("data", generateExpectedOpaqueData(data));
+
+        secretJson.addProperty("kind", "GalasaSecret");
+
+        return secretJson;
+    }
+
     private JsonObject generateExpectedMetadata(
         String secretName,
         String type,
@@ -228,6 +248,12 @@ public class SecretsServletTest extends BaseServletTest {
         data.addProperty("password", password);
 
         return data;
+    }
+
+    private JsonObject generateExpectedOpaqueData(String data) {
+        JsonObject dataObj = new JsonObject();
+        dataObj.addProperty("opaqueData", data);
+        return dataObj;
     }
 
     private JsonObject generateExpectedKeyStoreData(String keystore, String keystorePassword, String keystoreType, String encoding) {

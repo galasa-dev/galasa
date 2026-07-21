@@ -27,6 +27,7 @@ type SecretsSetCmdValues struct {
     token string
 	description string
 	keystoreValues *secrets.SecretsSetKeystoreValues
+	opaqueValues   *secrets.SecretsSetOpaqueValues
 }
 
 type SecretsSetCommand struct {
@@ -70,7 +71,10 @@ func (cmd *SecretsSetCommand) Values() interface{} {
 func (cmd *SecretsSetCommand) init(factory spi.Factory, secretsCommand spi.GalasaCommand, commsFlagSet GalasaFlagSet) error {
     var err error
 
-    cmd.values = &SecretsSetCmdValues{ keystoreValues: &secrets.SecretsSetKeystoreValues{}, }
+    cmd.values = &SecretsSetCmdValues{
+        keystoreValues: &secrets.SecretsSetKeystoreValues{},
+        opaqueValues:   &secrets.SecretsSetOpaqueValues{},
+    }
     cmd.cobraCommand, err = cmd.createCobraCmd(factory, secretsCommand, commsFlagSet.Values().(*CommsFlagSetValues))
 
     return err
@@ -109,9 +113,11 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     keystoreFileFlag := "keystore-file"
     base64KeystoreEncodedFlag := "base64-keystore-encoded"
     keystoreTypeFlag := "keystore-type"
-    
- 	descriptionFlag := "description"
 
+    opaqueFileFlag := "secret-file"
+    base64OpaqueEncodedFlag := "base64-secret"
+
+    descriptionFlag := "description"
 
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.secretType, "type", "", fmt.Sprintf("the desired secret type to convert an existing secret into. Supported types are: %v.", galasaapi.AllowedGalasaSecretTypeEnumValues))
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.description, descriptionFlag, "", "the description to associate with the secret being created or updated")
@@ -127,6 +133,9 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreValues.KeystoreType, keystoreTypeFlag, "", "the type of keystore (PKCS12 or JKS). Defaults to PKCS12 if not specified")
     secretsSetCobraCmd.Flags().StringVar(&cmd.values.keystoreValues.Base64KeystoreEncoded, base64KeystoreEncodedFlag, "", "a base64-encoded keystore to set into a secret")
 
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.opaqueValues.SecretFile, opaqueFileFlag, "", "the path to a file (e.g. a .jar or certificate) to set into a secret. The file's raw bytes are base64-encoded before storing. Maximum raw file size: 760 KB")
+    secretsSetCobraCmd.Flags().StringVar(&cmd.values.opaqueValues.Base64Secret, base64OpaqueEncodedFlag, "", "a base64-encoded value to set into a secret")
+
     // A non-encoded credential cannot be provided alongside an encoded credential
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(usernameFlag, base64UsernameFlag)
 
@@ -139,6 +148,9 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     // A token cannot be provided alongside a keystore
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
 
+    // Opaque cannot be provided alongside any other credential field
+    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(opaqueFileFlag, base64OpaqueEncodedFlag, usernameFlag, base64UsernameFlag, passwordFlag, base64PasswordFlag, tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
+
     // A secret must have a name and at least one of the credentials flags
     secretsSetCobraCmd.MarkFlagsOneRequired(
         usernameFlag,
@@ -150,6 +162,8 @@ func (cmd *SecretsSetCommand) createCobraCmd(
         keystoreFileFlag,
         base64KeystoreEncodedFlag,
         keystoreTypeFlag,
+        opaqueFileFlag,
+        base64OpaqueEncodedFlag,
         descriptionFlag,
     )
 
@@ -212,6 +226,7 @@ func (cmd *SecretsSetCommand) executeSecretsSet(
                         cmd.values.base64Password,
                         cmd.values.base64Token,
                         cmd.values.keystoreValues,
+                        cmd.values.opaqueValues,
                         cmd.values.secretType,
                         cmd.values.description,
                         console,

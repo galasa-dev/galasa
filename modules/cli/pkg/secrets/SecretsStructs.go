@@ -21,6 +21,11 @@ type SecretsSetKeystoreValues struct {
 	KeystoreType string
 }
 
+type SecretsSetOpaqueValues struct {
+	SecretFile          string
+	Base64Secret        string
+}
+
 func NewSecretsSetKeystoreValues(
 	file, encoded, password, base64Password, keystoreType string,
 ) *SecretsSetKeystoreValues {

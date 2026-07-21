@@ -161,10 +161,12 @@ public enum ServletErrorMessage {
     GAL5102_INVALID_SECRET_DESCRIPTION_PROVIDED       (5102, "E: Invalid secret description provided. The description should not only contain spaces or tabs. When provided, it must contain characters in the Latin-1 character set. Report the problem to your Galasa Ecosystem owner."),
     GAL5450_FAILED_TO_CREATE_KEYSTORE_CREDENTIALS     (5450, "E: Failed to create a Java KeyStore from the provided secret data. The keystore data may be invalid, incorrectly encoded, the keystore type may be unsupported, or the keystore password may be incorrect. Check your request payload and try again."),
     GAL5451_MUTUALLY_EXCLUSIVE_FIELDS_PROVIDED        (5451, "E: Invalid secret payload provided. The ''{0}'' field cannot be used with KeyStore credentials. KeyStore credentials only accept ''keystore'', ''keystoreType'', and ''keystorePassword'' fields. Check your request payload and try again."),
-    GAL5452_INVALID_KEYSTORE_BASE64_ENCODING          (5452, "E: Invalid keystore value provided. The keystore value must be valid base64-encoded data. Check your request payload and try again."),
+    GAL5452_INVALID_BASE64_ENCODING                   (5452, "E: Invalid {0} value provided. The {0} value must be valid base64-encoded data. Check your request payload and try again."),
     GAL5453_MISSING_KEYSTORE_PASSWORD_FIELD           (5453, "E: Invalid secret payload provided. The ''keystorePassword'' field is missing. An empty string \"\" is a valid value to indicate no password. Check your request payload and try again."),
     GAL5462_KEYSTORE_AND_PASSWORD_MUST_BE_PROVIDED_TOGETHER (5462, "E: Invalid secret payload provided. When updating a KeyStore credential, the ''keystore'' and ''keystorePassword'' fields must be provided together. Check your request payload and try again."),
-    
+    GAL5463_MUTUALLY_EXCLUSIVE_OPAQUE_FIELD_PROVIDED        (5463, "E: Invalid secret payload provided. The ''opaque'' field cannot be used alongside ''{0}'' credentials. Opaque credentials only accept the ''opaque'' field. Check your request payload and try again."),
+    GAL5464_OPAQUE_ENCODING_NOT_ALLOWED                     (5464, "E: Invalid secret payload provided. The ''encoding'' field must not be set on an opaque secret. The opaque value is already base64-encoded data; setting an encoding would cause the server to incorrectly decode it. Remove the ''encoding'' field from your request and try again."),
+
     // Auth callback API...
     GAL5103_UNEXPECTED_STATE_PARAMETER_PROVIDED       (5103, "E: Unexpected ''state'' query parameter value provided. The provided ''state'' parameter value does not match the stored state identifier or the auth request has timed out. Try to log in again."),
     GAL5104_INVALID_CALLBACK_URL_PROVIDED             (5104, "E: Invalid callback URL provided. The callback URL must be a valid URL. Check your request parameters and try again."),
@@ -235,7 +237,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5463;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5465;
 
 
     private String template ;

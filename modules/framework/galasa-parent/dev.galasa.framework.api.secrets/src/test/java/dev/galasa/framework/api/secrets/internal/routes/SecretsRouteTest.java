@@ -36,6 +36,7 @@ import dev.galasa.framework.mocks.MockRBACService;
 import dev.galasa.framework.mocks.MockTimeService;
 import dev.galasa.framework.api.secrets.internal.SecretsServletTest;
 import dev.galasa.framework.api.secrets.mocks.MockSecretsServlet;
+import dev.galasa.framework.spi.creds.CredentialsOpaque;
 import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
@@ -1652,5 +1653,78 @@ public class SecretsRouteTest extends SecretsServletTest {
         assertThat(createdCredentials.getKeyStore()).isNotNull();
         assertThat(createdCredentials.getKeyStorePassword()).isEqualTo(emptyPassword);
         assertThat(createdCredentials.getKeyStoreType()).isEqualTo(keystoreType);
+    }
+
+    @Test
+    public void testGetSecretsIncludesOpaqueSecretOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "MY_LICENSE_JAR";
+        String secretData = Base64.getEncoder().encodeToString("fake jar binary content".getBytes());
+
+        ICredentials opaqueCredentials = new CredentialsOpaque(secretData);
+        creds.put(secretName, opaqueCredentials);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doGet(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(200);
+        assertThat(servletResponse.getContentType()).isEqualTo("application/json");
+
+        JsonArray expectedJson = new JsonArray();
+        expectedJson.add(generateOpaqueSecretJson(secretName, secretData, null, null, null, null));
+
+        String output = outStream.toString();
+        assertThat(output).isEqualTo(gson.toJson(expectedJson));
+    }
+
+    @Test
+    public void testCreateOpaqueSecretViaPostCreatesSecretOk() throws Exception {
+        // Given...
+        Map<String, ICredentials> creds = new HashMap<>();
+        String secretName = "NEW_LICENSE_JAR";
+        String secretData = Base64.getEncoder().encodeToString("some binary content".getBytes());
+
+        JsonObject secretJson = new JsonObject();
+        secretJson.addProperty("name", secretName);
+        secretJson.add("opaque", createSecretJson(secretData));
+        String secretJsonStr = gson.toJson(secretJson);
+
+        MockCredentialsService credsService = new MockCredentialsService(creds);
+        MockFramework mockFramework = new MockFramework(credsService);
+
+        MockTimeService timeService = new MockTimeService(Instant.EPOCH);
+        MockSecretsServlet servlet = new MockSecretsServlet(mockFramework, timeService);
+
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("/", secretJsonStr, HttpMethod.POST.toString(), REQUEST_HEADERS);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        ServletOutputStream outStream = servletResponse.getOutputStream();
+
+        // When...
+        servlet.init();
+        servlet.doPost(mockRequest, servletResponse);
+
+        // Then...
+        assertThat(servletResponse.getStatus()).isEqualTo(201);
+        assertThat(outStream.toString()).isEmpty();
+
+        assertThat(credsService.getAllCredentials()).hasSize(1);
+        CredentialsOpaque createdCredentials = (CredentialsOpaque) credsService.getCredentials(secretName);
+        assertThat(createdCredentials).isNotNull();
+        assertThat(createdCredentials.getEncodedData()).isEqualTo(secretData);
     }
 }

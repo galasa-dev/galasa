@@ -33,6 +33,7 @@ func SetSecret(
 	base64Password string,
 	base64Token string,
 	keystoreValues *SecretsSetKeystoreValues,
+	opaqueValues *SecretsSetOpaqueValues,
 	secretType string,
 	description string,
 	console spi.Console,
@@ -50,26 +51,34 @@ func SetSecret(
 		}
 
 		if err == nil {
-			err = validateFlagCombination(username, password, token, base64Username, base64Password, base64Token, keystoreValues)
+			err = validateFlagCombination(username, password, token, base64Username, base64Password, base64Token, keystoreValues, opaqueValues)
 
 			if err == nil {
 				requestUsername := createSecretRequestUsername(username, base64Username)
 				requestToken := createSecretRequestToken(token, base64Token)
-				
+
 				var requestKeystore galasaapi.SecretRequestKeystore
 				var requestKeystorePassword galasaapi.SecretRequestKeystorePassword
 				var requestPassword galasaapi.SecretRequestPassword
+				var requestOpaque galasaapi.SecretRequestOpaque
 
 				// Handle keystore data - either from file or encoded string
 				if keystoreValues.KeystoreFile != "" || keystoreValues.Base64KeystoreEncoded != "" {
 					requestKeystore, err = createSecretRequestKeystore(keystoreValues.KeystoreFile, keystoreValues.Base64KeystoreEncoded, fileSystem)
 				}
-				
+
 				if err == nil {
 					if requestKeystore.GetValue() != "" {
 						requestKeystorePassword = createSecretRequestKeystorePassword(password, base64Password)
 					} else {
 						requestPassword = createSecretRequestPassword(password, base64Password)
+					}
+				}
+
+				// Handle opaque data - either from file or encoded string
+				if err == nil {
+					if opaqueValues.SecretFile != "" || opaqueValues.Base64Secret != "" {
+						requestOpaque, err = createSecretRequestOpaque(opaqueValues.SecretFile, opaqueValues.Base64Secret, fileSystem)
 					}
 				}
 
@@ -79,7 +88,7 @@ func SetSecret(
 				}
 
 				if err == nil {
-					secretRequest := createSecretRequest(secretName, requestUsername, requestPassword, requestToken, requestKeystore, requestKeystorePassword, keystoreValues.KeystoreType, secretTypeValue, description)
+					secretRequest := createSecretRequest(secretName, requestUsername, requestPassword, requestToken, requestKeystore, requestKeystorePassword, keystoreValues.KeystoreType, requestOpaque, secretTypeValue, description)
 					err = sendSetSecretRequest(secretRequest, apiClient, byteReader)
 				}
 			}
@@ -128,6 +137,36 @@ func createSecretRequestToken(token string, base64Token string) galasaapi.Secret
 	return requestToken
 }
 
+// MAX_SECRET_FILE_SIZE_BYTES is the maximum allowed raw file size for an opaque secret.
+// Base64 encoding inflates the payload by ~33%, so a 760 KB raw file encodes to ~1,013 KB
+// Empirical testing confirmed 760 KB passes and 768 KB triggers an HTTP 413.
+const MAX_SECRET_FILE_SIZE_BYTES = 760 * 1024 // 760 KB
+
+func createSecretRequestOpaque(opaqueFile string, base64OpaqueEncoded string, fileSystem spi.FileSystem) (galasaapi.SecretRequestOpaque, error) {
+	var err error
+	requestOpaque := *galasaapi.NewSecretRequestOpaque()
+
+	if base64OpaqueEncoded != "" {
+		// Already base64 encoded
+		requestOpaque.SetValue(base64OpaqueEncoded)
+	} else if opaqueFile != "" {
+		// Read file and base64 encode it
+		var fileBytes []byte
+		fileBytes, err = fileSystem.ReadBinaryFile(opaqueFile)
+		if err == nil {
+			if len(fileBytes) == 0 {
+				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_EMPTY_OPAQUE_FILE, opaqueFile)
+			} else if len(fileBytes) > MAX_SECRET_FILE_SIZE_BYTES {
+				err = galasaErrors.NewGalasaError(galasaErrors.GALASA_ERROR_SECRET_FILE_TOO_LARGE, opaqueFile, len(fileBytes))
+			} else {
+				encodedOpaque := base64.StdEncoding.EncodeToString(fileBytes)
+				requestOpaque.SetValue(encodedOpaque)
+			}
+		}
+	}
+	return requestOpaque, err
+}
+
 func createSecretRequestKeystore(keystoreFile string, base64KeystoreEncoded string, fileSystem spi.FileSystem) (galasaapi.SecretRequestKeystore, error) {
 	var err error
 	requestKeystore := *galasaapi.NewSecretRequestKeystore()
@@ -136,7 +175,7 @@ func createSecretRequestKeystore(keystoreFile string, base64KeystoreEncoded stri
 		// Already base64 encoded
 		requestKeystore.SetValue(base64KeystoreEncoded)
 		// while it is base64 encoded, it does not need encoding set
-		// requestKeystore.SetEncoding(BASE64_ENCODING) 
+		// requestKeystore.SetEncoding(BASE64_ENCODING)
 	} else if keystoreFile != "" {
 		// Read file and base64 encode it
 		var fileBytes []byte
@@ -174,6 +213,7 @@ func createSecretRequest(
 	keystore galasaapi.SecretRequestKeystore,
 	keystorePassword galasaapi.SecretRequestKeystorePassword,
 	keystoreType string,
+	opaque galasaapi.SecretRequestOpaque,
 	secretType galasaapi.NullableGalasaSecretType,
 	description string,
 ) *galasaapi.SecretRequest {
@@ -209,6 +249,11 @@ func createSecretRequest(
 	if keystoreType != "" {
 		secretRequest.SetKeystoreType(keystoreType)
 	}
+
+	if opaque.GetValue() != "" {
+		secretRequest.SetOpaque(opaque)
+	}
+
 	return secretRequest
 }
 
@@ -281,6 +326,7 @@ func validateFlagCombination(
 	base64Password string,
 	base64Token string,
 	keystoreValues *SecretsSetKeystoreValues,
+	opaqueValues *SecretsSetOpaqueValues,
 ) error {
 	var err error
 
@@ -292,15 +338,18 @@ func validateFlagCombination(
 	}
 
 	// Make sure keystoreFile and base64KeystoreEncoded aren't both provided
-	if (keystoreValues.KeystoreFile != "" && keystoreValues.Base64KeystoreEncoded != "") {
+	if keystoreValues.KeystoreFile != "" && keystoreValues.Base64KeystoreEncoded != "" {
 		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_SET_SECRET_INVALID_KEYSTORE_FLAGS)
 	}
 
-	if err == nil {
+	// Make sure secretFile and base64Secret aren't both provided
+	if opaqueValues.SecretFile != "" && opaqueValues.Base64Secret != "" {
+		err = galasaErrors.NewGalasaError(galasaErrors.GALASA_SET_SECRET_INVALID_OPAQUE_FLAGS)
+	}
 
+	if err == nil {
 		// Check if keystore is provided
 		hasKeystore := keystoreValues.KeystoreFile != "" || keystoreValues.Base64KeystoreEncoded != ""
-
 		if hasKeystore {
 			err = keystoreValues.Validate()
 		}
@@ -308,4 +357,3 @@ func validateFlagCombination(
 
 	return err
 }
-

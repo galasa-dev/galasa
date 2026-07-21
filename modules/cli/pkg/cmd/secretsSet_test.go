@@ -72,7 +72,7 @@ func TestSecretsSetNonEncodedUsernameFlagWithEncodedFlagProducesErrorMessage(t *
     // Then...
     assert.NotNil(t, err)
 
-    checkOutput("", "Error: if any flags in the group [username base64-username] are set none of the others can be", factory, t)
+    checkOutput("", "Error: if any flags in the group [secret-file base64-secret username base64-username password base64-password token base64-token keystore-file base64-keystore-encoded] are set none of the others can be", factory, t)
 }
 
 func TestSecretsSetNonEncodedPasswordFlagWithEncodedFlagProducesErrorMessage(t *testing.T) {
@@ -142,5 +142,5 @@ func TestSecretsSetWithOnlyNameFlagProducesErrorMessage(t *testing.T) {
     // Then...
     assert.NotNil(t, err)
 
-    checkOutput("", "Error: at least one of the flags in the group [username password token base64-username base64-password base64-token keystore-file base64-keystore-encoded keystore-type description] is required", factory, t)
+    checkOutput("", "Error: at least one of the flags in the group [username password token base64-username base64-password base64-token keystore-file base64-keystore-encoded keystore-type secret-file base64-secret description] is required", factory, t)
 }

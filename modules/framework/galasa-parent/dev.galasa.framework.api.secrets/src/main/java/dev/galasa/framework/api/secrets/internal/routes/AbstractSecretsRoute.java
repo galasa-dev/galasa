@@ -17,6 +17,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.ICredentials;
+import dev.galasa.ICredentialsOpaque;
 import dev.galasa.ICredentialsKeyStore;
 import dev.galasa.ICredentialsToken;
 import dev.galasa.ICredentialsUsername;
@@ -26,6 +27,7 @@ import dev.galasa.framework.api.beans.generated.GalasaSecret;
 import dev.galasa.framework.api.beans.generated.GalasaSecretdata;
 import dev.galasa.framework.api.beans.generated.GalasaSecretmetadata;
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.beans.generated.SecretRequestopaque;
 import dev.galasa.framework.api.beans.generated.SecretRequestkeystore;
 import dev.galasa.framework.api.beans.generated.SecretRequestKeystorePassword;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
@@ -37,6 +39,7 @@ import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.resources.GalasaResourceValidator;
 import dev.galasa.framework.api.common.resources.GalasaSecretType;
+import dev.galasa.framework.spi.creds.CredentialsOpaque;
 import dev.galasa.framework.spi.creds.CredentialsException;
 import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
@@ -58,7 +61,8 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         CredentialsToken.class, GalasaSecretType.TOKEN,
         CredentialsUsernamePassword.class, GalasaSecretType.USERNAME_PASSWORD,
         CredentialsUsernameToken.class, GalasaSecretType.USERNAME_TOKEN,
-        CredentialsKeyStore.class, GalasaSecretType.KEYSTORE
+        CredentialsKeyStore.class, GalasaSecretType.KEYSTORE,
+        CredentialsOpaque.class, GalasaSecretType.OPAQUE
     );
 
     public AbstractSecretsRoute(
@@ -80,7 +84,6 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         if (shouldRedactSecretValues) {
             setRedactedSecretTypeValues(metadata, data, credentials);
         } else {
-            metadata.setencoding(DEFAULT_RESPONSE_ENCODING);
             setSecretTypeValuesFromCredentials(metadata, data, credentials);
         }
 
@@ -114,7 +117,7 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
     private ICredentials decodeCredentialsFromSecretPayload(SecretRequest secretRequest) throws InternalServletException {
         ICredentials credentials = null;
         SecretRequestusername username = secretRequest.getusername();
-        
+
         if (username != null) {
             credentials = decodeUsernameBasedCredentials(secretRequest, username);
         } else {
@@ -125,6 +128,11 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
                 SecretRequesttoken token = secretRequest.gettoken();
                 if (token != null) {
                     credentials = decodeTokenCredentials(token);
+                } else {
+                    SecretRequestopaque opaque = secretRequest.getopaque();
+                    if (opaque != null) {
+                        credentials = decodeOpaqueCredentials(opaque);
+                    }
                 }
             }
         }
@@ -216,6 +224,25 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         return new CredentialsToken(decodedToken);
     }
 
+    /**
+     * Constructs opaque credentials from the request payload.
+     *
+     * The opaque value must be base64-encoded. No additional decoding is applied —
+     * the value is used as-is as the stored base64 representation.
+     *
+     * @param opaque the opaque request object
+     * @return opaque credentials ready to be stored
+     * @throws InternalServletException if construction fails (e.g. invalid base64)
+     */
+    private ICredentials decodeOpaqueCredentials(SecretRequestopaque opaque) throws InternalServletException {
+        try {
+            return new CredentialsOpaque(opaque.getvalue());
+        } catch (CredentialsException e) {
+            ServletError error = new ServletError(GAL5452_INVALID_BASE64_ENCODING, "opaque");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST, e);
+        }
+    }
+
     protected String decodeSecretValue(String possiblyEncodedValue, String encoding) throws InternalServletException {
         String decodedValue = possiblyEncodedValue;
         if (encoding != null && possiblyEncodedValue != null) {
@@ -255,6 +282,9 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
             // KeyStore type is not sensitive, so don't redact it
             data.setKeystoreType(keyStoreCredentials.getKeyStoreType());
             metadata.settype(KEY_STORE);
+        } else if (secretType == GalasaSecretType.OPAQUE) {
+            data.setOpaqueData(REDACTED_SECRET_VALUE);
+            metadata.settype(Opaque);
         } else {
             // The credentials are in an unknown format, throw an error
             ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);
@@ -266,33 +296,43 @@ public abstract class AbstractSecretsRoute extends ProtectedRoute {
         GalasaSecretType secretType = getSecretType(credentials);
         if (secretType == GalasaSecretType.USERNAME) {
             ICredentialsUsername usernameCredentials = (ICredentialsUsername) credentials;
+            metadata.setencoding(DEFAULT_RESPONSE_ENCODING);
             data.setusername(encodeValue(usernameCredentials.getUsername()));
 
             metadata.settype(Username);
         } else if (secretType == GalasaSecretType.USERNAME_PASSWORD) {
             ICredentialsUsernamePassword usernamePasswordCredentials = (ICredentialsUsernamePassword) credentials;
+            metadata.setencoding(DEFAULT_RESPONSE_ENCODING);
             data.setusername(encodeValue(usernamePasswordCredentials.getUsername()));
             data.setpassword(encodeValue(usernamePasswordCredentials.getPassword()));
 
             metadata.settype(USERNAME_PASSWORD);
         } else if (secretType == GalasaSecretType.USERNAME_TOKEN) {
             ICredentialsUsernameToken usernameTokenCredentials = (ICredentialsUsernameToken) credentials;
+            metadata.setencoding(DEFAULT_RESPONSE_ENCODING);
             data.setusername(encodeValue(usernameTokenCredentials.getUsername()));
             data.settoken(encodeValue(new String(usernameTokenCredentials.getToken())));
 
             metadata.settype(USERNAME_TOKEN);
         } else if (secretType == GalasaSecretType.TOKEN) {
             ICredentialsToken tokenCredentials = (ICredentialsToken) credentials;
+            metadata.setencoding(DEFAULT_RESPONSE_ENCODING);
             data.settoken(encodeValue(new String(tokenCredentials.getToken())));
             metadata.settype(Token);
         } else if (secretType == GalasaSecretType.KEYSTORE) {
             ICredentialsKeyStore keyStoreCredentials = (ICredentialsKeyStore) credentials;
+            metadata.setencoding(DEFAULT_RESPONSE_ENCODING);
             // getEncodedKeyStore() returns base64 without prefix, so we encode it again for the response
             data.setkeystore(encodeValue(keyStoreCredentials.getEncodedKeyStore()));
             data.setKeystorePassword(encodeValue(keyStoreCredentials.getKeyStorePassword()));
             data.setKeystoreType(keyStoreCredentials.getKeyStoreType());
-            
+
             metadata.settype(KEY_STORE);
+        } else if (secretType == GalasaSecretType.OPAQUE) {
+            ICredentialsOpaque opaqueCredentials = (ICredentialsOpaque) credentials;
+            // The value is already base64-encoded — return it directly, no additional encoding needed
+            data.setOpaqueData(opaqueCredentials.getEncodedData());
+            metadata.settype(Opaque);
         } else {
             // The credentials are in an unknown format, throw an error
             ServletError error = new ServletError(GAL5101_ERROR_UNEXPECTED_SECRET_TYPE_DETECTED);

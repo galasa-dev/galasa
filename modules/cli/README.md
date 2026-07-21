@@ -865,6 +865,34 @@ To update an existing keystore secret, you must always provide `--keystore-file`
 galasactl secrets set --name MYKEYSTORE --keystore-type JKS
 ```
 
+#### Opaque Secrets
+
+Opaque secrets can be used to store arbitrary opaque data in the Galasa Ecosystem's credentials store — for example, a licence JAR file such as `my_license.jar` that a test needs to provide dynamically to a manager at runtime.
+
+To create an opaque secret from a file on disk, use the `--secret-file` flag. The file's contents are automatically base64-encoded before being stored:
+
+```
+galasactl secrets set --name LICENSE_JAR --secret-file /path/to/my_license.jar
+```
+
+If you already have the data base64-encoded (for example, from a CI/CD pipeline secret or a previous export), use the `--base64-secret` flag instead:
+
+```
+galasactl secrets set --name LICENSE_JAR --base64-secret "UEsDBAAAAAA..."
+```
+
+The `--secret-file` and `--base64-secret` flags are mutually exclusive — only one may be provided at a time.
+
+Opaque secrets are completely independent of all other credential fields (`--username`, `--password`, `--token`, `--keystore-file`, etc.). Those flags cannot be combined with `--secret-file` or `--base64-secret`.
+
+> **Size limit:** The maximum raw file size accepted by `--secret-file` is **760 KB**. Base64 encoding inflates the payload by ~33%, so a 760 KB file encodes to ~1,013 KB. Files larger than 760 KB are rejected by the server. Typical use-cases such as licence JAR files (usually a few KB to a few hundred KB) are well within this bound.
+
+To update the opaque data in an existing opaque secret, supply the same flags with the new content:
+
+```
+galasactl secrets set --name LICENSE_JAR --secret-file /path/to/new_my_license.jar
+```
+
 #### Changing Secret Types
 
 Once a secret has been created, you can change the type of the secret by supplying your desired secret type using the `--type` flag. When supplying the `--type` flag, all credentials for the new secret type must be provided. To find out what secret types are supported, run `galasactl secrets set --help`.

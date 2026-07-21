@@ -394,6 +394,9 @@ var (
 	GALASA_SET_SECRET_INVALID_KEYSTORE_FLAGS         = NewMessageType("GAL1293E: Invalid keystore flag combination provided. --keystore-file cannot be provided with --base64-keystore-encoded, and --password cannot be provided with --base64-password."+SEE_COMMAND_REFERENCE, 1293, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_EMPTY_KEYSTORE_FILE                 = NewMessageType("GAL1294E: Empty keystore file provided. The keystore file '%s' contains 0 bytes. Please provide a valid keystore file."+SEE_COMMAND_REFERENCE, 1294, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_INVALID_SECRET_DESCRIPTION          = NewMessageType("GAL1194E: Invalid secret description provided. The description provided with the --description flag cannot be an empty string, and must only contain characters in the Latin-1 character set.", 1194, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_EMPTY_OPAQUE_FILE                   = NewMessageType("GAL1295E: Empty secret file provided. The secret file '%s' contains 0 bytes. Please provide a valid secret file."+SEE_COMMAND_REFERENCE, 1295, STACK_TRACE_NOT_WANTED)
+	GALASA_SET_SECRET_INVALID_OPAQUE_FLAGS           = NewMessageType("GAL1296E: Invalid flag combination provided. --secret-file cannot be provided with --base64-secret."+SEE_COMMAND_REFERENCE, 1296, STACK_TRACE_NOT_WANTED)
+	GALASA_ERROR_SECRET_FILE_TOO_LARGE               = NewMessageType("GAL1297E: Secret file too large. The secret file '%s' is %d bytes. The maximum supported size is 760 KB (778,240 bytes)."+SEE_COMMAND_REFERENCE, 1297, STACK_TRACE_NOT_WANTED)
 
 	GALASA_ERROR_FAILED_TO_DELETE_USER                   = NewMessageType("GAL1195E: Failed to delete user from database by user number.", 1195, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_SERVER_DELETE_USER_NOT_FOUND            = NewMessageType("GAL1196E: The user could not be deleted by login ID because it was not found by the Galasa service. Try listing users using 'galasactl users get' to identify the one you wish to delete", 1196, STACK_TRACE_NOT_WANTED)
@@ -544,5 +547,5 @@ var (
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please increment this value.
     // >>>
-	GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1295
+	GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 1298
 )

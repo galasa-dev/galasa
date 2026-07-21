@@ -18,6 +18,7 @@ import dev.galasa.framework.spi.FrameworkPropertyFileException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.framework.spi.creds.CredentialsOpaque;
 import dev.galasa.framework.spi.creds.CredentialsKeyStore;
 import dev.galasa.framework.spi.creds.CredentialsToken;
 import dev.galasa.framework.spi.creds.CredentialsUsername;
@@ -71,11 +72,14 @@ public class FileCredentialsStore implements ICredentialsStore {
         ICredentials credentials = null;
 
         String keystore = fpf.get(keyPrefix + ".keystore");
+        String data = fpf.get(keyPrefix + ".data");
         if (keystore != null) {
             String keystorePassword = fpf.get(keyPrefix + ".password");
             String type = fpf.get(keyPrefix + ".type");
             
             credentials = new CredentialsKeyStore(key, keystore, keystorePassword, type);
+        } else if (data != null) {
+            credentials = new CredentialsOpaque(key, data);
         } else {
             String token = fpf.get(keyPrefix + ".token");
             String username = fpf.get(keyPrefix + ".username");
@@ -93,7 +97,7 @@ public class FileCredentialsStore implements ICredentialsStore {
                 credentials = new CredentialsUsernamePassword(key, username, password);
             } else if (hasUsername) {
                 credentials = new CredentialsUsername(key, username);
-            }    
+            }
         }
 
         return credentials;

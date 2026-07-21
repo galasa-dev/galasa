@@ -12,6 +12,7 @@ import java.util.Base64;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.galasa.framework.api.beans.generated.SecretRequest;
+import dev.galasa.framework.api.beans.generated.SecretRequestopaque;
 import dev.galasa.framework.api.beans.generated.SecretRequestkeystore;
 import dev.galasa.framework.api.beans.generated.SecretRequestKeystorePassword;
 import dev.galasa.framework.api.beans.generated.SecretRequestpassword;
@@ -31,11 +32,15 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
         SecretRequestkeystore keystore = secretRequest.getkeystore();
         SecretRequestKeystorePassword keystorePassword = secretRequest.getKeystorePassword();
         String keystoreType = secretRequest.getKeystoreType();
+        SecretRequestopaque opaque = secretRequest.getopaque();
 
         // Check that the secret has been given a name
         validateSecretName(secretRequest.getname());
 
         validateDescription(secretRequest.getdescription());
+
+        // Validate opaque mutual exclusivity with all other fields
+        validateOpaqueMutualExclusivity(secretRequest);
 
         // Validate keystore mutual exclusivity
         validateKeystoreMutualExclusivity(secretRequest);
@@ -52,7 +57,7 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        validateSecretRequestFields(username, password, token, keystore, keystorePassword, keystoreType);
+        validateSecretRequestFields(username, password, token, keystore, keystorePassword, keystoreType, opaque);
     }
 
     protected void validateSecretRequestFields(
@@ -61,7 +66,8 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
         SecretRequesttoken token,
         SecretRequestkeystore keystore,
         SecretRequestKeystorePassword keystorePassword,
-        String keystoreType
+        String keystoreType,
+        SecretRequestopaque opaque
     ) throws InternalServletException {
         if (username != null) {
             validateField(username.getvalue(), username.getencoding());
@@ -92,6 +98,10 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
         if (keystoreType != null) {
             validateField(keystoreType, null);
         }
+
+        if (opaque != null) {
+            validateOpaqueField(opaque);
+        }
     }
 
     private void validateField(String value, String encoding) throws InternalServletException {
@@ -117,6 +127,37 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
      * @param secretRequest the request to validate
      * @throws InternalServletException if validation fails
      */
+    protected void validateOpaqueMutualExclusivity(SecretRequest secretRequest) throws InternalServletException {
+        SecretRequestopaque opaque = secretRequest.getopaque();
+        if (opaque == null) {
+            return;
+        }
+
+        if (secretRequest.getusername() != null) {
+            throwOpaqueMutualExclusivityError("username");
+        }
+        if (secretRequest.getpassword() != null) {
+            throwOpaqueMutualExclusivityError("password");
+        }
+        if (secretRequest.gettoken() != null) {
+            throwOpaqueMutualExclusivityError("token");
+        }
+        if (secretRequest.getkeystore() != null) {
+            throwOpaqueMutualExclusivityError("keystore");
+        }
+        if (secretRequest.getKeystorePassword() != null) {
+            throwOpaqueMutualExclusivityError("keystorePassword");
+        }
+        if (secretRequest.getKeystoreType() != null) {
+            throwOpaqueMutualExclusivityError("keystoreType");
+        }
+    }
+
+    private void throwOpaqueMutualExclusivityError(String conflictingField) throws InternalServletException {
+        ServletError error = new ServletError(GAL5463_MUTUALLY_EXCLUSIVE_OPAQUE_FIELD_PROVIDED, conflictingField);
+        throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+    }
+
     protected void validateKeystoreMutualExclusivity(SecretRequest secretRequest) throws InternalServletException {
         SecretRequestkeystore keystore = secretRequest.getkeystore();
         SecretRequestusername username = secretRequest.getusername();
@@ -135,6 +176,32 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
 
         if (keystore != null && token != null) {
             ServletError error = new ServletError(GAL5451_MUTUALLY_EXCLUSIVE_FIELDS_PROVIDED, "token");
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Validates that the opaque field contains a non-empty, valid base64-encoded value
+     * and that no encoding scheme has been set.
+     *
+     * @param opaque the opaque request object to validate
+     * @throws InternalServletException if validation fails
+     */
+    private void validateOpaqueField(SecretRequestopaque opaque) throws InternalServletException {
+        // Encoding must not be set for opaque secrets
+        if (opaque.getencoding() != null) {
+            ServletError error = new ServletError(GAL5464_OPAQUE_ENCODING_NOT_ALLOWED);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        if (opaque.getvalue() == null || opaque.getvalue().isBlank()) {
+            ServletError error = new ServletError(GAL5096_ERROR_MISSING_SECRET_VALUE);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+        // Validate that the value is valid base64
+        try {
+            Base64.getDecoder().decode(opaque.getvalue());
+        } catch (IllegalArgumentException e) {
+            ServletError error = new ServletError(GAL5452_INVALID_BASE64_ENCODING, "opaque");
             throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
         }
     }
@@ -159,7 +226,7 @@ public class SecretRequestValidator extends SecretValidator<SecretRequest> {
     }
 
     private void throwInvalidKeystoreEncodingError() throws InternalServletException {
-        ServletError error = new ServletError(GAL5452_INVALID_KEYSTORE_BASE64_ENCODING);
+        ServletError error = new ServletError(GAL5452_INVALID_BASE64_ENCODING, "keystore");
         throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
     }
 }
