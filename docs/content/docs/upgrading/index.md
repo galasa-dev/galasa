@@ -2,6 +2,32 @@
 title: "Upgrading"
 ---
 
+## Upgrading to v1.0.0
+
+### Docker image registry change
+
+From v1.0.0, Galasa Docker images are published to **`icr.io/galasa`** instead of `icr.io/galasadev`.
+
+To give users time to migrate, images will continue to be published to `icr.io/galasadev` for a number of releases after v1.0.0. However, you are encouraged to update references as soon as possible, as publishing to `icr.io/galasadev` will stop in a future release.
+
+Check any of the following for references to `icr.io/galasadev` and update them to use `icr.io/galasa`:
+
+- Custom Helm `values.yaml` files used to install or upgrade a Galasa Ecosystem
+- CI/CD pipeline definitions (for example, Tekton pipelines, GitHub Actions workflows, Jenkins jobs)
+- Deployment scripts or `docker pull` / `docker run` commands
+- Kubernetes manifests that reference Galasa images directly
+
+**Example:** replace
+```
+icr.io/galasadev/galasa-boot-embedded-amd64:0.48.1
+```
+with:
+```
+icr.io/galasa/galasa-boot-embedded-amd64:1.0.0
+```
+
+---
+
 ## Upgrading your Galasa version
 
 You can upgrade your version of Galasa by completing the following steps:
