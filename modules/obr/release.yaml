@@ -41,6 +41,7 @@ external:
 
   - group: com.google.code.gson
     artifact: gson
+    version: 2.14.0
     obr: true
     bom: true
     mvp: true
@@ -48,6 +49,7 @@ external:
 
   - group: com.google.protobuf
     artifact: protobuf-java
+    version: 4.35.1
     obr: true
     bom: true
     mvp: true

@@ -42,9 +42,9 @@ dependencies {
 
         api 'com.google.android:annotations:4.1.1.4'
 
-        api 'com.google.code.gson:gson:2.14.0'
+        api 'com.google.code.gson:gson:2.14.0' // If updating, also update in obr/release.yaml
 
-        api 'com.google.protobuf:protobuf-java:4.35.1'
+        api 'com.google.protobuf:protobuf-java:4.35.1' // If updating, also update in obr/release.yaml
 
         api 'com.google.guava:guava:33.5.0-jre'
 
