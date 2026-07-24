@@ -19,13 +19,16 @@ import org.apache.commons.logging.LogFactory;
 
 import dev.galasa.framework.api.common.BaseServlet;
 import dev.galasa.framework.api.common.Environment;
+import dev.galasa.framework.api.common.ITestCatalogFetcher;
 import dev.galasa.framework.api.common.SystemEnvironment;
+import dev.galasa.framework.api.common.TestCatalogFetcher;
 import dev.galasa.framework.api.runs.routes.GroupRunsRoute;
 import dev.galasa.framework.api.runs.routes.RunsPortfoliosRoute;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.creds.ICredentialsService;
 import dev.galasa.framework.spi.rbac.RBACException;
 import dev.galasa.framework.spi.streams.IStreamsService;
+import dev.galasa.framework.spi.streams.StreamsException;
 
 /*
 * Proxy servlet for /runs/* endpoints
@@ -66,8 +69,7 @@ public class RunsServlet extends BaseServlet {
             IStreamsService streamsService = framework.getStreamsService();
             ICredentialsService credentialsService = framework.getCredentialsService();
 
-            addRoute(new RunsPortfoliosRoute(getResponseBuilder(), streamsService, credentialsService,
-                framework.getRBACService(), httpClient));
+            addRoute(createRunsPortfoliosRoute(streamsService, credentialsService));
             addRoute(new GroupRunsRoute(getResponseBuilder(), framework, env));
         } catch (RBACException e) {
             throw new ServletException("Failed to initialise schedule runs servlet");
@@ -75,5 +77,13 @@ public class RunsServlet extends BaseServlet {
             throw new ServletException("Failed to initialise schedule runs servlet", e);
         }
         logger.info("Schedule Runs Servlet initialised");
+    }
+
+    protected RunsPortfoliosRoute createRunsPortfoliosRoute(
+            IStreamsService streamsService,
+            ICredentialsService credentialsService) throws StreamsException, RBACException {
+        ITestCatalogFetcher fetcher = new TestCatalogFetcher(httpClient, credentialsService);
+        return new RunsPortfoliosRoute(getResponseBuilder(), streamsService,
+                framework.getRBACService(), fetcher);
     }
 }

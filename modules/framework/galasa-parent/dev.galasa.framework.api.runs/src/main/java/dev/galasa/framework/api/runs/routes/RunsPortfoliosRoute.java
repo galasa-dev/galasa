@@ -85,7 +85,7 @@ public class RunsPortfoliosRoute extends ProtectedRoute {
             new TestCatalogFetcher(httpClient, credentialsService));
     }
 
-    RunsPortfoliosRoute(
+    public RunsPortfoliosRoute(
         ResponseBuilder responseBuilder,
         IStreamsService streamsService,
         RBACService rbacService,

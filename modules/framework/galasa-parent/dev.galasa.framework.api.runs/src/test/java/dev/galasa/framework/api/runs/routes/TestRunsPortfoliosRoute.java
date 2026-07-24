@@ -19,16 +19,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import dev.galasa.framework.api.common.BaseServletTest;
-import dev.galasa.framework.api.common.HttpRequestContext;
 import dev.galasa.framework.api.common.InternalServletException;
-import dev.galasa.framework.api.common.ResponseBuilder;
 import dev.galasa.framework.api.common.ServletError;
 import dev.galasa.framework.api.common.ServletErrorMessage;
 import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
+import dev.galasa.framework.api.common.mocks.MockFramework;
 import dev.galasa.framework.api.common.mocks.MockHttpServletRequest;
 import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockTestCatalogFetcher;
+import dev.galasa.framework.api.runs.mocks.MockRunsServlet;
 import dev.galasa.framework.mocks.FilledMockRBACService;
 import dev.galasa.framework.mocks.MockOBR;
 import dev.galasa.framework.mocks.MockRBACService;
@@ -61,35 +61,25 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         return catalog.toString();
     }
 
-    /**
-     * Creates a {@link RunsPortfoliosRoute} wired with mock collaborators.
-     * The route is instantiated directly via the package-visible constructor so
-     * that tests do not need to go through the full servlet stack.
-     */
-    private RunsPortfoliosRoute createRoute(
-        List<IStream> streams,
-        String catalogJson
-    ) throws Exception {
+    private MockRunsServlet createServlet(List<IStream> streams, String catalogJson) throws Exception {
         MockRBACService rbac = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
         MockStreamsService streamsService = new MockStreamsService(streams);
         MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
         MockTestCatalogFetcher catalogFetcher = new MockTestCatalogFetcher(catalogJson);
-        return new RunsPortfoliosRoute(new ResponseBuilder(env), streamsService, rbac, catalogFetcher);
+        MockFramework mockFramework = new MockFramework(rbac, streamsService);
+        return new MockRunsServlet(env, mockFramework, catalogFetcher);
     }
 
-    /**
-     * Creates a route whose catalog fetcher always throws the given exception.
-     */
-    private RunsPortfoliosRoute createRouteWithCatalogException(
-        List<IStream> streams,
-        InternalServletException ex
-    ) throws Exception {
+    private MockRunsServlet createServletWithCatalogException(
+            List<IStream> streams,
+            InternalServletException ex) throws Exception {
         MockRBACService rbac = FilledMockRBACService.createTestRBACServiceWithTestUser(JWT_USERNAME);
         MockStreamsService streamsService = new MockStreamsService(streams);
         MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
         MockTestCatalogFetcher catalogFetcher = new MockTestCatalogFetcher(null);
         catalogFetcher.setExceptionToThrow(ex);
-        return new RunsPortfoliosRoute(new ResponseBuilder(env), streamsService, rbac, catalogFetcher);
+        MockFramework mockFramework = new MockFramework(rbac, streamsService);
+        return new MockRunsServlet(env, mockFramework, catalogFetcher);
     }
 
     private MockStream makeStream(String name, String catalogUrl,
@@ -114,21 +104,16 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         return request.toString();
     }
 
-    /**
-     * Calls the route directly (bypassing the servlet) and returns the response.
-     * Authentication is not validated at the route level — the {@code testMissingAuthTokenReturns401}
-     * test covers that via the full servlet stack.
-     */
-    private MockHttpServletResponse invokePost(RunsPortfoliosRoute route, String body) throws Exception {
-        return invokePost(route, body, AUTH_HEADERS);
+    private MockHttpServletResponse invokePost(MockRunsServlet servlet, String body) throws Exception {
+        return invokePost(servlet, body, AUTH_HEADERS);
     }
 
-    private MockHttpServletResponse invokePost(RunsPortfoliosRoute route, String body, Map<String, String> headers) throws Exception {
-        MockEnvironment env = FilledMockEnvironment.createTestEnvironment();
+    private MockHttpServletResponse invokePost(MockRunsServlet servlet, String body,
+            Map<String, String> headers) throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("/portfolios", body, "POST", headers);
         MockHttpServletResponse response = new MockHttpServletResponse();
-        HttpRequestContext requestContext = new HttpRequestContext(request, env);
-        route.handlePostRequest("/portfolios", requestContext, response);
+        servlet.init();
+        servlet.doPost(request, response);
         return response;
     }
 
@@ -147,7 +132,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
 
         List<IStream> streams = List.of(makeStream(streamName,
             "http://myrepo.com/catalog.json", "com.example", "my-obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray tags = new JsonArray();
@@ -156,7 +141,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String body = buildRequestBody(streamName, filters);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, body);
+        MockHttpServletResponse response = invokePost(servlet, body);
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -186,7 +171,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         MockStream streamMockB = makeStream(streamB, "http://myrepo.com/catalogB.json", "com.b", "b-obr", "2.0.0");
         List<IStream> streams = List.of(streamMockA, streamMockB);
 
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject request = new JsonObject();
         JsonArray selections = new JsonArray();
@@ -201,7 +186,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         request.add("selections", selections);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, request.toString());
+        MockHttpServletResponse response = invokePost(servlet, request.toString());
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -224,7 +209,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
 
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         // Two selections targeting the same stream and tag — should deduplicate to one entry
         JsonObject request = new JsonObject();
@@ -240,7 +225,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         request.add("selections", selections);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, request.toString());
+        MockHttpServletResponse response = invokePost(servlet, request.toString());
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -259,7 +244,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson(bundle, className, pkg, "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray classes = new JsonArray();
@@ -268,7 +253,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String body = buildRequestBody(streamName, filters);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, body);
+        MockHttpServletResponse response = invokePost(servlet, body);
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -287,7 +272,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example", "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray tags = new JsonArray();
@@ -296,7 +281,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String body = buildRequestBody(streamName, filters);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, body);
+        MockHttpServletResponse response = invokePost(servlet, body);
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -309,20 +294,16 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
     public void testStreamNotFoundReturns404() throws Exception {
         // Given...
         List<IStream> streams = new ArrayList<>(); // no streams registered
-        RunsPortfoliosRoute route = createRoute(streams, null);
+        MockRunsServlet servlet = createServlet(streams, null);
 
         String body = buildRequestBody("nonExistentStream", null);
 
-        // When / Then...
-        assertThatThrownBy(() -> invokePost(route, body))
-            .isInstanceOfSatisfying(InternalServletException.class, thrown -> {
-                assertThat(thrown.getHttpFailureCode()).isEqualTo(404);
-                try {
-                    checkErrorStructure(thrown.getMessage(), 5468, "GAL5468E");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        // When...
+        MockHttpServletResponse response = invokePost(servlet, body);
+
+        // Then...
+        assertThat(response.getStatus()).isEqualTo(404);
+        checkErrorStructure(response.getOutputStream().toString(), 5468, "GAL5468E");
     }
 
     @Test
@@ -332,11 +313,14 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
 
-        InternalServletException catalogException = new InternalServletException(
-            new ServletError(ServletErrorMessage.GAL5469_RUNS_PORTFOLIO_CATALOG_FETCH_FAILED, streamName),
-            502
-        );
-        RunsPortfoliosRoute route = createRouteWithCatalogException(streams, catalogException);
+        InternalServletException catalogException =
+            new InternalServletException(
+                new ServletError(
+                    ServletErrorMessage.GAL5469_RUNS_PORTFOLIO_CATALOG_FETCH_FAILED,
+                    streamName),
+                502
+            );
+        MockRunsServlet servlet = createServletWithCatalogException(streams, catalogException);
 
         JsonObject filters = new JsonObject();
         JsonArray tags = new JsonArray();
@@ -344,16 +328,12 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         filters.add("tags", tags);
         String body = buildRequestBody(streamName, filters);
 
-        // When / Then...
-        assertThatThrownBy(() -> invokePost(route, body))
-            .isInstanceOfSatisfying(InternalServletException.class, thrown -> {
-                assertThat(thrown.getHttpFailureCode()).isEqualTo(502);
-                try {
-                    checkErrorStructure(thrown.getMessage(), 5469, "GAL5469E");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        // When...
+        MockHttpServletResponse response = invokePost(servlet, body);
+
+        // Then...
+        assertThat(response.getStatus()).isEqualTo(502);
+        checkErrorStructure(response.getOutputStream().toString(), 5469, "GAL5469E");
     }
 
     @Test
@@ -363,7 +343,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example", "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray bundles = new JsonArray();
@@ -372,36 +352,28 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         filters.addProperty("regex", true);
         String body = buildRequestBody(streamName, filters);
 
-        // When / Then...
-        assertThatThrownBy(() -> invokePost(route, body))
-            .isInstanceOfSatisfying(InternalServletException.class, thrown -> {
-                assertThat(thrown.getHttpFailureCode()).isEqualTo(400);
-                try {
-                    checkErrorStructure(thrown.getMessage(), 5467, "GAL5467E");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        // When...
+        MockHttpServletResponse response = invokePost(servlet, body);
+
+        // Then...
+        assertThat(response.getStatus()).isEqualTo(400);
+        checkErrorStructure(response.getOutputStream().toString(), 5467, "GAL5467E");
     }
 
     @Test
     public void testMissingSelectionsFieldReturns400() throws Exception {
         // Given...
-        RunsPortfoliosRoute route = createRoute(List.of(), null);
+        MockRunsServlet servlet = createServlet(List.of(), null);
 
         // Request with no "selections" field
         JsonObject request = new JsonObject();
 
-        // When / Then...
-        assertThatThrownBy(() -> invokePost(route, request.toString()))
-            .isInstanceOfSatisfying(InternalServletException.class, thrown -> {
-                assertThat(thrown.getHttpFailureCode()).isEqualTo(400);
-                try {
-                    checkErrorStructure(thrown.getMessage(), 5465, "GAL5465E");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        // When...
+        MockHttpServletResponse response = invokePost(servlet, request.toString());
+
+        // Then...
+        assertThat(response.getStatus()).isEqualTo(400);
+        checkErrorStructure(response.getOutputStream().toString(), 5465, "GAL5465E");
     }
 
     @Test
@@ -411,7 +383,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example", "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject request = new JsonObject();
         JsonArray selections = new JsonArray();
@@ -427,7 +399,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         request.add("overrides", overrides);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, request.toString());
+        MockHttpServletResponse response = invokePost(servlet, request.toString());
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -446,7 +418,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example", "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray tags = new JsonArray();
@@ -455,7 +427,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String body = buildRequestBody(streamName, filters);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, body);
+        MockHttpServletResponse response = invokePost(servlet, body);
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -475,7 +447,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson(bundle, className, "com.example", "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "my-obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray tags = new JsonArray();
@@ -489,7 +461,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         );
 
         // When...
-        MockHttpServletResponse response = invokePost(route, body, headers);
+        MockHttpServletResponse response = invokePost(servlet, body, headers);
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -513,7 +485,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example", "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray tags = new JsonArray();
@@ -521,9 +493,8 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         filters.add("tags", tags);
         String body = buildRequestBody(streamName, filters);
 
-        // No Accept header (only auth)
         // When...
-        MockHttpServletResponse response = invokePost(route, body);
+        MockHttpServletResponse response = invokePost(servlet, body);
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -540,7 +511,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example", "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray tags = new JsonArray();
@@ -553,11 +524,11 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
             "Accept", "text/plain"
         );
 
-        // When / Then...
-        assertThatThrownBy(() -> invokePost(route, body, headers))
-            .isInstanceOfSatisfying(InternalServletException.class, thrown -> {
-                assertThat(thrown.getHttpFailureCode()).isEqualTo(406);
-            });
+        // When...
+        MockHttpServletResponse response = invokePost(servlet, body, headers);
+
+        // Then...
+        assertThat(response.getStatus()).isEqualTo(406);
     }
 
     @Test
@@ -567,7 +538,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example", "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray tags = new JsonArray();
@@ -581,7 +552,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         );
 
         // When...
-        MockHttpServletResponse response = invokePost(route, body, headers);
+        MockHttpServletResponse response = invokePost(servlet, body, headers);
 
         // Then...
         assertThat(response.getStatus()).isEqualTo(200);
@@ -593,7 +564,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
     @Test
     public void testInvalidOverrideKeyReturns400() throws Exception {
         // Given...
-        RunsPortfoliosRoute route = createRoute(List.of(), null);
+        MockRunsServlet servlet = createServlet(List.of(), null);
 
         JsonObject request = new JsonObject();
         JsonArray selections = new JsonArray();
@@ -605,16 +576,12 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         overrides.addProperty("!!bad key with spaces!!", "value");
         request.add("overrides", overrides);
 
-        // When / Then...
-        assertThatThrownBy(() -> invokePost(route, request.toString()))
-            .isInstanceOfSatisfying(InternalServletException.class, thrown -> {
-                assertThat(thrown.getHttpFailureCode()).isEqualTo(400);
-                try {
-                    checkErrorStructure(thrown.getMessage(), 5470, "GAL5470E");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        // When...
+        MockHttpServletResponse response = invokePost(servlet, request.toString());
+
+        // Then...
+        assertThat(response.getStatus()).isEqualTo(400);
+        checkErrorStructure(response.getOutputStream().toString(), 5470, "GAL5470E");
     }
 
     @Test
@@ -624,7 +591,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example", "smoke");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject request = new JsonObject();
         JsonArray selections = new JsonArray();
@@ -640,7 +607,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         request.add("overrides", overrides);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, request.toString());
+        MockHttpServletResponse response = invokePost(servlet, request.toString());
 
         // Then - valid key must not cause a 400
         assertThat(response.getStatus()).isEqualTo(200);
@@ -653,7 +620,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray bundles = new JsonArray();
@@ -662,16 +629,12 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         filters.addProperty("regex", true);
         String body = buildRequestBody(streamName, filters);
 
-        // When / Then...
-        assertThatThrownBy(() -> invokePost(route, body))
-            .isInstanceOfSatisfying(InternalServletException.class, thrown -> {
-                assertThat(thrown.getHttpFailureCode()).isEqualTo(400);
-                try {
-                    checkErrorStructure(thrown.getMessage(), 5471, "GAL5471E");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        // When...
+        MockHttpServletResponse response = invokePost(servlet, body);
+
+        // Then...
+        assertThat(response.getStatus()).isEqualTo(400);
+        checkErrorStructure(response.getOutputStream().toString(), 5471, "GAL5471E");
     }
 
     @Test
@@ -681,7 +644,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray tags = new JsonArray();
@@ -690,16 +653,12 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         filters.addProperty("regex", true);
         String body = buildRequestBody(streamName, filters);
 
-        // When / Then...
-        assertThatThrownBy(() -> invokePost(route, body))
-            .isInstanceOfSatisfying(InternalServletException.class, thrown -> {
-                assertThat(thrown.getHttpFailureCode()).isEqualTo(400);
-                try {
-                    checkErrorStructure(thrown.getMessage(), 5471, "GAL5471E");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        // When...
+        MockHttpServletResponse response = invokePost(servlet, body);
+
+        // Then...
+        assertThat(response.getStatus()).isEqualTo(400);
+        checkErrorStructure(response.getOutputStream().toString(), 5471, "GAL5471E");
     }
 
     @Test
@@ -709,7 +668,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray bundles = new JsonArray();
@@ -719,7 +678,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String body = buildRequestBody(streamName, filters);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, body);
+        MockHttpServletResponse response = invokePost(servlet, body);
 
         // Then — no 400 from the complexity check
         assertThat(response.getStatus()).isEqualTo(200);
@@ -732,7 +691,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String catalogJson = createCatalogJson("com.example", "com.example.TestA", "com.example");
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalogJson);
+        MockRunsServlet servlet = createServlet(streams, catalogJson);
 
         JsonObject filters = new JsonObject();
         JsonArray bundles = new JsonArray();
@@ -742,7 +701,7 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
         String body = buildRequestBody(streamName, filters);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, body);
+        MockHttpServletResponse response = invokePost(servlet, body);
 
         // Then — treated as a literal substring filter, no error
         assertThat(response.getStatus()).isEqualTo(200);
@@ -768,13 +727,13 @@ public class TestRunsPortfoliosRoute extends BaseServletTest {
 
         List<IStream> streams = List.of(makeStream(streamName,
             "http://repo.com/catalog.json", "com.example", "obr", "1.0.0"));
-        RunsPortfoliosRoute route = createRoute(streams, catalog.toString());
+        MockRunsServlet servlet = createServlet(streams, catalog.toString());
 
         // No filters — stream name only
         String body = buildRequestBody(streamName, null);
 
         // When...
-        MockHttpServletResponse response = invokePost(route, body);
+        MockHttpServletResponse response = invokePost(servlet, body);
 
         // Then — both classes are returned
         assertThat(response.getStatus()).isEqualTo(200);
