@@ -128,6 +128,33 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithDataMemberWithoutSnakeCas
 	assert.Equal(t, "", class.DataMembers[0].ConstantVal)
 }
 
+func TestTranslateSchemaTypesToJavaPackageWithClassWithJavaKeywordPropertyNameEscapesName(t *testing.T) {
+	// Given... a property whose name is a Java reserved keyword ("class")
+	propName := "class"
+	property := NewProperty(propName, "#/components/schemas/MyBean/"+propName, "", "string", nil, nil, Cardinality{min: 0, max: 1})
+	properties := make(map[string]*Property)
+	properties["#/components/schemas/MyBean/"+propName] = property
+	var schemaType *SchemaType
+	schemaName := "MyBean"
+	ownProp := NewProperty(schemaName, "#/components/schemas/MyBean", "", "object", nil, schemaType, Cardinality{min: 0, max: 1})
+	schemaType = NewSchemaType(schemaName, "", ownProp, properties)
+	schemaTypeMap := make(map[string]*SchemaType)
+	schemaTypeMap["#/components/schemas/MyBean"] = schemaType
+
+	// When...
+	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
+
+	// Then... the field name must not be "class" (a Java keyword); it should be renamed
+	// to "classValue" and annotated with @SerializedName("class") so the JSON wire name
+	// is preserved.
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assert.Equal(t, "classValue", class.DataMembers[0].Name)
+	assert.Equal(t, "ClassValue", class.DataMembers[0].PascalCaseName)
+	assert.Equal(t, "class", class.DataMembers[0].SerializedNameOverride)
+	assert.Equal(t, "String", class.DataMembers[0].MemberType)
+}
+
 func TestTranslateSchemaTypesToJavaPackageWithClassWithMultipleDataMembers(t *testing.T) {
 	// Given...
 	propName1 := "myRandomProperty1"

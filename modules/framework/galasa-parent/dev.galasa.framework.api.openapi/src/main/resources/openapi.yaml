@@ -2304,6 +2304,63 @@ paths:
 ##################################################################################
 # Runs API
 ##################################################################################
+  /runs/portfolios:
+    parameters:
+      - $ref: '#/components/parameters/ClientApiVersion'
+    post:
+      summary: Resolve a portfolio of test classes
+      description: |
+        Accepts test selection criteria for one or more named test streams and returns
+        the resolved set of matching test classes. The endpoint is stateless — no
+        portfolio resource is persisted on the server.
+
+        A single request may span multiple streams. Each entry in the `selections`
+        array targets one named stream and carries its own filter criteria. Results
+        from all entries are merged and deduplicated before being returned.
+
+        The response format is controlled by the `Accept` request header. Supported
+        formats are `application/json` and `application/yaml`. When no `Accept` header
+        is supplied, the response defaults to `application/json`.
+
+        Requests to this endpoint require a valid bearer token in JWT format to be
+        provided in the 'Authorization' header (e.g. 'Authorization: Bearer <bearer-token>').
+      operationId: createRunsPortfolio
+      tags:
+        - Runs API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunsPortfolioRequest'
+      responses:
+        '200':
+          description: |
+            The resolved set of test classes matching the supplied selection criteria.
+            An empty `classes` array is returned when no classes match — this is not
+            an error condition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunsPortfolio'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/RunsPortfolio'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          description: Bad Gateway. A stream's test catalog URL could not be fetched.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+
   /runs/{groupId}:
     parameters:
       - $ref: '#/components/parameters/ClientApiVersion'
@@ -4027,6 +4084,126 @@ components:
           type: string
           format: uri
           readOnly: true
+##################################################################################
+# Runs Portfolio Schemas
+##################################################################################
+    RunsPortfolioRequest:
+      type: object
+      required:
+        - selections
+      properties:
+        selections:
+          type: array
+          description: One or more stream-specific test selection entries.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/RunsPortfolioSelection'
+        overrides:
+          type: object
+          description: >
+            Optional key/value property overrides applied to all resolved classes.
+            Echoed back unchanged in the response.
+          additionalProperties:
+            type: string
+
+    RunsPortfolioSelection:
+      type: object
+      required:
+        - stream
+      properties:
+        stream:
+          type: string
+          description: Name of the test stream to select classes from.
+        bundles:
+          type: array
+          description: >
+            Bundle name filters. A class is included if its bundle name contains
+            any of these values (substring match) or matches any as a regex when
+            `regex` is true.
+          items:
+            type: string
+        packages:
+          type: array
+          description: >
+            Package name filters. A class is included if its package name contains
+            any of these values (substring match) or matches any as a regex when
+            `regex` is true.
+          items:
+            type: string
+        tests:
+          type: array
+          description: >
+            Test name filters. A class is included if its test name contains
+            any of these values (substring match) or matches any as a regex when
+            `regex` is true.
+          items:
+            type: string
+        tags:
+          type: array
+          description: >
+            Tag filters. A class is included if any of its tags contain
+            any of these values (substring match) or match any as a regex when
+            `regex` is true.
+          items:
+            type: string
+        classes:
+          type: array
+          description: >
+            Class name filters. A class is included if its fully qualified class name contains
+            any of these values (substring match) or matches any as a regex when
+            `regex` is true.
+          items:
+            type: string
+        regex:
+          type: boolean
+          default: false
+          description: >
+            When false (default) filter values are treated as substrings.
+            When true filter values are treated as regular expressions.
+
+    RunsPortfolio:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+          description: The portfolio document format version.
+          example: v1alpha
+        kind:
+          type: string
+          description: The resource kind.
+          enum: [galasa.dev/testPortfolio]
+        metadata:
+          type: object
+          description: Portfolio document metadata.
+          properties:
+            name:
+              type: string
+              description: The portfolio name. Always `adhoc` for server-resolved portfolios.
+              example: adhoc
+        classes:
+          type: array
+          description: The resolved set of test classes matching all selection criteria.
+          items:
+            $ref: '#/components/schemas/RunsPortfolioClass'
+
+    RunsPortfolioClass:
+      type: object
+      properties:
+        bundle:
+          type: string
+          description: The OSGi bundle name containing the test class.
+        class:
+          type: string
+          description: The fully qualified Java class name of the test.
+        stream:
+          type: string
+          description: The name of the stream this class was resolved from.
+        overrides:
+          type: object
+          description: The request's top-level overrides, echoed per class. Empty object if none were supplied.
+          additionalProperties:
+            type: string
+
 ##################################################################################
 # Security Schemas
 ##################################################################################

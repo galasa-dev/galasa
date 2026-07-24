@@ -32,7 +32,7 @@ public class BaseServlet extends HttpServlet {
 
     static final GalasaGson gson = new GalasaGson();
 
-    private final Map<Pattern, IRoute> routes = new HashMap<>();
+    private final Map<Pattern, IRoute> routes = new LinkedHashMap<>();
 
     private ResponseBuilder responseBuilder = new ResponseBuilder();
 

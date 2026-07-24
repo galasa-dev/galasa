@@ -229,6 +229,15 @@ public enum ServletErrorMessage {
     GAL5459_ERROR_FAILED_TO_FETCH_TEST_CATALOG        (5459, "E: Failed to fetch the test catalog from the configured URL. The remote server may be unavailable or experiencing issues."),
     GAL5460_ERROR_TEST_CATALOG_TOO_LARGE              (5460, "E: Failed to fetch the test catalog. The response size exceeds the maximum allowed size of 10MB."),
     GAL5461_ERROR_TEST_CATALOG_INVALID_CONTENT_TYPE   (5461, "E: Failed to fetch the test catalog. The response content type ''{0}'' is not valid JSON. Expected content type to contain ''{1}''."),
+
+    // Runs Portfolio API
+    GAL5465_RUNS_PORTFOLIO_SELECTIONS_EMPTY           (5465, "E: Invalid request payload for POST /runs/portfolios. The ''selections'' array must be present and contain at least one entry. Check your request payload and try again."),
+    GAL5466_RUNS_PORTFOLIO_INVALID_CLASS_FORMAT       (5466, "E: Invalid class selector ''{0}''. Class selectors must be in the format ''bundle/fully.qualified.ClassName''. Check your request payload and try again."),
+    GAL5467_RUNS_PORTFOLIO_INVALID_REGEX              (5467, "E: Invalid regular expression ''{0}'' in runs portfolio request. Check your request payload and try again."),
+    GAL5468_RUNS_PORTFOLIO_STREAM_NOT_FOUND           (5468, "E: Unable to resolve portfolio. No stream named ''{0}'' exists. Check your request payload and try again."),
+    GAL5469_RUNS_PORTFOLIO_CATALOG_FETCH_FAILED       (5469, "E: Failed to fetch the test catalog for stream ''{0}''. The remote server may be unavailable or experiencing issues."),
+    GAL5470_RUNS_PORTFOLIO_INVALID_OVERRIDE_KEY       (5470, "E: Invalid override key ''{0}''. Override keys must be valid CPS property names: starting with a letter, containing only letters, digits, and the separators ''.'' ''-'' ''_'' ''@'', with at least one dot and no trailing dot. Check your request payload and try again."),
+    GAL5471_RUNS_PORTFOLIO_REGEX_TOO_COMPLEX          (5471, "E: Regular expression ''{0}'' in runs portfolio request is too complex. Patterns that nest quantifiers (e.g. ''(a+)+'') are not permitted. Check your request payload and try again."),
     ;
 
     // >>>
@@ -237,7 +246,7 @@ public enum ServletErrorMessage {
     // >>>       Unit tests guarantee that this number is 'free' to use for a new error message.
     // >>>       If you do use this number for a new error template, please incriment this value.
     // >>>
-    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5465;
+    public static final int GALxxx_NEXT_MESSAGE_NUMBER_TO_USE = 5472;
 
 
     private String template ;

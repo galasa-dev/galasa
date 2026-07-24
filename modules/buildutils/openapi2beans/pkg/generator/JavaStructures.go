@@ -12,6 +12,26 @@ import (
 	"github.com/dev-galasa/buildutils/openapi2beans/pkg/utils"
 )
 
+// javaReservedKeywords is the set of Java language keywords and literals that
+// cannot be used as identifiers. When an OpenAPI property name collides with
+// one of these words the generated field is renamed by appending "Value" and a
+// @SerializedName annotation is added so the JSON wire name is preserved.
+var javaReservedKeywords = map[string]bool{
+	"abstract": true, "assert": true, "boolean": true, "break": true,
+	"byte": true, "case": true, "catch": true, "char": true,
+	"class": true, "const": true, "continue": true, "default": true,
+	"do": true, "double": true, "else": true, "enum": true,
+	"extends": true, "final": true, "finally": true, "float": true,
+	"for": true, "goto": true, "if": true, "implements": true,
+	"import": true, "instanceof": true, "int": true, "interface": true,
+	"long": true, "native": true, "new": true, "package": true,
+	"private": true, "protected": true, "public": true, "return": true,
+	"short": true, "static": true, "strictfp": true, "super": true,
+	"switch": true, "synchronized": true, "this": true, "throw": true,
+	"throws": true, "transient": true, "try": true, "void": true,
+	"volatile": true, "while": true,
+}
+
 type JavaPackage struct {
 	Name    string
 	Classes map[string]*JavaClass
@@ -105,9 +125,21 @@ func NewDataMember(name string, memberType string, description string) *DataMemb
 	// cases.
 	name = strings.ReplaceAll(name, "-", "_")
 
+	javaName := utils.StringToCamel(name)
+
+	// Java reserved keywords cannot be used as field names. Append "Value" to
+	// the Java identifier and add a @SerializedName annotation so the JSON wire
+	// name remains unchanged.
+	if javaReservedKeywords[javaName] {
+		if serializedOverrideName == "" {
+			serializedOverrideName = javaName
+		}
+		javaName = javaName + "Value"
+	}
+
 	dataMember := DataMember{
-		Name:                   utils.StringToCamel(name),
-		PascalCaseName:         utils.StringToPascal(name),
+		Name:                   javaName,
+		PascalCaseName:         utils.StringToPascal(javaName),
 		MemberType:             memberType,
 		Description:            SplitDescription(description),
 		SerializedNameOverride: serializedOverrideName,
