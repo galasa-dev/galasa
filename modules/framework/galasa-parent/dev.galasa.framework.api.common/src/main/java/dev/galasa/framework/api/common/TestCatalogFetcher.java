@@ -75,7 +75,9 @@ public class TestCatalogFetcher implements ITestCatalogFetcher {
             validateResponseCode(response.statusCode(), testCatalogUrl);
             validateContentType(response.headers().firstValue("Content-Type").orElse(null));
 
-            pipeBody(response.body(), outputStream, stream.getName());
+            try (InputStream body = response.body()) {
+                pipeBody(body, outputStream, stream.getName());
+            }
 
         } catch (InternalServletException e) {
             throw e;
@@ -187,11 +189,12 @@ public class TestCatalogFetcher implements ITestCatalogFetcher {
      */
     private void pipeBody(InputStream inputStream, OutputStream outputStream, String streamName)
             throws InternalServletException {
-        try (InputStream is = inputStream) {
+        try {
             byte[] chunk = new byte[READ_BUFFER_BYTES];
             int bytesRead;
             int total = 0;
-            while ((bytesRead = is.read(chunk)) != -1) {
+
+            while ((bytesRead = inputStream.read(chunk)) != -1) {
                 total += bytesRead;
                 if (total > MAX_CATALOG_SIZE_BYTES) {
                     ServletError error = new ServletError(GAL5460_ERROR_TEST_CATALOG_TOO_LARGE);
