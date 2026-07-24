@@ -364,6 +364,12 @@ external:
     mvp: true
     isolated: true
 
+  - group: org.json
+    artifact: json
+    obr: true
+    mvp: false
+    isolated: true
+
   - group: org.osgi
     artifact: org.osgi.service.component.annotations
     version: 1.3.0

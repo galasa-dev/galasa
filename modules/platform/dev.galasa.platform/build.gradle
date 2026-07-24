@@ -50,7 +50,7 @@ dependencies {
 
         api 'com.ibm.db2.jcc:db2jcc:db2jcc4'
 
-        api 'com.ibm.mq:com.ibm.mq.allclient:9.4.5.0'
+        api 'com.ibm.mq:com.ibm.mq.allclient:9.4.5.1'
 
         api 'com.github.mwiede:jsch:2.27.6'
 
