@@ -9,11 +9,11 @@ group   = "dev.galasa"
 
 // Note: The following line is changed by the set-version.sh script.
 // It is also read by other build scrips as required.
-version = "1.0.0"
+version = "1.0.1"
 
 allprojects {
     group = 'dev.galasa'
-    version = "1.0.0"
+    version = "1.0.1"
 }
 
 signing {
