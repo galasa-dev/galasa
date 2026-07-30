@@ -591,6 +591,12 @@ func (launcher *JvmLauncher) GetTestCatalog(stream string) (TestCatalog, error) 
 	return nil, nil
 }
 
+// CreateRunsPortfolio is not supported for local (JVM) launchers — local test selection
+// is performed by SelectTests directly against the test catalog, not via the remote API.
+func (launcher *JvmLauncher) CreateRunsPortfolio(flags *utils.TestSelectionFlagValues, overrides map[string]string) (*galasaapi.RunsPortfolio, error) {
+	return nil, nil
+}
+
 // IsLocal returns true as this launcher runs tests locally
 func (launcher *JvmLauncher) IsLocal() bool {
 	return true

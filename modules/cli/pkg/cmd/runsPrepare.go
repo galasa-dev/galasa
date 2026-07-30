@@ -157,7 +157,7 @@ func (cmd *RunsPrepareCommand) executeAssemble(
 					if err == nil {
 
 						var testSelection runs.TestSelection
-						testSelection, err = runs.SelectTests(launcherInstance, cmd.values.prepareSelectionFlags)
+						testSelection, err = runs.SelectTestsWithFallback(launcherInstance, cmd.values.prepareSelectionFlags, testOverrides)
 						if err == nil {
 
 							count := len(testSelection.Classes)

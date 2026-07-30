@@ -11,6 +11,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	galasaErrors "github.com/galasa-dev/cli/pkg/errors"
+	"github.com/galasa-dev/cli/pkg/galasaapi"
 	"github.com/galasa-dev/cli/pkg/launcher"
 )
 
@@ -117,4 +119,158 @@ func TestSelectTestMultiplesFromGherkinUrlArrayReturnsTests(t *testing.T) {
 	assert.Equal(t, testSelection.Classes[0].GherkinUrl, "gherkin.feature")
 	assert.Equal(t, testSelection.Classes[1].GherkinUrl, "test.feature")
 	assert.Equal(t, testSelection.Classes[2].GherkinUrl, "excellent.feature")
+}
+
+func TestSelectTestsViaPortfolioEndpointReturnsClassesFromResponse(t *testing.T) {
+	// Given...
+	mockLauncher := launcher.NewMockLauncher()
+
+	bundle := "com.example.bundle"
+	class := "com.example.tests.MyTest"
+	stream := "myStream"
+
+	portfolioClass := galasaapi.NewRunsPortfolioClass()
+	portfolioClass.SetBundle(bundle)
+	portfolioClass.SetClass(class)
+	portfolioClass.SetStream(stream)
+
+	portfolio := galasaapi.NewRunsPortfolioWithDefaults()
+	portfolio.SetClasses([]galasaapi.RunsPortfolioClass{*portfolioClass})
+	mockLauncher.SetPortfolioToReturn(portfolio)
+
+	flags := NewTestSelectionFlagValues()
+	flags.Stream = stream
+	overrides := map[string]string{}
+
+	// When...
+	testSelection, err := SelectTestsViaPortfolioEndpoint(mockLauncher, flags, overrides)
+
+	// Then...
+	assert.Nil(t, err)
+	assert.Len(t, testSelection.Classes, 1)
+	assert.Equal(t, bundle, testSelection.Classes[0].Bundle)
+	assert.Equal(t, class, testSelection.Classes[0].Class)
+	assert.Equal(t, stream, testSelection.Classes[0].Stream)
+	assert.Equal(t, "", testSelection.Classes[0].Obr)
+}
+
+func TestSelectTestsViaPortfolioEndpointWithEmptyResponseReturnsEmptySelection(t *testing.T) {
+	// Given...
+	mockLauncher := launcher.NewMockLauncher()
+	// MockLauncher returns empty portfolio by default
+
+	flags := NewTestSelectionFlagValues()
+	flags.Stream = "myStream"
+	overrides := map[string]string{}
+
+	// When...
+	testSelection, err := SelectTestsViaPortfolioEndpoint(mockLauncher, flags, overrides)
+
+	// Then...
+	assert.Nil(t, err)
+	assert.Empty(t, testSelection.Classes)
+}
+
+func newPortfolioErrorWithStatus(statusCode int) error {
+	return galasaErrors.NewGalasaErrorWithHttpStatusCode(statusCode, galasaErrors.NewMessageTypeFromError(fmt.Errorf("GAL9999E: test error %d", statusCode)))
+}
+
+func TestSelectTestsWithFallbackReturnsResultOnSuccess(t *testing.T) {
+	// Given...
+	mockLauncher := launcher.NewMockLauncher()
+
+	bundle := "com.example.bundle"
+	class := "com.example.tests.MyTest"
+	stream := "myStream"
+
+	portfolioClass := galasaapi.NewRunsPortfolioClass()
+	portfolioClass.SetBundle(bundle)
+	portfolioClass.SetClass(class)
+	portfolioClass.SetStream(stream)
+
+	portfolio := galasaapi.NewRunsPortfolioWithDefaults()
+	portfolio.SetClasses([]galasaapi.RunsPortfolioClass{*portfolioClass})
+	mockLauncher.SetPortfolioToReturn(portfolio)
+
+	flags := NewTestSelectionFlagValues()
+	flags.Stream = stream
+	overrides := map[string]string{}
+
+	// When...
+	testSelection, err := SelectTestsWithFallback(mockLauncher, flags, overrides)
+
+	// Then...
+	assert.Nil(t, err)
+	assert.Len(t, testSelection.Classes, 1)
+	assert.Equal(t, bundle, testSelection.Classes[0].Bundle)
+	assert.Equal(t, class, testSelection.Classes[0].Class)
+}
+
+func TestSelectTestsWithFallbackFallsBackOn404(t *testing.T) {
+	// Given...
+	mockLauncher := launcher.NewMockLauncher()
+	mockLauncher.SetPortfolioErrorToReturn(newPortfolioErrorWithStatus(404))
+
+	flags := NewTestSelectionFlagValues()
+	*flags.GherkinUrl = []string{"file://test.feature"}
+	overrides := map[string]string{}
+
+	// When...
+	testSelection, err := SelectTestsWithFallback(mockLauncher, flags, overrides)
+
+	// Then - fallback SelectTests was used and returned the gherkin URL...
+	assert.Nil(t, err)
+	assert.Len(t, testSelection.Classes, 1)
+	assert.Equal(t, "file://test.feature", testSelection.Classes[0].GherkinUrl)
+}
+
+func TestSelectTestsWithFallbackFallsBackOn405(t *testing.T) {
+	// Given...
+	mockLauncher := launcher.NewMockLauncher()
+	mockLauncher.SetPortfolioErrorToReturn(newPortfolioErrorWithStatus(405))
+
+	flags := NewTestSelectionFlagValues()
+	*flags.GherkinUrl = []string{"file://test.feature"}
+	overrides := map[string]string{}
+
+	// When...
+	testSelection, err := SelectTestsWithFallback(mockLauncher, flags, overrides)
+
+	// Then...
+	assert.Nil(t, err)
+	assert.Len(t, testSelection.Classes, 1)
+	assert.Equal(t, "file://test.feature", testSelection.Classes[0].GherkinUrl)
+}
+
+func TestSelectTestsWithFallbackFallsBackOn500(t *testing.T) {
+	// Given...
+	mockLauncher := launcher.NewMockLauncher()
+	mockLauncher.SetPortfolioErrorToReturn(newPortfolioErrorWithStatus(500))
+
+	flags := NewTestSelectionFlagValues()
+	*flags.GherkinUrl = []string{"file://test.feature"}
+	overrides := map[string]string{}
+
+	// When...
+	testSelection, err := SelectTestsWithFallback(mockLauncher, flags, overrides)
+
+	// Then...
+	assert.Nil(t, err)
+	assert.Len(t, testSelection.Classes, 1)
+	assert.Equal(t, "file://test.feature", testSelection.Classes[0].GherkinUrl)
+}
+
+func TestSelectTestsWithFallbackDoesNotFallBackOnOtherErrors(t *testing.T) {
+	// Given...
+	mockLauncher := launcher.NewMockLauncher()
+	mockLauncher.SetPortfolioErrorToReturn(newPortfolioErrorWithStatus(401))
+
+	flags := NewTestSelectionFlagValues()
+	overrides := map[string]string{}
+
+	// When...
+	_, err := SelectTestsWithFallback(mockLauncher, flags, overrides)
+
+	// Then - the 401 error is propagated, not swallowed...
+	assert.NotNil(t, err)
 }
