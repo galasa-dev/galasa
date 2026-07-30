@@ -4,7 +4,7 @@ plugins {
     id 'signing'
 }
 
-version = "1.0.0"
+version = "1.0.1"
 
 javaPlatform {
     allowDependencies()
@@ -50,7 +50,7 @@ dependencies {
 
         api 'com.ibm.db2.jcc:db2jcc:db2jcc4'
 
-        api 'com.ibm.mq:com.ibm.mq.allclient:9.4.5.0'
+        api 'com.ibm.mq:com.ibm.mq.allclient:9.4.5.1'
 
         api 'com.github.mwiede:jsch:2.27.6'
 
@@ -91,15 +91,15 @@ dependencies {
 
         api 'io.kubernetes:client-java:27.0.0'
 
-        api 'io.netty:netty-codec:4.2.13.Final'
+        api 'io.netty:netty-codec:4.2.16.Final'
 
         // Override transitive dependencies for jetcd-core:0.8.6 to address CVEs
-        api 'io.netty:netty-resolver-dns:4.2.15.Final'
-        api 'io.netty:netty-handler:4.2.15.Final'
-        api 'io.netty:netty-codec-http:4.2.15.Final'
-        api 'io.netty:netty-codec-http2:4.2.15.Final'
-        api 'io.netty:netty-codec-compression:4.2.15.Final'
-        api 'io.netty:netty-codec-dns:4.2.15.Final'
+        api 'io.netty:netty-resolver-dns:4.2.16.Final'
+        api 'io.netty:netty-handler:4.2.16.Final'
+        api 'io.netty:netty-codec-http:4.2.16.Final'
+        api 'io.netty:netty-codec-http2:4.2.16.Final'
+        api 'io.netty:netty-codec-compression:4.2.16.Final'
+        api 'io.netty:netty-codec-dns:4.2.16.Final'
         api 'io.vertx:vertx-core:5.0.12'
         
         // Most bundles before implementing the Platform used 0.6.0 other than dev.galasa.framework.k8s.controller.
@@ -249,7 +249,7 @@ publishing {
                 name = 'Gradle Java Platform for Galasa bundles'
                 groupId = 'dev.galasa'
                 artifactId = 'dev.galasa.platform'
-                version = "1.0.0"
+                version = "1.0.1"
                 description = 'Provides versions to dependencies'
                 licenses {
                     license {
