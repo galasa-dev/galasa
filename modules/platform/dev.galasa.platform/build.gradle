@@ -91,6 +91,11 @@ dependencies {
 
         api 'io.kubernetes:client-java:27.0.0'
 
+        // Override transitive dependencies for client-java:27.0.0 to address CVEs
+        api 'org.bouncycastle:bcprov-jdk18on:1.85'
+        api 'org.bouncycastle:bcpkix-jdk18on:1.85'
+        api 'org.bouncycastle:bcutil-jdk18on:1.85'
+
         api 'io.netty:netty-codec:4.2.16.Final'
 
         // Override transitive dependencies for jetcd-core:0.8.6 to address CVEs
@@ -158,7 +163,7 @@ dependencies {
         api 'org.apache.felix:org.apache.felix.http.servlet-api:2.1.0'
         api 'org.apache.felix:org.apache.felix.scr:2.1.14' // If updating, also update in galasa-boot build.gradle.
 
-        api 'org.apache.httpcomponents.client5:httpclient5:5.6.2'
+        api 'org.apache.httpcomponents.client5:httpclient5:5.6.3'
 
         api 'org.apache.httpcomponents:httpclient:4.5.14'
         api 'org.apache.httpcomponents:httpclient-osgi:4.5.14'
