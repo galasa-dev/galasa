@@ -7,6 +7,7 @@ package launcher
 
 import (
 	"github.com/galasa-dev/cli/pkg/galasaapi"
+	"github.com/galasa-dev/cli/pkg/utils"
 )
 
 type TestCatalog map[string]interface{}
@@ -45,6 +46,10 @@ type Launcher interface {
 
 	// GetTestCatalog gets the test catalog for a given stream.
 	GetTestCatalog(stream string) (TestCatalog, error)
+
+	// CreateRunsPortfolio calls POST /runs/portfolios on the API server, resolving the
+	// set of matching test classes for the given selection flags in a single server-side call.
+	CreateRunsPortfolio(flags *utils.TestSelectionFlagValues, overrides map[string]string) (*galasaapi.RunsPortfolio, error)
 
 	// IsLocal returns true if this launcher runs tests locally, false if remote
 	IsLocal() bool

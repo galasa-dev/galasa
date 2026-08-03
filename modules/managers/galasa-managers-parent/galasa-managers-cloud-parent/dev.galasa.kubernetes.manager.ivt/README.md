@@ -69,7 +69,7 @@ kubernetes.cluster.K8S.max.slots=2
 
 ```bash
 galasactl runs submit local \
-  --obr mvn:dev.galasa/dev.galasa.uber.obr/1.0.0/obr \
+  --obr mvn:dev.galasa/dev.galasa.uber.obr/1.0.1/obr \
   --class dev.galasa.kubernetes.manager.ivt/dev.galasa.kubernetes.manager.ivt.KubernetesManagerIVT \
   --log -
 ```
@@ -128,7 +128,7 @@ secure.credentials.K8S.token=<paste-your-token-here>
 
 ```bash
 galasactl runs submit local \
-  --obr mvn:dev.galasa/dev.galasa.uber.obr/1.0.0/obr \
+  --obr mvn:dev.galasa/dev.galasa.uber.obr/1.0.1/obr \
   --class dev.galasa.kubernetes.manager.ivt/dev.galasa.kubernetes.manager.ivt.KubernetesManagerIVT \
   --log -
 ```
@@ -236,7 +236,7 @@ unable to find valid certification path to requested target
    Add to your test run command:
    ```bash
    galasactl runs submit local \
-     --obr mvn:dev.galasa/dev.galasa.uber.obr/1.0.0/obr \
+     --obr mvn:dev.galasa/dev.galasa.uber.obr/1.0.1/obr \
      --class dev.galasa.kubernetes.manager.ivt/dev.galasa.kubernetes.manager.ivt.KubernetesManagerIVT \
      --log - \
      --jvm "-Djavax.net.ssl.trustStore=./k8s-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit"

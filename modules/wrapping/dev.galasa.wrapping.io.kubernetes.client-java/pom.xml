@@ -6,11 +6,11 @@
     <parent>
         <groupId>dev.galasa</groupId>
         <artifactId>dev.galasa.wrapping.parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>dev.galasa.wrapping.io.kubernetes.client-java</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>bundle</packaging>
 
     <name>Galasa wrapped version of io.kubernetes client-java</name>
@@ -39,6 +39,21 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
+        </dependency>
+
+        <!-- Security fix: Override transitive bcprov-jdk18on, bcpkix-jdk18on, and bcutil-jdk18on 
+            versions to address CVEs -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcutil-jdk18on</artifactId>
         </dependency>
     </dependencies>
 

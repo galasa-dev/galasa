@@ -15,6 +15,7 @@ import (
 	"github.com/galasa-dev/cli/pkg/embedded"
 	galasaErrors "github.com/galasa-dev/cli/pkg/errors"
 	"github.com/galasa-dev/cli/pkg/galasaapi"
+	"github.com/galasa-dev/cli/pkg/utils"
 )
 
 // RemoteLauncher A launcher, which launches and monitors tests on a remote ecosystem via HTTP/HTTPS.
@@ -294,6 +295,53 @@ func (launcher *RemoteLauncher) GetTestCatalog(stream string) (TestCatalog, erro
 	}
 	
 		return testCatalog, err
+	}
+	
+	// CreateRunsPortfolio calls POST /runs/portfolios, resolving test class selection server-side.
+	func (launcher *RemoteLauncher) CreateRunsPortfolio(flags *utils.TestSelectionFlagValues, overrides map[string]string) (*galasaapi.RunsPortfolio, error) {
+		selection := galasaapi.NewRunsPortfolioSelection(flags.Stream)
+		if len(*flags.Bundles) > 0 {
+			selection.SetBundles(*flags.Bundles)
+		}
+		if len(*flags.Packages) > 0 {
+			selection.SetPackages(*flags.Packages)
+		}
+		if len(*flags.Tests) > 0 {
+			selection.SetTests(*flags.Tests)
+		}
+		if len(*flags.Tags) > 0 {
+			selection.SetTags(*flags.Tags)
+		}
+		if len(*flags.Classes) > 0 {
+			selection.SetClasses(*flags.Classes)
+		}
+		if flags.RegexSelect != nil && *flags.RegexSelect {
+			selection.SetRegex(true)
+		}
+	
+		request := galasaapi.NewRunsPortfolioRequest([]galasaapi.RunsPortfolioSelection{*selection})
+		if len(overrides) > 0 {
+			request.SetOverrides(overrides)
+		}
+	
+		var portfolio *galasaapi.RunsPortfolio
+		var err error
+		var restApiVersion string
+	
+		restApiVersion, err = embedded.GetGalasactlRestApiVersion()
+		if err == nil {
+			err = launcher.commsClient.RunAuthenticatedCommandWithRateLimitRetries(func(apiClient *galasaapi.APIClient) error {
+				var httpResponse *http.Response
+				portfolio, httpResponse, err = apiClient.RunsAPIApi.
+					CreateRunsPortfolio(context.TODO()).
+					RunsPortfolioRequest(*request).
+					ClientApiVersion(restApiVersion).
+					Execute()
+	
+				return galasaErrors.GetGalasaErrorFromCommsResponse(httpResponse, err)
+			})
+		}
+		return portfolio, err
 	}
 	
 	// IsLocal returns false as this launcher runs tests remotely

@@ -149,6 +149,46 @@ func AreSelectionFlagsProvided(flags *utils.TestSelectionFlagValues) bool {
 	return false
 }
 
+// SelectTestsViaPortfolioEndpoint calls POST /runs/portfolios on the API server and converts
+// the response into a TestSelection. This is the implementation used by `runs prepare`.
+func SelectTestsViaPortfolioEndpoint(launcherInstance launcher.Launcher, flags *utils.TestSelectionFlagValues, overrides map[string]string) (TestSelection, error) {
+	var testSelection TestSelection
+
+	portfolio, err := launcherInstance.CreateRunsPortfolio(flags, overrides)
+	if err == nil {
+		testSelection = TestSelection{Classes: make([]TestClass, 0)}
+		if portfolio != nil {
+			for _, portfolioClass := range portfolio.GetClasses() {
+				testSelection.Classes = append(testSelection.Classes, TestClass{
+					Bundle: portfolioClass.GetBundle(),
+					Class:  portfolioClass.GetClass(),
+					Stream: portfolioClass.GetStream(),
+				})
+			}
+		}
+	}
+
+	return testSelection, err
+}
+
+// SelectTestsWithFallback tries SelectTestsViaPortfolioEndpoint first. If the server responds
+// with 404, 405, or 500 (indicating the endpoint is not available on older servers), it falls
+// back to SelectTests which queries streams and catalogs directly.
+func SelectTestsWithFallback(launcherInstance launcher.Launcher, flags *utils.TestSelectionFlagValues, overrides map[string]string) (TestSelection, error) {
+	testSelection, err := SelectTestsViaPortfolioEndpoint(launcherInstance, flags, overrides)
+	if err != nil {
+		if galasaErr, ok := err.(*galasaErrors.GalasaError); ok {
+			statusCode := galasaErr.GetHttpStatusCode()
+			if statusCode == 404 || statusCode == 405 || statusCode == 500 {
+				log.Println("POST /runs/portfolios endpoint not available on this server, falling back to local test selection")
+				err = nil
+				testSelection, err = SelectTests(launcherInstance, flags)
+			}
+		}
+	}
+	return testSelection, err
+}
+
 func SelectTests(launcherInstance launcher.Launcher, flags *utils.TestSelectionFlagValues) (TestSelection, error) {
 
 	var testSelection TestSelection
