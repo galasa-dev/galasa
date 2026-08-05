@@ -57,6 +57,63 @@ func TestSecretsSetNoNameFlagProducesErrorMessage(t *testing.T) {
     checkOutput("", `Error: required flag(s) "name" not set`, factory, t)
 }
 
+func TestSecretsSetValidFlagCombinationsDoNotThrowError(t *testing.T) {
+	testCases := []struct {
+		name string
+		args []string
+	}{
+		{
+			name: "username password",
+			args: []string{"secrets", "set", "--name", "MYSECRET", "--username", "username", "--password", "password"},
+		},
+		{
+			name: "username token",
+			args: []string{"secrets", "set", "--name", "MYSECRET", "--username", "username", "--token", "token"},
+		},
+		{
+			name: "username base64 password",
+			args: []string{"secrets", "set", "--name", "MYSECRET", "--username", "username", "--base64-password", "cGFzc3dvcmQ="},
+		},
+		{
+			name: "base64 username password",
+			args: []string{"secrets", "set", "--name", "MYSECRET", "--base64-username", "dXNlcm5hbWU=", "--password", "password"},
+		},
+		{
+			name: "keystore password",
+			args: []string{"secrets", "set", "--name", "MYSECRET", "--keystore-file", "./keystore.p12", "--password", "password"},
+		},
+		{
+			name: "base64 keystore base64 password",
+			args: []string{"secrets", "set", "--name", "MYSECRET", "--base64-keystore-encoded", "a2V5c3RvcmU=", "--base64-password", "cGFzc3dvcmQ="},
+		},
+		{
+			name: "opaque secret file",
+			args: []string{"secrets", "set", "--name", "MYSECRET", "--secret-file", "./secret.bin"},
+		},
+		{
+			name: "base64 opaque secret",
+			args: []string{"secrets", "set", "--name", "MYSECRET", "--base64-secret", "c2VjcmV0"},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			// Given...
+			factory := utils.NewMockFactory()
+			commandCollection, _ := setupTestCommandCollection(COMMAND_NAME_SECRETS_SET, factory, t)
+
+			// When...
+			err := commandCollection.Execute(testCase.args)
+
+			// Then...
+			assert.Nil(t, err)
+
+			// Check what the user saw was reasonable
+			checkOutput("", "", factory, t)
+		})
+	}
+}
+
 func TestSecretsSetNonEncodedUsernameFlagWithEncodedFlagProducesErrorMessage(t *testing.T) {
     // Given...
     factory := utils.NewMockFactory()
@@ -72,7 +129,7 @@ func TestSecretsSetNonEncodedUsernameFlagWithEncodedFlagProducesErrorMessage(t *
     // Then...
     assert.NotNil(t, err)
 
-    checkOutput("", "Error: if any flags in the group [secret-file base64-secret username base64-username password base64-password token base64-token keystore-file base64-keystore-encoded] are set none of the others can be", factory, t)
+    checkOutput("", "Error: if any flags in the group [username base64-username] are set none of the others can be", factory, t)
 }
 
 func TestSecretsSetNonEncodedPasswordFlagWithEncodedFlagProducesErrorMessage(t *testing.T) {
