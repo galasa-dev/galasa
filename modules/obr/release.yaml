@@ -123,13 +123,6 @@ external:
     mvp: true
     isolated: true
 
-  - artifact: dev.galasa.wrapping.httpclient-osgi
-    version: 1.1.0
-    obr: true
-    bom: true
-    mvp: true
-    isolated: true
-
   - group: dev.galasa
     artifact: dev.galasa.wrapping.io.grpc.java
     obr: true
@@ -308,29 +301,6 @@ external:
     obr: true
     mvp: true
     isolated: true
-
-  - group: org.apache.httpcomponents
-    artifact: httpclient
-    mvp: false
-    isolated: false
-
-  - group: org.apache.httpcomponents
-    artifact: httpcore-osgi
-    version: 4.4.14
-    obr: true
-    bom: true
-    mvp: true
-    isolated: true
-
-  - group: org.apache.httpcomponents
-    artifact: httpcore
-    mvp: true
-    isolated: true
-
-  - group: org.apache.httpcomponents
-    artifact: httpmime
-    mvp: false
-    isolated: false
 
   - group: org.apache.logging.log4j
     artifact: log4j-api
