@@ -14,8 +14,6 @@ import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-
 import com.google.gson.JsonObject;
 
 import dev.galasa.http.internal.HttpClientRequest;
@@ -337,33 +335,6 @@ public interface IHttpClient {
      * @since 0.47.0
      */
     HttpFileResponse getFileStream(String path, ContentType... acceptTypes) throws HttpClientException;
-
-    /**
-     * Download a file from a specified location to a specified destination on local host.
-     *
-     * @param path = URL path
-     * @return the HTTP response
-     * @throws HttpClientException if the request fails
-     * @deprecated Use {@link #getFileStream(String)} instead. This method exposes internal
-     *             implementation details (CloseableHttpResponse) and will be removed in a
-     *             future release.
-     */
-    @Deprecated
-    CloseableHttpResponse getFile(String path) throws HttpClientException;
-    
-    /**
-     * Download a file from a specified location to a specified destination on local host.
-     *
-     * @param path - URL path
-     * @param acceptTypes - Content types to accept
-     * @return the HTTP response
-     * @throws HttpClientException if the request fails
-     * @deprecated Use {@link #getFileStream(String, ContentType...)} instead. This method exposes
-     *             internal implementation details (CloseableHttpResponse) and will be removed in a
-     *             future release.
-     */
-    @Deprecated
-    CloseableHttpResponse getFile(String path, ContentType... acceptTypes) throws HttpClientException;
 
     /**
      * Send a compressed (tar) file from a local location to a specified destination on a host.

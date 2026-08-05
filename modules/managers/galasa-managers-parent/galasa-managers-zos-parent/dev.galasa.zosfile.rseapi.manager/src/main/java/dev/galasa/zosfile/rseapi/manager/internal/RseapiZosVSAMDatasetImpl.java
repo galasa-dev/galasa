@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

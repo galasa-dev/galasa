@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 
 import com.google.gson.JsonObject;
 

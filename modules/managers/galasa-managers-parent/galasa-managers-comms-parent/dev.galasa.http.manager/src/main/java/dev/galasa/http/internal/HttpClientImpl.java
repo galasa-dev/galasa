@@ -56,33 +56,25 @@ import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
-import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
-import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
-import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.util.Timeout;
 
@@ -422,34 +414,6 @@ public class HttpClientImpl implements IHttpClient {
         } catch (HttpClientException e) {
             logger.error("Could not download file from specified path: " + path, e);
             throw new HttpClientException("Failed to get file stream", e);
-        }
-    }
-
-    @Override
-    public org.apache.http.client.methods.CloseableHttpResponse getFile(String path) throws HttpClientException {
-        try {
-            HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
-                    new ContentType[] { ContentType.APPLICATION_OCTET_STREAM, ContentType.APPLICATION_X_TAR });
-
-            ClassicHttpResponse httpclient5Response = execute(request.buildRequest());
-            return new HttpClient4ResponseAdapter(httpclient5Response);
-        } catch (HttpClientException e) {
-            logger.error("Could not download file from specified path: " + path, e);
-            throw new HttpClientException("Failed to get file", e);
-        }
-    }
-
-    @Override
-    public org.apache.http.client.methods.CloseableHttpResponse getFile(String path, ContentType... contentTypes) throws HttpClientException {
-        try {
-            HttpClientRequest request = HttpClientRequest.newGetRequest(buildUri(path, null).toString(),
-                    contentTypes);
-
-            ClassicHttpResponse httpclient5Response = execute(request.buildRequest());
-            return new HttpClient4ResponseAdapter(httpclient5Response);
-        } catch (HttpClientException e) {
-            logger.error("Could not download file from specified path: " + path, e);
-            throw new HttpClientException("Failed to get file", e);
         }
     }
 

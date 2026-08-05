@@ -14,7 +14,6 @@ Import-Package: com.google.gson,\
     dev.galasa.zosmf.spi,\
     javax.validation.constraints;resolution:=optional,\
     org.apache.commons.logging,\
-    org.apache.http,\
-    org.apache.http.client.methods
+    org.apache.hc.core5.http
 
 
