@@ -20,6 +20,12 @@
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
         </dependency>
+
+        <!-- Security fix: Override transitive opentelemetry-api version to address CVE -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

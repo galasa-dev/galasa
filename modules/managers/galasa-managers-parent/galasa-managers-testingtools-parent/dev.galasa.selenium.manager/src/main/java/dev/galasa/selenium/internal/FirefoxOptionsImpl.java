@@ -128,6 +128,11 @@ public class FirefoxOptionsImpl implements IFirefoxOptions {
 		return options.asMap();
 	}
 
+	/**
+	 * @deprecated FirefoxBinary is deprecated in Selenium 4 and will be removed in a future release.
+	 * Use {@link IFirefoxOptions#setBinary(Path)} or {@link IFirefoxOptions#setBinary(String)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "1.0.1")
 	@Override
 	public Optional<FirefoxBinary> getBinaryOrNull() {
 		return options.getBinaryOrNull();

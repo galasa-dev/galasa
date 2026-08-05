@@ -218,13 +218,16 @@ dependencies {
 
         api 'org.reflections:reflections:0.9.11'
 
-        api 'org.seleniumhq.selenium:selenium-chrome-driver:4.27.0'
-        api 'org.seleniumhq.selenium:selenium-chromium-driver:4.27.0'
-        api 'org.seleniumhq.selenium:selenium-edge-driver:4.27.0'
-        api 'org.seleniumhq.selenium:selenium-firefox-driver:4.27.0'
-        api 'org.seleniumhq.selenium:selenium-ie-driver:4.27.0'
-        api 'org.seleniumhq.selenium:selenium-java:4.27.0'
-        api 'org.seleniumhq.selenium:selenium-remote-driver:4.27.0'
+        // Override transitive dependency for selenium 4.33.0 to address CVEs
+        api 'io.opentelemetry:opentelemetry-api:1.64.0'
+
+        api 'org.seleniumhq.selenium:selenium-chrome-driver:4.33.0'
+        api 'org.seleniumhq.selenium:selenium-chromium-driver:4.33.0'
+        api 'org.seleniumhq.selenium:selenium-edge-driver:4.33.0'
+        api 'org.seleniumhq.selenium:selenium-firefox-driver:4.33.0'
+        api 'org.seleniumhq.selenium:selenium-ie-driver:4.33.0'
+        api 'org.seleniumhq.selenium:selenium-java:4.33.0'
+        api 'org.seleniumhq.selenium:selenium-remote-driver:4.33.0'
 
         api 'org.slf4j:slf4j-api:1.7.36'
 
