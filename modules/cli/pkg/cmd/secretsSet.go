@@ -148,8 +148,8 @@ func (cmd *SecretsSetCommand) createCobraCmd(
     // A token cannot be provided alongside a keystore
     secretsSetCobraCmd.MarkFlagsMutuallyExclusive(tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
 
-    // Opaque cannot be provided alongside any other credential field
-    secretsSetCobraCmd.MarkFlagsMutuallyExclusive(opaqueFileFlag, base64OpaqueEncodedFlag, usernameFlag, base64UsernameFlag, passwordFlag, base64PasswordFlag, tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
+    // Opaque flags cannot be provided alongside any other credential field
+    markOpaqueFlagsMutuallyExclusive(secretsSetCobraCmd, opaqueFileFlag, base64OpaqueEncodedFlag, usernameFlag, base64UsernameFlag, passwordFlag, base64PasswordFlag, tokenFlag, base64TokenFlag, keystoreFileFlag, base64KeystoreEncodedFlag)
 
     // A secret must have a name and at least one of the credentials flags
     secretsSetCobraCmd.MarkFlagsOneRequired(
@@ -242,3 +242,35 @@ func (cmd *SecretsSetCommand) executeSecretsSet(
 
     return err
 }
+
+func markOpaqueFlagsMutuallyExclusive(
+    cobraCmd *cobra.Command,
+    opaqueFileFlag string,
+    base64OpaqueEncodedFlag string,
+    usernameFlag string,
+    base64UsernameFlag string,
+    passwordFlag string,
+    base64PasswordFlag string,
+    tokenFlag string,
+    base64TokenFlag string,
+    keystoreFileFlag string,
+    base64KeystoreEncodedFlag string,
+) {
+    opaqueFlags := []string{opaqueFileFlag, base64OpaqueEncodedFlag}
+    otherCredentialFlags := []string{
+        usernameFlag,
+        base64UsernameFlag,
+        passwordFlag,
+        base64PasswordFlag,
+        tokenFlag,
+        base64TokenFlag,
+        keystoreFileFlag,
+        base64KeystoreEncodedFlag,
+    }
+    for _, opaqueFlag := range opaqueFlags {
+        for _, otherCredentialFlag := range otherCredentialFlags {
+            cobraCmd.MarkFlagsMutuallyExclusive(opaqueFlag, otherCredentialFlag)
+        }
+    }
+}
+

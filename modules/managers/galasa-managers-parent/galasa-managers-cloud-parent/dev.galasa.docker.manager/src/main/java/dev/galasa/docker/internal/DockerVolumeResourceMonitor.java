@@ -7,6 +7,7 @@ package dev.galasa.docker.internal;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -21,12 +25,16 @@ import com.google.gson.JsonObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.ICredentials;
+import dev.galasa.ICredentialsKeyStore;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.DssDeletePrefix;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResourceManagement;
+import dev.galasa.framework.spi.creds.CredentialsException;
+import dev.galasa.http.HttpClientException;
 import dev.galasa.http.HttpClientResponse;
 import dev.galasa.http.IHttpClient;
 import dev.galasa.http.StandAloneHttpClient;
@@ -168,9 +176,30 @@ public class DockerVolumeResourceMonitor implements Runnable {
                 if (this.dockerEngines.get(engine) == null) {
                     String hostname = cps.getProperty("engine", "hostname", engine);
                     String port = cps.getProperty("engine", "port", engine);
-    
+                    String credentialsId = null;
+
+                    // Try to get credentials ID
+                    try {
+                        credentialsId = cps.getProperty("engine", "credentials.id", engine);
+                    } catch (ConfigurationPropertyStoreException e) {
+                        logger.debug("No credentials configured for engine " + engine);
+                    }
+
+                    // Check if hostname already has a scheme
+                    if (!hostname.startsWith("http://") && !hostname.startsWith("https://")) {
+                        // If no scheme, determine based on credentials configuration
+                        String scheme = credentialsId != null ? "https://" : "http://";
+                        hostname = scheme + hostname;
+                    }
+
                     IHttpClient client = StandAloneHttpClient.getHttpClient(3600, logger);
-                    client.setURI(new URI(hostname+":"+port));
+
+                    // Configure SSL if credentials are provided
+                    if (credentialsId != null) {
+                        configureClientSsl(client, credentialsId);
+                    }
+
+                    client.setURI(new URI(hostname + ":" + port));
                     this.dockerEngines.put(engine, client);
                 }
             }
@@ -178,5 +207,50 @@ public class DockerVolumeResourceMonitor implements Runnable {
             logger.error("Failed to get Docker engines.", e);
         }
     }
-    
+
+    /**
+     * Configure the HTTP client with SSL context using the provided KeyStore credentials.
+     *
+     * @param client the HTTP client to configure
+     * @param credentialsId the ID of the credentials containing the KeyStore
+     */
+    private void configureClientSsl(IHttpClient client, String credentialsId) {
+        try {
+            ICredentials credentials = framework.getCredentialsService().getCredentials(credentialsId);
+
+            if (credentials == null) {
+                logger.error("Credentials '" + credentialsId + "' not found in Credentials Store for Docker engine");
+                return;
+            }
+
+            if (!(credentials instanceof ICredentialsKeyStore)) {
+                logger.error("Credentials '" + credentialsId + "' must be of type KeyStore for Docker HTTPS. " +
+                    "Found type: " + credentials.getClass().getSimpleName());
+                return;
+            }
+
+            ICredentialsKeyStore keyStoreCreds = (ICredentialsKeyStore) credentials;
+            KeyStore keyStore = keyStoreCreds.getKeyStore();
+            String password = keyStoreCreds.getKeyStorePassword();
+
+            // Create KeyManagerFactory for client authentication
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(keyStore, password.toCharArray());
+
+            // Create TrustManagerFactory for server certificate validation
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(keyStore);
+
+            // Configure HTTP client with SSL context
+            client.setupClientAuth(keyStore, password);
+
+            logger.debug("SSL context configured for Docker engine with credentials: " + credentialsId);
+
+        } catch (CredentialsException | HttpClientException e) {
+            logger.error("Failed to configure SSL context for Docker engine", e);
+        } catch (Exception e) {
+            logger.error("Failed to setup client SSL authentication for Docker engine", e);
+        }
+    }
+
 }

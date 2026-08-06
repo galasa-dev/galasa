@@ -219,6 +219,8 @@ dependencies {
         api 'org.reflections:reflections:0.9.11'
 
         // Override transitive dependency for selenium 4.33.0 to address CVEs
+        // opentelemetry-context is required to resolve the overridden opentelemetry-api for isolated
+        api 'io.opentelemetry:opentelemetry-context:1.64.0'
         api 'io.opentelemetry:opentelemetry-api:1.64.0'
 
         api 'org.seleniumhq.selenium:selenium-chrome-driver:4.33.0'
