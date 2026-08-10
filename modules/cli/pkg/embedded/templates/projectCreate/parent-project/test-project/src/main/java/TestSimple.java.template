@@ -2,8 +2,11 @@
 	This template expects the following parameters:
 
 	type JavaTestTemplateSubstitutionParameters struct {
-		Package   string
-		ClassName string
+		Package                string
+		ClassName              string
+		IsManagerProject       bool
+		ManagerPackageName     string
+		CapitalizedManagerName string
 	}
 */ -}}
 package {{.Package}};
@@ -12,9 +15,13 @@ import static org.assertj.core.api.Assertions.*;
 
 import dev.galasa.core.manager.*;
 import dev.galasa.Test;
+{{- if .IsManagerProject}}
+import {{.ManagerPackageName}}.{{.CapitalizedManagerName}}Resource;
+import {{.ManagerPackageName}}.I{{.CapitalizedManagerName}}Resource;
+{{- end}}
 
 /**
- * A sample galasa test class 
+ * A sample galasa test class
  */
 @Test
 public class {{.ClassName}} {
@@ -22,13 +29,21 @@ public class {{.ClassName}} {
 	// Galasa will inject an instance of the core manager into the following field
 	@CoreManager
 	public ICoreManager core;
-
+{{if .IsManagerProject}}
+	// Galasa will inject a {{.CapitalizedManagerName}} resource instance via the {{.CapitalizedManagerName}}Manager
+	@{{.CapitalizedManagerName}}Resource
+	public I{{.CapitalizedManagerName}}Resource resource;
+{{end}}
 	/**
 	 * Test which demonstrates that the managers have been injected ok.
 	 */
 	@Test
 	public void simpleSampleTest() {
 		assertThat(core).isNotNull();
+{{- if .IsManagerProject}}
+		assertThat(resource).isNotNull();
+		assertThat(resource.getTag()).isEqualTo("PRIMARY");
+{{- end}}
 	}
 
 }
