@@ -224,6 +224,7 @@ var (
 	GALASA_ERROR_FAILED_TO_READ_FILE                      = NewMessageType("GAL1043E: Failed to open file '%s' for reading. Reason is '%s'. Check that you have permissions to read the file and try again.", 1043, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_INVALID_PKG_RESERVED_WORD                = NewMessageType("GAL1044E: Invalid Java package name. Package name '%s' contains the reserved java keyword '%s'.", 1044, STACK_TRACE_NOT_WANTED)
 	GALASA_ERROR_INVALID_FEATURE_NAME                     = NewMessageType("GAL1045E: Invalid feature name. Feature name '%s' cannot be used as a java package name. '%s'", 1045, STACK_TRACE_WANTED)
+	GALASA_ERROR_INVALID_MANAGER_NAME                     = NewMessageType("GAL1055E: Invalid manager name. Manager name '%s' cannot be used as a java package name. '%s'", 1055, STACK_TRACE_WANTED)
 	GALASA_ERROR_FAILED_TO_FIND_USER_HOME                 = NewMessageType("GAL1046E: Failed to determine the home folder of this user. '%s'", 1046, STACK_TRACE_WANTED)
 	GALASA_ERROR_CREATE_REPORT_YAML_EXISTS                = NewMessageType("GAL1047E: Cannot create the yaml report in file '%s' as that file already exists.", 1047, STACK_TRACE_WANTED)
 	GALASA_ERROR_THROTTLE_FILE_READ                       = NewMessageType("GAL1048E: Failed to read from 'throttle' file '%v'. Reason is '%s'", 1048, STACK_TRACE_WANTED)

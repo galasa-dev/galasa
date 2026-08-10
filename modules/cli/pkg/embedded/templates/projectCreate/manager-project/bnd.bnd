@@ -1,0 +1,7 @@
+-snapshot: ${tstamp}
+Bundle-Name: {{.BundleName}}
+Export-Package: {{.PackageName}},\
+    {{.PackageName}}.spi
+Import-Package: !javax.validation.constraints,\
+                !org.osgi.service.component.annotations,\
+                *

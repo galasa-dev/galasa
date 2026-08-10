@@ -163,7 +163,7 @@ function download_dependencies {
     #--------------------------------------------------------------------------
     # Download the dependencies we define in gradle into a local folder
     h2 "Downloading dependencies"
-    gradle --warning-mode all --info --debug installJarsIntoTemplates
+    gradle --warning-mode all --info --debug -PsourceMaven=${SOURCE_MAVEN} installJarsIntoTemplates
     rc=$? ; if [[ "${rc}" != "0" ]]; then  error "Failed to run the gradle build to get our dependencies. rc=${rc}" ; exit 1 ; fi
     success "OK"
 }
@@ -310,6 +310,53 @@ function generate_sample_code {
 }
 
 #--------------------------------------------------------------------------
+# Invoke the galasactl command to create a manager project.
+function generate_manager_project {
+    h2 "Invoke the tool to create a sample manager project."
+
+    BUILD_SYSTEM_FLAGS=$*
+
+    cd $BASEDIR/temp
+
+    export MANAGER_PACKAGE_NAME="dev.galasa.example.docker"
+    ${BASEDIR}/bin/${galasactl_command} project create --development --package ${MANAGER_PACKAGE_NAME} --manager --managerName docker --obr ${BUILD_SYSTEM_FLAGS}
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then
+        error " Failed to create the galasa manager project using galasactl command. rc=${rc}"
+        exit 1
+    fi
+    success "OK"
+}
+
+#--------------------------------------------------------------------------
+# Now build the manager source it created using maven
+function build_generated_manager_maven {
+    h2 "Building the sample manager project we just generated."
+    cd ${BASEDIR}/temp/${MANAGER_PACKAGE_NAME}
+    mvn clean test install
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then
+        error " Failed to build the generated manager source code which galasactl created."
+        exit 1
+    fi
+    success "OK"
+}
+
+#--------------------------------------------------------------------------
+# Now build the manager source it created using gradle
+function build_generated_manager_gradle {
+    h2 "Building the sample manager project we just generated."
+    cd ${BASEDIR}/temp/${MANAGER_PACKAGE_NAME}
+    gradle -PsourceMaven=${SOURCE_MAVEN} build publishToMavenLocal
+    rc=$?
+    if [[ "${rc}" != "0" ]]; then
+        error " Failed to build the generated manager source code which galasactl created."
+        exit 1
+    fi
+    success "OK"
+}
+
+#--------------------------------------------------------------------------
 # Now build the source it created using maven
 function build_generated_source_maven {
     h2 "Building the sample project we just generated."
@@ -328,7 +375,7 @@ function build_generated_source_maven {
 function build_generated_source_gradle {
     h2 "Building the sample project we just generated."
     cd ${BASEDIR}/temp/${PACKAGE_NAME}
-    gradle build publishToMavenLocal
+    gradle -PsourceMaven=${SOURCE_MAVEN} build publishToMavenLocal
     rc=$?
     if [[ "${rc}" != "0" ]]; then
         error " Failed to build the generated source code which galasactl created."
@@ -518,7 +565,7 @@ function generate_galasactl_documentation {
     # Call the documentation generator, which builds .md files into the a location it can be zipped up and shared via maven.
     h2 "Publishing the documentation zip to maven local repo so it can be used in the web site"
     cd $BASEDIR
-    cmd="gradle --warning-mode All --info --stacktrace -PtargetMaven=${HOME}/.m2/repository publish"
+    cmd="gradle --warning-mode All --info --stacktrace -PsourceMaven=${SOURCE_MAVEN} -PtargetMaven=${HOME}/.m2/repository publish"
     info "Command is ${cmd}"
     $cmd
     rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to publish the cli documentation zip to maven. rc=${rc}" ; exit 1 ; fi
@@ -703,6 +750,32 @@ else
     cleanup_local_maven_repo
     build_generated_source_gradle
     run_test_locally_using_galasactl ${BASEDIR}/temp/local-run-log-gradle.txt
+
+    # Test manager project creation with Maven
+    h1 "Testing manager project creation with Maven"
+    cleanup_temp
+    galasa_home_init
+    generate_manager_project --maven
+    cleanup_local_maven_repo
+    build_generated_manager_maven
+
+    # Test manager project creation with Gradle
+    h1 "Testing manager project creation with Gradle"
+    cleanup_temp
+    galasa_home_init
+    generate_manager_project --gradle
+    cleanup_local_maven_repo
+    build_generated_manager_gradle
+
+    # Test manager project creation with both Maven and Gradle
+    h1 "Testing manager project creation with both Maven and Gradle"
+    cleanup_temp
+    galasa_home_init
+    generate_manager_project --maven --gradle
+    cleanup_local_maven_repo
+    build_generated_manager_maven
+    cleanup_local_maven_repo
+    build_generated_manager_gradle
 
 fi
 

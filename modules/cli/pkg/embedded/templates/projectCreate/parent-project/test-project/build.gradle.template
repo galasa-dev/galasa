@@ -45,7 +45,7 @@ repositories {
 group = '{{ .Parent.GroupId }}'
 version = '0.0.1-SNAPSHOT'
 
-// What are the dependencies of the test code ? 
+// What are the dependencies of the test code ?
 // When more managers and dependencies are added, this list will need to grow.
 dependencies {
     implementation platform('dev.galasa:galasa-bom:{{.GalasaVersion}}')
@@ -56,6 +56,9 @@ dependencies {
     implementation 'dev.galasa:dev.galasa.artifact.manager'
     implementation 'commons-logging:commons-logging'
     implementation 'org.assertj:assertj-core'
+    {{- if .IsManagerProject}}
+    implementation '{{ .Parent.GroupId }}:{{ .ManagerName }}:0.0.1-SNAPSHOT'
+    {{- end}}
 }
 
 // Tell gradle to publish the built OSGi bundles as maven artifacts on the 
