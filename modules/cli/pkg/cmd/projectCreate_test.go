@@ -30,7 +30,7 @@ func TestCanCreateProjectFailsIfPackageNameInvalid(t *testing.T) {
 
 	// When ...
 	err := createProject(mockFileSystem, "very.INVALID_PACKAGE_NAME.very",
-		featureNamesCommandSeparatedList, isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		featureNamesCommandSeparatedList, isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -52,7 +52,7 @@ func TestCanCreateProjectGoldenPathNoOBR(t *testing.T) {
 	// When ...
 	err := createProject(
 		mockFileSystem, packageName, featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -202,7 +202,7 @@ func TestCreateProjectErrorsWhenMkAllDirsFails(t *testing.T) {
 	// When ...
 	err := createProject(
 		mockFileSystem, "my.test.pkg", featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	assert.NotNil(t, err, "Sumulated error didn't bubble up to the top.")
@@ -228,7 +228,7 @@ func TestCreateProjectErrorsWhenWriteTextFileFails(t *testing.T) {
 	// When ...
 	err := createProject(
 		mockFileSystem, "my.test.pkg", featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	assert.NotNil(t, err, "Sumulated error didn't bubble up to the top.")
@@ -253,7 +253,7 @@ func TestCreateProjectPomFileAlreadyExistsNoForceOverwrite(t *testing.T) {
 	// When ...
 	err := createProject(
 		mockFileSystem, testPackageName, featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -279,7 +279,7 @@ func TestCreateProjectPomFileAlreadyExistsWithForceOverwrite(t *testing.T) {
 	// When ...
 	err := createProject(
 		mockFileSystem, testPackageName, featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -314,7 +314,7 @@ func TestCanCreateProjectGoldenPathWithOBR(t *testing.T) {
 	// When ...
 	err := createProject(
 		mockFileSystem, packageName, featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -403,7 +403,7 @@ func TestCreateProjectWithTwoFeaturesWorks(t *testing.T) {
 	err := createProject(
 		mockFileSystem, testPackageName,
 		featureNamesCommandSeparatedList, isObrProjectRequired,
-		forceOverwrite, maven, gradle, isDevelopment)
+		forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -432,7 +432,7 @@ func TestCreateProjectWithInvalidFeaturesFails(t *testing.T) {
 	// When ...
 	err := createProject(mockFileSystem, testPackageName,
 		featureNamesCommandSeparatedList, isObrProjectRequired,
-		forceOverwrite, maven, gradle, isDevelopment)
+		forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -454,7 +454,7 @@ func TestCanCreateGradleProjectWithNoOBR(t *testing.T) {
 
 	// When ...
 	err := createProject(mockFileSystem, packageName, featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -480,7 +480,7 @@ func TestCanCreateGradleProjectWithOBR(t *testing.T) {
 	// When ...
 	err := createProject(
 		mockFileSystem, packageName, featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -507,7 +507,7 @@ func TestCanCreateMavenAndGradleProject(t *testing.T) {
 	// When ...
 	err := createProject(
 		mockFileSystem, packageName, featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -531,7 +531,7 @@ func TestCreateProjectInsistsOnGradleAndOrMaven(t *testing.T) {
 
 	err := createProject(
 		mockFileSystem, "my.test.pkg", featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should throw an error asking for flags to be set
@@ -552,7 +552,7 @@ func TestCanCreateGradleProjectNonDevelopmentModeGeneratesCommentedOutMavenRepoR
 	// When ...
 	err := createProject(
 		mockFileSystem, "my.test.pkg", featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -583,7 +583,7 @@ func TestCanCreateGradleProjectDevelopmentModeGeneratesMavenRepoReference(t *tes
 	// When ...
 	err := createProject(
 		mockFileSystem, "my.test.pkg", featureNamesCommandSeparatedList,
-		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment)
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment, false, "")
 
 	// Then...
 	// Should have created a folder for the parent package.
@@ -878,4 +878,247 @@ func TestSeparateFeatureNamesSortsTheResults(t *testing.T) {
 	assert.Equal(t, 2, len(features2))
 	assert.Equal(t, features2[0], "account")
 	assert.Equal(t, features2[1], "payee")
+}
+
+// ========================================
+// Tests for Manager Project Creation
+// ========================================
+
+func TestProjectCreateWithManagerFlagCreatesManagerProject(t *testing.T) {
+	// Given...
+	mockFileSystem := files.NewMockFileSystem()
+	forceOverwrite := true
+	isObrProjectRequired := false
+	featureNamesCommandSeparatedList := ""
+	maven := true
+	gradle := false
+	isDevelopment := false
+	packageName := "dev.galasa.example"
+	isManagerProject := true
+	managerName := "example"
+
+	// When ...
+	err := createProject(
+		mockFileSystem, packageName, featureNamesCommandSeparatedList,
+		isObrProjectRequired, forceOverwrite, maven, gradle, isDevelopment,
+		isManagerProject, managerName)
+
+	// Then...
+	if err != nil {
+		assert.Fail(t, "Manager project creation should not return an error. %s", err.Error())
+	}
+
+	// Assert manager project structure was created
+	assertManagerProjectCreated(t, mockFileSystem, packageName, managerName, maven, gradle)
+}
+
+func TestProjectCreateWithManagerFlagAndNoManagerNameUsesPackageName(t *testing.T) {
+	// Given...
+	mockFileSystem := files.NewMockFileSystem()
+	packageName := "dev.galasa.example"
+	isManagerProject := true
+	managerName := "" // Empty manager name should default to last part of package
+
+	// When ...
+	err := createProject(
+		mockFileSystem, packageName, "", false, true, true, false, false,
+		isManagerProject, managerName)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// Should use "example" as the manager name (last part of package)
+	assertManagerProjectCreated(t, mockFileSystem, packageName, "example", true, false)
+}
+
+func TestProjectCreateWithManagerAndOBRCreatesManagerInOBR(t *testing.T) {
+	// Given...
+	mockFileSystem := files.NewMockFileSystem()
+	packageName := "dev.galasa.example"
+	isManagerProject := true
+	managerName := "example"
+	isObrProjectRequired := true
+
+	// When ...
+	err := createProject(
+		mockFileSystem, packageName, "", isObrProjectRequired, true, true, false, false,
+		isManagerProject, managerName)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// Check OBR includes manager (OBR is created inside the parent package directory)
+	obrPomPath := packageName + "/" + packageName + ".obr/pom.xml"
+	obrPomExists, err := mockFileSystem.Exists(obrPomPath)
+	assert.Nil(t, err)
+	assert.True(t, obrPomExists, "OBR pom.xml should exist at "+obrPomPath)
+
+	obrPomText, err := mockFileSystem.ReadTextFile(obrPomPath)
+	assert.Nil(t, err)
+	assert.Contains(t, obrPomText, packageName+".manager", "OBR should reference manager bundle")
+}
+
+func TestProjectCreateManagerWithInvalidManagerNameFails(t *testing.T) {
+	// Given...
+	mockFileSystem := files.NewMockFileSystem()
+	packageName := "dev.galasa.example"
+	isManagerProject := true
+	managerName := "Invalid-Manager-Name!" // Invalid characters
+
+	// When ...
+	err := createProject(
+		mockFileSystem, packageName, "", false, true, true, false, false,
+		isManagerProject, managerName)
+
+	// Then...
+	assert.NotNil(t, err, "Should return error for invalid manager name")
+	assert.Contains(t, err.Error(), "GAL1037E:", "Should return package name validation error")
+}
+
+func TestProjectCreateManagerCommandLineWithManagerFlag(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	var args []string = []string{"project", "create", "--package", "dev.galasa.example", "--manager", "--managerName", "example", "--maven"}
+
+	// When...
+	err := Execute(factory, args)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// Check manager project was created
+	fs := factory.GetFileSystem()
+	managerDirExists, err := fs.DirExists("dev.galasa.example/dev.galasa.example.manager")
+	assert.Nil(t, err)
+	assert.True(t, managerDirExists, "Manager directory should be created")
+}
+
+func TestProjectCreateManagerCommandLineWithoutManagerNameUsesDefault(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	var args []string = []string{"project", "create", "--package", "dev.galasa.example", "--manager", "--maven"}
+
+	// When...
+	err := Execute(factory, args)
+
+	// Then...
+	assert.Nil(t, err)
+
+	// Check manager project was created with default name
+	fs := factory.GetFileSystem()
+	managerDirExists, err := fs.DirExists("dev.galasa.example/dev.galasa.example.manager")
+	assert.Nil(t, err)
+	assert.True(t, managerDirExists, "Manager directory should be created with default name")
+}
+
+func TestProjectCreateManagerAndTestsTogether(t *testing.T) {
+	// Given...
+	factory := utils.NewMockFactory()
+	// Both --manager and --features can now be used together (like SimBank)
+	var args []string = []string{"project", "create", "--package", "dev.galasa.example", "--manager", "--managerName", "example", "--features", "test1", "--maven"}
+
+	// When...
+	err := Execute(factory, args)
+
+	// Then...
+	assert.Nil(t, err, "Should allow both --manager and --features flags together")
+	
+	// Verify both manager and test projects were created
+	fs := factory.GetFileSystem()
+	
+	// Check manager bundle exists
+	managerDir := "dev.galasa.example/dev.galasa.example.manager"
+	managerDirExists, _ := fs.DirExists(managerDir)
+	assert.True(t, managerDirExists, "Manager bundle should be created")
+	
+	// Check test project exists
+	testDir := "dev.galasa.example/dev.galasa.example.test1"
+	testDirExists, _ := fs.DirExists(testDir)
+	assert.True(t, testDirExists, "Test project should be created")
+	
+	// Check parent pom includes both modules
+	parentPomPath := "dev.galasa.example/pom.xml"
+	parentPomExists, _ := fs.Exists(parentPomPath)
+	assert.True(t, parentPomExists, "Parent pom.xml should exist")
+}
+
+// Helper function to assert manager project structure
+func assertManagerProjectCreated(t *testing.T, mockFileSystem spi.FileSystem, packageName string, managerName string, isMaven bool, isGradle bool) {
+	managerBundleName := packageName + ".manager"
+	managerDir := packageName + "/" + managerBundleName
+
+	// Check manager directory exists
+	managerDirExists, err := mockFileSystem.DirExists(managerDir)
+	assert.Nil(t, err)
+	assert.True(t, managerDirExists, "Manager directory should exist: "+managerDir)
+
+	// Check manager source directory structure
+	srcMainJavaDir := managerDir + "/src/main/java/" + strings.ReplaceAll(packageName, ".", "/")
+	srcMainJavaDirExists, err := mockFileSystem.DirExists(srcMainJavaDir)
+	assert.Nil(t, err)
+	assert.True(t, srcMainJavaDirExists, "Manager src/main/java directory should exist")
+
+	// Check key manager files exist
+	capitalizedManagerName := capitalizeFirst(managerName)
+
+	// Public API files
+	assertJavaFileExists(t, mockFileSystem, srcMainJavaDir+"/"+capitalizedManagerName+"Resource.java", "Manager annotation")
+	assertJavaFileExists(t, mockFileSystem, srcMainJavaDir+"/I"+capitalizedManagerName+"Resource.java", "Resource interface")
+	assertJavaFileExists(t, mockFileSystem, srcMainJavaDir+"/I"+capitalizedManagerName+"Manager.java", "Manager interface")
+	assertJavaFileExists(t, mockFileSystem, srcMainJavaDir+"/"+capitalizedManagerName+"ManagerException.java", "Manager exception")
+
+	// Internal implementation files
+	internalDir := srcMainJavaDir + "/internal"
+	assertJavaFileExists(t, mockFileSystem, internalDir+"/"+capitalizedManagerName+"ManagerImpl.java", "Manager implementation")
+	assertJavaFileExists(t, mockFileSystem, internalDir+"/"+capitalizedManagerName+"ResourceImpl.java", "Resource implementation")
+	assertJavaFileExists(t, mockFileSystem, internalDir+"/"+capitalizedManagerName+"ManagerField.java", "Manager field annotation")
+	assertJavaFileExists(t, mockFileSystem, internalDir+"/"+capitalizedManagerName+"ResourceManagement.java", "Resource management")
+
+	// Properties files
+	propertiesDir := internalDir + "/properties"
+	assertJavaFileExists(t, mockFileSystem, propertiesDir+"/"+capitalizedManagerName+"PropertiesSingleton.java", "Properties singleton")
+	assertJavaFileExists(t, mockFileSystem, propertiesDir+"/"+capitalizedManagerName+"ExampleProperty.java", "Example property")
+
+	// Check build files
+	if isMaven {
+		pomExists, err := mockFileSystem.Exists(managerDir + "/pom.xml")
+		assert.Nil(t, err)
+		assert.True(t, pomExists, "Manager pom.xml should exist")
+
+		pomText, err := mockFileSystem.ReadTextFile(managerDir + "/pom.xml")
+		assert.Nil(t, err)
+		assert.Contains(t, pomText, "<artifactId>"+managerBundleName+"</artifactId>", "pom.xml should have correct artifact ID")
+		assert.Contains(t, pomText, "<groupId>"+packageName+"</groupId>", "pom.xml should have correct group ID")
+	}
+
+	if isGradle {
+		buildGradleExists, err := mockFileSystem.Exists(managerDir + "/build.gradle")
+		assert.Nil(t, err)
+		assert.True(t, buildGradleExists, "Manager build.gradle should exist")
+
+		bndExists, err := mockFileSystem.Exists(managerDir + "/bnd.bnd")
+		assert.Nil(t, err)
+		assert.True(t, bndExists, "Manager bnd.bnd should exist")
+	}
+
+	// Check test directory exists (with internal subdirectory)
+	srcTestJavaDir := managerDir + "/src/test/java/" + strings.ReplaceAll(packageName, ".", "/") + "/internal"
+	srcTestJavaDirExists, err := mockFileSystem.DirExists(srcTestJavaDir)
+	assert.Nil(t, err)
+	assert.True(t, srcTestJavaDirExists, "Manager test directory should exist")
+
+	// Check unit test file exists
+	assertJavaFileExists(t, mockFileSystem, srcTestJavaDir+"/"+capitalizedManagerName+"ManagerImplTest.java", "Manager unit test")
+}
+
+func assertJavaFileExists(t *testing.T, mockFileSystem spi.FileSystem, filePath string, description string) {
+	fileExists, err := mockFileSystem.Exists(filePath)
+	assert.Nil(t, err, "Error checking if "+description+" exists")
+	assert.True(t, fileExists, description+" should exist at: "+filePath)
+
+	// Verify it's a valid Java file with package declaration
+	content, err := mockFileSystem.ReadTextFile(filePath)
+	assert.Nil(t, err, "Error reading "+description)
+	assert.Contains(t, content, "package ", description+" should contain package declaration")
+	assert.Contains(t, content, "/*", description+" should contain copyright header")
 }
