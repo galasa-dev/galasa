@@ -18,6 +18,7 @@ import java.nio.file.attribute.FileAttribute;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
@@ -101,7 +102,7 @@ public class CouchdbRasWriteByteChannel implements SeekableByteChannel {
 
                 HttpPut request = requestFactory.getHttpPutRequest(this.couchdbRasStore.getCouchdbUri() + "/galasa_artifacts/"
                         + this.couchdbRasStore.getArtifactDocumentId() + "/" + encodedRemotePath);
-                request.setEntity(new FileEntity(cachePath.toFile(), org.apache.hc.core5.http.ContentType.DEFAULT_BINARY));
+                request.setEntity(new FileEntity(cachePath.toFile(), ContentType.DEFAULT_BINARY));
                 request.setHeader("Content-Type", remoteContentType.value());
                 request.setHeader("If-Match", this.couchdbRasStore.getArtifactDocumentRev());
 

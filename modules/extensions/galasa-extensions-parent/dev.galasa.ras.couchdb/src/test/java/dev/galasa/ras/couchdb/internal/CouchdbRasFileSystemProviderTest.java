@@ -18,6 +18,7 @@ import org.apache.hc.core5.http.HttpEntityContainer;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -74,7 +75,7 @@ public class CouchdbRasFileSystemProviderTest {
             String content ;
             try {
                 content = EntityUtils.toString(entity);
-            } catch (IOException | org.apache.hc.core5.http.ParseException ex) {
+            } catch (IOException | ParseException ex) {
                 throw new RuntimeException("Failed to read content from request."+ request.getRequestUri());
             }
             assertThat(content).isEqualTo(CouchdbTestFixtures.ATTACHMENT_CONTENT1);
