@@ -268,7 +268,7 @@ func createProject(
 				// Separate out the feature names if provided
 				var featureNames []string
 				var hasFeatures bool = featureNamesCommaSeparated != ""
-				
+
 				if err == nil && hasFeatures {
 					featureNames, err = separateFeatureNamesFromCommaSeparatedList(featureNamesCommaSeparated)
 				}
@@ -276,11 +276,11 @@ func createProject(
 				if err == nil {
 					// Determine what modules we're creating
 					var allModuleNames []string
-					
+
 					if isManagerProject {
 						allModuleNames = append(allModuleNames, packageName+".manager")
 					}
-					
+
 					if hasFeatures {
 						for _, featureName := range featureNames {
 							allModuleNames = append(allModuleNames, packageName+"."+featureName)
@@ -325,6 +325,7 @@ func createProject(
 
 	return err
 }
+
 // createCombinedParentFolderContents creates parent pom.xml/settings.gradle with specified module names
 func createCombinedParentFolderContents(
 	fileGenerator *utils.FileGenerator,
@@ -431,7 +432,6 @@ func createCombinedParentSettingsGradle(
 
 	return fileGenerator.CreateFile(targetFile, forceOverwrite, true)
 }
-
 
 func createGitIgnoreFile(
 	packageName string,
@@ -664,10 +664,10 @@ func createTestFolderPom(fileGenerator *utils.FileGenerator, targetTestFolderPat
 	packageName string, featureName string, forceOverwrite bool, isManagerProject bool) error {
 
 	type TestPomParameters struct {
-		Parent           MavenCoordinates
-		Coordinates      MavenCoordinates
-		FeatureName      string
-		IsManagerProject bool
+		Parent            MavenCoordinates
+		Coordinates       MavenCoordinates
+		FeatureName       string
+		IsManagerProject  bool
 		ManagerArtifactId string
 	}
 
@@ -858,9 +858,7 @@ func createManagerBundle(
 	}
 
 	// Create manager Java files
-	if err == nil {
-		err = createManagerJavaFiles(fileGenerator, packageName, managerName, capitalizedManagerName, srcMainJavaDir, internalDir, srcTestJavaDir, forceOverwrite)
-	}
+	err = createManagerJavaFiles(fileGenerator, packageName, managerName, capitalizedManagerName, srcMainJavaDir, internalDir, srcTestJavaDir, forceOverwrite)
 
 	// Create build files
 	if err == nil && useMaven {
@@ -905,57 +903,57 @@ func createManagerJavaFiles(
 	}{
 		{
 			name:         "Manager Annotation",
-			templatePath: "templates/projectCreate/manager-project/ManagerAnnotation.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/ManagerAnnotation.java",
 			targetPath:   srcMainJavaDir + "/" + capitalizedManagerName + "Resource.java",
 		},
 		{
 			name:         "Resource Interface",
-			templatePath: "templates/projectCreate/manager-project/IManagerResource.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/IManagerResource.java",
 			targetPath:   srcMainJavaDir + "/I" + capitalizedManagerName + "Resource.java",
 		},
 		{
 			name:         "Manager Interface",
-			templatePath: "templates/projectCreate/manager-project/IManager.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/IManager.java",
 			targetPath:   srcMainJavaDir + "/I" + capitalizedManagerName + "Manager.java",
 		},
 		{
 			name:         "Manager Exception",
-			templatePath: "templates/projectCreate/manager-project/ManagerException.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/ManagerException.java",
 			targetPath:   srcMainJavaDir + "/" + capitalizedManagerName + "ManagerException.java",
 		},
 		{
 			name:         "Manager Field Annotation",
-			templatePath: "templates/projectCreate/manager-project/internal/ManagerField.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/internal/ManagerField.java",
 			targetPath:   internalDir + "/" + capitalizedManagerName + "ManagerField.java",
 		},
 		{
 			name:         "Manager Implementation",
-			templatePath: "templates/projectCreate/manager-project/internal/ManagerImpl.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/internal/ManagerImpl.java",
 			targetPath:   internalDir + "/" + capitalizedManagerName + "ManagerImpl.java",
 		},
 		{
 			name:         "Resource Implementation",
-			templatePath: "templates/projectCreate/manager-project/internal/ResourceImpl.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/internal/ResourceImpl.java",
 			targetPath:   internalDir + "/" + capitalizedManagerName + "ResourceImpl.java",
 		},
 		{
 			name:         "Manager Unit Test",
-			templatePath: "templates/projectCreate/manager-project/internal/ManagerImplTest.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/internal/ManagerImplTest.java",
 			targetPath:   srcTestJavaDir + "/" + capitalizedManagerName + "ManagerImplTest.java",
 		},
 		{
 			name:         "Resource Management",
-			templatePath: "templates/projectCreate/manager-project/internal/ResourceManagement.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/internal/ResourceManagement.java",
 			targetPath:   internalDir + "/" + capitalizedManagerName + "ResourceManagement.java",
 		},
 		{
 			name:         "Properties Singleton",
-			templatePath: "templates/projectCreate/manager-project/internal/properties/PropertiesSingleton.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/internal/properties/PropertiesSingleton.java",
 			targetPath:   internalDir + "/properties/" + capitalizedManagerName + "PropertiesSingleton.java",
 		},
 		{
 			name:         "Example Property",
-			templatePath: "templates/projectCreate/manager-project/internal/properties/ExampleProperty.java",
+			templatePath: "templates/projectCreate/parent-project/manager-project/internal/properties/ExampleProperty.java",
 			targetPath:   internalDir + "/properties/" + capitalizedManagerName + "ExampleProperty.java",
 		},
 	}
@@ -1008,7 +1006,7 @@ func createManagerPom(
 	targetFile := utils.GeneratedFileDef{
 		FileType:                 "pom",
 		TargetFilePath:           managerDir + "/pom.xml",
-		EmbeddedTemplateFilePath: "templates/projectCreate/manager-project/pom.xml",
+		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/manager-project/pom.xml",
 		TemplateParameters:       templateParameters,
 	}
 
@@ -1043,9 +1041,9 @@ func createManagerGradleFiles(
 	}
 
 	buildGradleFile := utils.GeneratedFileDef{
-		FileType:                 "build.gradle",
+		FileType:                 "gradle",
 		TargetFilePath:           managerDir + "/build.gradle",
-		EmbeddedTemplateFilePath: "templates/projectCreate/manager-project/build.gradle",
+		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/manager-project/build.gradle.template",
 		TemplateParameters:       buildGradleParams,
 	}
 
@@ -1068,10 +1066,9 @@ func createManagerGradleFiles(
 	bndFile := utils.GeneratedFileDef{
 		FileType:                 "bnd.bnd",
 		TargetFilePath:           managerDir + "/bnd.bnd",
-		EmbeddedTemplateFilePath: "templates/projectCreate/manager-project/bnd.bnd",
+		EmbeddedTemplateFilePath: "templates/projectCreate/parent-project/manager-project/bnd.bnd",
 		TemplateParameters:       bndParams,
 	}
 
 	return fileGenerator.CreateFile(bndFile, forceOverwrite, true)
 }
-
