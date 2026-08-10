@@ -858,9 +858,7 @@ func createManagerBundle(
 	}
 
 	// Create manager Java files
-	if err == nil {
-		err = createManagerJavaFiles(fileGenerator, packageName, managerName, capitalizedManagerName, srcMainJavaDir, internalDir, srcTestJavaDir, forceOverwrite)
-	}
+	err = createManagerJavaFiles(fileGenerator, packageName, managerName, capitalizedManagerName, srcMainJavaDir, internalDir, srcTestJavaDir, forceOverwrite)
 
 	// Create build files
 	if err == nil && useMaven {
@@ -1043,9 +1041,9 @@ func createManagerGradleFiles(
 	}
 
 	buildGradleFile := utils.GeneratedFileDef{
-		FileType:                 "build.gradle",
+		FileType:                 "gradle",
 		TargetFilePath:           managerDir + "/build.gradle",
-		EmbeddedTemplateFilePath: "templates/projectCreate/manager-project/build.gradle",
+		EmbeddedTemplateFilePath: "templates/projectCreate/manager-project/build.gradle.template",
 		TemplateParameters:       buildGradleParams,
 	}
 

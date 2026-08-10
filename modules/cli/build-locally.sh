@@ -318,8 +318,8 @@ function generate_manager_project {
 
     cd $BASEDIR/temp
 
-    export MANAGER_PACKAGE_NAME="dev.galasa.example.docker"
-    ${BASEDIR}/bin/${galasactl_command} project create --development --package ${MANAGER_PACKAGE_NAME} --manager --managerName docker --obr ${BUILD_SYSTEM_FLAGS}
+    export MANAGER_PACKAGE_NAME="dev.galasa.example.generatedmanager"
+    ${BASEDIR}/bin/${galasactl_command} project create --development --package ${MANAGER_PACKAGE_NAME} --manager --managerName generatedmanager --features generatedtest --obr ${BUILD_SYSTEM_FLAGS}
     rc=$?
     if [[ "${rc}" != "0" ]]; then
         error " Failed to create the galasa manager project using galasactl command. rc=${rc}"
@@ -354,6 +354,53 @@ function build_generated_manager_gradle {
         exit 1
     fi
     success "OK"
+}
+
+#--------------------------------------------------------------------------
+# Run the Galasa tests from the generated manager+feature project locally
+function run_test_locally_using_generated_manager {
+    export LOG_FILE=$1
+
+    h2 "Submitting generated manager tests using galasactl in a local JVM"
+
+    cd ${BASEDIR}/temp/${MANAGER_PACKAGE_NAME}
+
+    BUNDLE=dev.galasa.example.generatedmanager.generatedtest
+    JAVA_CLASS=dev.galasa.example.generatedmanager.generatedtest.TestGeneratedtest
+    JAVA_CLASS_2=dev.galasa.example.generatedmanager.generatedtest.TestGeneratedtestExtended
+    OBR_GROUP_ID=dev.galasa.example.generatedmanager
+    OBR_ARTIFACT_ID=dev.galasa.example.generatedmanager.obr
+    OBR_VERSION=0.0.1-SNAPSHOT
+
+    read_boot_jar_version
+    export GALASA_VERSION=$(cat ${BASEDIR}/VERSION )
+
+    export BOOT_JAR_PATH="${GALASA_HOME}/lib/${GALASA_VERSION}/galasa-boot-${BOOT_JAR_VERSION}.jar"
+
+    unset GALASA_BOOTSTRAP
+
+    rm -f results.junit
+    rm -f results.yaml
+    rm -f results.json
+
+    cmd="${BASEDIR}/bin/${galasactl_command} runs submit local \
+    --obr mvn:${OBR_GROUP_ID}/${OBR_ARTIFACT_ID}/${OBR_VERSION}/obr \
+    --class ${BUNDLE}/${JAVA_CLASS} \
+    --class ${BUNDLE}/${JAVA_CLASS_2} \
+    --remoteMaven ${SOURCE_MAVEN} \
+    --throttle 1 \
+    --requesttype CLI \
+    --poll 10 \
+    --progress 1 \
+    --reportjunit results.junit --reportyaml results.yaml --reportjson results.json \
+    --log ${LOG_FILE}"
+
+    info "Command is ${cmd}"
+    $cmd
+    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to run the generated manager test. See details in log file ${LOG_FILE}" ; exit 1 ; fi
+    success "Test ran OK"
+
+    check_artifact_saved_in_ras
 }
 
 #--------------------------------------------------------------------------
@@ -758,6 +805,7 @@ else
     generate_manager_project --maven
     cleanup_local_maven_repo
     build_generated_manager_maven
+    run_test_locally_using_generated_manager ${BASEDIR}/temp/local-run-log-manager-maven.txt
 
     # Test manager project creation with Gradle
     h1 "Testing manager project creation with Gradle"
@@ -766,6 +814,7 @@ else
     generate_manager_project --gradle
     cleanup_local_maven_repo
     build_generated_manager_gradle
+    run_test_locally_using_generated_manager ${BASEDIR}/temp/local-run-log-manager-gradle.txt
 
     # Test manager project creation with both Maven and Gradle
     h1 "Testing manager project creation with both Maven and Gradle"
@@ -774,8 +823,10 @@ else
     generate_manager_project --maven --gradle
     cleanup_local_maven_repo
     build_generated_manager_maven
+    run_test_locally_using_generated_manager ${BASEDIR}/temp/local-run-log-manager-both-maven.txt
     cleanup_local_maven_repo
     build_generated_manager_gradle
+    run_test_locally_using_generated_manager ${BASEDIR}/temp/local-run-log-manager-both-gradle.txt
 
 fi
 
