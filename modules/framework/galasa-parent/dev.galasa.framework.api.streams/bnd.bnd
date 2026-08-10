@@ -2,5 +2,4 @@
 Bundle-Name: Galasa API Streams microservices
 Export-Package: !dev.galasa.framework.api.streams.internal*;dev.galasa.framework.api.streams*;
 Import-Package: dev.galasa.framework.api.common,\
-org.apache.http,\
                 *

@@ -15,7 +15,6 @@ dependencies {
     implementation project(':dev.galasa.framework.api.rbac')
     implementation 'dev.galasa:dev.galasa.wrapping.io.grpc.java'
     implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.apache.httpcomponents:httpcore-osgi'
 
     compileOnly 'org.apache.tomcat:annotations-api'
     
