@@ -18,18 +18,6 @@
     <name>{{.Coordinates.Name}}</name>
     <description>Galasa Manager - {{.Coordinates.Name}}</description>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>dev.galasa</groupId>
-				<artifactId>galasa-bom</artifactId>
-				<version>{{.GalasaVersion}}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
     <dependencies>
         <!-- Galasa Framework Dependencies -->
         <dependency>
