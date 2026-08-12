@@ -18,13 +18,13 @@ import java.nio.file.attribute.FileAttribute;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.FileEntity;
 
 import dev.galasa.ResultArchiveStoreContentType;
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
@@ -102,19 +102,18 @@ public class CouchdbRasWriteByteChannel implements SeekableByteChannel {
 
                 HttpPut request = requestFactory.getHttpPutRequest(this.couchdbRasStore.getCouchdbUri() + "/galasa_artifacts/"
                         + this.couchdbRasStore.getArtifactDocumentId() + "/" + encodedRemotePath);
-                request.setEntity(new FileEntity(cachePath.toFile()));
+                request.setEntity(new FileEntity(cachePath.toFile(), ContentType.DEFAULT_BINARY));
                 request.setHeader("Content-Type", remoteContentType.value());
                 request.setHeader("If-Match", this.couchdbRasStore.getArtifactDocumentRev());
 
                 try (CloseableHttpResponse response = this.couchdbRasStore.getHttpClient().execute(request)) {
-                    StatusLine statusLine = response.getStatusLine();
-                    if (statusLine.getStatusCode() != HttpStatus.SC_CREATED) {
-                        if (statusLine.getStatusCode() == HttpStatus.SC_CONFLICT) {
+                    if (response.getCode() != HttpStatus.SC_CREATED) {
+                        if (response.getCode() == HttpStatus.SC_CONFLICT) {
                             logger.error(
                                     "The run artifact document has been updated by another engine, terminating now to avoid corruption");
                             System.exit(0);
                         }
-                        throw new IOException("Unable to store the artifact attachment - " + statusLine.toString());
+                        throw new IOException("Unable to store the artifact attachment - " + "HTTP " + response.getCode());
                     }
                     HttpEntity entity = response.getEntity();
                     String entityStr = EntityUtils.toString(entity);

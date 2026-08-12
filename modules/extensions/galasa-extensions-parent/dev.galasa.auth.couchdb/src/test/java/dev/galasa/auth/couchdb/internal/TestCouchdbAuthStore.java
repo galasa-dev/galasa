@@ -12,9 +12,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.Test;
 
 import dev.galasa.auth.couchdb.internal.beans.FrontEndClient;
@@ -48,7 +48,7 @@ public class TestCouchdbAuthStore {
         @Override
         public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
             super.validateRequest(host, request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+            assertThat(request.getMethod()).isEqualTo("GET");
         }
     }
 
@@ -62,7 +62,7 @@ public class TestCouchdbAuthStore {
         @Override
         public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
             super.validateRequest(host, request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("GET");
+            assertThat(request.getMethod()).isEqualTo("GET");
         }
     }
 
@@ -76,7 +76,7 @@ public class TestCouchdbAuthStore {
         @Override
         public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
             super.validateRequest(host, request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("DELETE");
+            assertThat(request.getMethod()).isEqualTo("DELETE");
         }
     }
 
@@ -95,7 +95,7 @@ public class TestCouchdbAuthStore {
         @Override
         public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
             super.validateRequest(host, request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("POST");
+            assertThat(request.getMethod()).isEqualTo("POST");
         }
     }
 
@@ -114,7 +114,7 @@ public class TestCouchdbAuthStore {
         @Override
         public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
             super.validateRequest(host, request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("PUT");
+            assertThat(request.getMethod()).isEqualTo("PUT");
         }
     }
 

@@ -5,8 +5,8 @@
  */
 package dev.galasa.extensions.common.impl;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 
 import dev.galasa.extensions.common.api.HttpClientFactory;
 

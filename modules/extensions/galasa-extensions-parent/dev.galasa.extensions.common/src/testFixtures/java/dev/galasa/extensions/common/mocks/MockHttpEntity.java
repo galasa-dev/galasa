@@ -7,20 +7,13 @@ package dev.galasa.extensions.common.mocks;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.http.Header;
 import java.io.ByteArrayInputStream;
-
-
 
 public class MockHttpEntity extends BaseHttpEntity {
 
-    private MockHttpHeader contentTypeJsonHeader ;
-    private byte[] payloadMessageBytes ;
+    private byte[] payloadMessageBytes;
 
     public MockHttpEntity(String payloadMessage) {
-
-        contentTypeJsonHeader = new MockHttpHeader("Content-Type","application/json");
-
         payloadMessageBytes = payloadMessage.getBytes();
     }
 
@@ -35,8 +28,7 @@ public class MockHttpEntity extends BaseHttpEntity {
     }
 
     @Override
-    public Header getContentType() {
-        return contentTypeJsonHeader;
+    public String getContentType() {
+        return "application/json";
     }
 }
-

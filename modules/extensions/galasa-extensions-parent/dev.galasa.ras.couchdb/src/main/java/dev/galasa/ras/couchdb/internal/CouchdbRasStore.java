@@ -18,12 +18,12 @@ import java.util.Arrays;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IResultArchiveStoreService;
@@ -296,7 +296,7 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
             throws ResultArchiveStoreException {
 
         String jsonStructure = gson.toJson(testStructure);
-        HttpEntityEnclosingRequestBase request = httpRequestFactory.getHttpPutRequest(this.storeUri + "/"+RUNS_DB+"/" + documentId);
+        HttpUriRequestBase request = httpRequestFactory.getHttpPutRequest(this.storeUri + "/"+RUNS_DB+"/" + documentId);
 
         // If no revision is passed in, then the PUT request to CouchDB will create a new document
         // with the given document ID.
@@ -344,7 +344,7 @@ public class CouchdbRasStore extends CouchdbStore implements IResultArchiveStore
 
         String jsonStructure = gson.toJson(testStructure);
 
-        HttpEntityEnclosingRequestBase request;
+        HttpUriRequestBase request;
         if (runDocumentId == null) {
             request = httpRequestFactory.getHttpPostRequest(this.storeUri + "/"+RUNS_DB);
         } else {

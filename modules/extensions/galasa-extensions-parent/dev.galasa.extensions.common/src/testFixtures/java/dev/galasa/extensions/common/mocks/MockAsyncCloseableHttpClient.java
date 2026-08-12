@@ -11,14 +11,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.conn.*;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.params.*;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.io.CloseMode;
 
 public class MockAsyncCloseableHttpClient extends CloseableHttpClient {
 
@@ -29,34 +28,27 @@ public class MockAsyncCloseableHttpClient extends CloseableHttpClient {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public HttpParams getParams() {
-        throw new UnsupportedOperationException("Unimplemented method 'getParams'");
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public ClientConnectionManager getConnectionManager() {
-        throw new UnsupportedOperationException("Unimplemented method 'getConnectionManager'");
-    }
-
-    @Override
     public void close() throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'close'");
+        // Do nothing...
+    }
+
+    @Override
+    public void close(CloseMode closeMode) {
+        // Do nothing...
     }
 
     @Override
     protected CloseableHttpResponse doExecute(
-        HttpHost target, HttpRequest request, HttpContext context
-    ) throws IOException, ClientProtocolException {
- 
-        CloseableHttpResponse response = null;
-        System.out.printf("Http request:\n  target: %s \n  request: %s\n",target.toString(),request.toString());
+        HttpHost target, ClassicHttpRequest request, HttpContext context
+    ) throws IOException {
+
+        ClassicHttpResponse response = null;
+        System.out.printf("Http request:\n  target: %s \n  request: %s\n", target.toString(), request.toString());
 
         for (HttpInteraction interaction : interactions) {
             try {
                 interaction.validateRequest(target, request);
-                System.out.printf("Http request: interaction %s received from the code under test as expected.\n",target.toString());
+                System.out.printf("Http request: interaction %s received from the code under test as expected.\n", target.toString());
 
                 response = interaction.getResponse();
                 break;
@@ -66,12 +58,12 @@ public class MockAsyncCloseableHttpClient extends CloseableHttpClient {
         }
 
         if (response == null) {
-            String msg = "Mock http client was sent an HTTP request which wasn't expected or ran out of expected http interactions.\n"+
-                "request: "+request.toString();
+            String msg = "Mock http client was sent an HTTP request which wasn't expected or ran out of expected http interactions.\n" +
+                "request: " + request.toString();
             fail(msg);
         }
 
-        return response;
+        return CloseableHttpResponse.adapt(response);
     }
 
 }

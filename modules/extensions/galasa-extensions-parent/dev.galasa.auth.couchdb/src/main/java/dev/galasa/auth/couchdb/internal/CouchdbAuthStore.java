@@ -9,8 +9,6 @@ import static dev.galasa.extensions.common.Errors.*;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -18,13 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import dev.galasa.auth.couchdb.internal.beans.AuthDBNameViewDesign;
 import dev.galasa.auth.couchdb.internal.beans.FrontEndClient;
@@ -458,7 +454,7 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
 
         user.validate();
 
-        HttpEntityEnclosingRequestBase request = buildUpdateUserDocRequest(user, couchdbUri);
+        HttpUriRequestBase request = buildUpdateUserDocRequest(user, couchdbUri);
 
         PutPostResponse putResponse = sendPutRequestToCouchDb(request);
 
@@ -470,7 +466,7 @@ public class CouchdbAuthStore extends CouchdbStore implements IAuthStore {
         user.setVersion(putResponse.rev);
     }
 
-    private PutPostResponse sendPutRequestToCouchDb(HttpEntityEnclosingRequestBase request) throws AuthStoreException {
+    private PutPostResponse sendPutRequestToCouchDb(HttpUriRequestBase request) throws AuthStoreException {
         PutPostResponse putResponse;
         try {
             String entity = sendHttpRequest(request, HttpStatus.SC_CREATED);

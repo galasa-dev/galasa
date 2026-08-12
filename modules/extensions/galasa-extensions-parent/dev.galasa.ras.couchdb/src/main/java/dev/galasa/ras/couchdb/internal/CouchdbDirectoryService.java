@@ -24,15 +24,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.apache.commons.logging.Log;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.ParseException;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import dev.galasa.framework.spi.IResultArchiveStoreDirectoryService;
 import dev.galasa.framework.spi.IRunResult;
@@ -135,18 +134,17 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
 
         JsonObject artifactRecordJson;
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
-            StatusLine statusLine = response.getStatusLine();
 
-            if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+            if (response.getCode() == HttpStatus.SC_OK) {
                 HttpEntity entity = response.getEntity();
                 String responseEntity = EntityUtils.toString(entity);
                 artifactRecordJson = gson.fromJson(responseEntity, JsonObject.class);
 
-            } else if (statusLine.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+            } else if (response.getCode() == HttpStatus.SC_NOT_FOUND) {
                 // Artifact record not found, skip it
                 artifactRecordJson = null;
             } else {
-                throw new CouchdbRasException("Unable to find artifacts - " + statusLine.toString());
+                throw new CouchdbRasException("Unable to find artifacts - " + "HTTP " + response.getCode());
             }
         } catch (CouchdbRasException e) {
             throw e;
@@ -190,9 +188,9 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         HttpGet httpGet = requestFactory.getHttpGetRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/_all_docs");
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
-            StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                throw new CouchdbRasException("Unable to find runs - " + statusLine.toString());
+
+            if (response.getCode() != HttpStatus.SC_OK) {
+                throw new CouchdbRasException("Unable to find runs - " + "HTTP " + response.getCode());
             }
 
             HttpEntity entity = response.getEntity();
@@ -228,8 +226,8 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         HttpGet httpGet = requestFactory.getHttpGetRequest(store.getCouchdbUri() + "/" + RUNS_DB + "/" + id);
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
-            StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+
+            if (response.getCode() != HttpStatus.SC_OK) {
                 return null;
             }
 
@@ -250,9 +248,9 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
                 store.getCouchdbUri() + "/" + RUNS_DB + "/_design/docs/_view/" + REQUESTORS_VIEW_NAME + "?group=true");
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
-            StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                throw new CouchdbRasException("Unable to find runs - " + statusLine.toString());
+
+            if (response.getCode() != HttpStatus.SC_OK) {
+                throw new CouchdbRasException("Unable to find runs - " + "HTTP " + response.getCode());
             }
 
             HttpEntity entity = response.getEntity();
@@ -282,9 +280,9 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
                 store.getCouchdbUri() + "/" + RUNS_DB + "/_design/docs/_view/" + RESULT_VIEW_NAME + "?group=true");
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
-            StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                throw new CouchdbRasException("Unable to find results - " + statusLine.toString());
+
+            if (response.getCode() != HttpStatus.SC_OK) {
+                throw new CouchdbRasException("Unable to find results - " + "HTTP " + response.getCode());
             }
 
             HttpEntity entity = response.getEntity();
@@ -318,9 +316,9 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
                         + "?group=true");
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpGet)) {
-            StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                throw new CouchdbRasException("Unable to find tests - " + statusLine.toString());
+
+            if (response.getCode() != HttpStatus.SC_OK) {
+                throw new CouchdbRasException("Unable to find tests - " + "HTTP " + response.getCode());
             }
 
             HttpEntity entity = response.getEntity();
@@ -408,12 +406,12 @@ public class CouchdbDirectoryService implements IResultArchiveStoreDirectoryServ
         httpPost.setEntity(new StringEntity(requestContent, UTF8));
 
         try (CloseableHttpResponse response = store.getHttpClient().execute(httpPost)) {
-            StatusLine statusLine = response.getStatusLine();
+
             HttpEntity entity = response.getEntity();
             String responseEntity = EntityUtils.toString(entity);
 
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                throw new CouchdbRasException("Unable to find runs - " + statusLine.toString());
+            if (response.getCode() != HttpStatus.SC_OK) {
+                throw new CouchdbRasException("Unable to find runs - " + "HTTP " + response.getCode());
             }
 
             FoundRuns found = gson.fromJson(responseEntity, FoundRuns.class);

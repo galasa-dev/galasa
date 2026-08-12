@@ -5,12 +5,12 @@
  */
 package dev.galasa.extensions.common.mocks;
 
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import dev.galasa.extensions.common.api.HttpClientFactory;
 
 public class MockHttpClientFactory implements HttpClientFactory {
-    private CloseableHttpClient clientToReturn ;
+    private CloseableHttpClient clientToReturn;
 
     public MockHttpClientFactory(CloseableHttpClient clientToReturn) {
         this.clientToReturn = clientToReturn;

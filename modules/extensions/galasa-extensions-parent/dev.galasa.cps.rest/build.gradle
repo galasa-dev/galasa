@@ -6,14 +6,11 @@ plugins {
 description = 'Galasa CPS access over http - Provides the CPS stores via the public REST interface over http'
 
 dependencies {
-
-    // Not required for compile,  but required to force the download of the jars to embed by bnd
     implementation ('com.google.code.gson:gson')
     implementation ('dev.galasa:dev.galasa.framework.api.beans')
     implementation (project(':dev.galasa.extensions.common'))
     implementation 'commons-io:commons-io'
-    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
-    implementation 'org.apache.httpcomponents:httpclient'
+    implementation ('dev.galasa:dev.galasa.wrapping.httpclient5')
 
     testImplementation(testFixtures(project(':dev.galasa.extensions.common')))
 }

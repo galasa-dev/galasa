@@ -5,17 +5,15 @@
  */
 package dev.galasa.extensions.common.mocks;
 
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.ParseException;
+import org.apache.hc.core5.http.Header;
 
 public class MockHttpHeader implements Header {
 
-    private String name ;
-    private String value ;
+    private String name;
+    private String value;
 
     public MockHttpHeader(String name, String value) {
-        this.name = name ;
+        this.name = name;
         this.value = value;
     }
 
@@ -30,11 +28,8 @@ public class MockHttpHeader implements Header {
     }
 
     @Override
-    public HeaderElement[] getElements() throws ParseException {
-        HeaderElement[] elements = new HeaderElement[1];
-
-        elements[0] = new MockHeaderElement(this.name, this.value);
-        return elements;
+    public boolean isSensitive() {
+        return false;
     }
 
 }

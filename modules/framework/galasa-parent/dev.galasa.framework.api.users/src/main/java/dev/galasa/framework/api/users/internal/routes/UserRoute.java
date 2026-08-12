@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.http.HttpStatus;
-
 import static dev.galasa.framework.api.common.ServletErrorMessage.*;
 
 import dev.galasa.framework.spi.auth.IInternalAuthToken;
@@ -193,7 +191,7 @@ public class UserRoute extends AbstractUsersRoute {
             // This isn't allowed. A system owner will remain a system owner until
             // the service is re-configured.
             ServletError msg = new ServletError(GAL5414_USER_CANNOT_UPDATE_SERVICE_OWNER_ROLE);
-            throw new InternalServletException(msg, HttpStatus.SC_FORBIDDEN);
+            throw new InternalServletException(msg, HttpServletResponse.SC_FORBIDDEN);
         }
     }
 
@@ -204,7 +202,7 @@ public class UserRoute extends AbstractUsersRoute {
         String loginIdBeingUpdated = userRecordBeingUpdated.getLoginId();
         if (requestingUserLoginId.equals(loginIdBeingUpdated)) {
             ServletError msg = new ServletError(GAL5413_USER_CANNOT_UPDATE_OWN_USER_ROLE);
-            throw new InternalServletException(msg, HttpStatus.SC_FORBIDDEN);
+            throw new InternalServletException(msg, HttpServletResponse.SC_FORBIDDEN);
         }
     }
 
@@ -215,7 +213,7 @@ public class UserRoute extends AbstractUsersRoute {
         String loginIdBeingUpdated = userRecordBeingUpdated.getLoginId();
         if (requestingUserLoginId.equals(loginIdBeingUpdated)) {
             ServletError msg = new ServletError(GAL5119_USER_CANNOT_UPDATE_OWN_PRIORITY);
-            throw new InternalServletException(msg, HttpStatus.SC_FORBIDDEN);
+            throw new InternalServletException(msg, HttpServletResponse.SC_FORBIDDEN);
         }
     }
 

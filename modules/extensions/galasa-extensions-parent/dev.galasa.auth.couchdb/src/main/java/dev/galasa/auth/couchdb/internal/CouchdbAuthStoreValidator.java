@@ -8,16 +8,15 @@ package dev.galasa.auth.couchdb.internal;
 import java.net.URI;
 
 import org.apache.commons.logging.Log;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import com.google.gson.JsonSyntaxException;
 
@@ -161,15 +160,13 @@ public class CouchdbAuthStoreValidator extends CouchdbBaseValidator {
         String docJson = null;
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
 
-            StatusLine statusLine = response.getStatusLine();
-
             docJson = EntityUtils.toString(response.getEntity());
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK
-                    && statusLine.getStatusCode() != HttpStatus.SC_NOT_FOUND) {
+            if (response.getCode() != HttpStatus.SC_OK
+                    && response.getCode() != HttpStatus.SC_NOT_FOUND) {
                 throw new CouchdbException(
-                        "Validation failed of database " + dbName + " design document - " + statusLine.toString());
+                        "Validation failed of database " + dbName + " design document - " + "HTTP " + response.getCode());
             }
-            if (statusLine.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+            if (response.getCode() == HttpStatus.SC_NOT_FOUND) {
                 docJson = "{}";
             }
 
@@ -198,8 +195,8 @@ public class CouchdbAuthStoreValidator extends CouchdbBaseValidator {
         }
 
         try (CloseableHttpResponse response = httpClient.execute(httpPut)) {
-            StatusLine statusLine = response.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
+
+            int statusCode = response.getCode();
 
             EntityUtils.consumeQuietly(response.getEntity());
 
@@ -212,7 +209,7 @@ public class CouchdbAuthStoreValidator extends CouchdbBaseValidator {
             if (statusCode != HttpStatus.SC_CREATED) {
 
                 throw new CouchdbException(
-                        "Update of " + dbName +  " design document failed on CouchDB server - " + statusLine.toString());
+                        "Update of " + dbName +  " design document failed on CouchDB server - " + "HTTP " + response.getCode());
             }
 
         } catch (CouchdbException e) {
