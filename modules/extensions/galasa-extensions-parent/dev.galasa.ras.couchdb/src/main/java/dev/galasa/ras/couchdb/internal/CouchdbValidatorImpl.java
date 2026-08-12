@@ -7,24 +7,23 @@ package dev.galasa.ras.couchdb.internal;
 
 import static dev.galasa.ras.couchdb.internal.CouchdbRasStore.*;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import java.net.URI;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -68,9 +67,8 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
 
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
 
-            StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                throw new CouchdbRasException("Validation failed to CouchDB server - " + statusLine.toString());
+            if (response.getCode() != HttpStatus.SC_OK) {
+                throw new CouchdbRasException("Validation failed to CouchDB server - " + response.getCode() + " " + response.getReasonPhrase());
             }
 
             HttpEntity entity = response.getEntity();
@@ -122,14 +120,13 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
         HttpHead httpHead = requestFactory.getHttpHeadRequest(rasUri + "/" + dbName);
 
         try (CloseableHttpResponse response = httpClient.execute(httpHead)) {
-            StatusLine statusLine = response.getStatusLine();
 
-            if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+            if (response.getCode() == HttpStatus.SC_OK) {
                 return;
             }
-            if (statusLine.getStatusCode() != HttpStatus.SC_NOT_FOUND) {
+            if (response.getCode() != HttpStatus.SC_NOT_FOUND) {
                 throw new CouchdbException(
-                        "Validation failed of database " + dbName + " - " + statusLine.toString());
+                        "Validation failed of database " + dbName + " - " + response.getCode() + " " + response.getReasonPhrase());
             }
         } catch (CouchdbException e) {
             throw e;
@@ -141,8 +138,8 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
 
         HttpPut httpPut = requestFactory.getHttpPutRequest(rasUri + "/" + dbName);
         try (CloseableHttpResponse response = httpClient.execute(httpPut)) {
-            StatusLine statusLine = response.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
+
+            int statusCode = response.getCode();
             if (statusCode == HttpStatus.SC_CONFLICT) {
                 // Someone possibly updated
                 attempts++;
@@ -155,10 +152,10 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
                 return;
             }
 
-            if (statusLine.getStatusCode() != HttpStatus.SC_CREATED) {
+            if (response.getCode() != HttpStatus.SC_CREATED) {
                 EntityUtils.consumeQuietly(response.getEntity());
                 throw new CouchdbException(
-                        "Create Database " + dbName + " failed on CouchDB server - " + statusLine.toString());
+                        "Create Database " + dbName + " failed on CouchDB server - " + response.getCode() + " " + response.getReasonPhrase());
             }
 
             EntityUtils.consumeQuietly(response.getEntity());
@@ -174,14 +171,13 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
 
         String docJson = null;
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-            StatusLine statusLine = response.getStatusLine();
             docJson = EntityUtils.toString(response.getEntity());
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK
-                    && statusLine.getStatusCode() != HttpStatus.SC_NOT_FOUND) {
+            if (response.getCode() != HttpStatus.SC_OK
+                    && response.getCode() != HttpStatus.SC_NOT_FOUND) {
                 throw new CouchdbException(
-                        "Validation failed of database galasa_run designdocument - " + statusLine.toString());
+                        "Validation failed of database galasa_run designdocument - " + response.getCode() + " " + response.getReasonPhrase());
             }
-            if (statusLine.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+            if (response.getCode() == HttpStatus.SC_NOT_FOUND) {
                 docJson = "{}";
             }
         } catch (CouchdbException e) {
@@ -243,8 +239,8 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
             }
 
             try (CloseableHttpResponse response = httpClient.execute(httpPut)) {
-                StatusLine statusLine = response.getStatusLine();
-                int statusCode = statusLine.getStatusCode();
+
+                int statusCode = response.getCode();
                 if (statusCode == HttpStatus.SC_CONFLICT) {
                     // Someone possibly updated
                     attempts++;
@@ -260,7 +256,7 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
                 if (statusCode != HttpStatus.SC_CREATED) {
                     EntityUtils.consumeQuietly(response.getEntity());
                     throw new CouchdbException(
-                            "Update of galasa_run design document failed on CouchDB server - " + statusLine.toString());
+                            "Update of galasa_run design document failed on CouchDB server - " + response.getCode() + " " + response.getReasonPhrase());
                 }
 
                 EntityUtils.consumeQuietly(response.getEntity());
@@ -354,13 +350,12 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
 
         String idxJson = null;
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-            StatusLine statusLine = response.getStatusLine();
             idxJson = EntityUtils.toString(response.getEntity());
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK
-                    && statusLine.getStatusCode() != HttpStatus.SC_NOT_FOUND) {
-                throw new CouchdbException("Validation failed of database indexes - " + statusLine.toString());
+            if (response.getCode() != HttpStatus.SC_OK
+                    && response.getCode() != HttpStatus.SC_NOT_FOUND) {
+                throw new CouchdbException("Validation failed of database indexes - " + response.getCode() + " " + response.getReasonPhrase());
             }
-            if (statusLine.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+            if (response.getCode() == HttpStatus.SC_NOT_FOUND) {
                 idxJson = "{}";
             }
         } catch (CouchdbException e) {
@@ -418,9 +413,8 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
             httpPost.setEntity(entity);
 
             try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
-                StatusLine statusLine = response.getStatusLine();
                 EntityUtils.consumeQuietly(response.getEntity());
-                int statusCode = statusLine.getStatusCode();
+                int statusCode = response.getCode();
                 if (statusCode == HttpStatus.SC_CONFLICT) {
                     // Someone possibly updated
                     attempts++;
@@ -433,9 +427,9 @@ public class CouchdbValidatorImpl implements CouchdbValidator {
                     return;
                 }
 
-                if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                if (response.getCode() != HttpStatus.SC_OK) {
                     throw new CouchdbException(
-                            "Update of galasa_run index failed on CouchDB server - " + statusLine.toString());
+                            "Update of galasa_run index failed on CouchDB server - " + response.getCode() + " " + response.getReasonPhrase());
                 }
 
             } catch (CouchdbException e) {

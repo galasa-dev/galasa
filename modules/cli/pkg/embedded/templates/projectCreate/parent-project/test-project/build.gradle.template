@@ -18,7 +18,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'dev.galasa.tests' version '{{.GalasaVersion}}'
-    id 'biz.aQute.bnd.builder' version '6.4.0'
+    id 'biz.aQute.bnd.builder' version '7.3.0'
 }
 
 // This section tells gradle where it should look for any dependencies
@@ -56,9 +56,10 @@ dependencies {
     implementation 'dev.galasa:dev.galasa.artifact.manager'
     implementation 'commons-logging:commons-logging'
     implementation 'org.assertj:assertj-core'
-    {{- if .IsManagerProject}}
-    implementation '{{ .Parent.GroupId }}:{{ .ManagerName }}:0.0.1-SNAPSHOT'
-    {{- end}}
+
+    {{- if .IsManagerProject }}
+    implementation project(':{{ .ManagerName }}')
+    {{- end }}
 }
 
 // Tell gradle to publish the built OSGi bundles as maven artifacts on the 

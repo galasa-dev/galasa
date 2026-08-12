@@ -5,8 +5,8 @@
  */
 package dev.galasa.extensions.common.mocks;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
 
 // An expected request and mock response delivered over the http interface.
 public interface HttpInteraction {

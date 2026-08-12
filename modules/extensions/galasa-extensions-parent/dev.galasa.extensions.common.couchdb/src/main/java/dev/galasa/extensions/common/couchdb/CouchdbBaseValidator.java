@@ -7,16 +7,15 @@ package dev.galasa.extensions.common.couchdb;
 
 import static dev.galasa.extensions.common.Errors.*;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.ParseException;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -46,8 +45,7 @@ public abstract class CouchdbBaseValidator implements CouchdbValidator {
 
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
 
-            StatusLine statusLine = response.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
+            int statusCode = response.getCode();
             if (statusCode != HttpStatus.SC_OK) {
                 String errorMessage = ERROR_FAILED_TO_ACCESS_COUCHDB_SERVER.getMessage(statusCode);
                 throw new CouchdbException(errorMessage);
@@ -99,8 +97,7 @@ public abstract class CouchdbBaseValidator implements CouchdbValidator {
 
         boolean databaseExists = false;
         try (CloseableHttpResponse response = httpClient.execute(httpHead)) {
-            StatusLine statusLine = response.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
+            int statusCode = response.getCode();
 
             if (statusCode == HttpStatus.SC_OK) {
                 databaseExists = true;
@@ -126,8 +123,7 @@ public abstract class CouchdbBaseValidator implements CouchdbValidator {
     private synchronized void createDatabase(URI couchdbUri, String dbName) throws CouchdbException {
         HttpPut httpPut = requestFactory.getHttpPutRequest(couchdbUri + "/" + dbName);
         try (CloseableHttpResponse response = httpClient.execute(httpPut)) {
-            StatusLine statusLine = response.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
+            int statusCode = response.getCode();
             if (statusCode != HttpStatus.SC_CREATED) {
                 EntityUtils.consumeQuietly(response.getEntity());
 

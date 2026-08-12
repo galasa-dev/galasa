@@ -5,15 +5,14 @@ plugins {
 
 description = 'Galasa RAS - CouchDB'
 
-version = '1.0.1'
+version = '1.1.0'
 
 configurations {
     implementation.transitive = false
 }
 
 dependencies {
-    implementation ('dev.galasa:dev.galasa.wrapping.httpclient-osgi')
-    implementation ('org.apache.httpcomponents:httpcore-osgi')
+    implementation ('dev.galasa:dev.galasa.wrapping.httpclient5')
     implementation ('com.google.code.gson:gson')
     implementation (project(':dev.galasa.extensions.common'))
     implementation (project(':dev.galasa.extensions.common.couchdb'))

@@ -17,14 +17,15 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntityContainer;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import dev.galasa.extensions.common.couchdb.pojos.PutPostResponse;
 import dev.galasa.extensions.common.impl.HttpRequestFactoryImpl;
@@ -97,7 +98,7 @@ public class CouchdbTestFixtures {
                 String requestBody = EntityUtils.toString(postRequest.getEntity());
                 assertThat(requestBody).contains(expectedRequestBodyParts);
 
-            } catch (IOException ex) {
+            } catch (IOException | ParseException ex) {
                 fail("Failed to parse POST request body");
             }
         }
@@ -113,9 +114,9 @@ public class CouchdbTestFixtures {
 
         @Override
         public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
-            super.validateRequest(host,request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("POST");
-            assertThat(request.getRequestLine().getUri()).isEqualTo(getRasUriStr()+"/galasa_run");
+            super.validateRequest(host, request);
+            assertThat(request.getMethod()).isEqualTo("POST");
+            assertThat(host.toURI() + request.getRequestUri()).isEqualTo(getRasUriStr()+"/galasa_run");
         }
 
         @Override
@@ -135,10 +136,7 @@ public class CouchdbTestFixtures {
             HttpEntity entity = new MockHttpEntity(updateMessagePayload); 
 
             MockCloseableHttpResponse response = new MockCloseableHttpResponse();
-
-            MockStatusLine statusLine = new MockStatusLine();
-            statusLine.setStatusCode(HttpStatus.SC_CREATED);
-            response.setStatusLine(statusLine);
+                response.setCode(HttpStatus.SC_CREATED);
             response.setEntity(entity);
 
             return response;
@@ -154,16 +152,16 @@ public class CouchdbTestFixtures {
 
         @Override
         public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
-            super.validateRequest(host,request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("POST");
-            assertThat(request.getRequestLine().getUri()).isEqualTo(getRasUriStr()+"/galasa_artifacts");
+            super.validateRequest(host, request);
+            assertThat(request.getMethod()).isEqualTo("POST");
+            assertThat(host.toURI() + request.getRequestUri()).isEqualTo(getRasUriStr()+"/galasa_artifacts");
 
-            HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
+            HttpEntity entity = ((HttpEntityContainer) request).getEntity();
             String content ;
             try {
                 content = EntityUtils.toString(entity);
-            } catch (IOException ex ) {
-                throw new RuntimeException("Failed to read content from request."+ request.getRequestLine().getUri());
+            } catch (IOException | ParseException ex) {
+                throw new RuntimeException("Failed to read content from request."+ request.getRequestUri());
             }
 
             validateIncomingPayload(content);
@@ -191,10 +189,7 @@ public class CouchdbTestFixtures {
             HttpEntity entity = new MockHttpEntity(updateMessagePayload); 
 
             MockCloseableHttpResponse response = new MockCloseableHttpResponse();
-
-            MockStatusLine statusLine = new MockStatusLine();
-            statusLine.setStatusCode(HttpStatus.SC_CREATED);
-            response.setStatusLine(statusLine);
+                response.setCode(HttpStatus.SC_CREATED);
             response.setEntity(entity);
 
             return response;

@@ -16,10 +16,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.*;
-import org.apache.http.client.methods.*;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.net.URIBuilder;
 
 import com.google.gson.JsonSyntaxException;
 
@@ -218,8 +220,7 @@ public class RestCPS implements IConfigurationPropertyStore {
     }
 
     private void checkResponseHttpCode(CloseableHttpResponse response, Errors errorIfBad, URI targetUri) throws ConfigurationPropertyStoreException {
-        StatusLine statusLine = response.getStatusLine();
-        int statusCode = statusLine.getStatusCode();
+        int statusCode = response.getCode();
 
         if (statusCode!=HttpStatus.SC_OK) {
             String msg = errorIfBad.getMessage(targetUri.toString(),Integer.toString(statusCode));
@@ -292,8 +293,7 @@ public class RestCPS implements IConfigurationPropertyStore {
     }
 
     private HttpGet constructGetRequest(URI targetUri, String jwt) {
-        HttpGet req = new HttpGet();
-        req.setURI(targetUri);
+        HttpGet req = new HttpGet(targetUri);
         req.addHeader(HttpHeaders.AUTHORIZATION,"Bearer "+this.jwt);
         req.addHeader(HttpHeaders.CONTENT_TYPE,"application/json");
         req.addHeader(HttpHeaders.ACCEPT,"application/json");

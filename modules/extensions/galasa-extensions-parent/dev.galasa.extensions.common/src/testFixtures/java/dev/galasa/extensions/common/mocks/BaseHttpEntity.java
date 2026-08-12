@@ -8,9 +8,12 @@ package dev.galasa.extensions.common.mocks;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Set;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
+import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
 
 // A base concrete class which throws exceptions for all methods in the interface.
 public class BaseHttpEntity implements HttpEntity {
@@ -21,17 +24,12 @@ public class BaseHttpEntity implements HttpEntity {
     }
 
     @Override
-    public void consumeContent() throws IOException {
-        throw new UnsupportedOperationException("Unimplemented method 'consumeContent'");
-    }
-
-    @Override
     public InputStream getContent() throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException("Unimplemented method 'getContent'");
     }
 
     @Override
-    public Header getContentEncoding() {
+    public String getContentEncoding() {
         throw new UnsupportedOperationException("Unimplemented method 'getContentEncoding'");
     }
 
@@ -41,7 +39,7 @@ public class BaseHttpEntity implements HttpEntity {
     }
 
     @Override
-    public Header getContentType() {
+    public String getContentType() {
         throw new UnsupportedOperationException("Unimplemented method 'getContentType'");
     }
 
@@ -56,8 +54,23 @@ public class BaseHttpEntity implements HttpEntity {
     }
 
     @Override
-    public void writeTo(OutputStream arg0) throws IOException {
+    public void writeTo(OutputStream outstream) throws IOException {
         throw new UnsupportedOperationException("Unimplemented method 'writeTo'");
+    }
+
+    @Override
+    public Supplier<List<? extends Header>> getTrailers() {
+        return null;
+    }
+
+    @Override
+    public Set<String> getTrailerNames() {
+        return null;
+    }
+
+    @Override
+    public void close() throws IOException {
+        // Do nothing...
     }
 
 }

@@ -14,7 +14,7 @@ import java.util.concurrent.CompletionException;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 
 import dev.galasa.extensions.common.couchdb.CouchdbException;
 import dev.galasa.extensions.common.couchdb.pojos.IdRev;

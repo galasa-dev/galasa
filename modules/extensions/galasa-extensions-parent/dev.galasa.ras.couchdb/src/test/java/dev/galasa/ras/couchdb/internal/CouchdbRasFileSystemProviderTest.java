@@ -13,12 +13,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpStatus;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntityContainer;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -59,8 +60,8 @@ public class CouchdbRasFileSystemProviderTest {
         @Override
         public void validateRequest(HttpHost host, HttpRequest request) throws RuntimeException {
             super.validateRequest(host,request);
-            assertThat(request.getRequestLine().getMethod()).isEqualTo("PUT");
-            assertThat(request.getRequestLine().getUri()).isEqualTo(getRasUriStr()+"/galasa_artifacts/"+getDocumentId()+"/%2F"+this.testFileNameToCreate);
+            assertThat(request.getMethod()).isEqualTo("PUT");
+            assertThat(host.toURI() + request.getRequestUri()).isEqualTo(getRasUriStr()+"/galasa_artifacts/"+getDocumentId()+"/%2F"+this.testFileNameToCreate);
 
             // Check that the headers have been set up.
             assertThat(request.getHeaders("If-Match")).isNotNull();
@@ -70,12 +71,12 @@ public class CouchdbRasFileSystemProviderTest {
             assertThat(request.getHeaders("Accept")[0].getValue()).isEqualTo("application/json");
 
             // Check that the entity contains the attachment string.
-            HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
+            HttpEntity entity = ((HttpEntityContainer) request).getEntity();
             String content ;
             try {
                 content = EntityUtils.toString(entity);
-            } catch (IOException ex ) {
-                throw new RuntimeException("Failed to read content from request."+ request.getRequestLine().getUri());
+            } catch (IOException | ParseException ex) {
+                throw new RuntimeException("Failed to read content from request."+ request.getRequestUri());
             }
             assertThat(content).isEqualTo(CouchdbTestFixtures.ATTACHMENT_CONTENT1);
         }
@@ -94,10 +95,7 @@ public class CouchdbRasFileSystemProviderTest {
             HttpEntity entity = new MockHttpEntity(updateMessagePayload); 
 
             MockCloseableHttpResponse response = new MockCloseableHttpResponse();
-
-            MockStatusLine statusLine = new MockStatusLine();
-            statusLine.setStatusCode(HttpStatus.SC_CREATED);
-            response.setStatusLine(statusLine);
+                response.setCode(HttpStatus.SC_CREATED);
             response.setEntity(entity);
 
             return response;

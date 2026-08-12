@@ -18,19 +18,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.ParseException;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.net.URIBuilder;
 
 import dev.galasa.extensions.common.api.HttpClientFactory;
 import dev.galasa.extensions.common.api.HttpRequestFactory;
@@ -214,8 +213,7 @@ public abstract class CouchdbStore {
             throws CouchdbException {
         HttpGet httpGet = httpRequestFactory.getHttpGetRequest(URI);
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-            StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+            if (response.getCode() != HttpStatus.SC_OK) {
                 String errorMessage = ERROR_URI_IS_INVALID.getMessage(URI);
                 throw new CouchdbException(errorMessage);
             }
@@ -281,19 +279,19 @@ public abstract class CouchdbStore {
      * @throws CouchdbException if there was a problem accessing the CouchDB store
      *                          or its response
      */
-    protected String sendHttpRequest(HttpUriRequest httpRequest, int... expectedHttpStatusCodes)
+    protected String sendHttpRequest(HttpUriRequestBase httpRequest, int... expectedHttpStatusCodes)
             throws CouchdbException {
+        String requestUri = httpRequest.getRequestUri();
         String responseEntity = null;
         try (CloseableHttpResponse response = httpClient.execute(httpRequest)) {
-            StatusLine statusLine = response.getStatusLine();
-            int actualStatusCode = statusLine.getStatusCode();
+            int actualStatusCode = response.getCode();
 
             if (!isStatusCodeExpected(actualStatusCode, expectedHttpStatusCodes)) {
                 String expectedStatusCodesStr = IntStream.of(expectedHttpStatusCodes)
                         .mapToObj(Integer::toString)
                         .collect(Collectors.joining(", "));
 
-                String errorMessage = ERROR_UNEXPECTED_COUCHDB_HTTP_RESPONSE.getMessage(httpRequest.getURI().toString(),
+                String errorMessage = ERROR_UNEXPECTED_COUCHDB_HTTP_RESPONSE.getMessage(requestUri,
                         expectedStatusCodesStr, actualStatusCode);
 
                 if (actualStatusCode == HttpStatus.SC_CONFLICT) {
@@ -313,7 +311,7 @@ public abstract class CouchdbStore {
 
         } catch (ParseException | IOException e) {
             String errorMessage = ERROR_FAILURE_OCCURRED_WHEN_CONTACTING_COUCHDB
-                    .getMessage(httpRequest.getURI().toString(), e.getMessage());
+                    .getMessage(requestUri, e.getMessage());
             throw new CouchdbException(errorMessage, e);
         }
         return responseEntity;

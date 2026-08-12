@@ -5,8 +5,12 @@
  */
 package dev.galasa.cps.rest;
 
-import org.apache.http.*;
+
 import static org.assertj.core.api.Assertions.*;
+
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHost;
 
 import dev.galasa.extensions.common.mocks.*;
 

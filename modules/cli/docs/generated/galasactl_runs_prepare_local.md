@@ -13,7 +13,7 @@ galasactl runs prepare local [flags]
 ### Options
 
 ```
-      --galasaVersion string   the version of galasa you want to use to prepare dependencies. This should match the version of the galasa obr you built your test bundles against. (default "1.0.1")
+      --galasaVersion string   the version of galasa you want to use to prepare dependencies. This should match the version of the galasa obr you built your test bundles against. (default "1.1.0")
   -h, --help                   Displays the options for the 'runs prepare local' command.
       --localMaven string      The url of a local maven repository where galasa bundles will be cached on your local file system. Defaults to your home .m2/repository file. Please note that this should be in a URL form e.g. 'file:///Users/myuserid/.m2/repository', or 'file://C:/Users/myuserid/.m2/repository'
       --obr strings            The maven coordinates of the obr bundle(s) whose dependencies should be downloaded. The format of this parameter is 'mvn:${TEST_OBR_GROUP_ID}/${TEST_OBR_ARTIFACT_ID}/${TEST_OBR_VERSION}/obr' Multiple instances of this flag can be used to describe multiple obr bundles.

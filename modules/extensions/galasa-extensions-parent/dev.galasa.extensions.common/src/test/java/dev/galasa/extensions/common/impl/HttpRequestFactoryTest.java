@@ -5,11 +5,11 @@
  */
 package dev.galasa.extensions.common.impl;
 
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
@@ -19,7 +19,7 @@ import dev.galasa.extensions.common.api.HttpRequestFactory;
 public class HttpRequestFactoryTest {
 
     @Test
-    public void testGETRequestReturnsRequestWithGETMethod() {
+    public void testGETRequestReturnsRequestWithGETMethod() throws Exception {
         //Given ...
         String token = "myvalue";
         String authType = "Basic";
@@ -31,7 +31,7 @@ public class HttpRequestFactoryTest {
         HttpGet request = requestFactory.getHttpGetRequest(url);
 
         //Then ...
-        assertThat(request.getURI().toString()).isEqualTo(url);
+        assertThat(request.getUri().toString()).isEqualTo(url);
         assertThat(request.getMethod()).isEqualTo("GET");
         assertThat(request.getFirstHeader("Authorization").getValue()).isEqualTo("Basic "+token);
         assertThat(request.getFirstHeader("Content-Type").getValue()).isEqualTo("application/json");
@@ -39,7 +39,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void testHEADRequestReturnsRequestWithHEADMethod() {
+    public void testHEADRequestReturnsRequestWithHEADMethod() throws Exception {
         //Given ...
         String token = "iamnottryingtogetahead";
         String authType = "Basic";
@@ -51,7 +51,7 @@ public class HttpRequestFactoryTest {
         HttpHead request = requestFactory.getHttpHeadRequest(url);
 
         //Then ...
-        assertThat(request.getURI().toString()).isEqualTo(url);
+        assertThat(request.getUri().toString()).isEqualTo(url);
         assertThat(request.getMethod()).isEqualTo("HEAD");
         assertThat(request.getFirstHeader("Authorization").getValue()).isEqualTo("Basic "+token);
         assertThat(request.getFirstHeader("Content-Type").getValue()).isEqualTo("application/json");
@@ -59,7 +59,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void testPOSTRequestReturnsRequestWithPOSTMethod() {
+    public void testPOSTRequestReturnsRequestWithPOSTMethod() throws Exception {
         //Given ...
         String token = "mysecretPOSTtoken";
         String authType = "Basic";
@@ -71,7 +71,7 @@ public class HttpRequestFactoryTest {
         HttpPost request = requestFactory.getHttpPostRequest(url);
 
         //Then ...
-        assertThat(request.getURI().toString()).isEqualTo(url);
+        assertThat(request.getUri().toString()).isEqualTo(url);
         assertThat(request.getMethod()).isEqualTo("POST");
         assertThat(request.getFirstHeader("Authorization").getValue()).isEqualTo("Basic "+token);
         assertThat(request.getFirstHeader("Content-Type").getValue()).isEqualTo("application/json");
@@ -79,7 +79,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void testPUTRequestReturnsRequestWithPUTMethod() {
+    public void testPUTRequestReturnsRequestWithPUTMethod() throws Exception {
         //Given ...
         String token = "iPut";
         String authType = "Basic";
@@ -91,7 +91,7 @@ public class HttpRequestFactoryTest {
         HttpPut request = requestFactory.getHttpPutRequest(url);
 
         //Then ...
-        assertThat(request.getURI().toString()).isEqualTo(url);
+        assertThat(request.getUri().toString()).isEqualTo(url);
         assertThat(request.getMethod()).isEqualTo("PUT");
         assertThat(request.getFirstHeader("Authorization").getValue()).isEqualTo("Basic "+token);
         assertThat(request.getFirstHeader("Content-Type").getValue()).isEqualTo("application/json");
@@ -99,7 +99,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void testDELETERequestReturnsRequestWithDELETEMethod() {
+    public void testDELETERequestReturnsRequestWithDELETEMethod() throws Exception {
         //Given ...
         String token = "idontneedthisanymore";
         String authType = "Basic";
@@ -111,7 +111,7 @@ public class HttpRequestFactoryTest {
         HttpDelete request = requestFactory.getHttpDeleteRequest(url);
 
         //Then ...
-        assertThat(request.getURI().toString()).isEqualTo(url);
+        assertThat(request.getUri().toString()).isEqualTo(url);
         assertThat(request.getMethod()).isEqualTo("DELETE");
         assertThat(request.getFirstHeader("Authorization").getValue()).isEqualTo("Basic "+token);
         assertThat(request.getFirstHeader("Content-Type").getValue()).isEqualTo("application/json");
@@ -119,7 +119,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void testGETRequestwithExtraHeadersReturnsRequestWithExtraHeaders() {
+    public void testGETRequestwithExtraHeadersReturnsRequestWithExtraHeaders() throws Exception {
         //Given ...
         String token = "getwithextraheaders";
         String authType = "Basic";
@@ -135,7 +135,7 @@ public class HttpRequestFactoryTest {
         request.setHeader("Accept-Encoding", encoding);
 
         //Then ...
-        assertThat(request.getURI().toString()).isEqualTo(url);
+        assertThat(request.getUri().toString()).isEqualTo(url);
         assertThat(request.getMethod()).isEqualTo("GET");
         assertThat(request.getFirstHeader("Authorization").getValue()).isEqualTo("Basic "+token);
         assertThat(request.getFirstHeader("Content-Type").getValue()).isEqualTo("application/json");
@@ -145,7 +145,7 @@ public class HttpRequestFactoryTest {
     }
 
     @Test
-    public void testPOSTRequestwithUpdatedHeadersReturnsRequestWithUpdatedHeaders() {
+    public void testPOSTRequestwithUpdatedHeadersReturnsRequestWithUpdatedHeaders() throws Exception {
         //Given ...
         String token = "getwithextraheaders";
         String authType = "Basic";
@@ -161,7 +161,7 @@ public class HttpRequestFactoryTest {
         request.setHeader("Content-Type", contentType);
 
         //Then ...
-        assertThat(request.getURI().toString()).isEqualTo(url);
+        assertThat(request.getUri().toString()).isEqualTo(url);
         assertThat(request.getMethod()).isEqualTo("POST");
         assertThat(request.getFirstHeader("Authorization").getValue()).isEqualTo("Basic "+token);
         assertThat(request.getHeaders("Content-Type").length).isEqualTo(1);

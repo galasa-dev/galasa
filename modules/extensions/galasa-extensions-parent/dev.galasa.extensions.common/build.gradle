@@ -8,15 +8,14 @@ plugins {
 description = 'Galasa extensions common code'
 
 dependencies {
-    implementation ('dev.galasa:dev.galasa.wrapping.httpclient-osgi')
-    implementation ('org.apache.httpcomponents:httpcore-osgi')
+    implementation ('dev.galasa:dev.galasa.wrapping.httpclient5')
     implementation ('com.google.code.gson:gson')
 
     testFixturesImplementation platform('dev.galasa:dev.galasa.platform:'+version)
 
-    testFixturesImplementation 'dev.galasa:dev.galasa.wrapping.httpclient-osgi'
-    testFixturesImplementation 'org.apache.httpcomponents:httpcore-osgi'
+    testFixturesImplementation 'dev.galasa:dev.galasa.wrapping.httpclient5'
     testFixturesImplementation 'dev.galasa:dev.galasa.framework'
+    testFixturesImplementation 'commons-logging:commons-logging'
     testFixturesImplementation 'javax.validation:validation-api'
     testFixturesImplementation 'org.assertj:assertj-core'
 }
