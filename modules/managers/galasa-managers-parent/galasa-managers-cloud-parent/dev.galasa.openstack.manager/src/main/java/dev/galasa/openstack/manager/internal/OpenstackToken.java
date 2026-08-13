@@ -8,8 +8,8 @@ package dev.galasa.openstack.manager.internal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicHeader;
 
 public class OpenstackToken {
 
