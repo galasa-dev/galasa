@@ -12,8 +12,8 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 
 import dev.galasa.plugin.common.AuthenticationService;
 import dev.galasa.plugin.common.PluginCommonFactory;
@@ -155,8 +155,8 @@ public class TestCatalogArtifactDeployer<Ex extends Exception> {
      */
     private String getAuthenticatedJwt(PluginCommonFactory<Ex> authFactory, String galasaAccessToken, String apiServerUrlString) throws Ex {
         String jwt = null ;
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         try {
-            HttpClient httpClient = HttpClientBuilder.create().build();
             URL apiServerUrl = new URL(apiServerUrlString);
             AuthenticationService authTokenService = authFactory.newAuthenticationService(apiServerUrl,galasaAccessToken,httpClient);
             this.log.info("Turning the galasa access token into a JWT");
@@ -164,7 +164,13 @@ public class TestCatalogArtifactDeployer<Ex extends Exception> {
             this.log.info("Java Web Token (JWT) obtained from the galasa ecosystem OK.");
         } catch( Exception ex) {
             this.errorRaiser.raiseError(ex,"Failure when exchanging the galasa access token with a JWT");
-        } 
+        } finally {
+            try {
+                httpClient.close();
+            } catch (IOException ex) {
+                this.errorRaiser.raiseError(ex,"Failed to close HTTP client");
+            }
+        }
         return jwt;
     }
 }

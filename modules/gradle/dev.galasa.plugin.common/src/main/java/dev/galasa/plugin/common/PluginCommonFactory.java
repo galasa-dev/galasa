@@ -5,12 +5,12 @@
  */
 package dev.galasa.plugin.common;
 
-import org.apache.http.client.HttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import java.net.*;
 
 public interface PluginCommonFactory<Ex extends Exception> {
-    AuthenticationService newAuthenticationService(URL apiServerUrl, String galasaAccessToken, HttpClient httpClient) throws AuthenticationException ;
+    AuthenticationService newAuthenticationService(URL apiServerUrl, String galasaAccessToken, CloseableHttpClient httpClient) throws AuthenticationException ;
     
     UrlCalculator<Ex> newUrlCalculator(ErrorRaiser<Ex> errorRaiser);
 

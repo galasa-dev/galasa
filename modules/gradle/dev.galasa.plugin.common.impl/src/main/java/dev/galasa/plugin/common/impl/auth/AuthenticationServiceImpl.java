@@ -7,11 +7,13 @@ package dev.galasa.plugin.common.impl.auth;
 
 import java.net.*;
 import java.text.MessageFormat;
-import org.apache.http.client.*;
-import org.apache.http.*;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import com.google.gson.*;
 
@@ -38,20 +40,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private String galasaRefreshToken ;
     private String galasaClientId ;
 
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
 
     /**
      * @param apiServerUrl The url of the galasa server
      * @param galasaAccessToken
      * @throws AuthenticationException
      */
-    public AuthenticationServiceImpl(URL apiServerUrl, String galasaAccessToken, HttpClient httpClient) throws AuthenticationException {
+    public AuthenticationServiceImpl(URL apiServerUrl, String galasaAccessToken, CloseableHttpClient httpClient) throws AuthenticationException {
         validateAndStoreApiServerUrl(apiServerUrl);
         validateAndStoreGalasaAccessToken(galasaAccessToken);
         validateAndStoreHttpClient(httpClient);
     }
 
-    private void validateAndStoreHttpClient(HttpClient httpClient) throws AuthenticationException {
+    private void validateAndStoreHttpClient(CloseableHttpClient httpClient) throws AuthenticationException {
         if (httpClient == null) {
             throw new AuthenticationException("Error: Program logic error. No http client supplied to AuthenticationService.");
         }
@@ -97,7 +99,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         HttpPost postRequest = createAuthHttpPostRequest(gson, authEndpointUrl);
 
-        HttpResponse response = null;
+        ClassicHttpResponse response = null;
         try {
             response = httpClient.execute(postRequest);
         } catch (Exception ex) {
@@ -107,7 +109,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         // Check the auth service returned OK.
-        int statusCode = response.getStatusLine().getStatusCode();
+        int statusCode = response.getCode();
 
         if (statusCode == HttpStatus.SC_BAD_REQUEST) {
             AuthError authErrorDetail = null ;

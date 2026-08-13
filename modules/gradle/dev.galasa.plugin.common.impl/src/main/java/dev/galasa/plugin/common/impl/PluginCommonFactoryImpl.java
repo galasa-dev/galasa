@@ -7,7 +7,7 @@ package dev.galasa.plugin.common.impl;
 
 import java.net.URL;
 
-import org.apache.http.client.HttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import dev.galasa.plugin.common.AuthenticationException;
 import dev.galasa.plugin.common.AuthenticationService;
@@ -21,7 +21,7 @@ import dev.galasa.plugin.common.impl.auth.AuthenticationServiceImpl;
 public class PluginCommonFactoryImpl<Ex extends Exception> implements PluginCommonFactory<Ex> {
 
     @Override
-    public AuthenticationService newAuthenticationService(URL apiServerUrl, String galasaAccessToken, HttpClient httpClient) throws AuthenticationException {
+    public AuthenticationService newAuthenticationService(URL apiServerUrl, String galasaAccessToken, CloseableHttpClient httpClient) throws AuthenticationException {
         return new AuthenticationServiceImpl(apiServerUrl, galasaAccessToken, httpClient);
     }
 

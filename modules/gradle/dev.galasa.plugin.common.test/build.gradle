@@ -22,8 +22,8 @@ dependencies {
     implementation 'commons-codec:commons-codec'
 	implementation 'commons-io:commons-io'
 	implementation 'org.assertj:assertj-core'
-    implementation 'org.apache.httpcomponents:httpcore'
-    implementation 'org.apache.httpcomponents:httpclient'
+    
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
     implementation project(':dev.galasa.plugin.common')
 }
 

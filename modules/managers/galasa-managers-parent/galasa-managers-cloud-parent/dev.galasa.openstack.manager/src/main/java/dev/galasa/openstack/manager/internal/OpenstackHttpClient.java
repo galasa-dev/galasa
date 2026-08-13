@@ -12,19 +12,18 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import dev.galasa.ICredentials;
 import dev.galasa.ICredentialsUsernamePassword;
@@ -165,11 +164,11 @@ public class OpenstackHttpClient {
             post.setEntity(entity);
 
             try (CloseableHttpResponse response = this.httpClient.execute(post)) {
-                StatusLine status = response.getStatusLine();
+                
                 HttpEntity responseEntity = response.getEntity();
                 String responseString = EntityUtils.toString(responseEntity);
-                if (status.getStatusCode() != HttpStatus.SC_CREATED) {
-                    logger.warn("OpenStack is not available due to identity responding with " + status);
+                if (response.getCode() != HttpStatus.SC_CREATED) {
+                    logger.warn("OpenStack is not available due to identity responding with " + response.getCode());
                     return false;
                 }
 
@@ -245,11 +244,11 @@ public class OpenstackHttpClient {
             get.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new OpenstackManagerException("OpenStack list servers failed - " + status);
+                if (response.getCode() != HttpStatus.SC_OK) {
+                    throw new OpenstackManagerException("OpenStack list servers failed - " + response.getCode());
                 }
 
                 ServersResponse servers = this.gson.fromJson(entity, ServersResponse.class);
@@ -283,11 +282,11 @@ public class OpenstackHttpClient {
             delete.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(delete)) {
-                StatusLine status = response.getStatusLine();
+                
                 EntityUtils.consume(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_NO_CONTENT) {
-                    throw new OpenstackManagerException("OpenStack delete server failed - " + status);
+                if (response.getCode() != HttpStatus.SC_NO_CONTENT) {
+                    throw new OpenstackManagerException("OpenStack delete server failed - " + response.getCode());
                 }
             }
             return;
@@ -312,15 +311,15 @@ public class OpenstackHttpClient {
             get.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                if (response.getCode() == HttpStatus.SC_NOT_FOUND) {
                     return null;
                 }
 
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new OpenstackManagerException("OpenStack list servers failed - " + status);
+                if (response.getCode() != HttpStatus.SC_OK) {
+                    throw new OpenstackManagerException("OpenStack list servers failed - " + response.getCode());
                 }
 
                 ServerResponse server = this.gson.fromJson(entity, ServerResponse.class);
@@ -345,11 +344,11 @@ public class OpenstackHttpClient {
             get.setEntity(new StringEntity(gson.toJson(serverRequest)));
 
             try (CloseableHttpResponse response = this.httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_ACCEPTED) {
-                    throw new OpenstackManagerException("OpenStack create server failed - " + status + "\n" + entity);
+                if (response.getCode() != HttpStatus.SC_ACCEPTED) {
+                    throw new OpenstackManagerException("OpenStack create server failed - " + response.getCode() + "\n" + entity);
                 }
 
                 ServerResponse serverResponse = gson.fromJson(entity, ServerResponse.class);
@@ -385,11 +384,11 @@ public class OpenstackHttpClient {
             get.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new OpenstackManagerException("OpenStack list floating ips failed - " + status);
+                if (response.getCode() != HttpStatus.SC_OK) {
+                    throw new OpenstackManagerException("OpenStack list floating ips failed - " + response.getCode());
                 }
 
                 Floatingips fips = this.gson.fromJson(entity, Floatingips.class);
@@ -423,11 +422,11 @@ public class OpenstackHttpClient {
             delete.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(delete)) {
-                StatusLine status = response.getStatusLine();
+                
                 EntityUtils.consume(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_NO_CONTENT) {
-                    throw new OpenstackManagerException("OpenStack delete floatingip failed - " + status);
+                if (response.getCode() != HttpStatus.SC_NO_CONTENT) {
+                    throw new OpenstackManagerException("OpenStack delete floatingip failed - " + response.getCode());
                 }
             }
             return;
@@ -452,15 +451,15 @@ public class OpenstackHttpClient {
             get.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                if (response.getCode() == HttpStatus.SC_NOT_FOUND) {
                     return null;
                 }
 
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new OpenstackManagerException("OpenStack get floatingip failed - " + status);
+                if (response.getCode() != HttpStatus.SC_OK) {
+                    throw new OpenstackManagerException("OpenStack get floatingip failed - " + response.getCode());
                 }
 
                 FloatingipRequestResponse fipResponse = this.gson.fromJson(entity, FloatingipRequestResponse.class);
@@ -486,11 +485,11 @@ public class OpenstackHttpClient {
             get.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new OpenstackManagerException("OpenStack list port failed - " + status);
+                if (response.getCode() != HttpStatus.SC_OK) {
+                    throw new OpenstackManagerException("OpenStack list port failed - " + response.getCode());
                 }
 
                 PortsResponse portsResponse = this.gson.fromJson(entity, PortsResponse.class);
@@ -520,9 +519,9 @@ public class OpenstackHttpClient {
             get.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new OpenstackManagerException("OpenStack list os password failed - " + status);
+                
+                if (response.getCode() != HttpStatus.SC_OK) {
+                    throw new OpenstackManagerException("OpenStack list os password failed - " + response.getCode());
                 }
 
             }
@@ -545,11 +544,11 @@ public class OpenstackHttpClient {
             get.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new OpenstackManagerException("OpenStack list image failed - " + status);
+                if (response.getCode() != HttpStatus.SC_OK) {
+                    throw new OpenstackManagerException("OpenStack list image failed - " + response.getCode());
                 }
 
                 /* Even though we are searching by image name, the JSON returned is still an array of images */
@@ -584,11 +583,11 @@ public class OpenstackHttpClient {
             get.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new OpenstackManagerException("OpenStack list flavour failed - " + status);
+                if (response.getCode() != HttpStatus.SC_OK) {
+                    throw new OpenstackManagerException("OpenStack list flavour failed - " + response.getCode());
                 }
 
                 Flavors flavours = gson.fromJson(entity, Flavors.class);
@@ -629,11 +628,11 @@ public class OpenstackHttpClient {
             post.setEntity(new StringEntity(this.gson.toJson(fipRequest), ContentType.APPLICATION_JSON));
 
             try (CloseableHttpResponse response = httpClient.execute(post)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_CREATED) {
-                    throw new OpenstackManagerException("OpenStack create floating ip failed - " + status);
+                if (response.getCode() != HttpStatus.SC_CREATED) {
+                    throw new OpenstackManagerException("OpenStack create floating ip failed - " + response.getCode());
                 }
 
                 FloatingipRequestResponse fipResponse = this.gson.fromJson(entity, FloatingipRequestResponse.class);
@@ -660,11 +659,11 @@ public class OpenstackHttpClient {
             get.addHeader(this.openstackToken.getHeader());
 
             try (CloseableHttpResponse response = httpClient.execute(get)) {
-                StatusLine status = response.getStatusLine();
+                
                 String entity = EntityUtils.toString(response.getEntity());
 
-                if (status.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new OpenstackManagerException("OpenStack list networks failed - " + status);
+                if (response.getCode() != HttpStatus.SC_OK) {
+                    throw new OpenstackManagerException("OpenStack list networks failed - " + response.getCode());
                 }
 
                 Networks networks = this.gson.fromJson(entity, Networks.class);
