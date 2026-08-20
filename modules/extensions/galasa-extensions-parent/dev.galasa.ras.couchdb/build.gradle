@@ -5,7 +5,7 @@ plugins {
 
 description = 'Galasa RAS - CouchDB'
 
-version = '1.1.0'
+version = '1.1.1'
 
 configurations {
     implementation.transitive = false

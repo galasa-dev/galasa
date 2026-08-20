@@ -6,11 +6,11 @@
     <parent>
         <groupId>dev.galasa</groupId>
         <artifactId>dev.galasa.wrapping.parent</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </parent>
 
     <artifactId>dev.galasa.wrapping.velocity-engine-core</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <packaging>bundle</packaging>
 
     <!-- velocity-engine-core:2.4.1 does not need to be wrapped, but we have kept this bundle for now
