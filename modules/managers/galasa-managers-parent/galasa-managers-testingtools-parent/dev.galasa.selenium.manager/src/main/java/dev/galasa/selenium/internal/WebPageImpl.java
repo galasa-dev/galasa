@@ -659,9 +659,8 @@ public class WebPageImpl implements IWebPage {
             		resolve(selMan.getCurrentMethod()).
             		resolve("screenshot_" + time + ".png"));
             try(OutputStream os = Files.newOutputStream(screenshotRasDirectory.resolve(selMan.getCurrentMethod()).resolve("screenshot_" + time + ".png"), new SetContentType(ResultArchiveStoreContentType.PNG))) {
-                Files.copy(scrFile.toPath(), os); 
+                Files.copy(scrFile.toPath(), os);
                 os.flush();
-                os.close();
             }
         } catch (IOException e) {
             throw new SeleniumManagerException("Unable to take screenshot", e);
