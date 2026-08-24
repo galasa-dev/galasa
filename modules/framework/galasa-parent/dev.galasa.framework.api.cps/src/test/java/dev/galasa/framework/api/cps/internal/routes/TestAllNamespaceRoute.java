@@ -7,6 +7,8 @@ package dev.galasa.framework.api.cps.internal.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import com.google.gson.JsonArray;
+
 import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +24,14 @@ import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
 
 public class TestAllNamespaceRoute extends CpsServletTest {
+
+	private JsonArray getExpectedBuiltInNamespacesJson() {
+		JsonArray expectedJson = new JsonArray();
+		expectedJson.add("framework");
+		expectedJson.add("secure");
+		expectedJson.add("service");
+		return expectedJson;
+	}
 
     /*
      * Regex Path
@@ -177,7 +187,9 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n  \"framework\",\n  \"secure\"\n]");
+
+		JsonArray expectedJson = getExpectedBuiltInNamespacesJson();
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
     }
 
 	@Test
@@ -196,7 +208,9 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n  \"framework\",\n  \"secure\"\n]");
+
+		JsonArray expectedJson = getExpectedBuiltInNamespacesJson();
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
 	}
 
 	@Test
@@ -217,7 +231,9 @@ public class TestAllNamespaceRoute extends CpsServletTest {
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n  \"framework\",\n  \"secure\"\n]");
+
+		JsonArray expectedJson = getExpectedBuiltInNamespacesJson();
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
 	}
 
     @Test

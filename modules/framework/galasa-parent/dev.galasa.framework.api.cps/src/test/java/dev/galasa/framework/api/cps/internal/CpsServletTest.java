@@ -20,7 +20,6 @@ import dev.galasa.framework.api.common.mocks.MockHttpServletResponse;
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.common.mocks.MockServletOutputStream;
 import dev.galasa.framework.spi.IFramework;
-import dev.galasa.framework.spi.utils.GalasaGson;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -38,7 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CpsServletTest extends BaseServletTest {
 
-	static final GalasaGson gson = new GalasaGson();
 	private static final Map<String, String> REQUIRED_HEADERS = new HashMap<>(Map.of("Authorization", "Bearer " + DUMMY_JWT));
 
 	MockCpsServlet servlet;

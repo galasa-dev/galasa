@@ -8,6 +8,7 @@ package dev.galasa.framework.api.common.resources;
 
 import java.util.*;
 
+import dev.galasa.framework.api.common.BuiltInCPSNamespace;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
 import dev.galasa.framework.spi.IConfigurationPropertyStoreService;
 import dev.galasa.framework.spi.IFramework;
@@ -21,18 +22,14 @@ public class CPSFacade {
     public CPSFacade(IFramework framework) throws ConfigurationPropertyStoreException  {
         this.framework = framework;
         this.cpsService = framework.getConfigurationPropertyService("framework");
-        populateBakedInNamespace();
+        populateBakedInNamespaces();
     }
 
-    private void populateBakedInNamespace() throws ConfigurationPropertyStoreException  {
-        addNamespace("framework", Visibility.NORMAL);
-        addNamespace("secure", Visibility.SECURE);
-        addNamespace("dss", Visibility.HIDDEN);
-        addNamespace("dex", Visibility.HIDDEN);
-    }
-
-    private void addNamespace(String name, Visibility visibility) throws ConfigurationPropertyStoreException  {
-        bakedInNamespaceMap.put(name, new CPSNamespace(name, visibility, this.framework));
+    private void populateBakedInNamespaces() throws ConfigurationPropertyStoreException  {
+        for (BuiltInCPSNamespace namespace : BuiltInCPSNamespace.values()) {
+            String namespaceName = namespace.toString();
+            bakedInNamespaceMap.put(namespaceName, new CPSNamespace(namespaceName, namespace.getVisibility(), this.framework));
+        }
     }
 
     public Map<String,CPSNamespace> getNamespaces() throws ConfigurationPropertyStoreException  {
