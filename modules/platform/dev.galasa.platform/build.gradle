@@ -49,7 +49,7 @@ dependencies {
 
         api 'com.ibm.mq:com.ibm.mq.allclient:9.4.5.1'
 
-        api 'com.github.mwiede:jsch:2.27.6'
+        api 'com.github.mwiede:jsch:2.28.6'
 
         api 'com.sun.xml.bind:jaxb-osgi:4.0.5'
 
