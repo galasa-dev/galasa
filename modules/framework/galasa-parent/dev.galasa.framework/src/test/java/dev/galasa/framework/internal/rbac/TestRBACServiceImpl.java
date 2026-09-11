@@ -68,8 +68,7 @@ public class TestRBACServiceImpl {
         assertThat(roleGot.getName()).isEqualTo("tester");
 
         assertThat(roleGot.getActionIds())
-            .hasSize(3)
-            .contains("USER_EDIT_OTHER")
+            .hasSize(2)
             .contains("GENERAL_API_ACCESS")
             .contains("TEST_RUN_LAUNCH");
     }

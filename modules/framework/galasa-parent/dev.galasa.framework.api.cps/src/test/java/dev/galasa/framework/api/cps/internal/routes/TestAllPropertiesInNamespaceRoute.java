@@ -7,6 +7,9 @@ package dev.galasa.framework.api.cps.internal.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +25,37 @@ import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
 
 public class TestAllPropertiesInNamespaceRoute extends CpsServletTest {
+
+	private JsonArray getExpectedTestPropertiesJson() {
+		JsonObject property1 = new JsonObject();
+		property1.addProperty("name", "property.1");
+		property1.addProperty("value", "value1");
+
+		JsonObject property2 = new JsonObject();
+		property2.addProperty("name", "property.2");
+		property2.addProperty("value", "value2");
+
+		JsonObject property3 = new JsonObject();
+		property3.addProperty("name", "property.3");
+		property3.addProperty("value", "value3");
+
+		JsonObject property4 = new JsonObject();
+		property4.addProperty("name", "property.4");
+		property4.addProperty("value", "value4");
+
+		JsonObject property5 = new JsonObject();
+		property5.addProperty("name", "property.5");
+		property5.addProperty("value", "value5");
+
+		JsonArray expectedJson = new JsonArray();
+		expectedJson.add(property1);
+		expectedJson.add(property2);
+		expectedJson.add(property3);
+		expectedJson.add(property4);
+		expectedJson.add(property5);
+
+		return expectedJson;
+	}
 
     /*
      * Regex Path
@@ -175,7 +209,7 @@ public class TestAllPropertiesInNamespaceRoute extends CpsServletTest {
      */
 
     @Test
-	public void testGetNamespacesWithFrameworkNoDataReturnsNotFound() throws Exception{
+	public void testGetNamespacesWithFrameworkNoDataReturnsOk() throws Exception{
 		// Given...
 		setServlet("/namespace/framework/","empty",new HashMap<String,String[]>());
 		MockCpsServlet servlet = getServlet();
@@ -188,13 +222,9 @@ public class TestAllPropertiesInNamespaceRoute extends CpsServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(
-			outStream.toString(),
-			5016,
-			": Error occurred when trying to access namespace 'framework'. The namespace provided is invalid."
-		);
+		assertThat(outStream.toString()).isEqualTo("[]");
     }
 
 	@Test
@@ -213,12 +243,9 @@ public class TestAllPropertiesInNamespaceRoute extends CpsServletTest {
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n  "+
-				"{\n    \"name\": \"property.1\",\n    \"value\": \"value1\"\n  },\n  "+
-				"{\n    \"name\": \"property.2\",\n    \"value\": \"value2\"\n  },\n  "+
-				"{\n    \"name\": \"property.3\",\n    \"value\": \"value3\"\n  },\n  "+
-				"{\n    \"name\": \"property.4\",\n    \"value\": \"value4\"\n  },\n  "+
-				"{\n    \"name\": \"property.5\",\n    \"value\": \"value5\"\n  }\n]");
+
+		JsonArray expectedJson = getExpectedTestPropertiesJson();
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
 	}
 
 	@Test
@@ -239,12 +266,9 @@ public class TestAllPropertiesInNamespaceRoute extends CpsServletTest {
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n  "+
-				"{\n    \"name\": \"property.1\",\n    \"value\": \"value1\"\n  },\n  "+
-				"{\n    \"name\": \"property.2\",\n    \"value\": \"value2\"\n  },\n  "+
-				"{\n    \"name\": \"property.3\",\n    \"value\": \"value3\"\n  },\n  "+
-				"{\n    \"name\": \"property.4\",\n    \"value\": \"value4\"\n  },\n  "+
-				"{\n    \"name\": \"property.5\",\n    \"value\": \"value5\"\n  }\n]");
+
+		JsonArray expectedJson = getExpectedTestPropertiesJson();
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
 	}
    
     @Test

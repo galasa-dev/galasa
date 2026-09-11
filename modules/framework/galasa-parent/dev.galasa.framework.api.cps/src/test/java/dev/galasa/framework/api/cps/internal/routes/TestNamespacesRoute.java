@@ -4,12 +4,15 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 package dev.galasa.framework.api.cps.internal.routes;
+
+import static org.assertj.core.api.Assertions.*;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import dev.galasa.framework.api.common.mocks.MockIConfigurationPropertyStoreService;
 import dev.galasa.framework.api.cps.internal.CpsServletTest;
 import dev.galasa.framework.api.cps.internal.mocks.MockCpsServlet;
-import dev.galasa.framework.api.cps.internal.routes.TestNamespacesRoute;
-
-import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +25,30 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 
 public class TestNamespacesRoute extends CpsServletTest{
+
+	private JsonArray getExpectedBuiltInNamespacesJson() {
+		JsonObject framework = new JsonObject();
+		framework.addProperty("name", "framework");
+		framework.addProperty("propertiesUrl", "/framework/properties");
+		framework.addProperty("type", "NORMAL");
+
+		JsonObject secure = new JsonObject();
+		secure.addProperty("name", "secure");
+		secure.addProperty("propertiesUrl", "/secure/properties");
+		secure.addProperty("type", "SECURE");
+
+		JsonObject service = new JsonObject();
+		service.addProperty("name", "service");
+		service.addProperty("propertiesUrl", "/service/properties");
+		service.addProperty("type", "NORMAL");
+
+		JsonArray expectedJson = new JsonArray();
+		expectedJson.add(framework);
+		expectedJson.add(secure);
+		expectedJson.add(service);
+
+		return expectedJson;
+	}
 
 	/*
      * Regex Path
@@ -164,10 +191,10 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n"+
-		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
-		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
-		"\n]");	}
+
+		JsonArray expectedJson = getExpectedBuiltInNamespacesJson();
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
+	}
 
 	@Test
 	public void testGetNamespacesWithFrameworkWithDataReturnsOk() throws Exception{
@@ -185,10 +212,9 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n"+
-		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
-		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
-		"\n]");
+
+		JsonArray expectedJson = getExpectedBuiltInNamespacesJson();
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
 	}
 
 	@Test
@@ -209,10 +235,9 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n"+
-		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
-		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
-		"\n]");
+
+		JsonArray expectedJson = getExpectedBuiltInNamespacesJson();
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
 	}
 
 	@Test
@@ -231,10 +256,9 @@ public class TestNamespacesRoute extends CpsServletTest{
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("[\n"+
-		"  {\n    \"name\": \"framework\",\n    \"propertiesUrl\": \"/framework/properties\",\n    \"type\": \"NORMAL\"\n  },\n"+
-		"  {\n    \"name\": \"secure\",\n    \"propertiesUrl\": \"/secure/properties\",\n    \"type\": \"SECURE\"\n  }"+
-		"\n]");
+
+		JsonArray expectedJson = getExpectedBuiltInNamespacesJson();
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
 	}
 
 	@Test

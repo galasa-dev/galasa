@@ -7,6 +7,8 @@ package dev.galasa.framework.api.cps.internal.routes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import com.google.gson.JsonObject;
+
 import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.Map;
@@ -227,13 +229,9 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		servlet.doGet(req,resp);
 
 		// Then...
-		assertThat(resp.getStatus()).isEqualTo(404);
+		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		checkErrorStructure(
-			outStream.toString(),
-			5016,
-			": Error occurred when trying to access namespace 'framework'. The namespace provided is invalid."
-		);
+		assertThat(outStream.toString()).isEqualTo("{}");
     }
 
 	@Test
@@ -292,7 +290,11 @@ public class TestAllPropertiesInNamespaceFilteredRoute extends CpsServletTest {
 		// Then...
 		assertThat(resp.getStatus()).isEqualTo(200);
 		assertThat(resp.getContentType()).isEqualTo("application/json");
-		assertThat(outStream.toString()).isEqualTo("{\n  \"name\": \"property.1\",\n  \"value\": \"value1\"\n}");
+
+		JsonObject expectedJson = new JsonObject();
+		expectedJson.addProperty("name", "property.1");
+		expectedJson.addProperty("value", "value1");
+		assertThat(outStream.toString()).isEqualTo(gson.toJson(expectedJson));
 	}
    
     @Test

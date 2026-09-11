@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import dev.galasa.framework.api.beans.GalasaProperty;
 import dev.galasa.framework.api.beans.GalasaPropertyData;
 import dev.galasa.framework.api.beans.GalasaPropertyMetadata;
+import dev.galasa.framework.api.common.BuiltInCPSNamespace;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -34,6 +35,7 @@ import dev.galasa.framework.api.common.resources.CPSNamespace;
 import dev.galasa.framework.api.common.resources.CPSProperty;
 import dev.galasa.framework.api.common.resources.GalasaPropertyName;
 import dev.galasa.framework.api.common.resources.ResourceNameValidator;
+import dev.galasa.framework.api.common.resources.Visibility;
 import dev.galasa.framework.api.common.resources.beans.GalasaBeanSerialiser;
 import dev.galasa.framework.api.cps.internal.common.PropertyComparator;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
@@ -175,10 +177,17 @@ public abstract class CPSRoute extends ProtectedRoute {
     protected  boolean checkNamespaceExists(String namespaceName) throws ConfigurationPropertyStoreException, InternalServletException {
         boolean valid = false;
         try {
-            CPSFacade cps = new CPSFacade(framework);
-            CPSNamespace namespace = cps.getNamespace(namespaceName);
-            if (namespace.getProperties().size() > 0) {
-                valid = true;
+            if (namespaceName != null) {
+                BuiltInCPSNamespace possibleBuiltInNamespace = BuiltInCPSNamespace.getFromString(namespaceName);
+                if (possibleBuiltInNamespace != null && possibleBuiltInNamespace.getVisibility() != Visibility.HIDDEN) {
+                    valid = true;
+                } else {
+                    CPSFacade cps = new CPSFacade(framework);
+                    CPSNamespace namespace = cps.getNamespace(namespaceName);
+                    if (namespace.getProperties().size() > 0) {
+                        valid = true;
+                    }
+                }
             }
         } catch (Exception e ) {
             //Catch the Exception (namespace is invalid) to throw error in if 
