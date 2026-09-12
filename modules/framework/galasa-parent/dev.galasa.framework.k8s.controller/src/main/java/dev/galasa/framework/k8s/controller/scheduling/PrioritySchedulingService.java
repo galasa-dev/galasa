@@ -81,9 +81,13 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         // Pre-compute each run's total priority score once, before sorting begins.
         Map<String, Double> queuedRunScores = new HashMap<>();
         for (IRun run : queuedRuns) {
-            double score = getQueuedRunTotalPriorityPoints(run, queuedRunTags);
-            queuedRunScores.put(run.getName(), score);
-            logger.trace("Scheduling: run '" + run.getName() + "' pre-computed priority score: " + score);
+            try {
+                double score = getQueuedRunTotalPriorityPoints(run, queuedRunTags);
+                queuedRunScores.put(run.getName(), score);
+                logger.trace("Scheduling: run '" + run.getName() + "' pre-computed priority score: " + score);
+            } catch (Exception e) {
+                logger.warn("Failed to schedule run " + run.getName(), e);
+            }
         }
 
         queuedRuns.sort(getPriorityComparator(queuedRunScores));
@@ -93,7 +97,10 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
     private Map<String, Tag> getAllQueuedRunTagsFromCps(List<IRun> queuedRuns) {
         Set<String> tagNamesSet = new HashSet<>();
         for (IRun run : queuedRuns) {
-            tagNamesSet.addAll(run.getTags());
+            Set<String> runTags = run.getTags();
+            if (runTags != null) {
+                tagNamesSet.addAll(runTags);
+            }
         }
 
         Map<String, Tag> tagsFromCps = new HashMap<>();
@@ -110,6 +117,14 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         return tagsFromCps;
     }
 
+    private boolean isInvalidQueuedRun(IRun run) {
+        return run.getName() == null
+            || run.getName().isBlank()
+            || run.getRequestor() == null
+            || run.getRequestor().isBlank()
+            || run.getQueued() == null;
+    }
+
     private Comparator<IRun> getPriorityComparator(Map<String, Double> queuedRunScores) {
         return (a, b) -> Double.compare(queuedRunScores.get(b.getName()), queuedRunScores.get(a.getName()));
     }
@@ -121,6 +136,11 @@ public class PrioritySchedulingService implements IPrioritySchedulingService {
         while (queuedRunsIterator.hasNext()) {
             IRun run = queuedRunsIterator.next();
             if (run.isLocal() || run.getInterruptReason() != null) {
+                queuedRunsIterator.remove();
+            } else if (isInvalidQueuedRun(run)) {
+                logger.warn("Discarding malformed queued run '" + run.getName()
+                    + "' because required scheduling data is missing");
+                this.frameworkRuns.delete(run.getName());
                 queuedRunsIterator.remove();
             }
         }

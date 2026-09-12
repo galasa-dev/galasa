@@ -39,15 +39,15 @@ public class PrioritySchedulingServiceTest {
         // Given...
         Instant now = Instant.now();
         List<IRun> runs = new ArrayList<>();
-        MockRun oldRun1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        MockRun oldRun1 = new MockRun(null, null, "run1", null, null, null, "testUser", false);
         oldRun1.setQueued(Instant.EPOCH);
         oldRun1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, "testUser", false);
         oldRun2.setQueued(Instant.EPOCH.plusSeconds(10));
         oldRun2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun newRun = new MockRun(null, null, "run3", null, null, null, null, false);
+        MockRun newRun = new MockRun(null, null, "run3", null, null, null, "testUser", false);
         newRun.setQueued(now);
         newRun.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
@@ -78,15 +78,15 @@ public class PrioritySchedulingServiceTest {
         // Given...
         Instant now = Instant.now();
         List<IRun> runs = new ArrayList<>();
-        MockRun oldRun1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        MockRun oldRun1 = new MockRun(null, null, "run1", null, null, null, "testUser", false);
         oldRun1.setQueued(now.minusSeconds(30));
         oldRun1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, "testUser", false);
         oldRun2.setQueued(now.minusSeconds(29));
         oldRun2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun newRun = new MockRun(null, null, "run3", null, null, null, null, false);
+        MockRun newRun = new MockRun(null, null, "run3", null, null, null, "testUser", false);
         newRun.setQueued(now);
         newRun.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
@@ -119,13 +119,13 @@ public class PrioritySchedulingServiceTest {
         long priorityGrowthRatePerMin = 10;
 
         List<IRun> runs = new ArrayList<>();
-        MockRun run1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        MockRun run1 = new MockRun(null, null, "run1", null, null, null, "testUser", false);
 
         // Set the queued time to be 2 minutes before now
         run1.setQueued(now.minus(2, ChronoUnit.MINUTES));
         run1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
         
-        MockRun run2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        MockRun run2 = new MockRun(null, null, "run2", null, null, null, "testUser", false);
 
         // Set the queued time to be 7 minutes before now
         run2.setQueued(now.minus(7, ChronoUnit.MINUTES));
@@ -159,13 +159,13 @@ public class PrioritySchedulingServiceTest {
         Instant now = Instant.now();
 
         List<IRun> runs = new ArrayList<>();
-        MockRun run1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        MockRun run1 = new MockRun(null, null, "run1", null, null, null, "testUser", false);
 
         // Set the queued time to be 2 minutes before now
         run1.setQueued(now.minus(2, ChronoUnit.MINUTES));
         run1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
         
-        MockRun run2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        MockRun run2 = new MockRun(null, null, "run2", null, null, null, "testUser", false);
 
         // Set the queued time to be 7 minutes before now
         run2.setQueued(now.minus(7, ChronoUnit.MINUTES));
@@ -200,15 +200,15 @@ public class PrioritySchedulingServiceTest {
         // Given...
         Instant now = Instant.now();
         List<IRun> runs = new ArrayList<>();
-        MockRun oldRun1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        MockRun oldRun1 = new MockRun(null, null, "run1", null, null, null, "testUser", false);
         oldRun1.setQueued(Instant.EPOCH);
         oldRun1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, "testUser", false);
         oldRun2.setQueued(Instant.EPOCH);
         oldRun2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun newRun = new MockRun(null, null, "run3", null, null, null, null, false);
+        MockRun newRun = new MockRun(null, null, "run3", null, null, null, "testUser", false);
         newRun.setQueued(now);
         newRun.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
@@ -239,15 +239,15 @@ public class PrioritySchedulingServiceTest {
         // Given...
         Instant now = Instant.now();
         List<IRun> runs = new ArrayList<>();
-        MockRun oldRun1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        MockRun oldRun1 = new MockRun(null, null, "run1", null, null, null, "testUser", false);
         oldRun1.setQueued(Instant.EPOCH);
         oldRun1.setStatus(TestRunLifecycleStatus.RUNNING.toString());
 
-        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, "testUser", false);
         oldRun2.setQueued(Instant.EPOCH);
         oldRun2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun newRun = new MockRun(null, null, "run3", null, null, null, null, false);
+        MockRun newRun = new MockRun(null, null, "run3", null, null, null, "testUser", false);
         newRun.setQueued(now);
         newRun.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
@@ -283,11 +283,11 @@ public class PrioritySchedulingServiceTest {
         oldRun1.setQueued(Instant.EPOCH);
         oldRun1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        MockRun oldRun2 = new MockRun(null, null, "run2", null, null, null, "testUser", false);
         oldRun2.setQueued(Instant.EPOCH);
         oldRun2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun newRun = new MockRun(null, null, "run3", null, null, null, null, false);
+        MockRun newRun = new MockRun(null, null, "run3", null, null, null, "testUser", false);
         newRun.setQueued(now);
         newRun.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
@@ -322,11 +322,11 @@ public class PrioritySchedulingServiceTest {
 
         Instant now = Instant.now();
         List<IRun> runs = new ArrayList<>();
-        MockRun run1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        MockRun run1 = new MockRun(null, null, "run1", null, null, null, "testUser", false);
         run1.setQueued(now);
         run1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun run2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        MockRun run2 = new MockRun(null, null, "run2", null, null, null, "testUser", false);
         run2.setQueued(now);
         run2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
@@ -376,16 +376,16 @@ public class PrioritySchedulingServiceTest {
 
         Instant now = Instant.now();
         List<IRun> runs = new ArrayList<>();
-        MockRun run1 = new MockRun(null, null, "run1", null, null, null, null, false);
+        MockRun run1 = new MockRun(null, null, "run1", null, null, null, "testUser", false);
         run1.setQueued(now);
         run1.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
-        MockRun run2 = new MockRun(null, null, "run2", null, null, null, null, false);
+        MockRun run2 = new MockRun(null, null, "run2", null, null, null, "testUser", false);
         run2.setQueued(now);
         run2.setStatus(TestRunLifecycleStatus.QUEUED.toString());
 
         // The only difference here is that run3 has tags with priority values set, so this one should get scheduled first
-        MockRun run3 = new MockRun(null, null, "run3", null, null, null, null, false);
+        MockRun run3 = new MockRun(null, null, "run3", null, null, null, "testUser", false);
         run3.setQueued(now);
         run3.setStatus(TestRunLifecycleStatus.QUEUED.toString());
         run3.setTags(Set.of("high-priority-tag", "another-tag"));
@@ -432,7 +432,7 @@ public class PrioritySchedulingServiceTest {
 
         Instant now = Instant.now();
         List<IRun> runs = new ArrayList<>();
-        MockRun run = new MockRun(null, null, "run3", null, null, null, null, false);
+        MockRun run = new MockRun(null, null, "run3", null, null, null, "testUser", false);
         run.setQueued(now);
         run.setStatus(TestRunLifecycleStatus.QUEUED.toString());
         run.setTags(Set.of("high-priority-tag", "another-tag"));
@@ -457,6 +457,61 @@ public class PrioritySchedulingServiceTest {
     }
 
     @Test
+    public void testMalformedQueuedRunIsDeletedWithoutBlockingValidRuns() throws Exception {
+        // Given...
+        Instant now = Instant.now();
+        MockRun malformedRun = new MockRun(null, null, "malformedRun", null, null, null, null, false);
+        malformedRun.setQueued(now);
+        malformedRun.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+
+        MockRun validRun = new MockRun(null, null, "validRun", null, null, null, "validUser", false);
+        validRun.setQueued(now);
+        validRun.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(List.of(malformedRun, validRun));
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        MockTimeService mockTimeService = new MockTimeService(now);
+
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(
+            mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
+
+        // When...
+        List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
+
+        // Then...
+        assertThat(runsGotBack).containsExactly(validRun);
+        assertThat(mockFrameworkRuns.getDeletedRunNames()).containsExactly("malformedRun");
+    }
+
+    @Test
+    public void testQueuedRunWithNullTagsSchedulesWithoutTagPriority() throws Exception {
+        // Given...
+        Instant now = Instant.now();
+        MockRun runWithNullTags = new MockRun(null, null, "runWithNullTags", null, null, null, "testUser", false);
+        runWithNullTags.setQueued(now);
+        runWithNullTags.setStatus(TestRunLifecycleStatus.QUEUED.toString());
+        runWithNullTags.setTags(null);
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(List.of(runWithNullTags));
+        MockIConfigurationPropertyStoreService mockCps = new MockIConfigurationPropertyStoreService();
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        MockTimeService mockTimeService = new MockTimeService(now);
+
+        PrioritySchedulingService schedulingService = new PrioritySchedulingService(
+            mockFrameworkRuns, mockCps, mockRBACService, mockTimeService, mockTagsService);
+
+        // When...
+        List<IRun> runsGotBack = schedulingService.getPrioritisedTestRunsToSchedule();
+
+        // Then...
+        assertThat(runsGotBack).containsExactly(runWithNullTags);
+        assertThat(mockFrameworkRuns.getDeletedRunNames()).isEmpty();
+    }
+
+    @Test
     public void testSortDoesNotThrowWhenClockAdvancesBetweenComparisons() throws Exception {
         // Given...
         // A time service whose now() advances by 1 second on every call.
@@ -474,7 +529,7 @@ public class PrioritySchedulingServiceTest {
         Instant queuedBase = Instant.EPOCH.minusSeconds(300);
         List<IRun> runs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            MockRun run = new MockRun(null, null, "run" + i, null, null, null, null, false);
+            MockRun run = new MockRun(null, null, "run" + i, null, null, null, "testUser", false);
             run.setQueued(queuedBase.plusSeconds(i * 10));
             run.setStatus(TestRunLifecycleStatus.QUEUED.toString());
             runs.add(run);
