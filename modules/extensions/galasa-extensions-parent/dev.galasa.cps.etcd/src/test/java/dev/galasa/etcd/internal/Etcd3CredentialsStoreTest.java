@@ -445,6 +445,57 @@ public class Etcd3CredentialsStoreTest {
     }
 
     @Test
+    public void testDeleteCredentialsDoesNotDeleteSimilarlyNamedSecret() throws Exception {
+        // Given...
+        MockEncryptionService mockEncryptionService = new MockEncryptionService();
+        String credsId = "SYS1_USER";
+        String similarCredsId = "SYS1_USER_ABC";
+        String username = "user-a";
+        String similarUsername = "user-b";
+
+        Map<String, String> mockCreds = new HashMap<>();
+        mockCreds.put("secure.credentials." + credsId + ".username", username);
+        mockCreds.put("secure.credentials." + similarCredsId + ".username", similarUsername);
+
+        MockEtcdClient mockClient = new MockEtcdClient(mockCreds);
+        Etcd3CredentialsStore store = new Etcd3CredentialsStore(null, mockEncryptionService, mockClient);
+
+        // When...
+        store.deleteCredentials(credsId);
+
+        // Then...
+        assertThat(mockCreds).doesNotContainKey("secure.credentials." + credsId + ".username");
+        assertThat(mockCreds).containsKey("secure.credentials." + similarCredsId + ".username");
+        assertThat(mockCreds.get("secure.credentials." + similarCredsId + ".username")).isEqualTo(similarUsername);
+    }
+
+    @Test
+    public void testSetCredentialsDoesNotDeleteSimilarlyNamedSecret() throws Exception {
+        // Given...
+        MockEncryptionService mockEncryptionService = new MockEncryptionService();
+        String credsId = "SYS1_ADMIN";
+        String similarCredsId = "SYS1_ADMIN_XYZ";
+        String username = "admin-a";
+        String newUsername = "admin-aaa";
+        String similarUsername = "admin-b";
+
+        Map<String, String> mockCreds = new HashMap<>();
+        mockCreds.put("secure.credentials." + credsId + ".username", username);
+        mockCreds.put("secure.credentials." + similarCredsId + ".username", similarUsername);
+
+        MockEtcdClient mockClient = new MockEtcdClient(mockCreds);
+        Etcd3CredentialsStore store = new Etcd3CredentialsStore(null, mockEncryptionService, mockClient);
+
+        // When...
+        store.setCredentials(credsId, new CredentialsUsername(newUsername));
+
+        // Then...
+        assertThat(mockCreds.get("secure.credentials." + credsId + ".username")).isEqualTo(newUsername);
+        assertThat(mockCreds).containsKey("secure.credentials." + similarCredsId + ".username");
+        assertThat(mockCreds.get("secure.credentials." + similarCredsId + ".username")).isEqualTo(similarUsername);
+    }
+
+    @Test
     public void testShutdownClosesEtcdClientsOk() throws Exception {
         // Given...
         MockEncryptionService mockEncryptionService = new MockEncryptionService();

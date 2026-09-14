@@ -135,7 +135,7 @@ public class Etcd3CredentialsStore extends Etcd3Store implements ICredentialsSto
     @Override
     public void deleteCredentials(String credentialsId) throws CredentialsException {
         try {
-            deletePropertiesWithPrefix(CREDS_PROPERTY_PREFIX + credentialsId);
+            deletePropertiesWithPrefix(CREDS_PROPERTY_PREFIX + credentialsId + ".");
         } catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
             throw new CredentialsException("Failed to delete credentials", e);
