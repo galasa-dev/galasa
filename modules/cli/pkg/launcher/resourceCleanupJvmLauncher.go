@@ -192,7 +192,6 @@ func (launcher *ResourceCleanupJvmLauncher) RunResourceCleanup() error {
 // --localmaven file:${M2_PATH}/repository/ \
 // --remotemaven $REMOTE_MAVEN \
 // --bootstrap file:${HOME}/.galasa/bootstrap.properties \
-// --obr mvn:dev.galasa/dev.galasa.uber.obr/${OBR_VERSION}/obr \
 // --obr mvn:${OBR_GROUP_ID}/${OBR_ARTIFACT_ID}/${OBR_VERSION}/obr \
 // --includes-monitor-pattern "dev.galasa.*"
 // --excludes-monitor-pattern "*MyUnwantedCleanupJob"
