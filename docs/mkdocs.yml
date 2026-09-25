@@ -178,6 +178,7 @@ nav:
       - docs/cli-command-reference/runs-submit-local.md
       - docs/cli-command-reference/runs-local-debug.md
       - docs/cli-command-reference/viewing-test-results-cli.md 
+      - docs/cli-command-reference/creating-a-manager-project.md
     - Exploring Galasa SimBank:
       - docs/running-simbank-tests/index.md
       - docs/running-simbank-tests/simbank-cli.md

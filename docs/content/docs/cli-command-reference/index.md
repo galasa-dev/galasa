@@ -17,6 +17,7 @@ The Galasa CLI (galasactl) is a command-line tool that helps you manage and run 
 - [Exploring Galasa SimBank](../running-simbank-tests/index.md) - Learn some Galasa basics with a sample mainframe application
 - [Galasa architecture](../index.md) - Learn about Galasa's key components and design
 - [The Galasa command line tool video](https://www.youtube.com/watch?v=lwYOwJZ4Q8Q){target="_blank"} - Watch a complete setup walkthrough
+- [Creating a Galasa manager project](./creating-a-manager-project.md) - Scaffold a reusable manager component using the CLI
 
 ## Working without network access
 
