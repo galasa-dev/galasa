@@ -55,7 +55,7 @@ If `--managerName` is not specified, the tool derives the manager name from the 
 
   Example: `dev.galasa.example.sample`
 
-- `--manager` (required for manager projects): Signals that the project being created is a manager rather than a test project.
+- `--manager` (required for manager projects): Signals that a manager project should be created.
 
 - `--managerName` (optional): The short name used to derive generated class names. For example, `--managerName sample` produces `@SampleManager`, `ISampleManager`, `SampleManagerImpl`, and so on. Defaults to the last part of `--package` if omitted. Must be a valid Java identifier.
 
