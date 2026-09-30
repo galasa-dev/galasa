@@ -86,6 +86,10 @@ public class LocalLinuxEcosystemImpl extends LocalEcosystemImpl {
     public void discard() {
         // Will let the Linux manager discard to home dir, but we need to save all the data from the remote ecosystem
 
+        // Remove inner-run guard entries from the outer framework DSS so resource
+        // monitors are free to clean up resources left by completed/crashed inner runs.
+        deregisterAllInnerRunGuards();
+
         super.discard();
 
         for(Path consoleFile : this.runFiles) {
@@ -245,6 +249,10 @@ public class LocalLinuxEcosystemImpl extends LocalEcosystemImpl {
             if (overridesFile != null) {
                 this.runNameFiles.put(overridesFile, runName);
             }
+
+            // Register a guard entry in the outer framework DSS so that resource monitors
+            // do not classify resources belonging to this inner run as orphaned.
+            registerInnerRunGuard(runName);
 
             logger.info("Submitted test run with run name of " + runName);
 

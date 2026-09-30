@@ -43,6 +43,8 @@ import dev.galasa.artifact.IArtifactManager;
 import dev.galasa.artifact.IBundleResources;
 import dev.galasa.artifact.TestBundleResourceException;
 import dev.galasa.framework.spi.ConfigurationPropertyStoreException;
+import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.IDynamicStatusStoreService;
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.InsufficientResourcesAvailableException;
 import dev.galasa.framework.spi.utils.GalasaGson;
@@ -470,6 +472,68 @@ public abstract class LocalEcosystemImpl extends AbstractEcosystemImpl implement
         this.localRuns.add(localRun);
     }
 
+    /**
+     * Guards against outer resource monitors incorrectly classifying inner-run
+     * resources as orphaned. Stored under the outer run's own DSS prefix so they
+     * are automatically removed when {@code frameworkRuns.delete(outerRunName)}
+     * is called (e.g. by {@code RunFinishedRuns} after the outer run completes).
+     *
+     * <p>Key format: {@code run.<outerRunName>.innerrun.<innerRunName> = true}
+     *
+     * <p>Resource monitors look up the set of protected inner run names by calling
+     * {@code dss.getPrefix("run.")} and filtering keys that contain
+     * {@code ".innerrun."}.
+     */
+    static final String INNER_RUN_DSS_INFIX = ".innerrun.";
+
+    /**
+     * Register a guard entry in the outer {@code "framework"} DSS under the outer
+     * run's own key prefix. The entry is automatically removed when the outer run's
+     * DSS properties are cleaned up, so no explicit deregistration is needed if the
+     * outer test ends normally. {@link #deregisterAllInnerRunGuards()} is kept for
+     * eager cleanup on ecosystem discard.
+     */
+    protected void registerInnerRunGuard(String innerRunName) {
+        String outerRunName = this.framework.getTestRunName();
+        try {
+            IDynamicStatusStoreService frameworkDss =
+                this.framework.getDynamicStatusStoreService("framework");
+            String key = "run." + outerRunName + INNER_RUN_DSS_INFIX + innerRunName;
+            frameworkDss.put(key, "true");
+            logger.debug("Registered inner-run guard: " + key);
+        } catch (DynamicStatusStoreException e) {
+            logger.warn("Failed to register inner-run guard for run " + innerRunName
+                    + " — resources created by this run may be incorrectly treated as"
+                    + " orphaned by a resource monitor", e);
+        }
+    }
+
+    /**
+     * Remove the guard entry for {@code innerRunName}. Called during discard for
+     * eager cleanup; if discard never runs the entry is removed automatically when
+     * the outer run's DSS prefix is swept.
+     */
+    protected void deregisterInnerRunGuard(String innerRunName) {
+        String outerRunName = this.framework.getTestRunName();
+        try {
+            IDynamicStatusStoreService frameworkDss =
+                this.framework.getDynamicStatusStoreService("framework");
+            frameworkDss.delete("run." + outerRunName + INNER_RUN_DSS_INFIX + innerRunName);
+            logger.debug("Deregistered inner-run guard for run " + innerRunName);
+        } catch (DynamicStatusStoreException e) {
+            logger.warn("Failed to deregister inner-run guard for run " + innerRunName, e);
+        }
+    }
+
+    /**
+     * Remove all guard entries for every known local run. Called during discard to
+     * eagerly clean up before the outer run's DSS prefix is swept.
+     */
+    protected void deregisterAllInnerRunGuards() {
+        for (LocalRun run : this.localRuns) {
+            deregisterInnerRunGuard(run.getRunName());
+        }
+    }
 
     private void discardRunIdPrefix() {
         // Release runid prefix
