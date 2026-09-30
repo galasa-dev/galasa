@@ -81,10 +81,10 @@ public class TestCeciImpl {
         Mockito.lenient().when(ceciTerminalMock.pf9()).thenReturn(ceciTerminalMock);
         Mockito.lenient().when(ceciTerminalMock.pf10()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.pf11()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.tab()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.tab()).thenReturn(ceciTerminalMock);
         Mockito.lenient().when(ceciTerminalMock.home()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.newLine()).thenReturn(ceciTerminalMock);
-        Mockito.when(ceciTerminalMock.eraseEof()).thenReturn(ceciTerminalMock);
+        Mockito.lenient().when(ceciTerminalMock.eraseEof()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.waitForKeyboard()).thenReturn(ceciTerminalMock);
         Mockito.lenient().when(ceciTerminalMock.reportScreenWithCursor()).thenReturn(ceciTerminalMock);
         Mockito.when(ceciTerminalMock.getCicsRegion()).thenReturn(cicsRegionMock);
