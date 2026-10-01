@@ -88,9 +88,9 @@ dependencies {
         api 'io.kubernetes:client-java:27.0.0'
 
         // Override transitive dependencies for client-java:27.0.0 to address CVEs
-        api 'org.bouncycastle:bcprov-jdk18on:1.85'
-        api 'org.bouncycastle:bcpkix-jdk18on:1.85'
-        api 'org.bouncycastle:bcutil-jdk18on:1.85'
+        api 'org.bouncycastle:bcprov-jdk18on:1.86'
+        api 'org.bouncycastle:bcpkix-jdk18on:1.86'
+        api 'org.bouncycastle:bcutil-jdk18on:1.86'
 
         api 'io.netty:netty-codec:4.2.16.Final'
 
