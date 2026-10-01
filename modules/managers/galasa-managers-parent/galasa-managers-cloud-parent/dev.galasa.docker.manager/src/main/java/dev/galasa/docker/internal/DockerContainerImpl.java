@@ -515,6 +515,10 @@ public class DockerContainerImpl implements IDockerContainer {
     @Override
     public long getExitCode() throws DockerManagerException {
         JsonObject response = dockerEngine.getContainer(containerName);
+        if (response == null) {
+            throw new DockerManagerException(
+                "Unable to retrieve exit code: container '" + containerName + "' was not found on the Docker engine");
+        }
         JsonObject state = response.get("State").getAsJsonObject();
         if (state == null) {
             return -1;
