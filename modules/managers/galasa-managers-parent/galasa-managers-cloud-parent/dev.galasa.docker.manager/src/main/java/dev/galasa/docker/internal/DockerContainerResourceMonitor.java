@@ -109,17 +109,7 @@ public class DockerContainerResourceMonitor implements Runnable {
                 return orphanedContainers;
             }
 
-            // Build the set of inner run names that are currently protected by a guard
-            // entry. Keys have the form run.<outer>.innerrun.<inner>; the inner run name
-            // is the segment after the last dot.
-            IDynamicStatusStoreService frameworkDss = framework.getDynamicStatusStoreService("framework");
-            Set<String> protectedInnerRunNames = new HashSet<>();
-            for (String key : frameworkDss.getPrefix("run.").keySet()) {
-                int idx = key.indexOf(".innerrun.");
-                if (idx >= 0) {
-                    protectedInnerRunNames.add(key.substring(idx + ".innerrun.".length()));
-                }
-            }
+            Set<String> protectedInnerRunNames = getProtectedInnerRunNames();
 
             DockerContainerJSON[] activeContainers = gson.fromJson(resp.getContent(), DockerContainerJSON[].class);
             for (DockerContainerJSON container : activeContainers) {
@@ -133,6 +123,7 @@ public class DockerContainerResourceMonitor implements Runnable {
                 // If this inner run is protected by a guard entry, its slot entries live
                 // in a file-based DSS invisible to this monitor. Leave it alone — the
                 // guard is automatically removed when the outer run's DSS prefix is swept.
+                // TODO: Remove this check if the Galasa Ecosystem Manager is removed.
                 if (protectedInnerRunNames.contains(runName)) {
                     logger.debug("Container " + container.getId() + " belongs to inner run "
                             + runName + " (guard entry present) — skipping");
@@ -148,6 +139,29 @@ public class DockerContainerResourceMonitor implements Runnable {
             logger.error("Failed to get containers.", e);
         }
         return orphanedContainers;
+    }
+
+    /**
+     * Builds the set of inner run names that are currently protected by a guard entry
+     * written by the Galasa Ecosystem Manager (LocalEcosystemImpl). Keys have the form
+     * run.&lt;outer&gt;.innerrun.&lt;inner&gt;; the inner run name is the segment after
+     * the last dot.
+     *
+     * TODO: Remove this method if the Galasa Ecosystem Manager is removed.
+     *
+     * @return set of inner run names that should not be treated as orphaned
+     * @throws FrameworkException if the framework DSS cannot be accessed
+     */
+    private Set<String> getProtectedInnerRunNames() throws FrameworkException {
+        IDynamicStatusStoreService frameworkDss = framework.getDynamicStatusStoreService("framework");
+        Set<String> protectedInnerRunNames = new HashSet<>();
+        for (String key : frameworkDss.getPrefix("run.").keySet()) {
+            int idx = key.indexOf(".innerrun.");
+            if (idx >= 0) {
+                protectedInnerRunNames.add(key.substring(idx + ".innerrun.".length()));
+            }
+        }
+        return protectedInnerRunNames;
     }
 
     /**
