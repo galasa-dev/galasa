@@ -665,12 +665,12 @@ public class Launcher {
             throw new LauncherException("Unable to determine Java version - will exit");
         }
 
-        if (version.startsWith("17")){
+        if (version.startsWith("17") || version.startsWith("21")){
             logger.trace("Java version " + version + " validated");
             return;
         }
 
-        String msg = "Galasa requires Java 17, we found: " + version + ". Correct your classpath to a supported version of java and re-try.";
+        String msg = "Galasa requires Java 17 or 21, we found: " + version + ". Correct your classpath to a supported version of java and re-try.";
         logger.error(msg);
         throw new LauncherException(msg);
     }
