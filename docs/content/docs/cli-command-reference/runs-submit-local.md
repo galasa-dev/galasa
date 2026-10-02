@@ -20,7 +20,7 @@ The tool verifies that `JAVA_HOME` is set correctly by checking for:
 - `$JAVA_HOME/bin/java` on Linux or macOS
 - `%JAVA_HOME%\bin\java.exe` on Windows
 
-**Java version requirements:** Your Java version must match the supported level for your Galasa version. Use `galasactl --version` to check your galasactl version. Currently, Galasa supports Java 17 JDK. Java 21 and later versions are not currently supported.
+**Java version requirements:** Your Java version must match the supported level for your Galasa version. Use `galasactl --version` to check your galasactl version. Galasa supports Java 17 and Java 21 JDKs. Java 25 and later versions are not currently supported.
 
 For all available command options, see the [galasactl runs submit local](../reference/cli-syntax/galasactl_runs_submit_local.md) reference.
 

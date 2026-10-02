@@ -6,9 +6,9 @@ Install the following software before installing Galasa.
 
 ## Java JDK (Required)
 
-Install Java 17 JDK. Galasa tests and Managers are written in Java so a Java JDK is required.
+Install a Java 17 or Java 21 JDK. Galasa tests and Managers are written in Java so a Java JDK is required.
 
-_Note:_ Java 21 and later versions are not currently supported.
+_Note:_ Java 25 and later versions are not currently supported.
 
 After installation, set the `JAVA_HOME` environment variable to your JDK installation path. Verify by running:
 === "Linux or macOS"
@@ -27,12 +27,12 @@ Install either Maven or Gradle to build Galasa projects. Choose one:
 
 ### Maven
 
-Maven version compatibility with Java 17:
+Maven version compatibility with Java 17 and Java 21:
 
-| Maven version | Java 17 support |
-| :------------ | :-------------- |
-| 3.8.1+        | Fully supported |
-| 3.9.x         | Recommended     |
+| Maven version | Java 17 support | Java 21 support |
+| :------------ | :-------------- | :-------------- |
+| 3.8.1+        | Fully supported | Fully supported |
+| 3.9.x         | Recommended     | Recommended     |
 
 Maven uses the Java version specified in your `JAVA_HOME` environment variable. Verify your Maven installation and Java version:
 
