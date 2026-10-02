@@ -14,6 +14,19 @@ java {
     }
 }
 
+// Run tests under Java 21 in addition to the default Java 17 toolchain.
+tasks.register('testJava21', Test) {
+    description = 'Runs unit tests using Java 21.'
+    group = 'verification'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('testJava21')
+}
+
 tasks.withType(Javadoc) {
     failOnError = false
     enabled = true
