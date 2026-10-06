@@ -155,7 +155,28 @@ function replace_line_following {
 temp_dir="$BASEDIR/temp"
 mkdir -p $temp_dir
 
+# Before running 'mvn versions:set', Maven must resolve the current version of
+# dev.galasa.platform (the BOM imported in <dependencyManagement>). Build it
+# locally first so it is available in the local Maven repo even if it has not
+# been published to Maven Central yet.
+#
+# We read the version from this pom.xml (not the platform source) so that we
+# publish exactly the version Maven needs, even if the platform source has
+# already been bumped to a different version by an earlier set-version step.
+current_version=$(grep -m1 '<version>' ${BASEDIR}/galasa-maven-plugin/pom.xml | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
+h1 "Building dev.galasa.platform ${current_version} into local Maven repo"
+gradle -p "${BASEDIR}/../platform/dev.galasa.platform" build check publish \
+    -PtargetMaven=$HOME/.m2/repository \
+    -Pversion=${current_version}
+rc=$?
+if [[ "$rc" != "0" ]]; then
+    error "Failed to build dev.galasa.platform locally. rc=${rc}"
+    exit 1
+fi
+success "dev.galasa.platform ${current_version} installed into local Maven repo."
+
 cd ${BASEDIR}/galasa-maven-plugin
+
 mvn versions:set -DnewVersion=$component_version
 mvn versions:commit
 

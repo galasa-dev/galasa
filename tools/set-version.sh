@@ -96,9 +96,9 @@ if [[ -z $component_version ]]; then
 fi
 
 function check_for_error() {
-    rc=$?
-    message="$1"
-    if [[ "${rc}" != "0" ]]; then 
+    rc=$1
+    message="$2"
+    if [[ "${rc}" != "0" ]]; then
         error "$message"
         exit 1
     fi
@@ -111,7 +111,7 @@ function set_version_in_all_modules() {
         if [[ -f "$REPO_ROOT_DIR/modules/$module_name/set-version.sh" ]]; then
             info "Module $module_name contains a set-version.sh script. Calling it."
             ${REPO_ROOT_DIR}/modules/${module_name}/set-version.sh --version $component_version
-            check_for_error "Failed to set the version for module $module_name"
+            check_for_error $? "Failed to set the version for module $module_name"
         fi
     done
     success "OK - All modules have had their versions set to $component_version"
@@ -121,7 +121,7 @@ function set_version_in_docs() {
     h2 "Setting the version number in the docs to $component_version"
 
     ${REPO_ROOT_DIR}/docs/set-version.sh --version $component_version
-    check_for_error "Failed to set the version for module $module_name"
+    check_for_error $? "Failed to set the version for docs"
 
     success "OK - docs version has been set to $component_version"
 }
@@ -144,7 +144,7 @@ function set_version_in_build_properties() {
 
 h1 "Setting version of this repository to $component_version"
 set_version_in_all_modules
-check_for_error "Failed to set version in all modules"
+check_for_error $? "Failed to set version in all modules"
 
 set_version_in_docs
 
