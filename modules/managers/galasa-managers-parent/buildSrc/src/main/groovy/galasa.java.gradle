@@ -18,6 +18,9 @@ java {
 tasks.register('testJava21', Test) {
     description = 'Runs unit tests using Java 21.'
     group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    failOnNoDiscoveredTests = false
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(21)
     }

@@ -16,8 +16,11 @@ on:
 
 jobs:
   test-windows-credentials-store:
-    name: Run TestCredentialsStoreAccess on Windows Runner
+    name: Run TestCredentialsStoreAccess on Windows Runner (Java ${{ matrix.java-version }})
     runs-on: windows-latest
+    strategy:
+      matrix:
+        java-version: ['17', '21']
 
     steps:
       - name: Checkout Code
@@ -53,7 +56,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: ${{ matrix.java-version }}
           distribution: 'semeru'
 
       - name: Setup Gradle
@@ -95,8 +98,11 @@ jobs:
           galasactl.exe runs submit local --localMaven file:///${{ github.workspace }}/modules/artifacts --class dev.galasa.ivts/dev.galasa.ivts.framework.TestCredentialsStoreAccess --obr "mvn:dev.galasa/dev.galasa.ivts.obr/$galasaVersion/obr" --log -
 
   test-macos-credentials-store:
-    name: Run TestCredentialsStoreAccess on macOS Runner
+    name: Run TestCredentialsStoreAccess on macOS Runner (Java ${{ matrix.java-version }})
     runs-on: macos-latest
+    strategy:
+      matrix:
+        java-version: ['17', '21']
 
     steps:
       - name: Checkout Code
@@ -132,7 +138,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: ${{ matrix.java-version }}
           distribution: 'semeru'
 
       - name: Setup Gradle
