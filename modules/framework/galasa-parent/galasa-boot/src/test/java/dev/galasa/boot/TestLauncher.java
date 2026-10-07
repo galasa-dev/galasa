@@ -169,6 +169,34 @@ public class TestLauncher {
     }
 
     @Test
+    public void testJava21Passes() {
+        Launcher l  = new Launcher();
+        MockEnvironment me = new MockEnvironment();
+
+        me.setProperty("java.version","21");
+
+        try{
+            l.validateJavaLevel(me);
+        }catch(LauncherException le){
+            fail("LauncherException thrown");
+        }
+    }
+
+    @Test
+    public void testJava25Passes() {
+        Launcher l  = new Launcher();
+        MockEnvironment me = new MockEnvironment();
+
+        me.setProperty("java.version","25");
+
+        try{
+            l.validateJavaLevel(me);
+        }catch(LauncherException le){
+            fail("LauncherException thrown");
+        }
+    }
+
+    @Test
     public void testJava16Fails() {
         Launcher l  = new Launcher();
         MockEnvironment me = new MockEnvironment();

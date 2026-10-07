@@ -26,8 +26,21 @@ tasks.register('testJava21', Test) {
     }
 }
 
+// Run tests under Java 25 in addition to the default Java 17 toolchain.
+tasks.register('testJava25', Test) {
+    description = 'Runs unit tests using Java 25.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    failOnNoDiscoveredTests = false
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
 tasks.named('check') {
     dependsOn tasks.named('testJava21')
+    dependsOn tasks.named('testJava25')
 }
 
 tasks.withType(Javadoc) {

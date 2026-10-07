@@ -30,6 +30,10 @@ tasks.named('testJava21') {
     useJUnitPlatform()
 }
 
+tasks.named('testJava25') {
+    useJUnitPlatform()
+}
+
 pmd {
     consoleOutput = true
     toolVersion = "6.50.0"
