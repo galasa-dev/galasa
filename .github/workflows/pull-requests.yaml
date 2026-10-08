@@ -85,22 +85,28 @@ jobs:
     name: Get Workflow Run ID to download artifacts from
     runs-on: ubuntu-latest
 
-    outputs: 
+    outputs:
       workflow_for_artifact_download_id: ${{ steps.find-artifacts.outputs.workflow_for_artifact_download_id }}
 
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/scripts
+
       - name: Get last successful workflow run of the "Main Build Orchestrator" for PR's base ref
         id: find-artifacts
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          echo "workflow_for_artifact_download_id=$(gh run list \
-            --repo ${{ github.repository }} \
+          chmod +x .github/scripts/find-last-successful-run.sh
+          echo "workflow_for_artifact_download_id=$(.github/scripts/find-last-successful-run.sh \
+            --repo "$REPO" \
             --workflow 'Main Build Orchestrator' \
-            --branch ${{ github.base_ref }} \
-            --status success \
-            --limit 1 \
-            --json databaseId | jq '.[0].databaseId')" >> $GITHUB_OUTPUT
+            --branch "$BASE_REF")" >> $GITHUB_OUTPUT
 
   pr-build-platform:
     name: Build the 'platform' module

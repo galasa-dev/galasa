@@ -64,14 +64,13 @@ jobs:
       id: find-artifacts
       env:
         GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
       run: |
-        echo "workflow_for_artifact_download_id=$(gh run list \
-          --repo ${{ github.repository }} \
+        chmod +x .github/scripts/find-last-successful-run.sh
+        echo "workflow_for_artifact_download_id=$(.github/scripts/find-last-successful-run.sh \
+          --repo "$REPO" \
           --workflow 'Main Build Orchestrator' \
-          --branch main \
-          --status success \
-          --limit 1 \
-          --json databaseId | jq '.[0].databaseId')" >> $GITHUB_OUTPUT
+          --branch main)" >> $GITHUB_OUTPUT
 
     - name: Download All 'dev.galasa' Artifacts
       if: ${{ github.event_name == 'schedule' }}
