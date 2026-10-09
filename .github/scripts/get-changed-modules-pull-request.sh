@@ -134,6 +134,7 @@ moduleToPrefix["ivts"]="modules/ivts"
 moduleToPrefix["cli"]="modules/cli"
 moduleToPrefix["docs"]="docs/"
 moduleToPrefix["workflows"]=".github/"
+moduleToPrefix["galasa-boot"]="modules/framework/galasa-parent/galasa-boot"
 moduleToPrefix["restApi"]="modules/framework/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"
 
 # An associative array of modules to the comma-separated list of flags they should set to true if the module has changed.
@@ -151,6 +152,7 @@ moduleToFlagList["ivts"]="IVTS_CHANGED"
 moduleToFlagList["cli"]="CLI_CHANGED,DOCS_CHANGED"
 moduleToFlagList["docs"]="DOCS_CHANGED"
 moduleToFlagList["workflows"]="DOCS_CHANGED"
+moduleToFlagList["galasa-boot"]="FRAMEWORK_CHANGED,CLI_CHANGED"
 moduleToFlagList["restApi"]="FRAMEWORK_CHANGED,CLI_CHANGED,DOCS_CHANGED"
 
 # An associative array of flags we want to output a value for

@@ -13,7 +13,7 @@ Before running Gherkin tests, ensure you have:
    galasactl local init
    ```
 
-2. **Set up Java:** Ensure `JAVA_HOME` is set and points to a Java 17 or Java 21 JDK installation
+2. **Set up Java:** Ensure `JAVA_HOME` is set and points to a Java 17, Java 21, or Java 25 JDK installation
 
 3. **Created a feature file:** Write your test in a `.feature` file
 
@@ -105,7 +105,7 @@ galasactl runs submit local --gherkin file:///test1.feature --log -
 
 **Issue:** `JAVA_HOME not set`
 
-- **Solution:** Set the `JAVA_HOME` environment variable to your Java 17 or Java 21 JDK installation
+- **Solution:** Set the `JAVA_HOME` environment variable to your Java 17, Java 21, or Java 25 JDK installation
 
 **Issue:** `Feature file not found`
 

@@ -20,7 +20,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        java-version: ['17', '21']
+        java-version: ['17', '21', '25']
 
     steps:
       - name: Checkout Code
@@ -102,7 +102,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        java-version: ['17', '21']
+        java-version: ['17', '21', '25']
 
     steps:
       - name: Checkout Code
