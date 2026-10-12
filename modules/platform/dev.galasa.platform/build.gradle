@@ -43,7 +43,7 @@ dependencies {
 
         api 'com.google.protobuf:protobuf-java:4.35.1' // If updating, also update in obr/release.yaml
 
-        api 'com.google.guava:guava:33.5.0-jre'
+        api 'com.google.guava:guava:33.7.2-jre'
 
         api 'com.ibm.db2.jcc:db2jcc:db2jcc4'
 
