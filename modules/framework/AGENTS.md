@@ -17,7 +17,7 @@ galasa-parent/
 ## Adding a new REST endpoint
 
 1. Add or update the operation in `dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml`.
-2. Run the `openapi2beans` code generation step (handled automatically in CI; locally, see `framework.yaml` workflow for the Docker command).
+2. The `openapi2beans` code generation step runs automatically as part of `./build-locally.sh`.
 3. Add the servlet class to the appropriate `dev.galasa.framework.api.<area>` bundle under `src/main/java/`.
 4. Register the servlet in the bundle's `bnd.bnd` or OSGi component descriptor.
 5. Add JUnit tests under `src/test/java/` in the same bundle.

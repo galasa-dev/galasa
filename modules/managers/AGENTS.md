@@ -38,4 +38,4 @@ Within each group, a manager typically has:
 - JUnit tests live in `src/test/java/` within the implementation bundle.
 - Use manual mocks for mocking the framework and other manager services. If this is not feasible, use Mockito.
 - GPG signing is CI-only; skip locally with `-PisMainOrRelease=false`.
-- Do not add mainframe-specific tests to unit tests — those belong in `modules/ivts/`.
+- Do not add tests that require real resources (mainframe, live ecosystem, external services) to JUnit unit tests — write those as Galasa tests in `modules/ivts/` instead.
