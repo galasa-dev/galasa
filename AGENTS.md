@@ -22,6 +22,11 @@ Each module has its own `AGENTS.md` with module-specific coding conventions, pat
 - **Full local build**: Use `tools/build-locally.sh` for complete builds across all modules. Pass `--help` to see options. A full chain build requires GitHub credentials (see `CONTRIBUTING.md`); individual modules can be built without them.
 - **Prerequisite toolchain**: See `developer-docs/install-pre-req-tools.md` for exact versions and installation steps.
 
+## Security
+
+- **Never commit real credentials, tokens, passwords, or private keys.** All secrets required by the build (GPG keys, GitHub tokens) must be supplied via repository secrets or environment variables, never hardcoded in source files.
+- **Credentials at runtime** are passed through the Galasa `ICredentialsService` or environment variables — never read from hardcoded strings or local files checked into the repository.
+
 ## Commit & PR Rules
 - **Developer Certificate of Origin (DCO)**: All commits must include a sign-off (`git commit -s`).
 - **GPG Signing**: Commits should be GPG-signed where feasible (`git commit -S`).

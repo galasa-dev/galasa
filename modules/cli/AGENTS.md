@@ -55,6 +55,30 @@ A command group (e.g. `galasactl widgets`) requires changes in five places:
    - Define a `<Resource>Formatter` interface: `FormatTags(items []galasaapi.Galasa<Resource>) (string, error)` and `GetName() string`.
    - Implement at minimum a `summary` formatter and a `yaml` formatter.
 
+## Authentication and tokens
+
+Every command that calls the Galasa service requires a valid token. The CLI resolves credentials in this order:
+
+1. `--galasahome <path>` flag (overrides everything)
+2. `GALASA_HOME` environment variable
+3. `$HOME/.galasa` (default)
+
+The token is then read from:
+- `$GALASA_HOME/galasactl.properties` — property key `GALASA_TOKEN`
+- `GALASA_TOKEN` environment variable (takes precedence over the properties file)
+
+Token format: `<refresh_token>:<client_id>` (two parts separated by `:`).
+
+The bootstrap URL (pointing at the Galasa service) is supplied via:
+- `--bootstrap <url>` flag
+- `bootstrap.properties` in `$GALASA_HOME` (fallback)
+
+**When writing or testing code that needs credentials:**
+- Use `factory.GetEnvironment()` to read env vars — never call `os.Getenv` directly.
+- In tests, set token values via `utils.NewMockFactory()` and its mock `Environment` — do not use real tokens in test code.
+- Mock token strings in tests must use the `<value>:<value>` format
+- Never add logic that reads `galasactl.properties` outside of `pkg/auth/` — that package owns all token resolution.
+
 ## Error handling
 
 - All errors are `*galasaErrors.GalasaError` wrapping a `*MessageType`.
