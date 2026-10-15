@@ -7,6 +7,7 @@ package dev.galasa.framework;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import dev.galasa.framework.beans.Property;
+import dev.galasa.framework.beans.SubmitRunRequest;
 import dev.galasa.framework.mocks.MockCPSStore;
 import dev.galasa.framework.mocks.MockDSSStore;
 import dev.galasa.framework.mocks.MockFramework;
@@ -1418,5 +1420,74 @@ public class FrameworkRunsTest {
         // Then...
         assertThat(dssProps).hasSize(1);
         assertThat(dssProps.get("run." + runName + ".status")).isEqualTo(TestRunLifecycleStatus.RUNNING.toString());
+    }
+
+    @Test
+    public void testSubmitNonSerialRunDoesNotWriteIsSerialKeyToDss() throws Exception {
+        // Given...
+        MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
+        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        String runType = "unknown";
+        String requestor = "me";
+        String user = "me";
+        String bundleName = "mybundle";
+        String testName = "mytest";
+        String groupName = "my.group";
+        String stream = "a-test-stream";
+        String submissionId = "submission1";
+        String language = "java";
+
+        // When...
+        IRun run = frameworkRuns.submitRun(
+            runType, requestor, user, bundleName, testName, groupName,
+            null, null, stream,
+            false, false, null, new Properties(),
+            null, null, language, submissionId, null
+        );
+
+        // Then... a non-serial run must NOT write the IS_SERIAL key to the DSS
+        assertThat(mockDss.get("run." + run.getName() + "." + DssPropertyKeyRunNameSuffix.IS_SERIAL)).isNull();
+    }
+
+    @Test
+    public void testStoreRunWithIsSerialTrueWritesIsSerialKeyToDss() throws Exception {
+        // Given...
+        Map<String, String> dssProps = new HashMap<>();
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        String runType = "unknown";
+        String requestor = "me";
+        String user = "me";
+        String bundleName = "mybundle";
+        String testName = "mytest";
+        String groupName = "my.group";
+        String submissionId = "sub1";
+        String stream = "a-test-stream";
+        String language = "java";
+
+        SubmitRunRequest request = new SubmitRunRequest(
+            runType, requestor, user, bundleName, testName, groupName,
+            submissionId, null, null, stream,
+            false, false, null, new Properties(),
+            null, null, language, null
+        );
+        request.setSerial(true);
+
+        // Invoke private storeRun via reflection
+        Method storeRun = FrameworkRuns.class.getDeclaredMethod("storeRun", String.class, SubmitRunRequest.class);
+        storeRun.setAccessible(true);
+        String runName = "U1";
+
+        // When...
+        storeRun.invoke(frameworkRuns, runName, request);
+
+        // Then... the IS_SERIAL key must have been written as "true"
+        assertThat(dssProps.get("run." + runName + "." + DssPropertyKeyRunNameSuffix.IS_SERIAL)).isEqualTo("true");
     }
 }
