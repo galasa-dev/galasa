@@ -85,7 +85,7 @@ dependencies {
 
         api 'io.etcd:jetcd-core:0.8.6'
 
-        api 'io.kubernetes:client-java:27.0.0'
+        api 'io.kubernetes:client-java:27.0.1'
 
         // Override transitive dependencies for client-java:27.0.0 to address CVEs
         api 'org.bouncycastle:bcprov-jdk18on:1.86'
