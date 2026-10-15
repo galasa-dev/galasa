@@ -200,6 +200,11 @@ public class MockIRun implements IRun {
     }
 
     @Override
+    public boolean isSerial() {
+        return false;
+    }
+
+    @Override
     public String getSubmissionId() {
         return this.submissionId;
     }
