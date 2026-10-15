@@ -133,6 +133,11 @@ public class MockRun implements IRun {
     }
 
     @Override
+    public boolean isSerial() {
+        return false;
+    }
+
+    @Override
     public String getSubmissionId() {
         throw new UnsupportedOperationException("Unimplemented method 'getSubmissionId'");
     }

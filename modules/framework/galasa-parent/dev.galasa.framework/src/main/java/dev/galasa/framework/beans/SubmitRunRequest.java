@@ -30,6 +30,7 @@ public class SubmitRunRequest {
     private String obr;
     private String stream;
     private boolean isLocalRun;
+    private boolean isSerial = false;
     private boolean isTraceEnabled = false;
     private Set<String> tags = new HashSet<>();
     private Properties overrides = new Properties();
@@ -172,6 +173,14 @@ public class SubmitRunRequest {
 
     public boolean isTraceEnabled() {
         return isTraceEnabled;
+    }
+
+    public boolean isSerial() {
+        return isSerial;
+    }
+
+    public void setSerial(boolean isSerial) {
+        this.isSerial = isSerial;
     }
 
     public void setTraceEnabled(boolean isTraceEnabled) {

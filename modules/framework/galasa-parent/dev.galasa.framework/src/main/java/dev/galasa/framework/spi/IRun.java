@@ -60,6 +60,8 @@ public interface IRun {
     
     boolean isSharedEnvironment();
 
+    boolean isSerial();
+
     public String getGherkin();
 
     String getInterruptReason();

@@ -139,6 +139,11 @@ public class MockRun implements IRun {
     }
 
     @Override
+    public boolean isSerial() {
+        return false;
+    }
+
+    @Override
     public String getTestBundleName() {
         return this.testBundleName;
     }
