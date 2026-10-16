@@ -16,6 +16,7 @@ public enum DssPropertyKeyRunNameSuffix{
     CONTROLLER("controller"),
     FINISHED_DATETIME("finished"),
     GHERKIN("gherkin"),
+    IS_SERIAL("isSerial"),
     GROUP("group"),
     HEARTBEAT("heartbeat"),
     INTERRUPT_REASON("interruptReason"),

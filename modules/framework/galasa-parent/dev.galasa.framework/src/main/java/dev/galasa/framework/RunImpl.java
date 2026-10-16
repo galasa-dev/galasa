@@ -56,6 +56,7 @@ public class RunImpl implements IRun {
     private final boolean local;
     private final boolean trace;
     private final boolean sharedEnvironment;
+    private final boolean serial;
     private final String  rasRunId;
     private final String  interruptReason;
     private final Instant interruptedAt;
@@ -97,6 +98,7 @@ public class RunImpl implements IRun {
         local = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.LOCAL));
         trace = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.TRACE));
         sharedEnvironment = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.SHARED_ENVIRONMENT));
+        serial = Boolean.parseBoolean(runProperties.get(prefix + DssPropertyKeyRunNameSuffix.IS_SERIAL));
         gherkin = runProperties.get(prefix + DssPropertyKeyRunNameSuffix.GHERKIN);
         tags = getTagsFromDss(runProperties, prefix);
         interruptedAt = getInterruptedAtTimeFromDss(runProperties, prefix);
@@ -328,6 +330,11 @@ public class RunImpl implements IRun {
     @Override
     public boolean isSharedEnvironment() {
         return this.sharedEnvironment;
+    }
+
+    @Override
+    public boolean isSerial() {
+        return this.serial;
     }
 
     @Override

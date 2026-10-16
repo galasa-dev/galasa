@@ -232,6 +232,7 @@ public class FrameworkRuns implements IFrameworkRuns {
         boolean local = runRequest.isLocalRun();
         boolean trace = runRequest.isTraceEnabled();
         Set<String> tags = runRequest.getTags();
+        boolean isSerial = runRequest.isSerial();
         String runId = generateRasRunId(runName);
         List<String> requestedTestMethods = runRequest.getRequestedTestMethods();
 
@@ -246,6 +247,9 @@ public class FrameworkRuns implements IFrameworkRuns {
         otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.LOCAL), Boolean.toString(local));
         if (trace) {
             otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.TRACE), "true");
+        }
+        if (isSerial) {
+            otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.IS_SERIAL), "true");
         }
         if (mavenRepository != null) {
             otherRunProperties.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.REPOSITORY), mavenRepository);

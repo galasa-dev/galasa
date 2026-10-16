@@ -148,4 +148,49 @@ public class TestRunImpl {
         assertThat(testStructureGotBack.getSubmissionId()).isEqualTo("my-submission-id");
         assertThat(testStructureGotBack.getTags()).containsExactly("tag1", "tag2");
     }
+
+    @Test
+    public void testIsSerialReturnsTrueWhenDssKeyIsTrue() throws Exception {
+        // Given...
+        String name = "U1234";
+        Map<String,String> dssProps = new HashMap<String,String>();
+        dssProps.put("run.U1234." + DssPropertyKeyRunNameSuffix.IS_SERIAL, "true");
+        IDynamicStatusStoreService dss = new MockDSSStore(dssProps);
+
+        // When...
+        RunImpl run = new RunImpl(name, dss);
+
+        // Then...
+        assertThat(run.isSerial()).isTrue();
+    }
+
+    @Test
+    public void testIsSerialReturnsFalseWhenDssKeyIsAbsent() throws Exception {
+        // Given...
+        String name = "U1234";
+        Map<String,String> dssProps = new HashMap<String,String>();
+        // IS_SERIAL key is deliberately absent
+        IDynamicStatusStoreService dss = new MockDSSStore(dssProps);
+
+        // When...
+        RunImpl run = new RunImpl(name, dss);
+
+        // Then...
+        assertThat(run.isSerial()).isFalse();
+    }
+
+    @Test
+    public void testIsSerialReturnsFalseWhenDssKeyIsFalse() throws Exception {
+        // Given...
+        String name = "U1234";
+        Map<String,String> dssProps = new HashMap<String,String>();
+        dssProps.put("run.U1234." + DssPropertyKeyRunNameSuffix.IS_SERIAL, "false");
+        IDynamicStatusStoreService dss = new MockDSSStore(dssProps);
+
+        // When...
+        RunImpl run = new RunImpl(name, dss);
+
+        // Then...
+        assertThat(run.isSerial()).isFalse();
+    }
 }
