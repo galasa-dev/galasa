@@ -100,9 +100,10 @@ func (cmd *RunsCleanupLocalCommand) createCobraCmd(
 		"the version of galasa you want to use. This should match the version of the galasa obr you built your resource cleanup providers against.")
 
 	runsCleanupLocalCobraCmd.Flags().StringSliceVar(&cmd.values.runsCleanupLocalCmdParams.RemoteMavenRepos, "remoteMaven",
-		[]string{"https://repo.maven.apache.org/maven2"},
+		[]string{},
 		"the urls of the remote maven repositories where galasa bundles can be loaded from. "+
-			"Defaults to maven central.")
+			"If not specified, no remote Maven repositories will be used and mvn: URIs in OBRs will fail to resolve. "+
+			"Multiple repositories can be specified by using this flag multiple times.")
 
 	runsCleanupLocalCobraCmd.Flags().StringVar(&cmd.values.runsCleanupLocalCmdParams.LocalMaven, "localMaven", "",
 		"The url of a local maven repository are where galasa bundles can be loaded from on your local file system. Defaults to your home .m2/repository file. Please note that this should be in a URL form e.g. 'file:///Users/myuserid/.m2/repository', or 'file://C:/Users/myuserid/.m2/repository'")

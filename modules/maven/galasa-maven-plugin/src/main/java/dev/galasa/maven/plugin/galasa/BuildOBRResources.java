@@ -8,8 +8,11 @@ package dev.galasa.maven.plugin.galasa;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,7 +42,8 @@ public class BuildOBRResources extends AbstractMojo {
 
     public enum OBR_URL_TYPE {
         file,
-        mvn
+        mvn,
+        relative
     }
 
     @Parameter(defaultValue = "${project}", readonly = true)
@@ -56,6 +60,12 @@ public class BuildOBRResources extends AbstractMojo {
 
     @Parameter(defaultValue = "false", property = "includeSelf", required = false)
     private boolean      includeSelf;
+
+    @Parameter(defaultValue = "false", property = "copyBundles", required = false)
+    private boolean      copyBundles;
+
+    @Parameter(defaultValue = "bundles", property = "bundlesDir", required = false)
+    private String       bundlesDir;
 
     private Field requirementsField;
 
@@ -223,6 +233,17 @@ public class BuildOBRResources extends AbstractMojo {
                     name = new URI("mvn:" + artifact.getGroupId() + "/" + artifact.getArtifactId() + "/"
                             + artifact.getBaseVersion() + "/" + artifact.getType());
                     break;
+                case relative:
+                    // Include group ID to prevent collisions
+                    String fileName = buildBundleFileName(artifact);
+                    name = new URI(bundlesDir + "/" + fileName);
+                    
+                    // Copy the bundle if requested
+                    if (copyBundles) {
+                        File bundlesDirectory = new File(outputDirectory, bundlesDir);
+                        copyBundleToDirectory(artifact, fileName, bundlesDirectory);
+                    }
+                    break;
                 case file:
                 default:
                     name = artifact.getFile().toURI();
@@ -237,6 +258,38 @@ public class BuildOBRResources extends AbstractMojo {
         } catch (Exception e) {
             throw new MojoExecutionException("Failed to process dependency " + artifact.getGroupId() + ":"
                     + artifact.getArtifactId() + ":" + artifact.getVersion(), e);
+        }
+    }
+
+    private String buildBundleFileName(DefaultArtifact artifact) {
+        // Include group ID to prevent collisions
+        return artifact.getGroupId() + "." +
+               artifact.getArtifactId() + "-" +
+               artifact.getBaseVersion() + "." +
+               artifact.getType();
+    }
+
+    private void copyBundleToDirectory(DefaultArtifact artifact, String fileName, File bundlesDirectory)
+            throws MojoExecutionException {
+        try {
+            if (!bundlesDirectory.exists()) {
+                bundlesDirectory.mkdirs();
+                getLog().info("BuildOBRResources: Created bundles directory: " + bundlesDirectory.getAbsolutePath());
+            }
+            
+            File sourceFile = artifact.getFile();
+            File targetFile = new File(bundlesDirectory, fileName);
+            
+            Files.copy(sourceFile.toPath(), targetFile.toPath(),
+                      StandardCopyOption.REPLACE_EXISTING);
+            
+            getLog().info("BuildOBRResources: Copied bundle: " + fileName + " to " + bundlesDirectory.getName() + "/");
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to copy bundle " +
+                                            artifact.getId() + " to bundles directory", e);
+        } catch (SecurityException e) {
+            throw new MojoExecutionException("Security exception while copying bundle " +
+                                            artifact.getId() + " to bundles directory", e);
         }
     }
 
