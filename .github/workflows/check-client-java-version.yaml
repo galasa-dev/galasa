@@ -377,7 +377,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: PR_REPOSITORY,
                   pull_number: prNumber,
-                  reviewers: ['jadecarino', 'eamansour', 'James-Cocker']
+                  reviewers: ['jadecarino', 'eamansour']
                 });
                 console.log(`Added reviewers to PR #${prNumber}`);
               }
