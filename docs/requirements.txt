@@ -16,7 +16,7 @@ filelock==3.32.7
 ghp-import==2.1.0
 gitdb==4.0.12
 GitPython==3.1.62
-identify==2.6.12
+identify==2.6.20
 idna==3.15
 importlib_metadata==8.7.0
 importlib_resources==6.5.2
