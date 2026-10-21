@@ -180,4 +180,9 @@ public class MockIRun implements IRun {
     public List<String> getRequestedTestMethods() {
         throw new UnsupportedOperationException("Unimplemented method 'getRequestedTestMethods'");
     }
+
+    @Override
+    public boolean isSerial() {
+        throw new UnsupportedOperationException("Unimplemented method 'isSerial'");
+    }
 }
