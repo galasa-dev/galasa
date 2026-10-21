@@ -3,7 +3,7 @@ babel==2.17.0
 backrefs==5.8
 binaryornot==0.4.4
 boxsdk==3.14.0
-certifi==2025.4.26
+certifi==2026.10.19
 cffi==2.0.0
 cfgv==3.4.0
 chardet==5.2.0
