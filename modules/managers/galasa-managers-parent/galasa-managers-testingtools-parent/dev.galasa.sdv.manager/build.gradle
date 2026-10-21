@@ -23,7 +23,7 @@ if (project.getGradle().getGradleVersion().compareTo("7.0") < 0) {
 }
 
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = "0.8.15"
 }
 
 tasks.named('testJava21') {
