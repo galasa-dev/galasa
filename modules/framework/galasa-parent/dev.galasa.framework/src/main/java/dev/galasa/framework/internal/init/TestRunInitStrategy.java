@@ -107,10 +107,10 @@ public class TestRunInitStrategy implements IFrameworkInitialisationStrategy {
                 String split[] = runBundleClass.split("/");
                 String bundle = split[0];
                 String test = split[1];
-                run = frameworkRuns.submitRun("local", null, null, bundle, test, null, null, null, null, true, false, NULL_TAGS, null, null, null, language, submissionId, requestedTestMethods);
+                run = frameworkRuns.submitRun("local", null, null, bundle, test, null, null, null, null, true, false, false, NULL_TAGS, null, null, null, language, submissionId, requestedTestMethods);
                 break;
             case "gherkin":
-                run = frameworkRuns.submitRun("local", null, null, null, runBundleClass, null, null, null, null, true, false, NULL_TAGS, null, null, null, language, submissionId, null);
+                run = frameworkRuns.submitRun("local", null, null, null, runBundleClass, null, null, null, null, true, false, false, NULL_TAGS, null, null, null, language, submissionId, null);
                 break;
             default:
                 throw new FrameworkException("Unknown language to create run");

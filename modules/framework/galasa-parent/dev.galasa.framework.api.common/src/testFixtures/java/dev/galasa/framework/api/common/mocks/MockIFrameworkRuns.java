@@ -5,6 +5,7 @@
  */
 package dev.galasa.framework.api.common.mocks;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -22,6 +23,7 @@ import dev.galasa.framework.spi.RunRasAction;
 public class MockIFrameworkRuns implements IFrameworkRuns{
     protected String groupName;
     private String mockSubmissionId = "submission1";
+    private final List<Boolean> submittedIsSerialValues = new ArrayList<>();
 
     List<IRun> runs ;
 
@@ -67,13 +69,14 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
 
     @Override
     public @NotNull IRun submitRun(String type, String requestor, String user, String bundleName, String testName, String groupName,
-            String mavenRepository, String obr, String stream, boolean local, boolean trace, Set<String> tags, Properties overrides,
+            String mavenRepository, String obr, String stream, boolean local, boolean trace, boolean isSerial, Set<String> tags, Properties overrides,
             SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName, String language, String submissionId,
             List<String> requestedTestMethods
     ) throws FrameworkException {
         if (stream.equals("null")){
             throw new FrameworkException(language);
         }
+        submittedIsSerialValues.add(isSerial);
         return new MockIRun("runname", type, requestor, user, bundleName + "/" + testName, null, bundleName, testName, groupName, this.mockSubmissionId, tags);
     }
 
@@ -90,6 +93,13 @@ public class MockIFrameworkRuns implements IFrameworkRuns{
     @Override
     public boolean reset(String runname) throws DynamicStatusStoreException {
         return true;
+    }
+
+    /**
+     * @return the isSerial argument of each successful submitRun call, in call order.
+     */
+    public List<Boolean> getSubmittedIsSerialValues() {
+        return submittedIsSerialValues;
     }
 
     public void setMockSubmissionId(String mockSubmissionId) {
