@@ -29,8 +29,11 @@ import com.google.gson.JsonParser;
 
 import dev.galasa.framework.api.common.BaseServletTest;
 import dev.galasa.framework.api.common.HttpMethod;
+import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.MimeType;
 import dev.galasa.framework.api.common.ResponseBuilder;
+import dev.galasa.framework.api.common.ServletError;
+import dev.galasa.framework.api.common.ServletErrorMessage;
 import dev.galasa.framework.api.common.mocks.FilledMockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockEnvironment;
 import dev.galasa.framework.api.common.mocks.MockFramework;
@@ -156,14 +159,14 @@ public class TestGroupRunsRoute extends BaseServletTest {
     }
 
     private MockRunsServlet createPostServlet(MockEnvironment mockEnv, MockFramework mockFramework, String streamName) {
-        return createPostServlet(mockEnv, mockFramework, streamName, "{\"classes\":{}}");
+        return createPostServlet(mockEnv, mockFramework, streamName, new MockTestCatalogFetcher("{\"classes\":{}}"));
     }
 
     private MockRunsServlet createPostServlet(
         MockEnvironment mockEnv,
         MockFramework mockFramework,
         String streamName,
-        String testCatalogJson
+        MockTestCatalogFetcher catalogFetcher
     ) {
         MockStream stream = new MockStream();
         stream.setName(streamName);
@@ -172,7 +175,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         streams.add(stream);
         mockFramework.setStreamsService(new MockStreamsService(streams));
 
-        return new MockRunsServlet(mockEnv, mockFramework, new MockTestCatalogFetcher(testCatalogJson));
+        return new MockRunsServlet(mockEnv, mockFramework, catalogFetcher);
     }
 
     /*
@@ -534,9 +537,9 @@ public class TestGroupRunsRoute extends BaseServletTest {
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
         MockFramework mockFramework = new MockFramework();
-		MockRunsServlet servlet = new MockRunsServlet(mockEnv, mockFramework);
+        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, "this is a test stream");
 
-		HttpServletRequest req = new MockHttpServletRequest("/group", payload, HttpMethod.POST.toString(), REQUIRED_HEADERS);
+        HttpServletRequest req = new MockHttpServletRequest("/group", payload, HttpMethod.POST.toString(), REQUIRED_HEADERS);
 		HttpServletResponse resp = new MockHttpServletResponse();
         ServletOutputStream outStream = resp.getOutputStream();
 
@@ -929,62 +932,6 @@ public class TestGroupRunsRoute extends BaseServletTest {
     }
 
     @Test
-    public void testPostRunsForSerialClassInCatalogSubmitsRunAsSerial() throws Exception {
-        // Given...
-        String groupName = "valid";
-        String testStream = "this.test.stream";
-        String class1 = "bundle/package.serialclass";
-        String submissionId = "submission1";
-        Set<String> tags = new HashSet<>();
-        List<IRun> runs = new ArrayList<IRun>();
-        runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class1, "submitted", "bundle", "package.serialclass", groupName, submissionId, tags));
-
-        String payload = generatePayload(new String[]{class1}, "requestorType", JWT_USERNAME, null, testStream, groupName, null, submissionId, tags);
-
-        MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
-        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
-        MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
-        mockFramework.setResultArchiveStore(new MockIResultArchiveStore());
-
-        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, generateCatalogJson(class1, true));
-
-        // When...
-        HttpServletResponse resp = postRunsAndGetResponse(servlet, groupName, payload);
-
-        // Then...
-        assertThat(resp.getStatus()).isEqualTo(201);
-        assertThat(mockFrameworkRuns.getSubmittedIsSerialValues()).containsExactly(true);
-    }
-
-    @Test
-    public void testPostRunsForClassWithNoIsSerialFieldInCatalogSubmitsRunAsNotSerial() throws Exception {
-        // Given... a class without the annotation has no isSerial field in the catalog
-        String groupName = "valid";
-        String testStream = "this.test.stream";
-        String class1 = "bundle/package.class";
-        String submissionId = "submission1";
-        Set<String> tags = new HashSet<>();
-        List<IRun> runs = new ArrayList<IRun>();
-        runs.add(new MockIRun("runname", "requestorType", JWT_USERNAME, class1, "submitted", "bundle", "package.class", groupName, submissionId, tags));
-
-        String payload = generatePayload(new String[]{class1}, "requestorType", JWT_USERNAME, null, testStream, groupName, null, submissionId, tags);
-
-        MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
-        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, runs);
-        MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
-        mockFramework.setResultArchiveStore(new MockIResultArchiveStore());
-
-        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, generateCatalogJson(class1, null));
-
-        // When...
-        HttpServletResponse resp = postRunsAndGetResponse(servlet, groupName, payload);
-
-        // Then...
-        assertThat(resp.getStatus()).isEqualTo(201);
-        assertThat(mockFrameworkRuns.getSubmittedIsSerialValues()).containsExactly(false);
-    }
-
-    @Test
     public void testPostRunsForClassMissingFromCatalogSubmitsRunAsNotSerial() throws Exception {
         // Given... the catalog only describes a different class
         String groupName = "valid";
@@ -1002,7 +949,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
         mockFramework.setResultArchiveStore(new MockIResultArchiveStore());
 
-        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, generateCatalogJson("other/package.other", true));
+        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, new MockTestCatalogFetcher(generateCatalogJson("other/package.other", true)));
 
         // When...
         HttpServletResponse resp = postRunsAndGetResponse(servlet, groupName, payload);
@@ -1040,7 +987,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
         mockFramework.setResultArchiveStore(new MockIResultArchiveStore());
 
-        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, gson.toJson(catalog));
+        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, new MockTestCatalogFetcher(gson.toJson(catalog)));
 
         // When...
         HttpServletResponse resp = postRunsAndGetResponse(servlet, groupName, payload);
@@ -1059,6 +1006,33 @@ public class TestGroupRunsRoute extends BaseServletTest {
             "\"requestor\": \"" + JWT_USERNAME + "\"," +
             "\"overrides\": {}," +
             "\"trace\": true }";
+
+        MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, new ArrayList<IRun>());
+        MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
+        mockFramework.setResultArchiveStore(new MockIResultArchiveStore());
+
+        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, "this.test.stream");
+
+        // When...
+        HttpServletResponse resp = postRunsAndGetResponse(servlet, groupName, payload);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(400);
+        checkErrorStructure(
+            resp.getOutputStream().toString(),
+            5472,
+            "GAL5472E: ",
+            "The 'testStream' field must be provided and must not be empty"
+        );
+        assertThat(mockFrameworkRuns.getSubmittedIsSerialValues()).isEmpty();
+    }
+
+    @Test
+    public void testPostRunsWithBlankTestStreamReturnsBadRequestAndSubmitsNothing() throws Exception {
+        // Given... a testStream which is present but only contains whitespace
+        String groupName = "valid";
+        String payload = generatePayload(new String[]{"bundle/package.class"}, "requestorType", JWT_USERNAME, null, "   ", groupName, null, "submission1", new HashSet<>());
 
         MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
         MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, new ArrayList<IRun>());
@@ -1144,7 +1118,7 @@ public class TestGroupRunsRoute extends BaseServletTest {
         MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
         mockFramework.setResultArchiveStore(new MockIResultArchiveStore());
 
-        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, null);
+        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, new MockTestCatalogFetcher(null));
 
         // When...
         HttpServletResponse resp = postRunsAndGetResponse(servlet, groupName, payload);
@@ -1156,6 +1130,39 @@ public class TestGroupRunsRoute extends BaseServletTest {
             5455,
             "GAL5455E: ",
             "The stream does not have a test catalog URL configured"
+        );
+        assertThat(mockFrameworkRuns.getSubmittedIsSerialValues()).isEmpty();
+    }
+
+    @Test
+    public void testPostRunsWhenTestCatalogCannotBeFetchedReturnsBadGatewayAndSubmitsNothing() throws Exception {
+        // Given... the stream exists but its test catalog cannot be fetched, for example due to a network failure
+        String groupName = "valid";
+        String testStream = "this.test.stream";
+        String payload = generatePayload(new String[]{"bundle/package.class"}, "requestorType", JWT_USERNAME, null, testStream, groupName, null, "submission1", new HashSet<>());
+
+        MockEnvironment mockEnv = FilledMockEnvironment.createTestEnvironment();
+        MockIFrameworkRuns mockFrameworkRuns = new MockIFrameworkRuns(groupName, new ArrayList<IRun>());
+        MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
+        mockFramework.setResultArchiveStore(new MockIResultArchiveStore());
+
+        MockTestCatalogFetcher catalogFetcher = new MockTestCatalogFetcher(null);
+        catalogFetcher.setExceptionToThrow(new InternalServletException(
+            new ServletError(ServletErrorMessage.GAL5459_ERROR_FAILED_TO_FETCH_TEST_CATALOG),
+            HttpServletResponse.SC_BAD_GATEWAY
+        ));
+        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, catalogFetcher);
+
+        // When...
+        HttpServletResponse resp = postRunsAndGetResponse(servlet, groupName, payload);
+
+        // Then...
+        assertThat(resp.getStatus()).isEqualTo(502);
+        checkErrorStructure(
+            resp.getOutputStream().toString(),
+            5459,
+            "GAL5459E: ",
+            "Failed to fetch the test catalog from the configured URL"
         );
         assertThat(mockFrameworkRuns.getSubmittedIsSerialValues()).isEmpty();
     }
@@ -1185,14 +1192,20 @@ public class TestGroupRunsRoute extends BaseServletTest {
         MockFramework mockFramework = new MockFramework(mockFrameworkRuns);
         mockFramework.setResultArchiveStore(new MockIResultArchiveStore());
 
-        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, generateCatalogJson(class1, null));
+        MockRunsServlet servlet = createPostServlet(mockEnv, mockFramework, testStream, new MockTestCatalogFetcher(generateCatalogJson(class1, null)));
 
         // When...
         HttpServletResponse resp = postRunsAndGetResponse(servlet, groupName, gson.toJson(payloadJson));
 
-        // Then...
+        // Then... the tags were passed through to the submitted run, and did not make it serial
         assertThat(resp.getStatus()).isEqualTo(201);
         assertThat(mockFrameworkRuns.getSubmittedIsSerialValues()).containsExactly(false);
+
+        JsonObject responseJson = JsonParser.parseString(resp.getOutputStream().toString()).getAsJsonObject();
+        JsonArray returnedTags = responseJson.getAsJsonArray("runs").get(0).getAsJsonObject().getAsJsonArray("tags");
+        Set<String> returnedTagValues = new HashSet<>();
+        returnedTags.forEach(tag -> returnedTagValues.add(tag.getAsString()));
+        assertThat(returnedTagValues).containsExactlyInAnyOrder("serial", "isSerial");
     }
 
     /*
