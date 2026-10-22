@@ -113,7 +113,7 @@ dependencies {
         api 'io.prometheus:simpleclient_tracer_otel:0.16.0'
         api 'io.prometheus:simpleclient_tracer_otel_agent:0.16.0'
 
-        api 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.41'
+        api 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.82'
 
         api 'jakarta.activation:jakarta.activation-api:2.1.3'
 
