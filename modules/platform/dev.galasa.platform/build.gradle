@@ -83,7 +83,7 @@ dependencies {
         api 'dev.galasa:galasa-boot:'+version
         api 'dev.galasa:galasa-testharness:'+version
 
-        api 'io.etcd:jetcd-core:0.8.6'
+        api 'io.etcd:jetcd-core:0.8.7'
 
         api 'io.kubernetes:client-java:27.0.1'
 
