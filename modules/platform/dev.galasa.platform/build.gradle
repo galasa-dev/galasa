@@ -154,7 +154,7 @@ dependencies {
         api 'org.apache.felix:org.apache.felix.fileinstall:3.6.4'
         api 'org.apache.felix:org.apache.felix.gogo.command:1.1.2'
         api 'org.apache.felix:org.apache.felix.gogo.runtime:1.1.6'
-        api 'org.apache.felix:org.apache.felix.gogo.shell:1.1.2'
+        api 'org.apache.felix:org.apache.felix.gogo.shell:1.1.4'
         api 'org.apache.felix:org.apache.felix.http.jetty:5.0.0'
         api 'org.apache.felix:org.apache.felix.http.servlet-api:2.1.0'
         api 'org.apache.felix:org.apache.felix.scr:2.1.14' // If updating, also update in galasa-boot build.gradle.
