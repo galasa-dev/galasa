@@ -41,7 +41,7 @@ PyJWT==2.15.1
 pymdown-extensions==11.0.2
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
-PyYAML==6.0.2
+PyYAML==6.0.3
 pyyaml_env_tag==1.1
 requests==2.33.0
 requests-toolbelt==1.0.0
