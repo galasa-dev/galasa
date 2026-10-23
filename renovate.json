@@ -9,6 +9,11 @@
       "matchPackageNames": [
         "dev.galasa:*"
       ]
+    },
+    {
+      "matchFileNames": ["docs/requirements.txt"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "docs"
     }
   ]
 }
