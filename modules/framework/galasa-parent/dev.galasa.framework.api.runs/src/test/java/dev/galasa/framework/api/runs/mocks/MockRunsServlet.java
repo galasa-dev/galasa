@@ -37,6 +37,11 @@ public class MockRunsServlet extends RunsServlet implements IServletUnderTest {
     }
 
     @Override
+    protected ITestCatalogFetcher createTestCatalogFetcher(ICredentialsService credentialsService) {
+        return catalogFetcher;
+    }
+
+    @Override
     protected RunsPortfoliosRoute createRunsPortfoliosRoute(
             IStreamsService streamsService,
             ICredentialsService credentialsService) throws StreamsException, RBACException {

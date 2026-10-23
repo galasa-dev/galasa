@@ -31,7 +31,7 @@ public class TestGroupRuns {
         MockIResultArchiveStore ras = new MockIResultArchiveStore();
         MockFramework mockFramework = new MockFramework(ras);
         MockTimeService mockTimeService = new MockTimeService(Instant.MIN);
-        GroupRuns groupRuns = new GroupRuns(responseBuidler, "/my/path", mockFramework, mockTimeService);
+        GroupRuns groupRuns = new GroupRuns(responseBuidler, "/my/path", mockFramework, mockTimeService, null, null);
         IRun run = new MockRun("myBundle", "myClassName", "U12345" , "myStream" , "myOBR", "http://my/stream/repo/url", "myRequestorName", false);
         String galasaServiceHost = "https://my.galasa.service";
         String restApiBaseUrl = galasaServiceHost + "/api";

@@ -16,6 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import dev.galasa.framework.spi.IFramework;
 import dev.galasa.framework.spi.IFrameworkRuns.SharedEnvironmentPhase;
 import dev.galasa.framework.spi.IResultArchiveStore;
@@ -25,6 +28,7 @@ import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.TestRunLifecycleStatus;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.EnvironmentVariables;
+import dev.galasa.framework.api.common.ITestCatalogFetcher;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.ProtectedRoute;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -33,6 +37,9 @@ import dev.galasa.framework.spi.FrameworkException;
 import dev.galasa.framework.spi.IRun;
 import dev.galasa.framework.spi.ResultArchiveStoreException;
 import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.streams.IStream;
+import dev.galasa.framework.spi.streams.IStreamsService;
+import dev.galasa.framework.spi.streams.StreamsException;
 import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.spi.utils.ITimeService;
@@ -45,12 +52,23 @@ public class GroupRuns extends ProtectedRoute {
     private IResultArchiveStore rasStore;
     private final GalasaGson gson = new GalasaGson();
     private final ITimeService timeService;
+    private final IStreamsService streamsService;
+    private final ITestCatalogFetcher testCatalogFetcher;
 
-    public GroupRuns(ResponseBuilder responseBuilder, String path, IFramework framework, ITimeService timeService) throws RBACException {
+    public GroupRuns(
+        ResponseBuilder responseBuilder,
+        String path,
+        IFramework framework,
+        ITimeService timeService,
+        IStreamsService streamsService,
+        ITestCatalogFetcher testCatalogFetcher
+    ) throws RBACException {
         super(responseBuilder, path, framework.getRBACService());
         this.framework = framework;
         this.rasStore = framework.getResultArchiveStore();
         this.timeService = timeService;
+        this.streamsService = streamsService;
+        this.testCatalogFetcher = testCatalogFetcher;
     }
 
     protected List<IRun> getRuns(String groupName) throws InternalServletException {
@@ -118,6 +136,9 @@ public class GroupRuns extends ProtectedRoute {
         ScheduleStatus status = new ScheduleStatus();
         status.setComplete(false);
 
+        // The test catalog is the only source of the "must not run in parallel" requirement.
+        JsonObject catalogClasses = getTestCatalogClasses(request.getTestStream());
+
         for (String className : request.getClassNames()) {
             // className is in format bundle/testClass
             String[] classNameSplit = className.split("/");
@@ -147,6 +168,7 @@ public class GroupRuns extends ProtectedRoute {
 
                 String submissionId = UUID.randomUUID().toString();
                 List<String> requestedTestMethods = new ArrayList<>();
+                boolean isSerial = isSerialTestClass(catalogClasses, className);
 
                 IRun newRun = framework.getFrameworkRuns().submitRun(
                         request.getRequestorType(),
@@ -160,6 +182,7 @@ public class GroupRuns extends ProtectedRoute {
                         request.getTestStream(),
                         false,
                         request.isTrace(),
+                        isSerial,
                         request.getTags(),
                         request.getOverrides(),
                         senvPhase,
@@ -182,6 +205,59 @@ public class GroupRuns extends ProtectedRoute {
             }
         }
         return status;
+    }
+
+    /**
+     * Fetches the test catalog for the named test stream and returns its "classes" object.
+     *
+     * @param testStreamName the name of the test stream the runs are being submitted from.
+     * @return the catalog's "classes" object, keyed by "bundle/fully.qualified.ClassName".
+     * @throws InternalServletException if the test stream is missing, cannot be found, has no
+     *         test catalog URL, or its catalog cannot be fetched.
+     */
+    private JsonObject getTestCatalogClasses(String testStreamName) throws InternalServletException {
+        if (testStreamName == null || testStreamName.isBlank()) {
+            ServletError error = new ServletError(GAL5472_SCHEDULE_RUNS_MISSING_TEST_STREAM);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        IStream stream = null;
+        try {
+            stream = streamsService.getStreamByName(testStreamName);
+        } catch (StreamsException e) {
+            ServletError error = new ServletError(GAL5000_GENERIC_API_ERROR);
+            throw new InternalServletException(error, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
+        }
+
+        if (stream == null) {
+            ServletError error = new ServletError(GAL5420_ERROR_STREAM_NOT_FOUND);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        String testCatalogJson = testCatalogFetcher.fetchTestCatalog(stream);
+        if (testCatalogJson == null) {
+            ServletError error = new ServletError(GAL5455_ERROR_STREAM_NO_TEST_CATALOG);
+            throw new InternalServletException(error, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        JsonObject testCatalog = JsonParser.parseString(testCatalogJson).getAsJsonObject();
+        return testCatalog.getAsJsonObject("classes");
+    }
+
+    /**
+     * @param catalogClasses the "classes" object of the test catalog.
+     * @param className the test class in "bundle/fully.qualified.ClassName" format, which is
+     *        also the key used by the test catalog.
+     * @return true if the catalog marks the class as "isSerial". A class which is absent from
+     *         the catalog, or has no "isSerial" field, is not serial.
+     */
+    private boolean isSerialTestClass(JsonObject catalogClasses, String className) {
+        boolean isSerial = false;
+        JsonObject catalogEntry = catalogClasses.getAsJsonObject(className);
+        if (catalogEntry != null && catalogEntry.has("isSerial")) {
+            isSerial = catalogEntry.get("isSerial").getAsBoolean();
+        }
+        return isSerial;
     }
 
     protected void createRunRasRecord(IRun newRun, IResultArchiveStore rasStore, ITimeService timeService,
