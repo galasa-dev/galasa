@@ -149,7 +149,7 @@ dependencies {
         api 'org.apache.derby:derbyclient:10.14.2.0'
 
         api 'org.apache.felix:org.apache.felix.bundlerepository:2.0.10' // If updating, also update in galasa-boot build.gradle.
-        api 'org.apache.felix:org.apache.felix.configadmin:1.9.16'
+        api 'org.apache.felix:org.apache.felix.configadmin:1.9.26'
         api 'org.apache.felix:org.apache.felix.framework:7.0.5' // If updating, also update in galasa-boot build.gradle.
         api 'org.apache.felix:org.apache.felix.fileinstall:3.6.4'
         api 'org.apache.felix:org.apache.felix.gogo.command:1.1.2'
