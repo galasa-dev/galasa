@@ -41,7 +41,7 @@ dependencies {
 
         api 'com.google.code.gson:gson:2.14.0' // If updating, also update in obr/release.yaml
 
-        api 'com.google.protobuf:protobuf-java:4.35.1' // If updating, also update in obr/release.yaml
+        api 'com.google.protobuf:protobuf-java:4.36.2' // If updating, also update in obr/release.yaml
 
         api 'com.google.guava:guava:33.7.2-jre'
 
