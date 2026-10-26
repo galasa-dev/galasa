@@ -176,14 +176,14 @@ public class LocalLinuxEcosystemImpl extends LocalEcosystemImpl {
             runCommand.append(getBootstrapFile().toString());
             if (streamRepo != null) {
                 runCommand.append(" --remotemaven ");
-                runCommand.append(removeHttps(streamRepo));
+                runCommand.append(streamRepo);
             }
             if (streamObr != null) {
                 runCommand.append(" --obr ");
                 runCommand.append(streamObr);
             }
             runCommand.append(" --remotemaven ");
-            runCommand.append(removeHttps(getMavenRepo().toString()));
+            runCommand.append(getMavenRepo().toString());
             runCommand.append(" --localmaven file:");
             runCommand.append(getMavenLocal().toString());
             runCommand.append(" --obr  mvn:dev.galasa/dev.galasa.uber.obr/");
@@ -261,19 +261,6 @@ public class LocalLinuxEcosystemImpl extends LocalEcosystemImpl {
             throw new GalasaEcosystemManagerException("Failed to submit run to local ecosystem", e);
         }
 
-    }
-    
-    
-    // TODO - Hacky to get round cacerts issue in java manager, ie functionality not there yet
-    private String removeHttps(String url) {
-        if (url.startsWith("https://cicscit.hursley.ibm.com")) {
-            return url.replace("https://cicscit.hursley.ibm.com", "http://cicscit.hursley.ibm.com");
-        }
-        if (url.startsWith("https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/")) {
-            return url.replace("https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/", "http://nexus.cics-ts.hur.hdclab.intranet.ibm.com:81/");
-        }
-        
-        return url;
     }
 
     @Override
