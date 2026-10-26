@@ -70,13 +70,18 @@ public class RunsServlet extends BaseServlet {
             ICredentialsService credentialsService = framework.getCredentialsService();
 
             addRoute(createRunsPortfoliosRoute(streamsService, credentialsService));
-            addRoute(new GroupRunsRoute(getResponseBuilder(), framework, env));
+            addRoute(new GroupRunsRoute(getResponseBuilder(), framework, env, streamsService,
+                    createTestCatalogFetcher(credentialsService)));
         } catch (RBACException e) {
             throw new ServletException("Failed to initialise schedule runs servlet");
         } catch (Exception e) {
             throw new ServletException("Failed to initialise schedule runs servlet", e);
         }
         logger.info("Schedule Runs Servlet initialised");
+    }
+
+    protected ITestCatalogFetcher createTestCatalogFetcher(ICredentialsService credentialsService) {
+        return new TestCatalogFetcher(httpClient, credentialsService);
     }
 
     protected RunsPortfoliosRoute createRunsPortfoliosRoute(

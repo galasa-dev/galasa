@@ -111,6 +111,7 @@ public class FrameworkRunsTest {
             stream,
             local,
             trace,
+            false,
             tags,
             overrides,
             sharedEnvironmentPhase,
@@ -197,6 +198,7 @@ public class FrameworkRunsTest {
             stream,
             local,
             trace,
+            false,
             tags,
             overrides,
             sharedEnvironmentPhase,
@@ -284,6 +286,7 @@ public class FrameworkRunsTest {
                 stream,
                 local,
                 trace,
+                false,
                 tags,
                 overrides,
                 sharedEnvironmentPhase,
@@ -344,6 +347,7 @@ public class FrameworkRunsTest {
                 stream,
                 local,
                 trace,
+                false,
                 tags,
                 overrides,
                 sharedEnvironmentPhase,
@@ -404,6 +408,7 @@ public class FrameworkRunsTest {
                 stream,
                 local,
                 trace,
+                false,
                 tags,
                 overrides,
                 sharedEnvironmentPhase,
@@ -463,6 +468,7 @@ public class FrameworkRunsTest {
             stream,
             local,
             trace,
+            false,
             tags,
             overrides,
             sharedEnvironmentPhase,
@@ -522,6 +528,7 @@ public class FrameworkRunsTest {
             stream,
             local,
             trace,
+            false,
             tags,
             overrides,
             sharedEnvironmentPhase,
@@ -581,6 +588,7 @@ public class FrameworkRunsTest {
             stream,
             local,
             trace,
+            false,
             tags,
             overrides,
             sharedEnvironmentPhase,
@@ -656,6 +664,7 @@ public class FrameworkRunsTest {
             stream,
             local,
             trace,
+            false,
             tags,
             overrides,
             sharedEnvironmentPhase,
@@ -733,6 +742,7 @@ public class FrameworkRunsTest {
                 stream,
                 local,
                 trace,
+                false,
                 tags,
                 overrides,
                 sharedEnvironmentPhase,
@@ -795,6 +805,7 @@ public class FrameworkRunsTest {
             stream,
             local,
             trace,
+            false,
             tags,
             overrides,
             sharedEnvironmentPhase,
@@ -863,6 +874,7 @@ public class FrameworkRunsTest {
                 stream,
                 local,
                 trace,
+                false,
                 tags,
                 overrides,
                 sharedEnvironmentPhase,
@@ -1444,12 +1456,43 @@ public class FrameworkRunsTest {
         IRun run = frameworkRuns.submitRun(
             runType, requestor, user, bundleName, testName, groupName,
             null, null, stream,
-            false, false, null, new Properties(),
+            false, false, false, null, new Properties(),
             null, null, language, submissionId, null
         );
 
         // Then... a non-serial run must NOT write the IS_SERIAL key to the DSS
         assertThat(mockDss.get("run." + run.getName() + "." + DssPropertyKeyRunNameSuffix.IS_SERIAL)).isNull();
+    }
+
+    @Test
+    public void testSubmitSerialRunWritesIsSerialKeyToDss() throws Exception {
+        // Given...
+        MockDSSStore mockDss = new MockDSSStore(new HashMap<>());
+        MockCPSStore mockCps = new MockCPSStore(new HashMap<>());
+        MockFramework mockFramework = new MockFramework(mockCps, mockDss);
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        String runType = "unknown";
+        String requestor = "me";
+        String user = "me";
+        String bundleName = "mybundle";
+        String testName = "mytest";
+        String groupName = "my.group";
+        String stream = "a-test-stream";
+        String submissionId = "submission1";
+        String language = "java";
+
+        // When...
+        IRun run = frameworkRuns.submitRun(
+            runType, requestor, user, bundleName, testName, groupName,
+            null, null, stream,
+            false, false, true, null, new Properties(),
+            null, null, language, submissionId, null
+        );
+
+        // Then... the isSerial argument given to submitRun reaches the DSS and the run record
+        assertThat(mockDss.get("run." + run.getName() + "." + DssPropertyKeyRunNameSuffix.IS_SERIAL)).isEqualTo("true");
+        assertThat(run.isSerial()).isTrue();
     }
 
     @Test

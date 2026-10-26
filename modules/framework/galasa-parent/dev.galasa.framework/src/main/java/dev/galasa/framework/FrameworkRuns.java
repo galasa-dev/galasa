@@ -189,7 +189,7 @@ public class FrameworkRuns implements IFrameworkRuns {
     @NotNull
     public @NotNull IRun submitRun(String runType, String requestor, String user, String bundleName,
             @NotNull String testName, String groupName, String mavenRepository, String obr, String stream,
-            boolean local, boolean trace, Set<String> tags, Properties overrides, SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName,
+            boolean local, boolean trace, boolean isSerial, Set<String> tags, Properties overrides, SharedEnvironmentPhase sharedEnvironmentPhase, String sharedEnvironmentRunName,
             String language, String submissionId, List<String> requestedTestMethods) throws FrameworkException {
         SubmitRunRequest runRequest = new SubmitRunRequest(
             runType,
@@ -211,6 +211,7 @@ public class FrameworkRuns implements IFrameworkRuns {
             language,
             requestedTestMethods
         );
+        runRequest.setSerial(isSerial);
         return submitRun(runRequest);
     }
 

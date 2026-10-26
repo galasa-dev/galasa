@@ -18,6 +18,7 @@ import dev.galasa.api.runs.ScheduleRequest;
 import dev.galasa.api.runs.ScheduleStatus;
 import dev.galasa.framework.api.common.Environment;
 import dev.galasa.framework.api.common.HttpRequestContext;
+import dev.galasa.framework.api.common.ITestCatalogFetcher;
 import dev.galasa.framework.api.common.InternalServletException;
 import dev.galasa.framework.api.common.QueryParameters;
 import dev.galasa.framework.api.common.ResponseBuilder;
@@ -34,6 +35,7 @@ import dev.galasa.framework.spi.auth.IAuthStoreService;
 import dev.galasa.framework.spi.auth.IUser;
 import dev.galasa.framework.spi.rbac.BuiltInAction;
 import dev.galasa.framework.spi.rbac.RBACException;
+import dev.galasa.framework.spi.streams.IStreamsService;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.spi.utils.SystemTimeService;
 
@@ -45,11 +47,17 @@ public class GroupRunsRoute extends GroupRuns{
     private final String GROUP_RUNS_CANCELLED_STATUS = "cancelled";
     private final Environment env;
 
-    public GroupRunsRoute(ResponseBuilder responseBuilder, IFramework framework, Environment env) throws RBACException {
+    public GroupRunsRoute(
+        ResponseBuilder responseBuilder,
+        IFramework framework,
+        Environment env,
+        IStreamsService streamsService,
+        ITestCatalogFetcher testCatalogFetcher
+    ) throws RBACException {
         // Regex to match endpoints:
 		// -> /runs/{GroupID}
 		//
-        super(responseBuilder, path, framework, new SystemTimeService() );
+        super(responseBuilder, path, framework, new SystemTimeService(), streamsService, testCatalogFetcher);
         this.env = env;
     }
 
