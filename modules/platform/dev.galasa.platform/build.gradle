@@ -135,7 +135,7 @@ dependencies {
 
         api 'junit:junit:4.13.2'
 
-        api 'net.bytebuddy:byte-buddy:1.18.16-jdk5'
+        api 'net.bytebuddy:byte-buddy:1.18.16'
 
         api 'net.java.dev.jna:jna:5.18.1'
         api 'net.java.dev.jna:jna-platform:5.18.1'
