@@ -16,6 +16,24 @@ import javax.validation.constraints.NotNull;
  *
  */
 public interface IZosBatch {
+
+    /**
+     * Submit a job with a unique jobname that is provisioned by the Manager.
+     * <p>
+     * The Manager generates a JOB statement and puts it in front of the supplied JCL, so the JCL must not include a JOB statement.
+     * To submit JCL that already contains its own JOB statement, use {@link #submitJobWithSuppliedJobcard(String)}.
+     * To submit the job with a jobname chosen by the test, use {@link #submitJob(String, IZosBatchJobname)} with {@link ZosBatchJobnames}.
+     * <p>
+     * This is the same as calling {@link #submitJob(String, IZosBatchJobname)} with a <code>null</code> jobname.
+     *
+     * @param jcl - The JCL to submit.   Must not include the JOB statement, unless submitted using {@link #submitJobWithSuppliedJobcard(String)}
+     * @return {@link IZosBatchJob} A representation of the zOS Batch Job
+     * @throws ZosBatchException
+     */
+    @NotNull
+    public default IZosBatchJob submitJob(@NotNull String jcl) throws ZosBatchException {
+        return submitJob(jcl, null);
+    }
     
     /**
      * Submit a job.
@@ -25,6 +43,9 @@ public interface IZosBatch {
      *
      * @param jcl - The JCL to submit.   Must not include the JOB statement, unless submitted using {@link #submitJobWithSuppliedJobcard(String)}
      * @param jobname - {@link IZosBatchJobname} A provisioned jobname, if null, a new unique jobname will be provisioned.
+     * To submit the job with a jobname chosen by the test, use {@link ZosBatchJobnames#exact(String)}.
+     * An exact jobname is not made unique, so tests that run at the same time and use the same jobname can collide.
+     * See {@link ZosBatchJobnames} for details.
      * @return {@link IZosBatchJob} A representation of the zOS Batch Job
      * @throws ZosBatchException
      */
@@ -39,6 +60,9 @@ public interface IZosBatch {
      *
      * @param jcl - The JCL to submit.   Must not include the JOB statement, unless submitted using {@link #submitJobWithSuppliedJobcard(String)}
      * @param jobname - {@link IZosBatchJobname} A provisioned jobname, if null, a new unique jobname will be provisioned.
+     * To submit the job with a jobname chosen by the test, use {@link ZosBatchJobnames#exact(String)}.
+     * An exact jobname is not made unique, so tests that run at the same time and use the same jobname can collide.
+     * See {@link ZosBatchJobnames} for details.
      * @Param jobcard - {@link IZosBatchJobcard} Overrides for the job card values
      * @return {@link IZosBatchJob} A representation of the zOS Batch Job
      * @throws ZosBatchException
