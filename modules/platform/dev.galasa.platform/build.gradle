@@ -27,7 +27,7 @@ dependencies {
         api 'biz.aQute.bnd:biz.aQute.bnd.gradle:7.1.0'
         api 'biz.aQute.bnd:biz.aQute.bnd.embedded-repo:7.1.0'
         api 'biz.aQute.bnd:biz.aQute.bndlib:7.1.0'
-        api 'biz.aQute.bnd:biz.aQute.repository:7.1.0'
+        api 'biz.aQute.bnd:biz.aQute.repository:7.4.0'
         api 'biz.aQute.bnd:biz.aQute.resolve:7.1.0'
         api 'biz.aQute.bnd.builder:biz.aQute.bnd.builder.gradle.plugin:7.1.0'
 
