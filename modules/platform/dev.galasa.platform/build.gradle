@@ -24,7 +24,7 @@ dependencies {
     // api platform('org.junit:junit-bom:?')
 
     constraints {
-        api 'biz.aQute.bnd:biz.aQute.bnd.gradle:7.1.0'
+        api 'biz.aQute.bnd:biz.aQute.bnd.gradle:7.4.0'
         api 'biz.aQute.bnd:biz.aQute.bnd.embedded-repo:7.1.0'
         api 'biz.aQute.bnd:biz.aQute.bndlib:7.1.0'
         api 'biz.aQute.bnd:biz.aQute.repository:7.1.0'
