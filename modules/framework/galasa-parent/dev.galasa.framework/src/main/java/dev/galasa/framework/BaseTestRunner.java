@@ -42,6 +42,7 @@ import dev.galasa.framework.spi.teststructure.TestStructure;
 import dev.galasa.framework.spi.utils.DssUtils;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SerialRunLock;
 import dev.galasa.framework.spi.utils.SystemTimeService;
 
 public class BaseTestRunner {
@@ -322,6 +323,9 @@ public class BaseTestRunner {
         properties.put(getDSSKeyString(DssPropertyKeyRunNameSuffix.WAIT_UNTIL.toString()), until.toString());
         try {
             this.dss.put(properties);
+
+            // A waiting run is not active, so it must give up the lock until it is queued and allocated again.
+            SerialRunLock.releaseIfSerial(this.dss, this.run);
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Unable to place run in waiting state", e);
         }
@@ -369,6 +373,10 @@ public class BaseTestRunner {
             }
 
             this.dss.put(propertiesToSet);
+
+            if (status == TestRunLifecycleStatus.FINISHED) {
+                SerialRunLock.releaseIfSerial(this.dss, this.run);
+            }
         } catch (DynamicStatusStoreException e) {
             throw new TestRunException("Failed to update status", e);
         }

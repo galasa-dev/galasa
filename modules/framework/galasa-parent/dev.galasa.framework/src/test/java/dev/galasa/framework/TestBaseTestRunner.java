@@ -16,7 +16,95 @@ import org.junit.Test;
 import dev.galasa.framework.mocks.*;
 
 public class TestBaseTestRunner {
-    
+
+    private static final String SERIAL_LOCK_KEY = "locks.isSerial.myBundle/my.Class";
+
+    private static BaseTestRunner createInitialisedRunner(MockIDynamicStatusStoreService dss, boolean isSerial) throws Exception {
+        MockRun run = new MockRun("myBundle", "my.Class", "U1", "stream", "obr", "http://repo", "requestor", false);
+        run.setSerial(isSerial);
+
+        MockFileSystem mockFileSystem = new MockFileSystem();
+        MockIResultArchiveStore ras = new MockIResultArchiveStore("myRunId", mockFileSystem);
+        MockFrameworkRuns frameworkRuns = new MockFrameworkRuns("myGroup", List.of(run));
+        MockShutableFramework framework = new MockShutableFramework(ras, dss, "U1", run, frameworkRuns) {
+            @Override
+            public Random getRandom() {
+                return new Random();
+            }
+        };
+
+        MockTestRunnerDataProvider dataProvider = new MockTestRunnerDataProvider();
+        dataProvider.setRun(run);
+        dataProvider.setFramework(framework);
+        dataProvider.setCps(new MockIConfigurationPropertyStoreService());
+        dataProvider.setDss(dss);
+        dataProvider.setRas(ras);
+        dataProvider.setOverrideProperties(new Properties());
+        dataProvider.setEventsPublisher(new MockTestRunnerEventsProducer());
+
+        BaseTestRunner runner = new BaseTestRunner();
+        runner.init(dataProvider);
+        runner.testStructure = runner.createNewTestStructure(run);
+        return runner;
+    }
+
+    @Test
+    public void testSerialRunReleasesItsLockWhenItFinishes() throws Exception {
+        // Given...
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        dss.put(SERIAL_LOCK_KEY, "U1");
+        BaseTestRunner runner = createInitialisedRunner(dss, true);
+
+        // When...
+        runner.updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+
+        // Then...
+        assertThat(dss.get(SERIAL_LOCK_KEY)).isNull();
+    }
+
+    @Test
+    public void testSerialRunKeepsItsLockWhileItIsNotFinished() throws Exception {
+        // Given...
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        dss.put(SERIAL_LOCK_KEY, "U1");
+        BaseTestRunner runner = createInitialisedRunner(dss, true);
+
+        // When...
+        runner.updateStatus(TestRunLifecycleStatus.RUNNING, null);
+
+        // Then...
+        assertThat(dss.get(SERIAL_LOCK_KEY)).isEqualTo("U1");
+    }
+
+    @Test
+    public void testSerialRunReleasesItsLockWhenItIsMadeToWait() throws Exception {
+        // Given...
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        dss.put(SERIAL_LOCK_KEY, "U1");
+        BaseTestRunner runner = createInitialisedRunner(dss, true);
+
+        // When...
+        runner.markWaiting(runner.getFramework());
+
+        // Then...
+        assertThat(dss.get(SERIAL_LOCK_KEY)).isNull();
+        assertThat(dss.get("run.U1.status")).isEqualTo("waiting");
+    }
+
+    @Test
+    public void testSerialRunDoesNotReleaseALockOwnedByAnotherRunWhenItFinishes() throws Exception {
+        // Given...
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService();
+        dss.put(SERIAL_LOCK_KEY, "U2");
+        BaseTestRunner runner = createInitialisedRunner(dss, true);
+
+        // When...
+        runner.updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+
+        // Then...
+        assertThat(dss.get(SERIAL_LOCK_KEY)).isEqualTo("U2");
+    }
+
     @Test
     public void testCanInstantiateABaseTestRunner() throws Exception {
 

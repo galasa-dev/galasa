@@ -1533,4 +1533,64 @@ public class FrameworkRunsTest {
         // Then... the IS_SERIAL key must have been written as "true"
         assertThat(dssProps.get("run." + runName + "." + DssPropertyKeyRunNameSuffix.IS_SERIAL)).isEqualTo("true");
     }
+
+    private static final String SERIAL_LOCK_KEY = "locks.isSerial.mybundle/mytest";
+
+    private Map<String, String> createSerialRunDssProps(String runName, String lockOwner) {
+        Map<String, String> dssProps = new HashMap<>();
+        dssProps.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.TEST, "mybundle/mytest");
+        dssProps.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.IS_SERIAL, "true");
+        dssProps.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.STATUS, TestRunLifecycleStatus.RUNNING.toString());
+        dssProps.put(SERIAL_LOCK_KEY, lockOwner);
+        return dssProps;
+    }
+
+    @Test
+    public void testMarkRunFinishedReleasesSerialLockOwnedByTheRun() throws Exception {
+        // Given...
+        String runName = "U1";
+        Map<String, String> dssProps = createSerialRunDssProps(runName, runName);
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockFramework mockFramework = new MockFramework(new MockCPSStore(new HashMap<>()), mockDss);
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        // When...
+        frameworkRuns.markRunFinished(runName, Result.CANCELLED);
+
+        // Then...
+        assertThat(dssProps).doesNotContainKey(SERIAL_LOCK_KEY);
+    }
+
+    @Test
+    public void testMarkRunFinishedLeavesSerialLockOwnedByAnotherRun() throws Exception {
+        // Given...
+        String runName = "U1";
+        Map<String, String> dssProps = createSerialRunDssProps(runName, "U2");
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockFramework mockFramework = new MockFramework(new MockCPSStore(new HashMap<>()), mockDss);
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        // When...
+        frameworkRuns.markRunFinished(runName, Result.CANCELLED);
+
+        // Then...
+        assertThat(dssProps.get(SERIAL_LOCK_KEY)).isEqualTo("U2");
+    }
+
+    @Test
+    public void testResetReleasesSerialLockOwnedByTheRun() throws Exception {
+        // Given...
+        String runName = "U1";
+        Map<String, String> dssProps = createSerialRunDssProps(runName, runName);
+        MockDSSStore mockDss = new MockDSSStore(dssProps);
+        MockFramework mockFramework = new MockFramework(new MockCPSStore(new HashMap<>()), mockDss);
+        FrameworkRuns frameworkRuns = new FrameworkRuns(mockFramework);
+
+        // When...
+        boolean isRunReset = frameworkRuns.reset(runName);
+
+        // Then...
+        assertThat(isRunReset).isTrue();
+        assertThat(dssProps).doesNotContainKey(SERIAL_LOCK_KEY);
+    }
 }

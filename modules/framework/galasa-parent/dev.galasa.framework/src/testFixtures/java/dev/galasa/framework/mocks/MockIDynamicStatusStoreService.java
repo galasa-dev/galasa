@@ -11,6 +11,7 @@ import java.util.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import dev.galasa.framework.spi.DssDelete;
 import dev.galasa.framework.spi.DssPropertyKeyRunNameSuffix;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreMatchException;
@@ -48,6 +49,10 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
 
     @Override
     public boolean putSwap(@NotNull String key, String oldValue, @NotNull String newValue) {
+        // A null old value means the key must not exist yet. Otherwise it must have the old value.
+        if (oldValue == null ? data.containsKey(key) : !oldValue.equals(data.get(key))) {
+            return false;
+        }
         // Don't record heartbeat events in the history. They are random how many there would be 
         // based on the speed of the heartbeat thread. So make it hard for unit tests to check
         // results.
@@ -119,6 +124,19 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
         }
     }
 
+    // Only supports DssDelete actions, which fail if the old value given is not the current value.
+    @Override
+    public void performActions(IDssAction... actions)
+            throws DynamicStatusStoreException, DynamicStatusStoreMatchException {
+        for (IDssAction action : actions) {
+            DssDelete delete = (DssDelete) action;
+            if (!delete.getOldValue().equals(data.get(delete.getKey()))) {
+                throw new DynamicStatusStoreMatchException("Value of " + delete.getKey() + " is not " + delete.getOldValue());
+            }
+            delete(delete.getKey());
+        }
+    }
+
     // ------------------- un-implemented methods follow --------------------
 
     @Override
@@ -134,12 +152,6 @@ public class MockIDynamicStatusStoreService implements IDynamicStatusStoreServic
     @Override
     public void delete(@NotNull Set<String> keys) throws DynamicStatusStoreException {
                throw new UnsupportedOperationException("Unimplemented method 'delete'");
-    }
-
-    @Override
-    public void performActions(IDssAction... actions)
-            throws DynamicStatusStoreException, DynamicStatusStoreMatchException {
-               throw new UnsupportedOperationException("Unimplemented method 'performActions'");
     }
 
     @Override
