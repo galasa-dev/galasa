@@ -34,6 +34,7 @@ import dev.galasa.zosbatch.ZosBatch;
 import dev.galasa.zosbatch.ZosBatchException;
 import dev.galasa.zosbatch.ZosBatchJobcard;
 import dev.galasa.zosbatch.ZosBatchJobname;
+import dev.galasa.zosbatch.ZosBatchJobnames;
 
 @Test
 public class ZosManagerBatchIVT {
@@ -282,5 +283,62 @@ public class ZosManagerBatchIVT {
 
         String jesJcl = job.getSpoolFile("JESJCL").getRecords();
         assertThat(jesJcl.split("/\\*JOBPARM", -1).length - 1).as("number of JOBPARM records in the JCL as converted by JES").isEqualTo(1);
+    }
+
+    /*
+     * Submits a job with a job name chosen by the test, rather than a provisioned one.
+     * The name is given in lower case to check that it is converted to upper case.
+     * A provisioned name is used as the value to avoid a collision with other tests running at the same time
+     */
+    @Test
+    public void submitJCLWithExactJobname() throws TestBundleResourceException, IOException, ZosBatchException {
+        String chosenName = jobName.getName().toLowerCase();
+        IZosBatchJobname exactJobname = ZosBatchJobnames.exact(chosenName);
+        assertThat(exactJobname.getName()).isEqualTo(jobName.getName());
+
+        String jclInput = resources.retrieveFileAsString("/jcl/doNothing.jcl");
+        IZosBatchJob job = batch.submitJob(jclInput, exactJobname);
+        int returnCode = job.waitForJob();
+        assertThat(returnCode).isEqualTo(0);
+        assertThat(job.getJobname().getName()).isEqualTo(jobName.getName());
+
+        // The job is known to JES under the chosen name
+        List<IZosBatchJob> jobs = batch.getJobs(jobName.getName(), job.getOwner());
+        boolean found = false;
+        for (IZosBatchJob listedJob : jobs) {
+            if (listedJob.getJobId().equals(job.getJobId())) {
+                found = true;
+            }
+        }
+        assertThat(found).as("job " + job.getJobId() + " listed by JES under name " + jobName.getName()).isTrue();
+        assertThat(job.retrieveOutputAsString()).contains(jobName.getName());
+    }
+
+    /*
+     * Submits a job with a job name that starts with a prefix chosen by the test
+     */
+    @Test
+    public void submitJCLWithRandomPrefixJobname() throws TestBundleResourceException, IOException, ZosBatchException {
+        IZosBatchJobname prefixedJobname = ZosBatchJobnames.randomWithPrefix("giv");
+        assertThat(prefixedJobname.getName()).hasSize(8).startsWith("GIV");
+
+        String jclInput = resources.retrieveFileAsString("/jcl/doNothing.jcl");
+        IZosBatchJob job = batch.submitJob(jclInput, prefixedJobname);
+        int returnCode = job.waitForJob();
+        assertThat(returnCode).isEqualTo(0);
+        assertThat(job.getJobname().getName()).isEqualTo(prefixedJobname.getName());
+    }
+
+    /*
+     * Invalid job names must be rejected with a ZosBatchException before a job can be submitted
+     */
+    @Test
+    public void rejectInvalidChosenJobnames() {
+        assertThatThrownBy(() -> ZosBatchJobnames.exact(null)).isInstanceOf(ZosBatchException.class);
+        assertThatThrownBy(() -> ZosBatchJobnames.exact("")).isInstanceOf(ZosBatchException.class);
+        assertThatThrownBy(() -> ZosBatchJobnames.exact("TOOLONGNAME")).isInstanceOf(ZosBatchException.class);
+        assertThatThrownBy(() -> ZosBatchJobnames.exact("MY-JOB")).isInstanceOf(ZosBatchException.class);
+        assertThatThrownBy(() -> ZosBatchJobnames.exact("1JOB")).isInstanceOf(ZosBatchException.class);
+        assertThatThrownBy(() -> ZosBatchJobnames.randomWithPrefix("EIGHTCHR")).isInstanceOf(ZosBatchException.class);
     }
 }

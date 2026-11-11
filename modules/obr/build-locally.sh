@@ -557,7 +557,7 @@ function check_secrets_unless_supressed() {
 #------------------------------------------------------------------------------------
 function build_boot_embedded_docker_image {
     h2 "Building Galasa boot embedded Docker image..."
-    JDK_IMAGE="ghcr.io/galasa-dev/openjdk:17"
+    JDK_IMAGE="ghcr.io/galasa-dev/eclipse-temurin:17-jdk"
 
     docker build -f "${BASEDIR}/dockerfiles/dockerfile.bootembedded" \
     -t galasa-boot-embedded:latest \

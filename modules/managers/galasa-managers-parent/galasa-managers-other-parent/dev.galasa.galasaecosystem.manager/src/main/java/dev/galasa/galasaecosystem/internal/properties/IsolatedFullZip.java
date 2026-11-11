@@ -29,7 +29,7 @@ import dev.galasa.galasaecosystem.GalasaEcosystemManagerException;
  * @galasa.valid_values Valid URL
  * 
  * @galasa.examples 
- * <code>galasaecosystem.isolated.full.zip=http://cicsk8sm.hursley.ibm.com:31210/galasa-isolated-full-maven-repo.zip</code>
+ * <code>galasaecosystem.isolated.full.zip=https://myhost/galasa-isolated-full-maven-repo.zip</code>
  * 
  */
 public class IsolatedFullZip extends CpsProperties {

@@ -19,7 +19,8 @@ import dev.galasa.framework.spi.ValidAnnotatedFields;
  * 
  * @galasa.description The <code>{@literal @}ZosBatchJobname</code> annotation requests the z/OS Manager to provide a
  * {@link IZosBatchJobname} field that is guaranteed to be unique which can be used for running Jobs or STCs on a zOS Image.
- * The Test can provision many jobnames as are needed for the test
+ * The Test can provision many jobnames as are needed for the test.<br>
+ * To use a jobname that is chosen by the test instead, see {@link ZosBatchJobnames}.
  * 
  * @galasa.examples 
  * <code>{@literal @}ZosBatchJobname(imageTag="A")<br>

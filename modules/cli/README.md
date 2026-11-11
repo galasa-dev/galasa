@@ -1053,7 +1053,7 @@ metadata:
     id: "2"
     name: admin
     description: Administrator access
-    url: http://prod1-galasa-dev.cicsk8s.hursley.ibm.com/rbac/roles/2
+    url: http://myhost/api/rbac/roles/2
 data:
     actions:
         - GENERAL_API_ACCESS

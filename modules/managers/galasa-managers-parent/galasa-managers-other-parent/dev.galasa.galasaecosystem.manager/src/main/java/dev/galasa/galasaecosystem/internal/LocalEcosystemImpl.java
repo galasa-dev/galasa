@@ -832,7 +832,7 @@ public abstract class LocalEcosystemImpl extends AbstractEcosystemImpl implement
 
         //*** Set up streams
         setCpsProperty("framework.test.stream.simbank.obr", "mvn:dev.galasa/dev.galasa.simbank.obr/" + SimBankTestsVersion.get() + "/obr");
-        setCpsProperty("framework.test.stream.simbank.repo", removeHttps(SimplatformRepo.get().toString()));
+        setCpsProperty("framework.test.stream.simbank.repo", SimplatformRepo.get().toString());
 
         //*** Set up SimBank
         setCredsProperty("secure.credentials.SIMBANK.username", "IBMUSER");
@@ -854,18 +854,6 @@ public abstract class LocalEcosystemImpl extends AbstractEcosystemImpl implement
         setCpsProperty("simbank.instance.SIMBANK.zos.image","SIMBANK");
         setCpsProperty("simbank.instance.SIMBANK.database.port", Integer.toString(((InetSocketAddress)this.simPlatformInstance.getSimPlatformEndpoint(EcosystemEndpoint.SIMBANK_DATABASE)).getPort()));
         setCpsProperty("simbank.instance.SIMBANK.webnet.port", Integer.toString(((URL)this.simPlatformInstance.getSimPlatformEndpoint(EcosystemEndpoint.SIMBANK_WEBSERVICE)).getPort()));
-    }
-
-    // TODO - Hacky to get round cacerts issue in java manager, ie functionality not there yet
-    private String removeHttps(String url) {
-        if (url.startsWith("https://cicscit.hursley.ibm.com")) {
-            return url.replace("https://cicscit.hursley.ibm.com", "http://cicscit.hursley.ibm.com");
-        }
-        if (url.startsWith("https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/")) {
-            return url.replace("https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/", "http://nexus.cics-ts.hur.hdclab.intranet.ibm.com:81/");
-        }
-
-        return url;
     }
 
     @Override

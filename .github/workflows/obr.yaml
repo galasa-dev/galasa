@@ -859,7 +859,7 @@ jobs:
           build-args: |
             tag=${{ env.BRANCH }}
             dockerRepository=${{ env.REGISTRY }}
-            jdkImage=ghcr.io/galasa-dev/openjdk:17
+            jdkImage=ghcr.io/galasa-dev/eclipse-temurin:17-jdk
 
   report-failure:
     # Skip this job for forks
