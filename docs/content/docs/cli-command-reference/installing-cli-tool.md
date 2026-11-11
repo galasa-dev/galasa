@@ -40,9 +40,9 @@ Choose your installation method:
        brew install galasactl
        ```
        
-       Or install a specific version (e.g., 1.3.0):
+       Or install a specific version (e.g., 2.0.0):
        ```bash
-       brew install galasactl@1.3.0`
+       brew install galasactl@2.0.0`
        ```
     
     3. Check available versions:
@@ -96,7 +96,7 @@ Choose your installation method:
 
     4. Install a specific version:
        ```powershell
-       scoop install galasactl@1.3.0`
+       scoop install galasactl@2.0.0`
        ```
 
     5. Verify the installation:
