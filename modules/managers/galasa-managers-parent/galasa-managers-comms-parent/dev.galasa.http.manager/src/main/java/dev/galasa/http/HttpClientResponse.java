@@ -8,8 +8,8 @@ package dev.galasa.http;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -51,7 +51,8 @@ public class HttpClientResponse<T> {
     private String                    statusMessage;
     private String                    protocolVersion;
     private T                         content;
-    private final Map<String, String> headers = new HashMap<>();
+    // HTTP header names are case-insensitive (RFC 9110)
+    private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private static final Log logger = LogFactory.getLog(HttpClientResponse.class);
 
     HttpClientResponse() {
