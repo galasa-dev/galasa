@@ -8,14 +8,12 @@ package dev.galasa.selenium;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
-import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 
@@ -63,13 +61,6 @@ public interface IFirefoxOptions {
     public void setLogLevel(Level level);
 
     public Map<String,Object> asMap();
-
-    /**
-     * @deprecated FirefoxBinary is deprecated in Selenium 4 and will be removed in a future release.
-     * Use {@link IFirefoxOptions#setBinary(Path)} or {@link IFirefoxOptions#setBinary(String)} instead.
-     */
-    @Deprecated(forRemoval = true, since = "1.0.1")
-    public Optional<FirefoxBinary> getBinaryOrNull();
 
     public String getBrowserName();
 
