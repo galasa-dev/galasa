@@ -95,6 +95,50 @@ public class HttpManagerIVT {
     }
 
     @Test
+    public void headerNameCaseInsensitiveLookupTest() throws Exception {
+        client.setURI(new URI("https://httpbin.org"));
+
+        HttpClientResponse<JsonObject> response = client.getJson("/get");
+        assertThat(response.getStatusCode()).isEqualTo(200);
+
+        // Header names are case-insensitive, whatever case the server used in its response
+        assertThat(response.getHeader("content-type")).isEqualTo("application/json");
+        assertThat(response.getHeader("Content-Type")).isEqualTo("application/json");
+        assertThat(response.getHeader("CONTENT-TYPE")).isEqualTo("application/json");
+
+        Map<String, String> headers = response.getheaders();
+        assertThat(headers).containsKey("content-type");
+        assertThat(headers).containsKey("Content-Type");
+        assertThat(headers).containsKey("CONTENT-TYPE");
+    }
+
+    @Test
+    public void missingHeaderReturnsNullTest() throws Exception {
+        client.setURI(new URI("https://httpbin.org"));
+
+        HttpClientResponse<JsonObject> response = client.getJson("/get");
+
+        assertThat(response.getHeader("X-Galasa-Header-That-Does-Not-Exist")).isNull();
+        assertThat(response.getheaders()).doesNotContainKey("X-Galasa-Header-That-Does-Not-Exist");
+    }
+
+    @Test
+    public void customResponseHeaderCaseInsensitiveLookupTest() throws Exception {
+        String headerName = "Hobbit-Response";
+        String headerValue = "Samwise";
+
+        client.setURI(new URI("https://httpbin.org"));
+
+        // httpbin echoes the query parameters back as response headers
+        HttpClientResponse<JsonObject> response = client.getJson("/response-headers?" + headerName + "=" + headerValue);
+        assertThat(response.getStatusCode()).isEqualTo(200);
+
+        assertThat(response.getHeader(headerName)).isEqualTo(headerValue);
+        assertThat(response.getHeader(headerName.toLowerCase())).isEqualTo(headerValue);
+        assertThat(response.getHeader(headerName.toUpperCase())).isEqualTo(headerValue);
+    }
+
+    @Test
     public void authTest() throws Exception{
         String user = "hobbit";
         String pword = "passw0rd";
