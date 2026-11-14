@@ -77,7 +77,8 @@ public class SerialRunLock {
                     // The swap only succeeds if no one else changed the lock since we read it.
                     isClaimed = dss.putSwap(key, owner, run.getName());
                     if (isClaimed) {
-                        logger.warn("Run " + run.getName() + " took over the lock " + key + " from run " + owner + " which is not active");
+                        // Logged at info: an owner which has just finished may not have released the lock yet, which is normal.
+                        logger.info("Run " + run.getName() + " took over the lock " + key + " from run " + owner + " which is not active");
                     }
                 }
             }
@@ -100,16 +101,20 @@ public class SerialRunLock {
      * A run which does not own the lock (it never claimed it, or already released it) leaves the lock
      * untouched, so a run can never release a lock which another run holds.
      *
+     * If the DSS fails, the failure is logged and not thrown. The caller has already changed the run's status,
+     * and must not fail because of the lock. A lock left held by a finished run is taken over by the next claim.
+     *
      * @param dss the DSS in the "framework" namespace.
      * @param run the run which may own the lock.
-     * @throws DynamicStatusStoreException if the DSS could not be updated.
      */
-    public static void releaseIfSerial(IDynamicStatusStoreKeyAccess dss, IRun run) throws DynamicStatusStoreException {
+    public static void releaseIfSerial(IDynamicStatusStoreKeyAccess dss, IRun run) {
         if (run != null && run.isSerial()) {
             try {
                 dss.performActions(new DssDelete(getKey(run), run.getName()));
             } catch (DynamicStatusStoreMatchException e) {
                 // The lock is not owned by this run, so there is nothing for this run to release.
+            } catch (DynamicStatusStoreException e) {
+                logger.warn("Run " + run.getName() + " could not release the lock " + getKey(run), e);
             }
         }
     }

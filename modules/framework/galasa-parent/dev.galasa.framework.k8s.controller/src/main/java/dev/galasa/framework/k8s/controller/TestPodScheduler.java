@@ -129,9 +129,9 @@ public class TestPodScheduler implements Runnable {
                     while (!prioritisedQueuedRuns.isEmpty()) {    
                         IRun selectedRun = prioritisedQueuedRuns.remove(0);
         
-                        startPod(selectedRun);
+                        boolean isPodLaunched = startPod(selectedRun);
         
-                        if (!prioritisedQueuedRuns.isEmpty()) {
+                        if (isPodLaunched && !prioritisedQueuedRuns.isEmpty()) {
                             // Slight delay to allow Kubernetes to catch up....
                             //
                             // Why do this ? 
@@ -172,7 +172,13 @@ public class TestPodScheduler implements Runnable {
     }
 
 
-    protected void startPod(IRun run) {
+    /**
+     * Allocates a queued run to this controller and launches its engine pod.
+     *
+     * @param run the queued run to launch.
+     * @return true if the engine pod was launched, false if the run was left as it was or the launch failed.
+     */
+    protected boolean startPod(IRun run) {
         String runName = run.getName();
         String engineName = this.settings.getEngineLabel() + "-" + runName.toLowerCase();
 
@@ -189,7 +195,7 @@ public class TestPodScheduler implements Runnable {
             if (!SerialRunLock.claimIfSerial(this.dss, run)) {
                 logger.info("run " + runName + " stays queued as another run of " + run.getTestBundleName()
                     + "/" + run.getTestClassName() + " is active and the test class must not run in parallel");
-                return;
+                return false;
             }
 
             // *** First attempt to allocate the run to this controller
@@ -201,7 +207,7 @@ public class TestPodScheduler implements Runnable {
             props.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.ALLOCATE_TIMEOUT, allocatedTimeoutTimestamp.toString());
             if (!this.dss.putSwap("run." + runName + "."+DssPropertyKeyRunNameSuffix.STATUS, "queued", "allocated", props)) {
                 logger.info("run allocated by another controller");
-                return;
+                return false;
             }
 
             V1Pod newPodDefinition = createTestPodDefinition(runName, engineName, run.isTrace());
@@ -255,9 +261,11 @@ public class TestPodScheduler implements Runnable {
                 logger.info("Waiting 2 seconds before trying to create pod again");
                 timeService.sleepMillis(2000);
             }
+            return true;
         } catch (Exception e) {
             logger.error("Failed to start new test pod", e);
         }
+        return false;
     }
 
     V1Pod createTestPodDefinition(String runName, String engineName, boolean isTraceEnabled) {
