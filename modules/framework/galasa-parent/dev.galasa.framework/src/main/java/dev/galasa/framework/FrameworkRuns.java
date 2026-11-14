@@ -45,6 +45,7 @@ import dev.galasa.framework.spi.RunRasAction;
 import dev.galasa.framework.spi.utils.GalasaGson;
 import dev.galasa.framework.spi.utils.GalasaGsonBuilder;
 import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SerialRunLock;
 import dev.galasa.framework.spi.utils.SystemTimeService;
 
 public class FrameworkRuns implements IFrameworkRuns {
@@ -345,6 +346,9 @@ public class FrameworkRuns implements IFrameworkRuns {
             propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.RAS_RUN_ID), generateRasRunId(runName));
             this.dss.put(propertiesToSet);
 
+            // A requeued run is no longer active, so it must give up the lock until it is allocated again.
+            SerialRunLock.releaseIfSerial(this.dss, run);
+
             isReset = true;
         }
 
@@ -431,6 +435,8 @@ public class FrameworkRuns implements IFrameworkRuns {
             propertiesToSet.put(getSuffixedRunDssKey(runName, DssPropertyKeyRunNameSuffix.FINISHED_DATETIME), timeService.now().toString());
 
             this.dss.put(propertiesToSet);
+
+            SerialRunLock.releaseIfSerial(this.dss, getRun(runName));
         }
     }
 

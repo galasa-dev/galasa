@@ -816,6 +816,207 @@ public class TestPodSchedulerTest {
     }
 
     @Test
+    public void testThatSerialRunGetsScheduledAndClaimsTheLockWhenNoOtherRunOwnsIt() throws Exception {
+        // Given...
+        String testRunName = "U12345";
+        MockRun run = createMockRun(testRunName);
+        run.setSerial(true);
+
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,"queued");
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+
+        // When...
+        podScheduler.startPod(run);
+
+        // Then...
+        assertThat(api.podsLaunched).hasSize(1);
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("allocated");
+        assertThat(mockDss.get("locks.isSerial.my.bundleName/my.className")).isEqualTo(testRunName);
+    }
+
+    @Test
+    public void testThatSerialRunStaysQueuedWhenAnotherRunOwnsTheLock() throws Exception {
+        // Given...
+        String testRunName = "U12345";
+        MockRun run = createMockRun(testRunName);
+        run.setSerial(true);
+
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,"queued");
+        mockDss.put("locks.isSerial.my.bundleName/my.className", "U99999");
+        mockDss.put("run.U99999."+DssPropertyKeyRunNameSuffix.STATUS,"running");
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+
+        // When...
+        podScheduler.startPod(run);
+
+        // Then...
+        assertThat(api.podsLaunched).isEmpty();
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("queued");
+        assertThat(mockDss.get("locks.isSerial.my.bundleName/my.className")).isEqualTo("U99999");
+    }
+
+    @Test
+    public void testThatNonSerialRunGetsScheduledWhenAnotherRunOwnsTheLock() throws Exception {
+        // Given...
+        String testRunName = "U12345";
+        MockRun run = createMockRun(testRunName);
+
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,"queued");
+        mockDss.put("locks.isSerial.my.bundleName/my.className", "U99999");
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+
+        // When...
+        podScheduler.startPod(run);
+
+        // Then...
+        assertThat(api.podsLaunched).hasSize(1);
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("allocated");
+        assertThat(mockDss.get("locks.isSerial.my.bundleName/my.className")).isEqualTo("U99999");
+    }
+
+    @Test
+    public void testThatSerialRunKeepsTheLockWhenAnotherControllerAllocatedTheRun() throws Exception {
+        // Given...
+        String testRunName = "U12345";
+        MockRun run = createMockRun(testRunName);
+        run.setSerial(true);
+
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        // Another controller claimed the lock for this run and allocated it, so the swap to "allocated" fails.
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,"allocated");
+        mockDss.put("locks.isSerial.my.bundleName/my.className", testRunName);
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+
+        // When...
+        podScheduler.startPod(run);
+
+        // Then...
+        assertThat(api.podsLaunched).isEmpty();
+        assertThat(mockDss.get("locks.isSerial.my.bundleName/my.className")).isEqualTo(testRunName);
+    }
+
+    @Test
+    public void testThatSerialRunReleasesTheLockWhenThePodCannotBeLaunched() throws Exception {
+        // Given...
+        String testRunName = "U12345";
+        MockRun run = createMockRun(testRunName);
+        run.setSerial(true);
+
+        MockEnvironment mockEnvironment = new MockEnvironment();
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS,"queued");
+
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(new ArrayList<>());
+
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+        mockPods.add(new V1Pod());
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+        api.failToLaunchPodCount = 50; // Always fail the pod create with already exists error!
+        String galasaServiceInstallName = "myGalasaService";
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        settings.maxTestPodRetriesLimit = 5;
+        MockCPSStore mockCPS = new MockCPSStore(null);
+
+        MockTimeService mockTimeService = new MockTimeService(Instant.now());
+
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+
+        // When...
+        podScheduler.startPod(run);
+
+        // Then...
+        assertThat(api.podsLaunched).isEmpty();
+        assertThat(mockDss.get("run."+testRunName+"."+DssPropertyKeyRunNameSuffix.STATUS)).isEqualTo("finished");
+        assertThat(mockDss.get("locks.isSerial.my.bundleName/my.className")).isNull();
+    }
+
+    @Test
     public void testThatPodDoesNotGetsScheduledWhenRasAndEtcdAreNotReady() throws Exception {
         // Given...
         MockEnvironment mockEnvironment = new MockEnvironment();
@@ -1143,5 +1344,92 @@ public class TestPodSchedulerTest {
 
         // Then...
         assertThat(api.podsLaunched).hasSize(1);
+    }
+
+    private MockKubernetesApiClient runSchedulerWithQueuedRuns(List<IRun> runs, MockIDynamicStatusStoreService mockDss, MockTimeService mockTimeService) {
+        MockEnvironment mockEnvironment = new MockEnvironment();
+        MockFrameworkRuns mockFrameworkRuns = new MockFrameworkRuns(runs);
+
+        String galasaServiceInstallName = "myGalasaService";
+        boolean isPodReady = true;
+        List<V1Pod> mockPods = new ArrayList<V1Pod>();
+        mockPods.add(createPodWithReadiness(galasaServiceInstallName + "-etcd", isPodReady));
+        mockPods.add(createPodWithReadiness(galasaServiceInstallName + "-ras", isPodReady));
+
+        MockKubernetesApiClient api = new MockKubernetesApiClient(mockPods);
+        KubernetesEngineFacade kubeEngineFacade = new KubernetesEngineFacade(api, "myNamespace", galasaServiceInstallName);
+
+        MockISettings settings = new MockISettings();
+        MockCPSStore mockCPS = new MockCPSStore(new HashMap<>());
+        MockRBACService mockRBACService = FilledMockRBACService.createTestRBACService();
+        MockTagsService mockTagsService = new MockTagsService();
+        IPrioritySchedulingService prioritySchedulingService = new PrioritySchedulingService(mockFrameworkRuns, mockCPS, mockRBACService, mockTimeService, mockTagsService);
+
+        TestPodScheduler podScheduler = new TestPodScheduler(mockEnvironment, mockDss, settings, kubeEngineFacade, mockTimeService, prioritySchedulingService);
+
+        podScheduler.run();
+        return api;
+    }
+
+    @Test
+    public void testThatBlockedSerialRunsDoNotCauseTheLaunchIntervalDelay() throws Exception {
+        // Given...
+        String queuedStatus = TestRunLifecycleStatus.QUEUED.toString();
+        MockRun run1 = createMockRun("U12345");
+        MockRun run2 = createMockRun("U12346");
+        run1.setSerial(true);
+        run2.setSerial(true);
+        run1.setStatus(queuedStatus);
+        run2.setStatus(queuedStatus);
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run.U12345."+DssPropertyKeyRunNameSuffix.STATUS,queuedStatus);
+        mockDss.put("run.U12346."+DssPropertyKeyRunNameSuffix.STATUS,queuedStatus);
+        mockDss.put("locks.isSerial.my.bundleName/my.className", "U99999");
+        mockDss.put("run.U99999."+DssPropertyKeyRunNameSuffix.STATUS,"running");
+
+        List<IRun> runs = new ArrayList<>();
+        runs.add(run1);
+        runs.add(run2);
+
+        Instant startTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(startTime);
+
+        // When...
+        MockKubernetesApiClient api = runSchedulerWithQueuedRuns(runs, mockDss, mockTimeService);
+
+        // Then...
+        assertThat(api.podsLaunched).isEmpty();
+        // The mock time only moves when the scheduler sleeps, so no sleep means no delay.
+        assertThat(mockTimeService.now()).isEqualTo(startTime);
+    }
+
+    @Test
+    public void testThatLaunchingARunStillCausesTheLaunchIntervalDelayBeforeTheNextRun() throws Exception {
+        // Given...
+        String queuedStatus = TestRunLifecycleStatus.QUEUED.toString();
+        MockRun run1 = createMockRun("U12345");
+        MockRun run2 = createMockRun("U12346");
+        run1.setStatus(queuedStatus);
+        run2.setStatus(queuedStatus);
+
+        MockIDynamicStatusStoreService mockDss = new MockIDynamicStatusStoreService();
+        mockDss.put("run.U12345."+DssPropertyKeyRunNameSuffix.STATUS,queuedStatus);
+        mockDss.put("run.U12346."+DssPropertyKeyRunNameSuffix.STATUS,queuedStatus);
+
+        List<IRun> runs = new ArrayList<>();
+        runs.add(run1);
+        runs.add(run2);
+
+        Instant startTime = Instant.now();
+        MockTimeService mockTimeService = new MockTimeService(startTime);
+
+        // When...
+        MockKubernetesApiClient api = runSchedulerWithQueuedRuns(runs, mockDss, mockTimeService);
+
+        // Then...
+        assertThat(api.podsLaunched).hasSize(2);
+        // One launch interval (200ms in the mock settings) between the first and second launch only.
+        assertThat(mockTimeService.now()).isEqualTo(startTime.plusMillis(200));
     }
 }

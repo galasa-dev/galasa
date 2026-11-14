@@ -19,6 +19,7 @@ import javax.validation.constraints.Null;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import dev.galasa.framework.spi.DssDelete;
 import dev.galasa.framework.spi.DynamicStatusStoreException;
 import dev.galasa.framework.spi.DynamicStatusStoreMatchException;
 import dev.galasa.framework.spi.IDssAction;
@@ -122,10 +123,17 @@ public class MockDSSStore implements IDynamicStatusStore, IDynamicStatusStoreSer
         throw new UnsupportedOperationException("Unimplemented method 'deletePrefix'");
     }
 
+    // Only supports DssDelete actions, which fail if the old value given is not the current value.
     @Override
     public void performActions(IDssAction... actions)
             throws DynamicStatusStoreException, DynamicStatusStoreMatchException {
-        throw new UnsupportedOperationException("Unimplemented method 'performActions'");
+        for (IDssAction action : actions) {
+            DssDelete delete = (DssDelete) action;
+            if (!delete.getOldValue().equals(valueMap.get(delete.getKey()))) {
+                throw new DynamicStatusStoreMatchException("Value of " + delete.getKey() + " is not " + delete.getOldValue());
+            }
+            valueMap.remove(delete.getKey());
+        }
     }
 
     @Override
