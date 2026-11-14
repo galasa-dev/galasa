@@ -11,12 +11,15 @@ import org.junit.Test;
 
 import dev.galasa.framework.mocks.MockIDynamicStatusStoreService;
 import dev.galasa.framework.mocks.MockRun;
+import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.DynamicStatusStoreMatchException;
+import dev.galasa.framework.spi.IDssAction;
 
 public class SerialRunLockTest {
 
     private static final String LOCK_KEY = "locks.isSerial.my.bundle/my.Class";
 
-    private MockRun createRun(String runName, boolean isSerial) {
+    private static MockRun createRun(String runName, boolean isSerial) {
         MockRun run = new MockRun("my.bundle", "my.Class", runName, "stream", "obr", "http://repo", "requestor", false);
         run.setSerial(isSerial);
         return run;
@@ -222,5 +225,27 @@ public class SerialRunLockTest {
 
         // Then...
         assertThat(dss.get(LOCK_KEY)).isEqualTo("U1");
+    }
+
+    @Test
+    public void testFailedReleaseIsNotThrownAndLeavesTheLockForTheNextClaimToTakeOver() throws Exception {
+        // Given... a DSS which fails when the lock is released, and an owner which is finished.
+        MockIDynamicStatusStoreService dss = new MockIDynamicStatusStoreService() {
+            @Override
+            public void performActions(IDssAction... actions)
+                    throws DynamicStatusStoreException, DynamicStatusStoreMatchException {
+                throw new DynamicStatusStoreException("DSS is down");
+            }
+        };
+        dss.put(LOCK_KEY, "U1");
+        dss.put("run.U1.status", "finished");
+
+        // When... the release fails, the failure is not thrown.
+        SerialRunLock.releaseIfSerial(dss, createRun("U1", true));
+
+        // Then... the lock is still there, and the next run takes it over as the owner is finished.
+        assertThat(dss.get(LOCK_KEY)).isEqualTo("U1");
+        assertThat(SerialRunLock.claimIfSerial(dss, createRun("U2", true))).isTrue();
+        assertThat(dss.get(LOCK_KEY)).isEqualTo("U2");
     }
 }

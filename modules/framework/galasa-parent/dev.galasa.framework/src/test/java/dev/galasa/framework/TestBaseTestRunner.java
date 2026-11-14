@@ -14,12 +14,31 @@ import java.util.*;
 import org.junit.Test;
 
 import dev.galasa.framework.mocks.*;
+import dev.galasa.framework.mocks.MockTestRunnerEventsProducer.ProducedEvent;
+import dev.galasa.framework.spi.DynamicStatusStoreException;
+import dev.galasa.framework.spi.DynamicStatusStoreMatchException;
+import dev.galasa.framework.spi.IDssAction;
 
 public class TestBaseTestRunner {
 
     private static final String SERIAL_LOCK_KEY = "locks.isSerial.myBundle/my.Class";
 
     private static BaseTestRunner createInitialisedRunner(MockIDynamicStatusStoreService dss, boolean isSerial) throws Exception {
+        return createInitialisedRunner(dss, isSerial, new MockTestRunnerEventsProducer());
+    }
+
+    private static MockIDynamicStatusStoreService createDssWhichFailsToRelease() {
+        return new MockIDynamicStatusStoreService() {
+            @Override
+            public void performActions(IDssAction... actions)
+                    throws DynamicStatusStoreException, DynamicStatusStoreMatchException {
+                throw new DynamicStatusStoreException("DSS is down");
+            }
+        };
+    }
+
+    private static BaseTestRunner createInitialisedRunner(MockIDynamicStatusStoreService dss, boolean isSerial,
+            MockTestRunnerEventsProducer eventsProducer) throws Exception {
         MockRun run = new MockRun("myBundle", "my.Class", "U1", "stream", "obr", "http://repo", "requestor", false);
         run.setSerial(isSerial);
 
@@ -40,7 +59,7 @@ public class TestBaseTestRunner {
         dataProvider.setDss(dss);
         dataProvider.setRas(ras);
         dataProvider.setOverrideProperties(new Properties());
-        dataProvider.setEventsPublisher(new MockTestRunnerEventsProducer());
+        dataProvider.setEventsPublisher(eventsProducer);
 
         BaseTestRunner runner = new BaseTestRunner();
         runner.init(dataProvider);
@@ -103,6 +122,39 @@ public class TestBaseTestRunner {
 
         // Then...
         assertThat(dss.get(SERIAL_LOCK_KEY)).isEqualTo("U2");
+    }
+
+    @Test
+    public void testFailedLockReleaseDoesNotFailTheFinishedStatusUpdateOrStopItsEvent() throws Exception {
+        // Given... a DSS which fails when the lock is released.
+        MockIDynamicStatusStoreService dss = createDssWhichFailsToRelease();
+        dss.put(SERIAL_LOCK_KEY, "U1");
+        MockTestRunnerEventsProducer eventsProducer = new MockTestRunnerEventsProducer();
+        BaseTestRunner runner = createInitialisedRunner(dss, true, eventsProducer);
+
+        // When...
+        runner.updateStatus(TestRunLifecycleStatus.FINISHED, "finished");
+
+        // Then... the status is updated and the status-changed event is still produced.
+        assertThat(dss.get("run.U1.status")).isEqualTo("finished");
+        List<ProducedEvent> events = eventsProducer.getHistory();
+        assertThat(events).hasSize(1);
+        assertThat(events.get(0)).extracting("eventType","testRunLifecycleStatus")
+            .contains("TestRunLifecycleStatusChangedEvent", TestRunLifecycleStatus.FINISHED);
+    }
+
+    @Test
+    public void testFailedLockReleaseDoesNotFailMakingTheRunWait() throws Exception {
+        // Given... a DSS which fails when the lock is released.
+        MockIDynamicStatusStoreService dss = createDssWhichFailsToRelease();
+        dss.put(SERIAL_LOCK_KEY, "U1");
+        BaseTestRunner runner = createInitialisedRunner(dss, true);
+
+        // When...
+        runner.markWaiting(runner.getFramework());
+
+        // Then...
+        assertThat(dss.get("run.U1.status")).isEqualTo("waiting");
     }
 
     @Test
