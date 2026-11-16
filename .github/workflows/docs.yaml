@@ -152,7 +152,7 @@ jobs:
 
       - name: Clone galasa-docs-preview repository
         env: 
-          GITHUB_PAT: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN_AUTH_IN_WORKFLOWS }}
+          GITHUB_PAT: ${{ secrets.GALASA_TEAM_GITHUB_TOKEN }}
         run: |
           git clone https://galasa-team:${{ env.GITHUB_PAT }}@github.com/galasa-dev/galasa-docs-preview.git
 
