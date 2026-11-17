@@ -138,9 +138,15 @@ public class MockRun implements IRun {
         return isSharedEnvironment;
     }
 
+    // Serial is not used very often so not adding to the constructor.
+    private boolean isSerial = false;
+    public void setSerial(boolean newValue) {
+        this.isSerial = newValue;
+    }
+
     @Override
     public boolean isSerial() {
-        return false;
+        return isSerial;
     }
 
     @Override

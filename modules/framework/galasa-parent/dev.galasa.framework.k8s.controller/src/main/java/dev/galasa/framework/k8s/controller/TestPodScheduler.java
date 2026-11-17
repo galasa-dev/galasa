@@ -45,6 +45,7 @@ import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.prometheus.client.Counter;
 import dev.galasa.framework.spi.utils.ITimeService;
+import dev.galasa.framework.spi.utils.SerialRunLock;
 
 public class TestPodScheduler implements Runnable {
     public static final String JAVA_OPTIONS_ENV_VAR = "JDK_JAVA_OPTIONS";
@@ -128,9 +129,9 @@ public class TestPodScheduler implements Runnable {
                     while (!prioritisedQueuedRuns.isEmpty()) {    
                         IRun selectedRun = prioritisedQueuedRuns.remove(0);
         
-                        startPod(selectedRun);
+                        boolean isPodLaunched = startPod(selectedRun);
         
-                        if (!prioritisedQueuedRuns.isEmpty()) {
+                        if (isPodLaunched && !prioritisedQueuedRuns.isEmpty()) {
                             // Slight delay to allow Kubernetes to catch up....
                             //
                             // Why do this ? 
@@ -171,7 +172,13 @@ public class TestPodScheduler implements Runnable {
     }
 
 
-    protected void startPod(IRun run) {
+    /**
+     * Allocates a queued run to this controller and launches its engine pod.
+     *
+     * @param run the queued run to launch.
+     * @return true if the engine pod was launched, false if the run was left as it was or the launch failed.
+     */
+    protected boolean startPod(IRun run) {
         String runName = run.getName();
         String engineName = this.settings.getEngineLabel() + "-" + runName.toLowerCase();
 
@@ -183,6 +190,14 @@ public class TestPodScheduler implements Runnable {
         logger.info("Received run " + runName);
 
         try {
+            // *** A run of a test class which must not run in parallel can only be allocated if it can claim
+            // *** the lock for the class. If it can't, another run of the class is active, so leave this one queued.
+            if (!SerialRunLock.claimIfSerial(this.dss, run)) {
+                logger.info("run " + runName + " stays queued as another run of " + run.getTestBundleName()
+                    + "/" + run.getTestClassName() + " is active and the test class must not run in parallel");
+                return false;
+            }
+
             // *** First attempt to allocate the run to this controller
             Instant now = timeService.now();
             Instant allocatedTimeoutTimestamp = now.plus(settings.getAllocatedTestRunTimeoutMinutes(), ChronoUnit.MINUTES);
@@ -192,7 +207,7 @@ public class TestPodScheduler implements Runnable {
             props.put("run." + runName + "." + DssPropertyKeyRunNameSuffix.ALLOCATE_TIMEOUT, allocatedTimeoutTimestamp.toString());
             if (!this.dss.putSwap("run." + runName + "."+DssPropertyKeyRunNameSuffix.STATUS, "queued", "allocated", props)) {
                 logger.info("run allocated by another controller");
-                return;
+                return false;
             }
 
             V1Pod newPodDefinition = createTestPodDefinition(runName, engineName, run.isTrace());
@@ -211,6 +226,7 @@ public class TestPodScheduler implements Runnable {
                     propertiesToSet.put("run." + run.getName() + "."+DssPropertyKeyRunNameSuffix.FINISHED_DATETIME , finishedTimeStamp.toString());
 
                     this.dss.put(propertiesToSet);
+                    SerialRunLock.releaseIfSerial(this.dss, run);
 
                     String msg = "Engine Pod " + newPodDefinition.getMetadata().getName() + " could not be started. Giving up. Retry count "+Integer.toString(launchAttemptCount)+"exceeded!";
                     logger.error(msg);
@@ -245,9 +261,11 @@ public class TestPodScheduler implements Runnable {
                 logger.info("Waiting 2 seconds before trying to create pod again");
                 timeService.sleepMillis(2000);
             }
+            return true;
         } catch (Exception e) {
             logger.error("Failed to start new test pod", e);
         }
+        return false;
     }
 
     V1Pod createTestPodDefinition(String runName, String engineName, boolean isTraceEnabled) {
