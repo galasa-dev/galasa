@@ -10,7 +10,7 @@ dependencies {
 }
 
 test {
-    // Exclude test source with no runnable Tests, as this causes an error in Gradle 9.1.0.
+    // Exclude test source with no runnable Tests, as this causes an error from Gradle 9.0.0 onwards.
     exclude '**/TestOeconsolPath.class'
     exclude '**/TestOeconsolZosConsoleCommandImpl.class'
     exclude '**/TestOeconsolZosConsoleImpl.class'
