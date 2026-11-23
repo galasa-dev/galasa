@@ -50,9 +50,22 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: 9.0.0
-          gradle-home-cache-excludes: |
-            caches/modules-2/files-2.1/dev.galasa/**
+          gradle-version: 9.1.0
+
+
+      - name: Diagnose Java and Gradle environment
+        working-directory: modules/ivts/galasa-ivts-parent
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME"
+          which java
+          java -version
+
+          echo "Gradle executable:"
+          which gradle
+          gradle --version
+
+          echo "Gradle JVM configuration:"
+          env | grep -E 'JAVA|GRADLE|JDK' | sort
             
       # For any modules that were changed in this PR,
       # download their artifacts from this workflow run.

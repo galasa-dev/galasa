@@ -11,7 +11,7 @@ dependencies {
 
 test {
     // Exclude the LauncherTest.java class
-    // As it has no runnable Tests currently, this causes an error in Gradle 9.0.0.
+    // As it has no runnable Tests currently, this causes an error in Gradle 9.1.0.
     exclude '**/LauncherTest.class'
 }
 
