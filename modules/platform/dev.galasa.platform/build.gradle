@@ -43,7 +43,7 @@ dependencies {
 
         api 'com.google.protobuf:protobuf-java:4.35.1' // If updating, also update in obr/release.yaml
 
-        api 'com.google.guava:guava:33.7.2-jre'
+        api 'com.google.guava:guava:33.8.0-jre'
 
         api 'com.ibm.db2.jcc:db2jcc:db2jcc4'
 
@@ -56,7 +56,9 @@ dependencies {
 
         api 'commons-cli:commons-cli:1.4' // If updating, also update in galasa-boot build.gradle.
 
-        api 'commons-codec:commons-codec:1.16.1'
+        // Also used to override transitive dependency from httpclient5 5.4.0 (via commons-compress 1.27.1)
+        // in dev.galasa.wrapping.httpclient5
+        api 'commons-codec:commons-codec:1.23.0'
 
         api 'commons-collections:commons-collections:3.2.2'
 
@@ -87,20 +89,20 @@ dependencies {
 
         api 'io.kubernetes:client-java:27.0.1'
 
-        // Override transitive dependencies for client-java:27.0.0 to address CVEs
-        api 'org.bouncycastle:bcprov-jdk18on:1.86'
-        api 'org.bouncycastle:bcpkix-jdk18on:1.86'
-        api 'org.bouncycastle:bcutil-jdk18on:1.86'
+        // Override transitive dependencies for client-java:27.0.1 to address CVEs
+        api 'org.bouncycastle:bcprov-jdk18on:1.87'
+        api 'org.bouncycastle:bcpkix-jdk18on:1.87'
+        api 'org.bouncycastle:bcutil-jdk18on:1.87'
 
-        api 'io.netty:netty-codec:4.2.19.Final'
+        api 'io.netty:netty-codec:4.2.20.Final'
 
         // Override transitive dependencies for jetcd-core:0.8.6 to address CVEs
-        api 'io.netty:netty-resolver-dns:4.2.19.Final'
-        api 'io.netty:netty-handler:4.2.19.Final'
-        api 'io.netty:netty-codec-http:4.2.19.Final'
-        api 'io.netty:netty-codec-http2:4.2.19.Final'
-        api 'io.netty:netty-codec-compression:4.2.19.Final'
-        api 'io.netty:netty-codec-dns:4.2.19.Final'
+        api 'io.netty:netty-resolver-dns:4.2.20.Final'
+        api 'io.netty:netty-handler:4.2.20.Final'
+        api 'io.netty:netty-codec-http:4.2.20.Final'
+        api 'io.netty:netty-codec-http2:4.2.20.Final'
+        api 'io.netty:netty-codec-compression:4.2.20.Final'
+        api 'io.netty:netty-codec-dns:4.2.20.Final'
         api 'io.vertx:vertx-core:5.0.12'
         
         // Most bundles before implementing the Platform used 0.6.0 other than dev.galasa.framework.k8s.controller.
@@ -158,6 +160,9 @@ dependencies {
         api 'org.apache.felix:org.apache.felix.http.jetty:5.0.0'
         api 'org.apache.felix:org.apache.felix.http.servlet-api:2.1.0'
         api 'org.apache.felix:org.apache.felix.scr:2.1.14' // If updating, also update in galasa-boot build.gradle.
+
+        // Override transitive dependencies for org.apache.felix.bundlerepository:2.0.10 to address CVEs
+        api 'org.easymock:easymock:5.7.0'
 
         api 'org.apache.httpcomponents.client5:httpclient5:5.6.5'
 
