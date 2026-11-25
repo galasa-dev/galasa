@@ -12,6 +12,7 @@ These suggestions are written in the anticipation that your tests are ultimately
 - Use the Galasa framework to understand which test instance you are testing against.
 - Do not hard code any locations, ports or names in your tests - these might change.
 - Do not assume a specific number of test environments - this might scale dynamically.
+- If a test cannot safely run alongside another run of itself on the Galasa Service, mark the test class with `@DoNotRunInParallel` so that only one run of it is active at a time. See [Preventing a test class from running in parallel](writing-test-classes.md#preventing-a-test-class-from-running-in-parallel).
 
 
 ## Do not hard code resource names
