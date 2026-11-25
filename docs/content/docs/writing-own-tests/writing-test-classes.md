@@ -90,12 +90,11 @@ public class MyTest {
 }
 ```
 
-The annotation can only be used on a class. The Galasa Service then never runs more than one run of that class at a time, across the whole ecosystem:
+The annotation can only be used on a class. The Galasa Service then never runs more than one run of that class at a time:
 
 - While a run of the class is active, other runs of the same class stay `queued`. One of them is allocated when the active run finishes, is cancelled, or goes to `waiting`.
 - Runs of other test classes are not affected, including other classes that have the annotation. Each annotated class is limited separately.
 - The requirement comes only from the annotation. When the test catalog is built from your test project, `isSerial: true` is written into the entry for the class in `testcatalog.json`, and the Galasa Service reads it when runs are submitted. Nothing is passed when the runs are submitted, so a tag or an override cannot make a test serial or stop it being serial. After adding the annotation, rebuild and publish your test project so that the test catalog that your test stream points to is updated.
-- The annotation is not applied to shared environment runs.
 
 Because the runs of the class are queued one after another, use the annotation only where it is needed. A test class that is expected to run many times in parallel, as described in [Key principles for writing tests](key-principles.md), will take longer to complete in total if it has the annotation.
 
