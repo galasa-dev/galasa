@@ -78,7 +78,7 @@ external:
 
   - group: commons-codec
     artifact: commons-codec
-    version: 1.16.1
+    version: 1.23.0
     obr: true
     bom: true
     mvp: true

@@ -72,7 +72,7 @@ dependencies {
     implementation 'dev.galasa:dev.galasa.zosunixcommand.ssh.manager:+'
 
     constraints {
-        implementation('commons-codec:commons-codec:1.15'){
+        implementation('commons-codec:commons-codec:1.23.0'){
             because "Force specific version of commons-codec for security reasons"
         }
     }
