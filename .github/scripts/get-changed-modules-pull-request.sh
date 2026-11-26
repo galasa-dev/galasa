@@ -9,7 +9,13 @@
 
 #-----------------------------------------------------------------------------------------                   
 #
-# Objectives: Get all modules that have been changed in a Pull Request.
+# Objectives: Get all modules that have been changed in a Pull Request, plus every module
+# that depends on them, directly or transitively.
+#
+# The module dependency graph below (moduleDownstream) must be kept in sync with the 'needs:'
+# ordering in .github/workflows/pull-requests.yaml. If a build job is added, removed or
+# re-ordered there, update the graph here, and the test cases in
+# get-changed-modules-pull-request-test.sh.
 # 
 #-----------------------------------------------------------------------------------------                   
 
@@ -133,27 +139,25 @@ moduleToPrefix["obr"]="modules/obr"
 moduleToPrefix["ivts"]="modules/ivts"
 moduleToPrefix["cli"]="modules/cli"
 moduleToPrefix["docs"]="docs/"
-moduleToPrefix["workflows"]=".github/"
-moduleToPrefix["galasa-boot"]="modules/framework/galasa-parent/galasa-boot"
-moduleToPrefix["restApi"]="modules/framework/galasa-parent/dev.galasa.framework.api.openapi/src/main/resources/openapi.yaml"
 
-# An associative array of modules to the comma-separated list of flags they should set to true if the module has changed.
-declare -A moduleToFlagList
-moduleToFlagList["buildutils"]="BUILDUTILS_CHANGED"
-moduleToFlagList["platform"]="PLATFORM_CHANGED,WRAPPING_CHANGED,GRADLE_CHANGED,MAVEN_CHANGED,FRAMEWORK_CHANGED,EXTENSIONS_CHANGED,MANAGERS_CHANGED,OBR_CHANGED"
-moduleToFlagList["wrapping"]="WRAPPING_CHANGED"
-moduleToFlagList["gradle"]="GRADLE_CHANGED"
-moduleToFlagList["maven"]="MAVEN_CHANGED"
-moduleToFlagList["framework"]="FRAMEWORK_CHANGED,DOCS_CHANGED"
-moduleToFlagList["extensions"]="EXTENSIONS_CHANGED"
-moduleToFlagList["managers"]="MANAGERS_CHANGED"
-moduleToFlagList["obr"]="OBR_CHANGED"
-moduleToFlagList["ivts"]="IVTS_CHANGED"
-moduleToFlagList["cli"]="CLI_CHANGED,DOCS_CHANGED"
-moduleToFlagList["docs"]="DOCS_CHANGED"
-moduleToFlagList["workflows"]="DOCS_CHANGED"
-moduleToFlagList["galasa-boot"]="FRAMEWORK_CHANGED,CLI_CHANGED"
-moduleToFlagList["restApi"]="FRAMEWORK_CHANGED,CLI_CHANGED,DOCS_CHANGED"
+# An associative array of modules to the space-separated list of modules that directly depend on them.
+# When a module changes, it and every module reachable from it through this graph are flagged as changed.
+declare -A moduleDownstream
+moduleDownstream["platform"]="wrapping gradle"
+moduleDownstream["gradle"]="maven"
+moduleDownstream["buildutils"]="framework"
+moduleDownstream["wrapping"]="framework"
+moduleDownstream["maven"]="framework"
+moduleDownstream["framework"]="extensions managers docs"
+moduleDownstream["extensions"]="obr"
+moduleDownstream["managers"]="obr"
+moduleDownstream["obr"]="ivts cli"
+moduleDownstream["cli"]="docs"
+moduleDownstream["ivts"]=""
+moduleDownstream["docs"]=""
+
+# The modules which have already been flagged as changed, so each is only walked once.
+declare -A visitedModules
 
 # An associative array of flags we want to output a value for
 declare -A flagToValue
@@ -186,15 +190,71 @@ function get_paths_changed_in_pr() {
     export changed_files_in_pr
 }
 
+# Marks a module as changed, along with every module that depends on it, directly or transitively.
 function module_changed() {
-    module=$1
-    info "Marking that module $module changed."
-    
-    flagList=${moduleToFlagList[$module]}
-    for flagName in ${flagList//,/ }; do
-        info "    Setting flag $flagName to be true"
-        flagToValue["$flagName"]="true"
+    local module=$1
+
+    if [[ -n "${visitedModules[$module]}" ]]; then
+        return
+    fi
+    visitedModules["$module"]="true"
+
+    local flagName="${module^^}_CHANGED"
+    info "Marking that module $module changed. Setting flag $flagName to be true"
+    flagToValue["$flagName"]="true"
+
+    local downstreamModule
+    for downstreamModule in ${moduleDownstream[$module]}; do
+        module_changed "$downstreamModule"
     done
+}
+
+# Marks every module as changed.
+function all_modules_changed() {
+    local module
+    for module in "${!moduleDownstream[@]}"; do
+        module_changed "$module"
+    done
+}
+
+# Works out which modules a changed file under .github/ affects.
+# Files are checked in order: files which need no build, then workflow files
+# belonging to one module, then CI files shared by every module.
+# Anything else under .github/ does not affect any module.
+function process_github_path() {
+    local changed_file=$1
+
+    case "$changed_file" in
+        .github/ISSUE_TEMPLATE/* | .github/SECURITY.md | .github/dependabot.yml | .github/pull_request_template.md )
+            info "$changed_file does not need any module to be built"
+            return
+            ;;
+    esac
+
+    local workflow_name
+    workflow_name=$(basename "$changed_file" .yaml)
+    workflow_name=${workflow_name#pr-}
+    if [[ "$changed_file" == .github/workflows/*.yaml && -n "${moduleToPrefix[$workflow_name]}" ]]; then
+        info "$changed_file is the workflow for module $workflow_name"
+        module_changed "$workflow_name"
+        return
+    fi
+
+    case "$changed_file" in
+        .github/workflows/pull-requests.yaml | \
+        .github/workflows/pushes.yaml | \
+        .github/workflows/codeql-*.yml | \
+        .github/workflows/test-creds-store.yaml | \
+        .github/workflows/snyk-security-scan.yaml | \
+        .github/workflows/check-*.yaml | \
+        .github/workflows/releases.yaml | \
+        .github/workflows/release-cli.yaml | \
+        .github/scripts/* | \
+        .github/common-files/* )
+            info "$changed_file is shared by every module"
+            all_modules_changed
+            ;;
+    esac
 }
 
 function process_paths() {
@@ -202,6 +262,11 @@ function process_paths() {
 
     for changed_file in "${changed_files_in_pr[@]}"; do
         info "Processing $changed_file"
+
+        if [[ "$changed_file" == .github/* ]]; then
+            process_github_path "$changed_file"
+            continue
+        fi
 
         for module in "${!moduleToPrefix[@]}"
         do
