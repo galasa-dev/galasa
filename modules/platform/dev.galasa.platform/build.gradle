@@ -58,7 +58,8 @@ dependencies {
 
         // Also used to override transitive dependency from httpclient5 5.4.0 (via commons-compress 1.27.1)
         // in dev.galasa.wrapping.httpclient5
-        api 'commons-codec:commons-codec:1.23.0'
+        api 'commons-codec:commons-codec:1.23.0' // If updating, also update in obr/release.yaml and
+                                                 // modules/ivts/compilation-tests/isolated/build.gradle 
 
         api 'commons-collections:commons-collections:3.2.2'
 
