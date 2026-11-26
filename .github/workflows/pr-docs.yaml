@@ -29,6 +29,7 @@ jobs:
           echo "The documentation source is unchanged"
         
   build-docs:
+    if: ${{ inputs.docs-changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

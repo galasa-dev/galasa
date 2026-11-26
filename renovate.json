@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "prConcurrentLimit": 3,
   "packageRules": [
     {
       "enabled": false,
