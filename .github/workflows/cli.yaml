@@ -275,25 +275,6 @@ jobs:
           build-args: |
             platform=linux-x86_64
 
-      - name: Extract metadata for galasactl-ibm image
-        id: metadata-galasactl-ibm
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/galasactl-ibm-x86_64
-  
-      - name: Build galasactl-ibm image
-        id: build-galasactl-ibm
-        uses: docker/build-push-action@v5
-        with:
-          context: modules/cli/dockerfiles/certs
-          file: modules/cli/dockerfiles/dockerfile.galasactl-ibm
-          push: true
-          tags: ${{ steps.metadata-galasactl-ibm.outputs.tags }}
-          labels: ${{ steps.metadata-galasactl-ibm.outputs.labels }}
-          build-args: |
-            dockerRepository=${{ env.REGISTRY }}
-            tag=${{ env.BRANCH }}
-
       - name: Extract metadata for galasactl-executables image
         id: metadata-galasactl-executables
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
@@ -364,6 +345,6 @@ jobs:
         env: 
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run : |
-          docker run --rm ghcr.io/galasa-dev/galasabld-ibm:main slackpost workflows \
+          docker run --rm ghcr.io/galasa-dev/galasabld-amd64:main slackpost workflows \
           --repo "galasa" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" \
           --ref "${{ env.BRANCH }}" --hook "${{ env.SLACK_WEBHOOK }}"
