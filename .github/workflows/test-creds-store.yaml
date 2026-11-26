@@ -210,4 +210,4 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
-          docker run --rm ghcr.io/galasa-dev/galasabld-ibm:main slackpost workflows --repo "galasa" --module "ivts-windows-creds" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" --ref "${{ github.ref_name }}" --hook "${{ env.SLACK_WEBHOOK }}"
+          docker run --rm ghcr.io/galasa-dev/galasabld-amd64:main slackpost workflows --repo "galasa" --module "ivts-windows-creds" --workflowName "${{ github.workflow }}" --workflowRunNum "${{ github.run_id }}" --ref "${{ github.ref_name }}" --hook "${{ env.SLACK_WEBHOOK }}"

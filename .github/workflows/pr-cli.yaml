@@ -348,17 +348,6 @@ jobs:
           build-args: |
             platform=linux-x86_64
 
-      - name: Build Docker image with galasactl executable and IBM certificates
-        uses: docker/build-push-action@v5
-        with:
-          context: modules/cli/dockerfiles/certs
-          file: modules/cli/dockerfiles/dockerfile.galasactl-ibm
-          load: true
-          tags: galasactl-ibm-x86_64:test
-          build-args: |
-            dockerRepository=${{ env.REGISTRY }}
-            tag=main
-
       - name: Build Docker image for development download site
         uses: docker/build-push-action@v5
         with:
