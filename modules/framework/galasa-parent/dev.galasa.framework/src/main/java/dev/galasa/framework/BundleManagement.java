@@ -9,6 +9,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.text.*;
 
 import org.apache.commons.io.IOUtils;
@@ -22,6 +25,8 @@ import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 
 import dev.galasa.framework.spi.FrameworkException;
@@ -176,7 +181,20 @@ public class BundleManagement {
             }
 
             if (!isBundleActive(bundleContext, bundleSymbolicName)) {
+                Set<String> deployedBundleNames = new HashSet<>();
+                deployedBundleNames.add(bundleSymbolicName);
+                for (Resource requiredResource : resolver.getRequiredResources()) {
+                    deployedBundleNames.add(requiredResource.getSymbolicName());
+                }
+                for (Resource optionalResource : resolver.getOptionalResources()) {
+                    deployedBundleNames.add(optionalResource.getSymbolicName());
+                }
+
                 String msg = MessageFormat.format("Bundle ''{0}'' failed to install and activate",bundleSymbolicName);
+                List<String> startFailures = findBundleStartFailures(bundleContext, deployedBundleNames);
+                if (!startFailures.isEmpty()) {
+                    msg += ". The following bundles are not active: " + String.join("; ", startFailures);
+                }
                 throw new FrameworkException(msg);
             }
 
@@ -190,6 +208,41 @@ public class BundleManagement {
             throw new FrameworkException("Unable to resolve bundle " + bundleSymbolicName);
         }
 
+    }
+
+    /**
+     * The OBR resolver swallows the exception thrown when a bundle fails to start, so
+     * retry starting each of the supplied bundles which is not active to find out why it failed.
+     *
+     * @param bundleContext
+     * @param bundleSymbolicNames the bundles which the resolver deployed
+     * @return a description of each bundle which is not active, including the reason it could not be started
+     */
+    static List<String> findBundleStartFailures(BundleContext bundleContext, Set<String> bundleSymbolicNames) {
+        List<String> failures = new ArrayList<>();
+        for (Bundle bundle : bundleContext.getBundles()) {
+            if (!bundleSymbolicNames.contains(bundle.getSymbolicName())
+                    || bundle.getState() == Bundle.ACTIVE
+                    || isFragment(bundle)) {
+                continue;
+            }
+
+            String bundleDescription = bundle.getSymbolicName() + " (" + getBundleStateLabel(bundle) + ")";
+            String failure;
+            try {
+                bundle.start();
+                failure = bundleDescription + " started successfully when retried";
+            } catch (BundleException e) {
+                failure = bundleDescription + ": " + e.getMessage();
+                logger.error("Bundle " + failure, e);
+            }
+            failures.add(failure);
+        }
+        return failures;
+    }
+
+    private static boolean isFragment(Bundle bundle) {
+        return bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null;
     }
 
     /**

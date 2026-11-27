@@ -13,7 +13,6 @@ Export-Package: dev.galasa.selenium,\
     org.openqa.selenium.io,\
     org.openqa.selenium.json,\
     org.openqa.selenium.net,\
-    org.openqa.selenium.os,\
     org.openqa.selenium.support.ui
 Import-Package: dev.galasa,\
     dev.galasa.framework,\
